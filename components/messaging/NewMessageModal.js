@@ -147,6 +147,8 @@ const NewMessageModal = ({
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
   const [phoneDropdownOpen, setPhoneDropdownOpen] = useState(false)
   const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
+  const phoneAnchorRef = useRef(null)
+  const emailAnchorRef = useRef(null)
   const [uniqueColumns, setUniqueColumns] = useState([])
   const [selectedVariable, setSelectedVariable] = useState('')
   const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
@@ -171,8 +173,6 @@ const NewMessageModal = ({
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
   const leadSearchRef = useRef(null)
-  const phoneDropdownRef = useRef(null)
-  const emailDropdownRef = useRef(null)
   const templatesDropdownRef = useRef(null)
   const attachmentDropdownRef = useRef(null)
   const attachmentDropdownTimeoutRef = useRef(null)
@@ -341,7 +341,7 @@ const NewMessageModal = ({
 
           if (editingRow.templateId) {
             const user = getUserLocalData()
-            const userId = selectedUser?.id || getUserIdFromUrl() || user?.user?.id
+            const userId = getTargetUserId() || user?.user?.id
             const details = await getTempleteDetails({ templateId: editingRow.templateId, id: editingRow.templateId }, userId)
 
             // Find and set the selected template from templates list
@@ -467,7 +467,17 @@ const NewMessageModal = ({
     }
   }
 
-  // Fetch phone numbers
+  // Get userId for API calls: when agency views subaccount or admin views another account, use that user's id
+  const getUserIdFromUrl = () => {
+    if (typeof window === 'undefined') return null
+    const urlParams = new URLSearchParams(window.location.search)
+    const userId = urlParams.get('userId')
+    return userId ? parseInt(userId, 10) : null
+  }
+
+  const getTargetUserId = () => selectedUser?.id || getUserIdFromUrl() || null
+
+  // Fetch phone numbers (A2P verified) for current user or for selected subaccount when agency/admin viewing
   const fetchPhoneNumbers = async () => {
     try {
       const localData = localStorage.getItem('User')
@@ -477,11 +487,11 @@ const NewMessageModal = ({
       const token = userData.token
 
       let path = Apis.a2pNumbers
-      if (isFromAdminOrAgency) {
-        path = path + '?userId=' + isFromAdminOrAgency?.subAccountData?.id
+      const targetUserId = getTargetUserId()
+      if (targetUserId) {
+        path = path + '?userId=' + targetUserId
       }
 
-      console.log("path in fetchPhoneNumbers", path);
       const response = await axios.get(path, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -501,15 +511,7 @@ const NewMessageModal = ({
     }
   }
 
-  // Fetch email accounts
-  // Get userId from URL query params as fallback (for agency managing subaccount)
-  const getUserIdFromUrl = () => {
-    if (typeof window === 'undefined') return null
-    const urlParams = new URLSearchParams(window.location.search)
-    const userId = urlParams.get('userId')
-    return userId ? parseInt(userId, 10) : null
-  }
-
+  // Fetch email accounts (for current user or for selected subaccount when agency/admin viewing)
   const fetchEmailAccounts = async () => {
     try {
       const localData = localStorage.getItem('User')
@@ -518,11 +520,8 @@ const NewMessageModal = ({
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      // Get target userId: prefer selectedUser.id (when agency/admin managing subaccount)
-      // Fallback to URL param, then null (fetch for current user)
-      const targetUserId = selectedUser?.id || getUserIdFromUrl() || null
+      const targetUserId = getTargetUserId()
 
-      // Add userId query param if provided (for Agency/Admin viewing email accounts for subaccount)
       let apiUrl = Apis.gmailAccount
       if (targetUserId) {
         apiUrl += `?userId=${targetUserId}`
@@ -666,11 +665,11 @@ const NewMessageModal = ({
     return () => clearTimeout(id)
   }, [variableSearchQuery])
 
-  // Fetch unique columns for variables
+  // Fetch unique columns for variables (for current user or selected subaccount when agency/admin viewing)
   const fetchUniqueColumns = async () => {
     try {
       const user = getUserLocalData()
-      const userId = user?.user?.id
+      const userId = getTargetUserId() || user?.user?.id
       const defaultColumns = [
         '{First Name}',
         '{Last Name}',
@@ -722,14 +721,14 @@ const NewMessageModal = ({
     }
   }
 
-  // Fetch templates
+  // Fetch templates (for current user or for selected subaccount when agency/admin viewing)
   const fetchTemplates = async () => {
     if (selectedMode !== 'email' && selectedMode !== 'sms') return
 
     try {
       setTemplatesLoading(true)
       const user = getUserLocalData()
-      const userId = user?.user?.id
+      const userId = getTargetUserId() || user?.user?.id
       const communicationType = selectedMode === 'email' ? 'email' : 'sms'
 
       const templatesData = await getTempletes(communicationType, userId)
@@ -757,9 +756,9 @@ const NewMessageModal = ({
     setSelectedTemplate(template)
 
     try {
-      // Fetch full template details
+      // Fetch full template details (for current user or selected subaccount when agency/admin viewing)
       const user = getUserLocalData()
-      const userId = user?.user?.id
+      const userId = getTargetUserId() || user?.user?.id
       const details = await getTempleteDetails(template, userId)
 
       if (details) {
@@ -815,7 +814,8 @@ const NewMessageModal = ({
 
     try {
       setDelTempLoader(template)
-      await deleteTemplete(template)
+      const templatePayload = getTargetUserId() ? { ...template, selectedUser } : template
+      await deleteTemplete(templatePayload)
       // Remove from templates list - check both id and templateId fields
       setTemplates((prev) => prev.filter((t) => {
         const templateId = template.id || template.templateId
@@ -899,15 +899,9 @@ const NewMessageModal = ({
     }
   }, [open, selectedMode, isBookingStage])
 
-  // Close dropdowns when clicking outside
+  // Close dropdowns when clicking outside (phone/email use Popover and close via onClose)
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target)) {
-        setPhoneDropdownOpen(false)
-      }
-      if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
-        setEmailDropdownOpen(false)
-      }
       if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target)) {
         setShowTemplatesDropdown(false)
       }
@@ -1760,8 +1754,8 @@ const NewMessageModal = ({
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'visible', // Allow tooltips to escape modal bounds
-            zIndex: 1501, // Higher than backdrop (1500) to appear on top
+            overflow: 'visible',
+            zIndex: 1501,
           }}
         >
           {/* Header */}
@@ -1776,7 +1770,7 @@ const NewMessageModal = ({
             <div className="flex items-center justify-between pb-4">
               <ToggleGroupCN
                 options={[
-                  { label: 'SMS', value: 'sms', icon: MessageSquareDot },
+                  { label: 'Text', value: 'sms', icon: MessageSquareDot },
                   { label: 'Email', value: 'email', icon: Mail },
                 ]}
                 value={selectedMode}
@@ -1833,8 +1827,9 @@ const NewMessageModal = ({
                         {/* From Field */}
                         <div className={isPipelineMode ? "w-full flex-1 relative" : "flex-1 relative w-full"} style={{ flexBasis: 0 }}>
                           {selectedMode === 'sms' ? (
-                            <div className="relative" ref={phoneDropdownRef}>
+                            <>
                               <button
+                                ref={phoneAnchorRef}
                                 type="button"
                                 onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
                                 className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
@@ -1850,95 +1845,104 @@ const NewMessageModal = ({
                                 </div>
                                 <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                               </button>
-                              {phoneDropdownOpen && (
-                                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 flex flex-col">
-                                  {phoneNumbers.length === 0 ? (
-                                    <div className="p-3 flex flex-row gap-2 items-center justify-center">
-                                      <button
-                                        onClick={() => {
-                                          router.push('/dashboard/myAccount?tab=5')
-                                          setPhoneDropdownOpen(false)
+                              <Popover
+                                open={phoneDropdownOpen}
+                                onClose={() => setPhoneDropdownOpen(false)}
+                                anchorEl={phoneAnchorRef.current}
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                                slotProps={{
+                                  root: {
+                                    style: { zIndex: 9999 },
+                                  },
+                                }}
+                                sx={{ zIndex: 9999 }}
+                                disableScrollLock
+                                PaperProps={{
+                                  style: {
+                                    minWidth: 240,
+                                    width: phoneAnchorRef.current?.offsetWidth ?? 280,
+                                    maxHeight: 320,
+                                    marginTop: 4,
+                                    borderRadius: 8,
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    zIndex: 9999,
+                                  },
+                                }}
+                              >
+                                {phoneNumbers.length === 0 ? (
+                                  <div className="p-3 flex flex-row gap-2 items-center justify-center">
+                                    <button
+                                      onClick={() => {
+                                        router.push('/dashboard/myAccount?tab=5')
+                                        setPhoneDropdownOpen(false)
+                                      }}
+                                      className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                                    >
+                                      Select Phone Number
+                                    </button>
+                                    {phoneNumbers.length === 0 && (
+                                      <Tooltip
+                                        title="You need to complete A2P to text"
+                                        placement="top"
+                                        arrow
+                                        componentsProps={{
+                                          tooltip: {
+                                            sx: {
+                                              backgroundColor: '#ffffff',
+                                              color: '#333',
+                                              fontSize: '14px',
+                                              padding: '10px 15px',
+                                              borderRadius: '8px',
+                                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                            },
+                                          },
+                                          arrow: { sx: { color: '#ffffff' } },
                                         }}
-                                        className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
                                       >
-                                        Select Phone Number
-                                      </button>
-                                      {phoneNumbers.length === 0 && (
-                                        <Tooltip
-                                          title="You need to complete A2P to text"
-                                          placement="top"
-                                          arrow
-                                          componentsProps={{
-                                            tooltip: {
-                                              sx: {
-                                                backgroundColor: '#ffffff', // Ensure white background
-                                                color: '#333', // Dark text color
-                                                fontSize: '14px',
-                                                padding: '10px 15px',
-                                                borderRadius: '8px',
-                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                                              },
-                                            },
-                                            arrow: {
-                                              sx: {
-                                                color: '#ffffff', // Match tooltip background
-                                              },
-                                            },
-                                          }}
-                                        >
-                                          <div className="flex items-center justify-center">
-                                            <Image
-                                              src={
-                                                '/otherAssets/redInfoIcon.png'
-                                              }
-                                              height={16}
-                                              width={16}
-                                              alt="*"
-                                            />
-                                          </div>
-                                        </Tooltip>
-                                      )}
-
-                                    </div>
-                                  ) : (
-                                    <>
-                                      {/* Scrollable phone numbers list */}
-                                      <div className="overflow-y-auto flex-1">
-                                        {phoneNumbers.map((phone) => (
-                                          <button
-                                            key={phone.id}
-                                            type="button"
-                                            onClick={() => {
-                                              const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
-                                              setSelectedPhoneNumber(phone.id.toString())
-                                              setSelectedPhoneNumberObj(phoneObj)
-                                              setPhoneDropdownOpen(false)
-                                            }}
-                                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                              }`}
-                                          >
-                                            {phone.phone}
-                                          </button>
-                                        ))}
-                                      </div>
-                                      {/* Fixed bottom button */}
-                                      <div className="border-t border-gray-200 p-2 flex-shrink-0">
+                                        <div className="flex items-center justify-center">
+                                          <Image src="/otherAssets/redInfoIcon.png" height={16} width={16} alt="*" />
+                                        </div>
+                                      </Tooltip>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div className="overflow-y-auto flex-1 min-h-0" style={{ maxHeight: 240 }}>
+                                      {phoneNumbers.map((phone) => (
                                         <button
+                                          key={phone.id}
+                                          type="button"
                                           onClick={() => {
-                                            router.push('/dashboard/myAccount?tab=7')
+                                            const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
+                                            setSelectedPhoneNumber(phone.id.toString())
+                                            setSelectedPhoneNumberObj(phoneObj)
                                             setPhoneDropdownOpen(false)
                                           }}
-                                          className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'}`}
                                         >
-                                          <Plus className="w-4 h-4" />
-                                          Get A2P Verified Number
+                                          {phone.phone}
                                         </button>
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-                              )}
-                            </div>
+                                      ))}
+                                    </div>
+                                    <div className="border-t border-gray-200 p-2 flex-shrink-0">
+                                      <button
+                                        onClick={() => {
+                                          router.push('/dashboard/myAccount?tab=7')
+                                          setPhoneDropdownOpen(false)
+                                        }}
+                                        className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                      >
+                                        <Plus className="w-4 h-4" />
+                                        Get A2P Verified Number
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </Popover>
+                            </>
                           ) : (
                             <div className="flex-1 relative min-w-0" style={{ flexBasis: 0 }}>
                               {emailAccounts.length === 0 ? (
@@ -1964,93 +1968,108 @@ const NewMessageModal = ({
                                 </div>
                               ) : (
                                 <>
-                                  <div className="relative" ref={emailDropdownRef}>
-                                    <button
-                                      type="button"
-                                      onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                                      className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                                      style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
-
-                                    >
-                                      <div className="flex items-center gap-2 flex-1">
-                                        <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
-                                        <span className="text-sm truncate">
-                                          {selectedEmailAccount
-                                            ? (() => {
-                                              const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
-                                              if (!account) return <span className="text-gray-500">Select email account</span>
-                                              const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
-                                              return <span className="text-gray-700">{account.email || account.name || account.displayName}{providerLabel ? ` (${providerLabel})` : ''}</span>
-                                            })()
-                                            : <span className="text-gray-500">Select email account</span>}
-                                        </span>
-                                      </div>
-                                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                    </button>
-                                    {emailDropdownOpen && (
-                                      <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 flex flex-col" style={{ zIndex: 1900 }}>
-                                        {/* Scrollable email accounts list */}
-                                        <div className="overflow-y-auto flex-1">
-                                          {emailAccounts.map((account) => (
-                                            <div
-                                              key={account.id}
-                                              className="group relative w-full"
-                                            >
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                                  setSelectedEmailAccount(account.id.toString())
-                                                  setSelectedEmailAccountObj(accountObj)
-                                                  setEmailDropdownOpen(false)
-                                                }}
-                                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                                  }`}
-                                              >
-                                                <div className="flex items-center justify-between">
-                                                  <span>{account.email || account.name || account.displayName}</span>
-                                                  <div className="flex items-center gap-2">
-                                                    {account.provider && (
-                                                      <span className="text-xs text-gray-500">
-                                                        {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                                      </span>
-                                                    )}
-                                                    {/* Delete icon - visible on hover */}
-                                                    <button
-                                                      type="button"
-                                                      onClick={(e) => handleDeleteEmailAccount(account, e)}
-                                                      disabled={deletingEmailAccountId === account.id}
-                                                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
-                                                      title="Delete email account"
-                                                    >
-                                                      {deletingEmailAccountId === account.id ? (
-                                                        <CircularProgress size={14} />
-                                                      ) : (
-                                                        <Trash2 size={14} />
-                                                      )}
-                                                    </button>
-                                                  </div>
-                                                </div>
-                                              </button>
-                                            </div>
-                                          ))}
-                                        </div>
-                                        {/* Fixed bottom button */}
-                                        <div className="border-t border-gray-200 p-2 flex-shrink-0">
+                                  <button
+                                    ref={emailAnchorRef}
+                                    type="button"
+                                    onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                                    className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
+                                    style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
+                                  >
+                                    <div className="flex items-center gap-2 flex-1">
+                                      <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
+                                      <span className="text-sm truncate">
+                                        {selectedEmailAccount
+                                          ? (() => {
+                                            const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
+                                            if (!account) return <span className="text-gray-500">Select email account</span>
+                                            const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
+                                            return <span className="text-gray-700">{account.email || account.name || account.displayName}{providerLabel ? ` (${providerLabel})` : ''}</span>
+                                          })()
+                                          : <span className="text-gray-500">Select email account</span>}
+                                      </span>
+                                    </div>
+                                    <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                  </button>
+                                  <Popover
+                                    open={emailDropdownOpen}
+                                    onClose={() => setEmailDropdownOpen(false)}
+                                    anchorEl={emailAnchorRef.current}
+                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                                    transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                                    slotProps={{
+                                      root: {
+                                        style: { zIndex: 9999 },
+                                      },
+                                    }}
+                                    sx={{ zIndex: 9999 }}
+                                    disableScrollLock
+                                    PaperProps={{
+                                      style: {
+                                        minWidth: 240,
+                                        width: emailAnchorRef.current?.offsetWidth ?? 280,
+                                        maxHeight: 320,
+                                        marginTop: 4,
+                                        borderRadius: 8,
+                                        overflow: 'hidden',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        zIndex: 9999,
+                                      },
+                                    }}
+                                  >
+                                    <div className="overflow-y-auto flex-1 min-h-0" style={{ maxHeight: 240 }}>
+                                      {emailAccounts.map((account) => (
+                                        <div key={account.id} className="group relative w-full">
                                           <button
+                                            type="button"
                                             onClick={() => {
-                                              setShowAuthSelectionPopup(true)
+                                              const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                              setSelectedEmailAccount(account.id.toString())
+                                              setSelectedEmailAccountObj(accountObj)
                                               setEmailDropdownOpen(false)
                                             }}
-                                            className="w-full px-3 whitespace-nowrap py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'}`}
                                           >
-                                            <Plus className="w-4 h-4" />
-                                            Connect Email
+                                            <div className="flex items-center justify-between">
+                                              <span>{account.email || account.name || account.displayName}</span>
+                                              <div className="flex items-center gap-2">
+                                                {account.provider && (
+                                                  <span className="text-xs text-gray-500">
+                                                    {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                                  </span>
+                                                )}
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                                  disabled={deletingEmailAccountId === account.id}
+                                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                                  title="Delete email account"
+                                                >
+                                                  {deletingEmailAccountId === account.id ? (
+                                                    <CircularProgress size={14} />
+                                                  ) : (
+                                                    <Trash2 size={14} />
+                                                  )}
+                                                </button>
+                                              </div>
+                                            </div>
                                           </button>
                                         </div>
-                                      </div>
-                                    )}
-                                  </div>
+                                      ))}
+                                    </div>
+                                    <div className="border-t border-gray-200 p-2 flex-shrink-0">
+                                      <button
+                                        onClick={() => {
+                                          setShowAuthSelectionPopup(true)
+                                          setEmailDropdownOpen(false)
+                                        }}
+                                        className="w-full px-3 whitespace-nowrap py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                      >
+                                        <Plus className="w-4 h-4" />
+                                        Connect Email
+                                      </button>
+                                    </div>
+                                  </Popover>
                                 </>
                               )}
                             </div>
