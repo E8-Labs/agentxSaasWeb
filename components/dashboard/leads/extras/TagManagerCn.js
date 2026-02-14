@@ -23,7 +23,7 @@ const TagManagerCn = ({
   addTagLoader,
   onRemoveTag,
   delTagLoader,
-  maxDisplayedTags = 2,
+  maxDisplayedTags = 1,
   onRefreshSuggestions,
   selectedUser,
   showSnackbar,
@@ -102,7 +102,7 @@ const TagManagerCn = ({
 
   return (
     <div className="flex flex-row gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-row items-center gap-2">
         {displayedTags.map((tag) => (
           <TagPill 
             key={tag} 
