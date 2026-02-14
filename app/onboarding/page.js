@@ -36,6 +36,7 @@ import TaxAgentSignUp from '@/components/onboarding/otherAgentsSignUp/TaxAgentSi
 import WebOwnersAgentSignUp from '@/components/onboarding/otherAgentsSignUp/WebOwnersAgentSignUp'
 import CreatorType from '@/components/onboarding/creator/CreatorType'
 import CreatorAgentSignUp from '@/components/onboarding/creator/CreatorAgentSignUp'
+import HomeServicesAgentSignUp from '@/components/onboarding/homeServices/HomeServicesAgentSignUp'
 import { PersistanceKeys } from '@/constants/Constants'
 import { UserTypes } from '@/constants/UserTypes'
 import ShootingStarLoading from '@/components/animations/ShootingStarLoading'
@@ -129,6 +130,10 @@ const Page = ({ params }) => {
       return [UserType, UserService, CreatorType, CreatorAgentSignUp].filter(Boolean)
     }
 
+    if (userType === UserTypes.HomeServices) {
+      return [UserType, UserService, FocusArea, HomeServicesAgentSignUp].filter(Boolean)
+    }
+
     const agentComponents = {
       [UserTypes.RealEstateAgent]: SignUpForm,
       [UserTypes.SalesDevRep]: SalesDevAgent,
@@ -168,6 +173,10 @@ const Page = ({ params }) => {
     // Creator flow: same as desktop (UserType -> UserService -> CreatorType -> CreatorAgentSignUp)
     if (userType === UserTypes.Creator) {
       return [UserType, UserService, CreatorType, CreatorAgentSignUp].filter(Boolean)
+    }
+
+    if (userType === UserTypes.HomeServices) {
+      return [UserType, UserService, FocusArea, HomeServicesAgentSignUp].filter(Boolean)
     }
 
     const agentComponents = {
