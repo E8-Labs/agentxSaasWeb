@@ -232,6 +232,7 @@ function SMSTempletePopup({
     }
 
     setSendOnlyLoader(true)
+    let createdTemplateId = null
     try {
       // Handle lead SMS sending
 
@@ -265,6 +266,11 @@ function SMSTempletePopup({
           }
           if (templateResponse?.data?.status === true) {
             console.log("response of create or update temp ", templateResponse)
+            // Capture created template id when creating a new template (not updating)
+            if (!isEditing || IsDefaultCadence || !selectedTemplate) {
+              const created = templateResponse?.data?.data
+              createdTemplateId = created?.id ?? created?.templateId ?? null
+            }
           }
         } catch (templateError) {
           console.error('Error saving template:', templateError)
@@ -310,7 +316,7 @@ function SMSTempletePopup({
           // Reset loader after SMS is sent (with a small delay to ensure it shows)
           setTimeout(() => {
             setSendOnlyLoader(false)
-            onClose()
+            onClose(createdTemplateId ?? undefined)
           }, 300)
         }
       } else {
