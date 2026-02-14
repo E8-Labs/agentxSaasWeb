@@ -2244,7 +2244,7 @@ const Pipeline1 = () => {
                       <div
                         key={index}
                         style={{ width: '300px' }}
-                        className="flex flex-col items-start h-full gap-4"
+                        className="flex flex-col items-start h-full gap-4 bg-[#00000005] rounded-xl p-4"
                       >
                         {/* Display the stage */}
                         <div className="flex flex-row items-center w-full justify-between">
@@ -2532,13 +2532,13 @@ const Pipeline1 = () => {
                         ).length > 0 && (
                             <div
                               id={`scrollableDiv-${stage.id}`}
-                              className="relative flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl"
+                              className="relative w-full flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl bg-none"
                               style={{
                                 scrollbarWidth: 'none',
-                                borderWidth: 1,
-                                borderRadius: '12px',
-                                borderStyle: 'solid',
-                                borderColor: '#00000010',
+                                // borderWidth: 1,
+                                // borderRadius: '12px',
+                                // borderStyle: 'solid',
+                                // borderColor: '#00000010',
                               }}
                             >
                               <InfiniteScroll
@@ -2597,11 +2597,14 @@ const Pipeline1 = () => {
                                   (lead) => lead.lead.stage === stage.id,
                                 ).map((lead, leadIndex) => (
                                   <div
-                                    className="px-3 pt-2 mt-4 h-full"
-                                    style={{ width: '300px', height: 'auto' }}
+                                    className="mb-4 h-full"
+                                    style={{ height: 'auto', backgroundColor: "transparent" }}
                                     key={leadIndex}
                                   >
-                                    <div className="border rounded-xl px-4 py-2 h-full">
+                                    <div
+                                      className="border bg-[#ffffff] rounded-xl px-3 py-4 h-full"
+                                      style={{ border: "1px solid ##1515151A" }}
+                                    >
                                       <div className="flex flex-row items-center justify-between w-full">
                                         <button
                                           className="flex flex-row items-center gap-3"
