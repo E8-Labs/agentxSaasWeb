@@ -3,14 +3,40 @@
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 
 /**
- * Base theme: Menu/Select dropdowns use an invisible backdrop so they behave
- * like dropdowns (no fullscreen overlay). Applied for all MUI usage.
+ * Base theme: Menu/Select dropdowns use an invisible backdrop and consistent
+ * styling (animation, hover, sizing, padding, shadow) for all combo boxes.
  */
 const baseTheme = createTheme({
   components: {
     MuiMenu: {
       defaultProps: {
         BackdropProps: { invisible: true },
+      },
+      styleOverrides: {
+        paper: {
+          borderRadius: '8px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          padding: '8px 0',
+          minWidth: 120,
+        },
+        list: {
+          padding: '4px',
+        },
+      },
+    },
+    MuiMenuItem: {
+      defaultProps: {
+        disableRipple: true,
+      },
+      styleOverrides: {
+        root: {
+          fontSize: 14,
+          borderRadius: '6px',
+          margin: '0 4px',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+          },
+        },
       },
     },
   },

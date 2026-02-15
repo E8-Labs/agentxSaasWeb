@@ -849,7 +849,7 @@ function AgencySubacount({ selectedAgency }) {
       />
       <div className="sticky top-0 z-30 flex w-full flex-row items-center justify-between px-5 py-5 border-b h-[60px] bg-white">
         <div
-          className="text-2xl font-semibold"
+          className="text-lg font-semibold"
           style={{
             color: 'black',
             letterSpacing: '-1px',
@@ -961,9 +961,9 @@ function AgencySubacount({ selectedAgency }) {
                     return (
                       <div
                         key={key}
-                        className="flex-shrink-0 px-4 py-2 bg-brand-primary/10 text-brand-primary rounded-[25px] flex flex-row items-center gap-2"
+                        className="flex h-10 shrink-0 items-center px-2 py-2 rounded-lg bg-black/5 flex flex-row gap-2"
                       >
-                        <div className="text-[15px] font-medium">
+                        <div className="text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
                           {labels[key] || key}: {displayValue}
                         </div>
                         <button
@@ -1538,7 +1538,7 @@ const styles = {
   text2: {
     textAlignLast: 'left',
     fontSize: 14,
-    color: '#000000',
+    color: 'rgba(0,0,0,0.8)',
     fontWeight: '500',
     whiteSpace: 'nowrap', // Prevent text from wrapping
     overflow: 'hidden', // Hide overflow text

@@ -5,7 +5,7 @@ const CloseBtn = ({ onClick, showWhiteCross, className = '', iconSize = 10, ...p
   return (
     <div>
       <button
-        className={`cursor-pointer w-5 h-5 rounded-full bg-[#00000010] flex items-center justify-center ${className}`}
+        className={`cursor-pointer w-6 h-6 min-w-[24px] min-h-[24px] rounded-full bg-transparent hover:bg-[#00000010] flex items-center justify-center transition-colors ${className}`}
         onClick={onClick}
         {...props}
       >

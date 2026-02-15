@@ -73,18 +73,29 @@ const SubAccountFilters = ({
   //status
 
   return (
-    <Modal open={open}>
-      <Box className="bg-white rounded-xl w-4/12 h-[70vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6">
+    <Modal
+      open={open}
+      BackdropProps={{
+        sx: { backgroundColor: 'rgba(0,0,0,0.6)' },
+      }}
+    >
+      <Box
+        className="bg-white w-[500px] max-w-[95vw] h-[70vh] border-none outline-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-0 rounded-2xl overflow-hidden"
+        sx={{
+          borderRadius: '16px',
+          boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -4px rgba(0,0,0,0.3)',
+        }}
+      >
         <div className="w-full flex flex-col items-center justify-between h-[100%]">
-          <div className="w-full h-[90%] overflow-auto scrollbar-hide">
-            <div className="w-full flex flex-row items-center justify-between">
-              <div className="text-2xl font-bold">Filter Sub Accounts</div>
+          <div className="w-full h-[90%] overflow-auto scrollbar-hide flex flex-col gap-3 p-0 rounded-2xl">
+            <div className="w-full flex flex-row items-center justify-between border-b border-[#EDEDED] py-4 px-4">
+              <div className="text-lg font-semibold" style={{ letterSpacing: '-0.5px' }}>Filter Sub Accounts</div>
               <CloseBtn onClick={handleClose} />
             </div>
-            <div className="flex flex-row gap-2 mt-2">
+            <div className="flex flex-row gap-3 px-4">
               <div className="w-1/2">
                 <label style={styles.regular}>Min Spent</label>
-                <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
+                <div className="overflow-hidden rounded-lg border border-gray-200 px-2 py-0 mt-1 flex flex-row items-center w-full focus-within:border-2 focus-within:border-brand-primary transition-colors">
                   <div style={styles.inputs}>$</div>
                   <input
                     style={styles.inputs}
@@ -101,7 +112,7 @@ const SubAccountFilters = ({
               </div>
               <div className="w-1/2">
                 <label style={styles.regular}>Max Spent</label>
-                <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
+                <div className="overflow-hidden rounded-lg border border-gray-200 px-2 py-0 mt-1 flex flex-row items-center w-full focus-within:border-2 focus-within:border-brand-primary transition-colors">
                   <div style={styles.inputs}>$</div>
                   <input
                     style={styles.inputs}
@@ -117,11 +128,11 @@ const SubAccountFilters = ({
                 </div>
               </div>
             </div>
-            <div className="flex flex-row gap-2 mt-2">
+            <div className="flex flex-row gap-3 px-4">
               {/* MinBalance */}
               <div className="w-1/2">
                 <label style={styles.regular}>Min Credits</label>
-                <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
+                <div className="overflow-hidden rounded-lg border border-gray-200 px-2 py-0 mt-1 flex flex-row items-center w-full focus-within:border-2 focus-within:border-brand-primary transition-colors">
                   <input
                     style={styles.inputs}
                     type="text"
@@ -139,7 +150,7 @@ const SubAccountFilters = ({
               {/* MaxBalance*/}
               <div className="w-1/2">
                 <label style={styles.regular}>Max Credits</label>
-                <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
+                <div className="overflow-hidden rounded-lg border border-gray-200 px-2 py-0 mt-1 flex flex-row items-center w-full focus-within:border-2 focus-within:border-brand-primary transition-colors">
                   <input
                     style={styles.inputs}
                     type="text"
@@ -154,10 +165,10 @@ const SubAccountFilters = ({
                 </div>
               </div>
             </div>
-            <div className="mt-2" style={styles.inputs}>
+            <div className="px-4 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
               Select SubAccount Status
             </div>
-            <div className="w-full mt-2">
+            <div className="w-full px-4">
               <FormControl sx={{}} className="w-full h-[50px]">
                 <Select
                   value={accountStatus}
@@ -224,10 +235,10 @@ const SubAccountFilters = ({
                 </Select>
               </FormControl>
             </div>
-            <div className="mt-2" style={styles.inputs}>
+            <div className="px-4 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
               Select Plan
             </div>
-            <div className="w-full mt-2">
+            <div className="w-full px-4">
               <FormControl sx={{}} className="w-full h-[50px]">
                 <Select
                   value={selectPlanId}
@@ -294,15 +305,23 @@ const SubAccountFilters = ({
               </FormControl>
             </div>
           </div>
-          <div className="w-full h-[10%]">
+          <div className="w-full h-[10%] flex flex-col justify-center py-4 px-4">
             {initialLoader ? (
               <div className="flex flex-row items-center justify-center h-[50px] w-full">
                 <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
               <button
-                className="w-full h-[50px] rounded-lg bg-brand-primary text-white"
-                style={{ fontSize: '15px', fontWeight: '500' }}
+                className="w-full h-10 rounded-lg bg-brand-primary text-white text-sm font-medium border-none outline-none shadow-md transition-shadow active:scale-[0.98] transition-transform hover:shadow-lg"
+                style={{
+                  boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px hsl(var(--brand-primary) / 0.25), 0 4px 6px -4px hsl(var(--brand-primary) / 0.25)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)'
+                }}
                 onClick={() => {
                   const filterData = {
                     minSpent: minSpent,
@@ -329,12 +348,13 @@ export default SubAccountFilters
 
 const styles = {
   regular: {
-    fontSize: '15px',
+    fontSize: '14px',
     fontWeight: '500',
+    color: 'rgba(0,0,0,0.8)',
   },
   inputs: {
-    fontSize: '15px',
+    fontSize: '14px',
     fontWeight: '500',
-    color: '#000000',
+    color: 'rgba(0,0,0,0.8)',
   },
 }

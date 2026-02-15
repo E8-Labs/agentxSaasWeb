@@ -2238,7 +2238,7 @@ const AdminLeads = ({
                 <div className="w-full flex flex-col items-center justify-start p-0 min-h-[500px] h-auto gap-0.5">
                   <div className="flex flex-row items-center justify-between w-full h-auto px-4 py-4 border-b border-[#EDEDED]">
                     <div className="text-[18px] font-semibold">Filter</div>
-                    <CloseBtn iconSize={16} className="!bg-transparent !w-6 !h-6 !min-w-[24px] !min-h-[24px] flex items-center justify-center" onClick={() => setShowFilterModal(false)} />
+                    <CloseBtn iconSize={16} onClick={() => setShowFilterModal(false)} />
                   </div>
                   <div className="mt-2 w-full overflow-y-auto overflow-x-hidden flex-1 min-h-0 px-4 pb-3 text-[14px] flex flex-col gap-4 items-start">
                     <div className="flex flex-row items-start gap-3 h-auto w-full">
