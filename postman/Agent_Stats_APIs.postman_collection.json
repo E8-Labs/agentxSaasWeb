@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "Agent Stats & Recordings APIs",
+    "description": "APIs for agent stats modals (calls, convos, hot leads, booked) and public recording.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "YOUR_JWT_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "agentId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "callId",
+      "value": "019bdc8f-4d39-7554-b276-e01b9cee6659",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Agent Calls By Type",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pipeline/getAgentCallsByType?agentId={{agentId}}&type=calls&offset=0&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pipeline", "getAgentCallsByType"],
+          "query": [
+            {
+              "key": "agentId",
+              "value": "{{agentId}}",
+              "description": "Sub-agent ID (AgentModel.id)"
+            },
+            {
+              "key": "type",
+              "value": "calls",
+              "description": "One of: calls | convos | hotleads | booked"
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Pagination offset (default 0)"
+            },
+            {
+              "key": "limit",
+              "value": "20",
+              "description": "Page size (default 20)"
+            }
+          ]
+        },
+        "description": "Returns paginated LeadCallsSent for an agent filtered by type. Requires JWT. Types: calls (all), convos (conversation_detected + not failed), hotleads (hotlead=true), booked (meetingscheduled=true). Only communicationType=call."
+      }
+    },
+    {
+      "name": "Agent Calls By Type - Convos",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pipeline/getAgentCallsByType?agentId={{agentId}}&type=convos&offset=0&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pipeline", "getAgentCallsByType"],
+          "query": [
+            { "key": "agentId", "value": "{{agentId}}" },
+            { "key": "type", "value": "convos" },
+            { "key": "offset", "value": "0" },
+            { "key": "limit", "value": "20" }
+          ]
+        },
+        "description": "Convos: calls with conversation_detected and outcome not in failed list."
+      }
+    },
+    {
+      "name": "Agent Calls By Type - Hot Leads",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pipeline/getAgentCallsByType?agentId={{agentId}}&type=hotleads&offset=0&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pipeline", "getAgentCallsByType"],
+          "query": [
+            { "key": "agentId", "value": "{{agentId}}" },
+            { "key": "type", "value": "hotleads" },
+            { "key": "offset", "value": "0" },
+            { "key": "limit", "value": "20" }
+          ]
+        },
+        "description": "Hot leads: calls where hotlead=true."
+      }
+    },
+    {
+      "name": "Agent Calls By Type - Booked",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/pipeline/getAgentCallsByType?agentId={{agentId}}&type=booked&offset=0&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pipeline", "getAgentCallsByType"],
+          "query": [
+            { "key": "agentId", "value": "{{agentId}}" },
+            { "key": "type", "value": "booked" },
+            { "key": "offset", "value": "0" },
+            { "key": "limit", "value": "20" }
+          ]
+        },
+        "description": "Booked: calls where meetingscheduled=true."
+      }
+    },
+    {
+      "name": "Get Call Public (Recording)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/leads/getCallPublic/{{callId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "leads", "getCallPublic", "{{callId}}"]
+        },
+        "description": "Public endpoint: returns call by synthflowCallId or twilioCallSid. No auth. Returns id, synthflowCallId, twilioCallSid, recordingUrl, originalRecordingUrl, duration, callOutcome."
+      }
+    }
+  ]
+}
