@@ -165,7 +165,7 @@ const EditEmailNotification = ({
                       }}
                     >
                       <MenuItem value="" disabled>
-                        <em>Insert Variable...</em>
+                        <em>Variables</em>
                       </MenuItem>
                       {notificationData.availableVariables.map(
                         (variable, index) => {

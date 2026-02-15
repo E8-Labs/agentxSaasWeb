@@ -888,7 +888,7 @@ function SMSTempletePopup({
                         }}
                       >
                         <MenuItem value="" disabled>
-                          <em>Insert Variable</em>
+                          <em>Variables</em>
                         </MenuItem>
                         {uniqueColumns.map((variable, index) => {
                           const displayText = variable.startsWith('{') && variable.endsWith('}')

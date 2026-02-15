@@ -790,7 +790,7 @@ function SelectedUserDetails({
                           }}
                           className="cursor-pointer"
                         >
-                          Add Minutes
+                          Add Credits
                         </DropdownMenuItem>
 
                         {selectedUser.isTrial && (
@@ -1199,7 +1199,7 @@ function SelectedUserDetails({
           sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
         >
           <div className="w-full flex flex-row items-center justify-between">
-            <div style={{ fontSize: 16, fontWeight: '500' }}>Add Minutes</div>
+            <div style={{ fontSize: 16, fontWeight: '500' }}>Add Credits</div>
 
             <CloseBtn
               onClick={() => {
@@ -1210,13 +1210,13 @@ function SelectedUserDetails({
 
           <div className="w-full flex flex-col items-start gap-3">
             <div style={{ fontSize: 16, fontWeight: '500', marginTop: 30 }}>
-              Minutes
+              Credits
             </div>
 
             <input
               className={`w-full border-gray-300 rounded p-2 outline-none focus:outline-none focus:ring-0`}
               value={minutes}
-              placeholder="Enter minutes"
+              placeholder="Enter credits"
               onChange={(event) => {
                 setMinutes(event.target.value)
               }}
