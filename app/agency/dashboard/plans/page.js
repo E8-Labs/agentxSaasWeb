@@ -25,7 +25,7 @@ function Page() {
           </div>
         }
       >
-        <div className="flex flex-col items-center w-full">
+        <div className="h-auto w-full bg-white">
           <DashboardPlans initialTab={initialTab} />
         </div>
       </ProtectedRoute>

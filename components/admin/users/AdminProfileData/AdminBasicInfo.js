@@ -130,7 +130,7 @@ function AdminBasicInfo({ selectedUser }) {
 
   const [userRole, setUserRole] = useState('')
   const [userType, setUserType] = useState('')
-  const [isInternal,setIsInternal] = useState(false)
+  const [isInternal, setIsInternal] = useState(false)
 
   const primaryClientTypes = [
     {
@@ -356,6 +356,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading(true)
       const data = { name: name }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading(false)
       setIsNameChanged(false)
@@ -368,6 +371,11 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading15(true)
       const data = { email: email }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
+      // console.log("admin basic ",data)
+      // return
       await UpdateProfile(data)
       setLoading15(false)
       setIsEmailChanged(false)
@@ -380,6 +388,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading2(true)
       const data = { farm: farm }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading2(false)
       setIsFarmChanged(false)
@@ -392,6 +403,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading3(true)
       const data = { brokerage: brokerAge }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading3(false)
       setIsBrokerageChanged(false)
@@ -404,6 +418,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading8(true)
       const data = { company: company }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading8(false)
       setIsCompanyChanged(false)
@@ -416,6 +433,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading10(true)
       const data = { website: websiteUrl }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading10(false)
       setIsWebsiteUrlChanged(false)
@@ -428,6 +448,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading11(true)
       const data = { firmOrCompanyAffiliation: companyAffiliation }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading11(false)
       setIsCompanyAffiliationChanged(false)
@@ -440,6 +463,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading4(true)
       const data = { averageTransactionPerYear: transaction }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading4(false)
       setIsTransactionChange(false)
@@ -452,6 +478,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading7(true)
       const data = { projectsPerYear: installationVolume }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading7(false)
       setIsInstallationVolumeChanged(false)
@@ -464,6 +493,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading9(true)
       const data = { projectSizeKw: projectSize }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading9(false)
       setIsprojectSizeChanged(false)
@@ -476,6 +508,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading12(true)
       const data = { averageMonthlyClients: clientsPerMonth }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading12(false)
       setIsClientsPerMonthChanged(false)
@@ -488,6 +523,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading12(true)
       const data = { caseVolume: CasesPerMonth }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading12(false)
       setIcasesPerMonthChanged(false)
@@ -500,6 +538,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading6(true)
       const data = { areaOfService: serviceArea }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading6(false)
       setIsServiceAreaChanged(false)
@@ -512,6 +553,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading14(true)
       const data = { territory: teritorry }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading14(false)
       setIsTeritorryChanged(false)
@@ -566,7 +610,7 @@ function AdminBasicInfo({ selectedUser }) {
         apidata.append('media', imageUrl)
         apidata.append('userId', selectedUser.id)
         // //console.log;
-        for (let pair of apidata.entries()) {}
+        for (let pair of apidata.entries()) { }
         let path = Apis.updateProfileApi
 
         // //console.log;
@@ -592,7 +636,7 @@ function AdminBasicInfo({ selectedUser }) {
           }
         }
       }
-    } catch (e) {} finally {
+    } catch (e) { } finally {
       setloading5(false)
     }
   }
@@ -602,7 +646,7 @@ function AdminBasicInfo({ selectedUser }) {
       className="w-full flex flex-col items-start px-8 py-2 h-screen"
       style={{
         paddingBottom: '50px',
-       
+
         overflow: 'auto',
         scrollbarWidth: 'none',
       }}
@@ -722,20 +766,21 @@ function AdminBasicInfo({ selectedUser }) {
             </button>
           )
         ) : (
-          <button
-            onClick={() => {
-              nameRef.current?.focus()
-            }}
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
+          ""
         )}
       </div>
+      {/*<button
+        onClick={() => {
+          nameRef.current?.focus()
+        }}
+      >
+        <Image
+          src={'/svgIcons/editIcon.svg'}
+          width={24}
+          height={24}
+          alt="*"
+        />
+      </button>*/}
       <div
         style={{
           fontSize: 16,
@@ -783,19 +828,20 @@ function AdminBasicInfo({ selectedUser }) {
             </button>
           )
         ) : (
-          <button
-            onClick={() => {
-              emailRef.current?.focus()
-            }}
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
+          ""
         )}
+        {/*<button
+          onClick={() => {
+            emailRef.current?.focus()
+          }}
+        >
+          <Image
+            src={'/svgIcons/editIcon.svg'}
+            width={24}
+            height={24}
+            alt="*"
+          />
+        </button>*/}
       </div>
       {!isInternal && (
         <>
@@ -835,8 +881,8 @@ function AdminBasicInfo({ selectedUser }) {
       {userRole && userRole != 'Invitee' && userRole != 'AgencySubAccount' && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -923,9 +969,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedServiceArea ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedServiceArea ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -991,9 +1036,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedTerritory ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedTerritory ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1050,8 +1094,8 @@ function AdminBasicInfo({ selectedUser }) {
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -1068,9 +1112,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedBrokerage ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedBrokerage ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1140,9 +1183,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedCompany ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedCompany ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1207,9 +1249,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedWebsite ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedWebsite ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1276,9 +1317,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedCompanyAffiliation ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedCompanyAffiliation ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1347,9 +1387,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedTransaction ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedTransaction ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1418,9 +1457,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedInstallationVolume ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedInstallationVolume ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1473,7 +1511,7 @@ function AdminBasicInfo({ selectedUser }) {
           )}
 
           {(userType && userType === UserTypes.SolarRep) ||
-          (userType && userType === UserTypes.DebtCollectorAgent) ? (
+            (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
                 style={{
@@ -1492,9 +1530,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedProjectSize ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedProjectSize ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1559,9 +1596,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedClientsPerMonth ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedClientsPerMonth ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1626,9 +1662,8 @@ function AdminBasicInfo({ selectedUser }) {
                 <div
                   className="flex items-center rounded-lg px-3 py-2 w-full"
                   style={{
-                    border: `1px solid ${
-                      focusedCasesPerMonth ? '#8a2be2' : '#00000010'
-                    }`,
+                    border: `1px solid ${focusedCasesPerMonth ? '#8a2be2' : '#00000010'
+                      }`,
                     transition: 'border-color 0.3s ease',
                   }}
                 >
@@ -1771,7 +1806,7 @@ function AdminBasicInfo({ selectedUser }) {
             ''
           )}
           {(userType && userType === UserTypes.LawAgent) ||
-          (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
               <div style={styles.headingStyle} className="mt-6">
                 Client Type

@@ -241,7 +241,15 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       userType: 'Creator',
       roundedImage: false,
     },
-
+    {
+      id: 16,
+      title: 'Home Services',
+      agentType: 'Home Services',
+      icon: '/agencyIcons/agentsView/generalAgent.jpg',
+      areaOfFocusTitle: 'What type of home service do you provide?',
+      userType: 'HomeServices',
+      roundedImage: false,
+    },
     {
       id: 100,
       title: 'More',

@@ -3,6 +3,7 @@ import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import AdminLeads from '@/components/admin/users/AdminLeads'
 import Apis from '@/components/apis/Apis'
@@ -37,6 +38,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 function SelectedUserDetails({
+  isAgencyView = false,
   selectedUser,
   handleDel,
   from = 'admin',
@@ -46,6 +48,9 @@ function SelectedUserDetails({
   handleClose,
   agencyUser = false,
 }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const [manuLoading, setManuLoading] = useState(true)
   const [accessibleMenuItems, setAccessibleMenuItems] = useState([])
@@ -56,6 +61,7 @@ function SelectedUserDetails({
   const [sidebarPillStyle, setSidebarPillStyle] = useState(null)
   const sidebarMenuRef = useRef(null)
   const sidebarItemRefs = useRef([])
+  const [initialTabSet, setInitialTabSet] = useState(false)
 
   const sidebarPillIndex = sidebarHoveredIndex !== null
     ? sidebarHoveredIndex
@@ -79,8 +85,124 @@ function SelectedUserDetails({
     })
   }, [sidebarPillIndex, selectedManu, accessibleMenuItems])
 
+  // Get the tab from URL parameter
+  const tabParam = searchParams.get('tab')
+
   // Get permission context
   const permissionContext = usePermission()
+
+  // All menu items definition
+  let allMenuItems = [
+    {
+      id: 1,
+      name: 'Dashboard',
+      selectedImage: '/svgIcons/selectdDashboardIcon.svg',
+      unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
+      permissionKey: 'subaccount.dashboard.view',
+      paramValue: 'dashboard',
+    },
+    {
+      id: 2,
+      name: 'Agents',
+      selectedImage: '/svgIcons/selectedAgentXIcon.svg',
+      unSelectedImage: '/svgIcons/agentXIcon.svg',
+      permissionKey: 'subaccount.agents.view',
+      paramValue: 'agents',
+    },
+    {
+      id: 3,
+      name: 'Leads',
+      selectedImage: '/svgIcons/selectedLeadsIcon.svg',
+      unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg',
+      permissionKey: 'subaccount.leads.manage',
+      paramValue: 'leads',
+    },
+    {
+      id: 5,
+      name: 'Pipeline',
+      selectedImage: '/svgIcons/selectedPiplineIcon.svg',
+      unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg',
+      permissionKey: 'subaccount.pipelines.manage',
+      paramValue: 'pipeline',
+    },
+    {
+      id: 9,
+      name: 'Messages (Beta)',
+      selectedImage: '/messaging/icons_chat_menu.svg',
+      unSelectedImage: '/messaging/icons_chat_menu.svg',
+      permissionKey: 'subaccount.messages.manage',
+      paramValue: 'messages',
+    },
+    {
+      id: 4,
+      name: 'Activity',
+      selectedImage: '/otherAssets/selectedActivityLog.png',
+      unSelectedImage: '/otherAssets/activityLog.png',
+      permissionKey: 'subaccount.activity.view',
+      paramValue: 'activity',
+    },
+    {
+      id: 6,
+      name: 'Integration',
+      selectedImage: '/svgIcons/selectedIntegration.svg',
+      unSelectedImage: '/svgIcons/unSelectedIntegrationIcon.svg',
+      permissionKey: 'subaccount.integrations.manage',
+      paramValue: 'integration',
+    },
+    {
+      id: 7,
+      name: 'Team',
+      selectedImage: '/svgIcons/selectedTeam.svg',
+      unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
+      permissionKey: 'subaccount.teams.manage',
+      paramValue: 'team',
+    },
+  ]
+
+  useEffect(() => {
+    console.log("selectedUser in SelectedUserDetails is", selectedUser);
+    const viewDetailsMenuItem = {
+      id: 123,
+      name: 'View Details',
+      selectedImage: '/svgIcons/selectedTeam.svg',
+      unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
+      permissionKey: null,
+      paramValue: 'viewDetails',
+    }
+    if (from === "admin") {
+      allMenuItems = [...allMenuItems, viewDetailsMenuItem]
+    }
+  }, [selectedUser, from])
+
+  // Account menu item
+  const accountMenu = {
+    id: 8,
+    name: 'Account',
+    selectedImage: '/svgIcons/selectedProfileCircle.svg',
+    unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
+    paramValue: 'account',
+  }
+
+  // Function to update URL with selected tab
+  const updateUrlWithTab = (tabValue) => {
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (tabValue) {
+      params.set('tab', tabValue)
+    } else {
+      params.delete('tab')
+    }
+
+    // Update URL without page reload (use full path for reliable navigation)
+    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname
+    router.replace(newUrl, { scroll: false })
+  }
+
+  // Function to find menu item by param value (includes Account which is not in allMenuItems)
+  const findMenuItemByParamValue = (paramValue, items) => {
+    if (paramValue === 'account') return accountMenu
+    return items.find(item => item.paramValue === paramValue)
+  }
 
   // Check user role and permissions on mount
   useEffect(() => {
@@ -88,11 +210,11 @@ function SelectedUserDetails({
       try {
         // Reset loading
         setManuLoading(true)
-        
+
         // Check user role from localStorage
         const localData = localStorage.getItem('User')
         let userIsInvitee = false
-        
+
         if (localData) {
           const userData = JSON.parse(localData)
           const userRole = userData.user?.userRole || userData.userRole
@@ -107,7 +229,22 @@ function SelectedUserDetails({
         // If permission checks disabled or user is not Invitee, show all items immediately
         if (!enablePermissionChecks || !userIsInvitee) {
           setAccessibleMenuItems(allMenuItems)
-          setSelectedManu(allMenuItems[0])
+
+          // Check if there's a tab parameter in URL
+          if (tabParam && !initialTabSet) {
+            const tabMenuItem = findMenuItemByParamValue(tabParam, allMenuItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+              setInitialTabSet(true)
+            } else {
+              setSelectedManu(allMenuItems[0])
+            }
+          } else {
+            // Sync with URL when tabParam changes (e.g. user clicked Pipeline)
+            const tabMenuItem = tabParam ? findMenuItemByParamValue(tabParam, allMenuItems) : null
+            setSelectedManu(tabMenuItem || allMenuItems[0])
+          }
+
           setManuLoading(false)
           return
         }
@@ -116,22 +253,22 @@ function SelectedUserDetails({
         if (enablePermissionChecks && userIsInvitee && selectedUser?.id) {
           // Check permissions for each menu item
           const accessibleItems = []
-          
+
           for (const menuItem of allMenuItems) {
             // Items without permission key are always accessible
             if (!menuItem.permissionKey) {
               accessibleItems.push(menuItem)
               continue
             }
-            
+
             // Check permission for this menu item
             try {
               let hasAccess = true
-              
+
               if (hasPermissionContext) {
                 // Use permission context if available
                 hasAccess = await permissionContext.hasPermission(
-                  menuItem.permissionKey, 
+                  menuItem.permissionKey,
                   selectedUser.id
                 )
               } else {
@@ -144,7 +281,7 @@ function SelectedUserDetails({
                 // We'll trust the hook's return value
                 hasAccess = hookHasAccess
               }
-              
+
               if (hasAccess) {
                 accessibleItems.push(menuItem)
               }
@@ -153,19 +290,44 @@ function SelectedUserDetails({
               // On error, don't include to be safe
             }
           }
-          
+
           setAccessibleMenuItems(accessibleItems)
-          
-          // Set selected menu to first accessible item or null if none
-          if (accessibleItems.length > 0) {
-            setSelectedManu(accessibleItems[0])
+
+          // Set selected menu based on URL parameter or first accessible item
+          if (tabParam && !initialTabSet) {
+            const tabMenuItem = findMenuItemByParamValue(tabParam, accessibleItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+              setInitialTabSet(true)
+            } else if (accessibleItems.length > 0) {
+              setSelectedManu(accessibleItems[0])
+            } else {
+              setSelectedManu(null)
+            }
+          } else if (accessibleItems.length > 0) {
+            // Sync with URL when tabParam changes
+            const tabMenuItem = tabParam ? findMenuItemByParamValue(tabParam, accessibleItems) : null
+            setSelectedManu(tabMenuItem || accessibleItems[0])
           } else {
             setSelectedManu(null)
           }
         } else {
           // Fallback for non-invitee or no permission checks
           setAccessibleMenuItems(allMenuItems)
-          setSelectedManu(allMenuItems.length > 0 ? allMenuItems[0] : null)
+
+          if (tabParam && !initialTabSet) {
+            const tabMenuItem = findMenuItemByParamValue(tabParam, allMenuItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+              setInitialTabSet(true)
+            } else {
+              setSelectedManu(allMenuItems[0])
+            }
+          } else {
+            // Sync with URL when tabParam changes
+            const tabMenuItem = tabParam ? findMenuItemByParamValue(tabParam, allMenuItems) : null
+            setSelectedManu(tabMenuItem || allMenuItems[0])
+          }
         }
       } catch (error) {
         console.error('Error initializing menu:', error)
@@ -178,7 +340,7 @@ function SelectedUserDetails({
     }
 
     initializeMenu()
-  }, [enablePermissionChecks, selectedUser?.id, permissionContext])
+  }, [enablePermissionChecks, selectedUser?.id, permissionContext, tabParam])
 
   // Update when isInvitee or selectedUser changes
   useEffect(() => {
@@ -186,19 +348,19 @@ function SelectedUserDetails({
       const updatePermissions = async () => {
         try {
           const accessibleItems = []
-          
+
           for (const menuItem of allMenuItems) {
             if (!menuItem.permissionKey) {
               accessibleItems.push(menuItem)
               continue
             }
-            
+
             try {
               const hasAccess = await permissionContext.hasPermission(
-                menuItem.permissionKey, 
+                menuItem.permissionKey,
                 selectedUser.id
               )
-              
+
               if (hasAccess) {
                 accessibleItems.push(menuItem)
               }
@@ -206,88 +368,34 @@ function SelectedUserDetails({
               console.error(`Error checking permission for ${menuItem.name}:`, error)
             }
           }
-          
+
           setAccessibleMenuItems(accessibleItems)
-          
+
           // Update selected menu if current one is no longer accessible
           if (selectedManu && !accessibleItems.some(item => item.id === selectedManu.id)) {
-            setSelectedManu(accessibleItems.length > 0 ? accessibleItems[0] : null)
+            // Try to keep the same tab if possible, otherwise use first accessible
+            const tabMenuItem = findMenuItemByParamValue(tabParam, accessibleItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+            } else if (accessibleItems.length > 0) {
+              setSelectedManu(accessibleItems[0])
+              // Update URL to reflect the new tab
+              if (accessibleItems[0]?.paramValue) {
+                updateUrlWithTab(accessibleItems[0].paramValue)
+              }
+            } else {
+              setSelectedManu(null)
+              updateUrlWithTab(null)
+            }
           }
         } catch (error) {
           console.error('Error updating permissions:', error)
         }
       }
-      
+
       updatePermissions()
     }
   }, [isInvitee, selectedUser?.id, permissionContextAvailable])
-
-  const allMenuItems = [
-    {
-      id: 1,
-      name: 'Dashboard',
-      selectedImage: '/svgIcons/selectdDashboardIcon.svg',
-      unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
-      permissionKey: 'subaccount.dashboard.view',
-    },
-    {
-      id: 2,
-      name: 'Agents',
-      selectedImage: '/svgIcons/selectedAgentXIcon.svg',
-      unSelectedImage: '/svgIcons/agentXIcon.svg',
-      permissionKey: 'subaccount.agents.view',
-    },
-    {
-      id: 3,
-      name: 'Leads',
-      selectedImage: '/svgIcons/selectedLeadsIcon.svg',
-      unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg',
-      permissionKey: 'subaccount.leads.manage',
-    },
-    {
-      id: 5,
-      name: 'Pipeline',
-      selectedImage: '/svgIcons/selectedPiplineIcon.svg',
-      unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg',
-      permissionKey: 'subaccount.pipelines.manage',
-    },
-    {
-      id: 9,
-      name: 'Messages (Beta)',
-      selectedImage: '/messaging/icons_chat_menu.svg',
-      unSelectedImage: '/messaging/icons_chat_menu.svg',
-      permissionKey: 'subaccount.messages.manage',
-    },
-    {
-      id: 4,
-      name: 'Activity',
-      selectedImage: '/otherAssets/selectedActivityLog.png',
-      unSelectedImage: '/otherAssets/activityLog.png',
-      permissionKey: 'subaccount.activity.view',
-    },
-    {
-      id: 6,
-      name: 'Integration',
-      selectedImage: '/svgIcons/selectedIntegration.svg',
-      unSelectedImage: '/svgIcons/unSelectedIntegrationIcon.svg',
-      permissionKey: 'subaccount.integrations.manage',
-    },
-    {
-      id: 7,
-      name: 'Team',
-      selectedImage: '/svgIcons/selectedTeam.svg',
-      unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
-      permissionKey: 'subaccount.teams.manage',
-    },
-  ]
-
-  // Account menu item
-  const accountMenu = {
-    id: 8,
-    name: 'Account',
-    selectedImage: '/svgIcons/selectedProfileCircle.svg',
-    unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
-  }
 
   console.log('Permission checks enabled:', enablePermissionChecks)
 
@@ -321,20 +429,24 @@ function SelectedUserDetails({
 
   // Auto-switch to first accessible menu if current menu is not accessible
   useEffect(() => {
-    if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey && 
-        !effectiveHasPermission && selectedUser?.id && permissionContextAvailable && 
-        selectedManu && accessibleMenuItems.length > 0) {
-      
-      // Check if current menu is in accessible items
-      const isCurrentMenuAccessible = accessibleMenuItems.some(item => item.id === selectedManu.id)
-      
+    if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey &&
+      !effectiveHasPermission && selectedUser?.id && permissionContextAvailable &&
+      selectedManu && accessibleMenuItems.length > 0) {
+      // Account (profile) is always considered accessible when the profile button is shown
+      const isAccountTab = selectedManu.id === accountMenu.id || selectedManu.paramValue === 'account'
+      const isCurrentMenuAccessible = isAccountTab || accessibleMenuItems.some(item => item.id === selectedManu.id)
+
       if (!isCurrentMenuAccessible && accessibleMenuItems.length > 0) {
         setSelectedManu(accessibleMenuItems[0])
+        // Update URL to reflect the new tab
+        if (accessibleMenuItems[0]?.paramValue) {
+          updateUrlWithTab(accessibleMenuItems[0].paramValue)
+        }
       }
     }
-  }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey, 
-      effectiveHasPermission, selectedUser?.id, permissionContextAvailable, 
-      selectedManu, accessibleMenuItems])
+  }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey,
+    effectiveHasPermission, selectedUser?.id, permissionContextAvailable,
+    selectedManu, accessibleMenuItems])
 
   const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -436,25 +548,17 @@ function SelectedUserDetails({
   }
 
   const handleManuClick = (item) => {
+    if (item.paramValue === 'viewDetails') {
+      setShowActivityLogs(true)
+      return
+    }
     console.log('item', item)
+    setSelectedManu(item)
+    storeTabState(item.name)
 
-    // When viewing from agency, check permission before allowing navigation
-    if (enablePermissionChecks && selectedUser?.id) {
-      const menuItem = allMenuItems.find(m => m.id === item.id)
-      // Account menu doesn't have permissionKey, so allow it
-      if (menuItem?.permissionKey || item.name === 'Account') {
-        // Only allow if item is in accessibleMenuItems
-        if (accessibleMenuItems.some(accessibleItem => accessibleItem.id === item.id)) {
-          setSelectedManu(item)
-          storeTabState(item.name)
-        }
-      } else {
-        setSelectedManu(item)
-        storeTabState(item.name)
-      }
-    } else {
-      setSelectedManu(item)
-      storeTabState(item.name)
+    // Update URL with the selected tab
+    if (item.paramValue) {
+      updateUrlWithTab(item.paramValue)
     }
   }
 
@@ -564,9 +668,9 @@ function SelectedUserDetails({
           if (response.data.status === true) {
             selectedUser.profile_status = 'paused'
             setShowSnackMessage(response.data.message)
-            handlePauseUser()
             setpauseLoader(false)
             setShowPauseConfirmationPopup(false)
+            handlePauseUser()
           }
         }
       }
@@ -598,6 +702,7 @@ function SelectedUserDetails({
         })
         if (response) {
           if (response.data.status === true) {
+            selectedUser.profile_status = 'active'
             setShowSnackMessage(response.data.message)
             setResetTrailLoader(false)
             setShowResetTrialPopup(false)
@@ -657,7 +762,7 @@ function SelectedUserDetails({
   }
 
   return (
-    <div className="w-full flex flex-col h-full items-center justify-center ">
+    <div className={`w-full flex flex-col ${isAgencyView ? 'h-[85svh]' : 'h-[100svh]'} items-center justify-center overflow-y-auto`}>
       <AgentSelectSnackMessage
         isVisible={showSnackMessage != null && showSnackMessage !== ''}
         hide={() => {
@@ -675,75 +780,77 @@ function SelectedUserDetails({
           {!enablePermissionChecks && (
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
               <div className="flex flex-row items-center gap-4">
-                {!enablePermissionChecks && from !== 'subaccount' && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="outline-none hover:opacity-80 transition-opacity p-2"
-                        aria-label="More options"
-                      >
-                        {pauseLoader ? (
-                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                        ) : (
-                          <Image
-                            src="/svgIcons/threeDotsIcon.svg"
-                            alt="More options"
-                            width={24}
-                            height={24}
-                          />
-                        )}
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowPauseConfirmationPopup(true)
-                        }}
-                        className="cursor-pointer"
-                      >
-                        {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
-                      </DropdownMenuItem>
-
-                      {isAdmin && (
-                        <>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setShowAddMinutesModal(true)
-                            }}
-                            className="cursor-pointer"
-                          >
-                            Add Minutes
-                          </DropdownMenuItem>
-
-                          {selectedUser.isTrial && (
-                            <>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setShowResetTrialPopup(true)
-                                }}
-                                className="cursor-pointer"
-                              >
-                                Reset Trial
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="outline-none hover:opacity-80 transition-opacity p-2"
+                      aria-label="More options"
+                    >
+                      {pauseLoader ? (
+                        <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                      ) : (
+                        <Image
+                          src="/svgIcons/threeDotsIcon.svg"
+                          alt="More options"
+                          width={24}
+                          height={24}
+                        />
                       )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="z-[1500] bg-white p-2 rounded-lg" style={{ zIndex: 1500 }}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setShowPauseConfirmationPopup(true)
+                      }}
+                      className="cursor-pointer"
+                    >
+                      {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                    </DropdownMenuItem>
 
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowDeleteModal(true)
-                        }}
-                        className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-                <CloseBtn onClick={handleClose} />
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setShowAddMinutesModal(true)
+                          }}
+                          className="cursor-pointer"
+                        >
+                          Add Minutes
+                        </DropdownMenuItem>
+
+                        {selectedUser.isTrial && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setShowResetTrialPopup(true)
+                              }}
+                              className="cursor-pointer"
+                            >
+                              Reset Trial
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </>
+                    )}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setShowDeleteModal(true)
+                      }}
+                      className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                    >
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {
+                  !agencyUser && (
+                    <CloseBtn onClick={handleClose} />
+                  )}
 
                 {showResetTrialPopup && (
                   <ResetTrial
@@ -774,9 +881,11 @@ function SelectedUserDetails({
             <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-[250px] px-0 py-0 h-full min-h-[100svh]`}>
 
               {agencyUser ? (
-                logoBranding()
+                <div className="flex flex-row items-center justify-start w-full  pb-1 flex-shrink-0 mt-4">
+                  <AppLogo height={29} width={122} />
+                </div>
               ) : (
-                <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
+                <div className={`flex mt-4 flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
                   <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
                     {selectedUser.name[0]}
                   </div>
@@ -797,7 +906,10 @@ function SelectedUserDetails({
                           } else if (from === 'subaccount') {
                             url = `/agency/users?userId=${selectedUser.id}&enablePermissionChecks=true`
                           }
+                          let user = JSON.stringify(selectedUser)
+                          localStorage.setItem("IsExpanded", user)
                           window.open(url, '_blank')
+
                         }
                       }}
                     >
@@ -811,7 +923,7 @@ function SelectedUserDetails({
                   )}
                 </div>
               )}
-              
+
               {/* Menu Items - Only show accessible items */}
               <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
                 <div className="flex flex-col items-start justify-center gap-2.5 w-full py-3 px-3 relative" ref={sidebarMenuRef} onMouseLeave={() => setSidebarHoveredIndex(null)}>
@@ -872,7 +984,7 @@ function SelectedUserDetails({
               </div>
               </div>
 
-              {enablePermissionChecks && (
+              {(from === "admin" || from === "subaccount" || enablePermissionChecks) && (
                 <div
                   onClick={() => {
                     console.log('clicked')
@@ -999,8 +1111,7 @@ function SelectedUserDetails({
           </div>
         </div>
       </div>
-      {/* View Details Button - Bottom Left */}
-      {!hideViewDetails && (
+      {/* View Details Button - Bottom Left{!hideViewDetails && (
         <div className="absolute bottom-4 left-4">
           <button
             className="text-white bg-brand-primary outline-none rounded-xl px-4 py-2 flex items-center gap-2"
@@ -1018,7 +1129,8 @@ function SelectedUserDetails({
             View Details
           </button>
         </div>
-      )}
+      )} */}
+
       {/* Code to del user */}
       <Modal
         open={showDeleteModal}
@@ -1076,7 +1188,7 @@ function SelectedUserDetails({
             <div className="flex flex-row items-center gap-4 mt-6">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="w-1/2"
+                className="w-1/2  bg-transparent"
               >
                 Cancel
               </button>
@@ -1087,7 +1199,7 @@ function SelectedUserDetails({
                   </div>
                 ) : (
                   <button
-                    className="mt-4  outline-none"
+                    className="bg-red outline-none"
                     style={{
                       color: 'white',
                       height: '50px',

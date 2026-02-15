@@ -41,7 +41,8 @@ function StandardHeader({
   className = '',
   containerClassName = '',
   showSeparator = true,
-  variant = 'dark'
+  variant = 'dark',
+  selectedUser = null
 }) {
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
@@ -200,6 +201,7 @@ function StandardHeader({
           leadId={selectedThread?.leadId || leadId || null}
           threadId={selectedThread?.id || threadId || null}
           buttonRef={taskButtonRef}
+          selectedUser={selectedUser}
         />
       )}
     </>

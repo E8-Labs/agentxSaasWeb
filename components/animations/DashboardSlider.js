@@ -49,7 +49,7 @@ const DashboardSlider = ({
     // Get brand color from CSS variable
     const root = document.documentElement
     const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
-    
+
     if (!brandColor || !brandColor.trim()) {
       return <Image src={iconPath} width={width} height={height} alt="*" />
     }
@@ -380,8 +380,8 @@ const DashboardSlider = ({
             }}
           >
             {selectedUser?.userRole === 'AgencySubAccount' ||
-            userDetails?.userRole === 'AgencySubAccount' ||
-            (selectedUser && initialLoader) ? (
+              userDetails?.userRole === 'AgencySubAccount' ||
+              (selectedUser && initialLoader) ? (
               <div className="w-full">
                 {initialLoader ? (
                   <div className="w-full flex flex-row items-center justify-center h-[100px] gap-2">
@@ -413,10 +413,10 @@ const DashboardSlider = ({
                           </div>
                           {(item.id === 3 ||
                             item.label === 'Ask Sky for Help') && (
-                            <div className="px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300] ml-5">
-                              Beta
-                            </div>
-                          )}
+                              <div className="px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300] ml-5">
+                                Beta
+                              </div>
+                            )}
                         </button>
                       </div>
                     ))}
@@ -556,17 +556,18 @@ const DashboardSlider = ({
               customLogo={
                 (userDetails?.userRole === 'AgencySubAccount' ||
                   userDetails?.userRole === 'Agency') &&
-                userDetails?.agencyBranding?.supportWidgetLogoUrl
+                  userDetails?.agencyBranding?.supportWidgetLogoUrl
                   ? userDetails.agencyBranding.supportWidgetLogoUrl
                   : null
               }
               customTitle={
                 (userDetails?.userRole === 'AgencySubAccount' ||
                   userDetails?.userRole === 'Agency') &&
-                userDetails?.agencyBranding?.supportWidgetTitle
+                  userDetails?.agencyBranding?.supportWidgetTitle
                   ? userDetails.agencyBranding.supportWidgetTitle
                   : null
               }
+              titleColor="hsl(var(brand-primary))"
             />
           </motion.div>
         )}
@@ -647,6 +648,7 @@ const styles = {
 }
 
 export const GetHelpBtn = ({
+  titleColor,
   text = 'Get Help',
   avatar = null,
   handleReopen,
@@ -658,19 +660,21 @@ export const GetHelpBtn = ({
   // Use custom title if provided, otherwise use text prop
   const displayText = customTitle || text
 
+  let color = titleColor
+
   return (
     <button
       className="flex flex-row bg-white items-center pe-4 ps-4 py-2 rounded-full shadow-md relative overflow-hidden"
       onClick={handleReopen}
     >
-      {/* Stars */}
-      <Image
+      {/* Stars<Image
         src="/otherAssets/getHelpStars.png"
         height={20}
         width={20}
         alt="Stars"
         className="absolute top-0 left-12 z-10 bg-transparent"
-      />
+      /> */}
+      
 
       {/* Orb */}
       <div className="relative z-0 bg-white shadow-lg rounded-full w-[46px] h-[46px] overflow-hidden flex-shrink-0">
@@ -683,7 +687,7 @@ export const GetHelpBtn = ({
       </div>
 
       {/* Text */}
-      <p className="text-[16px] font-bold text-brand-primary cursor-pointer ms-2">
+      <p className={`text-[16px] font-bold text-${color} cursor-pointer ms-2`}>
         {displayText}
       </p>
     </button>

@@ -1,6 +1,14 @@
 'use client'
 
-import { Box, Button, CircularProgress, TextField } from '@mui/material'
+import {
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  MenuItem,
+  Select,
+  TextField,
+} from '@mui/material'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -9,6 +17,8 @@ import { useRef } from 'react'
 
 import { UserTypes } from '@/constants/UserTypes'
 import { useUser } from '@/hooks/redux-hooks'
+import { GetAreasOfFocusForUser } from '@/utilities/AreaOfFocus'
+import { GetServicesForUser } from '@/utilities/AgentServices'
 
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
@@ -16,6 +26,7 @@ import { UpdateProfile } from '../apis/UpdateProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 
 function BasicInfo() {
@@ -99,6 +110,9 @@ function BasicInfo() {
   const [agentAreasOfFocus, setAgentAreasOfFocus] = useState([])
   const [agentIndustries, setAgentIndustries] = useState([])
   const [selectedIndustries, setSelectedIndustries] = useState([])
+  const [creatorType, setCreatorType] = useState('')
+  const [creatorPrimarySell, setCreatorPrimarySell] = useState([])
+  const [creatorAudienceEngage, setCreatorAudienceEngage] = useState([])
 
   const [loading, setloading] = useState(false)
   const [loading2, setloading2] = useState(false)
@@ -151,6 +165,61 @@ function BasicInfo() {
 
   const [userRole, setUserRole] = useState('')
   const [userType, setUserType] = useState('')
+
+  const [creatorSaveLoading, setCreatorSaveLoading] = useState(false)
+
+  const [homeServicesTechniciansCount, setHomeServicesTechniciansCount] =
+    useState('')
+  const [homeServicesJobValue, setHomeServicesJobValue] = useState('')
+  const [homeServicesMainGoal, setHomeServicesMainGoal] = useState([])
+  const [homeServiceTypeOther, setHomeServiceTypeOther] = useState('')
+  const [homeServicesSaveLoading, setHomeServicesSaveLoading] = useState(false)
+
+  const HOME_SERVICES_TECHNICIANS_OPTIONS = [
+    { id: 'just_me', title: 'Just me' },
+    { id: '2_5', title: '2–5' },
+    { id: '6_15', title: '6–15' },
+    { id: '15_plus', title: '15+' },
+  ]
+  const HOME_SERVICES_JOB_VALUE_OPTIONS = [
+    { id: 'under_500', title: 'Under $500' },
+    { id: '500_2000', title: '$500–$2,000' },
+    { id: '2000_10000', title: '$2,000–$10,000' },
+    { id: '10000_plus', title: '$10,000+' },
+  ]
+  const HOME_SERVICES_MAIN_GOAL_OPTIONS = [
+    { id: 'capture_missed_calls', title: 'Capture missed calls' },
+    { id: 'book_more_estimates', title: 'Book more estimates' },
+    { id: 'follow_up_old_leads', title: 'Follow up with old leads' },
+    { id: 'upsell_maintenance_plans', title: 'Upsell maintenance plans' },
+    { id: 'reduce_admin_work', title: 'Reduce admin work' },
+  ]
+
+  const CREATOR_TYPES = [
+    { id: 'coach_consultant', title: 'Coach / Consultant' },
+    { id: 'course_creator', title: 'Course Creator' },
+    { id: 'influencer_personal_brand', title: 'Influencer / Personal Brand' },
+    { id: 'ecommerce_brand_owner', title: 'E-commerce Brand Owner' },
+    { id: 'educator_community_builder', title: 'Educator / Community Builder' },
+    { id: 'thought_leader_speaker', title: 'Thought Leader / Speaker' },
+  ]
+  const CREATOR_PRIMARY_SELL_OPTIONS = [
+    { id: 'high_ticket_coaching', title: 'High-Ticket Coaching ($3k+)' },
+    { id: 'mid_ticket_programs', title: 'Mid-Ticket Programs ($500–$3k)' },
+    { id: 'low_ticket_offers', title: 'Low-Ticket Offers / Digital Products' },
+    { id: 'membership_community', title: 'Membership / Community' },
+    { id: 'services_dfy_agency', title: 'Services (DFY / Agency)' },
+    { id: 'affiliate_brand_deals', title: 'Affiliate / Brand Deals' },
+  ]
+  const CREATOR_AUDIENCE_ENGAGE_OPTIONS = [
+    { id: 'instagram', title: 'Instagram' },
+    { id: 'youtube', title: 'YouTube' },
+    { id: 'tiktok', title: 'TikTok' },
+    { id: 'linkedin', title: 'LinkedIn' },
+    { id: 'email_list', title: 'Email List' },
+    { id: 'skool_community', title: 'Skool / Private Community' },
+    { id: 'multi_platform', title: 'Multi-Platform' },
+  ]
 
   const primaryClientTypes = [
     {
@@ -307,9 +376,201 @@ function BasicInfo() {
       //console.log;
       setServiceId(servicesArray)
       setOriginalSelectedService(servicesArray)
+
+      // Creator-specific profile fields: prefer agentTypeOnboardingPayload, fall back to legacy columns per field
+      const user = userData?.user
+      if (user?.userType === 'Creator' || user?.userType === 'creator') {
+        let parsedPayload = null
+        try {
+          const payload = user?.agentTypeOnboardingPayload
+          if (payload) {
+            parsedPayload =
+              typeof payload === 'string' ? JSON.parse(payload) : payload
+          }
+        } catch (_) {}
+        const fromLegacy = (val) => {
+          if (val == null || val === '') return []
+          return typeof val === 'string' ? JSON.parse(val || '[]') : val
+        }
+        const creatorTypeVal =
+          parsedPayload?.creatorType ?? user?.creatorType ?? ''
+        let creatorPrimarySellVal = []
+        if (parsedPayload?.creatorPrimarySell != null && parsedPayload?.creatorPrimarySell !== '') {
+          const ps = parsedPayload.creatorPrimarySell
+          try {
+            creatorPrimarySellVal =
+              typeof ps === 'string' ? (ps ? JSON.parse(ps) : []) : Array.isArray(ps) ? ps : []
+          } catch (_) {}
+        } else {
+          try {
+            creatorPrimarySellVal = fromLegacy(user?.creatorPrimarySell) || []
+          } catch (_) {}
+        }
+        let creatorAudienceEngageVal = []
+        if (parsedPayload?.creatorAudienceEngage != null && parsedPayload?.creatorAudienceEngage !== '') {
+          const ae = parsedPayload.creatorAudienceEngage
+          try {
+            creatorAudienceEngageVal =
+              typeof ae === 'string' ? (ae ? JSON.parse(ae) : []) : Array.isArray(ae) ? ae : []
+          } catch (_) {}
+        } else {
+          try {
+            creatorAudienceEngageVal = fromLegacy(user?.creatorAudienceEngage) || []
+          } catch (_) {}
+        }
+        setCreatorType(creatorTypeVal)
+        setCreatorPrimarySell(Array.isArray(creatorPrimarySellVal) ? creatorPrimarySellVal : [])
+        setCreatorAudienceEngage(Array.isArray(creatorAudienceEngageVal) ? creatorAudienceEngageVal : [])
+      } else {
+        setCreatorType(user?.creatorType || '')
+        try {
+          setCreatorPrimarySell(
+            typeof user?.creatorPrimarySell === 'string'
+              ? JSON.parse(user?.creatorPrimarySell || '[]')
+              : user?.creatorPrimarySell || [],
+          )
+          setCreatorAudienceEngage(
+            typeof user?.creatorAudienceEngage === 'string'
+              ? JSON.parse(user?.creatorAudienceEngage || '[]')
+              : user?.creatorAudienceEngage || [],
+          )
+        } catch (e) {
+          setCreatorPrimarySell([])
+          setCreatorAudienceEngage([])
+        }
+      }
+
+      if (userData?.user?.userType === 'HomeServices') {
+        try {
+          const payload = userData?.user?.agentTypeOnboardingPayload
+          if (payload) {
+            const parsed =
+              typeof payload === 'string' ? JSON.parse(payload) : payload
+            setHomeServicesTechniciansCount(parsed.techniciansCount || '')
+            setHomeServicesJobValue(parsed.averageJobValue || '')
+            setHomeServiceTypeOther(parsed.homeServiceTypeOther || '')
+            const mainGoal = parsed.mainGoalWithAI
+            setHomeServicesMainGoal(
+              typeof mainGoal === 'string'
+                ? mainGoal
+                  ? JSON.parse(mainGoal)
+                  : []
+                : Array.isArray(mainGoal)
+                  ? mainGoal
+                  : [],
+            )
+          }
+        } catch (e) {
+          setHomeServicesMainGoal([])
+        }
+      }
     }
 
-    getProfile()
+    const loadProfileThenRefresh = async () => {
+      await getProfileDetails()
+      const LocalData = localStorage.getItem('User')
+      if (LocalData) {
+        const userData = JSON.parse(LocalData)
+        const servicesArray = []
+        const industriesArray = []
+        const focusAreasArray = []
+        userData?.user?.services?.forEach((item) => servicesArray.push(item.id))
+        userData?.user?.userIndustry?.forEach((item) => industriesArray.push(item.id))
+        userData?.user?.focusAreas?.forEach((item) => focusAreasArray.push(item.id))
+        setServiceId(servicesArray)
+        setOriginalSelectedService(servicesArray)
+        setSelectedIndustries(industriesArray)
+        setOriginalSelectedIndustries(industriesArray)
+        setSelectedArea(focusAreasArray)
+        setOriginalSelectedArea(focusAreasArray)
+        const user = userData?.user
+        if (user?.userType === 'Creator' || user?.userType === 'creator') {
+          let parsedPayload = null
+          try {
+            const payload = user?.agentTypeOnboardingPayload
+            if (payload) {
+              parsedPayload =
+                typeof payload === 'string' ? JSON.parse(payload) : payload
+            }
+          } catch (_) {}
+          const fromLegacy = (val) => {
+            if (val == null || val === '') return []
+            return typeof val === 'string' ? JSON.parse(val || '[]') : val
+          }
+          const creatorTypeVal =
+            parsedPayload?.creatorType ?? user?.creatorType ?? ''
+          let creatorPrimarySellVal = []
+          if (parsedPayload?.creatorPrimarySell != null && parsedPayload?.creatorPrimarySell !== '') {
+            const ps = parsedPayload.creatorPrimarySell
+            try {
+              creatorPrimarySellVal =
+                typeof ps === 'string' ? (ps ? JSON.parse(ps) : []) : Array.isArray(ps) ? ps : []
+            } catch (_) {}
+          } else {
+            try {
+              creatorPrimarySellVal = fromLegacy(user?.creatorPrimarySell) || []
+            } catch (_) {}
+          }
+          let creatorAudienceEngageVal = []
+          if (parsedPayload?.creatorAudienceEngage != null && parsedPayload?.creatorAudienceEngage !== '') {
+            const ae = parsedPayload.creatorAudienceEngage
+            try {
+              creatorAudienceEngageVal =
+                typeof ae === 'string' ? (ae ? JSON.parse(ae) : []) : Array.isArray(ae) ? ae : []
+            } catch (_) {}
+          } else {
+            try {
+              creatorAudienceEngageVal = fromLegacy(user?.creatorAudienceEngage) || []
+            } catch (_) {}
+          }
+          setCreatorType(creatorTypeVal)
+          setCreatorPrimarySell(Array.isArray(creatorPrimarySellVal) ? creatorPrimarySellVal : [])
+          setCreatorAudienceEngage(Array.isArray(creatorAudienceEngageVal) ? creatorAudienceEngageVal : [])
+        } else {
+          setCreatorType(user?.creatorType || '')
+          try {
+            setCreatorPrimarySell(
+              typeof user?.creatorPrimarySell === 'string'
+                ? JSON.parse(user?.creatorPrimarySell || '[]')
+                : user?.creatorPrimarySell || [],
+            )
+            setCreatorAudienceEngage(
+              typeof user?.creatorAudienceEngage === 'string'
+                ? JSON.parse(user?.creatorAudienceEngage || '[]')
+                : user?.creatorAudienceEngage || [],
+            )
+          } catch (e) {
+            setCreatorPrimarySell([])
+            setCreatorAudienceEngage([])
+          }
+        }
+        if (userData?.user?.userType === 'HomeServices') {
+          try {
+            const payload = userData?.user?.agentTypeOnboardingPayload
+            if (payload) {
+              const parsed =
+                typeof payload === 'string' ? JSON.parse(payload) : payload
+              setHomeServicesTechniciansCount(parsed.techniciansCount || '')
+              setHomeServicesJobValue(parsed.averageJobValue || '')
+              setHomeServiceTypeOther(parsed.homeServiceTypeOther || '')
+              const mainGoal = parsed.mainGoalWithAI
+              setHomeServicesMainGoal(
+                typeof mainGoal === 'string'
+                  ? mainGoal
+                    ? JSON.parse(mainGoal)
+                    : []
+                  : Array.isArray(mainGoal)
+                    ? mainGoal
+                    : [],
+              )
+            }
+          } catch (e) {
+            setHomeServicesMainGoal([])
+          }
+        }
+      }
+    }
+    loadProfileThenRefresh()
   }, [])
 
   const hasAreaFocusChanged = () => {
@@ -566,10 +827,27 @@ function BasicInfo() {
         })
 
         if (response) {
-          //console.log;
-          setAgentServices(response.data.data.agentServices)
-          setAgentAreasOfFocus(response.data.data.areaOfFocus)
-          setAgentIndustries(response.data.data.userIndustry)
+          const apiServices = response.data.data?.agentServices
+          const apiAreas = response.data.data?.areaOfFocus
+          const apiIndustries = response.data.data?.userIndustry
+          if (
+            (AgentTypeTitle === 'Creator' ||
+              AgentTypeTitle === 'HomeServices') &&
+            (!apiServices || apiServices.length === 0)
+          ) {
+            setAgentServices(GetServicesForUser(AgentTypeTitle))
+          } else {
+            setAgentServices(apiServices || [])
+          }
+          if (
+            AgentTypeTitle === 'HomeServices' &&
+            (!apiAreas || apiAreas.length === 0)
+          ) {
+            setAgentAreasOfFocus(GetAreasOfFocusForUser('HomeServices'))
+          } else {
+            setAgentAreasOfFocus(apiAreas || [])
+          }
+          setAgentIndustries(apiIndustries || [])
         } else {
           alert(response.data.message)
         }
@@ -988,6 +1266,108 @@ function BasicInfo() {
     }
   }
 
+  const toggleCreatorPrimarySell = (id) => {
+    setCreatorPrimarySell((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+  const toggleCreatorAudienceEngage = (id) => {
+    setCreatorAudienceEngage((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
+  const toggleHomeServicesMainGoal = (id) => {
+    setHomeServicesMainGoal((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    )
+  }
+
+  const handleHomeServicesSave = async () => {
+    try {
+      setHomeServicesSaveLoading(true)
+      // If user changed service types (area focus), save that first
+      if (hasAreaFocusChanged()) {
+        await handleAreaChange()
+      }
+      const data = {
+        techniciansCount: homeServicesTechniciansCount || undefined,
+        averageJobValue: homeServicesJobValue || undefined,
+        mainGoalWithAI: JSON.stringify(homeServicesMainGoal || []),
+        homeServiceTypeOther: homeServiceTypeOther || undefined,
+      }
+      const updated = await UpdateProfile(data)
+      if (updated?.agentTypeOnboardingPayload) {
+        try {
+          const parsed =
+            typeof updated.agentTypeOnboardingPayload === 'string'
+              ? JSON.parse(updated.agentTypeOnboardingPayload)
+              : updated.agentTypeOnboardingPayload
+          setHomeServicesTechniciansCount(parsed.techniciansCount || '')
+          setHomeServicesJobValue(parsed.averageJobValue || '')
+          setHomeServiceTypeOther(parsed.homeServiceTypeOther || '')
+          const mainGoal = parsed.mainGoalWithAI
+          setHomeServicesMainGoal(
+            typeof mainGoal === 'string'
+              ? mainGoal
+                ? JSON.parse(mainGoal)
+                : []
+              : Array.isArray(mainGoal)
+                ? mainGoal
+                : [],
+          )
+        } catch (_) {
+          setHomeServicesMainGoal([])
+        }
+      }
+      setHomeServicesSaveLoading(false)
+      showSuccess('Account Updated')
+    } catch (e) {
+      setHomeServicesSaveLoading(false)
+    }
+  }
+
+  const handleCreatorSave = async () => {
+    try {
+      setCreatorSaveLoading(true)
+      const data = {
+        creatorType: creatorType || undefined,
+        creatorPrimarySell: JSON.stringify(creatorPrimarySell || []),
+        creatorAudienceEngage: JSON.stringify(creatorAudienceEngage || []),
+      }
+      const updated = await UpdateProfile(data)
+      if (updated) {
+        setCreatorType(updated.creatorType || '')
+        try {
+          setCreatorPrimarySell(
+            typeof updated.creatorPrimarySell === 'string' && updated.creatorPrimarySell
+              ? JSON.parse(updated.creatorPrimarySell)
+              : Array.isArray(updated.creatorPrimarySell)
+                ? updated.creatorPrimarySell
+                : []
+          )
+        } catch (_) {
+          setCreatorPrimarySell([])
+        }
+        try {
+          setCreatorAudienceEngage(
+            typeof updated.creatorAudienceEngage === 'string' && updated.creatorAudienceEngage
+              ? JSON.parse(updated.creatorAudienceEngage)
+              : Array.isArray(updated.creatorAudienceEngage)
+                ? updated.creatorAudienceEngage
+                : []
+          )
+        } catch (_) {
+          setCreatorAudienceEngage([])
+        }
+      }
+      setCreatorSaveLoading(false)
+      showSuccess('Account Updated')
+    } catch (e) {
+      setCreatorSaveLoading(false)
+    }
+  }
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
@@ -1121,19 +1501,20 @@ function BasicInfo() {
             </button>
           )
         ) : (
-          <button
-            onClick={() => {
-              nameRef.current?.focus()
-            }}
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
+          ""
         )}
+        {/*<button
+          onClick={() => {
+            nameRef.current?.focus()
+          }}
+        >
+          <Image
+            src={'/svgIcons/editIcon.svg'}
+            width={24}
+            height={24}
+            alt="*"
+          />
+        </button>*/}
       </div>
       <div style={styles.headingStyle}>Email address</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
@@ -1195,19 +1576,20 @@ function BasicInfo() {
             </button>
           )
         ) : (
-          <button
-            onClick={() => {
-              emailRef.current?.focus()
-            }}
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
+          ""
         )}
+        {/*<button
+          onClick={() => {
+            emailRef.current?.focus()
+          }}
+        >
+          <Image
+            src={'/svgIcons/editIcon.svg'}
+            width={24}
+            height={24}
+            alt="*"
+          />
+        </button>*/}
       </div>
       <div style={styles.headingStyle}>Phone number</div>
       <div className="w-6/12 mt-2">
@@ -1227,8 +1609,8 @@ function BasicInfo() {
       {userRole && userRole != 'Invitee' && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div style={styles.headingStyle}>Farm</div>
               <div className="flex items-center w-6/12 mt-2 gap-2">
@@ -1268,18 +1650,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      farmRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1328,18 +1699,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      serviceAreaRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1384,18 +1744,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      teritorryRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1404,8 +1753,8 @@ function BasicInfo() {
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div style={styles.headingStyle}>Brokerage</div>
               <div className="flex items-center w-6/12 mt-2 gap-2">
@@ -1445,18 +1794,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      brokerAgeRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1505,18 +1843,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      companyRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1560,18 +1887,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      websiteRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1617,18 +1933,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      companyAffiliationRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1680,18 +1985,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      transactionRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1734,18 +2028,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      installationVolumeRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1754,7 +2037,7 @@ function BasicInfo() {
           )}
 
           {(userType && userType === UserTypes.SolarRep) ||
-          (userType && userType === UserTypes.DebtCollectorAgent) ? (
+            (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div style={styles.headingStyle}>
                 {userType === UserTypes.DebtCollectorAgent
@@ -1798,18 +2081,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      projectSizeRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1853,18 +2125,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      clientsPerMonthRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1908,18 +2169,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      casesPerMonthRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -2024,7 +2274,7 @@ function BasicInfo() {
             ''
           )}
           {(userType && userType === UserTypes.LawAgent) ||
-          (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
               <div style={styles.headingStyle} className="mt-6">
                 Client Type
@@ -2193,18 +2443,23 @@ function BasicInfo() {
                 marginBottom: '2vh',
               }}
             >
-              {agentAreasOfFocus.length > 0
-                ? 'What area of real estate do you focus on?'
-                : 'What industries do you specialize in?'}
+              {userType === UserTypes.Creator
+                ? 'What type of creator are you?'
+                : userType === UserTypes.HomeServices
+                  ? 'What type of home service do you provide?'
+                  : agentAreasOfFocus.length > 0
+                    ? 'What area of real estate do you focus on?'
+                    : 'What industries do you specialize in?'}
             </div>
-            {selectedArea.length > 0 &&
+            {userType !== UserTypes.Creator &&
+              userType !== UserTypes.HomeServices &&
+              selectedArea.length > 0 &&
               hasAreaFocusChanged() &&
               (areaLoading ? (
                 <CircularProgress size={20} />
               ) : (
                 <button
                   onClick={async () => {
-                    //console.log;
                     if (userType == UserTypes.RecruiterAgent) {
                       handleIndustryChange()
                     } else {
@@ -2222,7 +2477,426 @@ function BasicInfo() {
               ))}
           </div>
 
-          {agentAreasOfFocus.length > 0 && (
+          {userType === UserTypes.Creator && (
+            <div className="w-9/12 flex flex-col gap-6 mb-4">
+              <div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    value={creatorType || ''}
+                    onChange={(e) => setCreatorType(e.target.value)}
+                    displayEmpty
+                    renderValue={(v) =>
+                      CREATOR_TYPES.find((o) => o.id === v)?.title ?? null
+                    }
+                  >
+                    {CREATOR_TYPES.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  What do you primarily sell?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    multiple
+                    displayEmpty
+                    value={creatorPrimarySell || []}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setCreatorPrimarySell(
+                        typeof v === 'string' ? v.split(',') : v,
+                      )
+                    }}
+                    renderValue={(selected) => {
+                      if (!selected?.length) return null
+                      return (selected || [])
+                        .map(
+                          (id) =>
+                            CREATOR_PRIMARY_SELL_OPTIONS.find(
+                              (o) => o.id === id,
+                            )?.title,
+                        )
+                        .filter(Boolean)
+                        .join(', ')
+                    }}
+                    MenuProps={{
+                      PaperProps: { style: { maxHeight: 320 } },
+                    }}
+                  >
+                    {CREATOR_PRIMARY_SELL_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        <Checkbox
+                          checked={creatorPrimarySell.indexOf(item.id) > -1}
+                          className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                        />
+                        <span className="ml-2 text-sm font-medium">
+                          {item.title}
+                        </span>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  Where does your audience primarily engage?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    multiple
+                    displayEmpty
+                    value={creatorAudienceEngage || []}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setCreatorAudienceEngage(
+                        typeof v === 'string' ? v.split(',') : v,
+                      )
+                    }}
+                    renderValue={(selected) => {
+                      if (!selected?.length) return null
+                      return (selected || [])
+                        .map(
+                          (id) =>
+                            CREATOR_AUDIENCE_ENGAGE_OPTIONS.find(
+                              (o) => o.id === id,
+                            )?.title,
+                        )
+                        .filter(Boolean)
+                        .join(', ')
+                    }}
+                    MenuProps={{
+                      PaperProps: { style: { maxHeight: 320 } },
+                    }}
+                  >
+                    {CREATOR_AUDIENCE_ENGAGE_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        <Checkbox
+                          checked={
+                            creatorAudienceEngage.indexOf(item.id) > -1
+                          }
+                          className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                        />
+                        <span className="ml-2 text-sm font-medium">
+                          {item.title}
+                        </span>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="flex items-center gap-2">
+                {creatorSaveLoading ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  <button
+                    onClick={handleCreatorSave}
+                    style={{
+                      color: '#8a2be2',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Save creator details
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {userType === UserTypes.HomeServices && (
+            <div className="w-9/12 flex flex-col gap-6 mb-4">
+              {agentAreasOfFocus.length > 0 && (
+                <div className="flex flex-row flex-wrap gap-2 mb-2">
+                  {agentAreasOfFocus.map((item, index) => (
+                    <div
+                      key={index}
+                      className="w-5/12 p-4 flex flex-col justify-betweeen items-start rounded-2xl"
+                      style={{
+                        borderWidth: 2,
+                        borderColor: selectedArea.includes(item.id)
+                          ? '#7902DF'
+                          : '#00000008',
+                        backgroundColor: selectedArea.includes(item.id)
+                          ? '#7902DF05'
+                          : 'transparent',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => handleAreaSelect(item.id)}
+                    >
+                      <div style={{ fontSize: 15, fontWeight: '700' }}>
+                        {item.title}
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: '500' }}>
+                        {item.description}
+                      </div>
+                      <Image
+                        src={
+                          selectedArea.includes(item.id)
+                            ? '/otherAssets/selectedTickBtn.png'
+                            : '/otherAssets/unselectedTickBtn.png'
+                        }
+                        height={24}
+                        width={24}
+                        alt="icon"
+                        style={{ alignSelf: 'flex-end' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  How many technicians do you have?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    value={homeServicesTechniciansCount || ''}
+                    onChange={(e) =>
+                      setHomeServicesTechniciansCount(e.target.value)
+                    }
+                    displayEmpty
+                    renderValue={(v) =>
+                      HOME_SERVICES_TECHNICIANS_OPTIONS.find(
+                        (o) => o.id === v,
+                      )?.title ?? null
+                    }
+                  >
+                    {HOME_SERVICES_TECHNICIANS_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  What&apos;s your average job value?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    value={homeServicesJobValue || ''}
+                    onChange={(e) =>
+                      setHomeServicesJobValue(e.target.value)
+                    }
+                    displayEmpty
+                    renderValue={(v) =>
+                      HOME_SERVICES_JOB_VALUE_OPTIONS.find(
+                        (o) => o.id === v,
+                      )?.title ?? null
+                    }
+                  >
+                    {HOME_SERVICES_JOB_VALUE_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  What is your main goal with AI?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    multiple
+                    displayEmpty
+                    value={homeServicesMainGoal || []}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setHomeServicesMainGoal(
+                        typeof v === 'string' ? v.split(',') : v,
+                      )
+                    }}
+                    renderValue={(selected) => {
+                      if (!selected?.length) return null
+                      return (selected || [])
+                        .map(
+                          (id) =>
+                            HOME_SERVICES_MAIN_GOAL_OPTIONS.find(
+                              (o) => o.id === id,
+                            )?.title,
+                        )
+                        .filter(Boolean)
+                        .join(', ')
+                    }}
+                  >
+                    {HOME_SERVICES_MAIN_GOAL_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              {homeServiceTypeOther && (
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
+                    Other (type of home service)
+                  </div>
+                  <div style={{ fontSize: 14, color: '#333' }}>
+                    {homeServiceTypeOther}
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                {homeServicesSaveLoading ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  <button
+                    onClick={handleHomeServicesSave}
+                    style={{
+                      color: '#8a2be2',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Save home services details
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {agentAreasOfFocus.length > 0 && userType !== UserTypes.HomeServices && (
             <div className="w-9/12 flex flex-row flex-wrap gap-2 ">
               {agentAreasOfFocus.map((item, index) => (
                 <div

@@ -60,7 +60,7 @@ const OtherDetails = ({
 }) => {
   const verifyInputRef = useRef([])
   const timerRef = useRef(null)
-  
+
 
   let inputsFields = useRef([])
 
@@ -652,11 +652,11 @@ const OtherDetails = ({
         if (response.data.status === true) {
           // //console.log;
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
-          
+
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(
@@ -1257,7 +1257,12 @@ const OtherDetails = ({
 
                             // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                              router.push('/createagent?step=4')
+                              if (userData?.userTypeTitle === UserTypes.RealEstateAgent) {
+                                router.push('/createagent?step=4')
+                              } else {
+                                router.push('/createagent?step=3')
+
+                              }
                             } else {
                               if (handleShowRedirectPopup) {
                                 handleShowRedirectPopup()
@@ -1266,18 +1271,18 @@ const OtherDetails = ({
                               return
                             }
                           }}
-                          // onClick={() => {
-                          //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
-                          //   handleShowRedirectPopup();
-                          //   if (newTab && typeof newTab.document !== 'undefined') {
-                          //     newTab.document.write(`
-                          //     <script>
-                          //       window.opener && window.opener.close();  // Step 2: close current tab
-                          //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
-                          //     </script>
-                          //   `);
-                          //   }
-                          // }}
+                        // onClick={() => {
+                        //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
+                        //   handleShowRedirectPopup();
+                        //   if (newTab && typeof newTab.document !== 'undefined') {
+                        //     newTab.document.write(`
+                        //     <script>
+                        //       window.opener && window.opener.close();  // Step 2: close current tab
+                        //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
+                        //     </script>
+                        //   `);
+                        //   }
+                        // }}
                         >
                           Get Started
                         </button>
@@ -1303,7 +1308,7 @@ const OtherDetails = ({
           />
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

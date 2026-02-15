@@ -86,9 +86,12 @@ const TwilioIntegrations = ({
             message: response.message,
             isVisible: true,
           })
-          // handleClose(response);
+          const selectedDisplayName =
+            trustProducts?.voiceIntegrity?.all?.find(
+              (p) => p.sid === selectedVoiceIntegrity,
+            )?.friendlyName || ''
           setTimeout(() => {
-            handleClose(response)
+            handleClose({ ...response, displayName: selectedDisplayName })
           }, 300)
         } else {
           setShowSnack({
@@ -124,9 +127,12 @@ const TwilioIntegrations = ({
               message: ApiResponse.message,
               isVisible: true,
             })
-            // handleClose(response);
             setTimeout(() => {
-              handleClose(ApiResponse)
+              handleClose({
+                ...ApiResponse,
+                displayName:
+                  friendlyName || ApiResponse?.data?.friendlyName || '',
+              })
             }, 300)
           } else {
             setShowSnack({

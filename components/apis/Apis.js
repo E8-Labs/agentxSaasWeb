@@ -48,6 +48,8 @@ const Apis = {
   CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
   getCallLogs: `${BasePath}api/leads/callLogs`,
   getCallsInBatch: `${BasePath}api/pipeline/getCallsInABatch`,
+  getAgentCallsByType: `${BasePath}api/pipeline/getAgentCallsByType`,
+  getAgentCallsByTypeApi: '/api/pipeline/agentCallsByType',
   getLeadsInBatch: `${BasePath}api/pipeline/leadsInBatch`,
 
   getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,
@@ -57,6 +59,7 @@ const Apis = {
   resumeCalls: `${BasePath}api/pipeline/resumeAgentCadence`,
   getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
   getTagsList: `/api/tags`,
+  getUniqueTags: `${BasePath}api/leads/getTagsList`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
   updateAgentSupportButton: `${BasePath}api/agent/updateAgentSupportButton`,
   delSmartList: `${BasePath}api/leads/deleteList`,
@@ -97,6 +100,7 @@ const Apis = {
   getProfileData: `${BasePath}api/user/myProfile`,
   getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgent`,
   getUserByAgentVapiIdWithLeadDetails: `${BasePath}api/agent/getUserByAgentWithLeadDetails`,
+  registerWebCall: `${BasePath}api/agent/registerWebCall`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
   getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`,
@@ -118,6 +122,7 @@ const Apis = {
   updateProfileApi: `${BasePath}api/user/updateProfile`,
 
   getTeam: `${BasePath}api/team/getTeamMembers`,
+  getTeamMemberActivities: `${BasePath}api/team/activities`,
   inviteTeamMember: `${BasePath}api/team/inviteTeamMember`,
   deleteTeamMember: `${BasePath}api/team/deleteTeamMember`,
   updateProfileApi: `${BasePath}api/user/updateProfile`,
@@ -267,6 +272,8 @@ const Apis = {
   deleteMailgunIntegration: `${BasePath}api/mailgun/integration`,
   requestMailgunEmail: `${BasePath}api/mail/request-mailgun-email`,
   assignMailgunEmail: `${BasePath}api/mail/assign-mailgun-email`,
+  getMessageSettings: `${BasePath}api/mail/settings`,
+  updateMessageSettings: `${BasePath}api/mail/settings`,
   a2pNumbers: `${BasePath}api/agent/getA2PVerifiedNumbers`,
 
   agencyActivityData: `${BasePath}api/admin/stats`,
@@ -351,6 +358,7 @@ const Apis = {
   toggleNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
   previewNotificationTemplate: `${BasePath}api/agency/notification-customizations`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
+  updateSmartList: `${BasePath}api/leads/updateSmartList`,
 
   resumeSubscription: `${BasePath}api/user/cancellation/resume`,
   editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
@@ -397,14 +405,20 @@ const Apis = {
   getThreadById: `${BasePath}api/user/messaging/threads`,
   getMessagesForThread: `${BasePath}api/user/messaging/threads`,
   markThreadAsRead: `${BasePath}api/user/messaging/threads`,
+  updateThread: `${BasePath}api/user/messaging/threads`,
   deleteThread: `${BasePath}api/user/messaging/threads`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
+
+  // AI Chat APIs
+  aiChat: '/api/ai/chat',
 
   // Auto-Reply Draft APIs
   getDraftsForThread: `${BasePath}api/mail/drafts`,
   getDraftById: `${BasePath}api/mail/drafts`,
   sendDraft: `${BasePath}api/mail/drafts`,
+  markDraftAsSent: `${BasePath}api/mail/drafts`,
   discardDraft: `${BasePath}api/mail/drafts`,
+  generateCallSummaryFollowUpDrafts: `${BasePath}api/mail/drafts/call-summary-follow-up`,
   deleteProfileForAgencyRegistration: `${BasePath}api/user/deleteProfileForAgencyRegistration
 `,
 }

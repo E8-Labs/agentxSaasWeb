@@ -581,8 +581,10 @@ function AgencyPlansPayments({ selectedAgency }) {
       //// //console.log;
       // //console.log;
 
-      const ApiData = {
-        // patanai: "Sari dunya",
+      const ApiData = {}
+
+      if (selectedAgency && selectedAgency.id) {
+        ApiData.userId = selectedAgency.id
       }
 
       // return
@@ -1560,7 +1562,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                 <div className="flex flex-row items-center justify-between w-full">
                   <div>
                     {item.id === currentPlan &&
-                      currentPlanDetails?.status === 'active' && (
+                      reduxUser?.plan?.status === 'active' && (
                         <div
                           className="mt-4 flex px-2 py-1 bg-brand-primary rounded-full text-white"
                           style={{

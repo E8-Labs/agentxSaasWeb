@@ -214,7 +214,7 @@ const LogoCropper = ({
                 max={3}
                 step={0.1}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="w-full"
+                className="w-full h-2 bg-gray-200 rounded-full"
               />
             </div>
 

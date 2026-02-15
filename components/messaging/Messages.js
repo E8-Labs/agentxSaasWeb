@@ -12,6 +12,7 @@ import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import { agentImage, getAgentImageWithMemoji } from '@/utilities/agentUtilities'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { Input } from '@/components/ui/input'
 import NewMessageModal from './NewMessageModal'
 import ThreadsList from './ThreadsList'
@@ -30,8 +31,16 @@ import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import MessageSettingsModal from './MessageSettingsModal'
 import DraftCards from './DraftCards'
+import AiChatModal from './AiChatModal'
 
-const Messages = ({ selectedUser = null, agencyUser = null}) => {
+/** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
+function plainTextToHtml(text) {
+  if (!text || typeof text !== 'string') return ''
+  if (/<[a-z][\s\S]*>/i.test(text)) return text
+  return text.replace(/\n/g, '<br>')
+}
+
+const Messages = ({ selectedUser = null, agencyUser = null }) => {
   const searchParams = useSearchParams()
   const [threads, setThreads] = useState([])
   const [selectedThread, setSelectedThread] = useState(null)
@@ -71,6 +80,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState(null)
   const [selectedEmailAccount, setSelectedEmailAccount] = useState(null)
   const lastSelectedEmailAccountRef = useRef(null) // Store last selected email account when switching tabs
+  const initialEmailAccountsFetchedRef = useRef(false) // Prevent re-fetching email accounts on every messages update
   const [userData, setUserData] = useState(null)
   const [sendingMessage, setSendingMessage] = useState(false)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -88,15 +98,71 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
+  // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
+  const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
+  // Single AI Chat drawer: only one instance in the app, opened from a call summary in SystemMessage
+  const [aiChatContext, setAiChatContext] = useState(null)
 
   // Draft state for AI-generated responses
   const [drafts, setDrafts] = useState([])
   const [draftsLoading, setDraftsLoading] = useState(false)
   const [selectedDraft, setSelectedDraft] = useState(null)
   const [lastInboundMessageId, setLastInboundMessageId] = useState(null)
+  // When set, drafts are from call-summary follow-up (don't overwrite with inbound fetch)
+  const [callSummaryDraftsMessageId, setCallSummaryDraftsMessageId] = useState(null)
 
   // Debug: Log when modal state changes
-  useEffect(() => {}, [showUpgradePlanModal])
+  useEffect(() => { }, [showUpgradePlanModal])
+
+  // Fetch message settings once (for hasAiKey) when viewing a conversation; refetch when settings modal closes so new key is reflected
+  const fetchMessageSettingsHasAiKey = useCallback(async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        setMessageSettingsHasAiKey(false)
+        return
+      }
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+
+      let url = `${Apis.BasePath}api/mail/settings`
+      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      const res = await axios.get(url, { headers })
+      const data = res.data?.data
+      let hasKey = !!(data?.aiIntegrationId || (data?.aiIntegration && typeof data.aiIntegration === 'object'))
+
+      // Fallback: if settings say no key but user has integrations (e.g. MessageSettings.aiIntegrationId was never set), treat as has key
+      if (!hasKey) {
+        let integrationsUrl = `${Apis.BasePath}api/mail/ai-integrations`
+        if (selectedUser?.id) integrationsUrl += `?userId=${selectedUser.id}`
+        const intRes = await axios.get(integrationsUrl, { headers })
+        const list = intRes.data?.data
+        hasKey = !!(Array.isArray(list) && list.length > 0)
+      }
+
+      setMessageSettingsHasAiKey(hasKey)
+    } catch {
+      setMessageSettingsHasAiKey(false)
+    }
+  }, [selectedUser?.id])
+
+  useEffect(() => {
+    if (selectedThread) {
+      fetchMessageSettingsHasAiKey()
+    } else {
+      setMessageSettingsHasAiKey(null)
+    }
+  }, [selectedThread, fetchMessageSettingsHasAiKey])
+
+  // Refetch hasAiKey when message settings modal closes so we pick up a newly added key
+  const prevShowMessageSettingsModal = useRef(false)
+  useEffect(() => {
+    if (prevShowMessageSettingsModal.current && !showMessageSettingsModal && selectedThread) {
+      fetchMessageSettingsHasAiKey()
+    }
+    prevShowMessageSettingsModal.current = showMessageSettingsModal
+  }, [showMessageSettingsModal, selectedThread, fetchMessageSettingsHasAiKey])
 
   // Filter state
   const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
@@ -544,7 +610,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
-              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {} else if (msg.metadata && !msg.metadata.attachments) {}
+              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) { } else if (msg.metadata && !msg.metadata.attachments) { }
             })
 
             // Set messages (newest at bottom)
@@ -607,7 +673,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
           // Debug: Log messages with attachments and metadata structure
           fetchedMessages.forEach((msg) => {
-            if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {} else if (msg.metadata && !msg.metadata.attachments) {}
+            if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) { } else if (msg.metadata && !msg.metadata.attachments) { }
           })
 
           if (append) {
@@ -767,17 +833,17 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
     // Set flag to prevent auto-selecting email account
     isSelectingDraftRef.current = true
-    
+
     setSelectedDraft(draft)
 
     // Set composer mode based on draft type
     setComposerMode(draft.messageType || 'sms')
 
-    // Populate composer with draft content
+    // Populate composer with draft content (plain text → HTML for email so formatting is preserved)
     if (draft.messageType === 'email') {
       setComposerData(prev => ({
         ...prev,
-        emailBody: draft.content || '',
+        emailBody: plainTextToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
     } else {
@@ -819,7 +885,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
       if (response.data?.status) {
         // Remove the discarded draft from state
-        setDrafts(prev => prev.filter(d => d.id !== draftId))
+        setDrafts(prev => {
+          const next = prev.filter(d => d.id !== draftId)
+          if (next.length === 0) setCallSummaryDraftsMessageId(null)
+          return next
+        })
         // Clear selected draft if it was the one being discarded
         if (selectedDraft?.id === draftId) {
           setSelectedDraft(null)
@@ -834,6 +904,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     }
   }, [selectedUser, selectedDraft])
 
+  // Callback when call-summary follow-up drafts are generated (from SystemMessage AI Text/Email Submit)
+  const handleGenerateCallSummaryDrafts = useCallback((drafts, parentMessageId) => {
+    setDrafts(drafts || [])
+    setCallSummaryDraftsMessageId(parentMessageId || null)
+  }, [])
+
   // Update latest message ID ref when messages change
   useEffect(() => {
     if (messages.length > 0) {
@@ -843,12 +919,19 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     }
   }, [messages])
 
-  // Track last inbound message and fetch drafts only if last message is inbound
+  // Track last inbound message and fetch drafts only if last message is inbound (skip when showing call-summary drafts)
   useEffect(() => {
     if (!selectedThread?.id || messages.length === 0) {
       setDrafts([])
       setLastInboundMessageId(null)
       setSelectedDraft(null)
+      setCallSummaryDraftsMessageId(null)
+      return
+    }
+
+    // If we're showing call-summary follow-up drafts, fetch those (by messageId) instead of inbound
+    if (callSummaryDraftsMessageId) {
+      fetchDrafts(selectedThread.id, callSummaryDraftsMessageId)
       return
     }
 
@@ -866,7 +949,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       setLastInboundMessageId(null)
       setSelectedDraft(null)
     }
-  }, [messages, selectedThread?.id, fetchDrafts])
+  }, [messages, selectedThread?.id, fetchDrafts, callSummaryDraftsMessageId])
 
   // Poll for new messages every 5 seconds when a thread is selected
   useEffect(() => {
@@ -974,8 +1057,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       : t
                   )
                 )
-              } else {}
-            } else {}
+              } else { }
+            } else { }
           } else if (!currentLatestMessageId && allFetchedMessages.length > 0) {
             // If we don't have any messages yet, but there are messages, fetch them
             // This handles the case where messages arrive before initial load completes
@@ -1521,6 +1604,33 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     })
   }
 
+  // Sanitize HTML for email body while preserving rich formatting (bold, lists, links).
+  // Skips removeQuotedText so we don't strip HTML to plain text; use for outbound/composer-sent emails.
+  const sanitizeHTMLForEmailBody = (html) => {
+    if (typeof window === 'undefined') return html
+    if (!html) return ''
+    let processedContent = html || ''
+    processedContent = processedContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+    if (!/<[^>]+>/.test(processedContent) && processedContent.includes('\n')) {
+      processedContent = processedContent.replace(/\n/g, '<br>')
+    } else if (processedContent.includes('\n')) {
+      processedContent = processedContent.replace(/\n/g, '<br>')
+    }
+    processedContent = processedContent.replace(/<div[^>]*>([^<]+)<\/div>/gi, '$1<br>')
+    processedContent = processedContent.replace(/<\/div>\s*<div[^>]*>/gi, '<br>')
+    processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+    processedContent = processedContent.replace(/<div[^>]*><div[^>]*>([^<>]+)<\/div><\/div>/gi, '$1<br>')
+    processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+    processedContent = processedContent.replace(/<br>\s*$/gi, '')
+    processedContent = processedContent.replace(/\n/g, '<br>')
+    processedContent = processedContent.replace(/(<br>\s*){3,}/gi, '<br><br>')
+    return DOMPurify.sanitize(processedContent, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4', 'div'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+      KEEP_CONTENT: true,
+    })
+  }
+
   // Helper function to normalize email subject for threading
   const normalizeSubject = (subject) => {
     if (!subject) return ''
@@ -1531,9 +1641,48 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       .trim();
   }
 
+  /** Extract CC/BCC arrays from a message (for sync from last email in thread). */
+  const getCcBccFromMessage = useCallback((message) => {
+    console.log('🔍 [getCcBccFromMessage] message:', message)
+    if (!message || message.messageType !== 'email') return { cc: [], bcc: [] }
+    console.log('🔍 [getCcBccFromMessage] message.ccEmails:', message.ccEmails)
+    let cc = []
+    if (message.ccEmails) {
+      if (Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
+        cc = message.ccEmails
+      } else if (typeof message.ccEmails === 'string') {
+        let jsonCcEmails = JSON.parse(message.ccEmails)
+        cc = jsonCcEmails//message.ccEmails.split(',').map(e => e.trim()).filter(e => e)
+      }
+      console.log('🔍 [getCcBccFromMessage] cc:', cc)
+    } else if (message.metadata?.cc) {
+      console.log('🔍 [getCcBccFromMessage] message.metadata.cc:', message.metadata.cc)
+      if (typeof message.metadata.cc === 'string') {
+        console.log('🔍 [getCcBccFromMessage] message.metadata.cc (string):', message.metadata.cc)
+        cc = message.metadata.cc.split(',').map(e => e.trim()).filter(e => e)
+      } else if (Array.isArray(message.metadata.cc)) {
+        console.log('🔍 [getCcBccFromMessage] message.metadata.cc (array):', message.metadata.cc)
+        cc = message.metadata.cc
+      }
+    }
+    let bcc = []
+    if (message.bccEmails && Array.isArray(message.bccEmails) && message.bccEmails.length > 0) {
+      bcc = message.bccEmails
+    } else if (message.metadata?.bcc) {
+      if (typeof message.metadata.bcc === 'string') {
+        bcc = message.metadata.bcc.split(',').map(e => e.trim()).filter(e => e)
+      } else if (Array.isArray(message.metadata.bcc)) {
+        bcc = message.metadata.bcc
+      }
+    }
+    return { cc, bcc }
+  }, [])
+
   // Update composer fields (subject, CC, BCC) from a message
   const updateComposerFromMessage = (message) => {
     if (!message || message.messageType !== 'email') return
+
+    const { cc: ccEmailsArray, bcc: bccEmailsArray } = getCcBccFromMessage(message)
 
     // Extract and normalize subject
     if (message.subject) {
@@ -1541,40 +1690,27 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       setComposerData((prev) => ({ ...prev, subject: normalizedSubject }))
     }
 
-    // Extract CC emails
-    let ccEmailsArray = []
-    if (message.ccEmails && Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
-      ccEmailsArray = message.ccEmails
-    } else if (message.metadata?.cc) {
-      // Try to parse from metadata if it's a string
-      if (typeof message.metadata.cc === 'string') {
-        ccEmailsArray = message.metadata.cc.split(',').map(e => e.trim()).filter(e => e)
-      } else if (Array.isArray(message.metadata.cc)) {
-        ccEmailsArray = message.metadata.cc
-      }
-    }
-
-    // Extract BCC emails
-    let bccEmailsArray = []
-    if (message.bccEmails && Array.isArray(message.bccEmails) && message.bccEmails.length > 0) {
-      bccEmailsArray = message.bccEmails
-    } else if (message.metadata?.bcc) {
-      // Try to parse from metadata if it's a string
-      if (typeof message.metadata.bcc === 'string') {
-        bccEmailsArray = message.metadata.bcc.split(',').map(e => e.trim()).filter(e => e)
-      } else if (Array.isArray(message.metadata.bcc)) {
-        bccEmailsArray = message.metadata.bcc
-      }
-    }
-
-    // Update CC/BCC state
-    if (ccEmailsArray.length > 0) {
-      setCcEmails(ccEmailsArray)
-    }
-    if (bccEmailsArray.length > 0) {
-      setBccEmails(bccEmailsArray)
-    }
+    // Update CC/BCC state (always set so we show last email's CC/BCC, including empty)
+    setCcEmails(ccEmailsArray)
+    setBccEmails(bccEmailsArray)
+    if (ccEmailsArray.length > 0) setShowCC(true)
+    if (bccEmailsArray.length > 0) setShowBCC(true)
   }
+
+  // Always show CC/BCC from the last email in the thread (sent or received)
+  useEffect(() => {
+    if (!selectedThread?.id || composerMode !== 'email') return
+    const emailMessages = messages.filter((m) => m.messageType === 'email')
+    if (emailMessages.length === 0) return
+    const lastEmail = emailMessages[emailMessages.length - 1]
+    const { cc, bcc } = getCcBccFromMessage(lastEmail)
+    setCcEmails(cc)
+    setBccEmails(bcc)
+    setCcInput('')
+    setBccInput('')
+    if (cc.length > 0) setShowCC(true)
+    if (bcc.length > 0) setShowBCC(true)
+  }, [selectedThread?.id, messages, composerMode, getCcBccFromMessage])
 
   // Handle reply click
   const handleReplyClick = (message) => {
@@ -1645,7 +1781,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               onError={(e) => {
                 console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
               }}
-              onLoad={() => {}}
+              onLoad={() => { }}
             />
           </div>
         );
@@ -1661,28 +1797,33 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       )
     }
 
-    // Priority 2: Agent image or bitmoji
+    // Priority 2: Agent thumb, bitmoji, or initial
     if (message.agent) {
-      // Try agent image first
       if (message.agent.thumb_profile_image) {
+        const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
         return (
-          <Image
-            src={message.agent.thumb_profile_image}
-            alt="Agent"
-            width={26}
-            height={26}
-            className="rounded-full"
-            style={{ objectFit: 'cover' }}
-          />
+          <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+            <img
+              src={message.agent.thumb_profile_image}
+              alt={message.agent.name || 'Agent'}
+              className="w-full h-full object-cover rounded-full"
+              onError={(e) => {
+                e.target.style.display = 'none'
+                const parent = e.target.parentElement
+                if (parent) {
+                  parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                  parent.textContent = agentLetter
+                }
+              }}
+            />
+          </div>
         )
       }
-
-      // Try agent bitmoji (from voiceId)
       if (message.agent.voiceId) {
         const selectedVoice = voicesList.find(
           (voice) => voice.voice_id === message.agent.voiceId,
         )
-        if (selectedVoice && selectedVoice.img) {
+        if (selectedVoice?.img) {
           return (
             <Image
               src={selectedVoice.img}
@@ -1695,28 +1836,52 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           )
         }
       }
+      // Agent exists but no image: show agent initial
+      const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
+      return (
+        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+          {agentLetter}
+        </div>
+      )
     }
 
     // Priority 3: User profile image
     if (userData?.user?.thumb_profile_image) {
+      const userLetter = (userData.user.name || userData.user.firstName || 'U').charAt(0).toUpperCase()
       return (
-        <Image
-          src={userData.user.thumb_profile_image}
-          alt="User"
-          width={26}
-          height={26}
-          className="rounded-full"
-          style={{ objectFit: 'cover' }}
-        />
+        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+          <img
+            src={userData.user.thumb_profile_image}
+            alt={userData.user.name || 'User'}
+            className="w-full h-full object-cover rounded-full"
+            onError={(e) => {
+              e.target.style.display = 'none'
+              const parent = e.target.parentElement
+              if (parent) {
+                parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                parent.textContent = userLetter
+              }
+            }}
+          />
+        </div>
       )
     }
 
-    // Priority 4: User profile letter
-    const userName = userData?.user?.name || userData?.user?.firstName || 'U'
-    const userLetter = userName.charAt(0).toUpperCase()
+    // Priority 4: User initial (no user image)
+    if (userData?.user?.name || userData?.user?.firstName) {
+      const userName = userData.user.name || userData.user.firstName || 'U'
+      const userLetter = userName.charAt(0).toUpperCase()
+      return (
+        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+          {userLetter}
+        </div>
+      )
+    }
+
+    // Priority 5: Orb fallback when no agent and no user image
     return (
-      <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
-        {userLetter}
+      <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <AgentXOrb width={26} height={26} />
       </div>
     )
   }
@@ -1785,10 +1950,10 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
           // Dispatch custom event for task updates
 
-          // If a draft was selected, mark it as sent and clear drafts
+          // If a draft was selected, mark it as sent only (message already sent from composer — avoid double send)
           if (selectedDraft) {
             try {
-              let apiPath = `${Apis.sendDraft}/${selectedDraft.id}/send`
+              let apiPath = `${Apis.markDraftAsSent}/${selectedDraft.id}/mark-sent`
               if (selectedUser?.id) {
                 apiPath = `${apiPath}?userId=${selectedUser.id}`
               }
@@ -1805,6 +1970,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Clear drafts after sending
           setDrafts([])
           setSelectedDraft(null)
+          setCallSummaryDraftsMessageId(null)
 
           // Refresh messages and threads
           setTimeout(() => {
@@ -1958,7 +2124,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           if (selectedEmailAccount) {
             lastSelectedEmailAccountRef.current = selectedEmailAccount
           }
-          
+
           toast.success('Email sent successfully', {
             style: {
               width: 'fit-content',
@@ -1970,7 +2136,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Prioritize emailTimelineSubject (set when Load More or subject is clicked)
           const preservedSubject = emailTimelineSubject ||
             (composerData.subject && composerData.subject.trim() ? normalizeSubject(composerData.subject) : '')
-          // Reset composer - only clear the email body
+          // Reset composer - only clear the email body; keep CC/BCC so next email shows them and user can add/remove
           setComposerData((prev) => ({
             ...prev,
             to: selectedThread.lead?.email || selectedThread.receiverEmail || '',
@@ -1980,19 +2146,14 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
             bcc: '',
             attachments: [],
           }))
-          // Clear CC/BCC arrays and inputs
-          setCcEmails([])
-          setBccEmails([])
+          // Keep CC/BCC and visibility so next reply shows last email's CC/BCC; sync from last message happens when messages refresh
           setCcInput('')
           setBccInput('')
-          // Clear CC/BCC visibility
-          setShowCC(false)
-          setShowBCC(false)
 
-          // If a draft was selected, mark it as sent and clear drafts
+          // If a draft was selected, mark it as sent only (message already sent from composer — avoid double send)
           if (selectedDraft) {
             try {
-              let apiPath = `${Apis.sendDraft}/${selectedDraft.id}/send`
+              let apiPath = `${Apis.markDraftAsSent}/${selectedDraft.id}/mark-sent`
               if (selectedUser?.id) {
                 apiPath = `${apiPath}?userId=${selectedUser.id}`
               }
@@ -2009,6 +2170,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Clear drafts after sending
           setDrafts([])
           setSelectedDraft(null)
+          setCallSummaryDraftsMessageId(null)
 
           // Refresh messages and threads
           setTimeout(() => {
@@ -2063,16 +2225,16 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   // Get the last email account used in the thread
   const getLastEmailAccountFromThread = useCallback(() => {
     if (!messages || messages.length === 0) return null
-    
+
     // Find the most recent outbound email message
     const outboundEmails = messages
       .filter(msg => msg.messageType === 'email' && msg.direction === 'outbound' && msg.emailAccountId)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    
+
     if (outboundEmails.length > 0) {
       return outboundEmails[0].emailAccountId.toString()
     }
-    
+
     return null
   }, [messages])
 
@@ -2100,14 +2262,14 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
       if (response.data?.status && response.data?.data) {
         setEmailAccounts(response.data.data)
-        
+
         if (response.data.data.length > 0) {
           // Priority order:
           // 1. If preserving selection and we have a last selected account, restore it
           // 2. If restoreLastUsed is true, try to get from thread's last sent email
           // 3. If selecting a draft, don't auto-select
           // 4. Otherwise, select first account
-          
+
           if (preserveSelection && lastSelectedEmailAccountRef.current) {
             // Check if the last selected account still exists in the list
             const accountExists = response.data.data.some(
@@ -2118,7 +2280,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               return
             }
           }
-          
+
           if (restoreLastUsed) {
             const lastUsedAccountId = getLastEmailAccountFromThread()
             if (lastUsedAccountId) {
@@ -2132,7 +2294,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               }
             }
           }
-          
+
           // Only auto-select first account if not preserving selection and not selecting a draft
           if (!preserveSelection && !isSelectingDraftRef.current) {
             setSelectedEmailAccount(response.data.data[0].id)
@@ -2227,21 +2389,21 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Check if threadId is provided in query params (from notification click)
       const threadIdFromParams = searchParams?.get('threadId')
       const messageIdFromParams = searchParams?.get('messageId')
-      
+
       let threadToSelect = null
-      
+
       if (threadIdFromParams) {
         // Find the thread matching the threadId from query params
         threadToSelect = threads.find(
           (t) => t.id.toString() === threadIdFromParams.toString()
         )
       }
-      
+
       // Fallback to first thread if no match found or no query param
       if (!threadToSelect) {
         threadToSelect = threads[0]
       }
-      
+
       if (threadToSelect) {
         setSelectedThread(threadToSelect)
         setMessageOffset(0)
@@ -2274,7 +2436,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           }, 2000)
         }
       }, 500)
-      
+
       return () => clearTimeout(scrollTimer)
     }
   }, [messages, messagesLoading, searchParams])
@@ -2408,12 +2570,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const prevComposerModeRef = useRef(composerMode)
   useEffect(() => {
     const prevMode = prevComposerModeRef.current
-    
+
     // When switching away from email, store the current selected email account
     if (prevMode === 'email' && composerMode !== 'email' && selectedEmailAccount) {
       lastSelectedEmailAccountRef.current = selectedEmailAccount
     }
-    
+
     // When switching to email, restore the last selected account or use last used from thread
     if (prevMode !== 'email' && composerMode === 'email') {
       // Fetch accounts and restore selection
@@ -2454,14 +2616,22 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         }
       }
     }
-    
+
     prevComposerModeRef.current = composerMode
   }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread])
 
   // Initial load for phone numbers and email accounts
   useEffect(() => {
     fetchPhoneNumbers()
-    fetchEmailAccounts()
+    // Only fetch email accounts once on initial load.
+    // Subsequent re-fetches are triggered explicitly (e.g. after Gmail auth at AuthSelectionPopup).
+    // Without this guard, fetchEmailAccounts identity changes every time messages update
+    // (via getLastEmailAccountFromThread dep), causing this effect to re-run and
+    // reset selectedEmailAccount to the first account.
+    if (!initialEmailAccountsFetchedRef.current) {
+      fetchEmailAccounts()
+      initialEmailAccountsFetchedRef.current = true
+    }
   }, [fetchPhoneNumbers, fetchEmailAccounts])
 
   // Handle search with debounce and initial load
@@ -2695,7 +2865,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   }
 
   return (
-    <div className = {`w-full flex flex-col bg-white h-full`}>
+    <div className={`w-full flex flex-col bg-white h-full`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}
@@ -2704,7 +2874,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         time={4000}
         hide={() => setSnackbar({ ...snackbar, isVisible: false })}
       />
-      
+
       {/* Upgrade Plan Modal - Always available */}
       <UpgradePlan
         open={showUpgradePlanModal}
@@ -2722,7 +2892,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       />
 
       {
-      !hasMessagingAccess? (
+        !hasMessagingAccess ? (
           <UnlockMessagesView />
         ) : (
           <div className={`w-full h-full flex flex-col bg-white`}>
@@ -2739,12 +2909,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                     const lastMessage = thread.messages[0]
                     return lastMessage.direction === 'inbound'
                   }
-                  
+
                   // If no messages array, check if thread has lastMessage property
                   if (thread.lastMessage) {
                     return thread.lastMessage.direction === 'inbound'
                   }
-                  
+
                   // If no message info, check thread direction
                   // Default to unreplied if we can't determine (safer assumption)
                   return thread.direction === 'inbound' || !thread.direction
@@ -2806,14 +2976,28 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                 )
               })()}
 
-              {/* Right Side - Messages View */}
-              <div className={`flex-1 flex flex-col ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
+              {/* Right Side - Messages View (relative so LeadDetails wrapper doesn't affect layout) */}
+              <div className={`relative flex-1 flex flex-col min-w-0 ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
                 {selectedThread ? (
                   <>
                     {/* Messages Header */}
                     <ConversationHeader
-                    selectedUser={selectedUser}
-                    selectedThread={selectedThread} getRecentMessageType={getRecentMessageType} formatUnreadCount={formatUnreadCount} getLeadName={getLeadName} />
+                      selectedUser={selectedUser}
+                      selectedThread={selectedThread}
+                      getRecentMessageType={getRecentMessageType}
+                      formatUnreadCount={formatUnreadCount}
+                      getLeadName={getLeadName}
+                      onThreadUpdated={(updated) => {
+                        if (updated?.id != null) {
+                          setSelectedThread((prev) =>
+                            prev?.id === updated.id ? { ...prev, ...updated } : prev
+                          )
+                          setThreads((prev) =>
+                            prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t))
+                          )
+                        }
+                      }}
+                    />
 
                     {/* Messages Container */}
                     <ConversationView
@@ -2825,6 +3009,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       messagesEndRef={messagesEndRef}
                       messagesTopRef={messagesTopRef}
                       sanitizeHTML={sanitizeHTML}
+                      sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
                       getLeadName={getLeadName}
                       getAgentAvatar={getAgentAvatar}
                       getImageUrl={getImageUrl}
@@ -2842,6 +3027,10 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       onReplyClick={handleReplyClick}
                       onOpenEmailTimeline={handleOpenEmailTimeline}
                       updateComposerFromMessage={updateComposerFromMessage}
+                      onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
+                      onOpenAiChat={setAiChatContext}
+                      onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
+                      hasAiKey={messageSettingsHasAiKey}
                     />
 
                     {/* AI-Generated Draft Responses */}
@@ -2933,20 +3122,24 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               </div>
 
               {/* New Message Modal */}
-              <NewMessageModal
-                open={showNewMessageModal}
-                onClose={() => setShowNewMessageModal(false)}
-                onSend={(result) => {
-                  // Refresh threads after sending (even if partial success)
-                  if (result.sent > 0) {
-                    setTimeout(() => {
-                      fetchThreads(searchValue || "", appliedTeamMemberIds)
-                    }, 1000)
-                  }
-                }}
-                mode={newMessageMode}
-                selectedUser={selectedUser}
-              />
+              {
+                showNewMessageModal && (
+                  <NewMessageModal
+                    open={showNewMessageModal}
+                    onClose={() => setShowNewMessageModal(false)}
+                    onSend={(result) => {
+                      // Refresh threads after sending (even if partial success)
+                      if (result.sent > 0) {
+                        setTimeout(() => {
+                          fetchThreads(searchValue || "", appliedTeamMemberIds)
+                        }, 1000)
+                      }
+                    }}
+                    mode={newMessageMode}
+                    selectedUser={selectedUser}
+                  />
+                )
+              }
 
               {/* Image Viewer Modal */}
               {imageModalOpen && (
@@ -3112,6 +3305,19 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                 open={showMessageSettingsModal}
                 onClose={() => setShowMessageSettingsModal(false)}
                 selectedUser={selectedUser}
+              />
+
+              {/* Single AI Chat drawer - always one instance, visibility controlled by open (avoids MUI duplicate backdrop/paper) */}
+              <AiChatModal
+                open={!!aiChatContext}
+                onClose={() => setAiChatContext(null)}
+                callData={aiChatContext?.callData ?? null}
+                callSummaryMessage={aiChatContext?.message ?? null}
+                selectedThread={selectedThread}
+                parentMessageId={aiChatContext?.message?.id ?? null}
+                onPlayRecording={aiChatContext?.onPlayRecording ?? (() => { })}
+                onCopyCallId={aiChatContext?.onCopyCallId ?? (() => { })}
+                onReadTranscript={aiChatContext?.onReadTranscript ?? (() => { })}
               />
 
             </div>

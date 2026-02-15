@@ -329,11 +329,11 @@ export default function PlanConfiguration({
 
     const customFeaturesList = Array.isArray(customFeatures)
       ? customFeatures
-          .filter((feature) => feature?.trim?.() !== '')
-          .map((feature, index) => ({
-            id: `custom_${index}`,
-            text: feature,
-          }))
+        .filter((feature) => feature?.trim?.() !== '')
+        .map((feature, index) => ({
+          id: `custom_${index}`,
+          text: feature,
+        }))
       : []
 
     // console.log("custom features list 2.1", customFeaturesList)
@@ -497,7 +497,7 @@ export default function PlanConfiguration({
         isMultilingual
           ? 'Multilingual Compatible'
           : configurationData?.languageTitle ||
-              'English and Spanish Compatible',
+          'English and Spanish Compatible',
       )
       setCustomFeatures(configurationData?.customFeatures || [])
     }
@@ -646,7 +646,7 @@ export default function PlanConfiguration({
 
       const formData = apiFormData()
 
-      for (let [key, value] of formData.entries()) {}
+      for (let [key, value] of formData.entries()) { }
       // return
 
       const response = await axios.post(ApiPath, formData, {
@@ -720,7 +720,7 @@ export default function PlanConfiguration({
       const url = `${Apis.updateAgencyPlan}/${selectedPlan.id}`
       const formData = apiFormData()
 
-      for (let [key, value] of formData.entries()) {}
+      for (let [key, value] of formData.entries()) { }
       // return
 
       const response = await axios.put(url, formData, {
@@ -988,10 +988,10 @@ export default function PlanConfiguration({
   return (
     <Modal
       open={open}
-      // onClose={() => {
-      //   handleResetValues();
-      //   handleClose("");
-      // }}
+    // onClose={() => {
+    //   handleResetValues();
+    //   handleClose("");
+    // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
       <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -1026,7 +1026,7 @@ export default function PlanConfiguration({
           <div className="w-6/12 h-[100%] p-6">
             <div
               ref={scrollContainerRef}
-              className="overflow-y-auto w-full h-[80%] scrollbar-hide"
+              className="overflow-y-auto w-full h-[90%] scrollbar-hide"
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
@@ -1063,7 +1063,7 @@ export default function PlanConfiguration({
                           sanitized.split('.')?.length > 2
                             ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                             : sanitized
-                        
+
                         // Cap the value at 1000
                         if (valid && Number(valid) > 1000) {
                           valid = '1000'
@@ -1080,7 +1080,7 @@ export default function PlanConfiguration({
                             setSnackBannerMsg(null)
                           }
                         }
-                        
+
                         setNoOfAgents(valid)
                       }}
                     />
@@ -1256,28 +1256,15 @@ export default function PlanConfiguration({
                 setSnackBannerMsgType={setSnackBannerMsgType}
                 trialDaysError={trialDaysError}
                 setTrialDaysError={setTrialDaysError}
+                handleAddCustomFeature={handleAddCustomFeature}
               />
             </div>
             {/* Action Buttons */}
-            <div className="w-full pt-1">
-              <div
-                className="w-full flex flex-row items-center justify-between pt-2"
-                style={{ borderTop: '2px solid #15151510' }}
-              >
-                <div styles={{ fontSize: '15px', fontWeight: '700' }}>
-                  Custom Features
-                </div>
-                <button
-                  styles={{ fontSize: '15px', fontWeight: '700' }}
-                  className="underline text-brand-primary outline-none border-none"
-                  onClick={() => {
-                    handleAddCustomFeature()
-                  }}
-                >
-                  + Add
-                </button>
-              </div>
-              <div className="flex justify-between mt-10">
+            <div
+              className="w-full pt-1"
+              style={{ borderTop: '2px solid #15151510' }}
+            >
+              <div className="flex justify-between mt-6">
                 <button
                   disabled={createPlanLoader}
                   onClick={() => {

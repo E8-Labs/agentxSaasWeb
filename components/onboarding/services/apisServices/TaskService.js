@@ -25,6 +25,7 @@ const getAuthToken = () => {
  */
 export const getTasks = async (params = {}) => {
   try {
+    console.log("Trigering gettask list api")
     const AuthToken = getAuthToken()
     if (!AuthToken) {
       throw new Error('Authentication token not found')
@@ -42,6 +43,7 @@ export const getTasks = async (params = {}) => {
     if (params.type) queryParams.append('type', params.type)
 
     const url = `${Apis.getTasks}${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    console.log("url for gettasks list is", url)
 
     const response = await axios.get(url, {
       headers: {
@@ -49,6 +51,8 @@ export const getTasks = async (params = {}) => {
         'Content-Type': 'application/json',
       },
     })
+
+    console.log("Response data fetching in task service passing is", response)
 
     return response.data
   } catch (error) {
@@ -72,6 +76,8 @@ export const createTask = async (taskData, userId = null) => {
     if (!AuthToken) {
       throw new Error('Authentication token not found')
     }
+
+    console.log("Task data to add task passing in task service is", taskData)
 
     const response = await axios.post(Apis.createTask, taskData, {
       headers: {
@@ -144,6 +150,64 @@ export const deleteTask = async (taskId, userId = null) => {
     return response.data
   } catch (error) {
     console.error('Error deleting task:', error)
+    throw error
+  }
+}
+
+/**
+ * Pin a task (via Next.js API route)
+ * @param {number} taskId - Task ID
+ * @param {number} userId - Optional user ID (for admin/agency)
+ * @returns {Promise<Object>} Response with updated task
+ */
+export const pinTask = async (taskId, userId = null) => {
+  try {
+    const AuthToken = getAuthToken()
+    if (!AuthToken) {
+      throw new Error('Authentication token not found')
+    }
+
+    const url = `/api/tasks/${taskId}/pin${userId ? `?userId=${userId}` : ''}`
+
+    const response = await axios.patch(url, null, {
+      headers: {
+        Authorization: `Bearer ${AuthToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error pinning task:', error)
+    throw error
+  }
+}
+
+/**
+ * Unpin a task (via Next.js API route)
+ * @param {number} taskId - Task ID
+ * @param {number} userId - Optional user ID (for admin/agency)
+ * @returns {Promise<Object>} Response with updated task
+ */
+export const unpinTask = async (taskId, userId = null) => {
+  try {
+    const AuthToken = getAuthToken()
+    if (!AuthToken) {
+      throw new Error('Authentication token not found')
+    }
+
+    const url = `/api/tasks/${taskId}/unpin${userId ? `?userId=${userId}` : ''}`
+
+    const response = await axios.patch(url, null, {
+      headers: {
+        Authorization: `Bearer ${AuthToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error unpinning task:', error)
     throw error
   }
 }

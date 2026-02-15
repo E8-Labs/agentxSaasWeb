@@ -765,9 +765,17 @@ const AgencyAddCard = ({
                     selectedPlan?.originalPrice ||
                     0
                   const originalTotal = billingMonths * monthlyPrice
-                  const finalTotal = discountCalculation
-                    ? discountCalculation.finalPrice
-                    : originalTotal
+                  const est = promoCodeDetails?.estimatedDiscount
+                  const useApiTotals =
+                    est != null && !Number.isNaN(Number(est.finalPrice))
+                  const finalTotal = useApiTotals
+                    ? Number(est.finalPrice)
+                    : discountCalculation
+                      ? discountCalculation.finalPrice
+                      : originalTotal
+                  const displayDiscountAmount = useApiTotals
+                    ? Number(est.discountAmount)
+                    : discountCalculation?.discountAmount ?? 0
 
                   return (
                     <>
@@ -805,7 +813,7 @@ const AgencyAddCard = ({
                               color: '#7902DF',
                             }}
                           >
-                            -${formatFractional2(discountCalculation?.discountAmount)}
+                            -${formatFractional2(displayDiscountAmount)}
                           </div>
                         </div>
                       )}
@@ -892,6 +900,15 @@ const AgencyAddCard = ({
                           ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
                           : null
 
+                        const est = promoCodeDetails?.estimatedDiscount
+                        const apiFinal =
+                          est?.finalPrice != null ? Number(est.finalPrice) : NaN
+                        if (
+                          promoCodeDetails &&
+                          !Number.isNaN(apiFinal)
+                        ) {
+                          return `$${formatFractional2(apiFinal)}`
+                        }
                         if (discountCalculation) {
                           return `$${formatFractional2(discountCalculation.finalPrice)}`
                         }
@@ -1300,9 +1317,17 @@ const AgencyAddCard = ({
                   selectedPlan?.originalPrice ||
                   0
                 const originalTotal = billingMonths * monthlyPrice
-                const finalTotal = discountCalculation
-                  ? discountCalculation.finalPrice
-                  : originalTotal
+                const est = promoCodeDetails?.estimatedDiscount
+                const useApiTotals =
+                  est != null && !Number.isNaN(Number(est.finalPrice))
+                const finalTotal = useApiTotals
+                  ? Number(est.finalPrice)
+                  : discountCalculation
+                    ? discountCalculation.finalPrice
+                    : originalTotal
+                const displayDiscountAmount = useApiTotals
+                  ? Number(est.discountAmount)
+                  : discountCalculation?.discountAmount ?? 0
 
                 return (
                   <>
@@ -1341,7 +1366,7 @@ const AgencyAddCard = ({
                           }}
                         >
                           -$
-                          {formatFractional2(discountCalculation?.discountAmount)}
+                          {formatFractional2(displayDiscountAmount)}
                         </div>
                       </div>
                     )}
@@ -1362,7 +1387,7 @@ const AgencyAddCard = ({
                             marginTop: '',
                           }}
                         >
-                          Next Charge Date {getNextChargeDate(selectedPlan)}
+                          Next Charge Date {promoCodeDetails?.nextChargeDateFormatted || getNextChargeDate(selectedPlan)}
                         </div>
                       </div>
                       <div
@@ -1435,6 +1460,15 @@ const AgencyAddCard = ({
                         ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
                         : null
 
+                      const est = promoCodeDetails?.estimatedDiscount
+                      const apiFinal =
+                        est?.finalPrice != null ? Number(est.finalPrice) : NaN
+                      if (
+                        promoCodeDetails &&
+                        !Number.isNaN(apiFinal)
+                      ) {
+                        return `$${formatFractional2(apiFinal)}`
+                      }
                       if (discountCalculation) {
                         return `$${formatFractional2(discountCalculation.finalPrice)}`
                       }

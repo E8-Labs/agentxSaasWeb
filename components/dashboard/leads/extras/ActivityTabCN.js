@@ -41,6 +41,8 @@ const ActivityTabCN = ({
       isExpanded,
       onToggleExpand: () => onToggleExpand(item),
     }
+    
+    // console.log("Common props activity tab", commonProps);
 
     if (item.communicationType === 'email') {
       return <EmailActivityTile key={item.id} {...commonProps} />

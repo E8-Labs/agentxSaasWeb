@@ -14,7 +14,7 @@ import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
@@ -35,7 +35,18 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import PipelineStages from './PipelineStages'
 
-const Pipeline1 = ({ handleContinue }) => {
+const EMPTY_CADENCE_SLICE = {
+  assignedLeads: {},
+  rowsByIndex: {},
+  nextStage: {},
+  selectedNextStage: {},
+}
+
+const Pipeline1 = ({
+  handleContinue,
+  stopLoaderTrigger = false,
+  onContinueClick,
+}) => {
   const router = useRouter()
 
   const [shouldContinue, setShouldContinue] = useState(true)
@@ -49,17 +60,45 @@ const Pipeline1 = ({ handleContinue }) => {
   const [selectedPipelineStages, setSelectedPipelineStages] = useState([])
   const [oldStages, setOldStages] = useState([])
   const [pipelinesDetails, setPipelinesDetails] = useState([])
-  const [assignedLeads, setAssignedLeads] = useState({})
-  const [rowsByIndex, setRowsByIndex] = useState({})
+  // Per-pipeline cadence: { [pipelineId]: { assignedLeads, rowsByIndex, nextStage, selectedNextStage } }
+  const [cadenceByPipeline, setCadenceByPipeline] = useState({})
   const [createPipelineLoader, setPipelineLoader] = useState(false)
-
-  const [nextStage, setNextStage] = useState({})
-  const [selectedNextStage, setSelectedNextStage] = useState({})
-
+  const [isInboundAgent, setIsInboundAgent] = useState(false)
   const [showRearrangeErr, setShowRearrangeErr] = useState(null)
 
-  // const [nextStage, setNextStage] = useState([]);
-  // const [selectedNextStage, setSelectedNextStage] = useState([]);
+  // Ref for the main scroll container so PipelineStages can auto-scroll it during drag
+  const mainScrollContainerRef = useRef(null)
+
+  const pipelineId = selectedPipelineItem?.id
+  const currentCadence = useMemo(
+    () =>
+      pipelineId
+        ? {
+          ...EMPTY_CADENCE_SLICE,
+          ...cadenceByPipeline[pipelineId],
+        }
+        : EMPTY_CADENCE_SLICE,
+    [pipelineId, cadenceByPipeline],
+  )
+  const {
+    assignedLeads,
+    rowsByIndex,
+    nextStage,
+    selectedNextStage,
+  } = currentCadence
+
+  const updateCurrentPipelineCadence = (updater) => {
+    const id = selectedPipelineItem?.id
+    if (!id) return
+    setCadenceByPipeline((prev) => {
+      const current = prev[id] ?? EMPTY_CADENCE_SLICE
+      const updated = updater({ ...current })
+      return {
+        ...prev,
+        [id]: { ...EMPTY_CADENCE_SLICE, ...current, ...updated },
+      }
+    })
+  }
 
   const [reorderSuccessBarMessage, setReorderSuccessBarMessage] = useState(null)
   const [isVisibleSnack, setIsVisibleSnack] = useState(false)
@@ -70,13 +109,19 @@ const Pipeline1 = ({ handleContinue }) => {
   }, [reorderSuccessBarMessage])
 
   useEffect(() => {
+    if (stopLoaderTrigger) {
+      setPipelineLoader(false)
+    }
+  }, [stopLoaderTrigger])
+
+  useEffect(() => {
     // Check if user is subaccount and if agency has logo
     if (typeof window !== 'undefined') {
       try {
         const userData = localStorage.getItem('User')
         let isSub = false
         let hasLogo = false
-        
+
         if (userData) {
           const parsedUser = JSON.parse(userData)
           isSub =
@@ -91,11 +136,11 @@ const Pipeline1 = ({ handleContinue }) => {
         if (storedBranding) {
           try {
             branding = JSON.parse(storedBranding)
-          } catch (error) {}
+          } catch (error) { }
         }
 
         // Also check user data for agencyBranding
-        if ( userData) {
+        if (userData) {
           try {
             const parsedUser = JSON.parse(userData)
             if (parsedUser?.user?.agencyBranding) {
@@ -105,7 +150,7 @@ const Pipeline1 = ({ handleContinue }) => {
             } else if (parsedUser?.user?.agency?.agencyBranding) {
               branding = parsedUser.user.agency.agencyBranding
             }
-          } catch (error) {}
+          } catch (error) { }
         }
 
         hasLogo = !!branding?.logoUrl
@@ -113,7 +158,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
         // Show orb if: not subaccount OR (subaccount but no logo)
         setShowOrb(!isSub || (isSub && !hasLogo))
-      } catch (error) {}
+      } catch (error) { }
     }
   }, [])
 
@@ -147,10 +192,11 @@ const Pipeline1 = ({ handleContinue }) => {
       )
 
       if (selectedPipeline) {
-        // //console.log;
+        // console.log("Pipeline stages1 are ", selectedPipeline.stages);
+        // console.log("Pipeline indentifier1 are ", selectedPipeline);
         setSelectedPipelineItem(selectedPipeline)
         setSelectedPipelineStages(selectedPipeline.stages)
-
+        console.log("From useEffect Selected pipeline stages are", selectedPipeline.stages);
         // Restore assigned leads and rows by index
         const restoredAssignedLeads = {}
         const restoredRowsByIndex = {}
@@ -172,22 +218,27 @@ const Pipeline1 = ({ handleContinue }) => {
               referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
             }))
             if (cadence.moveToStage) {
-              const nextStage = selectedPipeline.stages.find(
+              const nextStageObj = selectedPipeline.stages.find(
                 (stage) => stage.id === cadence.moveToStage,
               )
-              if (nextStage) {
-                restoredNextStage[stageIndex] = nextStage
+              if (nextStageObj) {
+                restoredNextStage[stageIndex] = nextStageObj
                 // Also set the stage title for the dropdown
-                restoredNextStageTitles[stageIndex] = nextStage.stageTitle || nextStage.title
+                restoredNextStageTitles[stageIndex] = nextStageObj.stageTitle || nextStageObj.title
               }
             }
           }
         })
 
-        setAssignedLeads(restoredAssignedLeads)
-        setRowsByIndex(restoredRowsByIndex)
-        setSelectedNextStage(restoredNextStage)
-        setNextStage(restoredNextStageTitles) // Set dropdown values
+        setCadenceByPipeline((prev) => ({
+          ...prev,
+          [storedPipelineItem]: {
+            assignedLeads: restoredAssignedLeads,
+            rowsByIndex: restoredRowsByIndex,
+            nextStage: restoredNextStageTitles,
+            selectedNextStage: restoredNextStage,
+          },
+        }))
       } else {
         // //console.log;
       }
@@ -206,20 +257,41 @@ const Pipeline1 = ({ handleContinue }) => {
     //    // //console.log;
     // }
     getPipelines()
+
+    const agentDetails = localStorage.getItem('agentDetails')
+    if (agentDetails && agentDetails != 'undefined') {
+      const agentData = JSON.parse(agentDetails)
+      // //console.log;
+      if (agentData?.agentType === 'inbound') {
+        console.log("agent type is ", agentData?.agentType);
+        setIsInboundAgent(true)
+      } else {
+        if (agentData?.agents?.length > 1) {
+          // //console.log;
+          setIsInboundAgent(false)
+        } else {
+          if (agentData?.agents?.[0]?.agentType === 'inbound') {
+            setIsInboundAgent(true)
+          } else {
+            setIsInboundAgent(false)
+          }
+        }
+      }
+    }
+
   }, [])
 
   useEffect(() => {
-    if (selectedPipelineItem && rowsByIndex) {
-      // //console.log;
+    const hasAssignedStage =
+      selectedPipelineItem &&
+      Object.keys(assignedLeads).some((k) => assignedLeads[k])
+    // Agent needs to be assigned to a pipeline and stage.
+    if (isInboundAgent) {
       setShouldContinue(false)
-      return
-    } else if (!selectedPipelineItem || !rowsByIndex) {
-      // //console.log;
-      setShouldContinue(true)
+    } else {
+      setShouldContinue(!hasAssignedStage)
     }
-
-    //// //console.log;
-  }, [selectedPipelineItem, selectedPipelineStages])
+  }, [selectedPipelineItem, assignedLeads])
 
   //code to raorder the stages list
 
@@ -300,28 +372,31 @@ const Pipeline1 = ({ handleContinue }) => {
           try {
             const localCadenceDetails = JSON.parse(localCadences)
             const storedPipelineId = localCadenceDetails.pipelineID
-            
+
             // Find the pipeline that matches the stored cadence
             const matchingPipeline = response.data.data.find(
               (pipeline) => pipeline.id === storedPipelineId,
             )
-            
+
             if (matchingPipeline) {
               pipelineToSelect = matchingPipeline
             }
-          } catch (error) {}
+          } catch (error) { }
         }
 
         setSelectPipleLine(pipelineToSelect.title)
         setSelectedPipelineItem(pipelineToSelect)
         setSelectedPipelineStages(pipelineToSelect.stages)
+        console.log("From api Selected pipeline stages are", pipelineToSelect.stages.map((item) => item.identifier));
+        // console.log("Pipeline stages2 are ", pipelineToSelect.stages);
+        // console.log("Pipeline indentifier2 are ", pipelineToSelect);
         setOldStages(pipelineToSelect.stages)
         localStorage.setItem(
           'pipelinesData',
           JSON.stringify(response.data.data),
         )
       }
-    } catch (error) {} finally {
+    } catch (error) { } finally {
       // //console.log;
     }
   }
@@ -352,44 +427,55 @@ const Pipeline1 = ({ handleContinue }) => {
   //code for selecting stages
 
   const assignNewStage = (index) => {
-    setAssignedLeads((prev) => ({ ...prev, [index]: true }))
-    setRowsByIndex((prev) => ({
-      ...prev,
-      [index]: [
-        { id: index, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
-      ],
+    updateCurrentPipelineCadence((prev) => ({
+      assignedLeads: { ...prev.assignedLeads, [index]: true },
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [index]: [
+          {
+            id: index,
+            waitTimeDays: 0,
+            waitTimeHours: 0,
+            waitTimeMinutes: 0,
+          },
+        ],
+      },
     }))
   }
 
   const handleUnAssignNewStage = (index) => {
-    setAssignedLeads((prev) => ({ ...prev, [index]: false }))
-    setRowsByIndex((prev) => {
-      const updatedRows = { ...prev }
+    updateCurrentPipelineCadence((prev) => {
+      const updatedRows = { ...prev.rowsByIndex }
       delete updatedRows[index]
-      return updatedRows
+      return {
+        assignedLeads: { ...prev.assignedLeads, [index]: false },
+        rowsByIndex: updatedRows,
+      }
     })
   }
 
   const handleInputChange = (leadIndex, rowId, field, value) => {
-    setRowsByIndex((prev) => ({
-      ...prev,
-      [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
-        row.id === rowId 
-          ? { 
-              ...row, 
-              [field]: field === 'referencePoint' ? value : (Number(value) || 0) 
-            } 
-          : row,
-      ),
+    updateCurrentPipelineCadence((prev) => ({
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [leadIndex]: (prev.rowsByIndex[leadIndex] ?? []).map((row) =>
+          row.id === rowId
+            ? {
+              ...row,
+              [field]:
+                field === 'referencePoint' ? value : (Number(value) || 0),
+            }
+            : row,
+        ),
+      },
     }))
   }
 
   const addRow = (index, action = 'call', templateData = null) => {
-    setRowsByIndex((prev) => {
-      const list = prev[index] ?? []
+    updateCurrentPipelineCadence((prev) => {
+      const list = prev.rowsByIndex[index] ?? []
       const nextId = list.length ? list[list.length - 1].id + 1 : 1
 
-      // Check if this is a booking stage
       const currentStage = selectedPipelineStages[index]
       const isBookingStage = currentStage?.identifier === 'booked'
 
@@ -398,54 +484,53 @@ const Pipeline1 = ({ handleContinue }) => {
         waitTimeDays: 0,
         waitTimeHours: 0,
         waitTimeMinutes: 0,
-        action, // "call" | "sms" | "email"
-        communicationType: action, // Set communicationType to match action
-        referencePoint: isBookingStage ? 'before_meeting' : 'regular_calls', // Set default referencePoint
+        action,
+        communicationType: action,
+        referencePoint: isBookingStage ? 'before_meeting' : 'regular_calls',
       }
 
-      // Add template information for email and SMS actions
       if (templateData) {
-        // Add all template data to the row
         Object.keys(templateData).forEach((key) => {
           if (templateData[key] !== undefined) {
             newRow[key] = templateData[key]
           }
         })
-      } else {}
+      }
 
       return {
-        ...prev,
-        [index]: [...list, newRow],
+        rowsByIndex: {
+          ...prev.rowsByIndex,
+          [index]: [...list, newRow],
+        },
       }
     })
   }
 
   const removeRow = (leadIndex, rowId) => {
-    setRowsByIndex((prev) => ({
-      ...prev,
-      [leadIndex]: (prev[leadIndex] ?? []).filter((row) => row.id !== rowId),
+    updateCurrentPipelineCadence((prev) => ({
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [leadIndex]: (prev.rowsByIndex[leadIndex] ?? []).filter(
+          (row) => row.id !== rowId,
+        ),
+      },
     }))
   }
 
   const updateRow = (leadIndex, rowId, updatedData) => {
-    setRowsByIndex((prev) => {
-      const updatedRows = {
-        ...prev,
-        [leadIndex]: (prev[leadIndex] ?? []).map((row) => {
-          if (row.id === rowId) {
-            const updatedRow = { ...row, ...updatedData }
-            return updatedRow
-          }
-          return row
-        }),
-      }
-
-      return updatedRows
-    })
+    updateCurrentPipelineCadence((prev) => ({
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [leadIndex]: (prev.rowsByIndex[leadIndex] ?? []).map((row) =>
+          row.id === rowId ? { ...row, ...updatedData } : row,
+        ),
+      },
+    }))
   }
 
   const printAssignedLeadsData = async () => {
     // return
+    onContinueClick?.()
     setPipelineLoader(true)
 
     const allData = Object.keys(assignedLeads)
@@ -584,42 +669,36 @@ const Pipeline1 = ({ handleContinue }) => {
     // //console.log;
     setSelectedPipelineItem(selectedItem)
     setSelectedPipelineStages(selectedItem.stages)
+    console.log("From handleSelectPipleLine Selected pipeline stages are", selectedItem.stages);
+    // console.log("Pipeline stages3 are ", selectedItem.stages);
+    // console.log("Pipeline indentifier3 are ", selectedItem);
     setOldStages(selectedItem.stages)
   }
 
   const handleSelectNextChange = (index, event) => {
     const selectedValue = event.target.value
 
-    // Update the next stage for the specific index
-    setNextStage((prev) => ({
-      ...prev,
-      [index]: selectedValue,
-    }))
-
-    // Find the selected item for the specific index
     const selectedItem = selectedPipelineStages.find(
       (item) => item.stageTitle === selectedValue,
     )
 
-    // //console.log;
-
-    // Update the selected next stage for the specific index
-    setSelectedNextStage((prev) => ({
-      ...prev,
-      [index]: selectedItem,
+    updateCurrentPipelineCadence((prev) => ({
+      nextStage: { ...prev.nextStage, [index]: selectedValue },
+      selectedNextStage: { ...prev.selectedNextStage, [index]: selectedItem },
     }))
   }
 
   //code to rearrange stages list
-  const handleReorder = async () => {
+  const handleReorder = async (stagesToUse = null) => {
     try {
       setReorderLoader(true)
-      const updateStages = selectedPipelineStages.map((stage, index) => ({
+      const sourceStages = stagesToUse ?? selectedPipelineStages
+      const updateStages = sourceStages.map((stage, index) => ({
         id: stage.id,
         order: stage.order,
       }))
 
-      // //console.log;
+      console.log("updateStages reorder Selected pipeline stages are", updateStages);
 
       const ApiPath = Apis.reorderStages
       let AuthToken = null
@@ -677,6 +756,9 @@ const Pipeline1 = ({ handleContinue }) => {
     }
     setSelectedPipelineItem(pipeline)
     setSelectedPipelineStages(pipeline.stages)
+    console.log("From onNewStageCreated Selected pipeline stages are", pipeline.stages);
+    // console.log("Pipeline stages4 are ", pipeline.stages);
+    // console.log("Pipeline indentifier4 are ", pipeline);
     setPipelinesDetails(pipelines)
   }
 
@@ -729,7 +811,10 @@ const Pipeline1 = ({ handleContinue }) => {
       <div
         className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
       >
-        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
+        <div
+          ref={mainScrollContainerRef}
+          className="h-[95svh] sm:h-[92svh] overflow-auto pb-24"
+        >
           {/* header with title centered vertically */}
           <div className="relative w-full flex-shrink-0" style={{ minHeight: showOrb ? '140px' : '100px' }}>
             <Header />
@@ -790,7 +875,7 @@ const Pipeline1 = ({ handleContinue }) => {
             />
           </div>
 
-          <div 
+          <div
             className="flex flex-col items-center px-4 w-full flex-1 min-h-0 overflow-hidden"
           >
 
@@ -872,6 +957,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 selectedPipelineItem={selectedPipelineItem}
                 setShowRearrangeErr={setReorderSuccessBarMessage}
                 setIsVisibleSnack={setIsVisibleSnack}
+                scrollContainerRef={mainScrollContainerRef}
                 setSnackType={setSnackType}
                 onNewStageCreated={onNewStageCreated}
                 handleReOrder={handleReorder}

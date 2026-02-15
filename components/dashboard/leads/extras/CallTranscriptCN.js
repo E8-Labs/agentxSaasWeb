@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import moment from 'moment'
 import Image from 'next/image'
 import { Copy, FileText, ListChecks } from 'lucide-react'
@@ -32,6 +32,7 @@ const CallTranscriptCN = ({
   leadId = null,
   leadName = null,
   selectedUser = null,
+  bottomRightContent = null,
 }) => {
   const callSummary = item.callSummary
   const summaryText = callSummary?.callSummary || null
@@ -46,6 +47,10 @@ const CallTranscriptCN = ({
   const [nextStepsPopoverOpen, setNextStepsPopoverOpen] = useState(false)
   const [taskModalOpen, setTaskModalOpen] = useState(false)
 
+  // useEffect(() => {
+  //   console.log("leadId in call transcript is", leadId)
+  // }, [leadId])
+
   return (
     <div className="flex flex-col">
       {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
@@ -55,7 +60,11 @@ const CallTranscriptCN = ({
             {moment(item?.duration * 1000).format('mm:ss')}
           </TypographyBodyMedium>
           <button
-            onClick={() => onPlayRecording?.(item?.recordingUrl, item.callId)}
+            onClick={() => {
+              console.log("Playing recording", item?.recordingUrl, item.callId);
+              onPlayRecording?.(item?.recordingUrl, item.callId)
+              console.log("after Recording URL");
+            }}
             className="flex items-center justify-center"
             style={{
               width: 35,
@@ -191,7 +200,7 @@ const CallTranscriptCN = ({
         </TypographyBodyMedium>
       </div>
 
-      {/* Bottom row: Call ID, Transcript icons (left) */}
+      {/* Bottom row: Call ID, Transcript icons (left), optional right content */}
       <div className="flex flex-row items-center justify-between mt-4">
         <div className="flex flex-row items-center gap-4">
           {/* Call ID Icon */}
@@ -225,9 +234,9 @@ const CallTranscriptCN = ({
                 }
               }}
               disabled={!item.callId}
-              style={{ 
-                cursor: item.callId ? 'pointer' : 'not-allowed', 
-                display: 'flex', 
+              style={{
+                cursor: item.callId ? 'pointer' : 'not-allowed',
+                display: 'flex',
                 alignItems: 'center',
                 opacity: item.callId ? 1 : 0.5,
               }}
@@ -268,6 +277,7 @@ const CallTranscriptCN = ({
             </Tooltip>
           )}
         </div>
+        {bottomRightContent}
       </div>
 
       {/* Create Task Modal */}

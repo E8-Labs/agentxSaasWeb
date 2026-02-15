@@ -21,12 +21,13 @@ interface SmsTemplatePanelProps {
   leadId?: number
   leadPhone?: string
   selectedUser: any
+  deletingTemplateId?: number | null
   onTemplateSelect: (template: any) => void
   onSendSms: (phoneNumberId?: number) => void
   onDeleteTemplate: (template: any) => void
   onEditTemplate: (template: any) => void
   onRefreshTemplates: (createdTemplateId?: number) => void
-  onClose: () => void
+  onClose: (createdTemplateId?: number) => void
 }
 
 export default function SmsTemplatePanel({
@@ -45,6 +46,7 @@ export default function SmsTemplatePanel({
   onEditTemplate,
   onRefreshTemplates,
   onClose,
+  deletingTemplateId = null,
 }: SmsTemplatePanelProps) {
   const [smsPhoneNumberDropdownAnchor, setSmsPhoneNumberDropdownAnchor] = useState<null | HTMLElement>(null)
   const [showSmsTemplatePopup, setShowSmsTemplatePopup] = useState(false)
@@ -87,10 +89,10 @@ export default function SmsTemplatePanel({
     e.stopPropagation()
     // Get A2P verified phone numbers
     const a2pVerifiedNumbers = phoneNumbers.filter(
-      (pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) && 
-                   (pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified')
+      (pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) &&
+        (pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified')
     )
-    
+
     // Deduplicate by phone number
     const seenPhones = new Map<string, any>()
     const uniqueA2pNumbers = a2pVerifiedNumbers.filter((pn: any) => {
@@ -102,7 +104,7 @@ export default function SmsTemplatePanel({
       }
       return false
     })
-    
+
     if (uniqueA2pNumbers.length === 0) {
       toast.error('No A2P verified phone numbers found. Please verify a phone number first.')
     } else {
@@ -112,8 +114,8 @@ export default function SmsTemplatePanel({
 
   return (
     <>
-      <div 
-        className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" 
+      <div
+        className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col"
         style={{ maxHeight: '60vh', pointerEvents: 'auto' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -150,11 +152,10 @@ export default function SmsTemplatePanel({
                 <div
                   key={template.id}
                   onClick={() => onTemplateSelect(template)}
-                  className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                    selectedTemplate?.id === template.id
+                  className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTemplate?.id === template.id
                       ? 'border-2 border-brand-primary bg-brand-primary/10'
                       : 'border border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -230,10 +231,10 @@ export default function SmsTemplatePanel({
                             </MenuItem>
                           ) : (() => {
                             const a2pVerifiedNumbers = phoneNumbers.filter(
-                              (pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) && 
-                                           (pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified')
+                              (pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) &&
+                                (pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified')
                             )
-                            
+
                             const seenPhones = new Map<string, any>()
                             const uniqueA2pNumbers = a2pVerifiedNumbers.filter((pn: any) => {
                               const normalizedPhone = pn.phone?.trim()
@@ -244,7 +245,7 @@ export default function SmsTemplatePanel({
                               }
                               return false
                             })
-                            
+
                             if (uniqueA2pNumbers.length === 0) {
                               return (
                                 <MenuItem disabled>
@@ -298,12 +299,12 @@ export default function SmsTemplatePanel({
             onRefreshTemplates(createdTemplateId)
           }}
           phoneNumbers={phoneNumbers
-            .filter((pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) && 
-                                 (pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified'))
+            .filter((pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) &&
+              (pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified'))
             .map((pn: any) => ({ id: pn.id, phone: pn.phone }))}
           phoneLoading={phoneNumbersLoading}
           communicationType="sms"
-          addRow={()=>{}}
+          addRow={() => { }}
           isEditing={isEditingTemplate}
           editingRow={editingTemplate}
           onUpdateRow={null}
@@ -343,10 +344,15 @@ export default function SmsTemplatePanel({
           </MenuItem>
           <MenuItem
             onClick={() => handleDeleteClick(selectedTemplateForMenu)}
+            disabled={deletingTemplateId != null}
             style={{ color: '#dc2626' }}
           >
-            <X size={14} className="mr-2" />
-            Delete
+            {deletingTemplateId === (selectedTemplateForMenu?.id ?? selectedTemplateForMenu?.templateId) ? (
+              <Loader2 size={14} className="mr-2 animate-spin" />
+            ) : (
+              <X size={14} className="mr-2" />
+            )}
+            {deletingTemplateId === (selectedTemplateForMenu?.id ?? selectedTemplateForMenu?.templateId) ? 'Deleting...' : 'Delete'}
           </MenuItem>
         </Menu>
       )}

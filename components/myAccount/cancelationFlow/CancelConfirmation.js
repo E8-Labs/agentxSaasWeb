@@ -1,6 +1,7 @@
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 
+import Image from 'next/image'
 import { getUserPlans } from '@/components/userPlans/UserPlanServices'
 import { next30Days } from '@/constants/Constants'
 import { useUser } from '@/hooks/redux-hooks'
@@ -228,10 +229,16 @@ function CancelConfirmation({
           >
             {confirmChecked ? (
               <div
-                className="bg-brand-primary flex flex-row items-center justify-center rounded"
+                className="bg-brand-primary flex flex-row items-center justify-center rounded border-2 border-brand-primary"
                 style={{ height: '20px', width: '20px' }}
               >
-                {renderBrandedIcon('/assets/whiteTick.png', 8, 10)}
+                <Image
+                  src="/assets/whiteTick.png"
+                  alt=""
+                  width={12}
+                  height={12}
+                  className="object-contain"
+                />
               </div>
             ) : (
               <div

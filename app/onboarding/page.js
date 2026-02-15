@@ -34,6 +34,9 @@ import SalesDevAgent from '@/components/onboarding/otherAgentsSignUp/SalesDevAge
 import SolarRepAgentSignUp from '@/components/onboarding/otherAgentsSignUp/SolarRepAgentSignUp'
 import TaxAgentSignUp from '@/components/onboarding/otherAgentsSignUp/TaxAgentSignUp'
 import WebOwnersAgentSignUp from '@/components/onboarding/otherAgentsSignUp/WebOwnersAgentSignUp'
+import CreatorType from '@/components/onboarding/creator/CreatorType'
+import CreatorAgentSignUp from '@/components/onboarding/creator/CreatorAgentSignUp'
+import HomeServicesAgentSignUp from '@/components/onboarding/homeServices/HomeServicesAgentSignUp'
 import { PersistanceKeys } from '@/constants/Constants'
 import { UserTypes } from '@/constants/UserTypes'
 import ShootingStarLoading from '@/components/animations/ShootingStarLoading'
@@ -122,6 +125,15 @@ const Page = ({ params }) => {
     let agentTitle = userType //userData?.userTypeTitle || null;
     //console.log;
 
+    // Creator flow: UserType -> UserService -> CreatorType -> CreatorAgentSignUp (no FocusArea)
+    if (userType === UserTypes.Creator) {
+      return [UserType, UserService, CreatorType, CreatorAgentSignUp].filter(Boolean)
+    }
+
+    if (userType === UserTypes.HomeServices) {
+      return [UserType, UserService, FocusArea, HomeServicesAgentSignUp].filter(Boolean)
+    }
+
     const agentComponents = {
       [UserTypes.RealEstateAgent]: SignUpForm,
       [UserTypes.SalesDevRep]: SalesDevAgent,
@@ -157,6 +169,15 @@ const Page = ({ params }) => {
     //console.log;
     let agentTitle = userType //userData?.userTypeTitle || null;
     //console.log;
+
+    // Creator flow: same as desktop (UserType -> UserService -> CreatorType -> CreatorAgentSignUp)
+    if (userType === UserTypes.Creator) {
+      return [UserType, UserService, CreatorType, CreatorAgentSignUp].filter(Boolean)
+    }
+
+    if (userType === UserTypes.HomeServices) {
+      return [UserType, UserService, FocusArea, HomeServicesAgentSignUp].filter(Boolean)
+    }
 
     const agentComponents = {
       [UserTypes.RealEstateAgent]: BasicDetails,

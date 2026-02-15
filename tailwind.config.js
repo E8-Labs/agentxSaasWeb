@@ -102,10 +102,10 @@ module.exports = {
           5: 'hsl(var(--chart-5))',
         },
         // Agency branding colors (set server-side in layout.js)
-        // Falls back to default purple if not set
+        // Falls back to default purple if not set. Uses <alpha-value> so opacity modifiers work (e.g. bg-brand-primary/20).
         brand: {
-          primary: 'hsl(var(--brand-primary, 270 75% 50%))', // Default: #7902DF
-          secondary: 'hsl(var(--brand-secondary, 270 60% 60%))', // Default: lighter purple
+          primary: 'hsl(var(--brand-primary, 270 75% 50%) / <alpha-value>)', // Default: #7902DF
+          secondary: 'hsl(var(--brand-secondary, 270 60% 60%) / <alpha-value>)', // Default: lighter purple
         },
       },
       scrollbar: {

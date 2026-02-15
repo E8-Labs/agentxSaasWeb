@@ -190,9 +190,10 @@ const UserAddCard = ({
         // Check if this is still the latest request
         if (currentSeq !== referralRequestSeqRef.current) return
 
-        const resp = await checkReferralCode(inviteCode.trim())
+        const planId = selectedPlan?.id ?? null
+        const resp = await checkReferralCode(inviteCode.trim(), planId)
 
-        setReferralCodeDetails(resp)
+        setReferralCodeDetails(resp?.data != null ? resp.data : resp)
 
         // Double-check after async call
         if (currentSeq !== referralRequestSeqRef.current) return
@@ -214,7 +215,7 @@ const UserAddCard = ({
     return () => {
       clearTimeout(timer)
     }
-  }, [inviteCode])
+  }, [inviteCode, selectedPlan?.id])
 
   const elementOptions = {
     style: {
@@ -541,10 +542,59 @@ const UserAddCard = ({
       selectedPlan?.originalPrice ||
       0
 
-    const discountCalculation = referralCodeDetails ? calculateDiscountedPrice(referralCodeDetails?.discountValue, referralCodeDetails?.discountType, billingMonths * monthlyPrice) : null
-    const finalTotal = discountCalculation ? discountCalculation : billingMonths * monthlyPrice
-    return `$${formatFractional2(monthlyPrice * billingMonths)}`
+    const originalTotal = billingMonths * monthlyPrice
+    let finalTotal = originalTotal
+    if (referralStatus === 'valid' && referralCodeDetails?.discountValue != null) {
+      const est = referralCodeDetails?.estimatedDiscount
+      const apiFinal = est?.finalPrice != null ? Number(est.finalPrice) : NaN
+      if (est != null && !Number.isNaN(apiFinal)) {
+        finalTotal = apiFinal
+      } else {
+        finalTotal = calculateDiscountedPrice(
+          referralCodeDetails.discountValue,
+          referralCodeDetails.discountType,
+          originalTotal,
+        )
+      }
+    }
+    return `$${formatFractional2(finalTotal)}`
   }
+
+  // Order summary with promo applied. Use API estimatedDiscount when present (prorates yearly correctly).
+  const orderSummary = (() => {
+    if (!selectedPlan) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
+    const hasTrial = selectedPlan?.hasTrial === true
+    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+    if (hasTrial && isFirstTimeSubscription) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
+    const billingMonths = GetMonthCountFronBillingCycle(
+      selectedPlan?.billingCycle || selectedPlan?.duration,
+    )
+    const monthlyPrice =
+      selectedPlan?.discountPrice ||
+      selectedPlan?.discountedPrice ||
+      selectedPlan?.originalPrice ||
+      0
+    const originalTotal = billingMonths * monthlyPrice
+    if (referralStatus === 'valid' && referralCodeDetails?.discountValue != null) {
+      // Prefer API's estimatedDiscount (correct for yearly: e.g. 3 months off = pay 9 months)
+      const est = referralCodeDetails?.estimatedDiscount
+      const apiFinal = est?.finalPrice != null ? Number(est.finalPrice) : NaN
+      if (est != null && !Number.isNaN(apiFinal)) {
+        return {
+          originalTotal: Number(est.originalPrice) || originalTotal,
+          discountAmount: Number(est.discountAmount) || 0,
+          finalTotal: apiFinal,
+        }
+      }
+      const finalTotal = calculateDiscountedPrice(
+        referralCodeDetails.discountValue,
+        referralCodeDetails.discountType,
+        originalTotal,
+      )
+      return { originalTotal, discountAmount: originalTotal - finalTotal, finalTotal }
+    }
+    return { originalTotal, discountAmount: 0, finalTotal: originalTotal }
+  })()
 
   return (
     <div style={{ width: '100%' }}>
@@ -744,6 +794,28 @@ const UserAddCard = ({
                   </div>
                 </div>
 
+                {/* Promo applied (when valid) */}
+                {orderSummary.discountAmount > 0 && referralCodeDetails && (
+                  <div className="flex flex-row items-start justify-between w-full mb-4">
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: 15, color: 'var(--brand-primary, #6366f1)' }}>
+                        Promo Code Applied
+                      </div>
+                      <div style={{ fontWeight: '400', fontSize: 13, marginTop: 4 }}>
+                        {referralCodeDetails.discountType === 'percentage'
+                          ? `${referralCodeDetails.discountValue}% off`
+                          : `$${referralCodeDetails.discountValue} off`}
+                        {referralCodeDetails.discountDurationMonths
+                          ? ` for ${referralCodeDetails.discountDurationMonths} month${referralCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
+                          : ''}
+                      </div>
+                    </div>
+                    <div style={{ fontWeight: '600', fontSize: 15, color: 'var(--brand-primary, #6366f1)' }}>
+                      -${formatFractional2(orderSummary.discountAmount)}
+                    </div>
+                  </div>
+                )}
+
                 {/* Total Billed */}
                 <div className="flex flex-row items-start justify-between w-full mb-4">
                   <div>
@@ -760,30 +832,11 @@ const UserAddCard = ({
                         marginTop: 4,
                       }}
                     >
-                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
-                    {(() => {
-                      // Check if plan has trial and user is subscribing for the first time
-                      // const hasTrial = selectedPlan?.hasTrial === true
-                      // const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                      // If plan has trial and user has no previous plan, show $0
-                      // if (hasTrial && isFirstTimeSubscription) {
-                      //   return '$0'
-                      // }
-
-                      const billingMonths = GetMonthCountFronBillingCycle(
-                        selectedPlan?.billingCycle || selectedPlan?.duration,
-                      )
-                      const monthlyPrice =
-                        selectedPlan?.discountPrice ||
-                        selectedPlan?.discountedPrice ||
-                        selectedPlan?.originalPrice ||
-                        0
-                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
-                    })()}
+                    ${formatFractional2(orderSummary.finalTotal)}
                   </div>
                 </div>
 
@@ -795,28 +848,7 @@ const UserAddCard = ({
                   <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
                   <div className="flex flex-col items-end">
                     <div style={{ fontWeight: '600', fontSize: 22 }}>
-                      {(() => {
-                        if (!selectedPlan) return '$0'
-
-                        // Check if plan has trial and user is subscribing for the first time
-                        const hasTrial = selectedPlan?.hasTrial === true
-                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
-                        // If plan has trial and user has no previous plan, show $0
-                        if (hasTrial && isFirstTimeSubscription) {
-                          return '$0'
-                        }
-
-                        const billingMonths = GetMonthCountFronBillingCycle(
-                          selectedPlan?.billingCycle || selectedPlan?.duration,
-                        )
-                        const monthlyPrice =
-                          selectedPlan?.discountPrice ||
-                          selectedPlan?.discountedPrice ||
-                          selectedPlan?.originalPrice ||
-                          0
-                        return `$${formatFractional2(billingMonths * monthlyPrice)}`
-                      })()}
+                      ${formatFractional2(orderSummary.finalTotal)}
                     </div>
                     <div
                       style={{
@@ -1212,6 +1244,28 @@ const UserAddCard = ({
                   </div>
                 </div>
 
+                {/* Promo applied (when valid) - desktop */}
+                {orderSummary.discountAmount > 0 && referralCodeDetails && (
+                  <div className="flex flex-row items-start justify-between w-full mt-6">
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: 15, color: 'var(--brand-primary, #6366f1)' }}>
+                        Promo Code Applied
+                      </div>
+                      <div style={{ fontWeight: '400', fontSize: 13, marginTop: '' }}>
+                        {referralCodeDetails.discountType === 'percentage'
+                          ? `${referralCodeDetails.discountValue}% off`
+                          : `$${referralCodeDetails.discountValue} off`}
+                        {referralCodeDetails.discountDurationMonths
+                          ? ` for ${referralCodeDetails.discountDurationMonths} month${referralCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
+                          : ''}
+                      </div>
+                    </div>
+                    <div style={{ fontWeight: '600', fontSize: 15, color: 'var(--brand-primary, #6366f1)' }}>
+                      -${formatFractional2(orderSummary.discountAmount)}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-row items-start justify-between w-full mt-6">
                   <div>
                     <div
@@ -1228,37 +1282,18 @@ const UserAddCard = ({
                         marginTop: '',
                       }}
                     >
-                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                     </div>
                   </div>
                   <div
                     className=""
                     style={{ fontWeight: '600', fontSize: 15 }}
                   >
-                    {(() => {
-                      // Check if plan has trial and user is subscribing for the first time
-                      // const hasTrial = selectedPlan?.hasTrial === true
-                      // const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                      // If plan has trial and user has no previous plan, show $0
-                      // if (hasTrial && isFirstTimeSubscription) {
-                      //   return '$0'
-                      // }
-
-                      const billingMonths = GetMonthCountFronBillingCycle(
-                        selectedPlan?.billingCycle || selectedPlan?.duration,
-                      )
-                      const monthlyPrice =
-                        selectedPlan?.discountPrice ||
-                        selectedPlan?.discountedPrice ||
-                        selectedPlan?.originalPrice ||
-                        0
-                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
-                    })()}
+                    ${formatFractional2(orderSummary.finalTotal)}
                   </div>
                 </div>
 
-                {inviteCode && (
+                {inviteCode && !(referralCodeDetails && referralCodeDetails.discountValue != null) && (
                   <div>
                     <div className="flex flex-row items-start justify-between w-full mt-6">
                       <div>
@@ -1289,28 +1324,7 @@ const UserAddCard = ({
                   <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
                   <div className="flex flex-col items-end">
                     <div style={{ fontWeight: '600', fontSize: 22 }}>
-                      {(() => {
-                        if (!selectedPlan) return '$0'
-
-                        // Check if plan has trial and user is subscribing for the first time (no previous plan)
-                        const hasTrial = selectedPlan?.hasTrial === true
-                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
-                        // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
-                        if (hasTrial && isFirstTimeSubscription) {
-                          return '$0'
-                        }
-
-                        const billingMonths = GetMonthCountFronBillingCycle(
-                          selectedPlan?.billingCycle || selectedPlan?.duration,
-                        )
-                        const monthlyPrice =
-                          selectedPlan?.discountPrice ||
-                          selectedPlan?.discountedPrice ||
-                          selectedPlan?.originalPrice ||
-                          0
-                        return `$${formatFractional2(billingMonths * monthlyPrice)}`
-                      })()}
+                      ${formatFractional2(orderSummary.finalTotal)}
                     </div>
                     <div
                       style={{

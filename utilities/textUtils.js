@@ -1,6 +1,38 @@
+import DOMPurify from 'dompurify'
+
 /**
  * Utility functions for text processing and formatting
  */
+
+/**
+ * Sanitize HTML for email body display (conversation view style).
+ * Preserves p, br, strong, em, lists, links, etc. Safe to use with dangerouslySetInnerHTML.
+ * @param {string} html - Raw email HTML content
+ * @returns {string} Sanitized HTML
+ */
+export function sanitizeHTMLForEmailBody(html) {
+  if (typeof window === 'undefined') return html ?? ''
+  if (!html) return ''
+  let processedContent = (html || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  if (!/<[^>]+>/.test(processedContent) && processedContent.includes('\n')) {
+    processedContent = processedContent.replace(/\n/g, '<br>')
+  } else if (processedContent.includes('\n')) {
+    processedContent = processedContent.replace(/\n/g, '<br>')
+  }
+  processedContent = processedContent.replace(/<div[^>]*>([^<]+)<\/div>/gi, '$1<br>')
+  processedContent = processedContent.replace(/<\/div>\s*<div[^>]*>/gi, '<br>')
+  processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+  processedContent = processedContent.replace(/<div[^>]*><div[^>]*>([^<>]+)<\/div><\/div>/gi, '$1<br>')
+  processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+  processedContent = processedContent.replace(/<br>\s*$/gi, '')
+  processedContent = processedContent.replace(/\n/g, '<br>')
+  processedContent = processedContent.replace(/(<br>\s*){3,}/gi, '<br><br>')
+  return DOMPurify.sanitize(processedContent, {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4', 'div'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+    KEEP_CONTENT: true,
+  })
+}
 
 /**
  * Converts HTML content to plain text
@@ -63,6 +95,73 @@ export function htmlToPlainText(html) {
  * @param {number} size - File size (in bytes or KB, auto-detected)
  * @returns {string} Formatted size string (e.g., "3KB", "3.5MB")
  */
+/**
+ * Escapes HTML special characters and converts URLs to clickable links.
+ * Preserves newlines as <br /> tags.
+ * @param {string} text - Plain text to linkify
+ * @returns {string} HTML string with links and line breaks
+ */
+export function linkifyText(text) {
+  if (!text) return ''
+
+  // Escape HTML to avoid injection when rendering as HTML
+  const escapeHtml = (str) =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
+  const escaped = escapeHtml(text)
+
+  // Detect URLs (with or without protocol) and convert to links
+  const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi
+
+  const linked = escaped.replace(urlRegex, (match) => {
+    const hasProtocol = match.startsWith('http://') || match.startsWith('https://')
+    const href = hasProtocol ? match : `https://${match}`
+    return `<a href="${href}" class="underline text-brand-primary hover:text-brand-primary/80" target="_blank" rel="noopener noreferrer">${match}</a>`
+  })
+
+  // Preserve newlines
+  return linked.replace(/\n/g, '<br />')
+}
+
+/**
+ * Sanitizes HTML by converting to plain text, removing quoted email content,
+ * and linkifying URLs.
+ * @param {string} html - HTML string to sanitize
+ * @param {Function} sanitizeHTML - Sanitizer function (unused but kept for API compat)
+ * @returns {string} Cleaned HTML string with links
+ */
+export function sanitizeAndLinkifyHTML(html, sanitizeHTML) {
+  if (!html) return ''
+
+  // First convert HTML to plain text (this preserves URLs as text)
+  // We do this before sanitizing to ensure URLs aren't broken by HTML processing
+  let plainText = htmlToPlainText(html)
+
+  // Remove quoted text from plain text (simpler and more reliable than HTML processing)
+  // Remove lines starting with "On ... wrote:"
+  plainText = plainText.replace(/^On\s+.*?wrote:.*$/gmi, '')
+  // Remove lines starting with common email headers
+  plainText = plainText.replace(/^(From|Sent|To|Subject|Date):.*$/gmi, '')
+  // Remove quoted text blocks (lines starting with >)
+  plainText = plainText.replace(/^>.*$/gm, '')
+  // Remove content after common separators
+  const separatorIndex = plainText.search(/^(From|Sent|To|Subject|Date):/m)
+  if (separatorIndex > 0) {
+    plainText = plainText.substring(0, separatorIndex).trim()
+  }
+  // Clean up multiple newlines (but preserve single and double newlines for line breaks)
+  plainText = plainText.replace(/\n{3,}/g, '\n\n').trim()
+
+  // Now linkify URLs in the cleaned plain text
+  // linkifyText will convert newlines to <br /> tags automatically
+  return linkifyText(plainText)
+}
+
 export function formatFileSize(size) {
   if (!size || size === 0) {
     return '0KB'

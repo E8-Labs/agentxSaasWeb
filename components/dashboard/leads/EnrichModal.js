@@ -217,7 +217,7 @@ export default function EnrichModal({
         >
           <div className="flex flex-row justify-center w-full ">
             <div
-              className="w-full"
+              className="w-full py-10"
               style={{
                 backgroundColor: '#ffffff',
                 padding: 20,
@@ -236,7 +236,7 @@ export default function EnrichModal({
                 />
               </div>
 
-              <div className="w-full flex flex-col items-center justify-center mt-[90px] gap-4">
+              <div className="w-full flex flex-col items-center justify-center mt-[20px] gap-4">
                 <Image
                   src={'/svgIcons/sparkles.svg'}
                   height={37}

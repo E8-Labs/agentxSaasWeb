@@ -754,7 +754,7 @@ const LawAgentSignUpMobile = ({
                 <PhoneInput
                   className="border border-[#00000010] outline-none bg-white focus-within:border-black"
                   country={'us'} // restrict to US only
-                  onlyCountries={['us', 'mx']}
+                  onlyCountries={['us', 'mx','sv', 'ec']}
                   disableDropdown={true}
                   countryCodeEditable={false}
                   disableCountryCode={false}

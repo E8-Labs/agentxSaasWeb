@@ -48,6 +48,7 @@ import parsePhoneNumberFromString from 'libphonenumber-js'
 import AdminLeads from './AdminLeads'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
+import { Plus } from 'lucide-react'
 
 const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const addColRef = useRef(null)
@@ -529,7 +530,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     // Re-validate data using current column mappings (in case user manually mapped columns)
     // Use originalTransformedData if available, otherwise use processedData
     const dataToValidate = originalTransformedData.length > 0 ? originalTransformedData : processedData
-    
+
     if (!dataToValidate || dataToValidate.length === 0) {
       setErrSnack('No data found to validate. Please upload a file with data.')
       setErrSnackTitle('No Data Found')
@@ -604,7 +605,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     let invalidPhoneCount = 0
     let missingNameCount = 0
     let bothInvalidCount = 0
-    
+
     const validData = dataToValidate.filter((row) => {
       const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
       const hasPhone = isValidPhone(phone)
@@ -840,7 +841,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           let invalidPhoneCount = 0
           let missingNameCount = 0
           let bothInvalidCount = 0
-          
+
           const validData = transformedData.filter((row) => {
             const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
             const hasPhone = isValidPhone(phone)
@@ -867,7 +868,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           })
 
           const filteredCount = transformedData.length - validData.length
-          if (filteredCount > 0) {}
+          if (filteredCount > 0) { }
 
           // Update state
           setProcessedData(validData)
@@ -968,7 +969,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       if (isEnrichToggle) {
         // Use the validated data count if available, otherwise use processedData
         const leadCount = pd.length > 0 ? pd.length : processedData.length
-        
+
         let enrichmentPayment = await processEnrichmentPayment(leadCount)
 
         if (enrichmentPayment.status === false) {
@@ -1045,7 +1046,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       if (error.response) {
         // Server responded with error status - prioritize message from response.data.message
         const status = error.response.status
-        
+
         // Always use response.data.message if it exists, otherwise try error field, then fallback
         if (error.response.data?.message) {
           errorMessage = error.response.data.message
@@ -1261,91 +1262,102 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   )}
               </div>
               <div className="flex flex-col w-full h-full justify-center items-center">
-              <div className={`flex flex-row items-center  justify-center mt-3 w-full px-4`}>
-                <div className="w-full max-w-[710px] relative" style={{ aspectRatio: '710/100' }}>
-                  <Image
-                    src={'/assets/placeholder.png'}
-                    fill
-                    alt="*"
-                    className="object-contain"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 710px"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center">
-                <div
-                  className="mt-2 ms-8 text-center"
-                  style={{ fontSize: 30, fontWeight: '700' }}
-                >
-                  {`Looks like you don't have any leads yet`}
-                </div>
-
-                <div className="w-full flex flex-row gap-6 justify-center mt-4 gap-4">
-                  <div className="">
-                    <button
-                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
-                      onClick={() => {
-                        setShowAddLeadModal(true)
-                      }}
-                    >
-                      <Image
-                        src={'/assets/addManIcon.png'}
-                        height={20}
-                        width={20}
-                        alt="*"
-                      />
-                      <span style={styles.headingStyle}>Upload Leads</span>
-                    </button>
-                  </div>
-                  <div className="">
-                    <button
-                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
-                      onClick={() => {
-                        setShowAddNewSheetModal(true)
-                      }}
-                    >
-                      <Image
-                        src={'/assets/smartlistIcn.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                      <span style={styles.headingStyle}>Create Smartlist</span>
-                    </button>
+                <div className={`flex flex-row items-center  justify-center mt-3 w-full px-4`}>
+                  <div className="w-full max-w-[710px] relative" style={{ aspectRatio: '710/100' }}>
+                    <Image
+                      src={'/assets/placeholder.png'}
+                      fill
+                      alt="*"
+                      className="object-contain"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 710px"
+                    />
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
-                  
-
                   <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '70px',
-                      left: '60%',
-                      transform: 'translateX(-50%)',
-                    }}
+                    className="mt-2 ms-8 text-center"
+                    style={{ fontSize: 30, fontWeight: '700' }}
                   >
-                    <VideoCard
-                      duration={(() => {
-                        const tutorial = getTutorialByType(
-                          HowToVideoTypes.LeadsAndContacts,
-                        )
-                        return tutorial?.description || '11:27'
-                      })()}
-                      horizontal={false}
-                      playVideo={() => {
-                        setIntroVideoModal(true)
-                      }}
-                      title={
-                        getTutorialByType(HowToVideoTypes.LeadsAndContacts)
-                          ?.title || 'Learn how to add leads to your CRM'
-                      }
-                    />
+                    {`Looks like you don't have any leads yet`}
                   </div>
 
+                  <div className="w-full flex flex-row gap-6 justify-center mt-4 gap-4">
+                    <div className="">
+                      <button
+                        className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                        onClick={() => {
+                          setShowAddLeadModal(true)
+                        }}
+                      >
+                        <Image
+                          src={'/assets/addManIcon.png'}
+                          height={20}
+                          width={20}
+                          alt="*"
+                        />
+                        <span style={styles.headingStyle}>Upload Leads</span>
+                      </button>
+                    </div>
+                    <div className="">
+                      <button
+                        className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                        onClick={() => {
+                          setShowAddNewSheetModal(true)
+                        }}
+                      >
+                        <Image
+                          src={'/assets/smartlistIcn.svg'}
+                          height={24}
+                          width={24}
+                          alt="*"
+                        />
+                        <span style={styles.headingStyle}>Create Smartlist</span>
+                      </button>
+                    </div>
+                    <div className="">
+                      <button
+                        className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                        onClick={() => {
+                          setShowAddNewSheetModal(true)
+                        }}
+                      >
+                        <Plus className="text-white" />
+                        <span style={styles.headingStyle}>New Contact</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center justify-center">
 
+
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: '70px',
+                        left: '60%',
+                        transform: 'translateX(-50%)',
+                      }}
+                    >
+                      <VideoCard
+                        duration={(() => {
+                          const tutorial = getTutorialByType(
+                            HowToVideoTypes.LeadsAndContacts,
+                          )
+                          return tutorial?.description || '11:27'
+                        })()}
+                        horizontal={false}
+                        playVideo={() => {
+                          setIntroVideoModal(true)
+                        }}
+                        title={
+                          getTutorialByType(HowToVideoTypes.LeadsAndContacts)
+                            ?.title || 'Learn how to add leads to your CRM'
+                        }
+                      />
+                    </div>
+
+
+                  </div>
                 </div>
-              </div>
               </div>
             </div>
           )}
@@ -1673,45 +1685,45 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       style={{ height: 'calc(100vh - 500px)' }}
                     >
                       {NewColumnsObtained.map((item, index) => {
-                    // const matchingValue = processedData.find((data) =>
-                    //   Object.keys(data).includes(item.dbName)
-                    // );
-                    // console.log(
-                    //   `1342: matching val: ${item.dbName}`,
-                    //   matchingValue
-                    // );
-                    return (
-                      <div
-                        key={index}
-                        className="flex flex-row items-center mt-4"
-                        style={{ ...styles.paragraph }}
-                      >
-                        <div className="w-2/12">
-                          {item.UserFacingName || item.matchedColumn ? (
-                            <Image
-                              className="ms-4"
-                              src={'/assets/checkDone.png'}
-                              alt="*"
-                              height={24}
-                              width={24}
-                            />
-                          ) : (
-                            <Image
-                              className="ms-4"
-                              src={'/assets/warning.png'}
-                              alt="*"
-                              height={24}
-                              width={24}
-                            />
-                          )}
-                          {/* <Image className='ms-4' src={"/assets/checkDone.png"} alt='*' height={24} width={24} /> */}
-                        </div>
-                        <div className="w-3/12">{item.ColumnNameInSheet}</div>
-                        <div className="w-3/12 truncate">
-                          {processedData && processedData.length > 0 && processedData[0]
-                            ? processedData[0][item.ColumnNameInSheet] || ''
-                            : ''}
-                          {/* {item.matchedColumn ? (
+                        // const matchingValue = processedData.find((data) =>
+                        //   Object.keys(data).includes(item.dbName)
+                        // );
+                        // console.log(
+                        //   `1342: matching val: ${item.dbName}`,
+                        //   matchingValue
+                        // );
+                        return (
+                          <div
+                            key={index}
+                            className="flex flex-row items-center mt-4"
+                            style={{ ...styles.paragraph }}
+                          >
+                            <div className="w-2/12">
+                              {item.UserFacingName || item.matchedColumn ? (
+                                <Image
+                                  className="ms-4"
+                                  src={'/assets/checkDone.png'}
+                                  alt="*"
+                                  height={24}
+                                  width={24}
+                                />
+                              ) : (
+                                <Image
+                                  className="ms-4"
+                                  src={'/assets/warning.png'}
+                                  alt="*"
+                                  height={24}
+                                  width={24}
+                                />
+                              )}
+                              {/* <Image className='ms-4' src={"/assets/checkDone.png"} alt='*' height={24} width={24} /> */}
+                            </div>
+                            <div className="w-3/12">{item.ColumnNameInSheet}</div>
+                            <div className="w-3/12 truncate">
+                              {processedData && processedData.length > 0 && processedData[0]
+                                ? processedData[0][item.ColumnNameInSheet] || ''
+                                : ''}
+                              {/* {item.matchedColumn ? (
                           processedData[0][item.matchedColumn.dbName]
                         ) : (
                           <div>
@@ -1724,64 +1736,64 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                                 ]}
                           </div>
                         )} */}
-                        </div>
-                        <div className="w-3/12 border rounded p-2">
-                          <button
-                            className="flex flex-row items-center justify-between w-full outline-none"
-                            onClick={(event) => {
-                              if (columnAnchorEl) {
-                                handleColumnPopoverClose()
-                              } else {
-                                // if (index > 4) {
-                                setSelectedItem(index)
-                                ////////console.log;
-                                // //console.log;
-                                // console.log(
-                                //   "Array selected is :",
-                                //   NewColumnsObtained
-                                // );
-                                setUpdateColumnValue(item.columnNameTransformed)
-                                handleColumnPopoverClick(event)
-                                setUpdateHeader(item)
-                                // }
-                              }
-                            }}
-                          >
-                            <p className="truncate">
-                              {item.matchedColumn
-                                ? item.matchedColumn.UserFacingName
-                                : item.UserFacingName}
-                            </p>
-                            {selectedItem === index ? (
-                              <CaretUp size={20} weight="bold" />
+                            </div>
+                            <div className="w-3/12 border rounded p-2">
+                              <button
+                                className="flex flex-row items-center justify-between w-full outline-none"
+                                onClick={(event) => {
+                                  if (columnAnchorEl) {
+                                    handleColumnPopoverClose()
+                                  } else {
+                                    // if (index > 4) {
+                                    setSelectedItem(index)
+                                    ////////console.log;
+                                    // //console.log;
+                                    // console.log(
+                                    //   "Array selected is :",
+                                    //   NewColumnsObtained
+                                    // );
+                                    setUpdateColumnValue(item.columnNameTransformed)
+                                    handleColumnPopoverClick(event)
+                                    setUpdateHeader(item)
+                                    // }
+                                  }
+                                }}
+                              >
+                                <p className="truncate">
+                                  {item.matchedColumn
+                                    ? item.matchedColumn.UserFacingName
+                                    : item.UserFacingName}
+                                </p>
+                                {selectedItem === index ? (
+                                  <CaretUp size={20} weight="bold" />
+                                ) : (
+                                  <CaretDown size={20} weight="bold" />
+                                )}
+                              </button>
+                            </div>
+
+                            {item.matchedColumn || item.UserFacingName ? (
+                              <button
+                                className="underline text-brand-primary w-1/12 outline-none ps-4"
+                                onClick={() => {
+                                  setUpdateHeader(item)
+                                  setShowDelCol(true)
+                                  // setUpdateHeader(item)
+                                  // ChangeColumnName(null)
+                                }}
+                              >
+                                <Image
+                                  src={'/assets/blackBgCross.png'}
+                                  height={15}
+                                  width={15}
+                                  alt="*"
+                                />
+                              </button>
                             ) : (
-                              <CaretDown size={20} weight="bold" />
+                              <div></div>
                             )}
-                          </button>
-                        </div>
 
-                        {item.matchedColumn || item.UserFacingName ? (
-                          <button
-                            className="underline text-brand-primary w-1/12 outline-none ps-4"
-                            onClick={() => {
-                              setUpdateHeader(item)
-                              setShowDelCol(true)
-                              // setUpdateHeader(item)
-                              // ChangeColumnName(null)
-                            }}
-                          >
-                            <Image
-                              src={'/assets/blackBgCross.png'}
-                              height={15}
-                              width={15}
-                              alt="*"
-                            />
-                          </button>
-                        ) : (
-                          <div></div>
-                        )}
-
-                        {/* <Modal
+                            {/* <Modal
                           open = {ShowDelCol}
                           onClose={()=>setShowDelCol(false)}
 
@@ -1791,9 +1803,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                         </div>
 
                       </Modal> */}
-                      </div>
-                    )
-                  })}
+                          </div>
+                        )
+                      })}
                     </div>
                   </>
                 )}
@@ -2000,42 +2012,42 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               </div>
               {GetDefaultColumnsNotMatched().filter((item) => item.isUniqueColumn)
                 .length > 0 && (
-                <>
-                  <div
-                    className="text-xs text-gray-500 px-2 py-1 mt-1"
-                    style={{ fontSize: 12, fontWeight: '600' }}
-                  >
-                    Custom Columns
-                  </div>
-                  <div className="flex flex-col text-start">
-                    {GetDefaultColumnsNotMatched()
-                      .filter((item) => item.isUniqueColumn)
-                      .map((item, index) => {
-                        return (
-                          <button
-                            className="text-start hover:bg-[hsl(var(--brand-primary) / 0.1)] p-2"
-                            key={`unique-${index}`}
-                            onClick={() => {
-                              ChangeColumnName(item.UserFacingName)
-                            }}
-                          >
-                            {item.UserFacingName}
-                          </button>
-                        )
-                      })}
-                  </div>
-                </>
-              )}
-              </div>
+                  <>
+                    <div
+                      className="text-xs text-gray-500 px-2 py-1 mt-1"
+                      style={{ fontSize: 12, fontWeight: '600' }}
+                    >
+                      Custom Columns
+                    </div>
+                    <div className="flex flex-col text-start">
+                      {GetDefaultColumnsNotMatched()
+                        .filter((item) => item.isUniqueColumn)
+                        .map((item, index) => {
+                          return (
+                            <button
+                              className="text-start hover:bg-[hsl(var(--brand-primary) / 0.1)] p-2"
+                              key={`unique-${index}`}
+                              onClick={() => {
+                                ChangeColumnName(item.UserFacingName)
+                              }}
+                            >
+                              {item.UserFacingName}
+                            </button>
+                          )
+                        })}
+                    </div>
+                  </>
+                )}
             </div>
-            <button
-              className="underline text-brand-primary p-2 hover:bg-[hsl(var(--brand-primary) / 0.1)] w-full text-start"
-              onClick={() => {
-                setShowPopUp(true)
-              }}
-            >
-              Add New column
-            </button>
+          </div>
+          <button
+            className="underline text-brand-primary p-2 hover:bg-[hsl(var(--brand-primary) / 0.1)] w-full text-start"
+            onClick={() => {
+              setShowPopUp(true)
+            }}
+          >
+            Add New column
+          </button>
         </Popover>
 
         {/* Modal to update header */}

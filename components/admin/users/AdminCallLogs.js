@@ -13,6 +13,7 @@ import AdminActiveCalls from './callLog/AdminActiveCalls'
 import AdminAllCalls from './callLog/AdminAllCalls'
 import AdminScheduledCalls from './callLog/AdminScheduledCalls'
 import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 function AdminCallLogs({ selectedUser }) {
   const [activeTab, setActiveTab] = useState('All Activities')
@@ -20,8 +21,8 @@ function AdminCallLogs({ selectedUser }) {
   return (
     <div className="w-full h-full flex flex-col items-center overflow-hidden">
       <div
-        className=" w-full h-full flex flex-row justify-between items-center px-4"
-        // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
+        className=" w-full h-full flex flex-row justify-between items-center px-4 mt-[2vh]"
+      // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         {/* Slider code */}
         <div
@@ -33,18 +34,21 @@ function AdminCallLogs({ selectedUser }) {
         >
           <DashboardSlider needHelp={false} selectedUser={selectedUser} />
         </div>
-        <TypographyH3>Activity</TypographyH3>
+        <StandardHeader
+          title="Activity"
+          showTasks={true}
+          selectedUser={selectedUser}
+        />
       </div>
       <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10 ">
         {['All Activities', 'Campaign Activity'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`${
-              activeTab === tab
+            className={`${activeTab === tab
                 ? 'text-brand-primary border-b-2 border-brand-primary outline-none'
                 : ''
-            }`}
+              }`}
             style={{ fontSize: 15, fontWeight: '500' }}
           >
             {tab}

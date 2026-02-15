@@ -34,14 +34,14 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
             onClick={() => onChange(option.value)}
             className={cn(
               "px-2 py-1 rounded-lg transition-colors",
-              isSelected ? 'bg-white' : 'bg-transparent text-brand-primary'
+              isSelected ? 'bg-white text-brand-primary' : 'bg-transparent text-black'
             )}
           >
             <TypographyBody className="flex items-center gap-2">
               {Icon && (
                 <Icon 
                   size={20} 
-                  className={isSelected ? 'text-brand-primary' : 'text-brand-primary'} 
+                  className={isSelected ? 'text-brand-primary' : 'text-black'} 
                 />
               )}
               <span>{option.label}</span>
@@ -50,7 +50,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
                   style={{
                     backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
                   }}
-                  className="text-brand-primary font-bold px-1 rounded-full"
+                  className={`${isSelected ? 'text-brand-primary' : 'text-black'} font-bold px-1 rounded-full`}
                 >
                   {option.count}
                 </span>

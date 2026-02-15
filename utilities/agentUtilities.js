@@ -184,6 +184,7 @@ export const getAgentsListImage = (
   //// //console.log;
   //// //console.log;
 
+  console.log("subAgent? is", subAgent)
   if (subAgent?.thumb_profile_image) {
     return (
       <div

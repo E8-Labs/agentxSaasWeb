@@ -774,113 +774,31 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         }}
         type={snackMsgType}
       />
-      <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
+      <div className="flex h-[60px] w-full flex-row items-center justify-between px-5 py-5 border-b">
         <div
           style={{
-            fontSize: 22,
-            fontWeight: '700',
+            fontSize: 24,
+            fontWeight: '600',
+            letterSpacing: '-1px',
           }}
         >
-          {/* AgencyName */}
-          Plans
+          Total Plans: {filteredList?.length ? filteredList.length : 0}
         </div>
 
         <div className="flex flex-row items-center gap-2">
           <NotficationsDrawer />
         </div>
       </div>
-      <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 shadow-md">
-        <div
-          className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, hsl(var(--brand-primary)), hsl(var(--brand-primary) / 0.8))`,
-          }}
-        >
-          {/* Content */}
-          <div className="relative z-10 flex flex-row items-center justify-between w-full">
-            <div
-              style={{
-                fontSize: 29,
-                fontWeight: '700',
-                color: 'white',
-              }}
-            >
-              Total Plans: {filteredList?.length ? filteredList.length : 0}
-            </div>
-
-            <button
-              className="flex px-5 py-3 bg-white rounded-lg text-brand-primary font-medium"
-              onClick={() => {
-                setIsEditPlan(false)
-                setSelectedPlan(null)
-                setSelectedPlanDetails(null)
-                setmoreDropdown(null)
-                setTimeout(() => {
-                  handleAddPlan()
-                }, 300)
-              }}
-            >
-              New Plan
-            </button>
-          </div>
-        </div>
-
-        <div className="w-full flex flex-row items-center justify-between ">
-          <div
-            className="px-4 mt-6 flex flex-row gap-4 border-b"
-            style={{ fontSize: '15', fontWeight: '500', width: 'fit-content' }}
-          >
-            <div
-              className={`pb-2 flex flex-row items-center px-4 ${planType === 'monthly' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-black'} gap-4`}
-            >
-              {renderBrandedIcon(
-                planType === 'monthly'
-                  ? '/agencyIcons/focusMonthlyPln.png'
-                  : '/agencyIcons/unFocusMonthlyPln.png',
-                23,
-                25,
-                planType === 'monthly',
-              )}
-              <button
-                className={`${planType === 'monthly' ? 'text-brand-primary' : 'text-black'}`}
-                onClick={() => {
-                  setPlanType('monthly')
-                }}
-              >
-               Subscriptions
-              </button>
-            </div>
-            <div
-              className={`pb-2 ${planType === 'Xbar' ? 'text-brand-primary border-b-2 border-brand-primary px-2' : 'text-black'} flex flex-row items-center gap-4`}
-            >
-              {renderBrandedIcon(
-                planType === 'Xbar'
-                  ? '/agencyIcons/focusXBar.png'
-                  : '/agencyIcons/UnFocusXBar.png',
-                24,
-                24,
-                planType === 'Xbar',
-              )}
-              <button
-                className={`${planType === 'Xbar' ? 'text-brand-primary' : 'text-black'}`}
-                onClick={() => {
-                  setPlanType('Xbar')
-                }}
-              >
-                XBar Options
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
+      <div className="m-0 w-11/12 max-w-[1300px] h-full rounded-none flex flex-col items-center gap-1 border-l border-r border-[#eaeaea] p-0 bg-white">
+        <div className="m-0 flex w-full flex-row items-center justify-between py-3 px-3 border-b border-[#eaeaea]">
+          <div className="flex h-10 flex-row items-center gap-1 w-[22vw] min-w-0 flex-shrink-0 rounded-lg border border-gray-200 pl-1 pr-3 focus-within:border-2 focus-within:border-brand-primary transition-colors">
             <input
-              style={{ fontSize: 15 }}
               type="text"
               placeholder="Search by name"
-              className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
+              className="min-w-0 flex-grow outline-none font-[500] text-sm border-none bg-transparent focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
               value={searchValue}
               onChange={(e) => {
                 const value = e.target.value
-                // handleSearchChange(value);
                 setSearchValue(value)
                 handleSearchChange(value)
               }}
@@ -892,11 +810,81 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
               height={20}
             />
           </div>
+          <button
+            className="flex h-[40px] shrink-0 px-5 py-3 items-center justify-center bg-brand-primary text-white text-sm font-medium rounded-lg border-none outline-none shadow-md transition-shadow transition-transform duration-200 ease-out active:scale-[0.98] hover:shadow-lg"
+            style={{
+              boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px hsl(var(--brand-primary) / 0.25), 0 4px 6px -4px hsl(var(--brand-primary) / 0.25)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)'
+            }}
+            onClick={() => {
+              setIsEditPlan(false)
+              setSelectedPlan(null)
+              setSelectedPlanDetails(null)
+              setmoreDropdown(null)
+              setTimeout(() => {
+                handleAddPlan()
+              }, 300)
+            }}
+          >
+            New Plan
+          </button>
+        </div>
+        <div className="m-0 w-full flex flex-row gap-3 border-b border-gray-200">
+          <div
+            className="flex w-full flex-row gap-3 text-sm"
+            style={{ fontWeight: '500' }}
+          >
+            <div
+              className={`py-3 flex flex-row items-center px-3 ${planType === 'monthly' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-black'} gap-2`}
+            >
+              {renderBrandedIcon(
+                planType === 'monthly'
+                  ? '/agencyIcons/focusMonthlyPln.png'
+                  : '/agencyIcons/unFocusMonthlyPln.png',
+                16,
+                16,
+                planType === 'monthly',
+              )}
+              <button
+                className={`transition-transform duration-200 ease-out active:scale-[0.98] ${planType === 'monthly' ? 'text-brand-primary' : 'text-black'}`}
+                onClick={() => {
+                  setPlanType('monthly')
+                }}
+              >
+               Subscriptions
+              </button>
+            </div>
+            <div
+              className={`py-3 px-3 ${planType === 'Xbar' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-black'} flex flex-row items-center gap-2`}
+            >
+              {renderBrandedIcon(
+                planType === 'Xbar'
+                  ? '/agencyIcons/focusXBar.png'
+                  : '/agencyIcons/UnFocusXBar.png',
+                16,
+                16,
+                planType === 'Xbar',
+              )}
+              <button
+                className={`transition-transform duration-200 ease-out active:scale-[0.98] ${planType === 'Xbar' ? 'text-brand-primary' : 'text-black'}`}
+                onClick={() => {
+                  setPlanType('Xbar')
+                }}
+              >
+                XBar Options
+              </button>
+            </div>
+          </div>
         </div>
 
         {filteredList?.length > 0 ? (
           <>
-            <div className="w-full flex flex-row justify-between mt-4">
+            <div className="m-0 w-full flex flex-row justify-between py-3 px-3 uppercase">
               <div className="w-3/12">
                 <div style={styles.text}>Name</div>
               </div>
@@ -928,8 +916,8 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                     <CircularProgress size={30} />
                   </div>
                 ) : (
-                  <div className="w-full">
-                    <div>
+                  <div className="w-full text-sm">
+                    <div className="flex flex-col gap-[2px] text-sm">
                       {filteredList
                         .slice()
                         .reverse()
@@ -937,7 +925,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                           <div
                             key={item.id}
                             style={{ cursor: 'pointer' }}
-                            className="w-full flex flex-row justify-between items-center mt-5 hover:bg-brand-primary/5 py-2"
+                            className="m-0 w-full flex flex-row justify-between items-center py-[10px] px-3 border-b border-[#eaeaea] hover:bg-black/[0.02]"
                           >
                             <div
                               className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
@@ -1003,8 +991,8 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                               >
                                 <Image
                                   src={'/svgIcons/threeDotsIcon.svg'}
-                                  height={24}
-                                  width={24}
+                                  height={16}
+                                  width={16}
                                   alt="menu"
                                 />
                               </button>
@@ -1089,11 +1077,17 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                   You have no monthly plans created
                 </div>
                 <button
-                  className="mt-3 bg-brand-primary text-white rounded-lg h-[50px] w-[209px]"
-                  style={{ fontWeight: '500', fontSize: 15 }}
-                  Create
-                  New
-                  Plan
+                  className="mt-3 flex h-[40px] shrink-0 px-5 py-3 items-center justify-center bg-brand-primary text-white rounded-lg text-sm font-medium border-none outline-none shadow-md transition-shadow transition-transform duration-200 ease-out active:scale-[0.98] hover:shadow-lg w-[209px]"
+                  style={{
+                    fontSize: 14,
+                    boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px hsl(var(--brand-primary) / 0.25), 0 4px 6px -4px hsl(var(--brand-primary) / 0.25)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)'
+                  }}
                   onClick={() => {
                     setIsEditPlan(false)
                     setSelectedPlan(null)
@@ -1126,8 +1120,17 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                   You have no Xbars created
                 </div>
                 <button
-                  className="mt-3 bg-brand-primary text-white rounded-lg h-[50px] w-[209px]"
-                  style={{ fontWeight: '500', fontSize: 15 }}
+                  className="mt-3 flex h-[40px] shrink-0 px-5 py-3 items-center justify-center bg-brand-primary text-white rounded-lg text-sm font-medium border-none outline-none shadow-md transition-shadow transition-transform duration-200 ease-out active:scale-[0.98] hover:shadow-lg w-[209px]"
+                  style={{
+                    fontSize: 14,
+                    boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px hsl(var(--brand-primary) / 0.25), 0 4px 6px -4px hsl(var(--brand-primary) / 0.25)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)'
+                  }}
                   onClick={handleAddPlan}
                 >
                   Create XBar
@@ -1234,7 +1237,7 @@ export default DashboardPlans
 
 const styles = {
   text: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#00000090',
     fontWeight: '600',
     // textAlign: "start",
@@ -1242,7 +1245,7 @@ const styles = {
   },
   text2: {
     textAlignLast: 'left',
-    fontSize: 15,
+    fontSize: 14,
     color: '#000000',
     fontWeight: '500',
     whiteSpace: 'nowrap', // Prevent text from wrapping

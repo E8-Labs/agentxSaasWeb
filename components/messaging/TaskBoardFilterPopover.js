@@ -30,7 +30,7 @@ const TaskBoardFilterPopover = ({
     filterMember != null || filterDueStatus != null || filterPriority != null
 
   return (
-    <Popover>
+    <Popover style={{ zIndex: 1555 }}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -57,9 +57,23 @@ const TaskBoardFilterPopover = ({
         align="end"
         side="bottom"
         className="w-72 p-0"
-        style={{ zIndex: 1500 }}
+        style={{ zIndex: 1600 }}
         onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
+        // onInteractOutside={(e) => e.preventDefault()}
+        // onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => {
+          const taskBoard = document.querySelector('[data-task-board]')
+          const target = e.detail?.originalEvent?.target ?? e.target
+          if (taskBoard?.contains(target)) return // click inside task board → allow close
+          e.preventDefault() // click outside task board (e.g. modal) → keep open
+        }}
+        onPointerDownOutside={(e) => {
+          const taskBoard = document.querySelector('[data-task-board]')
+          const target = e.detail?.originalEvent?.target ?? e.target
+          if (taskBoard?.contains(target)) return
+          e.preventDefault()
+        }}
       >
         <div className="p-3 border-none border-gray-200">
           <TypographyCaption className="font-semibold text-[#666666]">

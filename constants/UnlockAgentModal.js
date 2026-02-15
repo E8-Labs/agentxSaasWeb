@@ -49,7 +49,7 @@ function UnlockAgentModal({
 
               <div className="flex flex-row items-center -mt-10">
                 <div
-                  className="text-purple"
+                  className="text-brand-primary"
                   style={{ fontSize: '29px', fontWeight: '700' }}
                 >
                   {title}
@@ -79,7 +79,7 @@ function UnlockAgentModal({
               }}
             >
               <button
-                className="mt-10 h-[54px] w-[50%] px-10 rounded-xl bg-purple text-white text-center flex flex-row items-center justify-center"
+                className="mt-10 h-[54px] w-[50%] px-10 rounded-xl bg-brand-primary text-white text-center flex flex-row items-center justify-center hover:bg-brand-primary/90"
                 style={{ fontSize: '15px', fontWeight: '500' }}
                 onClick={() => {
                   setShowUpgradeModal(true)
@@ -89,7 +89,7 @@ function UnlockAgentModal({
               </button>
 
               <button
-                className="text-purple mt-4 pb-8"
+                className="text-brand-primary mt-4 pb-8"
                 style={{ fontSize: '15px', fontWeight: '500' }}
                 onClick={() => {
                   handleClose()

@@ -81,10 +81,10 @@ const Page = () => {
   const [gradientBackground, setGradientBackground] = useState(null)
   const isAgencyUser = user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
 
-    const {user:reduxUser} = useUser()
+  const { user: reduxUser } = useUser()
 
   // Only calculate CurrentComp when components are ready to prevent removeChild errors
-  const CurrentComp = componentsReady && components.length > 0 
+  const CurrentComp = componentsReady && components.length > 0
     ? (components[index - 1] || EmptyPage)
     : EmptyPage
   useEffect(() => {
@@ -108,7 +108,7 @@ const Page = () => {
       if (typeof window !== 'undefined') {
         size = window.innerWidth
         setWindowSize(size)
-        
+
         // Redirect mobile users (including subaccounts) to desktop page on initial load
         // Only redirect if we're on step 1 (initial landing after registration)
         if (size < 640 && stepFromUrl === 1) {
@@ -141,7 +141,7 @@ const Page = () => {
           ) {
             setIsSubaccount(true)
           }
-        } catch (error) {}
+        } catch (error) { }
       }
       // //console.log;
     }, 300) // Delay to allow page initialization
@@ -157,7 +157,7 @@ const Page = () => {
     // If agency/admin is creating agent for another user (subaccount), check that user's type
     const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
     let targetUserType = null
-    
+
     if (U) {
       try {
         const Data = JSON.parse(U)
@@ -173,22 +173,22 @@ const Page = () => {
         console.log('Error parsing isFromAdminOrAgency:', error)
       }
     }
-    
+
     // If we have a target user type (agency/admin creating for another user), use that
     if (targetUserType) {
       return targetUserType === UserTypes.RealEstateAgent
     }
-    
+
     // Otherwise, check the logged-in user's type (normal user or subaccount creating for themselves)
     if (user && user.user && user.user.userType) {
       return user.user.userType === UserTypes.RealEstateAgent
     }
-    
+
     // Fallback: check redux user
     if (reduxUser && reduxUser.userType) {
       return reduxUser.userType === UserTypes.RealEstateAgent
     }
-    
+
     return false
   }
 
@@ -200,7 +200,7 @@ const Page = () => {
     if (windowSize === null) {
       return
     }
-    
+
     const localData = localStorage.getItem('User')
 
     if (localData) {
@@ -245,14 +245,25 @@ const Page = () => {
           } else {
             if (windowSize < 640) {
               // Use UserPlansMobile for all users (normal, subaccounts, and agencies) on mobile
-              setComponents([
-                BuildAgentName,
-                BuildAgentTask,
-                showObjectives ? BuildAgentObjective : UserPlansMobile,
-                !showObjectives ? UserPlansMobile : null,
-                // CreateAgent4,
-                // CreateAgentVoice,
-              ])
+              if (showObjectives) {
+                setComponents([
+                  BuildAgentName,
+                  BuildAgentTask,
+                  BuildAgentObjective,
+                  UserPlansMobile
+                  // CreateAgent4,
+                  // CreateAgentVoice,
+                ])
+              } else {
+                setComponents([
+                  BuildAgentName,
+                  BuildAgentTask,
+                 
+                  UserPlansMobile 
+                  // CreateAgent4,
+                  // CreateAgentVoice,
+                ])
+              }
               // setIndex(3)
             } else {
               if (subAccount) {
@@ -282,7 +293,7 @@ const Page = () => {
             CreateAgentVoice,
           ])
         }
-        
+
         // Mark components as ready after a small delay to ensure React has processed the changes
         setTimeout(() => {
           setComponentsReady(true)
@@ -362,7 +373,7 @@ const Page = () => {
           return `hsl(${computedColor})`
         }
       }
-    } catch (error) {}
+    } catch (error) { }
     return 'hsl(270, 75%, 50%)'
   }
 
@@ -392,7 +403,7 @@ const Page = () => {
   useEffect(() => {
     const checkUserRole = () => {
       if (typeof window === 'undefined') return false
-      
+
       const userData = localStorage.getItem('User')
       if (userData) {
         try {
@@ -401,9 +412,9 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {}
+        } catch (error) { }
       }
-      
+
       const localUser = localStorage.getItem('LocalStorageUser')
       if (localUser) {
         try {
@@ -412,9 +423,9 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {}
+        } catch (error) { }
       }
-      
+
       const subAccountData = localStorage.getItem('SubaccoutDetails')
       if (subAccountData) {
         try {
@@ -422,9 +433,9 @@ const Page = () => {
           if (parsed) {
             return true
           }
-        } catch (error) {}
+        } catch (error) { }
       }
-      
+
       return false
     }
 
@@ -443,7 +454,7 @@ const Page = () => {
 
     initGradient()
     const timeout = setTimeout(initGradient, 500)
-    
+
     return () => clearTimeout(timeout)
   }, [isSubaccount, subAccount, isAgencyUser])
 
@@ -481,31 +492,31 @@ const Page = () => {
               <BackgroundVideo />
             </div>
           )}
-          
-            <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
-              <CurrentComp
-                handleContinue={handleContinue}
-                handleBack={handleBack}
-                handleSkipAddPayment={handleSkipAddPayment}
-                getAgentDetails={getAgentDetails}
-                AgentDetails={AgentDetails}
-                user={user}
-                screenWidth={windowSize}
-                isFrom={
-                  subAccount 
-                    ? 'SubAccount' 
-                    : isSubaccount 
-                      ? 'SubAccount' 
-                      : user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
-                        ? 'Agency'
-                        : undefined
-                }
-                // Explicit flags for background decisions in child components
-                isSubaccountContext={isSubaccount || Boolean(subAccount)}
-                isAgencyContext={isAgencyUser}
-              />
-            </div>
-         
+
+          <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+            <CurrentComp
+              handleContinue={handleContinue}
+              handleBack={handleBack}
+              handleSkipAddPayment={handleSkipAddPayment}
+              getAgentDetails={getAgentDetails}
+              AgentDetails={AgentDetails}
+              user={user}
+              screenWidth={windowSize}
+              isFrom={
+                subAccount
+                  ? 'SubAccount'
+                  : isSubaccount
+                    ? 'SubAccount'
+                    : user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
+                      ? 'Agency'
+                      : undefined
+              }
+              // Explicit flags for background decisions in child components
+              isSubaccountContext={isSubaccount || Boolean(subAccount)}
+              isAgencyContext={isAgencyUser}
+            />
+          </div>
+
         </div>
       </Suspense>
     </ErrorBoundary>

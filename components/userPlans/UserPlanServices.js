@@ -4,6 +4,7 @@ import {
   isAgencyTeamMember,
   isSubaccountTeamMember,
   isTeamMember,
+  TeamType,
 } from '@/constants/teamTypes/TeamTypes'
 
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -236,6 +237,61 @@ const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
     effectiveRole,
   })
   return Apis.getPlans
+}
+
+/**
+ * Returns which subscribe API to use and request shape.
+ * Use this in any component that POSTs to subscribe (subscribePlan vs subscribeAgencyPlan).
+ *
+ * Rules:
+ * - If logged-in user is Invitee (team member): by teamFor — Subaccount/Agency → subscribeAgencyPlan; AgentX → subscribePlan.
+ * - Else: subaccount/agency/from prop → subscribeAgencyPlan; else subscribePlan.
+ *
+ * @param {Object|null} loggedInUser - User from getUserLocalData() or redux (must have userRole, teamFor).
+ * @param {{ from?: string, selectedUser?: Object }} opts - Optional from prop and selectedUser for non-Invitee path.
+ * @returns {{ apiPath: string, usePlanId: boolean, omitContentType: boolean }}
+ */
+export const getSubscribeApiConfig = (loggedInUser, opts = {}) => {
+  const { from, selectedUser } = opts
+  // Team member (Invitee): choose by teamFor
+  if (loggedInUser?.userRole === 'Invitee') {
+    if (
+      loggedInUser?.teamFor === TeamType.SUBACCOUNT ||
+      loggedInUser?.teamFor === TeamType.AGENCY
+    ) {
+      return {
+        apiPath: Apis.subAgencyAndSubAccountPlans,
+        usePlanId: true,
+        omitContentType: true,
+      }
+    }
+    return {
+      apiPath: Apis.subscribePlan,
+      usePlanId: false,
+      omitContentType: false,
+    }
+  }
+  // Non-Invitee: use effective user role and from
+  const effectiveUser = getEffectiveUser(selectedUser, loggedInUser)
+  const effectiveRole = effectiveUser?.userRole
+  if (
+    effectiveRole === 'AgencySubAccount' ||
+    effectiveRole === 'Agency' ||
+    from === 'SubAccount' ||
+    from === 'agency' ||
+    from === 'Agency'
+  ) {
+    return {
+      apiPath: Apis.subAgencyAndSubAccountPlans,
+      usePlanId: true,
+      omitContentType: true,
+    }
+  }
+  return {
+    apiPath: Apis.subscribePlan,
+    usePlanId: false,
+    omitContentType: false,
+  }
 }
 
 /**
@@ -534,6 +590,7 @@ export const purchaseMins = async (mins) => {
 
 export const checkReferralCode = async (code, planId = null) => {
   try {
+    console.log('checkReferralCode', code, planId)
     let token = AuthToken()
 
     const requestBody = {
@@ -544,12 +601,15 @@ export const checkReferralCode = async (code, planId = null) => {
       requestBody.planId = planId
     }
 
+  
     const response = await axios.post(Apis.validateReferralCode, requestBody, {
       headers: {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json',
       },
     })
+
+    console.log('Ref code response', response)
 
     if (response) {
       if (response.data.status == true) {
@@ -638,6 +698,7 @@ export const getTotalPrice = (selectedPlan) => {
 // monthly: +30 days, quarterly: +3 calendar months, yearly: +12 calendar months
 // If plan has trial, adds trial days to the date
 export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
+  console.log("Trigered the getnextcharge date function")
   const getTodayFormatted = () => {
     const today = new Date()
     return today.toLocaleDateString(undefined, {
@@ -781,8 +842,10 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
       nextDateISO: nextDate.toISOString(),
     })
 
+    console.log("next date before returning",nextDate)
+
     // Return Date object instead of formatted string so moment() can parse it
-    return nextDate
+    return formatted
   } catch (e) {
     console.error('[getNextChargeDate] Error occurred during calculation', {
       error: e,

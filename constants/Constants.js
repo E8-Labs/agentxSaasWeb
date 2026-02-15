@@ -66,6 +66,8 @@ export const PersistanceKeys = {
   AgencyPartnerUrl: 'https://set.myagentx.com/widget/bookings/assignx-gameplan-session',
   AgencyBillingSupportUrl: 'https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D',
   AgencySupportTicketUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
+  // Default Script Builder URL (used when agency has not set a custom one for subaccounts)
+  DefaultScriptBuilderUrl: 'https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder',
   // Main User URLs
   MainUserFeedbackUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
   MainUserSupportUrl: 'https://api.leadconnectorhq.com/widget/bookings/assignx-mainuser-support',
@@ -280,6 +282,8 @@ export const callStatusColors = {
   Forwarded: '#000000',
   Error: '#FF4E4E',
   Failed: '#D32F2F',
+  'Email Failed': '#D32F2F',
+  'Text Failed': '#D32F2F',
 }
 
 export const termsAndConditionUrl = 'https://www.assignx.ai/terms-and-condition'

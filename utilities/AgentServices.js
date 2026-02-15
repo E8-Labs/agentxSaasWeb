@@ -1080,6 +1080,141 @@ export const AgentServices = [
     agentType: 'RealEstateAgent',
     userId: 133.0,
   },
+  // Creator: What would you like your AI to help you with?
+  {
+    id: 801,
+    title: 'Audience Qualification',
+    description:
+      'Identify and segment followers based on interest, intent, or buying readiness.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 802,
+    title: 'Follower Engagement',
+    description:
+      'Support and guide followers through a one on one conversation at scale.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 803,
+    title: 'Offer Qualification',
+    description:
+      'Pre-qualify leads before booking them into coaching, courses, or programs.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 804,
+    title: 'Appointment / Strategy Call Booking',
+    description: 'Schedule discovery calls for high-ticket offers.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 805,
+    title: 'High-Ticket Enrollment Support',
+    description:
+      'Handle objections and warm prospects before closing.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 806,
+    title: 'Community Nurturing',
+    description:
+      `Engage and warm your audience over time until they're ready to buy.`,
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  // Home Services: What would you like to assign to your AI?
+  {
+    id: 901,
+    title: 'Answer incoming calls',
+    description:
+      'Automatically answer incoming calls or after-hours calls, capture job details, and prevent lost revenue.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 902,
+    title: 'Qualify New Inquiries',
+    description:
+      'Ask the right questions to determine job type, urgency, and budget before dispatch.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 903,
+    title: 'Book Estimates & Appointments',
+    description:
+      'Schedule on-site visits or service calls directly into your calendar.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 904,
+    title: 'Follow Up on Unanswered Leads',
+    description:
+      'Automatically follow up with form submissions, Facebook messages, and quote requests.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 905,
+    title: 'Estimate Follow-Up & Close More Jobs',
+    description: 'Follow up after sending quotes to increase approval rates.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 906,
+    title: 'Dispatch & Technician Coordination',
+    description:
+      'Confirm appointment times, send reminders, and reduce no-shows.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 907,
+    title: 'Customer Service & FAQs',
+    description:
+      'Answer common questions about pricing, availability, and services 24/7.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 908,
+    title: 'Upsell Maintenance Plans & Repeat Services',
+    description:
+      'Promote seasonal tune-ups, inspections, and recurring services.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
+  {
+    id: 909,
+    title: 'Reactivate Old Leads',
+    description:
+      'Reach out to past customers and unfinished quotes to generate new jobs.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'HomeServices',
+  },
 ]
 
 export function GetServicesForUser(type) {

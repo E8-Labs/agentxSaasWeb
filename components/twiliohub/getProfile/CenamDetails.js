@@ -25,6 +25,8 @@ const CenamDetails = ({
   const [showAddCNAM, setShowAddCNAM] = useState(false)
   //temporary CNAM Status
   const [cnamStatus, setCnamStatus] = useState('')
+  // display name while in-review (before server returns or until approved/rejected)
+  const [cnamPendingDisplayName, setCnamPendingDisplayName] = useState('')
   //show success snack
   const [showSnack, setShowSnack] = useState({
     type: SnackbarTypes.Success,
@@ -44,23 +46,33 @@ const CenamDetails = ({
   }, [twilioHubData])
 
   const checkCnamStatus = () => {
-    // If twilioHubData is null (disconnected), clear status and localStorage
+    const Data = localStorage.getItem('CNAMStatusReview')
+    // When server data is empty (e.g. just added), show "added" state from localStorage
     if (!twilioHubData) {
+      if (Data) {
+        const data = JSON.parse(Data)
+        setCnamStatus(data.status)
+        setCnamPendingDisplayName(data.displayName || '')
+        return
+      }
       setCnamStatus('')
+      setCnamPendingDisplayName('')
       localStorage.removeItem('CNAMStatusReview')
       return
     }
-    const Data = localStorage.getItem('CNAMStatusReview')
     if (!twilioHubData?.status && Data) {
       const data = JSON.parse(Data)
       setCnamStatus(data.status)
+      setCnamPendingDisplayName(data.displayName || '')
       return
     }
     if (twilioHubData?.status) {
       setCnamStatus(twilioHubData?.status)
+      setCnamPendingDisplayName('')
       localStorage.removeItem('CNAMStatusReview')
     } else {
       setCnamStatus('')
+      setCnamPendingDisplayName('')
     }
   }
 
@@ -121,9 +133,9 @@ const CenamDetails = ({
             </div>
           </div>
           <div className="flex flex-row items-center gap-2">
-            {twilioHubData?.status && (
+            {(twilioHubData?.status || cnamStatus) && (
               <ShowResubmitBtn
-                status={twilioHubData?.status}
+                status={twilioHubData?.status || cnamStatus}
                 handleOpenModal={() => {
                   setShowAddCNAM(true)
                 }}
@@ -139,7 +151,7 @@ const CenamDetails = ({
                         */}
             <button
               className="border p-2 rounded-full"
-              disabled={!twilioHubData}
+              disabled={!twilioHubData && !cnamStatus}
               onClick={() => {
                 setShowDetails(!showDetails)
               }}
@@ -170,7 +182,9 @@ const CenamDetails = ({
                 CNAM display name
               </div>
               <div className="w-1/2" style={styles.mediumfontDarkClr}>
-                {twilioHubData?.friendlyName || 'N/A'}
+                {twilioHubData?.friendlyName ||
+                  cnamPendingDisplayName ||
+                  'N/A'}
               </div>
             </div>
           </div>
@@ -185,11 +199,15 @@ const CenamDetails = ({
           handleClose={(d) => {
             setShowAddCNAM(false)
             if (d) {
+              const displayName =
+                d.displayName ?? d.data?.friendlyName ?? ''
               const data = {
                 message: 'CNAM is being reviewed',
                 status: 'in-review',
+                displayName,
               }
               localStorage.setItem('CNAMStatusReview', JSON.stringify(data))
+              setCnamPendingDisplayName(displayName)
               checkCnamStatus()
               getProfileData(d)
               setShowSnack({

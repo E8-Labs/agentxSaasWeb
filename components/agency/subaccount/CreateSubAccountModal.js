@@ -1034,6 +1034,7 @@ export default function CreateSubAccountModal({
                       specialLabel=""
                       className="border outline-none bg-white"
                       country="us" // Set the default country
+                       onlyCountries={['us', 'mx','sv', 'ec']}
                       value={userPhoneNumber}
                       onChange={handlePhoneNumberChange}
                       placeholder={

@@ -337,6 +337,10 @@ function UpgradePlanContent({
     return false
   }
 
+  useEffect(() => {
+    console.log("currentSelectedPlan by hamza", currentSelectedPlan)
+  }, [currentSelectedPlan])
+
   // Update the state when payment method fields change
   useEffect(() => {
     setIsAddingNewPaymentMethod(isUserAddingNewPaymentMethod())
@@ -428,7 +432,7 @@ function UpgradePlanContent({
               setBrandPrimaryColor(`hsl(${brandColor})`)
             }
           }
-        } catch (error) {}
+        } catch (error) { }
       }
     }
     getBrandColor()
@@ -453,7 +457,7 @@ function UpgradePlanContent({
     }
   }, [open, selectedUser])
 
-  useEffect(() => {}, [currentSelectedPlan])
+  useEffect(() => { }, [currentSelectedPlan])
 
   useEffect(() => {
     if (!inviteCode || inviteCode.trim().length === 0) {
@@ -643,9 +647,10 @@ function UpgradePlanContent({
     if (selectedUser) {
       try {
         const user = await AdminGetProfileDetails(selectedUser.id)
-        if (user && user.plan) {
+        console.log("User data at checking user plan", user.plan)
+        if (user) {
           setCurrentUserPlan(user.plan)
-          return user.plan
+          return
         }
       } catch (error) {
         console.error('Error fetching selectedUser profile:', error)
@@ -656,14 +661,15 @@ function UpgradePlanContent({
     const localData = localStorage.getItem('User')
     if (localData) {
       const userData = JSON.parse(localData)
+      // console.log("User data at checking user plan from local storage", userData.user)
       const plan = userData.user?.plan
       setCurrentUserPlan(plan)
-      return plan
+      return
     }
     return null
   }
 
-  useEffect(() => {}, [duration])
+  useEffect(() => { }, [duration])
 
   const getPlans = async () => {
     // For agency viewing subaccount, always use getSubAccountPlans with userId
@@ -994,7 +1000,7 @@ function UpgradePlanContent({
           setCards(response.data.data)
         }
       }
-    } catch (error) {} finally {
+    } catch (error) { } finally {
       // //console.log;
       // setGetCardLoader(false);
     }
@@ -1347,7 +1353,7 @@ function UpgradePlanContent({
       return 'Downgrade'
     }
 
-    return 'Subscribe'
+    return 'Upgrade'
   }
 
   const comparePlans = (currentPlan, targetPlan) => {
@@ -1810,8 +1816,13 @@ function UpgradePlanContent({
                       <div
                         className={`w-[50%] flex flex-col items-start ${haveCards || isAddingNewPaymentMethod ? 'text-black' : 'text-[#8a8a8a]'}`}
                       >
-                        <div className=" text-xl font-semibold ">
-                          Order Summary
+                        <div className="flex flex-row items-center justify-between w-full">
+                          <div className=" text-xl font-semibold ">
+                            Order Summary
+                          </div>
+                          <div>
+                            {currentSelectedPlan?.hasTrial ? `${currentSelectedPlan?.trialValidForDays} ${currentSelectedPlan?.trialValidForDays > 1 ? 'Days' : 'Day'} free trial` : ''}
+                          </div>
                         </div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                           <div>
@@ -1871,7 +1882,20 @@ function UpgradePlanContent({
                                     className=""
                                     style={{ fontWeight: '600', fontSize: 15 }}
                                   >
-                                    {`$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`}
+                                    {/*`$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`*/}
+                                    {(() => {
+                                      // Check if plan has trial and user is subscribing for the first time
+                                      // console.log("finally current user plan is", currentUserPlan?.planId)
+                                      const hasTrial = currentSelectedPlan?.hasTrial === true
+                                      const isFirstTimeSubscription = !currentUserPlan || !currentUserPlan?.planId
+
+                                      // If plan has trial and user has no previous plan, show $0
+                                      if (hasTrial && isFirstTimeSubscription) {
+                                        return '$0'
+                                      }
+
+                                      return `$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`
+                                    })()}
                                   </div>
                                 </div>
                               </>
@@ -1996,8 +2020,9 @@ function UpgradePlanContent({
                                 >
                                   {(() => {
                                     // Check if plan has trial and user is subscribing for the first time
+                                    // console.log("finally current user plan is", currentUserPlan?.planId)
                                     const hasTrial = currentSelectedPlan?.hasTrial === true
-                                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                                    const isFirstTimeSubscription = !currentUserPlan || !currentUserPlan?.planId
 
                                     // If plan has trial and user has no previous plan, show $0
                                     if (hasTrial && isFirstTimeSubscription) {

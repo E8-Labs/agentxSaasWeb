@@ -425,8 +425,8 @@ export default function CallingScript({
             className="space-y-4 pb-6"
             style={{ position: 'relative', zIndex: 2000 }}
           >
-            <div style={{ position: 'relative', zIndex: 2001 }}>
               <label className="text-sm font-medium mb-2 block text-gray-700">Title</label>
+            <div style={{ position: 'relative', zIndex: 2001 ,backgroundColor:'transparent'}}>
               <Input
                 ref={titleInputRef}
                 type="text"
@@ -581,9 +581,9 @@ export default function CallingScript({
             </div>
 
             {/* Content Card */}
-            <div className="flex-1 overflow-y-auto px-6">
-              <Card className="border-2 mt-6" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
-                <CardContent className="p-6">
+            <div className="flex-1 overflow-y-auto">
+              <Card className="border-2 mt-6 shadow-none" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
+                <CardContent className="p-0">
                   {processingContent ? (
                     <div className="flex items-center justify-center py-8">
                       <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
@@ -592,7 +592,7 @@ export default function CallingScript({
                   ) : (
                     <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{
                       lineHeight: '1.75',
-                      fontSize: '14px',
+                      fontSize: '11px',
                     }}>
                       {processedContent !== null ? processedContent : selectedScript.content}
                     </div>

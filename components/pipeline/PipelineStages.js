@@ -16,7 +16,7 @@ import {
 import { CaretDown, CaretUp, Minus, PencilSimple } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { flushSync } from 'react-dom'
 
 import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
@@ -43,6 +43,7 @@ import {
   updateTemplete,
   getTempleteDetails,
 } from './TempleteServices'
+import { MessageSquareDot } from 'lucide-react'
 
 const PipelineStages = ({
   stages,
@@ -64,6 +65,7 @@ const PipelineStages = ({
   setSnackType,
   onNewStageCreated,
   handleReOrder,
+  scrollContainerRef: scrollContainerRefProp,
 }) => {
   const [showSampleTip, setShowSampleTip] = useState(false)
 
@@ -143,6 +145,7 @@ const PipelineStages = ({
   const [isEditing, setIsEditing] = useState(false)
   const [editingRow, setEditingRow] = useState(null)
   const [editingStageIndex, setEditingStageIndex] = useState(null)
+  const isModalOpenRef = useRef(false)
 
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
 
@@ -153,10 +156,16 @@ const PipelineStages = ({
   const [gmailAccounts, setGmailAccounts] = useState([])
   const [accountLoader, setAccountLoader] = useState(false)
 
+  const [isFromAdminOrAgency, setIsFromAdminOrAgency] = useState(null)
+
   const [targetUser, setTargetUser] = useState(null)
 
   useEffect(() => {
-    const getTargetUser = () =>{
+    console.log("isEditing key is is", isEditing)
+  }, [isEditing])
+
+  useEffect(() => {
+    const getTargetUser = () => {
       let data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       if (data) {
         let user = JSON.parse(data)
@@ -182,11 +191,10 @@ const PipelineStages = ({
     {
       value: 'sms',
       label: 'Text',
-      icon: '/otherAssets/smsIcon.png',
-      focusedIcon: '/otherAssets/blueSmsIcon.png',
+      icon: MessageSquareDot,
+      focusedIcon: MessageSquareDot, // same icon, hover uses brand color
     },
   ]
-
 
   // Check email capability based on user type
   const checkEmailCapability = () => {
@@ -199,11 +207,11 @@ const PipelineStages = ({
         showRequestFeature: false,
       }
     }
-    
+
     // For subaccounts
     // First check if parent agency has access
     const agencyHasAccess = reduxUser?.agencyCapabilities?.allowEmails === true
-    
+
     if (!agencyHasAccess) {
       // Agency doesn't have access - show Request Feature
       return {
@@ -212,10 +220,10 @@ const PipelineStages = ({
         showRequestFeature: true,
       }
     }
-    
+
     // Agency has access, check subaccount access
     const subaccountHasAccess = reduxUser?.planCapabilities?.allowEmails === true
-    
+
     return {
       hasAccess: subaccountHasAccess,
       showUpgrade: !subaccountHasAccess,
@@ -234,11 +242,11 @@ const PipelineStages = ({
         showRequestFeature: false,
       }
     }
-    
+
     // For subaccounts
     // First check if parent agency has access
     const agencyHasAccess = reduxUser?.agencyCapabilities?.allowTextMessages === true
-    
+
     if (!agencyHasAccess) {
       // Agency doesn't have access - show Request Feature
       return {
@@ -247,10 +255,10 @@ const PipelineStages = ({
         showRequestFeature: true,
       }
     }
-    
+
     // Agency has access, check subaccount access
     const subaccountHasAccess = reduxUser?.planCapabilities?.allowTextMessages === true
-    
+
     return {
       hasAccess: subaccountHasAccess,
       showUpgrade: !subaccountHasAccess,
@@ -338,7 +346,7 @@ const PipelineStages = ({
         return
       }
     }
-    
+
     if (value != 'call') {
       setSelectedIndex(stageIndex)
       setSelectedType(value)
@@ -354,7 +362,8 @@ const PipelineStages = ({
         setShowMessageModal(true)
       }
     } else {
-      if (isEditing) {
+      if (isEditing && editingRow) {
+        handleUpdateRow(editingRow.id, { action: 'call', communicationType: 'call' })
         closeAddMenu(stageIndex)
       } else {
         addRow(stageIndex, value)
@@ -367,19 +376,20 @@ const PipelineStages = ({
   const handleEditRow = useCallback((stageIndex, row, e) => {
     // Capture event target immediately to avoid React's synthetic event pooling
     const eventTarget = e?.currentTarget || null
-    
+
     // Check if this is a default cadence
     const isDefaultCadence = !row.communicationType
 
     if (isDefaultCadence) {
-      localStorage.setItem(
-        PersistanceKeys.isDefaultCadenceEditing,
-        JSON.stringify({ isdefault: true }),
-      )
       if (eventTarget) {
         // Create a synthetic event-like object with the captured target
         const syntheticEvent = { currentTarget: eventTarget }
         openAddMenu(stageIndex, syntheticEvent)
+        setIsEditing(true)
+        setEditingRow(row)
+        setEditingStageIndex(stageIndex)
+        setSelectedType('call')
+        setSelectedIndex(stageIndex)
       }
       return // Don't proceed with editing for default cadence
     }
@@ -415,8 +425,11 @@ const PipelineStages = ({
 
   const handleUpdateRow = (rowId, updatedData) => {
     // Update the specific row in the pipeline using the updateRow prop
+    console.log(`Editing stage index is ${editingStageIndex} Update row is ${rowId} and updated data is ${updatedData}`)
+    console.log("check one")
 
     if (editingStageIndex !== null && updateRow) {
+      // console.log("check one")
       updateRow(editingStageIndex, rowId, updatedData)
     }
 
@@ -427,6 +440,11 @@ const PipelineStages = ({
   }
 
   useEffect(() => {
+    const isFromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    if (isFromAdminOrAgency) {
+      const parsedIsFromAdminOrAgency = JSON.parse(isFromAdminOrAgency)
+      setIsFromAdminOrAgency(parsedIsFromAdminOrAgency)
+    }
     // Use Redux reduxUser instead of localStorage
     if (reduxUser) {
       setUser(reduxUser)
@@ -441,6 +459,10 @@ const PipelineStages = ({
     getMyTeam()
     getNumbers()
   }, [stages, reduxUser])
+
+  useEffect(() => {
+    isModalOpenRef.current = showMessageModal
+  }, [showMessageModal])
 
   useEffect(() => {
     if (showMessageModal && messageModalMode === 'email') {
@@ -481,7 +503,7 @@ const PipelineStages = ({
     }
     setPhoneLoading(true)
     let id = selectedUser?.id
-    let num = await getA2PNumbers(id)
+    let num = await getA2PNumbers(id, isFromAdminOrAgency)
     if (num) {
       setPhoneNumbers(num)
     }
@@ -578,14 +600,19 @@ const PipelineStages = ({
     if (agentDetails && agentDetails != 'undefined') {
       const agentData = JSON.parse(agentDetails)
       // //console.log;
-      if (agentData?.agents?.length > 1) {
-        // //console.log;
-        setIsInboundAgent(false)
+      if (agentData?.agentType === 'inbound') {
+        console.log("agent type is ", agentData?.agentType);
+        setIsInboundAgent(true)
       } else {
-        if (agentData?.agents?.[0]?.agentType === 'inbound') {
-          setIsInboundAgent(true)
-        } else {
+        if (agentData?.agents?.length > 1) {
+          // //console.log;
           setIsInboundAgent(false)
+        } else {
+          if (agentData?.agents?.[0]?.agentType === 'inbound') {
+            setIsInboundAgent(true)
+          } else {
+            setIsInboundAgent(false)
+          }
         }
       }
     }
@@ -657,41 +684,117 @@ const PipelineStages = ({
     ])
   }
 
-  //code for drag and drop stages
-  const handleOnDragEnd = (result) => {
-    // //console.log;
-    const { source, destination } = result
-    // //console.log;
-    // if (!destination) return;
-    if (!destination || source.index === 0 || destination.index === 0) {
-      setShowRearrangeErr('Cannot rearrange when stage is expanded.')
-      setIsVisibleSnack(true)
-      setSnackType('Error')
-      // //console.log;
-      return
+  // Refs for custom auto-scroll while dragging
+  const droppableContainerRef = useRef(null)
+  const scrollContainerRef = useRef(null)
+  const dragScrollRafRef = useRef(null)
+  const lastPointerYRef = useRef(null)
+
+  const getClosestScrollable = useCallback((el) => {
+    if (!el || el === document.body) return null
+    const style = window.getComputedStyle(el)
+    const ox = style.overflowX
+    const oy = style.overflowY
+    const isScrollable =
+      ox === 'auto' ||
+      ox === 'scroll' ||
+      oy === 'auto' ||
+      oy === 'scroll'
+    if (isScrollable) return el
+    return getClosestScrollable(el.parentElement)
+  }, [])
+
+  const EDGE_THRESHOLD = 100
+  const SCROLL_SPEED = 12
+
+  const applyDragScroll = useCallback((clientY) => {
+    const scrollEl = scrollContainerRef.current
+    if (!scrollEl) return false
+    const rect = scrollEl.getBoundingClientRect()
+    const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight
+    if (maxScroll <= 0) return false
+
+    let delta = 0
+    if (clientY <= rect.top + EDGE_THRESHOLD) {
+      delta = -SCROLL_SPEED
+    } else if (clientY >= rect.bottom - EDGE_THRESHOLD) {
+      delta = SCROLL_SPEED
     }
+    if (delta === 0) return false
 
-    // if (!destination || source.index === destination.index) {
-    //    // //console.log
-    //     return;
-    // }
+    const next = Math.max(0, Math.min(maxScroll, scrollEl.scrollTop + delta))
+    scrollEl.scrollTop = next
+    return true
+  }, [])
 
-    // //console.log;
-    const items = Array.from(pipelineStages)
-    const [reorderedItem] = items.splice(source.index, 1)
-    items.splice(destination.index, 0, reorderedItem)
+  const handleDragMove = useCallback(
+    (e) => {
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY
+      lastPointerYRef.current = clientY
+      if (dragScrollRafRef.current) return
+      const tick = () => {
+        if (lastPointerYRef.current == null) return
+        const inZone = applyDragScroll(lastPointerYRef.current)
+        dragScrollRafRef.current = inZone
+          ? requestAnimationFrame(tick)
+          : null
+      }
+      dragScrollRafRef.current = requestAnimationFrame(tick)
+    },
+    [applyDragScroll],
+  )
 
-    // //console.log;
-    const updatedStages = items.map((stage, index) => ({
-      ...stage,
-      order: index + 1,
-    }))
+  const handleOnDragStart = useCallback(() => {
+    const scrollable =
+      scrollContainerRefProp?.current ?? getClosestScrollable(droppableContainerRef.current)
+    scrollContainerRef.current = scrollable
+    if (scrollable) {
+      window.addEventListener('mousemove', handleDragMove)
+      window.addEventListener('touchmove', handleDragMove, { passive: false })
+    }
+  }, [scrollContainerRefProp, getClosestScrollable, handleDragMove])
 
-    // //console.log;
-    setPipelineStages(updatedStages)
-    onUpdateOrder(updatedStages)
-    handleReOrder()
-  }
+  const handleOnDragEnd = useCallback(
+    (result) => {
+      window.removeEventListener('mousemove', handleDragMove)
+      window.removeEventListener('touchmove', handleDragMove)
+      if (dragScrollRafRef.current) {
+        cancelAnimationFrame(dragScrollRafRef.current)
+        dragScrollRafRef.current = null
+      }
+      scrollContainerRef.current = null
+      lastPointerYRef.current = null
+
+      const { source, destination } = result
+      if (!destination || source.index === 0 || destination.index === 0) {
+        setShowRearrangeErr('Cannot rearrange when stage is expanded.')
+        setIsVisibleSnack(true)
+        setSnackType('Error')
+        return
+      }
+
+      const items = Array.from(pipelineStages)
+      const [reorderedItem] = items.splice(source.index, 1)
+      items.splice(destination.index, 0, reorderedItem)
+
+      const updatedStages = items.map((stage, index) => ({
+        ...stage,
+        order: index + 1,
+      }))
+
+      setPipelineStages(updatedStages)
+      onUpdateOrder(updatedStages)
+      handleReOrder(updatedStages)
+    },
+    [
+      handleDragMove,
+      setShowRearrangeErr,
+      setIsVisibleSnack,
+      setSnackType,
+      pipelineStages,
+      onUpdateOrder,
+      handleReOrder,
+    ])
 
   //functions to move to stage after deleting one
   const handleChangeNextStage = (event) => {
@@ -856,6 +959,7 @@ const PipelineStages = ({
           setNewStageTitle('')
           // setStageColor("");
           setStagesList(response.data.data.stages)
+          console.log("From handleAddNewStageTitle Selected pipeline stages are", response.data.data.stages);
           selectedPipelineItem.stages = response.data.data.stages
           onNewStageCreated(selectedPipelineItem)
         } else {
@@ -928,12 +1032,18 @@ const PipelineStages = ({
   }
 
   return (
-    <DragDropContext onDragEnd={handleOnDragEnd}>
+    <DragDropContext
+      onDragStart={handleOnDragStart}
+      onDragEnd={handleOnDragEnd}
+    >
       <Droppable droppableId="pipelineStages">
         {(provided) => (
           <div
             {...provided.droppableProps}
-            ref={provided.innerRef}
+            ref={(el) => {
+              provided.innerRef(el)
+              droppableContainerRef.current = el
+            }}
             style={{
               maxHeight: '100vh',
               // overflowY: "auto",
@@ -1022,34 +1132,35 @@ const PipelineStages = ({
 
                         {isInboundAgent ? (
                           <div>
-                            {index > 0 && item.stageTitle !== 'Booked' && (
-                              <div className="w-full flex flex-row items-center justify-end mt-2">
-                                <button
-                                  className="flex flex-row items-center gap-1"
-                                  onClick={() => {
-                                    setShowDelStagePopup(item)
-                                  }}
-                                >
-                                  <Image
-                                    src={'/assets/delIcon.png'}
-                                    height={20}
-                                    width={18}
-                                    alt="*"
-                                    style={{
-                                      filter:
-                                        'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                      opacity: 0.5,
+                            {index > 0 &&
+                              !(item.identifier === 'booked' || (item.identifier === 'account_created' || item.identifier === 'on_trial' || item.identifier === 'paying' || item.identifier === 'cancelled')) && (
+                                <div className="w-full flex flex-row items-center justify-end mt-2">
+                                  <button
+                                    className="flex flex-row items-center gap-1"
+                                    onClick={() => {
+                                      setShowDelStagePopup(item)
                                     }}
-                                  />
-                                  <p
-                                    className="text-[#15151580]"
-                                    style={{ fontWeight: '500', fontSize: 14 }}
                                   >
-                                    Delete
-                                  </p>
-                                </button>
-                              </div>
-                            )}
+                                    <Image
+                                      src={'/assets/delIcon.png'}
+                                      height={20}
+                                      width={18}
+                                      alt="*"
+                                      style={{
+                                        filter:
+                                          'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                        opacity: 0.5,
+                                      }}
+                                    />
+                                    <p
+                                      className="text-[#15151580]"
+                                      style={{ fontWeight: '500', fontSize: 14 }}
+                                    >
+                                      Delete
+                                    </p>
+                                  </button>
+                                </div>
+                              )}
                           </div>
                         ) : (
                           <div>
@@ -1130,198 +1241,215 @@ const PipelineStages = ({
                                       ...row,
                                       referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
                                     }
-                                    
-                                    return (
-                                    <div
-                                      key={row.id}
-                                      className="flex flex-row items-center justify-center mb-2"
-                                    >
-                                      <div
-                                        className="mt-2"
-                                        style={styles.headingStyle}
-                                      >
-                                        Wait
-                                      </div>
-                                      <div className="ms-6 flex flex-row items-center w-full justify-between">
-                                        <div className="flex flex-row items-center">
-                                          <div>
-                                            <label
-                                              className="ms-1 px-2"
-                                              style={styles.labelStyle}
-                                            >
-                                              Days
-                                            </label>
-                                            <input
-                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                              style={{
-                                                ...styles.inputStyle,
-                                                height: '42px',
-                                                width: '80px',
-                                                border: '1px solid #00000020',
-                                                borderTopLeftRadius: '10px',
-                                                borderBottomLeftRadius: '10px',
-                                              }}
-                                              placeholder="Days"
-                                              value={row.waitTimeDays}
-                                              onChange={(e) =>
-                                                handleInputChange(
-                                                  index,
-                                                  row.id,
-                                                  'waitTimeDays',
-                                                  e.target.value.replace(
-                                                    /[^0-9]/g,
-                                                    '',
-                                                  ),
-                                                )
-                                              }
-                                            />
-                                          </div>
-                                          <div>
-                                            <label
-                                              className="ms-1 px-2"
-                                              style={styles.labelStyle}
-                                            >
-                                              Hours
-                                            </label>
-                                            <input
-                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                              style={{
-                                                ...styles.inputStyle,
-                                                height: '42px',
-                                                width: '80px',
-                                                border: '1px solid #00000020',
-                                                borderRight: 'none',
-                                                borderLeft: 'none',
-                                              }}
-                                              placeholder="Hours"
-                                              value={row.waitTimeHours}
-                                              onChange={(e) =>
-                                                handleInputChange(
-                                                  index,
-                                                  row.id,
-                                                  'waitTimeHours',
-                                                  e.target.value.replace(
-                                                    /[^0-9]/g,
-                                                    '',
-                                                  ),
-                                                )
-                                              }
-                                            />
-                                          </div>
-                                          <div>
-                                            <label
-                                              className="ms-1 px-2"
-                                              style={styles.labelStyle}
-                                            >
-                                              Mins
-                                            </label>
-                                            <input
-                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                              style={{
-                                                ...styles.inputStyle,
-                                                height: '42px',
-                                                width: '80px',
-                                                border: '1px solid #00000020',
-                                                borderTopRightRadius: '10px',
-                                                borderBottomRightRadius: '10px',
-                                              }}
-                                              placeholder="Minutes"
-                                              value={row.waitTimeMinutes}
-                                              onChange={(e) =>
-                                                handleInputChange(
-                                                  index,
-                                                  row.id,
-                                                  'waitTimeMinutes',
-                                                  e.target.value.replace(
-                                                    /[^0-9]/g,
-                                                    '',
-                                                  ),
-                                                )
-                                              }
-                                            />
-                                          </div>
-                                          <div
-                                            className="ms-4 mt-2 flex flex-row items-center"
-                                            style={styles.inputStyle}
-                                          >
-                                            {isBookingStage ? (
-                                              <div className="flex flex-row items-center gap-2">
-                                                <select
-                                                  value={rowWithReferencePoint.referencePoint}
-                                                  onChange={(e) =>
-                                                    handleInputChange(
-                                                      index,
-                                                      row.id,
-                                                      'referencePoint',
-                                                      e.target.value,
-                                                    )
-                                                  }
-                                                  className="outline-none border border-gray-300 rounded px-2 py-1 text-sm"
-                                                  style={{
-                                                    backgroundColor: 'white',
-                                                    minWidth: '140px',
-                                                  }}
-                                                >
-                                                  <option value="before_meeting">before the meeting</option>
-                                                  <option value="after_booking">after booking</option>
-                                                </select>
-                                                , then{' '}
-                                              </div>
-                                            ) : (
-                                              <div>, then{' '}</div>
-                                            )}
-                                            <div
-                                              className="ml-2"
-                                              style={{ fontWeight: '600' }}
-                                            >
-                                              <div className="flex flex-row items-cetner gap-2 p-2 rounded"
-                                              style={{
-                                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                              }}
-                                              >
-                                                <div className="text-brand-primary text-[12px]">
-                                                  {(row.communicationType &&
-                                                    row.communicationType !=
-                                                      'call') ||
-                                                  (row.action &&
-                                                    row.action != 'call')
-                                                    ? `Send ${actionLabel(row.communicationType)}`
-                                                    : `Make Call`}
-                                                </div>
 
-                                                <button
-                                                  onClick={(e) => {
-                                                    console.log('row clicked', row)
-                                                    e.stopPropagation()
-                                                    handleEditRow(index, row, e)
+                                    return (
+                                      <div
+                                        key={row.id}
+                                        className="flex flex-row items-center justify-center mb-2"
+                                      >
+                                        <div
+                                          className="mt-2"
+                                          style={styles.headingStyle}
+                                        >
+                                          Wait
+                                        </div>
+                                        <div className="ms-6 flex flex-row items-center w-full justify-between">
+                                          <div className="flex flex-row items-center">
+                                            <div>
+                                              <label
+                                                className="ms-1 px-2"
+                                                style={styles.labelStyle}
+                                              >
+                                                Days
+                                              </label>
+                                              <input
+                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                style={{
+                                                  ...styles.inputStyle,
+                                                  height: '42px',
+                                                  width: '80px',
+                                                  border: '1px solid #00000020',
+                                                  borderTopLeftRadius: '10px',
+                                                  borderBottomLeftRadius: '10px',
+                                                }}
+                                                placeholder="Days"
+                                                value={row.waitTimeDays}
+                                                onChange={(e) =>
+                                                  handleInputChange(
+                                                    index,
+                                                    row.id,
+                                                    'waitTimeDays',
+                                                    e.target.value.replace(
+                                                      /[^0-9]/g,
+                                                      '',
+                                                    ),
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                            <div>
+                                              <label
+                                                className="ms-1 px-2"
+                                                style={styles.labelStyle}
+                                              >
+                                                Hours
+                                              </label>
+                                              <input
+                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                style={{
+                                                  ...styles.inputStyle,
+                                                  height: '42px',
+                                                  width: '80px',
+                                                  border: '1px solid #00000020',
+                                                  borderRight: 'none',
+                                                  borderLeft: 'none',
+                                                }}
+                                                placeholder="Hours"
+                                                value={row.waitTimeHours}
+                                                onChange={(e) =>
+                                                  handleInputChange(
+                                                    index,
+                                                    row.id,
+                                                    'waitTimeHours',
+                                                    e.target.value.replace(
+                                                      /[^0-9]/g,
+                                                      '',
+                                                    ),
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                            <div>
+                                              <label
+                                                className="ms-1 px-2"
+                                                style={styles.labelStyle}
+                                              >
+                                                Mins
+                                              </label>
+                                              <input
+                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                style={{
+                                                  ...styles.inputStyle,
+                                                  height: '42px',
+                                                  width: '80px',
+                                                  border: '1px solid #00000020',
+                                                  borderTopRightRadius: '10px',
+                                                  borderBottomRightRadius: '10px',
+                                                }}
+                                                placeholder="Minutes"
+                                                value={row.waitTimeMinutes}
+                                                onChange={(e) =>
+                                                  handleInputChange(
+                                                    index,
+                                                    row.id,
+                                                    'waitTimeMinutes',
+                                                    e.target.value.replace(
+                                                      /[^0-9]/g,
+                                                      '',
+                                                    ),
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                            <div
+                                              className="ms-4 mt-2 flex flex-row items-center"
+                                              style={styles.inputStyle}
+                                            >
+                                              {isBookingStage ? (
+                                                <div className="flex flex-row items-center gap-2">
+                                                  <FormControl size="small" sx={{ minWidth: 140 }}>
+                                                    <Select
+                                                      value={
+                                                        rowWithReferencePoint.referencePoint ?? ''
+                                                      }
+                                                      onChange={(e) =>
+                                                        handleInputChange(
+                                                          index,
+                                                          row.id,
+                                                          'referencePoint',
+                                                          e.target.value,
+                                                        )
+                                                      }
+                                                      displayEmpty
+                                                      sx={{
+                                                        height: 32,
+                                                        fontSize: 14,
+                                                        backgroundColor: 'white',
+                                                        border: '1px solid #d1d5db',
+                                                        borderRadius: '6px',
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                          border: 'none',
+                                                        },
+                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                          border: 'none',
+                                                        },
+                                                      }}
+                                                    >
+                                                      <MenuItem value="before_meeting">
+                                                        before the meeting
+                                                      </MenuItem>
+                                                      <MenuItem value="after_booking">
+                                                        after booking
+                                                      </MenuItem>
+                                                    </Select>
+                                                  </FormControl>
+                                                  , then{' '}
+                                                </div>
+                                              ) : (
+                                                <div>, then{' '}</div>
+                                              )}
+                                              <div
+                                                className="ml-2"
+                                                style={{ fontWeight: '600' }}
+                                              >
+                                                <div className="flex flex-row items-cetner gap-2 p-2 rounded"
+                                                  style={{
+                                                    backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
                                                   }}
-                                                  type="button"
-                                                  className="cursor-pointer"
-                                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                                                 >
-                                                  <PencilSimple
-                                                    size={16}
-                                                    weight="regular"
-                                                    style={{
-                                                      color: 'hsl(var(--brand-primary))',
+                                                  <div className="text-brand-primary text-[12px]">
+                                                    {(row.communicationType &&
+                                                      row.communicationType !=
+                                                      'call') ||
+                                                      (row.action &&
+                                                        row.action != 'call')
+                                                      ? `Send ${actionLabel(row.communicationType)}`
+                                                      : `Make Call`}
+                                                  </div>
+
+                                                  <button
+                                                    onClick={(e) => {
+                                                      console.log('row clicked', row)
+                                                      e.stopPropagation()
+                                                      handleEditRow(index, row, e)
                                                     }}
-                                                  />
-                                                </button>
+                                                    type="button"
+                                                    className="cursor-pointer"
+                                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                                  >
+                                                    <PencilSimple
+                                                      size={16}
+                                                      weight="regular"
+                                                      style={{
+                                                        color: 'hsl(var(--brand-primary))',
+                                                      }}
+                                                    />
+                                                  </button>
+                                                </div>
                                               </div>
                                             </div>
                                           </div>
+                                          {rowIndex > 0 && (
+                                            <CloseBtn
+                                              onClick={() =>
+                                                removeRow(index, row.id)
+                                              }
+                                            />
+                                          )}
                                         </div>
-                                        {rowIndex > 0 && (
-                                          <CloseBtn
-                                            onClick={() =>
-                                              removeRow(index, row.id)
-                                            }
-                                          />
-                                        )}
                                       </div>
-                                    </div>
-                                  )
-                                })}
+                                    )
+                                  })}
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -1332,13 +1460,18 @@ const PipelineStages = ({
                                   className="text-brand-primary mt-4 cursor-pointer"
                                   type="button"
                                 >
-                                  + Add (If no answer)
+                                  + Add
                                 </button>
                                 <Menu
                                   anchorEl={addMenuAnchor[index] || null}
                                   open={Boolean(addMenuAnchor[index])}
                                   onClose={() => {
-                                    closeAddMenu(index)
+                                    if (isModalOpenRef.current) {
+                                      // Modal is open — only dismiss the menu anchor, don't reset editing state
+                                      setAddMenuAnchor((prev) => ({ ...prev, [index]: null }))
+                                    } else {
+                                      closeAddMenu(index)
+                                    }
                                     localStorage.removeItem(
                                       PersistanceKeys.isDefaultCadenceEditing,
                                     )
@@ -1360,8 +1493,8 @@ const PipelineStages = ({
                                       key={a.value}
                                       title={
                                         shouldDisable(a) &&
-                                        user?.planCapabilities
-                                          .allowTextMessages === true
+                                          user?.planCapabilities
+                                            .allowTextMessages === true
                                           ? 'You need to complete A2P to text'
                                           : ''
                                       }
@@ -1409,24 +1542,52 @@ const PipelineStages = ({
                                           ) : (
                                             <div className="flex flex-row items-center justify-between w-full">
                                               <div className="flex flex-row items-center gap-3">
-                                                {/* default icon */}
-                                                <Image
-                                                  src={a.icon}
-                                                  height={20}
-                                                  width={20}
-                                                  alt="*"
-                                                  className="action-icon"
-                                                  style={{ display: 'block' }}
-                                                />
-                                                {/* blue (hover) icon */}
-                                                <Image
-                                                  src={a.focusedIcon}
-                                                  height={20}
-                                                  width={20}
-                                                  alt="*"
-                                                  className="action-icon-hover"
-                                                  style={{ display: 'none' }}
-                                                />
+                                                {/* default icon - Text uses MessageSquareDot from lucide-react */}
+                                                {a.value === 'sms' ? (
+                                                  <MessageSquareDot
+                                                    size={20}
+                                                    className="action-icon"
+                                                    style={{ display: 'block', flexShrink: 0 }}
+                                                  />
+                                                ) : typeof a.icon === 'function' ? (
+                                                  <a.icon
+                                                    size={20}
+                                                    className="action-icon"
+                                                    style={{ display: 'block', flexShrink: 0 }}
+                                                  />
+                                                ) : (
+                                                  <Image
+                                                    src={a.icon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon"
+                                                    style={{ display: 'block' }}
+                                                  />
+                                                )}
+                                                {/* hover icon */}
+                                                {a.value === 'sms' ? (
+                                                  <MessageSquareDot
+                                                    size={20}
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
+                                                  />
+                                                ) : typeof a.focusedIcon === 'function' ? (
+                                                  <a.focusedIcon
+                                                    size={20}
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
+                                                  />
+                                                ) : (
+                                                  <Image
+                                                    src={a.focusedIcon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none' }}
+                                                  />
+                                                )}
 
                                                 <div
                                                   style={{
@@ -1577,7 +1738,7 @@ const PipelineStages = ({
 
                       {index > 0 &&
                         !isInboundAgent &&
-                        item.stageTitle !== 'Booked' && (
+                        !(item.identifier === 'booked' || (item.identifier === 'account_created' || item.identifier === 'on_trial' || item.identifier === 'paying' || item.identifier === 'cancelled')) && (
                           <div className="w-full flex flex-row items-center justify-end mt-2">
                             <button
                               className="flex flex-row items-center gap-1"
@@ -1812,13 +1973,13 @@ const PipelineStages = ({
                                             border: '1px solid #00000020', // Same border on hover
                                           },
                                           '& .MuiOutlinedInput-notchedOutline':
-                                            {
-                                              border: 'none', // Remove the default outline
-                                            },
+                                          {
+                                            border: 'none', // Remove the default outline
+                                          },
                                           '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                            {
-                                              border: 'none', // Remove outline on focus
-                                            },
+                                          {
+                                            border: 'none', // Remove outline on focus
+                                          },
                                           '&.MuiSelect-select': {
                                             py: 0, // Optional padding adjustments
                                           },
@@ -1994,7 +2155,7 @@ const PipelineStages = ({
                 }
               }}
               showEmailTemPopup={false}
-              setShowEmailTempPopup={() => {}}
+              setShowEmailTempPopup={() => { }}
               setSelectedGoogleAccount={(account) => {
                 setSelectedGoogleAccount(account)
               }}
@@ -2021,34 +2182,42 @@ const PipelineStages = ({
                 hideTag={true}
               />
             )}
-
-            <NewMessageModal
-              open={showMessageModal}
-              mode={messageModalMode}
-              isPipelineMode={true}
-              isEditing={isEditing}
-              editingRow={editingRow}
-              selectedUser={targetUser}
-              onClose={() => {
-                setShowMessageModal(false)
-                setIsEditing(false)
-                setEditingRow(null)
-                setEditingStageIndex(null)
-                closeAddMenu(selectedIndex)
-              }}
-              onSaveTemplate={(templateData) => {
-                if (isEditing && editingRow) {
-                  handleUpdateRow(editingRow.id, templateData)
-                } else {
-                  addRow(selectedIndex, selectedType, templateData)
-                }
-                setShowMessageModal(false)
-                setIsEditing(false)
-                setEditingRow(null)
-                setEditingStageIndex(null)
-                closeAddMenu(selectedIndex)
-              }}
-            />
+            {
+              showMessageModal && (
+                <NewMessageModal
+                  open={showMessageModal}
+                  mode={messageModalMode}
+                  isPipelineMode={true}
+                  isEditing={isEditing}
+                  editingRow={editingRow}
+                  selectedUser={targetUser}
+                  isBookingStage={selectedPipelineStages?.[editingStageIndex ?? selectedIndex]?.identifier === 'booked'}
+                  onClose={() => {
+                    setShowMessageModal(false)
+                    setIsEditing(false)
+                    setEditingRow(null)
+                    setEditingStageIndex(null)
+                    console.log("onClose key is called selectedIndex is", selectedIndex)
+                    closeAddMenu(selectedIndex)
+                  }}
+                  onSaveTemplate={(templateData) => {
+                    if (isEditing && editingRow) {
+                      console.log("trigerred to update")
+                      handleUpdateRow(editingRow.id, templateData)
+                    } else {
+                      console.log("trigerred to add new row")
+                      addRow(selectedIndex, selectedType, templateData)
+                    }
+                    setShowMessageModal(false)
+                    setIsEditing(false)
+                    setEditingRow(null)
+                    setEditingStageIndex(null)
+                    closeAddMenu(selectedIndex)
+                  }}
+                  isFromAdminOrAgency={isFromAdminOrAgency}
+                />
+              )
+            }
 
             {/* Code for add stage modal */}
             <Modal
@@ -2378,9 +2547,9 @@ const PipelineStages = ({
                                   border: 'none', // Remove the default outline
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                  {
-                                    border: 'none', // Remove outline on focus
-                                  },
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
                                 '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -2483,7 +2652,7 @@ const PipelineStages = ({
                               fontWeight: 600,
                               fontSize: '20',
                             }}
-                            // onClick={handleAddNewStageTitle}
+                          // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>

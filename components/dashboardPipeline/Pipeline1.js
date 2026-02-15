@@ -21,6 +21,7 @@ import {
 } from '@mui/material'
 import {
   CaretDown,
+  CaretRight,
   CaretUp,
   DotsThree,
   EnvelopeSimple,
@@ -41,6 +42,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { getAgentsListImage, getLeadProfileImage } from '@/utilities/agentUtilities'
 import {
+  FormatBookingDateTime,
   GetFormattedDateString,
   GetFormattedTimeString,
 } from '@/utilities/utility'
@@ -60,7 +62,11 @@ import CloseBtn from '../globalExtras/CloseBtn'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
 import StandardHeader from '../common/StandardHeader'
 import { TypographyH3 } from '@/lib/typography'
-import { getTeamsList } from '../onboarding/services/apisServices/ApiService'
+import {
+  AssignTeamMember,
+  UnassignTeamMember,
+  getTeamsList,
+} from '../onboarding/services/apisServices/ApiService'
 import RearrangeStages from '../pipeline/RearrangeStages'
 // import Tags from '../dashboard/leads/TagsInput';
 import TagInput from '../test/TagInput'
@@ -68,6 +74,11 @@ import ScoringProgress from '../ui/ScoringProgress'
 import ColorPicker from './ColorPicker'
 import ConfigurePopup from './ConfigurePopup'
 import PipelineLoading from './PipelineLoading'
+import { Check, TagIcon } from 'lucide-react'
+import PipelineLeadTeamsAssignedList from '../dashboard/leads/PipelineLeadTeamsAssignedList'
+import TagManagerCn from '../dashboard/leads/extras/TagManagerCn'
+import { getUniqueTags as fetchUniqueTags } from '@/components/globalExtras/GetUniqueTags'
+import TeamAssignDropdownCn from '../dashboard/leads/extras/TeamAssignDropdownCn'
 
 const Pipeline1 = () => {
   const bottomRef = useRef()
@@ -278,6 +289,22 @@ const Pipeline1 = () => {
   //variabl for deltag
   const [DelTagLoader, setDelTagLoader] = useState(null)
 
+  // tag input with autocomplete — per-lead state so each card has its own input/suggestions
+  const [tagInputValues, setTagInputValues] = useState({})
+  const [tagSuggestionsByLead, setTagSuggestionsByLead] = useState({})
+  const [showTagSuggestionsByLead, setShowTagSuggestionsByLead] = useState({})
+  const [uniqueColumns, setUniqueColumns] = useState([])
+  const [addTagLoaderLeadId, setAddTagLoaderLeadId] = useState(null)
+  const [delTagLoaderByLead, setDelTagLoaderByLead] = useState({})
+  const [assignLoaderLeadId, setAssignLoaderLeadId] = useState(null)
+  const tagInputRefsMap = useRef({})
+  const getOrCreateInputRef = (leadId) => {
+    if (!tagInputRefsMap.current[leadId]) {
+      tagInputRefsMap.current[leadId] = { current: null }
+    }
+    return tagInputRefsMap.current[leadId]
+  }
+
   //code for the lead details modal
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null)
@@ -315,6 +342,10 @@ const Pipeline1 = () => {
   const [user, setUser] = useState(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
+  const showSnackbar = useCallback((message, type) => {
+    setSnackMessage({ message, type })
+  }, [])
+
   useEffect(() => {
     let data = getUserLocalData()
     setUser(data.user)
@@ -346,6 +377,13 @@ const Pipeline1 = () => {
 
     fetchPipelineDetails()
   }, [SelectedPipeline])
+
+  // Load unique tags once when user is available (for all pipeline TagManagerCn instances)
+  useEffect(() => {
+    if (user?.id) {
+      getUniqueTags()
+    }
+  }, [user?.id])
 
   const setParamsInSearchBar = (index = 0, from = 'default') => {
     //console.log;
@@ -383,7 +421,7 @@ const Pipeline1 = () => {
 
         setMyTeamList(teams)
         setMyTeamAdmin(response.admin)
-        
+
         // Also populate filter team members list
         const filterMembers = []
         if (response.admin) {
@@ -410,7 +448,7 @@ const Pipeline1 = () => {
       // console.error("Error occured in api is", error);
     }
   }
-  
+
   // Handler for team member filter selection
   const handleTeamMemberFilterToggle = (memberId) => {
     setSelectedTeamMemberIds((prev) => {
@@ -421,7 +459,7 @@ const Pipeline1 = () => {
       }
     })
   }
-  
+
   // Handler to apply filter and refresh pipeline data
   const handleApplyFilter = async () => {
     const newAppliedIds = [...selectedTeamMemberIds]
@@ -432,7 +470,7 @@ const Pipeline1 = () => {
       await getPipelineDetails(SelectedPipeline, newAppliedIds)
     }
   }
-  
+
   // Handler to clear filter
   const handleClearFilter = async () => {
     setSelectedTeamMemberIds([])
@@ -443,7 +481,7 @@ const Pipeline1 = () => {
       await getPipelineDetails(SelectedPipeline, [])
     }
   }
-  
+
   // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
   const handleOpenFilterModal = () => {
     setSelectedTeamMemberIds([...appliedTeamMemberIds])
@@ -627,7 +665,7 @@ const Pipeline1 = () => {
           setSuccessSnack(response.data.message)
           setCreatePipeline(false)
           handlePipelineClosePopover()
-
+          handleCloseOtherPipeline();
           selectedPipelineIndex = PipeLines.length
           setParamsInSearchBar(selectedPipelineIndex, 'handlecreatePipeline')
         }
@@ -725,7 +763,7 @@ const Pipeline1 = () => {
         ) {
           // Log detailed lead information for agency_use pipeline
           if (pipelineDetails.pipelineType === 'agency_use') {
-            pipelineDetails.leads?.forEach((lead, index) => {})
+            pipelineDetails.leads?.forEach((lead, index) => { })
           }
 
           //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
@@ -797,7 +835,7 @@ const Pipeline1 = () => {
           setLeadsList([...LeadsList, ...newLeads])
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   //code for get pipeline
@@ -933,6 +971,290 @@ const Pipeline1 = () => {
     }
   }
 
+  // Fetch unique tags for tag autocomplete (shared list for all leads)
+  const getUniqueTags = useCallback(async () => {
+    try {
+      const userId = user?.id || null
+      const tags = await fetchUniqueTags(userId)
+      if (tags && Array.isArray(tags)) {
+        setUniqueColumns(tags)
+      }
+    } catch (error) {
+      console.error('Error fetching unique tags:', error)
+    }
+  }, [user?.id])
+
+  // Add tag for a specific lead (used by each TagManagerCn in the pipeline list)
+  const handleAddTag = useCallback(async (tagValue, lead) => {
+    if (!tagValue || !tagValue.trim() || !lead?.lead?.id) return
+    const trimmedTag = tagValue.trim()
+    const leadId = lead.lead.id
+    const existingTags = lead.lead.tags || []
+    if (existingTags.includes(trimmedTag)) {
+      showSnackbar('Tag already exists', SnackbarTypes.Error)
+      setTagInputValues((prev) => ({ ...prev, [leadId]: '' }))
+      return
+    }
+    try {
+      setAddTagLoaderLeadId(leadId)
+      let AuthToken = null
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const localData = JSON.parse(userData)
+        AuthToken = localData.token
+      }
+      const updatedTags = [...existingTags, trimmedTag]
+      const ApiData = {
+        leadId: lead.lead.id,
+        tag: trimmedTag,
+        smartListId: lead.lead.sheetId,
+        phoneNumber: lead.lead.phone,
+      }
+      const ApiPath = Apis.updateLead
+      const response = await axios.put(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true) {
+        setTagInputValues((prev) => ({ ...prev, [leadId]: '' }))
+        setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: false }))
+        setTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: [] }))
+        showSnackbar('Tag added successfully', SnackbarTypes.Success)
+        setLeadsList((prev) =>
+          prev.map((item) =>
+            item.lead?.id === leadId
+              ? { ...item, lead: { ...item.lead, tags: updatedTags } }
+              : item
+          )
+        )
+        if (selectedLeadsDetails?.id === leadId) {
+          setSelectedLeadsDetails((prev) => (prev ? { ...prev, tags: updatedTags } : prev))
+        }
+      } else {
+        showSnackbar(response?.data?.message || 'Failed to add tag', SnackbarTypes.Error)
+      }
+    } catch (error) {
+      console.error('Error occurred in update lead api:', error)
+      showSnackbar('Failed to add tag. Please try again.', SnackbarTypes.Error)
+    } finally {
+      setAddTagLoaderLeadId(null)
+    }
+  }, [showSnackbar, selectedLeadsDetails?.id])
+
+  const handleTagInputChange = useCallback((e, lead) => {
+    const value = e.target.value
+    const leadId = lead?.lead?.id
+    if (leadId == null) return
+    setTagInputValues((prev) => ({ ...prev, [leadId]: value }))
+    const existingTags = lead?.lead?.tags || []
+    if (value.trim()) {
+      const filtered = uniqueColumns
+        .filter((tag) => tag.toLowerCase().includes(value.toLowerCase()))
+        .filter((tag) => !existingTags.includes(tag))
+      setTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: filtered }))
+      setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: filtered.length > 0 }))
+    } else {
+      setTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: [] }))
+      setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: false }))
+    }
+  }, [uniqueColumns])
+
+  const handleTagInputKeyDown = useCallback(
+    (e, lead) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+        e.preventDefault()
+        e.stopPropagation()
+        const leadId = lead?.lead?.id
+        if (leadId == null) return
+        const value = (tagInputValues[leadId] ?? '').trim()
+        if (value) handleAddTag(value, lead)
+      } else if (e.key === 'Escape') {
+        const leadId = lead?.lead?.id
+        if (leadId != null) {
+          setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: false }))
+        }
+      }
+    },
+    [tagInputValues, handleAddTag]
+  )
+
+  const handleTagSuggestionClick = useCallback(
+    (suggestion, lead) => {
+      handleAddTag(suggestion, lead)
+    },
+    [handleAddTag]
+  )
+
+  // Delete tag for a specific lead (TagManagerCn passes tag; we close over lead in JSX)
+  const handleDelTagForLead = useCallback(async (tag, lead) => {
+    const leadId = lead?.lead?.id
+    if (!leadId) return
+    try {
+      setDelTagLoaderByLead((prev) => ({ ...prev, [leadId]: tag }))
+      let AuthToken = null
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const localData = JSON.parse(userData)
+        AuthToken = localData.token
+      }
+      const ApiData = { leadId, tag }
+      const response = await axios.post(Apis.delLeadTag, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true) {
+        const updatedTags = (lead.lead.tags || []).filter((t) => t !== tag)
+        setLeadsList((prev) =>
+          prev.map((item) =>
+            item.lead?.id === leadId
+              ? { ...item, lead: { ...item.lead, tags: updatedTags } }
+              : item
+          )
+        )
+        if (selectedLeadsDetails?.id === leadId) {
+          setSelectedLeadsDetails((prev) => (prev ? { ...prev, tags: updatedTags } : prev))
+        }
+      }
+    } catch (error) {
+      console.error('Error in del tag api:', error)
+    } finally {
+      setDelTagLoaderByLead((prev) => {
+        const next = { ...prev }
+        delete next[leadId]
+        return next
+      })
+    }
+  }, [selectedLeadsDetails?.id])
+
+  // Update list (and selected lead if same) after tag delete for a specific lead
+  const handleLeadDetailsUpdatedForLead = useCallback(async (deletedTagName, lead) => {
+    const leadId = lead?.lead?.id
+    if (!leadId || !deletedTagName) return
+    setLeadsList((prev) =>
+      prev.map((item) =>
+        item.lead?.id === leadId
+          ? {
+            ...item,
+            lead: {
+              ...item.lead,
+              tags: (item.lead?.tags || []).filter((t) => t !== deletedTagName),
+            },
+          }
+          : item
+      )
+    )
+    if (selectedLeadsDetails?.id === leadId) {
+      setSelectedLeadsDetails((prev) =>
+        prev ? { ...prev, tags: (prev.tags || []).filter((t) => t !== deletedTagName) } : prev
+      )
+    }
+  }, [selectedLeadsDetails?.id])
+
+  // Team assign: options per lead (same shape as LeadDetails teamOptions)
+  const getTeamOptionsForLead = useCallback(
+    (lead) => {
+      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      const teamsAssigned = lead?.teamsAssigned || []
+      return allTeams.map((tm) => {
+        const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
+        const isSelected = teamsAssigned.some((assigned) => {
+          const assignedId = assigned.invitedUserId || assigned.invitedUser?.id || assigned.id
+          return String(assignedId) === String(id)
+        })
+        return {
+          id,
+          label: tm.name || tm.invitedUser?.name || 'Unknown',
+          avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
+          selected: isSelected,
+          raw: tm,
+        }
+      })
+    },
+    [myTeamAdmin, myTeamList]
+  )
+
+  const handleAssignLeadToTeammember = useCallback(
+    async (item, lead) => {
+      if (!lead?.id) return
+      const leadId = lead.id
+      setAssignLoaderLeadId(leadId)
+      try {
+        const teamMemberUserId = item.invitedUserId || item.id
+        const ApiData = { leadId, teamMemberUserId }
+        const response = await AssignTeamMember(ApiData)
+        if (response?.data?.status === true) {
+          const newTeamMember = {
+            id: item.id,
+            invitedUserId: item.invitedUserId,
+            invitingUserId: item.invitingUserId,
+            name: item.name || item.invitedUser?.name,
+            thumb_profile_image: item.thumb_profile_image || item.invitedUser?.thumb_profile_image,
+            invitedUser: item.invitedUser || {
+              id: item.invitedUserId || item.id,
+              name: item.name,
+              thumb_profile_image: item.thumb_profile_image,
+            },
+          }
+          HandleLeadAssignedTeam(newTeamMember, lead)
+          showSnackbar(
+            response.data.message || 'Team member assigned successfully',
+            SnackbarTypes.Success
+          )
+        } else {
+          showSnackbar(
+            response?.data?.message || 'Failed to assign team member',
+            SnackbarTypes.Error
+          )
+        }
+      } catch (error) {
+        console.error('handleAssignLeadToTeammember error:', error)
+        showSnackbar('Failed to assign team member. Please try again.', SnackbarTypes.Error)
+      } finally {
+        setAssignLoaderLeadId(null)
+      }
+    },
+    [showSnackbar]
+  )
+
+  const handleUnassignLeadFromTeammember = useCallback(
+    async (userId, lead) => {
+      if (!lead?.id) return
+      const leadId = lead.id
+      setAssignLoaderLeadId(leadId)
+      try {
+        const ApiData = { leadId, teamMemberUserId: userId }
+        const response = await UnassignTeamMember(ApiData)
+        if (response?.data?.status === true) {
+          const filteredTeams = (lead.teamsAssigned || []).filter((assigned) => {
+            const assignedId = assigned.invitedUserId || assigned.invitedUser?.id || assigned.id
+            return String(assignedId) !== String(userId)
+          })
+          const updatedLead = { ...lead, teamsAssigned: filteredTeams }
+          HandleLeadAssignedTeam(null, updatedLead)
+          showSnackbar(
+            response.data.message || 'Team member unassigned successfully',
+            SnackbarTypes.Success
+          )
+        } else if (response?.data?.status === false) {
+          showSnackbar(
+            response.data.message || 'Failed to unassign team member',
+            SnackbarTypes.Error
+          )
+        }
+      } catch (error) {
+        console.error('handleUnassignLeadFromTeammember error:', error)
+        showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error)
+      } finally {
+        setAssignLoaderLeadId(null)
+      }
+    },
+    [showSnackbar]
+  )
+
   //code for poovers
 
   const handleShowPipelinePopover = (event) => {
@@ -958,6 +1280,7 @@ const Pipeline1 = () => {
   }
 
   const handleCloseOtherPipeline = () => {
+    console.log('handleCloseOtherPipeline trigerred')
     setOtherPipelinePopoverAnchorel(null)
   }
 
@@ -1102,7 +1425,7 @@ const Pipeline1 = () => {
         // }
       })
 
-      for (let [key, value] of formData) {}
+      for (let [key, value] of formData) { }
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1349,6 +1672,7 @@ const Pipeline1 = () => {
         setSelectedPipeline(response.data.data)
         setShowRenamePipelinePopup(false)
         handlePipelineClosePopover()
+        handleCloseOtherPipeline();
       }
     } catch (error) {
       // //console.log;
@@ -1466,6 +1790,7 @@ const Pipeline1 = () => {
           setLeadsList(updatedPipelines[0].leads)
           // setSelectedPipeline(PipeLines)
           handlePipelineClosePopover()
+          handleCloseOtherPipeline();
           setShowDeletePiplinePopup(false)
         }
       }
@@ -1609,6 +1934,7 @@ const Pipeline1 = () => {
           setSuccessSnack(response.data.message)
           setShowRenamePipelinePopup(null)
           handlePipelineClosePopover()
+          handleCloseOtherPipeline();
         }
       }
     } catch (error) {
@@ -1773,6 +2099,7 @@ const Pipeline1 = () => {
           setShowAddNotes(false)
           setNoteDetails([response.data.data, ...noteDetails])
           setddNotesValue('')
+          handleCloseOtherPipeline();
         }
       }
     } catch (error) {
@@ -1828,64 +2155,70 @@ const Pipeline1 = () => {
     setStagesList(SelectedPipeline.stages)
 
     setPipeLines(updatedPipelines)
+    handleCloseOtherPipeline();
   }
 
   function HandleLeadAssignedTeam(team, lead) {
-    // Handle both assignment (team is object) and unassignment (team is null)
+    // Only update the one lead that was clicked (match by lead.id)
     if (!lead || !lead.id) return
 
     let updatedLeadForModal = null
 
-    const updatedLeadsList = LeadsList.map((item) => {
-      // Match by lead.id (not leadId)
-      if (item.lead?.id === lead.id) {
+    setLeadsList((prev) =>
+      prev.map((item) => {
+        // Update only the item for this lead (array item the user clicked)
+        if (item.lead?.id !== lead.id) return item
         if (team === null) {
-          // Unassignment: use the teamsAssigned from the updated lead
           const updatedLead = {
             ...item.lead,
             teamsAssigned: lead.teamsAssigned || [],
           }
           updatedLeadForModal = updatedLead
-          return {
-            ...item,
-            lead: updatedLead,
-          }
-        } else {
-          // Assignment: add team member if not already present
-          const existingTeams = item.lead.teamsAssigned || []
-          const teamId = team.id || team.invitedUserId
-          const isAlreadyAssigned = existingTeams.some((t) => {
-            const tId = t.id || t.invitedUserId
-            return String(tId) === String(teamId)
-          })
-
-          let updatedLead
-          if (!isAlreadyAssigned) {
-            updatedLead = {
-              ...item.lead,
-              teamsAssigned: [...existingTeams, team],
-            }
-          } else {
-            // If already assigned, use the updated lead's teamsAssigned
-            updatedLead = {
-              ...item.lead,
-              teamsAssigned: lead.teamsAssigned || existingTeams,
-            }
-          }
-          updatedLeadForModal = updatedLead
-          return {
-            ...item,
-            lead: updatedLead,
-          }
+          return { ...item, lead: updatedLead }
         }
-      }
-      return item
-    })
+        const existingTeams = item.lead.teamsAssigned || []
+        const teamId = team.id || team.invitedUserId
+        const isAlreadyAssigned = existingTeams.some((t) => {
+          const tId = t.id || t.invitedUserId
+          return String(tId) === String(teamId)
+        })
+        const updatedLead = isAlreadyAssigned
+          ? { ...item.lead, teamsAssigned: lead.teamsAssigned || existingTeams }
+          : { ...item.lead, teamsAssigned: [...existingTeams, team] }
+        updatedLeadForModal = updatedLead
+        return { ...item, lead: updatedLead }
+      })
+    )
 
-    setLeadsList(updatedLeadsList)
+    setPipeLines((prevPipelines) =>
+      prevPipelines.map((pipeline) => {
+        if (pipeline.id !== SelectedPipeline?.id) return pipeline
+        return {
+          ...pipeline,
+          leads: (pipeline.leads || []).map((l) => {
+            if (l.lead?.id !== lead.id) return l
+            if (team === null) {
+              return {
+                ...l,
+                lead: { ...l.lead, teamsAssigned: lead.teamsAssigned || [] },
+              }
+            }
+            const existingTeams = l.lead.teamsAssigned || []
+            const teamId = team.id || team.invitedUserId
+            const isAlreadyAssigned = existingTeams.some((t) => {
+              const tId = t.id || t.invitedUserId
+              return String(tId) === String(teamId)
+            })
+            const updatedLead = isAlreadyAssigned
+              ? { ...l.lead, teamsAssigned: lead.teamsAssigned || existingTeams }
+              : { ...l.lead, teamsAssigned: [...existingTeams, team] }
+            return { ...l, lead: updatedLead }
+          }),
+        }
+      })
+    )
 
-    // Also update selectedLeadsDetails if the modal is open for this lead
-    if (selectedLeadsDetails && selectedLeadsDetails.id === lead.id && updatedLeadForModal) {
+    if (updatedLeadForModal && selectedLeadsDetails?.id === lead.id) {
       setSelectedLeadsDetails(updatedLeadForModal)
     }
   }
@@ -1910,7 +2243,8 @@ const Pipeline1 = () => {
       setLeadsList(filteredLeads)
       setSelectedLeadsDetails(null) // Clear selected lead
       setShowDetailsModal(false) // Hide modal
-    } catch (error) {}
+      handleCloseOtherPipeline();
+    } catch (error) { }
   }
 
   function handldSearch(e) {
@@ -2009,16 +2343,6 @@ const Pipeline1 = () => {
                   {SelectedPipeline?.title}
                 </TypographyH3>
                 <div>
-                  {PipeLines.length > 1 && !pipelineDetailLoader && (
-                    <button
-                      className="outline-none"
-                      aria-describedby={OtherPipelineId}
-                      variant="contained"
-                      onClick={handleShowOtherPipeline}
-                    >
-                      <CaretDown size={22} weight="bold" />
-                    </button>
-                  )}
                   <Menu
                     id={OtherPipelineId}
                     anchorEl={otherPipelinePopoverAnchorel}
@@ -2027,18 +2351,63 @@ const Pipeline1 = () => {
                     MenuListProps={{
                       'aria-labelledby': OtherPipelineId,
                     }}
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    slotProps={{
+                      paper: {
+                        style: {
+                          // maxHeight: "40svh",
+                          width: '220px',
+                          marginLeft: "30px"
+                        },
+                      },
+                      list: {
+                        'aria-labelledby': 'long-button',
+                      },
+                    }}
                   >
-                    {PipeLines.map((item, index) => (
-                      <MenuItem
-                        key={index}
-                        onClick={() => {
-                          handleSelectOtherPipeline(item, index)
-                          handleCloseOtherPipeline() // Close menu after selection
-                        }}
-                      >
-                        {item.title}
-                      </MenuItem>
-                    ))}
+                    <div className='max-h-[20svh] overflow-y-auto'>
+                      {PipeLines.map((item, index) => (
+                        <MenuItem
+                          key={index}
+                          onClick={() => {
+                            handleSelectOtherPipeline(item, index)
+                            handleCloseOtherPipeline() // Close menu after selection
+                          }}
+                        >
+                          <div className='w-full flex flex-row items-center justify-between'>
+                            <div>{item.title}</div>
+                            {
+                              SelectedPipeline?.title === item.title && (
+                                <Check
+                                  className={`w-5 h-5 flex-shrink-0 text-[#00000080]`}
+                                />
+                              )
+                            }
+                          </div>
+                        </MenuItem>
+                      ))}
+                    </div>
+                    <button
+                      className={`flex flex-row items-center px-4 text-purple ${PipeLines.length > 1 && !pipelineDetailLoader ? 'mt-1' : 'mt-0'}`}
+                      onClick={() => {
+                        if (
+                          user?.planCapabilities.maxPipelines >
+                          user?.currentUsage.maxPipelines
+                        ) {
+                          setCreatePipeline(true)
+                        } else {
+                          setShowUpgradeModal(true)
+                        }
+                      }}
+                    >
+                      {/*<Plus size={17} weight="bold" />{' '}*/}
+                      <span style={{ fontWeight: '500', fontSize: 16 }}>
+                        New Pipeline
+                      </span>
+                    </button>
                   </Menu>
                 </div>
                 <button
@@ -2061,22 +2430,23 @@ const Pipeline1 = () => {
                 >
                   <div className="p-3">
                     <button
-                      className="flex flex-row items-center gap-4"
-                      onClick={() => {
-                        if (
-                          user?.planCapabilities.maxPipelines >
-                          user?.currentUsage.maxPipelines
-                        ) {
-                          setCreatePipeline(true)
-                        } else {
-                          setShowUpgradeModal(true)
-                        }
-                      }}
+                      className="outline-none flex flex-row items-center gap-4 w-full"
+                      // aria-describedby={OtherPipelineId}
+                      // variant="contained"
+                      onClick={handleShowOtherPipeline}
                     >
-                      <Plus size={17} weight="bold" />{' '}
-                      <span style={{ fontWeight: '500', fontSize: 15 }}>
-                        New Pipeline
-                      </span>
+                      <div style={{ borderRadius: '50%', width: '15px', height: '15px', backgroundColor: 'transparent', border: '1px solid #000000' }} />
+                      <div className="flex flex-row items-center justify-between flex-1">
+                        <div style={{ fontWeight: '500', fontSize: 15 }}>Pipelines</div>
+                        <div
+                          className="outline-none"
+                          aria-describedby={OtherPipelineId}
+                          variant="contained"
+                        // onClick={handleShowOtherPipeline}
+                        >
+                          <CaretRight size={15} weight="bold" />
+                        </div>
+                      </div>
                     </button>
                     {SelectedPipeline?.pipelineType !== 'agency_use' && (
                       <>
@@ -2186,7 +2556,7 @@ const Pipeline1 = () => {
           ) : (
             <div className="flex flex-col items-center w-full">
               <div
-                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-8
+                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-4
             scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             "
               >
@@ -2198,10 +2568,10 @@ const Pipeline1 = () => {
                       <div
                         key={index}
                         style={{ width: '300px' }}
-                        className="flex flex-col items-start h-full gap-8"
+                        className="flex flex-col items-start h-full gap-4 bg-[#00000005] rounded-xl p-4"
                       >
                         {/* Display the stage */}
-                        <div className="flex flex-row items-center w-full justify-between">
+                        <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">
                           <div
                             className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
                             style={{
@@ -2412,7 +2782,7 @@ const Pipeline1 = () => {
                                           // Handle both object format {id, value} and string format
                                           const value =
                                             typeof exampleValue === 'object' &&
-                                            exampleValue?.value
+                                              exampleValue?.value
                                               ? String(exampleValue.value)
                                               : String(exampleValue || '')
 
@@ -2484,393 +2854,322 @@ const Pipeline1 = () => {
                         {LeadsList?.filter(
                           (lead) => lead.lead.stage === stage.id,
                         ).length > 0 && (
-                          <div
-                            id={`scrollableDiv-${stage.id}`}
-                            className="relative flex flex-col gap-4 mt-4 h-[75vh] overflow-y-auto rounded-xl"
-                            style={{
-                              scrollbarWidth: 'none',
-                              borderWidth: 1,
-                              borderRadius: '12px',
-                              borderStyle: 'solid',
-                              borderColor: '#00000010',
-                            }}
-                          >
-                            <InfiniteScroll
-                              className="mt-4"
-                              endMessage={
-                                <p
-                                  style={{
-                                    textAlign: 'center',
-                                    paddingTop: '10px',
-                                    fontWeight: '400',
-                                    fontFamily: 'inter',
-                                    fontSize: 16,
-                                    color: '#00000060',
-                                    paddingBottom: 20,
-                                  }}
-                                >
-                                  {`You're all caught up`}
-                                </p>
-                              }
-                              scrollableTarget={`scrollableDiv-${stage.id}`}
-                              dataLength={
-                                LeadsList?.filter(
-                                  (lead) => lead.lead.stage === stage.id,
-                                ).length
-                              }
-                              next={() => {
-                                let leadsInStage = LeadsList?.filter(
-                                  (lead) => lead.lead.stage === stage.id,
-                                )
-
-                                if (searchValue) {
-                                  getMoreLeadsInStage({
-                                    stageId: stage.id,
-                                    offset: leadsInStage.length,
-                                    search: searchValue,
-                                  })
-                                } else {
-                                  getMoreLeadsInStage({
-                                    stageId: stage.id,
-                                    offset: leadsInStage.length,
-                                  })
-                                }
-                              }} // Fetch more when scrolled
-                              hasMore={hasMoreMap[stage.id] !== false}
-                              loader={
-                                <div className="w-full flex justify-center mt-4 pb-12">
-                                  <CircularProgress
-                                    size={30}
-                                    sx={{ color: '#7902DF' }}
-                                  />
-                                </div>
-                              }
-                              style={{ overflow: 'unset' }}
+                            <div
+                              id={`scrollableDiv-${stage.id}`}
+                              className="relative w-full flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl bg-none"
+                              style={{
+                                scrollbarWidth: 'none',
+                                // borderWidth: 1,
+                                // borderRadius: '12px',
+                                // borderStyle: 'solid',
+                                // borderColor: '#00000010',
+                              }}
                             >
-                              {LeadsList?.filter(
-                                (lead) => lead.lead.stage === stage.id,
-                              ).map((lead, leadIndex) => (
-                                <div
-                                  className="px-3 pt-2 mt-4 h-full"
-                                  style={{ width: '300px', height:'auto' }}
-                                  key={leadIndex}
-                                >
-                                  <div className="border rounded-xl px-4 py-2 h-full">
-                                    <div className="flex flex-row items-center justify-between w-full">
-                                      <button
-                                        className="flex flex-row items-center gap-3"
-                                        onClick={() => {
-                                          // Get the latest lead data from LeadsList to ensure we have the most up-to-date teamsAssigned
-                                          const latestLead = LeadsList.find(
-                                            (item) => item.lead?.id === lead.lead?.id
-                                          )
-                                          const leadToUse = latestLead?.lead || lead.lead
-                                          setShowDetailsModal(true)
-                                          setSelectedLeadsDetails(leadToUse)
-                                          setPipelineId(leadToUse.pipeline?.id || lead.lead.pipeline?.id)
-                                          setNoteDetails(leadToUse.notes || lead.lead.notes || [])
-                                        }}
-                                      >
-                                        {/* Lead profile picture with initials fallback */}
-                                        {getLeadProfileImage(lead.lead, 27, 27)}
-                                        <div style={styles.paragraph}>
-                                          {lead.lead.firstName}
-                                        </div>
-                                      </button>
-                                      {/* show results on hover */}
-                                      {lead.lead.scoringDetails &&
-                                        lead.lead.scoringDetails?.questions
-                                          ?.length > 0 && (
-                                          <ScoringProgress
-                                            value={
-                                              lead.lead.scoringDetails
-                                                ?.totalScore
-                                            }
-                                            maxValue={10}
-                                            questions={
-                                              lead.lead.scoringDetails
-                                                ?.questions
-                                            }
-                                            showTooltip={true}
-                                            tooltipTitle="Results"
-                                          />
-                                        )}
-                                    </div>
-                                    <div className="flex flex-row items-center justify-between w-full mt-1">
-                                      <div className="flex flex-col gap-1">
-                                        {lead?.lead?.email && (
-                                          <Tooltip
-                                            title={lead?.lead?.email}
-                                            arrow
-                                            componentsProps={{
-                                              tooltip: {
-                                                sx: {
-                                                  backgroundColor: '#ffffff',
-                                                  color: '#333',
-                                                  fontSize: '14px',
-                                                  padding: '10px 15px',
-                                                  borderRadius: '8px',
-                                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                },
-                                              },
-                                              arrow: {
-                                                sx: {
-                                                  color: '#ffffff',
-                                                },
-                                              },
+                              <InfiniteScroll
+                                // className="mt-4"
+                                endMessage={
+                                  <p
+                                    style={{
+                                      textAlign: 'center',
+                                      paddingTop: '10px',
+                                      fontWeight: '400',
+                                      fontFamily: 'inter',
+                                      fontSize: 16,
+                                      color: '#00000060',
+                                      paddingBottom: 20,
+                                    }}
+                                  >
+                                    {`You're all caught up`}
+                                  </p>
+                                }
+                                scrollableTarget={`scrollableDiv-${stage.id}`}
+                                dataLength={
+                                  LeadsList?.filter(
+                                    (lead) => lead.lead.stage === stage.id,
+                                  ).length
+                                }
+                                next={() => {
+                                  let leadsInStage = LeadsList?.filter(
+                                    (lead) => lead.lead.stage === stage.id,
+                                  )
+
+                                  if (searchValue) {
+                                    getMoreLeadsInStage({
+                                      stageId: stage.id,
+                                      offset: leadsInStage.length,
+                                      search: searchValue,
+                                    })
+                                  } else {
+                                    getMoreLeadsInStage({
+                                      stageId: stage.id,
+                                      offset: leadsInStage.length,
+                                    })
+                                  }
+                                }} // Fetch more when scrolled
+                                hasMore={hasMoreMap[stage.id] !== false}
+                                loader={
+                                  <div className="w-full flex justify-center mt-4 pb-12">
+                                    <CircularProgress
+                                      size={30}
+                                      sx={{ color: '#7902DF' }}
+                                    />
+                                  </div>
+                                }
+                                style={{ overflow: 'unset' }}
+                              >
+                                {LeadsList?.filter(
+                                  (lead) => lead.lead.stage === stage.id,
+                                ).map((lead, leadIndex) => (
+                                  <div
+                                    className="mb-4 h-full"
+                                    style={{ height: 'auto', backgroundColor: "transparent" }}
+                                    key={leadIndex}
+                                  >
+                                    <div
+                                      className="border bg-[#ffffff] rounded-xl px-3 py-4 h-full"
+                                      style={{ border: "1px solid ##1515151A" }}
+                                      onMouseEnter={() => {
+                                        const latestLead = LeadsList.find(
+                                          (item) => item.lead?.id === lead.lead?.id
+                                        )
+                                        const leadToUse = latestLead?.lead || lead.lead
+                                        // setShowDetailsModal(true)
+                                        setSelectedLeadsDetails(leadToUse)
+                                        // setPipelineId(leadToUse.pipeline?.id || lead.lead.pipeline?.id)
+                                        // setNoteDetails(leadToUse.notes || lead.lead.notes || [])
+                                      }}
+                                      onMouseLeave={() => {
+                                        setSelectedLeadsDetails(null)
+                                      }}
+                                    >
+                                      <div className="flex flex-row items-center justify-between w-full">
+                                        <button
+                                          className="flex flex-row items-center gap-3"
+                                          onClick={() => {
+                                            // Get the latest lead data from LeadsList to ensure we have the most up-to-date teamsAssigned
+                                            const latestLead = LeadsList.find(
+                                              (item) => item.lead?.id === lead.lead?.id
+                                            )
+                                            const leadToUse = latestLead?.lead || lead.lead
+                                            setShowDetailsModal(true)
+                                            setSelectedLeadsDetails(leadToUse)
+                                            setPipelineId(leadToUse.pipeline?.id || lead.lead.pipeline?.id)
+                                            setNoteDetails(leadToUse.notes || lead.lead.notes || [])
+                                          }}
+                                        >
+                                          {/* Lead profile picture with initials fallback */}
+                                          <div>{getLeadProfileImage(lead.lead, 27, 27)}</div>
+                                          <div
+                                            style={{
+                                              position: "relative",
+                                              top: 10,
+                                              left: -27,
+                                              zIndex: 1000,
                                             }}
                                           >
-                                            <div
-                                              className="text-[#00000060]"
-                                              style={styles.agentName}
-                                            >
-                                              {lead?.lead?.email?.slice(0, 10) + '...'}
-                                            </div>
-                                          </Tooltip>
+                                            {getAgentsListImage(
+                                              lead.agent?.agents[0]?.agentType ===
+                                                'outbound'
+                                                ? lead.agent?.agents[0]
+                                                : lead.agent?.agents[1] ? lead.agent?.agents[1] : lead.agent?.agents[0],
+                                              19,
+                                              19,
+                                            )}
+                                          </div>
+                                          <div style={styles.paragraph}>
+                                            {lead.lead.firstName}
+                                          </div>
+                                        </button>
+                                        {/* show results on hover */}
+                                        {lead.lead.scoringDetails &&
+                                          lead.lead.scoringDetails?.questions
+                                            ?.length > 0 && (
+                                            <ScoringProgress
+                                              value={
+                                                lead.lead.scoringDetails
+                                                  ?.totalScore
+                                              }
+                                              maxValue={10}
+                                              questions={
+                                                lead.lead.scoringDetails
+                                                  ?.questions
+                                              }
+                                              showTooltip={true}
+                                              tooltipTitle="Results"
+                                            />
+                                          )}
+                                      </div>
+                                      <div className="flex flex-row items-center justify-between w-full mt-1">
+                                        {/* Loader only for this card's lead (array item), not selectedLeadsDetails */}
+                                        {assignLoaderLeadId === lead.lead.id ? (
+                                          <CircularProgress size={20} />
+                                        ) : (
+                                          <TeamAssignDropdownCn
+                                            withoutBorder={true}
+                                            label="Assign"
+                                            teamOptions={getTeamOptionsForLead(lead.lead)}
+                                            onToggle={(teamId, team, shouldAssign) => {
+                                              if (shouldAssign) {
+                                                if (team?.raw) {
+                                                  handleAssignLeadToTeammember(team.raw, lead.lead)
+                                                } else {
+                                                  const allTeams = [
+                                                    ...(myTeamAdmin ? [myTeamAdmin] : []),
+                                                    ...(myTeamList || []),
+                                                  ]
+                                                  const teamToAssign = allTeams.find((t) => {
+                                                    const tId =
+                                                      t.invitedUserId || t.invitedUser?.id || t.id
+                                                    return String(tId) === String(teamId)
+                                                  })
+                                                  if (teamToAssign) {
+                                                    handleAssignLeadToTeammember(
+                                                      teamToAssign,
+                                                      lead.lead
+                                                    )
+                                                  }
+                                                }
+                                              } else {
+                                                handleUnassignLeadFromTeammember(teamId, lead.lead)
+                                              }
+                                            }}
+                                          />
                                         )}
-                                        {/* Display plan price for agency_use pipeline leads */}
-                                        {(() => {
-                                          const isAgencyUse = SelectedPipeline?.pipelineType === 'agency_use'
-                                          const planPrice = lead?.lead?.agencyUseInfo?.planPrice
-                                          
-                                          // Debug logging
-                                          if (isAgencyUse) {}
-                                          
-                                          return isAgencyUse && planPrice ? (
-                                            <div
-                                              className="text-green-600 font-semibold text-xs"
-                                              style={{ fontSize: '11px' }}
+                                        <div className="flex flex-col gap-1">
+                                          {/* {lead?.lead?.email && (
+                                            <Tooltip
+                                              title={lead?.lead?.email}
+                                              arrow
+                                              componentsProps={{
+                                                tooltip: {
+                                                  sx: {
+                                                    backgroundColor: '#ffffff',
+                                                    color: '#333',
+                                                    fontSize: '14px',
+                                                    padding: '10px 15px',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                  },
+                                                },
+                                                arrow: {
+                                                  sx: {
+                                                    color: '#ffffff',
+                                                  },
+                                                },
+                                              }}
                                             >
-                                              ${planPrice}
-                                            </div>
-                                          ) : null
-                                        })()}
-                                      </div>
-                                      {
-                                        lead.agent && (() => {
-                                          const agentName = lead.agent?.agents[0]?.agentType === 'outbound'
-                                            ? lead.agent?.agents[0]?.name
-                                            : lead.agent?.agents[1]? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name
-                                          
-                                          return (
-                                            <div className="flex flex-row items-center gap-2">
-                                              {getAgentsListImage(
-                                                lead.agent?.agents[0]?.agentType ===
-                                                  'outbound'
-                                                  ? lead.agent?.agents[0]
-                                                  : lead.agent?.agents[1]? lead.agent?.agents[1] : lead.agent?.agents[0],
-                                                24,
-                                                24,
-                                              )}
-                                              {agentName && (
-                                                <Tooltip
-                                                  title={agentName}
-                                                  arrow
-                                                  componentsProps={{
-                                                    tooltip: {
-                                                      sx: {
-                                                        backgroundColor: '#ffffff',
-                                                        color: '#333',
-                                                        fontSize: '14px',
-                                                        padding: '10px 15px',
-                                                        borderRadius: '8px',
-                                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                      },
-                                                    },
-                                                    arrow: {
-                                                      sx: {
-                                                        color: '#ffffff',
-                                                      },
-                                                    },
-                                                  }}
-                                                >
-                                                  <div
-                                                    className="text-brand-primary underline"
-                                                    style={styles.agentName}
-                                                  >
-                                                    {agentName?.slice(0, 10) + '...'}
-                                                  </div>
-                                                </Tooltip>
-                                              )}
-                                            </div>
-                                          )
-                                        })()
-                                      }
-                                    </div>
-
-                                    {lead?.lead?.booking?.date && (
-                                      <div
-                                        className="flex flex-row items-center gap-2"
-                                        style={{
-                                          // fontWeight: "500",
-
-                                          color: '#15151560',
-                                          // backgroundColor: 'red',
-                                        }}
-                                      >
-                                        <Image
-                                          src="/svgIcons/calendar.svg"
-                                          height={16}
-                                          width={16}
-                                          alt="*"
-                                          style={{ filter: 'opacity(50%)' }}
-                                        />
-                                        {/* {moment(lead?.lead?.booking?.date).format(
-                                          "MMM D"
-                                        ) || "-"} */}
-                                        <p
-                                          style={{
-                                            fontSize: 13,
-                                            fontWeight: 500,
-                                          }}
-                                        >
-                                          {GetFormattedDateString(
-                                            lead?.lead?.booking?.date,
-                                            true,
-                                            'MMM DD',
+                                              <div
+                                                className="text-[#00000060]"
+                                                style={styles.agentName}
+                                              >
+                                                {lead?.lead?.email?.slice(0, 10) + '...'}
+                                              </div>
+                                            </Tooltip>
                                           )}
-                                        </p>
+                                          Display plan price for agency_use pipeline leads */}
+                                          {(() => {
+                                            const isAgencyUse = SelectedPipeline?.pipelineType === 'agency_use'
+                                            const planPrice = lead?.lead?.agencyUseInfo?.planPrice
 
-                                        <Image
-                                          src="/svgIcons/clock.svg"
-                                          height={16}
-                                          width={16}
-                                          alt="*"
-                                          style={{ filter: 'opacity(50%)' }}
-                                        />
-                                        <p
-                                          style={{
-                                            fontSize: 13,
-                                            fontWeight: 500,
-                                          }}
-                                        >
-                                          {GetFormattedTimeString(
-                                            lead?.lead?.booking?.datetime,
-                                          )}
-                                        </p>
+                                            // Debug logging
+                                            if (isAgencyUse) { }
 
-                                        {/* {moment(
-                                          lead?.lead?.booking?.time,
-                                          "HH:mm"
-                                        ).format("HH:mm") || "-"} */}
-                                      </div>
-                                    )}
-
-                                    <div className="w-full flex flex-row items-center">
-                                      <LeadTeamsAssignedList
-                                        users={lead?.lead?.teamsAssigned || []}
-                                        compactMode={true}
-                                        onAssignClick={(event) => {
-                                          // Get the latest lead data from LeadsList to ensure we have the most up-to-date teamsAssigned
-                                          const latestLead = LeadsList.find(
-                                            (item) => item.lead?.id === lead.lead?.id
-                                          )
-                                          const leadToUse = latestLead?.lead || lead.lead
-                                          // Open LeadDetails modal for assignment
-                                          setShowDetailsModal(true)
-                                          setSelectedLeadsDetails(leadToUse)
-                                          setPipelineId(leadToUse.pipeline?.id || '')
-                                          setNoteDetails(leadToUse.notes || [])
-                                        }}
-                                      />
-                                     
-                                      {lead.lead.tags.length > 0 ? (
-                                        <div className="flex flex-row items-center gap-1 whitespace-nowrap">
-                                          {lead?.lead?.tags
-                                            .slice(0, 1)
-                                            .map((tagVal, index) => {
-                                              return (
-                                                // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                                //     {tagVal}
-                                                // </div>
-                                                <div
-                                                  key={index}
-                                                  className="flex items-center gap-1 px-2 py-1 whitespace-nowrap bg-gray-100 rounded-full text-sm"
-                                                >
-                                                  <div
-                                                    className="text-black"
-                                                    style={{
-                                                      fontSize: 13,
-                                                      maxWidth: '12ch',
-                                                      whiteSpace: 'nowrap',
-                                                      overflow: 'hidden',
-                                                      textOverflow: 'ellipsis',
-                                                      lineHeight: '1.2',
-                                                    }}
-                                                  >
-                                                    {tagVal}
-                                                  </div>
-                                                  {DelTagLoader &&
-                                                  lead.lead.id ===
-                                                    DelTagLoader ? (
-                                                    <div>
-                                                      <CircularProgress
-                                                        size={15}
-                                                      />
-                                                    </div>
-                                                  ) : (
-                                                    <button
-                                                      onClick={() => {
-                                                        // console.log(
-                                                        //   "Tag value is",
-                                                        //   tagVal
-                                                        // );
-                                                        handleDelTag(
-                                                          tagVal,
-                                                          lead,
-                                                        )
-                                                        let updatedTags =
-                                                          lead?.lead?.tags?.filter(
-                                                            (tag) =>
-                                                              tag != tagVal,
-                                                          ) || []
-                                                        lead.lead.tags =
-                                                          updatedTags
-                                                        let newLeadCad = []
-                                                        LeadsList.map(
-                                                          (item) => {
-                                                            if (
-                                                              item.id == lead.id
-                                                            ) {
-                                                              newLeadCad.push(
-                                                                lead,
-                                                              )
-                                                            } else {
-                                                              newLeadCad.push(
-                                                                item,
-                                                              )
-                                                            }
-                                                          },
-                                                        )
-                                                        setLeadsList(newLeadCad)
-                                                      }}
-                                                    >
-                                                      <X
-                                                        size={15}
-                                                        weight="bold"
-                                                        color="#000000"
-                                                      />
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              );
-                                            })}
-                                          {lead.lead.tags.length > 1 && (
-                                            <div>
-                                              +{lead.lead.tags.length - 1}
-                                            </div>
-                                          )}
+                                            return isAgencyUse && planPrice ? (
+                                              <div
+                                                className="rounded-full flex flex-row items-center justify-center"
+                                                style={{
+                                                  fontSize: '11px',
+                                                  fontWeight: "400",
+                                                  height: "28px",
+                                                  width: "70px",
+                                                  backgroundColor: "#00000005",
+                                                  fontSize: "14px",
+                                                }}
+                                              >
+                                                ${planPrice}
+                                              </div>
+                                            ) : (
+                                              <div
+                                                className="rounded-full flex flex-row items-center justify-center"
+                                                style={{
+                                                  fontSize: '11px',
+                                                  fontWeight: "400",
+                                                  height: "28px",
+                                                  width: "70px",
+                                                  backgroundColor: "#00000005",
+                                                  fontSize: "14px",
+                                                }}
+                                              >
+                                                $12
+                                              </div>
+                                            )
+                                          })()}
                                         </div>
-                                      ) : (
-                                        ''
+                                      </div>
+
+                                      {lead?.lead?.booking?.date && (
+                                        <div
+                                          className="flex flex-row items-center gap-2"
+                                          style={{
+                                            // fontWeight: "500",
+
+                                            color: '#15151560',
+                                            // backgroundColor: 'red',
+                                          }}
+                                        >
+                                          <Image
+                                            src="/svgIcons/calendar.svg"
+                                            height={16}
+                                            width={16}
+                                            alt="*"
+                                            style={{ filter: 'opacity(50%)' }}
+                                          />
+                                          <p
+                                            style={{
+                                              fontSize: 13,
+                                              fontWeight: 500,
+                                            }}
+                                          >
+                                            {FormatBookingDateTime(
+                                              lead?.lead?.booking?.datetime,
+                                              lead?.lead?.booking?.timezone,
+                                            )}
+                                          </p>
+                                        </div>
                                       )}
+
+                                      <div className="flex items-center flex-row gap-2 mt-2">
+
+                                        <TagManagerCn
+                                          tags={lead.lead.tags || []}
+                                          tagInputRef={getOrCreateInputRef(lead.lead.id)}
+                                          tagInputValue={tagInputValues[lead.lead.id] ?? ''}
+                                          onInputChange={(e) => handleTagInputChange(e, lead)}
+                                          onInputKeyDown={(e) => handleTagInputKeyDown(e, lead)}
+                                          showSuggestions={showTagSuggestionsByLead[lead.lead.id] ?? false}
+                                          setShowSuggestions={(show) =>
+                                            setShowTagSuggestionsByLead((prev) => ({ ...prev, [lead.lead.id]: show }))
+                                          }
+                                          tagSuggestions={tagSuggestionsByLead[lead.lead.id] ?? []}
+                                          onSuggestionClick={(suggestion) => handleTagSuggestionClick(suggestion, lead)}
+                                          addTagLoader={addTagLoaderLeadId === lead.lead.id}
+                                          onRemoveTag={(tag) => handleDelTagForLead(tag, lead)}
+                                          delTagLoader={delTagLoaderByLead[lead.lead.id]}
+                                          onRefreshSuggestions={getUniqueTags}
+                                          selectedUser={user}
+                                          showSnackbar={showSnackbar}
+                                          onLeadDetailsUpdated={(deletedTagName) =>
+                                            handleLeadDetailsUpdatedForLead(deletedTagName, lead)
+                                          }
+                                        />
+                                      </div>
+
                                     </div>
                                   </div>
-                                </div>
-                              ))}
-                            </InfiniteScroll>
-                          </div>
-                        )}
+                                ))}
+                              </InfiniteScroll>
+                            </div>
+                          )}
                       </div>
                     ))}
                   </div>
@@ -3378,9 +3677,9 @@ const Pipeline1 = () => {
                                   border: 'none', // Remove the default outline
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                  {
-                                    border: 'none', // Remove outline on focus
-                                  },
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
                                 '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3403,7 +3702,7 @@ const Pipeline1 = () => {
                             </div>
                           </div>
                         </MenuItem> */}
-                              
+
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem
@@ -3693,8 +3992,8 @@ const Pipeline1 = () => {
                   ).length
                   // Prioritize actual count - if we have LeadsList data, use actual count only
                   // Only fall back to cached hasLeads if LeadsList is empty (not loaded yet)
-                  const stageHasLeads = LeadsList.length > 0 
-                    ? actualLeadCount > 0 
+                  const stageHasLeads = LeadsList.length > 0
+                    ? actualLeadCount > 0
                     : (selectedStage?.hasLeads || false)
                   return stageHasLeads
                 })() ? (
@@ -3877,6 +4176,7 @@ const Pipeline1 = () => {
             onClose={() => {
               setShowRenamePipelinePopup(false)
               handlePipelineClosePopover()
+              handleCloseOtherPipeline();
             }}
             BackdropProps={{
               timeout: 100,
@@ -3919,6 +4219,7 @@ const Pipeline1 = () => {
                         onClick={() => {
                           setShowRenamePipelinePopup(false)
                           handlePipelineClosePopover()
+                          handleCloseOtherPipeline();
                         }}
                         className="outline-none"
                       >
@@ -3984,6 +4285,7 @@ const Pipeline1 = () => {
             open={createPipeline}
             onClose={() => {
               setCreatePipeline(false)
+              handleCloseOtherPipeline();
               handlePipelineClosePopover()
             }}
             closeAfterTransition
@@ -4013,6 +4315,7 @@ const Pipeline1 = () => {
                       onClick={() => {
                         setCreatePipeline(false)
                         handlePipelineClosePopover()
+                        handleCloseOtherPipeline();
                       }}
                     >
                       <Image
@@ -4447,7 +4750,7 @@ const Pipeline1 = () => {
                     </div>
                     <CloseBtn onClick={() => setShowFilterModal(false)} />
                   </div>
-                  
+
                   <div
                     className="mt-4"
                     style={{
@@ -4490,7 +4793,7 @@ const Pipeline1 = () => {
                       ))
                     )}
                   </div>
-                  
+
                   <div className="w-full mt-4">
                     <button
                       onClick={handleApplyFilter}
@@ -4510,9 +4813,8 @@ const Pipeline1 = () => {
           {/* Code for side view */}
           {importantCalls?.length > 0 && (
             <div
-              className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
-                expandSideView ? 'w-[506px]' : 'w-[100px]'
-              }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+              className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? 'w-[506px]' : 'w-[100px]'
+                }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
               style={{
                 borderTopLeftRadius: expandSideView ? '0' : '40px',
                 borderBottomLeftRadius: expandSideView ? '0' : '40px',
@@ -4522,7 +4824,7 @@ const Pipeline1 = () => {
                 bottom: 100,
                 right: 0,
               }}
-              onClick={() => {}}
+              onClick={() => { }}
             >
               {expandSideView ? (
                 <div className="flex  items-center justify-center w-full">

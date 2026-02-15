@@ -63,6 +63,7 @@ const CreateTaskFromNextStepsModal = ({
     }
   }, [selectedUser?.id])
 
+
   // Load team members when modal opens
   useEffect(() => {
     if (open) {
@@ -83,10 +84,10 @@ const CreateTaskFromNextStepsModal = ({
       const response = await createTask(taskData, selectedUser?.id)
       if (response.status) {
         toast.success('Task created successfully')
-        
+
         // Dispatch custom event for task updates
         window.dispatchEvent(new CustomEvent('tasksChanged'))
-        
+
         // Close modal
         onClose()
       } else {
@@ -111,11 +112,11 @@ const CreateTaskFromNextStepsModal = ({
             <TypographyH3>New Task</TypographyH3>
           </DialogTitle>
         </DialogHeader>
-        
+
         {/* Divider between title and input fields */}
         <div className="border-b border-gray-200 mx-6" />
-        
-        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-4">
+
+        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-2">
           <TaskForm
             teamMembers={teamMembers}
             onSubmit={handleCreateTask}
@@ -129,7 +130,7 @@ const CreateTaskFromNextStepsModal = ({
             hideBorder={true}
             isValidForm={isValidForm}
             setIsValidForm={setIsValidForm}
-            />
+          />
         </div>
 
         {/* Action Buttons - Fixed at bottom */}
@@ -151,7 +152,7 @@ const CreateTaskFromNextStepsModal = ({
             {isSubmitting ? (
               <>
                 <span className="animate-spin">⏳</span>
-                
+
                 Creating...
               </>
             ) : (

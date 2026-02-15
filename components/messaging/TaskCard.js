@@ -16,11 +16,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const TaskCard = ({
   task,
   onUpdate,
   onDelete,
+  onEditClick,
+  onPin,
   teamMembers = [],
   priorityOptions = [],
   statusOptions = [],
@@ -161,6 +169,14 @@ const TaskCard = ({
         
       },
     },
+    {
+        label: 'Edit',
+        value: 'edit',
+        onSelect: () => {
+            onEditClick(task.id)
+
+        },
+    },
   ]
 
   // Status color mapping (hex colors)
@@ -214,23 +230,58 @@ const TaskCard = ({
   }
 
   return (
-    <div className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
-      {/* Title with Pin and Priority */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-1">
-          <Pin className="h-4 w-4 flex-shrink-0" style={{ color: '#8A8A8A' }} />
-          <TypographyBodySemibold className="text-foreground">
-            {task.title}
-          </TypographyBodySemibold>
-          {/* AI Badge for tasks created from call summaries */}
-          {task.type === 'ai_summary' && (
-            <span className="px-2 py-0.5 text-xs font-semibold rounded-md bg-purple-100 text-purple-700 border border-purple-200">
+    <div
+      className="border bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+      style={{ width: '100%', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' }}
+    >
+      {/* Title with Pin and Priority - title truncates, dropdowns always visible on the right */}
+      <div className="flex items-center gap-2 w-full min-w-0">
+        {/* Left: pin + title + AI badge (title truncates) */}
+        <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+          {onPin ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onPin(task.id, !task.isPinned)
+              }}
+              className="flex-shrink-0 p-0.5 rounded hover:bg-muted/50 transition-colors"
+              aria-label={task.isPinned ? 'Unpin task' : 'Pin task'}
+            >
+              <Pin
+                className={cn(
+                  'h-4 w-4 transition-colors',
+                  task.isPinned ? 'fill-brand-primary text-brand-primary' : 'text-[#8A8A8A]',
+                )}
+              />
+            </button>
+          ) : (
+            <Pin className="h-4 w-4 flex-shrink-0" style={{ color: '#8A8A8A' }} />
+          )}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="block min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-semibold text-foreground"
+                  style={{ minWidth: 0 }}
+                >
+                  {task.title}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[280px] bg-gray-900 text-white">
+                {task.title}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {/* AI Badge - only when task is still in AI status (not when moved to todo/in-progress/done) */}
+          {task.type === 'ai_summary' && task.status === 'ai' && (
+            <span className="flex-shrink-0 px-2 py-0.5 text-xs font-semibold rounded-md bg-purple-100 text-purple-700 border border-purple-200">
               AI
             </span>
           )}
         </div>
-        {/* Priority and More Options - Top Right */}
-        <div className="ml-2 flex items-center gap-2">
+        {/* Right: Priority + More options (always visible, never shrink) */}
+        <div className="flex items-center gap-1 flex-shrink-0 ml-1">
             <DropdownCn
               label={<TypographyCaption>{currentPriority.label}</TypographyCaption>}
               icon={PriorityFlagIcon}
@@ -240,7 +291,7 @@ const TaskCard = ({
               }))}
               onSelect={handlePriorityChange}
               backgroundClassName="text-foreground"
-              className="border-0 shadow-none h-[36px]"
+              className="border-0 shadow-none h-[36px] min-w-0"
             />
           {/* More Options - No border, no chevron */}
           <DropdownCn
@@ -248,17 +299,20 @@ const TaskCard = ({
             icon={MoreVertical}
             options={moreOptions}
             backgroundClassName="text-foreground"
-            className="border-0 shadow-none h-[36px] w-[30px]"
+            className="border-0 shadow-none h-[36px] w-[28px] min-w-[28px]"
             hideChevron={true}
             iconColor="#8A8A8A"
           />
         </div>
       </div>
 
-      {/* Description */}
+      {/* Description - constrained to card width, preserve line breaks, wrap long lines */}
       {task.description && (
-        <div style={{ maxWidth: '200px' }} className="mb-3 mt-2 ">
-          <TypographyBody className="text-muted-foreground line-height-2">
+        <div className="mb-3 mt-2 w-full min-w-0 overflow-hidden">
+          <TypographyBody
+            className="text-muted-foreground line-height-2 break-words"
+            style={{ overflowWrap: 'break-word', whiteSpace: 'pre-line' }}
+          >
             {task.description}
           </TypographyBody>
         </div>
@@ -287,14 +341,16 @@ const TaskCard = ({
         </div>
       </div> */}
 
-      {/* Action Row - Assignees, Due Date, Status (bottom right) */}
-      <div className="flex items-center gap-2 justify-between mt-3">
+      {/* Action Row - Assignees, Due Date, Status (consistent spacing, constrained width) */}
+      <div className="flex items-center flex-wrap gap-3 mt-3 w-full min-w-0 overflow-hidden">
         {/* Assignees - Use MultiSelectDropdownCn with visible borders */}
-        <MultiSelectDropdownCn
-          label="Assign"
-          options={teamMemberOptions}
-          onToggle={handleAssigneeToggle}
-        />
+        <div className="flex-shrink-0">
+          <MultiSelectDropdownCn
+            label="Assign"
+            options={teamMemberOptions}
+            onToggle={handleAssigneeToggle}
+          />
+        </div>
 
         {/* Due Date - Editable Popover */}
         <Popover open={datePickerOpen} onOpenChange={(open) => {
@@ -317,7 +373,7 @@ const TaskCard = ({
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="flex items-center gap-1 px-2 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 h-[36px]"
+              className="flex items-center gap-1 px-2 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 h-[36px] flex-shrink-0"
               style={{ cursor: 'pointer' }}
               onMouseDown={(e) => {
                 e.stopPropagation()
@@ -446,8 +502,8 @@ const TaskCard = ({
           </PopoverContent>
         </Popover>
 
-        {/* Status - Bottom Right */}
-        <div className="">
+        {/* Status */}
+        <div className="flex-shrink-0">
           <DropdownCn
             label={
               <div className="flex items-center gap-2">

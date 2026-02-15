@@ -1,9 +1,6 @@
 'use client'
 
 // Import default styles
-// import "./CalendarOverrides.css";
-import '../../calls/CalendarOverrides.css'
-import 'react-calendar/dist/Calendar.css'
 
 import {
   Alert,
@@ -35,7 +32,12 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fromJSON } from 'postcss'
 import React, { useEffect, useRef, useState } from 'react'
-import Calendar from 'react-calendar'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover as ShadPopover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { pipeline } from 'zod'
 
@@ -52,6 +54,7 @@ import { TypographyH3, TypographyH4 } from '@/lib/typography'
 import CalendarInput from '@/components/test/DatePicker'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { useUser } from '@/hooks/redux-hooks'
+import { useHasPermission } from '@/contexts/PermissionContext'
 import { GetFormattedDateString } from '@/utilities/utility'
 
 import AgentSelectSnackMessage, {
@@ -71,6 +74,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { Checkbox } from '@/components/ui/checkbox'
+import TagManagerCn from './extras/TagManagerCn'
+
+import { getUniqueTags as fetchUniqueTags, getUniqueTagsList } from '@/components/globalExtras/GetUniqueTags'
+
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -82,6 +89,11 @@ const Userleads = ({
   reduxUser,
 }) => {
   const LimitPerPage = 30
+
+  // Permission for Export: agentx.leads.export (subaccount and agentx teams)
+  const [hasExportPermission, isExportPermissionChecking] = useHasPermission('agentx.leads.export')
+
+
 
   //Sheet Caching related
   let searchParams = useSearchParams()
@@ -159,8 +171,6 @@ const Userleads = ({
 
   const [exportLoading, setExportLoading] = useState(false)
 
-  const fromCalendarRef = useRef(null)
-  const toCalendarRef = useRef(null)
 
   useEffect(() => {
     //console.log;
@@ -206,6 +216,11 @@ const Userleads = ({
   const [delSmartListLoader, setDelSmartListLoader] = useState(false)
   const [selectedSmartList, setSelectedSmartList] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState({})
+
+  //code for edit smart list
+  const [editSmartListLoader, setEditSmartListLoader] = useState(false)
+  const [showEditSmartList, setShowEditSmartList] = useState(false)
+  const [selectedSmartListForEdit, setSelectedSmartListForEdit] = useState(null)
 
   //code for passing columns
   const [Columns, setColumns] = useState(null)
@@ -260,6 +275,126 @@ const Userleads = ({
 
   const [user, setUser] = useState(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+  const [filterTags, setFilterTags] = useState([])
+  const [filterTagInputValue, setFilterTagInputValue] = useState('')
+  const [showFilterTagSuggestions, setShowFilterTagSuggestions] = useState(false)
+  const [filterTagSuggestions, setFilterTagSuggestions] = useState([])
+  const [filterTagInputRef] = useState(useRef(null))
+  const [uniqueColumns, setUniqueColumns] = useState([])
+  //unique tags list
+  const [uniqueTagsList, setUniqueTagsList] = useState([])
+
+  const tagFilterManagerRef = useRef(null)
+
+  // Add this function to handle tag suggestions for filter
+  const loadFilterTagSuggestions = async (query = '') => {
+    try {
+      const userId = reduxUser?.id
+      console.log("User ID istst", userId);
+      const tags = await fetchUniqueTags(userId)
+      const uniqueTags = await getUniqueTagsList(userId)
+      setUniqueTagsList(uniqueTags)
+      console.log("simple tags list are", tags);
+      console.log("Unique tags are", uniqueTags);
+      if (tags && Array.isArray(tags)) {
+        setUniqueColumns(tags) // Keep variable name for backward compatibility
+        // Refresh suggestions if there's a current input value
+        if (filterTagInputValue.trim()) {
+          const existingTags = selectedLeadsDetails?.tags || []
+          const filtered = tags
+            .filter((tag) => {
+              const tagLower = tag.toLowerCase()
+              const valueLower = filterTagInputValue.toLowerCase()
+              return tagLower.includes(valueLower)
+            })
+            .filter((tag) => !existingTags.includes(tag))
+          setFilterTagSuggestions(filtered)
+          setShowFilterTagSuggestions(filtered.length > 0)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching unique tags:', error)
+    }
+  }
+
+  // Add this effect to load initial suggestions
+  useEffect(() => {
+    loadFilterTagSuggestions()
+  }, [])
+
+  // Reload filter tag suggestions when LeadDetails drawer closes (tags may have changed)
+  const prevShowDetailsModalRef = useRef(showDetailsModal)
+  useEffect(() => {
+    if (prevShowDetailsModalRef.current === true && showDetailsModal === false) {
+      loadFilterTagSuggestions()
+    }
+    prevShowDetailsModalRef.current = showDetailsModal
+  }, [showDetailsModal])
+
+  // Add these handler functions
+  const handleFilterTagInputChange = (e) => {
+    const value = e.target.value
+    setFilterTagInputValue(value)
+
+    if (value.trim()) {
+      loadFilterTagSuggestions(value)
+    } else {
+      loadFilterTagSuggestions()
+      setShowFilterTagSuggestions(false)
+    }
+  }
+
+  const handleFilterTagInputKeyDown = (e) => {
+    if (e.key === 'Enter' && filterTagInputValue.trim()) {
+      e.preventDefault()
+      const newTag = filterTagInputValue.trim()
+      if (!filterTags.includes(newTag)) {
+        setFilterTags(prev => [...prev, newTag])
+      }
+      setFilterTagInputValue('')
+      setShowFilterTagSuggestions(false)
+    } else if (e.key === 'Backspace' && !filterTagInputValue && filterTags.length > 0) {
+      // Remove last tag on backspace when input is empty
+      setFilterTags(prev => prev.slice(0, -1))
+    }
+  }
+
+  const handleFilterTagAdd = (tag) => {
+    console.log("select Filter tags btn triggered")
+    // if (!filterTags.includes(tag)) {
+    //   setFilterTags(prev => [...prev, tag])
+    // }
+    // setFilterTagInputValue('')
+    // setShowFilterTagSuggestions(false)
+    setFilterTags((prevTags) => {
+      const isSelected = prevTags.some((t) => t === tag)
+      return isSelected
+        ? prevTags.filter((t) => t !== tag)
+        : [...prevTags, tag]
+    }
+    )
+  }
+
+  const handleFilterTagRemove = (tagToRemove) => {
+    setFilterTags(prev => prev.filter(tag => tag !== tagToRemove))
+  }
+
+  const clearFilterTags = () => {
+    setFilterTags([])
+  }
+
+  // Update your reset function to clear tags
+  const resetFilters = () => {
+    setFiltersSelected([])
+    setFilterTags([])
+    setFilterTagInputValue('')
+    if (tagFilterManagerRef.current) {
+      tagFilterManagerRef.current.clearTags()
+    }
+  }
+
 
   useEffect(() => {
     let data = getUserLocalData()
@@ -319,30 +454,6 @@ const Userleads = ({
     checkLocalStorageUsage()
   }, [])
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        showFromDatePicker &&
-        fromCalendarRef.current &&
-        !fromCalendarRef.current.contains(event.target)
-      ) {
-        setShowFromDatePicker(false)
-      }
-
-      if (
-        showToDatePicker &&
-        toCalendarRef.current &&
-        !toCalendarRef.current.contains(event.target)
-      ) {
-        setShowToDatePicker(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showFromDatePicker, showToDatePicker])
 
   useEffect(() => {
     if (shouldSet === true) {
@@ -876,22 +987,42 @@ const Userleads = ({
 
   // function to handle select data change
   const handleFromDateChange = (date) => {
-    setSelectedFromDate(date) // Set the selected date
+    setSelectedFromDate(date || null)
     setShowFromDatePicker(false)
   }
 
   const handleToDateChange = (date) => {
-    setSelectedToDate(date) // Set the selected date
+    setSelectedToDate(date || null)
     setShowToDatePicker(false)
   }
 
   function getFilterText() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    // When user is searching: do not send sheetId so API searches across all sheets
+    if (searchTrimmed) {
+      let string = `search=${encodeURIComponent(searchTrimmed)}`
+      let stageIds = ''
+      let stageSeparator = ''
+      filtersSelected.forEach((filter) => {
+        if (filter.key == 'date') {
+          const formtFromDate = moment(filter.values[0]).format('MM/DD/YYYY')
+          const formtToDate = moment(filter.values[1]).format('MM/DD/YYYY')
+          string = `${string}&fromDate=${formtFromDate}&toDate=${formtToDate}`
+        }
+        if (filter.key == 'stage') {
+          stageIds = `${stageIds}${stageSeparator}${filter.values[0].id}`
+          stageSeparator = ','
+        }
+      })
+      if (stageIds.length > 0) {
+        string = `${string}&stageIds=${stageIds}`
+      }
+      return string
+    }
+
+    // No search: require sheetId (single sheet)
     let string = `sheetId=${SelectedSheetId}`
     if (filtersSelected.length == 0) {
-      if (searchLead && searchLead.length > 0) {
-        string = `${string}&search=${searchLead}`
-      }
       return string
     }
 
@@ -912,10 +1043,6 @@ const Userleads = ({
         // stageSeparator = ","
       }
     })
-    if (searchLead && searchLead.length > 0) {
-      string = `${string}&search=${searchLead}`
-    }
-    // string = `${string}&stageIds=${stageIds}`;
     if (stageIds.length > 0) {
       string = `${string}&stageIds=${stageIds}`
     }
@@ -924,17 +1051,16 @@ const Userleads = ({
   }
 
   function getFiltersObject() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
     let filters = {}
-    let string = `sheetId=${SelectedSheetId}`
-    if (SelectedSheetId) {
+    // When searching across all sheets, do not send sheetId
+    if (!searchTrimmed && SelectedSheetId) {
       filters['sheetId'] = SelectedSheetId
     }
-    // if (filtersSelected.length == 0) {
-    if (searchLead && searchLead.length > 0) {
-      string = `${string}&search=${searchLead}`
-      filters['search'] = searchLead
+    if (searchTrimmed) {
+      filters['search'] = searchTrimmed
     }
+    let string = searchTrimmed ? `search=${encodeURIComponent(searchTrimmed)}` : `sheetId=${SelectedSheetId}`
     // return string;
     // }
 
@@ -1014,7 +1140,10 @@ const Userleads = ({
 
   //function for filtering leads
   const handleFilterLeads = async (filterText = null) => {
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    const isSearchingAllSheets = !!searchTrimmed
     //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
+    console.log("Filter leads triggered")
     const currentRequestVersion = ++requestVersion.current
     const currentSheetId = SelectedSheetId // Capture the sheet ID at request start
     try {
@@ -1036,15 +1165,19 @@ const Userleads = ({
       //////console.log;
 
       //   const id = currentSheet.id;
-      //   let stageIds = selectedStage.map((stage) => stage.id);
-      //   const stages = stageIds.join(",");
-      //   //////console.log;
+      let uniqueTags = filterTags.map((tag) => tag);
+      const uniqueTagsString = uniqueTags.join(",");
+      console.log("Filter tags list is", uniqueTagsString);
       let ApiPath = null
+      console.log("Filter text is", filterText);
       if (filterText) {
         ApiPath = `${Apis.getLeads}?${filterText}` //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}`;
         ApiPath = ApiPath + '&noStage=' + noStageSelected
         if (nextCursorValue && nextCursorValue != 'undefined') {
           ApiPath = ApiPath + `&id=${nextCursorValue}`
+        }
+        if (filterTags.length > 0) {
+          ApiPath = ApiPath + '&tags=' + uniqueTagsString;
         }
       } else {
         if (nextCursorValue == 0) {
@@ -1052,7 +1185,7 @@ const Userleads = ({
         }
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&id=${nextCursorValue}`
       }
-
+      console.log("Api path for filter is", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1078,17 +1211,16 @@ const Userleads = ({
             //   setShowNoLeadErr("No leads found");
 
             const data = response.data.data
-            // Get sheetId from response to verify it matches current selection
+            // Get sheetId from response to verify it matches current selection (not used when searching all sheets)
             let sheetId = null
             if (data.length > 0) {
               sheetId = data[0].sheetId
             }
 
-            // Only process response if it matches the currently selected sheet
-            // This prevents race conditions when switching sheets quickly
-            // For empty responses, we process them if it's the first page (nextCursorValue is 0/falsy)
-            // because empty responses don't have a sheetId but should still be shown for the current sheet
-            const shouldProcess = (sheetId == SelectedSheetId) ||
+            // When searching across all sheets, always process; otherwise only if sheet matches or empty first page
+            const shouldProcess =
+              isSearchingAllSheets ||
+              (sheetId == SelectedSheetId) ||
               (data.length === 0 && !nextCursorValue)
 
             if (shouldProcess) {
@@ -1100,9 +1232,9 @@ const Userleads = ({
                   setShowNoLeadsLabel(true)
                 }
 
-                // Only set leads if sheet matches (or empty response for first page)
-                if (sheetId == SelectedSheetId || data.length === 0) {
-                  if (data.length > 0 && sheetId == SelectedSheetId) {
+                // When searching all sheets, don't cache by sheet; always set leads
+                if (isSearchingAllSheets || sheetId == SelectedSheetId || data.length === 0) {
+                  if (!isSearchingAllSheets && data.length > 0 && sheetId == SelectedSheetId) {
                     LeadsInSheet[SelectedSheetId] = response.data
 
                     // Try to save to localStorage with error handling
@@ -1123,15 +1255,15 @@ const Userleads = ({
                   setFilterLeads(data)
                 }
               } else {
-                // For pagination, append leads only if sheet matches
-                if (sheetId == SelectedSheetId && data.length > 0) {
+                // For pagination: append when searching all sheets or when sheet matches
+                if ((isSearchingAllSheets || sheetId == SelectedSheetId) && data.length > 0) {
                   setLeadsList((prevDetails) => [...prevDetails, ...data])
                   setFilterLeads((prevDetails) => [...prevDetails, ...data])
                 }
               }
 
-              // Set columns only if sheet matches or it's an empty response
-              if (sheetId == SelectedSheetId || (data.length === 0 && !nextCursorValue)) {
+              // Set columns when searching all sheets, or when sheet matches or empty response
+              if (isSearchingAllSheets || sheetId == SelectedSheetId || (data.length === 0 && !nextCursorValue)) {
                 let leads = data
                 let leadColumns = response.data.columns
                 if (leads && leadColumns) {
@@ -1480,7 +1612,7 @@ const Userleads = ({
       })
 
       if (response) {
-        //////console.log;
+        console.log("response of get sheets", response.data);
         if (response.data.data.length === 0) {
           handleShowUserLeads(null)
         } else {
@@ -1764,6 +1896,13 @@ const Userleads = ({
       }
       return ''
     }
+    if (filter.key == 'tag') {
+      let values = filter.values
+      if (values.length > 0) {
+        return values[0]
+      }
+      return ''
+    }
   }
 
   function setFiltersFromSelection() {
@@ -1789,6 +1928,11 @@ const Userleads = ({
           values: [stage],
         }
         filters.push(dateFilter)
+      })
+    }
+    if (filterTags && filterTags.length > 0) {
+      filterTags.forEach((tag) => {
+        filters.push({ key: 'tag', values: [tag] })
       })
     }
 
@@ -2060,6 +2204,7 @@ const Userleads = ({
                                 let pipeline = null
                                 let fromDate = null
                                 let toDate = null
+                                const remainingTags = []
                                 setNextCursorValue('')
                                 filtersSelected.map((f, ind) => {
                                   if (index != ind) {
@@ -2074,18 +2219,11 @@ const Userleads = ({
                                       fromDate = f.values[0]
                                       toDate = f.values[1]
                                     }
-                                  } else {
+                                    if (f.key == 'tag') {
+                                      remainingTags.push(f.values[0])
+                                    }
                                   }
                                 })
-
-                                //////console.log;
-                                //////console.log;
-                                //////console.log;
-                                // //console.log;
-                                setSelectedStage(stages)
-                                setSelectedFromDate(fromDate)
-                                setSelectedToDate(toDate)
-                                setSelectedPipeline(pipeline)
                                 //   setFilterLeads([]);
                                 //   setLeadsList([]);
                                 //   setTimeout(() => {
@@ -2094,7 +2232,11 @@ const Userleads = ({
                                 //   }, 1000);
 
                                 //   filters.splice(index, 1);
-                                //////console.log;
+                                setSelectedStage(stages)
+                                setSelectedFromDate(fromDate)
+                                setSelectedToDate(toDate)
+                                setSelectedPipeline(pipeline)
+                                setFilterTags(remainingTags)
                                 setFiltersSelected(filters)
                               }}
                             >
@@ -2113,35 +2255,37 @@ const Userleads = ({
                 </div>
 
                 <div className="flex flex-row items-center justify-end gap-2 w-[30%]">
-                  {exportLoading ? (
-                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                  ) : (
-                    <button
-                      className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
-                      style={{ fontWeight: 400, fontSize: 14 }}
-                      onClick={() => {
-                        handleExportLeads()
-                      }}
-                      disabled={exportLoading}
-                    >
-                      <div className="transition-colors duration-150">
-                        Export
-                      </div>
-                      <Image
-                        src={'/otherAssets/exportIcon.png'}
-                        height={24}
-                        width={24}
-                        alt="Export"
-                        className="group-hover:hidden block transition-opacity duration-150"
-                      />
-                      <Image
-                        src={'/otherAssets/exportIconPurple.png'}
-                        height={24}
-                        width={24}
-                        alt="Export"
-                        className="hidden group-hover:block transition-opacity duration-150"
-                      />
-                    </button>
+                  {hasExportPermission && (
+                    exportLoading ? (
+                      <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                    ) : (
+                      <button
+                        className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
+                        style={{ fontWeight: 400, fontSize: 14 }}
+                        onClick={() => {
+                          handleExportLeads()
+                        }}
+                        disabled={exportLoading}
+                      >
+                        <div className="transition-colors duration-150">
+                          Export
+                        </div>
+                        <Image
+                          src={'/otherAssets/exportIcon.png'}
+                          height={24}
+                          width={24}
+                          alt="Export"
+                          className="group-hover:hidden block transition-opacity duration-150"
+                        />
+                        <Image
+                          src={'/otherAssets/exportIconPurple.png'}
+                          height={24}
+                          width={24}
+                          alt="Export"
+                          className="hidden group-hover:block transition-opacity duration-150"
+                        />
+                      </button>
+                    )
                   )}
 
                   {selectedLeadsList.length >= 0 && (
@@ -2218,6 +2362,8 @@ const Userleads = ({
                 </div>
               </div>
 
+              {/* Hide sheets list when searching across all sheets */}
+              {!(searchLead && String(searchLead).trim()) && (
               <div
                 className="flex flex-row items-center mt-8 gap-2"
                 style={styles.paragraph}
@@ -2315,6 +2461,35 @@ const Userleads = ({
                             className="w-[120px]"
                           >
                             <DropdownMenuItem
+                              className="text-black focus:text-purple cursor-pointer"
+                              onSelect={(e) => {
+                                e.preventDefault()
+                                setShowEditSmartList(true);
+                                setSelectedSmartListForEdit(item);
+                                console.log("selectedSmartListForEdit", item);
+                              }}
+                              disabled={editSmartListLoader}
+                            >
+                              {editSmartListLoader ? (
+                                <CircularProgress
+                                  size={15}
+                                  sx={{ color: 'hsl(var(--brand-primary))' }}
+                                  className="mr-2"
+                                />
+                              ) : (
+                                <Image
+                                  className='mr-2'
+                                  src={'/assets/editPen.png'}
+                                  height={15}
+                                  width={15}
+                                  alt="*"
+                                />
+                              )}
+                              <span style={{ fontWeight: '500', fontSize: 16 }}>
+                                Edit
+                              </span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               className="text-red focus:text-red cursor-pointer"
                               onSelect={(e) => {
                                 e.preventDefault()
@@ -2368,6 +2543,7 @@ const Userleads = ({
                   <span>New Leads</span>
                 </button>
               </div>
+              )}
 
               {LeadsList.length > 0 ? (
                 <div
@@ -2443,8 +2619,8 @@ const Userleads = ({
                               <td
                                 key={colIndex}
                                 className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === 'More'
-                                    ? 'sticky right-0 bg-white'
-                                    : ''
+                                  ? 'sticky right-0 bg-white'
+                                  : ''
                                   }`}
                                 style={{
                                   whiteSpace: 'nowrap',
@@ -2527,34 +2703,33 @@ const Userleads = ({
                           >
                             From
                           </div>
-                          <div>
-                            <button
-                              style={{ border: '1px solid #00000020' }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowFromDatePicker(true)
-                              }}
-                            >
-                              <p>
-                                {selectedFromDate
-                                  ? selectedFromDate.toDateString()
-                                  : 'Select Date'}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-
-                            <div>
-                              {showFromDatePicker && (
-                                <div ref={fromCalendarRef}>
-                                  <Calendar
-                                    onChange={handleFromDateChange}
-                                    value={selectedFromDate}
-                                    locale="en-US"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                          <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
+                            <PopoverTrigger asChild>
+                              <button
+                                style={{ border: '1px solid #00000020' }}
+                                className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                              >
+                                <p>
+                                  {selectedFromDate
+                                    ? selectedFromDate.toDateString()
+                                    : 'Select Date'}
+                                </p>
+                                <CalendarDots weight="regular" size={25} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedFromDate}
+                                onSelect={handleFromDateChange}
+                                initialFocus
+                                classNames={{
+                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                  day_today: 'bg-brand-primary/20 text-brand-primary',
+                                }}
+                              />
+                            </PopoverContent>
+                          </ShadPopover>
                         </div>
 
                         <div className="w-1/2 h-full">
@@ -2568,36 +2743,33 @@ const Userleads = ({
                           >
                             To
                           </div>
-                          <div>
-                            <button
-                              style={{ border: '1px solid #00000020' }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowToDatePicker(true)
-                              }}
-                            >
-                              <p>
-                                {selectedToDate
-                                  ? selectedToDate.toDateString()
-                                  : 'Select Date'}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                            <div>
-                              {showToDatePicker && (
-                                <div
-                                  className="w-full border"
-                                  ref={toCalendarRef}
-                                >
-                                  <Calendar
-                                    onChange={handleToDateChange}
-                                    value={selectedToDate}
-                                    locale="en-US"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                          <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
+                            <PopoverTrigger asChild>
+                              <button
+                                style={{ border: '1px solid #00000020' }}
+                                className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                              >
+                                <p>
+                                  {selectedToDate
+                                    ? selectedToDate.toDateString()
+                                    : 'Select Date'}
+                                </p>
+                                <CalendarDots weight="regular" size={25} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedToDate}
+                                onSelect={handleToDateChange}
+                                initialFocus
+                                classNames={{
+                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                  day_today: 'bg-brand-primary/20 text-brand-primary',
+                                }}
+                              />
+                            </PopoverContent>
+                          </ShadPopover>
                         </div>
                       </div>
 
@@ -2685,6 +2857,66 @@ const Userleads = ({
                           marginTop: 10,
                         }}
                       >
+                        Tags
+                      </div>
+
+                      <div className="mt-2">
+                        {/*<TagManagerCn
+                          ref={tagFilterManagerRef}
+                          mode="filter"
+                          selectedFilterTags={filterTags}
+                          onFilterTagAdd={handleFilterTagAdd}
+                          onFilterTagRemove={handleFilterTagRemove}
+                          clearAllTags={clearFilterTags}
+                          // Tag input props
+                          tagInputRef={filterTagInputRef}
+                          tagInputValue={filterTagInputValue}
+                          onInputChange={handleFilterTagInputChange}
+                          onInputKeyDown={handleFilterTagInputKeyDown}
+                          showSuggestions={showFilterTagSuggestions}
+                          setShowSuggestions={setShowFilterTagSuggestions}
+                          tagSuggestions={filterTagSuggestions}
+                          onSuggestionClick={handleFilterTagAdd}
+                          maxDisplayedTags={3} // Show 3 tags before showing +X
+                        />
+                        <div className="text-xs text-muted-foreground mt-2">
+                          Type to search tags, press Enter to add, or click suggestions
+                        </div>*/}
+                        <div className="w-full flex flex-wrap gap-4">
+                          {uniqueTagsList?.length > 0 && uniqueTagsList?.map((item, index) => {
+                            let found = filterTags?.includes(item)
+                            return (
+                              <div
+                                key={index}
+                                className="flex flex-row items-center mt-2 justify-start"
+                                style={{ fontSize: 15, fontWeight: '500' }}
+                              >
+                                <button
+                                  onClick={() => {
+                                    handleFilterTagAdd(item)
+                                  }}
+                                  className={`p-2 border border-[#00000020] ${found ? `bg-brand-primary` : 'bg-transparent'
+                                    } px-6
+                              ${found ? `text-white` : 'text-black'
+                                    } rounded-2xl`}
+                                >
+                                  {item}
+                                </button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      <div
+                        className="mt-6"
+                        style={{
+                          fontWeight: '500',
+                          fontSize: 14,
+                          color: '#00000060',
+                          marginTop: 10,
+                        }}
+                      >
                         Stage
                       </div>
 
@@ -2727,8 +2959,8 @@ const Userleads = ({
                                 setNoStageSelected((prev) => !prev)
                               }}
                               className={`p-2 border border-[#00000020] ${noStageSelected
-                                  ? `bg-brand-primary text-white`
-                                  : 'bg-transparent text-black'
+                                ? `bg-brand-primary text-white`
+                                : 'bg-transparent text-black'
                                 } px-6 rounded-2xl`}
                             >
                               No Stage
@@ -2743,12 +2975,7 @@ const Userleads = ({
                         className="outline-none w-[105px]"
                         style={{ fontSize: 16.8, fontWeight: '600' }}
                         onClick={() => {
-                          // setSelectedFromDate(null);
-                          // setSelectedToDate(null);
-                          // setSelectedStage(null);
-                          // getLeads()
-                          //   window.location.reload();
-                          setFiltersSelected([])
+                          resetFilters()
                         }}
                       >
                         Reset
@@ -2788,6 +3015,23 @@ const Userleads = ({
                   setSheetsList([...SheetsList, newSmartlist])
                 }}
               />
+
+              {showEditSmartList && (
+                <CreateSmartlistModal
+                  open={showEditSmartList}
+                  onClose={() => {
+                    setShowEditSmartList(false)
+                    setSelectedSmartListForEdit(null)
+                  }}
+                  onSuccess={(newSmartlist) => {
+                    setSheetsList(SheetsList.map(item => item.id === selectedSmartListForEdit.id ? newSmartlist : item))
+                    setShowEditSmartList(false)
+                    setSelectedSmartListForEdit(null)
+                  }}
+                  isEditSmartList={true}
+                  selectedSmartList={selectedSmartListForEdit}
+                />
+              )}
             </div>
           </div>
 

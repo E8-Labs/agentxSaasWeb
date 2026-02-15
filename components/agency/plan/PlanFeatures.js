@@ -6,6 +6,7 @@ import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMess
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 export default function PlanFeatures({
+  handleAddCustomFeature,
   customFeatures,
   handleChangeCustomFeature,
   handleRemoveCustomFeature,
@@ -117,7 +118,7 @@ export default function PlanFeatures({
                   <div className="flex flex-row gap-2 mt-2">
                     {/* Number of Seats */}
                     <div className="w-1/2">
-                      <label style={styles.regular}>Number of Seats</label>
+                      <label style={styles.regular}>Number of Seats <span style={{ color: '#ef4444' }}>*</span></label>
                       <input
                         style={styles.inputs}
                         className="w-full border border-gray-200 rounded p-2 mt-1 outline-none focus:outline-none focus:ring-0"
@@ -134,7 +135,7 @@ export default function PlanFeatures({
                     <div className="w-1/2">
                       <div className="flex flex-row items-center gap-2">
                         <label style={styles.regular}>
-                          Price Additional Seats
+                          Price Additional Seats <span style={{ color: '#ef4444' }}>*</span>
                         </label>
                         <Tooltip
                           title={
@@ -231,7 +232,23 @@ export default function PlanFeatures({
           </div>
         </div>
       )}
-      <div className="w-ful pb-2l">
+      <div
+        className="w-full flex flex-row items-center justify-between pt-2"
+      >
+        <div styles={{ fontSize: '15px', fontWeight: '700' }}>
+          Custom Features
+        </div>
+        <button
+          styles={{ fontSize: '15px', fontWeight: '700' }}
+          className="underline text-brand-primary outline-none border-none"
+          onClick={() => {
+            handleAddCustomFeature()
+          }}
+        >
+          + Add
+        </button>
+      </div>
+      <div className="w-ful pb-2l mt-2">
         <div className="flex flex-col gap-2">
           {customFeatures?.map((feature, index) => (
             <div key={index} className="w-full">
@@ -258,7 +275,7 @@ export default function PlanFeatures({
                       src="/assets/cross.png"
                       width={10}
                       height={10}
-                      // style={{ filter: showWhiteCross ? "invert(1)" : "invert(0)" }}
+                    // style={{ filter: showWhiteCross ? "invert(1)" : "invert(0)" }}
                     />
                   </button>
                 </div>

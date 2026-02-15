@@ -5,8 +5,62 @@ export default function BackgroundVideo({
   imageUrl = '/assets/background.png',
 }) {
   const [isVideoSupported, setIsVideoSupported] = useState(true)
-  const [shouldShowGradient, setShouldShowGradient] = useState(false)
-  const [gradientColor, setGradientColor] = useState('hsl(270, 75%, 50%)')
+  // Initialize shouldShowGradient based on hostname - custom domains should start with gradient
+  const [shouldShowGradient, setShouldShowGradient] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const hostname = window.location.hostname
+    const isDevDomain = hostname === 'dev.assignx.ai'
+    const isProdDomain = hostname === 'app.assignx.ai'
+    const isLocalhost = hostname === 'localhost' || hostname.includes('127.0.0.1')
+    // If on custom domain (not assignx.ai), start with gradient true
+    const isCustomDomain = !hostname.includes('.assignx.ai') && hostname !== 'assignx.ai' && !isLocalhost
+    return isCustomDomain
+  })
+  // Try to get initial gradient color from cookie/localStorage
+  // Use same parsing logic as BrandingProvider to handle double-encoding
+  const [gradientColor, setGradientColor] = useState(() => {
+    if (typeof window === 'undefined') return 'hsl(270, 75%, 50%)'
+    
+    // Try to get primaryColor from cookie with double-decode handling
+    let brandingData = null
+    try {
+      const cookies = document.cookie.split(';')
+      const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+      
+      if (brandingCookie) {
+        const value = brandingCookie.split('=')[1]
+        // Cookie may be double-encoded, try decoding twice
+        let decoded = decodeURIComponent(value)
+        try {
+          brandingData = JSON.parse(decoded)
+        } catch (e) {
+          // If first decode fails, try decoding again (double-encoded)
+          try {
+            brandingData = JSON.parse(decodeURIComponent(decoded))
+          } catch (e2) {}
+        }
+      }
+    } catch (e) {}
+    
+    if (!brandingData) {
+      const branding = localStorage.getItem('agencyBranding')
+      if (branding) {
+        try {
+          brandingData = JSON.parse(branding)
+        } catch (e) {}
+      }
+    }
+    
+    if (brandingData?.primaryColor) {
+      const color = brandingData.primaryColor
+      // If it's already hsl format
+      if (color.startsWith('hsl')) return color
+      // If it's just values like "270 75% 50%"
+      return `hsl(${color})`
+    }
+    
+    return 'hsl(270, 75%, 50%)'
+  })
 
   // Get brand primary color from CSS variable
   const getBrandColor = () => {
@@ -88,16 +142,40 @@ export default function BackgroundVideo({
                                  !isProdDomain && 
                                  !isLocalhost
       
-      // Check if branding exists in localStorage
-      const branding = localStorage.getItem('agencyBranding')
-      if (branding) {
-        try {
-          const brandingData = JSON.parse(branding)
-          // If on custom domain or subdomain and branding exists, use branding background
-          if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
-            return true
+      // Check branding from cookie first (middleware sets this), then localStorage
+      // Use same parsing logic as BrandingProvider to handle double-encoding
+      let brandingData = null
+      try {
+        const cookies = document.cookie.split(';')
+        const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+        
+        if (brandingCookie) {
+          const value = brandingCookie.split('=')[1]
+          // Cookie may be double-encoded, try decoding twice
+          let decoded = decodeURIComponent(value)
+          try {
+            brandingData = JSON.parse(decoded)
+          } catch (e) {
+            // If first decode fails, try decoding again (double-encoded)
+            try {
+              brandingData = JSON.parse(decodeURIComponent(decoded))
+            } catch (e2) {}
           }
-        } catch (error) {}
+        }
+      } catch (e) {}
+      
+      if (!brandingData) {
+        const branding = localStorage.getItem('agencyBranding')
+        if (branding) {
+          try {
+            brandingData = JSON.parse(branding)
+          } catch (error) {}
+        }
+      }
+      
+      // If on custom domain or subdomain and branding exists, use branding background
+      if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
+        return true
       }
       return false
     }
@@ -195,15 +273,40 @@ export default function BackgroundVideo({
                                  !isProdDomain && 
                                  !isLocalhost
 
-      const branding = localStorage.getItem('agencyBranding')
-      let hasBranding = false
-      if (branding) {
-        try {
-          const brandingData = JSON.parse(branding)
-          if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
-            hasBranding = true
+      // Check branding from cookie first (middleware sets this), then localStorage
+      // Use same parsing logic as BrandingProvider to handle double-encoding
+      let brandingData = null
+      try {
+        const cookies = document.cookie.split(';')
+        const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+        
+        if (brandingCookie) {
+          const value = brandingCookie.split('=')[1]
+          // Cookie may be double-encoded, try decoding twice
+          let decoded = decodeURIComponent(value)
+          try {
+            brandingData = JSON.parse(decoded)
+          } catch (e) {
+            // If first decode fails, try decoding again (double-encoded)
+            try {
+              brandingData = JSON.parse(decodeURIComponent(decoded))
+            } catch (e2) {}
           }
-        } catch (error) {}
+        }
+      } catch (e) {}
+      
+      if (!brandingData) {
+        const branding = localStorage.getItem('agencyBranding')
+        if (branding) {
+          try {
+            brandingData = JSON.parse(branding)
+          } catch (error) {}
+        }
+      }
+      
+      let hasBranding = false
+      if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
+        hasBranding = true
       }
 
       // Get brand color

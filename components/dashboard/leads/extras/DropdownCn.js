@@ -120,7 +120,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                   e.stopPropagation()
                 }}
               >
-                <div className="flex items-center px-4 py-[1px] text-base font-regular">
+                <div className="flex items-center px-3 py-[1px] text-base font-regular">
                   {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
                 </div>
@@ -138,7 +138,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         </div>
         <DropdownMenuContent
           align={align}
-          className="z-[2000] w-auto min-w-fit max-w-[20rem] border border-muted/70 bg-white text-foreground shadow-lg"
+          className="z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-muted/70 bg-white text-foreground shadow-lg"
           onCloseAutoFocus={(e) => {
             // Prevent focus from being stolen when dropdown closes
             e.preventDefault()

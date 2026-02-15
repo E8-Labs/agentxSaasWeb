@@ -564,7 +564,7 @@ function AdminUsers() {
         }}
       >
         <Box
-          className="w-11/12  p-8 rounded-[15px]"
+          className="w-11/12  p-8 rounded-[15px] max-h-[97svh] overflow-y-hidden"
           sx={{
             ...styles.modalsStyle,
             backgroundColor: 'white',
@@ -598,28 +598,8 @@ function AdminUsers() {
             handleClose={() => {
               setSelectedUser(null)
             }}
-
-            // handlePauseUser={(d) => {
-            //   console.log("User paused");
-            //   if (selectedUser.profile_status === "active") {
-            //     setUsers((prev) =>
-            //       prev.map((u) =>
-            //         u.id === selectedUser.id
-            //           ? { ...u, profile_status: "paused" }
-            //           : u
-            //       )
-            //     );
-            //   } else if (selectedUser.profile_status === "paused") {
-            //     setUsers((prev) =>
-            //       prev.map((u) =>
-            //         u.id === selectedUser.id
-            //           ? { ...u, profile_status: "active" }
-            //           : u
-            //       )
-            //     );
-            //   }
-            //   setSelectedUser(null);
-            // }}
+            from="admin"
+            enablePermissionChecks={false}
           />
         </Box>
       </Modal>

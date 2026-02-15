@@ -11,6 +11,8 @@ import {
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 
 const EmailSmsTranscriptCN = ({ item }) => {
+  // Logs only when this tile is expanded (ActivityTile renders children only when isExpanded)
+  // console.log("item for email sms transcript", item);
   return (
     <div className="flex flex-col items-start gap-2 text-sm">
       {item.sentSubject && (

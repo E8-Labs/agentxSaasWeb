@@ -14,6 +14,8 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
 import { UpdateCadenceConfirmationPopup } from './UpdateCadenceConfirmationPopup'
+import { useUser } from '@/hooks/redux-hooks'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
 
 const PipelineAndStage = ({
   selectedAgent,
@@ -22,6 +24,10 @@ const PipelineAndStage = ({
   selectedUser,
   from,
 }) => {
+
+  //for redux user
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+
   const [message, setMessage] = useState(null)
   const router = useRouter()
   const [expandedStages, setExpandedStages] = useState([])
@@ -37,7 +43,30 @@ const PipelineAndStage = ({
 
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
 
+  //fetch agent details state
+  const [agentDetails, setAgentDetails] = useState(null)
+  const [agentDetailsLoading, setAgentDetailsLoading] = useState(false);
+
+  //eventlistener
   useEffect(() => {
+    const handleRefreshSelectedUser = (event) => {
+      console.log("Event listener trigered for refreshing the pipeline and stages", event.detail)
+      const { userId, userData } = event.detail || {}
+      fetchAgentDetails()
+      if (selectedAgent.agentType !== 'inbound') {
+        handleGetCadence()
+      }
+    }
+
+    window.addEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+    return () => {
+      window.removeEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+    }
+  }, [selectedUser]);
+
+  useEffect(() => {
+    console.log("Main agent passed to Pipeline And Stages", mainAgent);
+    fetchAgentDetails();
     if (selectedAgent.agentType !== 'inbound') {
       handleGetCadence()
     }
@@ -61,6 +90,32 @@ const PipelineAndStage = ({
     })
   }
 
+  //fetch agent details
+  const fetchAgentDetails = async () => {
+    try {
+      setAgentDetailsLoading(true);
+      const Token = AuthToken();
+      // console.log(Token);
+      const ApiPath = Apis.getAgentDetails + '?mainAgentId=' + mainAgent?.id
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response) {
+        // console.log("Agent details are", response.data)
+        if (response.data.status === true) {
+          setAgentDetails(response.data.data)
+        }
+      }
+    } catch (error) {
+      console.log("Error occured in fetching agent details api is", error)
+    } finally {
+      setAgentDetailsLoading(false);
+    }
+  }
+
   //funciton to call get cadence api
   const handleGetCadence = async () => {
     try {
@@ -82,16 +137,19 @@ const PipelineAndStage = ({
       // //console.log;
 
       const ApiData = {
-        mainAgentId: selectedAgent.mainAgentId,
+        mainAgentId: selectedAgent.id,
       }
 
       const formData = new FormData()
-      formData.append('mainAgentId', selectedAgent.mainAgentId)
+      formData.append('mainAgentId', mainAgent?.id)
 
       const ApiPath = Apis.getAgentCadence
 
       // //console.log;
-      // //console.log;
+      for(let [key, value] of formData.entries()) {
+        console.log("Key is", key, "and value is", value);
+      }
+      // console.log("Api path for agent cadence data is", ApiPath);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -102,6 +160,7 @@ const PipelineAndStage = ({
 
       if (response) {
         setAgentCadence(response.data.data)
+        console.log("agent cadence data is", response.data.data)
       }
     } catch (error) {
       // console.error("Error occured in get cadence api is:", error);
@@ -116,7 +175,16 @@ const PipelineAndStage = ({
     } else if (cadence.communicationType === 'email') {
       return 'then Send Email'
     } else if (cadence.communicationType === 'sms') {
-      return 'then Send SMS'
+      return 'then Send Text'
+    }
+  }
+
+  //booking time status text
+  const decideTextToShowForBookingTimeStatus = (cadence) => {
+    if (cadence.referencePoint === "after_booking") {
+      return "after booking"
+    } else if (cadence.referencePoint === "before_meeting") {
+      return "before meeting"
     }
   }
 
@@ -133,12 +201,69 @@ const PipelineAndStage = ({
   }
 
   const handleUpdateCadence = () => {
+
+    console.log("selected user is", selectedUser);
+    // return
     localStorage.setItem('selectedUser', JSON.stringify(selectedUser))
+    // return
     setShowConfirmationPopup(false)
 
+    //code for redirecting to same url
+
+    const data = {
+      status: true,
+    }
+    localStorage.setItem('fromDashboard', JSON.stringify(data))
+    const d = {
+      subAccountData: selectedUser,
+      isFromAgency: from,
+    }
+
+    localStorage.setItem(
+      PersistanceKeys.isFromAdminOrAgency,
+      JSON.stringify(d),
+    )
+
+    // Save current URL for redirect after agent creation
+    if (typeof window !== 'undefined') {
+      const currentUrl = window.location.href
+      localStorage.setItem(
+        PersistanceKeys.returnUrlAfterAgentCreation,
+        currentUrl,
+      )
+    }
+
+    // Check if current logged-in user is Admin or Agency
+    let isAdminOrAgency = false
+
+    // Check from Redux first
+    if (reduxUser) {
+      const userType = reduxUser?.userType
+      const userRole = reduxUser?.userRole
+      const TeamFor = reduxUser?.teamFor
+      isAdminOrAgency = userType === 'admin' || userRole === 'Agency' || TeamFor === "Agency"
+    }
+
+    // Fallback to localStorage if Redux doesn't have the data
+    if (!isAdminOrAgency && typeof window !== 'undefined') {
+      try {
+        const localUserData = localStorage.getItem('User')
+        if (localUserData) {
+          const parsedUser = JSON.parse(localUserData)
+          const userType = parsedUser?.user?.userType || parsedUser?.userType
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          const TeamFor = parsedUser?.user?.teamFor || parsedUser?.teamFor
+          isAdminOrAgency = userType === 'admin' || userRole === 'Agency' || TeamFor === "Agency"
+        }
+      } catch (error) { }
+    }
+
+
+
+    // return
     // Store agent details for pipeline update page
     if (mainAgent?.id) {
-      localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id }))
+      localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id, agentType: selectedAgent?.agentType }))
     }
 
     // Store cadence data in the format expected by Pipeline1.js
@@ -148,7 +273,7 @@ const PipelineAndStage = ({
         calls: stage.calls.map((call) => {
           // Determine if this is a booking stage
           const isBookingStage = stage.cadence.stage?.identifier === 'booked'
-          
+
           return {
             id: call.id,
             waitTimeDays: call.waitTimeDays || 0,
@@ -242,7 +367,15 @@ const PipelineAndStage = ({
       )
     }
     // router.push("/pipeline/update");
-    window.location.href = '/pipeline/update'
+    // window.location.href = '/pipeline/update'
+
+    // Open in new tab if current user is Admin or Agency
+    if (isAdminOrAgency) {
+      window.open('/pipeline/update', '_blank')
+    } else {
+      // router.push("/createagent");
+      window.location.href = '/pipeline/update'
+    }
   }
 
   return (
@@ -266,7 +399,14 @@ const PipelineAndStage = ({
           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
         </div>
         <div style={styles.paragraph}>
-          {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : '-'}
+          {/*
+            {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : '-'}
+          */}
+          {agentDetailsLoading ? (
+            <CircularProgress size={25} />
+          ) : (
+            <div>{agentDetails?.pipeline ? agentDetails?.pipeline?.title : '-'}</div>
+          )}
         </div>
       </div>
 
@@ -398,7 +538,7 @@ const PipelineAndStage = ({
                                 </div>
                               </div>
                               <div>
-                                , {decideTextToShowForCadenceType(item)}
+                                {decideTextToShowForBookingTimeStatus(item)}, {decideTextToShowForCadenceType(item)}
                               </div>
                             </div>
                           </div>

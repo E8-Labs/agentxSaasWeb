@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2 } from 'lucide-react'
-import { Box, CircularProgress, FormControl, MenuItem, Modal, Select } from '@mui/material'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot } from 'lucide-react'
+import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
@@ -219,8 +219,15 @@ const MessageComposer = ({
   const shouldShowUpgradeView = composerMode === 'sms' && !canSendSMS
 
 
-const [delTempLoader, setDelTempLoader] = useState(null)
+  const [delTempLoader, setDelTempLoader] = useState(null)
 
+
+  //debugging
+  useEffect(()=> {
+    console.log('[composerDataUseEffect] composer data changed')
+    console.log('🔍 [composerDataUseEffect] composerMode:', composerMode)
+
+  }, [composerMode])
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -463,19 +470,20 @@ const [delTempLoader, setDelTempLoader] = useState(null)
   // Handle template selection
   const handleTemplateSelect = async (template) => {
     if (!template) return
-
     try {
       // Fetch full template details
       const user = getUserLocalData()
       const userId = user?.user?.id
       const details = await getTempleteDetails(template, userId)
-
       if (details) {
         if (composerMode === 'email') {
+          console.log("details for email template is", details)
           // Populate email fields
+          const subjectToSet = details.subject || template?.subject || ''
+          // Populate email fields (use subjectToSet so list subject is used when details.subject is missing)
           setComposerData((prev) => ({
             ...prev,
-            subject: details.subject || '',
+            subject: subjectToSet,
             emailBody: details.content || '',
           }))
 
@@ -1005,69 +1013,69 @@ const [delTempLoader, setDelTempLoader] = useState(null)
   }
 
 
-    // Handle template deletion
-    const handleDeleteTemplate = async (template, e) => {
-      e.stopPropagation() // Prevent template selection when clicking delete
-  
-  
-      try {
-        setDelTempLoader(template)
-        await deleteTemplete(template)
-        // Remove from templates list - check both id and templateId fields
-        toast.success('Template deleted successfully')
-        setTemplates((prev) => prev.filter((t) => {
-          const templateId = template.id || template.templateId
-          const tId = t.id || t.templateId
-          return tId !== templateId
-        }))
-        setDelTempLoader(null)
-        // If the deleted template was selected, clear selection
-       
-  
-      } catch (error) {
-        console.error('Error deleting template:', error)
-        toast.error('Failed to delete template')
-        setDelTempLoader(null)
-      }
+  // Handle template deletion
+  const handleDeleteTemplate = async (template, e) => {
+    e.stopPropagation() // Prevent template selection when clicking delete
+
+
+    try {
+      setDelTempLoader(template)
+      await deleteTemplete(template)
+      // Remove from templates list - check both id and templateId fields
+      toast.success('Template deleted successfully')
+      setTemplates((prev) => prev.filter((t) => {
+        const templateId = template.id || template.templateId
+        const tId = t.id || t.templateId
+        return tId !== templateId
+      }))
+      setDelTempLoader(null)
+      // If the deleted template was selected, clear selection
+
+
+    } catch (error) {
+      console.error('Error deleting template:', error)
+      toast.error('Failed to delete template')
+      setDelTempLoader(null)
     }
+  }
 
-    // Handle email account deletion - opens confirmation modal
-    const handleDeleteEmailAccount = (account, e) => {
-      e.stopPropagation() // Prevent dropdown from closing
-      setAccountToDelete(account)
-      setShowDeleteEmailModal(true)
-    }
+  // Handle email account deletion - opens confirmation modal
+  const handleDeleteEmailAccount = (account, e) => {
+    e.stopPropagation() // Prevent dropdown from closing
+    setAccountToDelete(account)
+    setShowDeleteEmailModal(true)
+  }
 
-    // Actually perform the deletion
-    const confirmDeleteEmailAccount = async () => {
-      if (!accountToDelete) return
+  // Actually perform the deletion
+  const confirmDeleteEmailAccount = async () => {
+    if (!accountToDelete) return
 
-      setDeletingEmailAccountId(accountToDelete.id)
-      try {
-        const response = await deleteAccount(accountToDelete)
-        
-        if (response || response === undefined) {
-          // Refresh email accounts list
-          if (fetchEmailAccounts) {
-            await fetchEmailAccounts()
-          }
-          
-          // If deleted account was selected, clear selection (fetchEmailAccounts will set a new default)
-          if (selectedEmailAccount === accountToDelete.id.toString()) {
-            setSelectedEmailAccount(null)
-          }
-          
-          toast.success('Email account deleted successfully')
-          setShowDeleteEmailModal(false)
-          setAccountToDelete(null)
+    setDeletingEmailAccountId(accountToDelete.id)
+    try {
+      const response = await deleteAccount(accountToDelete)
+
+      if (response || response === undefined) {
+        // Refresh email accounts list
+        if (fetchEmailAccounts) {
+          await fetchEmailAccounts()
         }
-      } catch (error) {
-        console.error('Error deleting email account:', error)
-        toast.error(error?.response?.data?.message || 'Failed to delete email account')
-      } finally {
-        setDeletingEmailAccountId(null)
+
+        // If deleted account was selected, clear selection (fetchEmailAccounts will set a new default)
+        if (selectedEmailAccount === accountToDelete.id.toString()) {
+          setSelectedEmailAccount(null)
+        }
+
+        toast.success('Email account deleted successfully')
+        setShowDeleteEmailModal(false)
+        setAccountToDelete(null)
       }
+    } catch (error) {
+      console.error('Error deleting email account:', error)
+      toast.error(error?.response?.data?.message || 'Failed to delete email account')
+    } finally {
+      setDeletingEmailAccountId(null)
     }
+  }
 
   return (
     <div className="mx-4 mb-0 rounded-lg bg-white">
@@ -1075,8 +1083,8 @@ const [delTempLoader, setDelTempLoader] = useState(null)
         <div className="flex items-center justify-between border-b mb-2">
           <div className="flex items-center gap-2 pb-1">
             <MessageComposerTabCN
-              icon={MessageCircleMore}
-              label="SMS"
+              icon={MessageSquareDot}
+              label="Text"
               isActive={composerMode === 'sms'}
               onClick={() => {
                 // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
@@ -1154,14 +1162,14 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                 }]} />
                 {/* <button
                   onClick={() => setShowCC(!showCC)}
-                  className={`px-3 py-1 text-xs border-r rounded border-gray-200 transition-colors rounded rounded-r-none ${showCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
+                  className={`px-2 py-1 text-xs border-r rounded border-gray-200 transition-colors rounded rounded-r-none ${showCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   Cc
             </button>
                 <button
                   onClick={() => setShowBCC(!showBCC)}
-                  className={`px-3 py-1 text-xs transition-colors rounded rounded-l-none ${showBCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
+                  className={`px-2 py-1 text-xs transition-colors rounded rounded-l-none ${showBCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   Bcc
@@ -1195,11 +1203,11 @@ const [delTempLoader, setDelTempLoader] = useState(null)
               }
               onChange={(e) => {
                 if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
-                  setComposerData({ ...composerData, smsBody: e.target.value })
+                  setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
                 } else if (composerMode === 'email') {
                   // Convert plain text to HTML for email
                   const htmlBody = e.target.value.replace(/\n/g, '<br>')
-                  setComposerData({ ...composerData, emailBody: htmlBody })
+                  setComposerData((prev) => ({ ...prev, emailBody: htmlBody }))
                 } else if (composerMode === 'comment') {
                   const htmlBody = e.target.value.replace(/\n/g, '<br>')
                   setCommentBody(htmlBody)
@@ -1634,7 +1642,7 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                           <input
                             type="text"
                             value={composerData.subject}
-                            onChange={(e) => setComposerData({ ...composerData, subject: e.target.value })}
+                            onChange={(e) => setComposerData((prev) => ({ ...prev, subject: e.target.value }))}
                             placeholder="Enter subject"
                             className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                           />
@@ -1668,7 +1676,7 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                                         const variableText = variable.startsWith('{') && variable.endsWith('}')
                                           ? variable
                                           : `{${variable}}`
-                                        setComposerData({ ...composerData, subject: composerData.subject + variableText })
+                                        setComposerData((prev) => ({ ...prev, subject: (prev.subject || '') + variableText }))
                                         setSubjectVariablesDropdownOpen(false)
                                       }}
                                       className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
@@ -1710,7 +1718,7 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                         <RichTextEditor
                           ref={richTextEditorRef}
                           value={composerData.emailBody}
-                          onChange={(html) => setComposerData({ ...composerData, emailBody: html })}
+                          onChange={(html) => setComposerData((prev) => ({ ...prev, emailBody: html }))}
                           placeholder="Type your message..."
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
@@ -1788,15 +1796,41 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                                   </div>
                                 ) : (
                                   templates.map((template) => (
-                                    <button
+                                    <Tooltip
                                       key={template.id || template.templateId}
-                                      onClick={() => handleTemplateSelect(template)}
-                                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                      title={template.subject}
+                                      arrow
+                                      placement="right"
+                                      componentsProps={{
+                                        tooltip: {
+                                          sx: {
+                                            // pointerEvents: 'none',
+                                            backgroundColor: '#ffffff', // Ensure white background
+                                            color: '#333', // Dark text color
+                                            fontSize: '16px',
+                                            fontWeight: '500',
+                                            padding: '10px 15px',
+                                            borderRadius: '8px',
+                                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                          },
+                                        },
+                                        arrow: {
+                                          sx: {
+                                            color: '#ffffff', // Match tooltip background
+                                          },
+                                        },
+                                      }}
                                     >
-                                      <div className="font-medium text-gray-900 truncate">
-                                        {template.templateName || 'Untitled Template'}
-                                      </div>
-                                    </button>
+                                      <button
+                                        key={template.id || template.templateId}
+                                        onClick={() => handleTemplateSelect(template)}
+                                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                      >
+                                        <div className="font-medium text-gray-900 truncate">
+                                          {template.templateName || 'Untitled Template'}
+                                        </div>
+                                      </button>
+                                    </Tooltip>
                                   ))
                                 )}
                               </div>
@@ -1848,7 +1882,7 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                         value={composerData.smsBody}
                         onChange={(e) => {
                           if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                            setComposerData({ ...composerData, smsBody: e.target.value })
+                            setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
                           }
                         }}
                         placeholder="Type your message..."
@@ -1887,27 +1921,53 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                                 </div>
                               ) : (
                                 templates.map((template) => (
-                                  <button
+                                  <Tooltip
                                     key={template.id || template.templateId}
-                                    onClick={() => handleTemplateSelect(template)}
-                                    className="flex items-center justify-between gap-2  w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                    title={template.content}
+                                    arrow
+                                    placement="right"
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          // pointerEvents: 'none',
+                                          backgroundColor: '#ffffff', // Ensure white background
+                                          color: '#333', // Dark text color
+                                          fontSize: '16px',
+                                          fontWeight: '500',
+                                          padding: '10px 15px',
+                                          borderRadius: '8px',
+                                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                        },
+                                      },
+                                      arrow: {
+                                        sx: {
+                                          color: '#ffffff', // Match tooltip background
+                                        },
+                                      },
+                                    }}
                                   >
-                                    <div className="font-medium text-gray-900 truncate">
-                                      {template.templateName || 'Untitled Template'}
-                                    </div>
-                                    {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
-                                      <CircularProgress size={16} />
-                                    ) : (
-                                      <button
-                                        type="button"
-                                        onClick={(e) => handleDeleteTemplate(template, e)}
-                                        className="flex-shrink-0 p-1 rounded transition-colors"
-                                        title="Delete template"
-                                      >
-                                        <Trash2 size={16} className="text-brand-primary" />
-                                      </button>
-                                    )}
-                                  </button>
+                                    <button
+                                      key={template.id || template.templateId}
+                                      onClick={() => handleTemplateSelect(template)}
+                                      className="flex items-center justify-between gap-2  w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                    >
+                                      <div className="font-medium text-gray-900 truncate">
+                                        {template.templateName || 'Untitled Template'}
+                                      </div>
+                                      {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                                        <CircularProgress size={16} />
+                                      ) : (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => handleDeleteTemplate(template, e)}
+                                          className="flex-shrink-0 p-1 rounded transition-colors"
+                                          title="Delete template"
+                                        >
+                                          <Trash2 size={16} className="text-brand-primary" />
+                                        </button>
+                                      )}
+                                    </button>
+                                  </Tooltip>
                                 ))
                               )}
                             </div>

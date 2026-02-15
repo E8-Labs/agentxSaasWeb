@@ -4,8 +4,35 @@ import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { AudioWaveActivity } from './askskycomponents/AudioWaveActivity'
 import { VoiceWavesComponent } from './askskycomponents/voice-waves'
 import { MYAGENTX_URL } from './constants'
+import { useUser } from '@/hooks/redux-hooks'
+import { useEffect } from 'react'
 
-export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
+const DEFAULT_LOGO_SRC = "/assets/assignX.png"  //'/agentx-logo.png'
+const DEFAULT_LOGO_ALT = 'AgentX Logo'
+
+export function VoiceInterface({
+  loading,
+  loadingMessage,
+  isSpeaking,
+  poweredByLogoUrl,
+  poweredByLink,
+  poweredByAlt,
+  poweredByText,
+}) {
+
+  //redux user local data
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+
+
+  const link = poweredByLink ?? MYAGENTX_URL
+  const showTextOnly = !!poweredByText
+  const logoUrl = poweredByLogoUrl ?? DEFAULT_LOGO_SRC
+  const alt = poweredByAlt ?? DEFAULT_LOGO_ALT
+  const isExternalLogo = !showTextOnly && (logoUrl.startsWith('http://') || logoUrl.startsWith('https://'))
+  //AgentX show powered by logo base on user role
+  const userRole = reduxUser?.userRole
+
+
   return (
     <>
       <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
@@ -39,25 +66,42 @@ export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
           />
         )}
       </div>
-      <div className="relative w-2/3 flex flex-col h-5 items-center justify-center gap-6 z-10">
-        <div className="h-full flex justify-center items-center gap-1">
-          <p className="text-xs">Powered by</p>
-          <a
-            href={MYAGENTX_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block font-medium"
-          >
-            <Image
-              src="/agentx-logo.png"
-              alt="AgentX Logo"
-              className="w-auto h-auto"
-              height={14}
-              width={60}
-            />
-          </a>
-        </div>
-      </div>
+      {
+        userRole === 'AgentX' && (
+          <div className="relative w-2/3 flex flex-col h-5 items-center justify-center gap-6 z-10">
+            <div className="h-full flex justify-center items-center gap-1">
+              <p className="text-xs pt-1">Powered by</p>
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block font-medium"
+              >
+                {showTextOnly ? (
+                  <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">
+                    {poweredByText}
+                  </span>
+                ) : isExternalLogo ? (
+                  <img
+                    src={logoUrl}
+                    alt={alt}
+                    className="max-h-[14px] w-auto h-auto object-contain"
+                    style={{ height: 14 }}
+                  />
+                ) : (
+                  <Image
+                    src={logoUrl}
+                    alt={alt}
+                    className="w-auto h-auto"
+                    height={14}
+                    width={60}
+                  />
+                )}
+              </a>
+            </div>
+          </div>
+        )
+      }
     </>
   )
 }

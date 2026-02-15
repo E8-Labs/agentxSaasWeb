@@ -1,9 +1,6 @@
 'use client'
 
 // Import default styles
-// import "./CalendarOverrides.css";
-import '../../calls/CalendarOverrides.css'
-import 'react-calendar/dist/Calendar.css'
 
 import {
   Alert,
@@ -21,6 +18,7 @@ import {
 } from '@mui/material'
 import {
   Calendar as CalendarIcon,
+  CalendarDots,
   CaretDown,
   CaretUp,
   Cross,
@@ -36,12 +34,18 @@ import moment from 'moment'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import Calendar from 'react-calendar'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover as ShadPopover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
-import { userLocalData } from '@/components/agency/plan/AuthDetails'
+import { AuthToken, userLocalData } from '@/components/agency/plan/AuthDetails'
 import DashboardSlider from '@/components/animations/DashboardSlider'
+import { useHasPermission } from '@/contexts/PermissionContext'
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
 import AgentSelectSnackMessage, {
@@ -58,6 +62,7 @@ import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -102,6 +107,8 @@ const AdminLeads = ({
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false)
 
   const requestVersion = useRef(0)
+  const searchDebounceRef = useRef(null)
+  const hasSearchedRef = useRef(false)
 
   const [filtersSelected, setFiltersSelected] = useState([])
   const [isInbound, setIsInbound] = useState(false)
@@ -119,7 +126,7 @@ const AdminLeads = ({
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false)
   const [nextCursorValue, setNextCursorValue] = useState(0)
   const nextCursorRef = useRef(0) // Track cursor synchronously for scroll handler
-  
+
   // Refs to prevent duplicate requests (like subaccounts)
   const isLoadingMoreRef = useRef(false)
 
@@ -137,6 +144,13 @@ const AdminLeads = ({
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null)
   const [showNoLeadsLabel, setShowNoLeadsLabel] = useState(false)
+
+  // Export for agency team viewing subaccount leads
+  const [exportLoading, setExportLoading] = useState(false)
+  const [hasExportPermission] = useHasPermission(
+    agencyUser && selectedUser?.id ? 'subaccount.leads.export' : null,
+    agencyUser ? selectedUser?.id : null
+  )
 
   //code for showing leads details
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -267,6 +281,37 @@ const AdminLeads = ({
     handleFilterLeads(filterText)
     setShowNoLeadsLabel(false)
   }, [filtersSelected, SelectedSheetId, selectedUser])
+
+  // Debounced search: when user types in search, fetch from API (no sheetId) after 400ms; when cleared after a search, refetch current sheet
+  useEffect(() => {
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    if (searchTrimmed) {
+      hasSearchedRef.current = true
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+      searchDebounceRef.current = setTimeout(() => {
+        setFilterLeads([])
+        setLeadsList([])
+        setNextCursorValue(0)
+        nextCursorRef.current = 0
+        setHasMore(true)
+        handleFilterLeads(getFilterText())
+        setShowNoLeadsLabel(false)
+      }, 400)
+      return () => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+      }
+    }
+    if (hasSearchedRef.current) {
+      hasSearchedRef.current = false
+      setFilterLeads([])
+      setLeadsList([])
+      setNextCursorValue(0)
+      nextCursorRef.current = 0
+      setHasMore(true)
+      handleFilterLeads(getFilterText())
+      setShowNoLeadsLabel(false)
+    }
+  }, [searchLead])
 
   //Caching & refresh logic
   useEffect(() => {
@@ -620,17 +665,39 @@ const AdminLeads = ({
 
   // function to handle select data change
   const handleFromDateChange = (date) => {
-    setSelectedFromDate(date) // Set the selected date
+    setSelectedFromDate(date || null)
     setShowFromDatePicker(false)
   }
 
   const handleToDateChange = (date) => {
-    setSelectedToDate(date) // Set the selected date
+    setSelectedToDate(date || null)
     setShowToDatePicker(false)
   }
 
   function getFilterText() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    // When user is searching: do not send sheetId so API searches across all sheets
+    if (searchTrimmed) {
+      let string = `search=${encodeURIComponent(searchTrimmed)}`
+      let stageIds = ''
+      let stageSeparator = ''
+      filtersSelected.forEach((filter) => {
+        if (filter.key == 'date') {
+          const formtFromDate = moment(filter.values[0]).format('MM/DD/YYYY')
+          const formtToDate = moment(filter.values[1]).format('MM/DD/YYYY')
+          string = `${string}&fromDate=${formtFromDate}&toDate=${formtToDate}`
+        }
+        if (filter.key == 'stage') {
+          stageIds = `${stageIds}${stageSeparator}${filter.values[0].id}`
+          stageSeparator = ','
+        }
+      })
+      if (stageIds.length > 0) {
+        string = `${string}&stageIds=${stageIds}`
+      }
+      return string
+    }
+    // No search: require sheetId when using filters
     if (filtersSelected.length == 0) {
       return null
     }
@@ -652,12 +719,45 @@ const AdminLeads = ({
         // stageSeparator = ","
       }
     })
-    // string = `${string}&stageIds=${stageIds}`;
     if (stageIds.length > 0) {
       string = `${string}&stageIds=${stageIds}`
     }
 
     return string
+  }
+
+  async function handleExportLeads() {
+    if (!SelectedSheetId) {
+      setSnackMessage('Select a sheet to export')
+      setShowsnackMessage(true)
+      setMessageType(SnackbarTypes.Error)
+      return
+    }
+    try {
+      setExportLoading(true)
+      let path = `${Apis.exportLeads}?sheetId=${SelectedSheetId}`
+      if (agencyUser && selectedUser?.id) {
+        path += `&userId=${selectedUser.id}`
+      }
+      const response = await axios.get(path, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken(),
+        },
+      })
+      if (response.data) {
+        if (response.data.status === true) {
+          window.open(response.data.downloadUrl, '_blank')
+        } else {
+          setSnackMessage(response.data.message)
+          setShowsnackMessage(true)
+          setMessageType(SnackbarTypes.Error)
+        }
+      }
+    } catch (error) {
+      console.error('Error exporting leads:', error)
+    } finally {
+      setExportLoading(false)
+    }
   }
 
   function getLocallyCachedLeads() {
@@ -705,9 +805,11 @@ const AdminLeads = ({
 
   //function for filtering leads (using cursor-based pagination like Userleads)
   const handleFilterLeads = async (filterText = null, append = false) => {
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    const isSearchingAllSheets = !!searchTrimmed
     // Use ref value for API call to ensure we always use the latest cursor
     const currentCursor = nextCursorRef.current
-    
+
     // If appending (lazy load), check if already loading to prevent duplicates (like subaccounts)
     if (append) {
       if (isLoadingMoreRef.current) {
@@ -723,7 +825,7 @@ const AdminLeads = ({
       setHasMore(true)
       isLoadingMoreRef.current = false
     }
-    
+
     const currentRequestVersion = ++requestVersion.current
     const currentSheetId = SelectedSheetId // Capture the sheet ID at request start
     try {
@@ -793,19 +895,18 @@ const AdminLeads = ({
             setTotalLeads(response.data.leadCount)
 
             const data = responseLeads
-            // Get sheetId from response to verify it matches current selection
+            // Get sheetId from response to verify it matches current selection (not used when searching all sheets)
             let sheetId = null
             if (data && data.length > 0) {
               sheetId = data[0].sheetId
             }
-            
-            // Only process response if it matches the currently selected sheet
-            // This prevents race conditions when switching sheets quickly
-            // For empty responses, we process them if it's the first page
-            // because empty responses don't have a sheetId but should still be shown for the current sheet
-            const shouldProcess = (sheetId == SelectedSheetId) || 
+
+            // When searching across all sheets, always process; otherwise only if sheet matches or empty first page
+            const shouldProcess =
+              isSearchingAllSheets ||
+              (sheetId == SelectedSheetId) ||
               (data.length === 0 && wasFirstLoad)
-            
+
             if (shouldProcess) {
               if (wasFirstLoad) {
                 // First page load
@@ -815,9 +916,9 @@ const AdminLeads = ({
                   setShowNoLeadsLabel(true)
                 }
 
-                // Only set leads if sheet matches (or empty response for first page)
-                if (sheetId == SelectedSheetId || data.length === 0) {
-                  if (data.length > 0 && sheetId == SelectedSheetId) {
+                // When searching all sheets, don't cache by sheet; always set leads
+                if (isSearchingAllSheets || sheetId == SelectedSheetId || data.length === 0) {
+                  if (!isSearchingAllSheets && data.length > 0 && sheetId == SelectedSheetId) {
                     LeadsInSheet[SelectedSheetId] = response.data
                     localStorage.setItem(
                       `Leads${SelectedSheetId}`,
@@ -829,16 +930,16 @@ const AdminLeads = ({
                   setFilterLeads(data)
                 }
               } else {
-                // For pagination, append leads only if sheet matches
+                // For pagination: append when searching all sheets or when sheet matches
                 setShowNoLeadsLabel(false)
-                if (sheetId == SelectedSheetId && data.length > 0) {
+                if ((isSearchingAllSheets || sheetId == SelectedSheetId) && data.length > 0) {
                   setLeadsList((prevDetails) => [...prevDetails, ...data])
                   setFilterLeads((prevDetails) => [...prevDetails, ...data])
                 }
               }
 
-              // Set columns only if sheet matches or it's an empty response
-              if (sheetId == SelectedSheetId || (data.length === 0 && wasFirstLoad)) {
+              // Set columns when searching all sheets, or when sheet matches or empty response
+              if (isSearchingAllSheets || sheetId == SelectedSheetId || (data.length === 0 && wasFirstLoad)) {
                 let leads = data
                 let leadColumns = response.data.columns
                 if (leads && leadColumns) {
@@ -858,7 +959,7 @@ const AdminLeads = ({
                   setLeadColumns([])
                 }
               }
-            } else {}
+            } else { }
 
             setHasMore(apiHasMore)
           } else {
@@ -1431,27 +1532,9 @@ const AdminLeads = ({
     }
   }
 
-  //code for handle search change
+  // Search is handled by API (getLeads without sheetId when search has value); debounced in useEffect
   const handleSearchChange = (value) => {
-    if (value.trim() === '') {
-      // //////console.log;
-      // Reset to original list when input is empty
-      setFilterLeads(LeadsList)
-      return
-    }
-
-    const filtered = LeadsList.filter((item) => {
-      const term = value.toLowerCase()
-      return (
-        item.firstName?.toLowerCase().includes(term) ||
-        item.lastName?.toLowerCase().includes(term) ||
-        item.address?.toLowerCase().includes(term) ||
-        item.email?.toLowerCase().includes(term) ||
-        (item.phone && item.phone.includes(term))
-      )
-    })
-
-    setFilterLeads(filtered)
+    setSearchLead(value)
   }
 
   function HandleUpdateStage(stage) {
@@ -1604,24 +1687,60 @@ const AdminLeads = ({
         message={snackMessage}
         type={messageType}
       />
-      <div
-        className="flex flex-row items-center justify-between w-full px-4 h-[60px] border-b border-[#eaeaea]"
-      >
-        <div className="flex flex-row items-end gap-2">
-          <TypographyH3 className="text-[24px] font-semibold">Leads</TypographyH3>
-          {userDetails?.currentUsage?.maxLeads &&
-            userDetails?.planCapabilities?.maxLeads < 10000000 &&
-            userDetails?.plan?.planId != null && (
-              <div className="text-[14px] font-normal text-black/80">
-                {`${formatFractional2(userDetails?.currentUsage?.maxLeads)}/${formatFractional2(userDetails?.planCapabilities?.maxLeads) || 0} used`}
-              </div>
+      <StandardHeader
+        titleContent={
+          <div className="flex fex-row items-center gap-2">
+            <TypographyH3>Leads</TypographyH3>
+            {userDetails?.currentUsage?.maxLeads &&
+              userDetails?.planCapabilities?.maxLeads < 10000000 &&
+              userDetails?.plan?.planId != null && (
+                <div
+                  style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                >
+                  {`${formatFractional2(userDetails?.currentUsage?.maxLeads)}/${formatFractional2(userDetails?.planCapabilities?.maxLeads) || 0} used`}
+                </div>
+              )}
+          </div>
+        }
+        showTasks={true}
+        rightContent={
+          <button
+            style={{
+              backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
+              color: toggleClick.length > 0 ? 'white' : '#000000',
+            }}
+            className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
+            onClick={() => {
+              if (userLocalDetails?.plan) {
+                setAssignLeadModal(true)
+              } else {
+                setSnackMessage('Add payment method to continue')
+                setShowSnackMessage(true)
+                setMessageType(SnackbarTypes.Warning)
+              }
+            }}
+            disabled={!toggleClick.length > 0}
+          >
+            {toggleClick.length > 0 ? (
+              <Image
+                src={'/assets/callBtnFocus.png'}
+                height={17}
+                width={17}
+                alt="*"
+              />
+            ) : (
+              <Image
+                src={'/assets/callBtn.png'}
+                height={17}
+                width={17}
+                alt="*"
+              />
             )}
-        </div>
-
-        <div className="flex flex-row items-center gap-6">
-          {/* Start Campaign moved to search/filter row beside Select All */}
-        </div>
-      </div>
+            <span style={styles.heading}>Start Campaign</span>
+          </button>
+        }
+        selectedUser={selectedUser}
+      />
       <div className="w-full max-w-[1300px] mx-auto pt-0 px-0 pb-0 m-0.5 border-l border-r border-[#eaeaea] h-full">
         {initialLoader ? (
           <div className="w-full h-screen flex flex-row justify-center mt-12">
@@ -1681,7 +1800,6 @@ const AdminLeads = ({
                 </Modal>
               </div>
             </div>
-           
             <div className="flex flex-row items-center justify-between w-full mt-0 mb-0 py-3 px-3 min-w-0 overflow-hidden">
               <div className="flex flex-row items-center gap-4 overflow-hidden flex-shrink min-w-0 w-full">
                 <div className={`flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 rounded-lg pe-2 transition-colors ${searchFocused ? 'border-2 border-[hsl(var(--brand-primary))]' : 'border border-[#eaeaea]'}`}>
@@ -1782,7 +1900,7 @@ const AdminLeads = ({
                               setFiltersSelected(filters)
                             }}
                           >
-                            <CloseBtn onClick={() => {}} />
+                            <CloseBtn onClick={() => { }} />
                           </button>
                         </div>
                       </div>
@@ -1792,6 +1910,34 @@ const AdminLeads = ({
               </div>
 
               <div className="flex flex-row items-center gap-2 w-auto min-w-[300px] max-w-none py-1.5 px-1.5 justify-end">
+                {hasExportPermission && (
+                  exportLoading ? (
+                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
+                      style={{ fontWeight: 400, fontSize: 14 }}
+                      onClick={() => handleExportLeads()}
+                      disabled={exportLoading}
+                    >
+                      <div className="transition-colors duration-150">Export</div>
+                      <Image
+                        src={'/otherAssets/exportIcon.png'}
+                        height={24}
+                        width={24}
+                        alt="Export"
+                        className="group-hover:hidden block transition-opacity duration-150"
+                      />
+                      <Image
+                        src={'/otherAssets/exportIconPurple.png'}
+                        height={24}
+                        width={24}
+                        alt="Export"
+                        className="hidden group-hover:block transition-opacity duration-150"
+                      />
+                    </button>
+                  )
+                )}
                 {toggleClick.length >= 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (
@@ -1885,23 +2031,32 @@ const AdminLeads = ({
               </div>
             </div>
 
-            <div
-              className="flex flex-row items-center mt-0 mx-0 w-full gap-2"
-              style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
-            >
+            {/* Hide sheets list when searching across all sheets */}
+            {!(searchLead && String(searchLead).trim()) && (
               <div
-                className="flex flex-row items-center gap-2 w-full border-b border-[#eaeaea]"
-                style={{
-                  ...styles.paragraph,
-                  overflowY: 'hidden',
-                  scrollbarWidth: 'none', // For Firefox
-                  msOverflowStyle: 'none', // For Internet Explorer and Edge
-                }}
+                className="flex flex-row items-center mt-0 mx-0 w-full gap-2"
+                style={styles.paragraph}
               >
-                <style jsx>
-                  {`
+                <div
+                  className="flex flex-row items-center gap-2 w-full border-b border-[#eaeaea]"
+                  style={{
+                    ...styles.paragraph,
+                    overflowY: 'hidden',
+                    scrollbarWidth: 'none', // For Firefox
+                    msOverflowStyle: 'none', // For Internet Explorer and Edge
+                  }}
+              >
+                <div
+                  className="flex flex-row items-center gap-2 w-full"
+                  style={{
+                    ...styles.paragraph,
+                    overflowY: 'hidden',
+                    scrollbarWidth: 'none', // For Firefox
+                    msOverflowStyle: 'none', // For Internet Explorer and Edge
+                  }}
+                >
+                  <style jsx>
+                    {`
                     div::-webkit-scrollbar {
                       display: none; /* For Chrome, Safari, and Opera */
                     }
@@ -1920,8 +2075,6 @@ const AdminLeads = ({
                         color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
                         whiteSpace: 'nowrap', // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
                     >
                       <button
                         className="outline-none w-full text-[14px]"
@@ -1930,7 +2083,6 @@ const AdminLeads = ({
                           setSearchLead('')
                           setSelectedSheetId(item.id)
                           setToggleClick([])
-                          //   getLeads(item, 0);
                         }}
                       >
                         {item.sheetName}
@@ -1975,45 +2127,46 @@ const AdminLeads = ({
                           className="p-2 flex flex-col gap-2 text-[14px]"
                           style={{ fontWeight: '500', fontSize: 14 }}
                         >
-                          {delSmartListLoader ? (
+                            {delSmartListLoader ? (
                             <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
                           ) : (
                             <button
                               className="text-red flex flex-row items-center gap-1"
                               onClick={handleDeleteSmartList}
-                            >
-                              <Image
-                                src={'/assets/delIcon.png'}
-                                height={18}
-                                width={18}
-                                alt="*"
-                              />
-                              <p
-                                className="text-red text-[14px]"
-                                style={{ fontWeight: '500' }}
                               >
-                                Delete
-                              </p>
-                            </button>
-                          )}
-                        </div>
-                      </Popover>
-                    </div>
-                  )
-                })}
+                                <Image
+                                  src={'/assets/delIcon.png'}
+                                  height={18}
+                                  width={18}
+                                  alt="*"
+                                />
+                                <p
+                                  className="text-red"
+                                  style={{ fontWeight: '500', fontSize: 16 }}
+                                >
+                                  Delete
+                                </p>
+                              </button>
+                            )}
+                          </div>
+                        </Popover>
+                      </div>
+                    )
+                  })}
+                </div>
+                <button
+                  className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
+                  style={styles.paragraph}
+                  // onClick={() => { setShowAddNewSheetModal(true) }}
+                  onClick={() => {
+                    handleShowAddLeadModal(true)
+                  }}
+                >
+                  <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
+                  <span>New Leads</span>
+                </button>
               </div>
-              <button
-                className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0 h-[40px] px-3"
-                style={styles.paragraph}
-                // onClick={() => { setShowAddNewSheetModal(true) }}
-                onClick={() => {
-                  handleShowAddLeadModal(true)
-                }}
-              >
-                <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
-                <span>New Leads</span>
-              </button>
-            </div>
+            )}
 
             {/* <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
                                 <div className='w-2/12'>Name</div>
@@ -2254,56 +2407,33 @@ const AdminLeads = ({
                         >
                           From
                         </div>
-                        <div>
-                          <button
-                            style={{ border: '1px solid #00000020' }}
-                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                            onClick={() => {
-                              setShowFromDatePicker(true)
-                            }}
-                          >
-                            <p>
-                              {selectedFromDate
-                                ? selectedFromDate.toDateString()
-                                : 'Select Date'}
-                            </p>
-                            <CalendarIcon weight="regular" size={16} />
-                          </button>
-
-                          <div>
-                            {showFromDatePicker && (
-                              <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                <Calendar
-                                  onChange={handleFromDateChange}
-                                  value={selectedFromDate}
-                                  locale="en-US"
-                                  onClose={() => {
-                                    setShowFromDatePicker(false)
-                                  }}
-                                  tileClassName={({ date, view }) => {
-                                    const today = new Date()
-
-                                    // Highlight the current date
-                                    if (
-                                      date.getDate() === today.getDate() &&
-                                      date.getMonth() === today.getMonth() &&
-                                      date.getFullYear() === today.getFullYear()
-                                    ) {
-                                      return 'current-date' // Add a custom class for current date
-                                    }
-
-                                    return null // Default for other dates
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
+                          <PopoverTrigger asChild>
+                            <button
+                              style={{ border: '1px solid #00000020' }}
+                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                            >
+                              <p>
+                                {selectedFromDate
+                                  ? selectedFromDate.toDateString()
+                                  : 'Select Date'}
+                              </p>
+                              <CalendarDots weight="regular" size={25} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedFromDate}
+                              onSelect={handleFromDateChange}
+                              initialFocus
+                              classNames={{
+                                day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                day_today: 'bg-brand-primary/20 text-brand-primary',
+                              }}
+                            />
+                          </PopoverContent>
+                        </ShadPopover>
                       </div>
 
                       <div className="w-1/2 h-auto flex flex-col gap-1">
@@ -2317,55 +2447,33 @@ const AdminLeads = ({
                         >
                           To
                         </div>
-                        <div>
-                          <button
-                            style={{ border: '1px solid #00000020' }}
-                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                            onClick={() => {
-                              setShowToDatePicker(true)
-                            }}
-                          >
-                            <p>
-                              {selectedToDate
-                                ? selectedToDate.toDateString()
-                                : 'Select Date'}
-                            </p>
-                            <CalendarIcon weight="regular" size={16} />
-                          </button>
-                          <div>
-                            {showToDatePicker && (
-                              <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                <Calendar
-                                  onChange={handleToDateChange}
-                                  value={selectedToDate}
-                                  locale="en-US"
-                                  onClose={() => {
-                                    setShowToDatePicker(false)
-                                  }}
-                                  tileClassName={({ date, view }) => {
-                                    const today = new Date()
-
-                                    // Highlight the current date
-                                    if (
-                                      date.getDate() === today.getDate() &&
-                                      date.getMonth() === today.getMonth() &&
-                                      date.getFullYear() === today.getFullYear()
-                                    ) {
-                                      return 'current-date' // Add a custom class for current date
-                                    }
-
-                                    return null // Default for other dates
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
+                          <PopoverTrigger asChild>
+                            <button
+                              style={{ border: '1px solid #00000020' }}
+                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                            >
+                              <p>
+                                {selectedToDate
+                                  ? selectedToDate.toDateString()
+                                  : 'Select Date'}
+                              </p>
+                              <CalendarDots weight="regular" size={25} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedToDate}
+                              onSelect={handleToDateChange}
+                              initialFocus
+                              classNames={{
+                                day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                day_today: 'bg-brand-primary/20 text-brand-primary',
+                              }}
+                            />
+                          </PopoverContent>
+                        </ShadPopover>
                       </div>
                     </div>
 
@@ -2596,7 +2704,7 @@ const AdminLeads = ({
             leadStageUpdated={HandleUpdateStage}
           />
         </div>
-      )} 
+      )}
 
       {/* Modal to add notes */}
 

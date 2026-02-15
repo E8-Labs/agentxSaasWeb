@@ -13,7 +13,9 @@ import {
   getAgentsListImage,
 } from '@/utilities/agentUtilities'
 
+import ImportantCallsModal from '@/components/modals/ImportantCallsModal'
 import AgentInfoCard from './AgentInfoCard'
+import AgentStatsCallsModal from './AgentStatsCallsModal'
 import NoAgent from './NoAgent'
 
 // ...other necessary imports
@@ -77,6 +79,13 @@ const AgentsListPaginated = ({
   const fileInputRef = useRef([])
 
   const [ShowWarningModal, setShowWarningModal] = useState(null)
+
+  const [statsModalOpen, setStatsModalOpen] = useState(false)
+  const [statsModalAgentId, setStatsModalAgentId] = useState(null)
+  const [statsModalType, setStatsModalType] = useState(null)
+  const [statsModalAgentName, setStatsModalAgentName] = useState('')
+  const [importantCallsModalOpen, setImportantCallsModalOpen] = useState(false)
+  const [importantCallsModalContext, setImportantCallsModalContext] = useState(null)
 
   const [actionInfoEl, setActionInfoEl] = useState(null)
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null)
@@ -528,49 +537,124 @@ const AgentsListPaginated = ({
 
                 <div className="w-9.12 bg-white p-6 rounded-2xl mb-4 mt-5">
                   <div className="w-full flex flex-row items-center justify-between">
-                    <AgentInfoCard
-                      name="Calls"
-                      value={<div>{item.calls || '-'}</div>}
-                      icon="/svgIcons/selectedCallIcon.svg"
-                      bgColor="bg-blue-100"
-                      iconColor="text-blue-500"
-                    />
-                    <AgentInfoCard
-                      name="Convos"
-                      value={<div>{item.callsGt10 || '-'}</div>}
-                      icon="/svgIcons/convosIcon2.svg"
-                      bgColor="bg-brand-primary/10"
-                      iconColor="text-brand-primary"
-                    />
-                    <AgentInfoCard
-                      name="Hot Leads"
-                      value={item.hotleads || '-'}
-                      icon="/otherAssets/hotLeadsIcon2.png"
-                      bgColor="bg-orange-100"
-                      iconColor="text-orange-500"
-                    />
-                    <AgentInfoCard
-                      name="Booked Meetings"
-                      value={item.booked || '-'}
-                      icon="/otherAssets/greenCalenderIcon.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
-                    <AgentInfoCard
-                      name="Time"
-                      value={
-                        <div>
-                          {item?.totalDuration
-                            ? moment
-                                .utc((item?.totalDuration || 0) * 1000)
-                                .format('HH:mm:ss')
-                            : '-'}
-                        </div>
-                      }
-                      icon="/otherAssets/minsCounter.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'calls',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Calls"
+                        value={<div>{item.calls || '-'}</div>}
+                        icon="/svgIcons/selectedCallIcon.svg"
+                        bgColor="bg-blue-100"
+                        iconColor="text-blue-500"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'convos',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Convos"
+                        value={<div>{item.callsGt10 || '-'}</div>}
+                        icon="/svgIcons/convosIcon2.svg"
+                        bgColor="bg-brand-primary/10"
+                        iconColor="text-brand-primary"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'hotleads',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Hot Leads"
+                        value={item.hotleads || '-'}
+                        icon="/otherAssets/hotLeadsIcon2.png"
+                        bgColor="bg-orange-100"
+                        iconColor="text-orange-500"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'booked',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Booked Meetings"
+                        value={item.booked || '-'}
+                        icon="/otherAssets/greenCalenderIcon.png"
+                        bgColor="green"
+                        iconColor="text-orange-500"
+                      />
+                    </button>
+                    {/* <button
+                      type="button"
+                      onClick={() => {
+                        setImportantCallsModalContext(null)
+                        setImportantCallsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Important Calls"
+                        value="-"
+                        icon="/svgIcons/fireIcon.png"
+                        bgColor="bg-orange-100"
+                        iconColor="text-orange-500"
+                      />
+                    </button> */}
+                    <div className="flex flex-col items-start gap-2">
+                      <AgentInfoCard
+                        name="Time"
+                        value={
+                          <div>
+                            {item?.totalDuration
+                              ? moment
+                                  .utc((item?.totalDuration || 0) * 1000)
+                                  .format('HH:mm:ss')
+                              : '-'}
+                          </div>
+                        }
+                        icon="/otherAssets/minsCounter.png"
+                        bgColor="green"
+                        iconColor="text-orange-500"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -585,6 +669,25 @@ const AgentsListPaginated = ({
           title={search ? 'No agent found' : 'You have no active agents'}
           selectedUser={selectedUser}
         />)
+      )}
+      <AgentStatsCallsModal
+        open={statsModalOpen}
+        onClose={() => setStatsModalOpen(false)}
+        agentId={statsModalAgentId}
+        agentName={statsModalAgentName}
+        type={statsModalType}
+      />
+      {importantCallsModalOpen && (
+        <ImportantCallsModal
+          open={importantCallsModalOpen}
+          onClose={() => {
+            setImportantCallsModalOpen(false)
+            setImportantCallsModalContext(null)
+          }}
+          agentId={importantCallsModalContext?.agentId}
+          type={importantCallsModalContext?.type}
+          agentName={importantCallsModalContext?.agentName}
+        />
       )}
     </div>
   );

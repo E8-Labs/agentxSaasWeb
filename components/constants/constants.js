@@ -51,6 +51,71 @@ export const stagesDropdown = [
   },
 ]
 
+/** Communication styles for Message Settings – Style modal (value stored in backend). */
+export const COMMUNICATION_STYLES = [
+  { value: 'formal', label: 'Formal Tone', example: "Dear Mr./Mrs. [Client's last name], we are pleased to present to you a curated list of properties that align impeccably with your stated preferences." },
+  { value: 'informal', label: 'Informal Tone', example: "Hey [Client's first name]! Got some cool places for you to check out. Let's catch up and go through them!" },
+  { value: 'friendly', label: 'Friendly Tone', example: "Hello [Client's name]! It's wonderful to see you again. I have some lovely options that I'm eager to share with you!" },
+  { value: 'serious', label: 'Serious Tone', example: 'We need to discuss the recent market fluctuations and its implications on our strategy.' },
+  { value: 'optimistic', label: 'Optimistic Tone', example: "Despite the competitive market, I'm confident we'll find your dream home soon!" },
+  { value: 'assertive', label: 'Assertive Tone', example: "We should act quickly and place an offer on this property before it's off the market." },
+  { value: 'passive', label: 'Passive Tone', example: "Perhaps, if you think it's suitable, we might explore" },
+]
+
+/** Tailoring Communication – options (value stored in backend). */
+export const TAILORING_COMMUNICATION_OPTIONS = [
+  { value: 'adjust_formality', label: 'I adjust my formality level.' },
+  { value: 'adapt_enthusiasm', label: 'I adapt my enthusiasm and energy level.' },
+  { value: 'modify_complexity', label: 'I modify my language complexity.' },
+  { value: 'stay_consistent', label: "I don't change my style; I stay consistent." },
+  { value: 'client_preferences', label: "I adjust based on client's expressed preferences." },
+]
+
+/** Sentence Structure – options (value stored in backend). */
+export const SENTENCE_STRUCTURE_OPTIONS = [
+  { value: 'short_concise', label: 'Short and concise sentences.' },
+  { value: 'elaborate_detailed', label: 'Elaborate and detailed explanations.' },
+  { value: 'balanced_mix', label: 'A balanced mix of both, depending on the situation.' },
+  { value: 'match_client', label: "I adapt my sentence structure to match the client's preference." },
+  { value: 'vary_by_complexity', label: "I vary my approach based on the complexity of the information." },
+]
+
+/** Expressing Enthusiasm – options (value stored in backend). */
+export const EXPRESSING_ENTHUSIASM_OPTIONS = [
+  { value: 'upbeat_tone', label: 'Upbeat Tone', bestFor: 'infectious enthusiasm', example: 'I show excitement through my voice and positive energy.' },
+  { value: 'highlighting_benefits', label: 'Highlighting Standout Benefits', bestFor: 'value-focused conversations', example: "I get excited by calling out what makes something special." },
+  { value: 'expressive_language', label: 'Expressive Language', bestFor: 'high-energy communication', example: 'I use exclamations or energetic phrasing to show excitement.' },
+  { value: 'personal_relevance', label: 'Personal Relevance', bestFor: 'personal connection', example: 'I connect the topic to what matters to them.' },
+  { value: 'descriptive_storytelling', label: 'Descriptive Storytelling', bestFor: 'immersive conversations', example: "I paint a vivid picture so they can imagine the experience." },
+]
+
+/** Explaining Complex Concepts – options (value stored in backend). */
+export const EXPLAINING_COMPLEX_CONCEPTS_OPTIONS = [
+  { value: 'simplified_analogies', label: 'Simplified with Analogies', bestFor: 'quick understanding', example: "I like to explain it in everyday terms so it's easy to grasp." },
+  { value: 'visual_illustrative', label: 'Visual or Illustrative', bestFor: 'visual learners', example: 'I prefer visuals or diagrams to make things clearer.' },
+  { value: 'step_by_step', label: 'Step-by-Step Breakdown', bestFor: 'structured thinkers', example: 'I walk through it in a clear sequence so nothing is missed.' },
+  { value: 'real_world_examples', label: 'Real-World Examples', bestFor: 'practical understanding', example: 'I use real scenarios or past experiences to make it relatable.' },
+  { value: 'shared_resources', label: 'Shared Resources', bestFor: 'self-guided learners', example: 'I point people to helpful articles, videos, or guides for deeper clarity.' },
+]
+
+/** Giving updates – options (value stored in backend). */
+export const GIVING_UPDATES_OPTIONS = [
+  { value: 'direct_straightforward', label: 'Direct and Straightforward', example: "I want to be upfront—this didn't move forward as expected.", bestFor: 'clarity and decisiveness.' },
+  { value: 'empathetic_reassuring', label: 'Empathetic and Reassuring', example: "I know this isn't easy to hear, and I want to walk you through what this means.", bestFor: 'trust and emotional awareness.' },
+  { value: 'solution_oriented', label: 'Solution-Oriented', example: "This didn't go as planned, but here are a few ways we can move forward.", bestFor: 'momentum and problem-solving.' },
+  { value: 'gradual_detailed', label: 'Gradual and Detailed', example: "Let's review what happened step by step so everything is clear.", bestFor: 'complex situations and transparency.' },
+  { value: 'context_sensitive', label: 'Context-Sensitive', example: "This is important enough that I'd prefer to discuss it at the right time or in the right setting.", bestFor: 'high-stakes or sensitive conversations.' },
+]
+
+/** Handling Objections – options (value stored in backend). */
+export const HANDLING_OBJECTIONS_OPTIONS = [
+  { value: 'detailed_explanations', label: 'Provide Detailed Explanations' },
+  { value: 'reassurance_solutions', label: 'Offer Reassurance and Solutions' },
+  { value: 'redirect_positive', label: 'Redirect to Positive Aspects' },
+  { value: 'acknowledge_validate', label: 'Acknowledge and Validate Concerns' },
+  { value: 'compromises_alternatives', label: 'Seek Compromises and Alternatives' },
+]
+
 //check if this is user/agency/admin route them accordingly
 // export const checkCurrentUserRole = () => {
 

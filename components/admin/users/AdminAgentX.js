@@ -50,6 +50,7 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 import ActionsTab from '@/components/dashboard/myagentX/ActionsTab'
+import AgentStatsCallsModal from '@/components/dashboard/myagentX/AgentStatsCallsModal'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
 import AllSetModal from '@/components/dashboard/myagentX/AllSetModal'
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
@@ -100,19 +101,20 @@ import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
-      let baseUrl =
-      process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-        ? 'https://app.assignx.ai/'
-        : 'https://dev.assignx.ai/'
-  
-    let demoBaseUrl =
-      reduxUser?.agencyBranding?.customDomain ? `https://${reduxUser?.agencyBranding?.customDomain}/` : baseUrl
-  
+  let baseUrl =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+      ? 'https://app.assignx.ai/'
+      : 'https://dev.assignx.ai/'
+
+  let demoBaseUrl =
+    reduxUser?.agencyBranding?.customDomain ? `https://${reduxUser?.agencyBranding?.customDomain}/` : baseUrl
+
   const voiceExpressivenessList = [
     {
       id: 1,
@@ -169,6 +171,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [address, setAddress] = useState('')
   // const [budget, setBudget] = useState("");
   const [showDrawerSelectedAgent, setShowDrawerSelectedAgent] = useState(null)
+  const [adminStatsModalOpen, setAdminStatsModalOpen] = useState(false)
+  const [adminStatsModalType, setAdminStatsModalType] = useState(null)
   const [showMainAgent, setShowMainAgent] = useState(null)
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null)
@@ -1699,88 +1703,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       ////console.log
     }
   }
-
-  //function to purchse number
-  const handlePurchaseNumber = async () => {
-    try {
-      setPurchaseLoader(true)
-      let AuthToken = null
-      const LocalData = localStorage.getItem('User')
-      const agentDetails = localStorage.getItem('agentDetails')
-      let MyAgentData = null
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData)
-        AuthToken = UserDetails.token
-      }
-
-      ////console.log;
-
-      if (agentDetails) {
-        ////console.log
-        const agentData = JSON.parse(agentDetails)
-        ////console.log;
-        MyAgentData = agentData
-      }
-
-      const ApiPath = Apis.purchaseNumber
-      ////console.log;
-      // ////console.log;
-      const formData = new FormData()
-      formData.append('phoneNumber', selectedPurchasedNumber.phoneNumber)
-      // formData.append("phoneNumber", "+16505403715");
-      // formData.append("callbackNumber", "+16505403715");
-      formData.append('mainAgentId', MyAgentData.id)
-
-      for (let [key, value] of formData.entries()) {
-        ////console.log;
-      }
-
-      // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-      // setOpenPurchaseSuccessModal(true);
-      // setAssignNumber(selectedPurchasedNumber.phoneNumber);
-      // setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-      // setShowClaimPopup(false);
-      // setOpenCalimNumDropDown(false);
-
-      // return
-
-      const response = await axios.post(ApiPath, formData, {
-        headers: {
-          Authorization: 'Bearer ' + AuthToken,
-          'Content-Type': 'multipart/form-data',
-          // "Content-Type": "application/json"
-        },
-      })
-
-      if (response) {
-        ////console.log;
-        if (response.data.status === true) {
-          localStorage.setItem(
-            'purchasedNumberDetails',
-            JSON.stringify(response.data.data),
-          )
-          setOpenPurchaseSuccessModal(true)
-          // handleContinue();
-          setAssignNumber(selectedPurchasedNumber.phoneNumber)
-          setPreviousNumber([...previousNumber, selectedPurchasedNumber])
-          setShowClaimPopup(false)
-          setOpenCalimNumDropDown(false)
-        }
-      }
-    } catch (error) {
-      //// console.error("Error occured in purchase number api is: --", error);
-    } finally {
-      setPurchaseLoader(false)
-    }
-  }
-
-  //function to select the number to purchase
-  const handlePurchaseNumberClick = (item, index) => {
-    ////console.log;
-    setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item))
-    setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index))
-  }
-
   //code to get the user previous numbers
   const getAvailabePhoneNumbers = async () => {
     try {
@@ -2001,10 +1923,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       })
 
       // setAssignLoader(false);
+      getAvailabePhoneNumbers()
       setShowPhoneLoader(false)
       if (response) {
         //// //console.log;
         if (response.data.status === true) {
+          setAssignNumber(phoneNumber)
           setShowSuccessSnack(`Phone number assigned`)
 
           setDrawerSelectedAgent((prev) => {
@@ -3112,7 +3036,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // ////console.log
 
   return (
-    <div className="w-full flex flex-col items-center h-full overflow-hidden">
+    <div className="w-full flex flex-col items-center h-full overflow-hidden mt-[1vh] ps-4">
       {/* Slider code */}
       <div
         style={{
@@ -3215,98 +3139,106 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           type={SnackbarTypes.Error}
         />
       </div>
-      <div
-        className="w-full flex flex-row justify-between items-center"
-      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
-      >
-        <div className="flex flex-row items-center gap-3">
-
-          <TypographyH3>Agents</TypographyH3>
-
-
-          {selectedUser?.plan?.planId != null &&
-            selectedUser?.planCapabilities?.maxAgents < 10000000 && (
-              <div
-                style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
-              >
-                {`${selectedUser?.currentUsage?.maxAgents}/${selectedUser?.planCapabilities?.maxAgents || 0} used`}
-              </div>
-            )}
-
-          {selectedUser?.plan?.planId != null &&
-            selectedUser?.planCapabilities?.maxAgents < 10000000 && (
-              <Tooltip
-                title={`Additional agents are $${selectedUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff', // Ensure white background
-                      color: '#333', // Dark text color
-                      fontSize: '14px',
-                      padding: '10px 15px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff', // Match tooltip background
-                    },
-                  },
-                }}
-              >
+      <StandardHeader
+        selectedUser={selectedUser}
+        titleContent={
+          <div className="flex flex-row items-center gap-3">
+            <TypographyH3
+              className="cursor-pointer"
+              // onClick={() => {
+              //   router.push('/createagent')
+              // }}
+            >
+              Agents
+            </TypographyH3>
+            {selectedUser?.plan?.planId != null &&
+              selectedUser?.planCapabilities?.maxAgents < 10000000 && (
                 <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: '600',
-                    color: '#000000',
-                    cursor: 'pointer',
+                  style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                >
+                  {`${selectedUser?.currentUsage?.maxAgents}/${selectedUser?.planCapabilities?.maxAgents || 0} used`}
+                </div>
+              )}
+
+            {selectedUser?.plan?.planId != null &&
+              selectedUser?.planCapabilities?.maxAgents < 10000000 && (
+                <Tooltip
+                  title={`Additional agents are $${selectedUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
+                  arrow
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: '#ffffff', // Ensure white background
+                        color: '#333', // Dark text color
+                        fontSize: '14px',
+                        padding: '10px 15px',
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                      },
+                    },
+                    arrow: {
+                      sx: {
+                        color: '#ffffff', // Match tooltip background
+                      },
+                    },
                   }}
                 >
-                  <Image
-                    src="/agencyIcons/InfoIcon.jpg"
-                    alt="info"
-                    width={16}
-                    height={16}
-                    className="cursor-pointer rounded-full"
-                  // onClick={() => setIntroVideoModal2(true)}
-                  />
-                </div>
-              </Tooltip>
-            )}
-        </div>
-        <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
-          <input
-            // style={styles.paragraph}
-            className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
-            placeholder="Search an agent"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              if (canGetMore === true) {
-                setCanKeepLoading(true)
-              } else {
-                setCanKeepLoading(false)
-              }
-              clearTimeout(searchTimeoutRef.current)
-              searchTimeoutRef.current = setTimeout(() => {
-                // handleSearch(e);
-                let searchLoader = true
-                getAgents(false, e.target.value, searchLoader)
-              }, 500)
-            }}
-          />
-          <button className="outline-none border-none">
-            <Image
-              src={'/assets/searchIcon.png'}
-              height={24}
-              width={24}
-              alt="*"
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '600',
+                      color: '#000000',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Image
+                      src="/agencyIcons/InfoIcon.jpg"
+                      alt="info"
+                      width={16}
+                      height={16}
+                      className="cursor-pointer rounded-full"
+                    />
+                  </div>
+                </Tooltip>
+              )}
+          </div>
+        }
+        showTasks={true}
+        rightContent={
+          <div className="flex flex-row items-center gap-1 flex-shrink-0 border rounded-full px-4 h-[35px]">
+            <input
+              className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+              placeholder="Search an agent"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                if (canGetMore === true) {
+                  setCanKeepLoading(true)
+                } else {
+                  setCanKeepLoading(false)
+                }
+
+                // Clear existing timeout to prevent memory leaks
+                if (searchTimeoutRef.current) {
+                  clearTimeout(searchTimeoutRef.current)
+                }
+                searchTimeoutRef.current = setTimeout(() => {
+                  let searchLoader = true
+                  getAgents(false, e.target.value, searchLoader)
+                }, 500)
+              }}
             />
-          </button>
-        </div>
-      </div>
+            <button className="outline-none border-none">
+              <Image
+                src={'/assets/searchIcon.png'}
+                height={24}
+                width={24}
+                alt="*"
+              />
+            </button>
+          </div>
+        }
+      />
       <div className="w-full items-center h-[100%] overflow-hidden" style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
@@ -3490,7 +3422,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 <PhoneInput
                   className="border outline-none bg-white"
                   country={'us'}
-                  onlyCountries={['us', 'sv', 'pk', 'mx']}
+                  onlyCountries={['us', 'sv', 'pk', 'mx', 'sv', 'ec']}
                   disableDropdown={false}
                   countryCodeEditable={false}
                   value={phone}
@@ -3902,83 +3834,172 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     </div>
                   )}
                   <div className="flex flex-row items-center gap-2">
-                    <DuplicateButton
-                      handleDuplicate={() => {
-                        setShowDuplicateConfirmationPopup(true)
-                      }}
-                      loading={duplicateLoader}
-                    />
-                    <button
-                      onClick={() => {
-                        handleWebAgentClick(showDrawerSelectedAgent)
+                    <Tooltip
+                      title="Duplicate"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
                       }}
                     >
-                      {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
-                    </button>
-                    <button
-                      style={{ paddingLeft: '3px' }}
-                      onClick={() => {
-                        handleEmbedClick(showDrawerSelectedAgent)
+                      <div className="cursor-pointer pt-1">
+                        <DuplicateButton
+                          handleDuplicate={() => {
+                            setShowDuplicateConfirmationPopup(true)
+                          }}
+                          loading={duplicateLoader}
+                        />
+                      </div>
+                    </Tooltip>
+                    <Tooltip
+                      title="Open Tab"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
                       }}
                     >
-                      {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
-                    </button>
+                      <button
+                        onClick={() => {
+                          handleWebAgentClick(showDrawerSelectedAgent)
+                        }}
+                      >
+                        {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
+                      </button>
+                    </Tooltip>
+                    <Tooltip
+                      title="Embed"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <button
+                        style={{ paddingLeft: '3px' }}
+                        onClick={() => {
+                          handleEmbedClick(showDrawerSelectedAgent)
+                        }}
+                      >
+                        {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
+                      </button>
+                    </Tooltip>
+                    <Tooltip
+                      title="Webhook"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <button
+                        style={{ paddingLeft: '3px' }}
+                        onClick={() => {
+                          if (
+                            selectedUser?.agencyCapabilities
+                              ?.allowEmbedAndWebAgents === false
+                          ) {
+                            setShowUpgradeModal(true)
+                            setFeatureTitle('EmbedAgents')
+                          } else if (
+                            selectedUser?.planCapabilities
+                              ?.allowEmbedAndWebAgents === false
+                          ) {
+                            setShowUpgradeModal(true)
+                          } else {
+                            // Merge with existing updated agent state if available
+                            // Also check mainAgentsList for the most up-to-date agent data
+                            let agentToUse = showDrawerSelectedAgent
 
-                    <button
-                      style={{ paddingLeft: '3px' }}
-                      onClick={() => {
-                        if (
-                          selectedUser?.agencyCapabilities
-                            ?.allowEmbedAndWebAgents === false
-                        ) {
-                          setShowUpgradeModal(true)
-                          setFeatureTitle('EmbedAgents')
-                        } else if (
-                          selectedUser?.planCapabilities
-                            ?.allowEmbedAndWebAgents === false
-                        ) {
-                          setShowUpgradeModal(true)
-                        } else {
-                          // Merge with existing updated agent state if available
-                          // Also check mainAgentsList for the most up-to-date agent data
-                          let agentToUse = showDrawerSelectedAgent
+                            // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
+                            const agentIdToFind = showDrawerSelectedAgent.id
+                            if (agentIdToFind && typeof agentIdToFind === 'number') {
+                              const updatedAgentFromList = mainAgentsList
+                                .flatMap(ma => ma.agents || [])
+                                .find(a => a.id === agentIdToFind)
 
-                          // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
-                          const agentIdToFind = showDrawerSelectedAgent.id
-                          if (agentIdToFind && typeof agentIdToFind === 'number') {
-                            const updatedAgentFromList = mainAgentsList
-                              .flatMap(ma => ma.agents || [])
-                              .find(a => a.id === agentIdToFind)
-
-                            if (updatedAgentFromList) {
-                              // Use the agent from mainAgentsList as it has the latest updates
-                              agentToUse = updatedAgentFromList
+                              if (updatedAgentFromList) {
+                                // Use the agent from mainAgentsList as it has the latest updates
+                                agentToUse = updatedAgentFromList
+                              }
                             }
-                          }
 
-                          // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
-                          if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
-                            // Merge any additional updates from selectedAgentForWebAgent state
-                            agentToUse = {
-                              ...agentToUse,
-                              // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
-                              smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
-                              smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
-                              smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
-                              smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
-                              smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
-                              smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+                            // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
+                            if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                              // Merge any additional updates from selectedAgentForWebAgent state
+                              agentToUse = {
+                                ...agentToUse,
+                                // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
+                                smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+                                smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+                                smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+                                smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+                                smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+                                smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+                              }
                             }
-                          }
 
-                          setFetureType('webhook')
-                          setSelectedAgentForWebAgent(agentToUse)
-                          setShowWebAgentModal(true)
-                        }
-                      }}
-                    >
-                      {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
-                    </button>
+                            setFetureType('webhook')
+                            setSelectedAgentForWebAgent(agentToUse)
+                            setShowWebAgentModal(true)
+                          }
+                        }}
+                      >
+                        {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
+                      </button>
+                    </Tooltip>
                   </div>
                 </div>
               </div>
@@ -3987,85 +4008,130 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
               {/* Center Stats View  */}
               <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
-                <Card
-                  name="Calls"
-                  value={
-                    showDrawerSelectedAgent?.calls &&
-                      showDrawerSelectedAgent?.calls > 0 ? (
-                      <div>{showDrawerSelectedAgent?.calls}</div>
-                    ) : (
-                      '-'
-                    )
-                  }
-                  icon="/svgIcons/selectedCallIcon.svg"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Convos"
-                  value={
-                    showDrawerSelectedAgent?.callsGt10 &&
-                      showDrawerSelectedAgent?.callsGt10 > 0 ? (
-                      <div>{showDrawerSelectedAgent?.callsGt10}</div>
-                    ) : (
-                      '-'
-                    )
-                  }
-                  icon="/svgIcons/convosIcon2.svg"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Hot Leads"
-                  value={
-                    <div>
-                      {showDrawerSelectedAgent?.hotleads
-                        ? showDrawerSelectedAgent?.hotleads
-                        : '-'}
-                    </div>
-                  }
-                  icon="/otherAssets/hotLeadsIcon2.png"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Booked"
-                  value={
-                    <div>
-                      {showDrawerSelectedAgent?.booked
-                        ? showDrawerSelectedAgent?.booked
-                        : '-'}
-                    </div>
-                  }
-                  icon="/otherAssets/greenCalenderIcon.png"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Time"
-                  value={
-                    showDrawerSelectedAgent?.totalDuration &&
-                      showDrawerSelectedAgent?.totalDuration > 0 ? (
-                      // <div>{showDrawer?.totalDuration}</div>
-                      (<div>
-                        {showDrawerSelectedAgent?.totalDuration
-                          ? moment
-                            .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) *
-                              1000,
-                            )
-                            .format('HH:mm:ss')
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('calls')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Calls"
+                    value={
+                      showDrawerSelectedAgent?.calls &&
+                        showDrawerSelectedAgent?.calls > 0 ? (
+                        <div>{showDrawerSelectedAgent?.calls}</div>
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/svgIcons/selectedCallIcon.svg"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('convos')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Convos"
+                    value={
+                      showDrawerSelectedAgent?.callsGt10 &&
+                        showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                        <div>{showDrawerSelectedAgent?.callsGt10}</div>
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/svgIcons/convosIcon2.svg"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('hotleads')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Hot Leads"
+                    value={
+                      <div>
+                        {showDrawerSelectedAgent?.hotleads
+                          ? showDrawerSelectedAgent?.hotleads
                           : '-'}
-                      </div>)
-                    ) : (
-                      '-'
-                    )
-                  }
-                  icon="/otherAssets/minsCounter.png"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
+                      </div>
+                    }
+                    icon="/otherAssets/hotLeadsIcon2.png"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('booked')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Booked"
+                    value={
+                      <div>
+                        {showDrawerSelectedAgent?.booked
+                          ? showDrawerSelectedAgent?.booked
+                          : '-'}
+                      </div>
+                    }
+                    icon="/otherAssets/greenCalenderIcon.png"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <div>
+                  <Card
+                    name="Time"
+                    value={
+                      showDrawerSelectedAgent?.totalDuration &&
+                        showDrawerSelectedAgent?.totalDuration > 0 ? (
+                        // <div>{showDrawer?.totalDuration}</div>
+                        (<div>
+                          {showDrawerSelectedAgent?.totalDuration
+                            ? moment
+                              .utc(
+                                (showDrawerSelectedAgent?.totalDuration || 0) *
+                                1000,
+                              )
+                              .format('HH:mm:ss')
+                            : '-'}
+                        </div>)
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/otherAssets/minsCounter.png"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </div>
               </div>
+              <AgentStatsCallsModal
+                open={adminStatsModalOpen}
+                onClose={() => setAdminStatsModalOpen(false)}
+                agentId={showDrawerSelectedAgent?.id}
+                agentName={showDrawerSelectedAgent?.name}
+                type={adminStatsModalType}
+              />
               {/* Bottom Agent Info */}
               <div className="flex flex-row items-center justify-between pb-2 mb-4">
                 {AgentMenuOptions.map((tab) => (
@@ -4089,14 +4155,22 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-row items-center justify-between">
                       <div
-                        style={{
-                          fontSize: 16,
-                          fontWeight: '600',
-                          color: '#000',
-                        }}
+                        style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
                       >
                         Voice Options
                       </div>
+
+                      <button
+                        onClick={() => {
+                          setShowAdvancedSettingsModal(true)
+                        }}
+                      >
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
+                        >
+                          Advanced Settings
+                        </div>
+                      </button>
                     </div>
 
                     {/* Language */}
@@ -4803,26 +4877,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <div
                       style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
                     >
-                      Advanced Settings
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div
-                        style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                      >
-                        Configure call duration, timeout, and silence response
-                      </div>
-                      <button
-                        onClick={() => setShowAdvancedSettingsModal(true)}
-                        className="text-brand-primary hover:text-brand-primary/80 text-sm font-medium"
-                      >
-                        Configure
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1 mt-4">
-                    <div
-                      style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
-                    >
                       Contact
                     </div>
 
@@ -5174,6 +5228,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         await updateSubAgent(data)
                         setLoading(false)
                         setShowEditNumberPopup(null)
+                        // Immediately reflect the updated number in the drawer (same as user side)
+                        setDrawerSelectedAgent((prev) =>
+                          prev ? { ...prev, ...data } : prev,
+                        )
                       }}
                     />
                   </div>
@@ -5896,10 +5954,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                             fontSize: 15,
                           }}
                           onClick={() => {
-                            window.open(
-                              'https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder',
-                              '_blank',
-                            )
+                            const scriptBuilderUrl =
+                              selectedUser?.agencySettings?.scriptWidgetUrl ??
+                              reduxUser?.agencySettings?.scriptWidgetUrl ??
+                              PersistanceKeys.DefaultScriptBuilderUrl
+                            window.open(scriptBuilderUrl, '_blank')
                           }}
                         >
                           Use Script Builder

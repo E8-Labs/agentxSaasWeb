@@ -9,7 +9,7 @@ import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 import TaskEmptyState from './TaskEmptyState'
 import TaskBoardFilterPopover from './TaskBoardFilterPopover'
-import { getTasks, createTask, updateTask, deleteTask } from '@/components/onboarding/services/apisServices/TaskService'
+import { getTasks, createTask, updateTask, deleteTask, pinTask, unpinTask } from '@/components/onboarding/services/apisServices/TaskService'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { toast } from '@/utils/toast'
 import { TypographyH3, TypographyBody } from '@/lib/typography'
@@ -51,6 +51,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     { label: 'In Progress', value: 'in-progress' },
     { label: 'Done', value: 'done' },
   ]
+
+  useEffect(() => {
+    console.log("LEad id passed in task board is", leadId)
+    console.log("thread id passed in task board is", threadId)
+  }, [leadId])
 
   // Calculate position relative to button
   useEffect(() => {
@@ -114,8 +119,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (filterMember != null && filterMember !== '') params.assignedTo = filterMember
       if (filterDueStatus) params.dueDateFilter = filterDueStatus
       if (filterPriority) params.priority = filterPriority
+      console.log("Selected user passed is", selectedUser)
+      console.log("params sending in api are", params)
 
       const response = await getTasks(params)
+      console.log("response from get tasks is", response)
       if (response.status) {
         setTasks(response.data || [])
         if (response.counts) {
@@ -276,6 +284,34 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     }
   }
 
+  // Handle pin / unpin: call API then move task to top locally
+  const handlePinTask = async (taskId, pin) => {
+    try {
+      const api = pin ? pinTask : unpinTask
+      const response = await api(taskId, selectedUser?.id)
+      if (response.status) {
+        setTasks((prev) => {
+          const task = prev.find((t) => t.id === taskId)
+          if (!task) return prev
+          const updated = { ...task, isPinned: pin }
+          const rest = prev.filter((t) => t.id !== taskId)
+          if (pin) return [updated, ...rest]
+          const pinned = rest.filter((t) => t.isPinned)
+          const unpinned = rest.filter((t) => !t.isPinned)
+          const newUnpinned = [...unpinned.filter((t) => t.id !== taskId), updated]
+          return [...pinned, ...newUnpinned]
+        })
+        toast.success(pin ? 'Task pinned' : 'Task unpinned')
+        window.dispatchEvent(new CustomEvent('tasksChanged'))
+      } else {
+        toast.error(response.message || (pin ? 'Failed to pin task' : 'Failed to unpin task'))
+      }
+    } catch (error) {
+      console.error('Error pinning/unpinning task:', error)
+      toast.error(pin ? 'Failed to pin task' : 'Failed to unpin task')
+    }
+  }
+
   // Handle task deletion
   const handleDeleteTask = async (taskId) => {
     try {
@@ -327,10 +363,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     },
   ]
 
-  // Filter tasks by selected status
+  // Filter tasks by selected status.
+  // AI tab: only tasks with status 'ai'. Todo/In Progress/Done: all tasks with that status (including AI-origin tasks moved to that status).
   const filteredTasks =
     selectedStatus === 'ai'
-      ? tasks
+      ? tasks.filter((task) => task.status === 'ai')
       : tasks.filter((task) => task.status === selectedStatus)
 
   // Reset state when closing
@@ -415,7 +452,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         className="fixed bg-white rounded-xl shadow-[0px_8px_24.4px_0px_rgba(0,0,0,0.10)] z-[101] flex flex-col overflow-hidden"
         style={{
           width: '35vw',
-          height: '95vh',
+          height: selectedUser ? '75svh' : '95vh',
           top: `${position.top}px`,
           right: `${position.right}px`,
           animation: 'slideInFromButton 0.3s ease-out',
@@ -454,19 +491,21 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
               roundedness="rounded-lg"
             />
           </div>
-          <TaskBoardFilterPopover
-            filterMember={filterMember}
-            setFilterMember={setFilterMember}
-            filterDueStatus={filterDueStatus}
-            setFilterDueStatus={setFilterDueStatus}
-            filterPriority={filterPriority}
-            setFilterPriority={setFilterPriority}
-            teamMembers={teamMembers}
-          />
+          <div className="z-9999">
+            <TaskBoardFilterPopover
+              filterMember={filterMember}
+              setFilterMember={setFilterMember}
+              filterDueStatus={filterDueStatus}
+              setFilterDueStatus={setFilterDueStatus}
+              filterPriority={filterPriority}
+              setFilterPriority={setFilterPriority}
+              teamMembers={teamMembers}
+            />
+          </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+        {/* Content Area - constrain width so cards don't overflow */}
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0 min-w-0">
           {isCreating || selectedTask ? (
             /* Task Form */
             (<ScrollArea className="flex-1 px-4 py-4">
@@ -485,36 +524,42 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
               />
             </ScrollArea>)
           ) : (
-            /* Task List */
-            (<ScrollArea className="flex-1 px-4 py-4 min-h-0">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-muted-foreground">Loading tasks...</div>
-                </div>
-              ) : filteredTasks.length === 0 ? (
-                <TaskEmptyState
-                  title={selectedStatus === 'todo' ? 'No Task Created' : 'No Task Found'}
-                  description={selectedStatus === 'todo' ? undefined : null}
-                />
-              ) : (
-                <div className="space-y-3">
-                  {filteredTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onUpdate={handleUpdateTask}
-                      onDelete={() => {
-                        setShowDeleteConfirmation(true)
-                        setSelectedTaskForDelete(task)
-                      }}
-                      teamMembers={teamMembers}
-                      priorityOptions={priorityOptions}
-                      statusOptions={statusOptions}
-                    />
-                  ))}
-                </div>
-              )}
-            </ScrollArea>)
+            /* Task List - plain overflow container so width is strictly constrained (no horizontal scroll) */
+            (<div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 min-w-0">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-muted-foreground">Loading tasks...</div>
+                  </div>
+                ) : filteredTasks.length === 0 ? (
+                  <TaskEmptyState
+                    title={selectedStatus === 'todo' ? 'No Task Created' : 'No Task Found'}
+                    description={selectedStatus === 'todo' ? undefined : null}
+                  />
+                ) : (
+                  <div className="space-y-3" style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+                    {filteredTasks.map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        onUpdate={handleUpdateTask}
+                        onDelete={() => {
+                          setShowDeleteConfirmation(true)
+                          setSelectedTaskForDelete(task)
+                        }}
+                        onPin={handlePinTask}
+                        teamMembers={teamMembers}
+                        priorityOptions={priorityOptions}
+                        statusOptions={statusOptions}
+                        onEditClick={() => {
+                          setSelectedTask(task)
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>)
           )}
 
           {/* Action Buttons - Always visible in footer */}
@@ -584,10 +629,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
               <div style={{ fontWeight: '500', fontSize: 15 }}>
                 Are you sure you want to delete this task?
               </div>
-              <div style={{ display: 'flex', justifyContent: 'between', gap: 10 ,width: '100%'}}>
+              <div style={{ display: 'flex', justifyContent: 'between', gap: 10, width: '100%' }}>
                 <Button variant="outline-none" className="w-1/2 text-left text-[#6b7280]" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
                 <Button className="bg-brand-primary text-white hover:bg-brand-primary/90 w-1/2" onClick={() => handleDeleteTask(selectedTaskForDelete.id)} disabled={loading}>
-                {loading ? "Deleting..." : 'Delete'}</Button>
+                  {loading ? "Deleting..." : 'Delete'}</Button>
               </div>
             </div>
           </Box>

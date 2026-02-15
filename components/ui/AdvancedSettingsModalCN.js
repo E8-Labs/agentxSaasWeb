@@ -2,15 +2,19 @@
 
 import React, { useState, useEffect } from 'react'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog'
+  Modal,
+  Box,
+  Typography,
+
+  MenuItem,
+  FormControl,
+  TextField,
+  CircularProgress,
+} from '@mui/material'
+
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+
+
 import {
   Select,
   SelectContent,
@@ -18,10 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import SliderCN from '@/components/ui/SliderCN'
-import { Phone, Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
+
+
 import { Input } from '@/components/ui/input'
+import CloseBtn from '../globalExtras/CloseBtn'
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
 
 // Predefined idle messages
 const IDLE_MESSAGES = [
@@ -35,31 +40,16 @@ const IDLE_MESSAGES = [
   'Is there something specific you\'re looking for?',
 ]
 
-/**
- * Advanced Settings Modal Component for Agent Configuration
- * 
- * @param {Object} props
- * @param {boolean} props.open - Whether the modal is open
- * @param {Function} props.onOpenChange - Callback when open state changes: (open: boolean) => void
- * @param {Function} props.onSave - Callback when save is clicked: (settings: {maxDurationSeconds: number, idleTimeoutSeconds: number, idleMessage: string}) => void
- * @param {Object} props.initialValues - Initial values for the settings
- * @param {number} props.initialValues.maxDurationSeconds - Initial max duration (default: 600)
- * @param {number} props.initialValues.idleTimeoutSeconds - Initial idle timeout (default: 10)
- * @param {string} props.initialValues.idleMessage - Initial idle message (default: "Are you still there?")
- * @param {boolean} props.loading - Whether save is in progress
- * @param {string} props.className - Optional className for the modal
- */
 const AdvancedSettingsModalCN = ({
   open,
   onOpenChange,
   onSave,
   initialValues = {},
   loading = false,
-  
   className,
 }) => {
   const [maxDurationSeconds, setMaxDurationSeconds] = useState(
-    initialValues.maxDurationSeconds ?? 600
+    initialValues.maxDurationSeconds ?? 10
   )
   const [idleTimeoutSeconds, setIdleTimeoutSeconds] = useState(
     initialValues.idleTimeoutSeconds ?? 10
@@ -68,25 +58,24 @@ const AdvancedSettingsModalCN = ({
     initialValues.idleMessage ?? IDLE_MESSAGES[0]
   )
 
-  // Update local state when initialValues change
-  // Destructure values to avoid object reference comparison issues
   const initMaxDuration = initialValues.maxDurationSeconds ?? 600
   const initIdleTimeout = initialValues.idleTimeoutSeconds ?? 10
   const initIdleMessage = initialValues.idleMessage ?? IDLE_MESSAGES[0]
+  //code for snackbar
+  const [isVisibleSnack, setIsVisibleSnack] = useState(false)
 
   useEffect(() => {
     if (open) {
-      setMaxDurationSeconds(initMaxDuration)
+      setMaxDurationSeconds(initMaxDuration / 60)
       setIdleTimeoutSeconds(initIdleTimeout)
       setIdleMessage(initIdleMessage)
     }
   }, [open, initMaxDuration, initIdleTimeout, initIdleMessage])
 
-  // Validation: Check if values are within valid range
   const isValid = () => {
     const maxDurationValid =
-      maxDurationSeconds >= 10 &&
-      maxDurationSeconds <= 43200 &&
+      maxDurationSeconds >= 1 &&
+      maxDurationSeconds <= 720 &&
       !isNaN(maxDurationSeconds)
     const idleTimeoutValid =
       idleTimeoutSeconds >= 10 &&
@@ -101,84 +90,184 @@ const AdvancedSettingsModalCN = ({
     if (!isValid()) return
 
     onSave({
-      maxDurationSeconds,
-      idleTimeoutSeconds,
+      maxDurationSeconds: Number(maxDurationSeconds) * 60,
+      idleTimeoutSeconds: Number(idleTimeoutSeconds),
       idleMessage,
     })
   }
 
   const handleCancel = () => {
-    // Reset to initial values
-    setMaxDurationSeconds(initialValues.maxDurationSeconds ?? 600)
+    setMaxDurationSeconds(initialValues.maxDurationSeconds / 60 ?? 10)
     setIdleTimeoutSeconds(initialValues.idleTimeoutSeconds ?? 10)
     setIdleMessage(initialValues.idleMessage ?? IDLE_MESSAGES[0])
     onOpenChange(false)
-
-
   }
 
+  const handleMaxDurationChange = (e) => {
+    const value = e.target.value === '' ? '' : parseInt(e.target.value, 10)
+    setMaxDurationSeconds(value)
+  }
 
-  // Safely build className string
-  const dialogClassName = cn(
-    'max-w-2xl z-[1600] p-4',
-    className || '' // Ensure className is always a string
-  
-  )
+  const isMinimumTimeValid = (value) => {
+    if (value < 10) {
+      setIsVisibleSnack(true)
+    } else if (value >= 10) {
+      setIsVisibleSnack(false)
+    }
+  }
+
+  const handleIdleTimeoutChange = (e) => {
+    const value = e.target.value === '' ? '' : parseInt(e.target.value, 10)
+    setIdleTimeoutSeconds(value)
+    isMinimumTimeValid(value);
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
-      <DialogContent
-        className={dialogClassName}
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onFocusOutside={(e) => e.preventDefault()}
-        trapFocus={false}
+    <Modal
+      open={open}
+      onClose={handleCancel}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1600,
+      }}
+    >
+      <Box
+        sx={{
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+          p: 4,
+          width: '100%',
+          maxWidth: '600px',
+          mx: 2,
+          maxHeight: '90vh',
+          overflow: 'auto',
+          outline: 'none',
+          zIndex: 1700
+        }}
+        className={className}
       >
-        <DialogHeader>
-          <DialogTitle>Advanced Settings</DialogTitle>
-          <DialogDescription>
-            Configure advanced call settings for your agent
-          </DialogDescription>
-        </DialogHeader>
+        {/* Header */}
 
-        <div className="space-y-6 py-4">
-
-          <Label htmlFor="idleMessage" className="text-base font-semibold">
-            Maximum Duration
-          </Label>
-          <p className="text-sm text-muted-foreground">
-            The maximum number of minutes a call will last. Change the unit to minutes.
-          </p>
-
-          <Input type="number"
-            className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
-            value={maxDurationSeconds}
-            onChange={(e) => setMaxDurationSeconds(e.target.value)}
-            min={10}
-            max={43200}
-            step={1}
-            placeholder="Maximum Duration"
+        <div>
+          <AgentSelectSnackMessage
+            isVisible={isVisibleSnack}
+            type={SnackbarTypes.Error}
+            message={`Silence timeout cannot be less than 10 seconds`}
+            hide={() => {
+              setIsVisibleSnack(false)
+            }}
           />
-      
+        </div>
 
-          {/* Silence Timeout Slider */}
-         
-          <Input type="number"
-            className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
-            value={idleTimeoutSeconds}
-            onChange={(e) => setIdleTimeoutSeconds(e.target.value)}
-            min={10}
-            max={3600}
-            placeholder="Silence Timeout"
+        <div className='flex flex-row items-center justify-between z-1750'>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            gutterBottom
+          >
+            Advanced Settings
+          </Typography>
+
+          <CloseBtn
+            onClick={() => {
+              console.log("clicked")
+              onOpenChange(false)
+            }}
           />
+        </div>
 
-          {/* Silence Response Select */}
-          <div className="space-y-2">
-            <Label htmlFor="idleMessage" className="text-base font-semibold">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          gutterBottom
+          sx={{ mb: 3 }}
+        >
+          Configure advanced call settings for your agent
+        </Typography>
+
+        {/* Content */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, zIndex: 1800 }}>
+          {/* Maximum Duration */}
+          <Box>
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              gutterBottom
+            >
+              Maximum Duration (seconds)
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ mb: 1 }}
+            >
+              The maximum duration of a call in minutes
+            </Typography>
+            <div className="flex flex-row items-center border rounded w-1/2 focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+              <Input
+                type="number"
+                value={maxDurationSeconds}
+                onChange={(e) => setMaxDurationSeconds(e.target.value)}
+                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
+                {Number(maxDurationSeconds) === 1 ? 'min' : 'mins'}
+              </span>
+            </div>
+          </Box>
+
+          {/* Silence Timeout */}
+          <Box>
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              gutterBottom
+            >
+              Silence Timeout (seconds)
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ mb: 1 }}
+            >
+              Time before considering user as idle
+            </Typography>
+            <div className="flex flex-row items-center border rounded w-1/2 focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+              <Input
+                type="number"
+                value={idleTimeoutSeconds}
+                onChange={handleIdleTimeoutChange}
+                placeholder="Silence Timeout"
+                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
+                {Number(idleTimeoutSeconds) === 1 ? 'sec' : 'secs'}
+              </span>
+            </div>
+          </Box>
+
+          {/* Silence Response */}
+          <Box className="z-1900">
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              gutterBottom
+            >
               Silence Response
-            </Label>
-            <p className="text-sm text-muted-foreground">
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ mb: 1 }}
+            >
               Message to say when user is silent.
-            </p>
+            </Typography>
             <Select
               value={idleMessage}
               onValueChange={setIdleMessage}
@@ -186,7 +275,7 @@ const AdvancedSettingsModalCN = ({
               <SelectTrigger id="idleMessage" className="w-full">
                 <SelectValue placeholder="Select a message" />
               </SelectTrigger>
-              <SelectContent className="z-[1600]">
+              <SelectContent className="z-[2000]">
                 {IDLE_MESSAGES.map((message, index) => (
                   <SelectItem key={index} value={message}>
                     {message}
@@ -194,10 +283,17 @@ const AdvancedSettingsModalCN = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        <DialogFooter>
+        {/* Footer */}
+        <Box
+          sx={{
+            mt: 4,
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Button
             onClick={handleSave}
             disabled={loading || !isValid()}
@@ -205,9 +301,9 @@ const AdvancedSettingsModalCN = ({
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </Box>
+      </Box>
+    </Modal>
   )
 }
 

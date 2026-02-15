@@ -1,11 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 
 import ErrorBoundary from '@/components/ErrorBoundary'
 import AgencyNavBar from '@/components/dashboard/Navbar/AgencyNavBar'
-import ProfileNav from '@/components/dashboard/Navbar/ProfileNav'
 import AgencySupportWidget from '@/components/agency/AgencySupportWidget'
+import DialerModal from '@/components/dialer/DialerModal'
+import IncomingCallBanner from '@/components/dialer/IncomingCallBanner'
+import {
+  selectIsDialerOpen,
+  selectCallStatus,
+  selectPreventClose,
+  selectLeadData,
+  closeDialer,
+  forceCloseDialer,
+} from '@/store/slices/dialerSlice'
 
 const shouldShowServiceBanner =
   process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === 'Yes'
@@ -13,21 +23,25 @@ const shouldShowServiceBanner =
 export default function DashboardLayout({ children }) {
   const message =
     'Taking a brief pause to invent the future. Calls will resume soon.'
-  //Our voice system is currently undergoing maintenance. Adding a few updates.
 
   const [typedMessage, setTypedMessage] = useState(message)
   const [charIndex, setCharIndex] = useState(0)
 
-  //   useEffect(() => {
-  //     if (shouldShowServiceBanner && charIndex < message.length) {
-  //       const timeout = setTimeout(() => {
-  //         setTypedMessage((prev) => prev + message[charIndex]);
-  //         setCharIndex((prev) => prev + 1);
-  //       }, 50); // Typing speed
+  const dispatch = useDispatch()
+  const isDialerOpen = useSelector(selectIsDialerOpen)
+  const callStatus = useSelector(selectCallStatus)
+  const preventClose = useSelector(selectPreventClose)
+  const leadData = useSelector(selectLeadData)
 
-  //       return () => clearTimeout(timeout);
-  //     }
-  //   }, [charIndex, shouldShowServiceBanner]);
+  const handleDialerClose = useCallback(() => {
+    if (preventClose && ['in-call', 'ringing', 'connecting'].includes(callStatus)) {
+      if (window.confirm('You have an active call. Are you sure you want to close?')) {
+        dispatch(forceCloseDialer())
+      }
+    } else {
+      dispatch(closeDialer())
+    }
+  }, [preventClose, callStatus, dispatch])
 
   return (
     <ErrorBoundary>
@@ -65,7 +79,18 @@ export default function DashboardLayout({ children }) {
             {children}
           </div>
         </div>
-        
+
+        <IncomingCallBanner />
+
+        <DialerModal
+          key="global-dialer-modal"
+          open={isDialerOpen}
+          onClose={handleDialerClose}
+          initialPhoneNumber={leadData?.phoneNumber || ''}
+          leadId={leadData?.leadId}
+          leadName={leadData?.leadName}
+        />
+
         {/* Agency Support Widget */}
         <AgencySupportWidget needHelp={false} />
       </div>

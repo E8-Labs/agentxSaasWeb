@@ -1,754 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Paperclip } from '@phosphor-icons/react'
-import { htmlToPlainText } from '@/utilities/textUtils'
-import { toast } from '@/utils/toast'
-import { Modal, Box } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
-import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscriptModal'
-import Image from 'next/image'
+import EmailBubble from './EmailBubble'
+import MessageBubble from './MessageBubble'
+import SystemMessage from './SystemMessage'
+import { AuthToken } from '../agency/plan/AuthDetails'
+import Apis from '../apis/Apis'
+import axios from 'axios'
 
-const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
-  if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
-
-  return (
-    <div className={`mt-3 flex flex-col gap-2 ${isOutbound ? 'text-white' : 'text-black'}`}>
-      {message.metadata.attachments.map((attachment, idx) => {
-        const isImage =
-          attachment.mimeType?.startsWith('image/') ||
-          attachment.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
-
-        const enrichedAttachment = {
-          ...attachment,
-          downloadData: attachment.downloadData || {
-            messageId: attachment.messageId || message.emailMessageId,
-            attachmentId: attachment.attachmentId,
-            emailAccountId: attachment.emailAccountId || message.emailAccountId,
-          },
-          messageId: attachment.messageId || attachment.downloadData?.messageId || message.emailMessageId,
-          attachmentId: attachment.attachmentId || attachment.downloadData?.attachmentId,
-          emailAccountId: attachment.emailAccountId || attachment.downloadData?.emailAccountId || message.emailAccountId,
-        }
-
-        return (
-          <button
-            key={idx}
-            onClick={(e) => {
-              e.preventDefault()
-              onAttachmentClick(enrichedAttachment, message, isImage)
-            }}
-            className={`text-sm flex items-center gap-2 hover:opacity-80 text-left ${isOutbound ? 'text-white/90' : 'text-brand-primary'
-              }`}
-          >
-            <Paperclip size={14} />
-            <span className="underline">
-              {enrichedAttachment.originalName || enrichedAttachment.fileName || `Attachment ${idx + 1}`}
-            </span>
-            {enrichedAttachment.size && (
-              <span className={`text-xs ${isOutbound ? 'text-white/70' : 'text-gray-500'}`}>
-                ({(enrichedAttachment.size / 1024).toFixed(1)} KB)
-              </span>
-            )}
-          </button>
-        )
-      })}
-    </div>
-  );
-}
-
-const EmailBubble = ({
-  message,
-  isOutbound,
-  sanitizeHTML,
-  openEmailDetailId,
-  setOpenEmailDetailId,
-  getEmailDetails,
-  selectedThread,
-  onOpenEmailTimeline,
-  setShowEmailTimeline,
-  setEmailTimelineLeadId,
-  setEmailTimelineSubject,
-  onAttachmentClick,
-  onReplyClick,
-  isLastMessage = false,
-  updateComposerFromMessage,
-}) => (
-  <>
-    <div
-      className={`px-4 py-2 ${isOutbound
-        ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
-        : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
-        }`}
-      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary))' } : {}}
-    >
-      {message.subject && (
-        <div className="font-semibold mb-2 flex items-start">
-          <span
-            className="font-normal cursor-pointer text-xs relative"
-            onMouseEnter={(e) => {
-              e.stopPropagation()
-              setOpenEmailDetailId(message.id)
-            }}
-            onMouseLeave={(e) => {
-              e.stopPropagation()
-              setOpenEmailDetailId(null)
-            }}
-          >
-            Subject:
-            {openEmailDetailId === message.id && (
-              <div
-                className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900 ${isLastMessage
-                  ? `bottom-full mb-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
-                  : `top-full mt-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
-                  }`}
-                style={{
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
-                }}
-                onMouseEnter={(e) => {
-                  e.stopPropagation()
-                  setOpenEmailDetailId(message.id)
-                }}
-                onMouseLeave={(e) => {
-                  e.stopPropagation()
-                  setOpenEmailDetailId(null)
-                }}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                <div className="px-2.5 py-2 border-b border-gray-200">
-                  <span className="text-[11px] font-medium text-gray-700">Message details</span>
-                </div>
-                {(() => {
-                  const details = getEmailDetails(message)
-                  const rows = [
-                    { label: 'from', value: details.from },
-                    { label: 'to', value: details.to },
-                    { label: 'cc', value: details.cc },
-                    { label: 'bcc', value: details.bcc },
-                    { label: 'date', value: details.date },
-                    { label: 'subject', value: details.subject },
-                    { label: 'mailed-by', value: details.mailedBy },
-                    { label: 'signed-by', value: details.signedBy },
-                    { label: 'security', value: details.security },
-                  ].filter((row) => row.value)
-
-                  return (
-                    <div className="px-2.5 py-2 text-[11px] text-gray-600 space-y-1">
-                      {rows.length === 0 ? (
-                        <div className="text-[10px] text-gray-400">No metadata available.</div>
-                      ) : (
-                        rows.map((row) => (
-                          <div key={row.label} className="flex items-start gap-2">
-                            <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">{row.label}:</span>
-                            <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">{row.value}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )
-                })()}
-              </div>
-            )}
-          </span>
-          <div
-            onClick={(e) => {
-              e.stopPropagation()
-              // Update composer fields from this message when subject is clicked
-              if (updateComposerFromMessage && message.messageType === 'email') {
-                updateComposerFromMessage(message)
-              }
-              if (onOpenEmailTimeline && message.subject) {
-                onOpenEmailTimeline(message.subject)
-              } else if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
-                setShowEmailTimeline(true)
-                setEmailTimelineLeadId(selectedThread.lead.id)
-                if (setEmailTimelineSubject && message.subject) {
-                  setEmailTimelineSubject(message.subject)
-                }
-              }
-            }}
-            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-xs"
-            title={message.subject}
-          >
-            {message.subject}
-          </div>
-        </div>
-      )}
-      <div
-        className={`prose prose-sm max-w-none break-words ${isOutbound
-          ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
-          : 'text-black'
-          }`}
-        style={isOutbound ? { color: 'white' } : {}}
-        dangerouslySetInnerHTML={{
-          __html: sanitizeAndLinkifyHTML(message.content, sanitizeHTML),
-        }}
-      />
-
-      <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
-
-
-    </div>
-    <div className="mt-1 mr-1 flex items-center justify-end gap-3">
-      <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
-    </div>
-  </>
-)
-
-const linkifyText = (text) => {
-  if (!text) return ''
-
-  // Escape HTML to avoid injection when rendering as HTML
-  const escapeHtml = (str) =>
-    str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-
-  const escaped = escapeHtml(text)
-
-  // Detect URLs (with or without protocol) and convert to links
-  const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi
-
-  const linked = escaped.replace(urlRegex, (match) => {
-    const hasProtocol = match.startsWith('http://') || match.startsWith('https://')
-    const href = hasProtocol ? match : `https://${match}`
-    return `<a href="${href}" class="underline text-brand-primary hover:text-brand-primary/80" target="_blank" rel="noopener noreferrer">${match}</a>`
-  })
-
-  // Preserve newlines
-  return linked.replace(/\n/g, '<br />');
-}
-
-// Helper function to sanitize HTML, convert to plain text, and linkify URLs
-const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
-  if (!html) return ''
-
-  // First convert HTML to plain text (this preserves URLs as text)
-  // We do this before sanitizing to ensure URLs aren't broken by HTML processing
-  let plainText = htmlToPlainText(html)
-
-  // Remove quoted text from plain text (simpler and more reliable than HTML processing)
-  // Remove lines starting with "On ... wrote:"
-  plainText = plainText.replace(/^On\s+.*?wrote:.*$/gmi, '')
-  // Remove lines starting with common email headers
-  plainText = plainText.replace(/^(From|Sent|To|Subject|Date):.*$/gmi, '')
-  // Remove quoted text blocks (lines starting with >)
-  plainText = plainText.replace(/^>.*$/gm, '')
-  // Remove content after common separators
-  const separatorIndex = plainText.search(/^(From|Sent|To|Subject|Date):/m)
-  if (separatorIndex > 0) {
-    plainText = plainText.substring(0, separatorIndex).trim()
-  }
-  // Clean up multiple newlines (but preserve single and double newlines for line breaks)
-  plainText = plainText.replace(/\n{3,}/g, '\n\n').trim()
-
-  // Now linkify URLs in the cleaned plain text
-  // linkifyText will convert newlines to <br /> tags automatically
-  return linkifyText(plainText)
-}
-
-/**
- * SystemMessage component for displaying system activity messages
- * (stage changes, team assignments, comments, etc.)
- */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript }) => {
-  const [showAudioPlay, setShowAudioPlay] = useState(null)
-  // Get avatar for comment sender
-  const getCommentAvatar = () => {
-    if (!message || message.activityType !== 'comment') return null
-
-    // Use getAgentAvatar if available (for consistency with message avatars)
-    if (getAgentAvatar && typeof getAgentAvatar === 'function') {
-      // Create a message-like object for getAgentAvatar
-      const messageLike = {
-        id: message.id,
-        senderUser: message.senderUser,
-        agent: message.agent,
-        direction: 'outbound', // Comments are always from team members
-      }
-      return getAgentAvatar(messageLike)
-    }
-
-    // Fallback: check senderUser directly
-    if (message.senderUser?.thumb_profile_image) {
-      return (
-        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
-          <img
-            src={message.senderUser.thumb_profile_image}
-            alt={message.senderUser.name || 'Team Member'}
-            className="w-full h-full object-cover rounded-full"
-            onError={(e) => {
-              // Fallback to letter if image fails
-              e.target.style.display = 'none'
-              const parent = e.target.parentElement
-              if (parent) {
-                const name = message.senderUser?.name || message.senderUser?.email || 'T'
-                const letter = name.charAt(0).toUpperCase()
-                parent.className = 'w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0'
-                parent.textContent = letter
-              }
-            }}
-          />
-        </div>
-      )
-    }
-
-    // Fallback to first letter
-    const senderName = message.senderUser?.name || message.senderUser?.email || 'T'
-    const avatarLetter = senderName.charAt(0).toUpperCase()
-    return (
-      <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
-        {avatarLetter}
-      </div>
-    )
-  }
-  // Parse content and highlight mentions if it's a comment
-  const parseContent = (content) => {
-    if (!content) return ''
-
-    // Escape HTML first
-    const escapeHtml = (str) => {
-      if (!str) return ''
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    // If it's a comment, highlight @mentions using position-based bolding
-    if (message.activityType === 'comment') {
-      // Use mention positions if available (more reliable than regex)
-      if (message.mentionPositions && Array.isArray(message.mentionPositions) && message.mentionPositions.length > 0) {
-        // Sort mentions by start position (descending) to process from end to start
-        // This prevents position shifts when inserting HTML
-        const sortedMentions = [...message.mentionPositions].sort((a, b) => b.start - a.start)
-
-        // Build result array working backwards from end
-        const parts = []
-        let currentIndex = content.length
-
-        // Process mentions from end to start
-        sortedMentions.forEach((mention, idx) => {
-          // Verify positions are within bounds
-          if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
-            console.warn('⚠️ [SystemMessage] Invalid mention position:', {
-              start: mention.start,
-              end: mention.end,
-              contentLength: content.length,
-            })
-            return
-          }
-
-          // Add text between this mention and the previous one (if any)
-          if (mention.end < currentIndex) {
-            const textAfter = content.substring(mention.end, currentIndex)
-            parts.unshift(escapeHtml(textAfter))
-          }
-
-          // Add the mention (bolded)
-          const mentionText = mention.text || content.substring(mention.start, mention.end)
-          const escapedMention = escapeHtml(mentionText)
-          parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
-
-          currentIndex = mention.start
-        })
-
-        // Add any remaining text at the beginning
-        if (currentIndex > 0) {
-          const textBefore = content.substring(0, currentIndex)
-          parts.unshift(escapeHtml(textBefore))
-        }
-
-        // Join all parts and replace newlines
-        let processedContent = parts.join('').replace(/\n/g, '<br>')
-
-        // Wrap entire content in small text (text-xs) with black color for gray bubble
-        return `<span class="text-xs text-black">${processedContent}</span>`
-      }
-
-      // Fallback: if no mention positions, try to extract from metadata directly
-      // Try to extract mentions from metadata if mentionPositions wasn't set
-      let mentionsFromMetadata = []
-      if (message.metadata) {
-        let metadata = message.metadata
-        if (typeof metadata === 'string') {
-          try {
-            metadata = JSON.parse(metadata)
-          } catch (e) {
-            metadata = {}
-          }
-        }
-        mentionsFromMetadata = metadata.mentions || metadata.activityData?.mentions || []
-      }
-
-      // If we found mentions in metadata, use position-based bolding
-      if (mentionsFromMetadata.length > 0) {
-        const sortedMentions = [...mentionsFromMetadata].sort((a, b) => b.start - a.start)
-        const parts = []
-        let currentIndex = content.length
-
-        sortedMentions.forEach((mention) => {
-          if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
-            return
-          }
-
-          if (mention.end < currentIndex) {
-            const textAfter = content.substring(mention.end, currentIndex)
-            parts.unshift(escapeHtml(textAfter))
-          }
-
-          const mentionText = mention.text || content.substring(mention.start, mention.end)
-          const escapedMention = escapeHtml(mentionText)
-          parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
-
-          currentIndex = mention.start
-        })
-
-        if (currentIndex > 0) {
-          const textBefore = content.substring(0, currentIndex)
-          parts.unshift(escapeHtml(textBefore))
-        }
-
-        let processedContent = parts.join('').replace(/\n/g, '<br>')
-        return `<span class="text-xs text-black">${processedContent}</span>`
-      }
-
-      // Final fallback: use regex matching (for backward compatibility)
-      let escaped = escapeHtml(content)
-      escaped = escaped.replace(/\n/g, '<br>')
-
-      if (message.mentionedUsers && message.mentionedUsers.length > 0) {
-        message.mentionedUsers.forEach((user) => {
-          // Try to match various patterns for the user
-          const patterns = [
-            user.name ? new RegExp(`@${escapeHtml(user.name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi') : null,
-            user.email ? new RegExp(`@${escapeHtml(user.email.split('@')[0]).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi') : null,
-          ].filter(Boolean)
-
-          patterns.forEach((pattern) => {
-            escaped = escaped.replace(pattern, (match) => {
-              // Make mentions semi-bold, clickable, and #0E0E0E color
-              return `<span class="font-semibold text-system-text cursor-pointer hover:underline">${match}</span>`
-            })
-          })
-        })
-      }
-
-      // Wrap entire content in small text (text-xs) with black color for gray bubble
-      return `<span class="text-xs text-black">${escaped}</span>`
-    }
-
-    // For other system messages (stage changes, assignments), parse markdown-style bold (**text**)
-    // Use system-text color (#0E0E0E) for bold text
-    return content.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-system-text">$1</strong>');
-  }
-
-  // Format the date for the tooltip
-  const formatDate = (date) => {
-    if (!date) return ''
-    return moment(date).format('MMMM DD, YYYY [at] h:mm A')
-  }
-
-  const dateString = message.createdAt ? formatDate(message.createdAt) : ''
-
-  // Handle call_summary activity type - render CallTranscriptCN component
-  if (message.activityType === 'call_summary') {
-    const activityData = message.metadata?.activityData || {}
-    // Use displayCallId if available (prioritizes twilioCallSid for dialer calls), otherwise fallback to synthflowCallId or callId
-    // Ensure we always have a valid callId - convert to string if it's a number
-    const callId = activityData.displayCallId || activityData.twilioCallSid || activityData.synthflowCallId || (activityData.callId ? String(activityData.callId) : null)
-    const callData = {
-      id: activityData.callId,
-      callId: callId || String(activityData.callId || ''), // Ensure callId is never null/undefined
-      duration: activityData.duration || 0,
-      recordingUrl: activityData.recordingUrl,
-      transcript: activityData.transcript,
-      callSummary: activityData.callSummary || null, // Can be null if no summary available
-    }
-
-    // Get caller name from senderUser or agent
-    const getCallerName = () => {
-      if (message.callerAgent?.name) {//returns the calling agent
-        return message.callerAgent?.name
-      }
-      if (message.caller?.name) {
-        return message.caller?.name
-      }
-
-      if (message.agent?.name) {
-        return message.agent.name
-      }
-      if (message.senderUser?.name) {
-        return message.senderUser.name
-      }
-      // if (selectedThread?.lead?.firstName) {
-      //   return selectedThread.lead.firstName
-      // }
-      return null
-    }
-
-    const callerName = getCallerName()
-    const callDate = message.createdAt ? moment(message.createdAt).format('MMM D, h:mm A') : ''
-
-    // Handler functions for call actions
-    const handlePlayRecording = (recordingUrl, callId) => {
-      if (recordingUrl) {
-        setShowAudioPlay({ recordingUrl, callId })
-      } else {
-        toast.error('No recording available', {
-          style: {
-            width: 'fit-content',
-            maxWidth: '400px',
-            whiteSpace: 'nowrap',
-          },
-        })
-      }
-    }
-
-    const handleCopyCallId = async (callId) => {
-      if (callId) {
-        try {
-          await navigator.clipboard.writeText(callId)
-          toast.success('Call ID copied to clipboard', {
-            style: {
-              width: 'fit-content',
-              maxWidth: '400px',
-              whiteSpace: 'nowrap',
-            },
-          })
-        } catch (error) {
-          toast.error('Failed to copy Call ID', {
-            style: {
-              width: 'fit-content',
-              maxWidth: '400px',
-              whiteSpace: 'nowrap',
-            },
-          })
-        }
-      }
-    }
-
-    const handleReadTranscript = (item) => {
-      // Call the parent handler to open transcript modal
-      if (onReadTranscript) {
-        onReadTranscript(item)
-      }
-    }
-
-    return (
-      <>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex flex-col items-center my-4 cursor-default">
-                {/* Activity log: Called by [Name] on [Date] */}
-
-                {
-                  callerName === null ?
-                    (<div className="text-xs text-system-text text-center px-4 mb-2">
-                      <strong className="font-semibold">This lead</strong> was called on {callDate}
-                    </div>) :
-                    (
-
-                      <div className="text-xs text-system-text text-center px-4 mb-2">
-                        Called by <strong className="font-semibold">{callerName}</strong> on {callDate}
-                      </div>
-                    )
-                }
-
-                <div className="w-full max-w-2xl px-4">
-                  <div className="rounded-xl border border-border bg-background px-4 pb-2 shadow-sm">
-                    <CallTranscriptCN
-                      item={callData}
-                      onPlayRecording={handlePlayRecording}
-                      onCopyCallId={handleCopyCallId}
-                      onReadTranscript={handleReadTranscript}
-                    />
-                  </div>
-                </div>
-              </div>
-            </TooltipTrigger>
-            {dateString && (
-              <TooltipContent className="bg-black">
-                <p>{dateString}</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Audio Player Modal */}
-        <Modal
-          open={!!showAudioPlay}
-          onClose={() => setShowAudioPlay(null)}
-          closeAfterTransition
-          BackdropProps={{
-            sx: {
-              backgroundColor: '#00000020',
-            },
-            //timeout: 100,
-          }}
-        >
-
-          <Box
-            className="lg:w-3/12 sm:w-5/12 w-8/12"
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              bgcolor: 'background.paper',
-              borderRadius: 2,
-              boxShadow: 24,
-              outline: 'none',
-            }}
-          >
-            <div className="flex flex-row justify-center">
-              <div
-                className="w-full flex flex-col items-end"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
-                }}
-              >
-                <button
-                  className="mb-3"
-                  style={{ fontWeight: '600', fontSize: 15 }}
-                  onClick={() => {
-                    if (showAudioPlay?.callId) {
-                      window.open(`/recordings/${showAudioPlay.callId}`, '_blank')
-                      setShowAudioPlay(null)
-                    }
-                  }}
-                >
-                  <Image
-                    src={'/otherAssets/share.png'}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </button>
-
-                <audio
-                  id="custom-audio"
-                  controls
-                  style={{ width: '100%' }}
-                  src={showAudioPlay?.recordingUrl}
-                />
-
-                <button
-                  className="w-full h-[50px] rounded-lg bg-brand-primary text-white mt-4"
-                  style={{ fontWeight: '600', fontSize: 15 }}
-                  onClick={() => {
-                    setShowAudioPlay(null)
-                  }}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </Box>
-        </Modal>
-      </>
-    )
-  }
-
-  // Handle comments with gray bubble background, right-aligned
-  if (message.activityType === 'comment') {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex flex-col w-full items-end pe-2 mb-3 cursor-default">
-              <div className="flex items-start gap-3 w-full justify-end">
-                <div className="flex flex-col max-w-[75%] min-w-[220px]">
-                  <div className="px-4 py-2 bg-gray-100 text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl">
-                    <div
-                      className="prose prose-sm max-w-none break-words text-xs text-black"
-                      dangerouslySetInnerHTML={{ __html: parseContent(message.content) }}
-                    />
-                  </div>
-                  <div className="mt-1 mr-1 flex items-center justify-end gap-3">
-                    <span className="text-[10px] text-[#00000060]">
-                      {moment(message.createdAt).format('h:mm A')}
-                    </span>
-                  </div>
-                </div>
-                {/* Profile picture for comment sender */}
-                <div className="flex-shrink-0">
-                  {getCommentAvatar()}
-                </div>
-              </div>
-            </div>
-          </TooltipTrigger>
-          {dateString && (
-            <TooltipContent className="bg-black text-white">
-              <p>{dateString}</p>
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </TooltipProvider>
-    )
-  }
-
-  // Regular system messages (stage changes, assignments)
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center justify-center my-4 cursor-default">
-            <div className="text-xs text-system-text text-center px-4">
-              <div dangerouslySetInnerHTML={{ __html: parseContent(message.content) }} />
-            </div>
-          </div>
-        </TooltipTrigger>
-        {dateString && (
-          <TooltipContent className="bg-black text-white">
-            <p>{dateString}</p>
-          </TooltipContent>
-        )}
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
-
-const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
-  <div className="flex flex-col">
-    <div
-      className={`px-4 py-2 ${isOutbound
-        ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
-        : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
-        }`}
-      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary))' } : {}}
-    >
-      <div
-        className={`prose prose-sm max-w-none break-words whitespace-pre-wrap ${isOutbound
-          ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
-          : 'text-black'
-          }`}
-        style={isOutbound ? { color: 'white' } : {}}
-        dangerouslySetInnerHTML={{ __html: linkifyText(message.content || '') }}
-      />
-      <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
-    </div>
-    <div className="flex items-center justify-end gap-2 mt1 mr-1">
-      <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
-    </div>
-  </div>
-)
 const ConversationView = ({
   selectedThread,
   messages,
@@ -758,6 +17,7 @@ const ConversationView = ({
   messagesEndRef,
   messagesTopRef,
   sanitizeHTML,
+  sanitizeHTMLForEmailBody,
   getLeadName,
   getAgentAvatar,
   getImageUrl,
@@ -775,7 +35,15 @@ const ConversationView = ({
   onReplyClick,
   onOpenEmailTimeline,
   updateComposerFromMessage,
+  onOpenMessageSettings,
+  onOpenAiChat,
+  onGenerateCallSummaryDrafts,
+  hasAiKey = null,
 }) => {
+
+  //lead details
+  const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null)
+
   // State for transcript modal
   const [showTranscriptModal, setShowTranscriptModal] = useState(null)
 
@@ -792,6 +60,12 @@ const ConversationView = ({
   // Track if we've already populated composer from last message for current thread
   const hasPopulatedComposerRef = useRef(false)
   const lastThreadIdRef = useRef(null)
+
+  //code for fetch lead details
+  useEffect(() => {
+    console.log("trying to fetch lead details")
+    fetchLeadDetails()
+  }, [selectedThread])
 
   // When messages load, populate composer with last email message's subject, CC, and BCC
   useEffect(() => {
@@ -900,6 +174,32 @@ const ConversationView = ({
         message: 'Please refresh and try again.',
         type: SnackbarTypes.Error,
       })
+    }
+  }
+
+  //fetch lead details
+  const fetchLeadDetails = async () => {
+    if (!selectedThread?.leadId) return
+    try {
+      console.log("fetching lead details")
+      const Token = AuthToken();
+      const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedThread?.leadId}`
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: `Bearer ${Token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response) {
+        console.log("response.data.data is", response.data.data)
+        if (response.data.status === true) {
+          setSelectedLeadsDetails(response.data.data)
+        }
+      } else {
+        console.error("Error fetching lead details", response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching lead details", error)
     }
   }
 
@@ -1012,12 +312,18 @@ const ConversationView = ({
                   {/* Render system messages (including comments) as centered messages */}
                   {isSystem ? (
                     <SystemMessage
+                      selectedLead={selectedThread?.leadId}
+                      leadName={selectedLeadsDetails?.firstName || selectedLeadsDetails?.name}
                       message={message}
                       getAgentAvatar={getAgentAvatar}
                       selectedThread={selectedThread}
                       onReadTranscript={(item) => {
                         setShowTranscriptModal(item)
                       }}
+                      onOpenMessageSettings={onOpenMessageSettings}
+                      onOpenAiChat={onOpenAiChat}
+                      onGenerateCallSummaryDrafts={onGenerateCallSummaryDrafts}
+                      hasAiKey={hasAiKey}
                     />
                   ) : (
                     <div
@@ -1062,6 +368,7 @@ const ConversationView = ({
                               message={message}
                               isOutbound={isOutbound}
                               sanitizeHTML={sanitizeHTML}
+                              sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
                               openEmailDetailId={openEmailDetailId}
                               setOpenEmailDetailId={setOpenEmailDetailId}
                               getEmailDetails={getEmailDetails}
@@ -1111,6 +418,7 @@ const ConversationView = ({
       )}
       {/* Call Transcript Modal */}
       <CallTranscriptModal
+        // selectedLead={selectedThread.leadId}
         open={!!showTranscriptModal}
         onClose={(open) => {
           if (!open) {

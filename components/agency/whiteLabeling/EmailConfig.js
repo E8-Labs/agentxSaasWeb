@@ -396,8 +396,7 @@ const EmailConfig = ({ selectedAgency }) => {
                   </div>
                 </div>
                 <div className="mt-3 text-[#00000060]" style={styles.small}>
-                  Billing emails to subaccounts will be sent from this Gmail
-                  account.
+                  All emails to your subaccounts will be sent from this Gmail
                 </div>
               </div>
             ) : (
@@ -612,82 +611,98 @@ const EmailConfig = ({ selectedAgency }) => {
 
       {/* Mailgun Domain Setup Section - Hidden in Production */}
       {/* {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && ( */}
-        <>
-          <div className="w-full flex flex-row justify-center pt-8 pb-12">
-            <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
-              <div className="w-full">
-                <div className="flex flex-row items-center justify-between mb-4">
-                  <div className="text-start" style={styles.semiBoldHeading}>
-                    Mailgun Emails
-                  </div>
-                  <button
-                    onClick={() => setShowMailgunSetup(true)}
-                    className="flex items-center gap-2 bg-brand-primary text-white rounded-lg px-4 py-2 font-medium text-sm hover:bg-brand-primary/90 transition-colors"
-                  >
-                    <Plus size={16} />
-                    Connect Mailgun
-                  </button>
+      <>
+        <div className="w-full flex flex-row justify-center pt-8 pb-12">
+          <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
+            <div className="w-full">
+              <div className="flex flex-row items-center justify-between mb-4">
+                <div className="text-start" style={styles.semiBoldHeading}>
+                  Mailgun Emails
                 </div>
+                <button
+                  onClick={() => setShowMailgunSetup(true)}
+                  className="flex items-center gap-2 bg-brand-primary text-white rounded-lg px-4 py-2 font-medium text-sm hover:bg-brand-primary/90 transition-colors"
+                >
+                  <Plus size={16} />
+                  Connect Mailgun
+                </button>
+              </div>
 
-                {loadingMailgun ? (
-                  <div className="w-full flex justify-center py-8">
-                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+              {loadingMailgun ? (
+                <div className="w-full flex justify-center py-8">
+                  <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                </div>
+              ) : mailgunIntegrations.length === 0 ? (
+                <div className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
+                  <div className="text-start mb-4" style={styles.small}>
+                    Configure Mailgun to give your subaccounts the ability to send and receive mass emails.
                   </div>
-                ) : mailgunIntegrations.length === 0 ? (
-                  <div className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
-                    <div className="text-start mb-4" style={styles.small}>
-                      Configure Mailgun to give your subaccounts the ability to send and receive mass emails.
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full space-y-3">
-                    {mailgunIntegrations.map((integration) => (
-                      <div
-                        key={integration.id}
-                        className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50"
-                      >
-                        <div className="flex flex-row items-center justify-between">
-                          <div className="flex flex-col flex-1">
-                            <div className="flex flex-row items-center gap-2 mb-1">
-                              <div className="text-start" style={styles.regular}>
-                                {integration.domain}
-                              </div>
-                              {integration.verificationStatus === 'verified' ? (
-                                <CheckCircle size={18} className="text-green-600" />
-                              ) : integration.verificationStatus === 'failed' ? (
-                                <XCircle size={18} className="text-red-600" />
-                              ) : (
-                                <AlertCircle size={18} className="text-yellow-600" />
-                              )}
+                </div>
+              ) : (
+                <div className="w-full space-y-3">
+                  {mailgunIntegrations.map((integration) => (
+                    <div
+                      key={integration.id}
+                      className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50"
+                    >
+                      <div className="flex flex-row items-center justify-between">
+                        <div className="flex flex-col flex-1">
+                          <div className="flex flex-row items-center gap-2 mb-1">
+                            <div className="text-start" style={styles.regular}>
+                              {integration.domain}
                             </div>
-                            <div className="text-start" style={styles.small}>
-                              Status:{' '}
-                              <span
-                                className={
-                                  integration.verificationStatus === 'verified'
-                                    ? 'text-green-600 font-medium'
-                                    : integration.verificationStatus === 'failed'
-                                      ? 'text-red-600 font-medium'
-                                      : 'text-yellow-600 font-medium'
-                                }
-                              >
-                                {integration.verificationStatus === 'verified'
-                                  ? 'Verified'
-                                  : integration.verificationStatus === 'failed'
-                                    ? 'Verification Failed'
-                                    : 'Pending Verification'}
-                              </span>
-                            </div>
-                            {integration.verifiedAt && (
-                              <div className="text-start mt-1" style={styles.small}>
-                                Verified: {new Date(integration.verifiedAt).toLocaleDateString()}
-                              </div>
+                            {integration.verificationStatus === 'verified' ? (
+                              <CheckCircle size={18} className="text-green-600" />
+                            ) : integration.verificationStatus === 'failed' ? (
+                              <XCircle size={18} className="text-red-600" />
+                            ) : (
+                              <AlertCircle size={18} className="text-yellow-600" />
                             )}
                           </div>
-                          <div className="flex flex-row items-center gap-2">
+                          <div className="text-start" style={styles.small}>
+                            Status:{' '}
+                            <span
+                              className={
+                                integration.verificationStatus === 'verified'
+                                  ? 'text-green-600 font-medium'
+                                  : integration.verificationStatus === 'failed'
+                                    ? 'text-red-600 font-medium'
+                                    : 'text-yellow-600 font-medium'
+                              }
+                            >
+                              {integration.verificationStatus === 'verified'
+                                ? 'Verified'
+                                : integration.verificationStatus === 'failed'
+                                  ? 'Verification Failed'
+                                  : 'Pending Verification'}
+                            </span>
+                          </div>
+                          {integration.verifiedAt && (
+                            <div className="text-start mt-1" style={styles.small}>
+                              Verified: {new Date(integration.verifiedAt).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-row items-center gap-2">
+                          <Button
+                            variant="outlined"
+                            onClick={() => setViewingDnsRecords(integration)}
+                            sx={{
+                              textTransform: 'none',
+                              borderRadius: '8px',
+                              px: 2,
+                              borderColor: 'hsl(var(--brand-primary))',
+                              color: 'hsl(var(--brand-primary))',
+                            }}
+                          >
+                            <Eye size={16} className="mr-2" />
+                            View DNS Records
+                          </Button>
+                          {integration.verificationStatus !== 'verified' && (
                             <Button
                               variant="outlined"
-                              onClick={() => setViewingDnsRecords(integration)}
+                              onClick={() => handleVerifyDomain(integration.id)}
+                              disabled={verifyingDomain === integration.id}
                               sx={{
                                 textTransform: 'none',
                                 borderRadius: '8px',
@@ -696,79 +711,63 @@ const EmailConfig = ({ selectedAgency }) => {
                                 color: 'hsl(var(--brand-primary))',
                               }}
                             >
-                              <Eye size={16} className="mr-2" />
-                              View DNS Records
+                              {verifyingDomain === integration.id ? (
+                                <CircularProgress size={16} />
+                              ) : (
+                                'Verify'
+                              )}
                             </Button>
-                            {integration.verificationStatus !== 'verified' && (
-                              <Button
-                                variant="outlined"
-                                onClick={() => handleVerifyDomain(integration.id)}
-                                disabled={verifyingDomain === integration.id}
-                                sx={{
-                                  textTransform: 'none',
-                                  borderRadius: '8px',
-                                  px: 2,
-                                  borderColor: 'hsl(var(--brand-primary))',
-                                  color: 'hsl(var(--brand-primary))',
-                                }}
-                              >
-                                {verifyingDomain === integration.id ? (
-                                  <CircularProgress size={16} />
-                                ) : (
-                                  'Verify'
-                                )}
-                              </Button>
-                            )}
-                            <Button
-                              variant="outlined"
-                              color="error"
-                              onClick={() => handleDeleteMailgunIntegration(integration.id)}
-                              disabled={loadingMailgun}
-                              sx={{
-                                textTransform: 'none',
-                                borderRadius: '8px',
-                                px: 2,
-                                minWidth: 'auto',
-                              }}
-                            >
-                              <Trash2 size={16} />
-                            </Button>
-                          </div>
+                          )}
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => handleDeleteMailgunIntegration(integration.id)}
+                            disabled={loadingMailgun}
+                            sx={{
+                              textTransform: 'none',
+                              borderRadius: '8px',
+                              px: 2,
+                              minWidth: 'auto',
+                            }}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Mailgun Domain Setup Modal */}
-          <MailgunDomainSetup
-            open={showMailgunSetup}
-            onClose={() => setShowMailgunSetup(false)}
-            onSuccess={() => {
-              setShowMailgunSetup(false)
-              fetchMailgunIntegrations()
-              setShowSnack({
-                message: 'Mailgun domain added successfully',
-                type: SnackbarTypes.Success,
-              })
-            }}
+        {/* Mailgun Domain Setup Modal */}
+        <MailgunDomainSetup
+          open={showMailgunSetup}
+          onClose={() => setShowMailgunSetup(false)}
+          onSuccess={() => {
+            setShowMailgunSetup(false)
+            fetchMailgunIntegrations()
+            setShowSnack({
+              message: 'Mailgun domain added successfully',
+              type: SnackbarTypes.Success,
+            })
+          }}
+        />
+
+        {/* View DNS Records Modal */}
+        {viewingDnsRecords && (
+          <ViewDnsRecordsModal
+            open={!!viewingDnsRecords}
+            onClose={() => setViewingDnsRecords(null)}
+            domain={viewingDnsRecords.domain}
+            dnsRecords={viewingDnsRecords.dnsRecords}
+            verificationStatus={viewingDnsRecords.verificationStatus}
+            mailgunIntegrationId={viewingDnsRecords.id}
           />
-
-          {/* View DNS Records Modal */}
-          {viewingDnsRecords && (
-            <ViewDnsRecordsModal
-              open={!!viewingDnsRecords}
-              onClose={() => setViewingDnsRecords(null)}
-              domain={viewingDnsRecords.domain}
-              dnsRecords={viewingDnsRecords.dnsRecords}
-              verificationStatus={viewingDnsRecords.verificationStatus}
-              mailgunIntegrationId={viewingDnsRecords.id}
-            />
-          )}
-        </>
+        )}
+      </>
       {/* )} */}
 
       {/* Snackbar for notifications */}

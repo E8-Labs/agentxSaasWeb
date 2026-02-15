@@ -34,18 +34,19 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Call backend API to get phone numbers with agents
-    const response = await fetch(
-      `${BASE_API_URL}api/dialer/phone-numbers/with-agents`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
+    const userIdParam = req.nextUrl.searchParams.get('userId')
+    const backendUrl = userIdParam
+      ? `${BASE_API_URL}api/dialer/phone-numbers/with-agents?userId=${userIdParam}`
+      : `${BASE_API_URL}api/dialer/phone-numbers/with-agents`
+    console.log('[api/dialer/phone-numbers/with-agents] GET', { userIdParam, backendUrl: backendUrl.replace(BASE_API_URL, '') })
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-    )
+      cache: 'no-store',
+    })
 
     const data = await response.json()
 

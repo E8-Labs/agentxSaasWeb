@@ -427,8 +427,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           } else if (d.user.userRole == 'AgencySubAccount') {
             if (d.user.plan) {
               redirectPath = '/dashboard'
-            } else {
+            } else if(d.user.plan.status !== 'active' &&d.user.totalSecondsAvailable <= 120){
               redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+            } else {
+              redirectPath = '/dashboard'
             }
           }
 
@@ -584,6 +586,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     }
   }
 
+  // Allowed countries (must match onlyCountries on PhoneInput)
+  const ALLOWED_PHONE_COUNTRIES = ['US', 'CA', 'MX', 'AU', 'GB', 'EC', 'SV']
+
   //number validation
   const validatePhoneNumber = (phoneNumber) => {
     if (!phoneNumber) {
@@ -591,67 +596,30 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       return
     }
 
-    // Try to parse as US first
+    // Try to parse with each allowed country
     const parsedUs = parsePhoneNumberFromString(`+${phoneNumber}`, 'US')
-
-    // Try to parse as CA
     const parsedCa = parsePhoneNumberFromString(`+${phoneNumber}`, 'CA')
-
-    // Try to parse as MX
     const parsedMx = parsePhoneNumberFromString(`+${phoneNumber}`, 'MX')
-
-    // Try to parse as AU
     const parsedAu = parsePhoneNumberFromString(`+${phoneNumber}`, 'AU')
-
-    // Try to parse as GB
     const parsedGb = parsePhoneNumberFromString(`+${phoneNumber}`, 'GB')
+    const parsedEc = parsePhoneNumberFromString(`+${phoneNumber}`, 'EC')
+    const parsedSv = parsePhoneNumberFromString(`+${phoneNumber}`, 'SV')
 
     // Try to parse without country code (auto-detect)
     const parsedAuto = parsePhoneNumberFromString(`+${phoneNumber}`)
 
+    const isAllowedCountry = (parsed) =>
+      parsed && parsed.isValid() && ALLOWED_PHONE_COUNTRIES.includes(parsed.country)
+
     const isValid =
-      (parsedUs &&
-        parsedUs.isValid() &&
-        (parsedUs.country === 'US' ||
-          parsedUs.country === 'CA' ||
-          parsedUs.country === 'MX' ||
-          parsedUs.country === 'AU' ||
-          parsedUs.country === 'GB')) ||
-      (parsedCa &&
-        parsedCa.isValid() &&
-        (parsedCa.country === 'US' ||
-          parsedCa.country === 'CA' ||
-          parsedCa.country === 'MX' ||
-          parsedCa.country === 'AU' ||
-          parsedCa.country === 'GB')) ||
-      (parsedMx &&
-        parsedMx.isValid() &&
-        (parsedMx.country === 'US' ||
-          parsedMx.country === 'CA' ||
-          parsedMx.country === 'MX' ||
-          parsedMx.country === 'AU' ||
-          parsedMx.country === 'GB')) ||
-      (parsedAu &&
-        parsedAu.isValid() &&
-        (parsedAu.country === 'US' ||
-          parsedAu.country === 'CA' ||
-          parsedAu.country === 'MX' ||
-          parsedAu.country === 'AU' ||
-          parsedAu.country === 'GB')) ||
-      (parsedGb &&
-        parsedGb.isValid() &&
-        (parsedGb.country === 'US' ||
-          parsedGb.country === 'CA' ||
-          parsedGb.country === 'MX' ||
-          parsedGb.country === 'AU' ||
-          parsedGb.country === 'GB')) ||
-      (parsedAuto &&
-        parsedAuto.isValid() &&
-        (parsedAuto.country === 'US' ||
-          parsedAuto.country === 'CA' ||
-          parsedAuto.country === 'MX' ||
-          parsedAuto.country === 'AU' ||
-          parsedAuto.country === 'GB'))
+      isAllowedCountry(parsedUs) ||
+      isAllowedCountry(parsedCa) ||
+      isAllowedCountry(parsedMx) ||
+      isAllowedCountry(parsedAu) ||
+      isAllowedCountry(parsedGb) ||
+      isAllowedCountry(parsedEc) ||
+      isAllowedCountry(parsedSv) ||
+      isAllowedCountry(parsedAuto)
 
     if (!isValid) {
       setErrorMessage('Invalid')
@@ -928,7 +896,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     if (response.data.data.user.plan) {
                       redirectPath = '/dashboard'
                     } else {
-                      redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+                       if(response.data.data.user.plan.status !== 'active' && response.data.data.user.totalSecondsAvailable <= 120){
+                        redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+                      } else {
+                        redirectPath = '/dashboard'
+                      }
+                      // redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
                     }
                   } else if (
                     response.data.data.user.userRole == 'Agency' ||
@@ -1223,10 +1196,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
                     country={'us'} // Default country
-                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb']} // Allow US, Canada, Mexico, Australia, and UK
+                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb','sv', 'ec']} // Allow US, Canada, Mexico, Australia, and UK
                     disableDropdown={false} // Enable dropdown to switch between US/CA/MX/AU/GB
                     countryCodeEditable={false}
-                    disableCou ntryCode={false}
+                    disableCountryCode={false}
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={

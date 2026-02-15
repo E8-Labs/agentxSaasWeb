@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2 } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
@@ -13,6 +13,7 @@ import NewContactDrawer from './NewContactDrawer'
 import { useUser } from '@/hooks/redux-hooks'
 import { UpgradeTag, UpgradeTagWithModal } from '../constants/constants'
 import { toast } from '@/utils/toast'
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 
 const ThreadsList = ({
   loading,
@@ -76,23 +77,64 @@ const ThreadsList = ({
     return selectedUser?.id ? selectedUser : reduxUser
   }, [selectedUser?.id, reduxUser])
 
+  // When agency views subaccount or admin views another account, selectedUser often lacks planCapabilities.
+  // Fetch full profile by effectiveUser id so SMS/Email buttons and upgrade modals have correct capabilities.
+  const [fetchedProfileUser, setFetchedProfileUser] = useState(null)
+  const fetchingProfileForIdRef = useRef(null)
+
+  useEffect(() => {
+    const userId = selectedUser?.id
+    if (!userId) {
+      setFetchedProfileUser(null)
+      return
+    }
+    // Only fetch when we're viewing another user and that user doesn't have planCapabilities
+    const needsFetch = effectiveUser?.id === userId && !effectiveUser?.planCapabilities
+    if (!needsFetch) {
+      if (effectiveUser?.planCapabilities) setFetchedProfileUser(null)
+      return
+    }
+    let cancelled = false
+    const fetchProfile = async () => {
+      if (fetchingProfileForIdRef.current === userId) return
+      fetchingProfileForIdRef.current = userId
+      try {
+        const fullUser = await AdminGetProfileDetails(userId)
+        if (!cancelled && fullUser) setFetchedProfileUser(fullUser)
+      } catch (e) {
+        if (!cancelled) setFetchedProfileUser(null)
+      } finally {
+        if (!cancelled) fetchingProfileForIdRef.current = null
+      }
+    }
+    fetchProfile()
+    return () => {
+      cancelled = true
+    }
+  }, [selectedUser?.id, effectiveUser?.id, effectiveUser?.planCapabilities])
+
+  // Use fetched full profile for capabilities when viewing another account; otherwise effectiveUser (redux has planCapabilities).
+  const effectiveUserForCapabilities = React.useMemo(() => {
+    return fetchedProfileUser || effectiveUser
+  }, [fetchedProfileUser, effectiveUser])
+
   const emailCapability = React.useMemo(() => {
-    const planCapabilities = effectiveUser?.planCapabilities || {}
+    const planCapabilities = effectiveUserForCapabilities?.planCapabilities || {}
     return {
       hasAccess: planCapabilities.allowEmails === true,
       showUpgrade: planCapabilities.shouldShowAllowEmailUpgrade === true,
       showRequestFeature: planCapabilities.shouldShowEmailRequestFeature === true,
     }
-  }, [effectiveUser?.planCapabilities])
+  }, [effectiveUserForCapabilities?.planCapabilities])
 
   const smsCapability = React.useMemo(() => {
-    const planCapabilities = effectiveUser?.planCapabilities || {}
+    const planCapabilities = effectiveUserForCapabilities?.planCapabilities || {}
     return {
       hasAccess: planCapabilities.allowTextMessages === true,
       showUpgrade: planCapabilities.shouldShowAllowSmsUpgrade === true,
       showRequestFeature: planCapabilities.shouldShowSmsRequestFeature === true,
     }
-  }, [effectiveUser?.planCapabilities])
+  }, [effectiveUserForCapabilities?.planCapabilities])
 
 
 
@@ -151,7 +193,7 @@ const ThreadsList = ({
         <ToggleGroupCN
           options={[
             { label: 'All', value: 'all', count: allCount },
-            { label: 'Unreplied', value: 'unreplied', count: unrepliedCount },
+            { label: 'Unread', value: 'unreplied', count: unrepliedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
@@ -168,7 +210,7 @@ const ThreadsList = ({
             },
             {
               label: 'New Text',
-              icon: MessageSquare,
+              icon: MessageSquareDot,
               value: 'message',
               upgradeTag: (smsCapability.showUpgrade || smsCapability.showRequestFeature) ? (
                 <UpgradeTag
@@ -204,7 +246,7 @@ const ThreadsList = ({
 
         {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
           <UpgradeTagWithModal
-            reduxUser={effectiveUser}
+            reduxUser={effectiveUserForCapabilities}
             setReduxUser={setReduxUser}
             requestFeature={emailCapability.showRequestFeature}
             externalTrigger={triggerEmailUpgradeModal > 0}
@@ -218,7 +260,7 @@ const ThreadsList = ({
         )}
         {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
           <UpgradeTagWithModal
-            reduxUser={effectiveUser}
+            reduxUser={effectiveUserForCapabilities}
             setReduxUser={setReduxUser}
             requestFeature={smsCapability.showRequestFeature}
             externalTrigger={triggerSMSUpgradeModal > 0}

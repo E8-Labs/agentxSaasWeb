@@ -14,6 +14,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
+import { PersistanceKeys } from '@/constants/Constants'
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 
 const ClaimNumber = ({
   showClaimPopup,
@@ -41,6 +43,24 @@ const ClaimNumber = ({
   const [errorType, setErrorType] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)
   const [cardData, getcardData] = useState('')
+
+  const [isFromAdminOrAgency, setIsFromAdminOrAgency] = useState(null)
+
+  useEffect(() => {
+
+    const checkIsFromAdminOrAgency = async () => {
+    const localData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    if (localData) {
+      const data = JSON.parse(localData)
+      // setIsFromAgencyOrAdmin(data);
+      const subUserProfile = await AdminGetProfileDetails(
+        data.subAccountData.id,
+      )
+      setIsFromAdminOrAgency(subUserProfile)
+    }
+  }
+  checkIsFromAdminOrAgency()
+  }, [showClaimPopup])
 
   //code to select Purchase number
   const handlePurchaseNumberClick = (item, index) => {
@@ -90,11 +110,11 @@ const ClaimNumber = ({
         formData.append('mainAgentId', MyAgentData?.id)
       }
 
-      if (selectedUSer) {
-        formData.append('userId', selectedUSer?.id)
+      if (selectedUSer || isFromAdminOrAgency) {
+        formData.append('userId', selectedUSer?.id || isFromAdminOrAgency?.subAccountData?.id)
       }
 
-      for (let [key, value] of formData.entries()) {}
+      for (let [key, value] of formData.entries()) { }
 
       //for testing
       // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
@@ -170,12 +190,12 @@ const ClaimNumber = ({
     try {
       setFindeNumberLoader(true)
       let ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`
-      
+
       // Add userId parameter if selectedUSer is provided (for agency/admin searching on behalf of subaccounts)
       if (selectedUSer?.id) {
         ApiPath += `&userId=${selectedUSer.id}`
       }
-      
+
       let AuthToken = null
       const LocalData = localStorage.getItem('User')
       if (LocalData) {
@@ -605,7 +625,7 @@ const ClaimNumber = ({
                   togglePlan={''}
                   // fromAdmin={true}
                   selectedUser={selectedUSer}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>

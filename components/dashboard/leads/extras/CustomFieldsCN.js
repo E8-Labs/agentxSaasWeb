@@ -11,6 +11,7 @@ import {
   TypographyCaption,
   TypographyBodySemibold,
 } from '@/lib/typography'
+import { Tooltip } from '@mui/material'
 
 const CustomFieldsCN = ({
   leadColumns,
@@ -24,7 +25,7 @@ const CustomFieldsCN = ({
   if (!leadColumns || !Array.isArray(leadColumns) || leadColumns.length === 0) {
     return null
   }
-  
+
   if (!selectedLeadsDetails) {
     return null
   }
@@ -44,51 +45,51 @@ const CustomFieldsCN = ({
       'updatedAt', 'UpdatedAt',
       0,
     ]
-    
+
     return (leadColumns || []).filter((column) => {
       const columnTitle = column?.title
-      
+
       // Exclude if no title
       if (!columnTitle) {
         return false
       }
-      
+
       // Exclude default columns (case-insensitive)
       const normalizedTitle = String(columnTitle).trim()
-      if (excludedColumns.some(excluded => 
+      if (excludedColumns.some(excluded =>
         String(excluded).toLowerCase() === normalizedTitle.toLowerCase()
       )) {
         return false
       }
-      
+
       // Exclude if column is marked as default
       if (column?.isDefault === true || column?.idDefault === true) {
         return false
       }
-      
+
       // Get the value from selectedLeadsDetails
       const value = selectedLeadsDetails?.[columnTitle]
-      
+
       // Check if value exists and is meaningful
       if (value === undefined || value === null) {
         return false
       }
-      
+
       // Exclude empty strings and whitespace-only strings
       if (typeof value === 'string' && value.trim() === '') {
         return false
       }
-      
+
       // Exclude empty arrays
       if (Array.isArray(value) && value.length === 0) {
         return false
       }
-      
+
       // Exclude empty objects
       if (typeof value === 'object' && Object.keys(value).length === 0) {
         return false
       }
-      
+
       // Only include if we have a meaningful value
       return true
     })
@@ -98,7 +99,7 @@ const CustomFieldsCN = ({
   const extraCount = customFields.length
 
   // Debug logging (remove in production)
-  if (process.env.NODE_ENV === 'development') {}
+  if (process.env.NODE_ENV === 'development') { }
 
   // Don't show if there are no custom fields
   if (extraCount < 1) {
@@ -129,6 +130,25 @@ const CustomFieldsCN = ({
             : value.slice(0, initialTextLength)
           return initialText + dots || '-'
       }
+    }
+  }
+
+  /** Full value for tooltip (always complete answer, no truncation). */
+  const getFullValueForTooltip = (column, item) => {
+    const { title } = column
+    if (!item) return ''
+    switch (title) {
+      case 'Date':
+        return item.createdAt ? GetFormattedDateString(item.createdAt) : '-'
+      case 'Phone':
+        return '-'
+      case 'Stage':
+        return item.stage ? item.stage.stageTitle : 'No Stage'
+      default:
+        const value = item[title]
+        if (value === undefined || value === null) return ''
+        if (typeof value === 'object') return JSON.stringify(value)
+        return String(value)
     }
   }
 
@@ -189,9 +209,30 @@ const CustomFieldsCN = ({
                   {capitalize(column?.title || '')}
                 </TypographyCaption>
                 <div className="flex flex-row items-end gap-2 flex-wrap">
-                  <TypographyBody className="text-right">
-                    {getDetailsColumnData(column, selectedLeadsDetails)}
-                  </TypographyBody>
+                  <Tooltip
+                    title={getFullValueForTooltip(column, selectedLeadsDetails)}
+                    arrow
+                    placement="top"
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: 'white',
+                          color: 'hsl(var(--foreground))',
+                          fontSize: '12px',
+                          padding: '10px 14px',
+                          borderRadius: '8px',
+                          border: '1px solid hsl(var(--border))',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                          maxWidth: 320,
+                        },
+                      },
+                      arrow: { sx: { color: 'white' } },
+                    }}
+                  >
+                    <TypographyBody className="text-right cursor-default">
+                      {getDetailsColumnData(column, selectedLeadsDetails)}
+                    </TypographyBody>
+                  </Tooltip>
                   {ShowReadMoreButton(column, selectedLeadsDetails) && (
                     <Button
                       variant="link"

@@ -694,7 +694,7 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                     ref={(el) => (inputsFields.current[2] = el)}
                     className="border outline-none bg-white"
                     country={countryCode} // Set the default country
-                    onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
+                    onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US, Canada, and Mexico
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
