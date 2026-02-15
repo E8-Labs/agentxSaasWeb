@@ -21,6 +21,7 @@ import {
 import { AuthToken } from '../plan/AuthDetails'
 import LabelingHeader from './LabelingHeader'
 import { generateOAuthState } from '@/utils/oauthState'
+import { getAgencySelectMenuProps } from '@/components/agency/agencySelectMenuConfig'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 import MailgunDomainSetup from '../../messaging/MailgunDomainSetup'
 import ViewDnsRecordsModal from '../../messaging/ViewDnsRecordsModal'
@@ -504,10 +505,10 @@ const EmailConfig = ({ selectedAgency }) => {
                   }}
                   sx={{
                     height: "48px",
-                    borderRadius: "8px",
-                    border: "1px solid #E5E7EB",
+                    borderRadius: "13px",
+                    border: "1px solid #00000020",
                     "&:hover": {
-                      border: "1px solid #E5E7EB",
+                      border: "1px solid #00000020",
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
                       border: "none",
@@ -517,20 +518,10 @@ const EmailConfig = ({ selectedAgency }) => {
                     },
                     "& .MuiSelect-select": {
                       py: 0,
-                      fontSize: "15px",
-                      fontWeight: "500",
-                      color: "#000000",
+                      fontSize: 14,
                     },
                   }}
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: "30vh",
-                        overflow: "auto",
-                        scrollbarWidth: "none",
-                      },
-                    },
-                  }}
+                  MenuProps={getAgencySelectMenuProps()}
                 >
                   <MenuItem value="587">587 (STARTTLS)</MenuItem>
                   <MenuItem value="465">465 (SSL/TLS)</MenuItem>
@@ -569,10 +560,10 @@ const EmailConfig = ({ selectedAgency }) => {
                   }}
                   sx={{
                     height: "48px",
-                    borderRadius: "8px",
-                    border: "1px solid #E5E7EB",
+                    borderRadius: "13px",
+                    border: "1px solid #00000020",
                     "&:hover": {
-                      border: "1px solid #E5E7EB",
+                      border: "1px solid #00000020",
                     },
                     "& .MuiOutlinedInput-notchedOutline": {
                       border: "none",
@@ -582,20 +573,10 @@ const EmailConfig = ({ selectedAgency }) => {
                     },
                     "& .MuiSelect-select": {
                       py: 0,
-                      fontSize: "15px",
-                      fontWeight: "500",
-                      color: "#000000",
+                      fontSize: 14,
                     },
                   }}
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: "30vh",
-                        overflow: "auto",
-                        scrollbarWidth: "none",
-                      },
-                    },
-                  }}
+                  MenuProps={getAgencySelectMenuProps()}
                 >
                   <MenuItem value="None">None</MenuItem>
                   <MenuItem value="STARTTLS">STARTTLS</MenuItem>

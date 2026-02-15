@@ -860,10 +860,11 @@ function AgencySubacount({ selectedAgency }) {
       />
       <div className="sticky top-0 z-30 flex w-full flex-row items-center justify-between px-5 py-5 border-b h-[60px] bg-white">
         <div
-          className="text-lg font-semibold"
+          className="font-semibold"
           style={{
             color: 'black',
             letterSpacing: '-1px',
+            fontSize: 24,
           }}
         >
           Sub Accounts: {totalCount > 0 ? totalCount : (filteredList?.length || 0)}
@@ -902,12 +903,12 @@ function AgencySubacount({ selectedAgency }) {
       //   setShowSnackType(SnackbarTypes.Success);
       // }}
       />
-      <div className="w-full max-w-[1300px] min-h-full max-h-none flex flex-col items-center gap-3 p-0 pt-4 rounded-none bg-transparent">
+      <div className="w-full max-w-[1300px] h-full min-h-full max-h-none flex flex-col items-center gap-3 p-0 pt-0 rounded-none bg-transparent border-x border-[#eaeaea]">
         {/* Fixed header: Total Sub Accounts, Search/Filter, Table header */}
-        <div className="sticky top-[60px] z-50 w-full flex flex-col gap-3 pt-4 !bg-white">
-        <div className="w-full flex flex-row items-center justify-between px-3 gap-3">
+        <div className="sticky top-[60px] z-50 w-full flex flex-col gap-3 pt-0 bg-white [&>div]:border-b [&>div]:border-[#eaeaea] [&>div:last-child]:border-b-0">
+        <div className="w-full flex flex-row items-center justify-between px-3 gap-3 h-[60px] border-b border-[#eaeaea]">
           <div className="flex flex-row items-center gap-3 flex-1 min-w-0">
-          <div className="flex h-10 flex-row items-center gap-1 w-[22vw] flex-shrink-0 rounded-lg border border-gray-200 pl-1 pr-3 focus-within:border-brand-primary transition-colors">
+          <div className="flex h-10 flex-row items-center gap-1 w-[22vw] flex-shrink-0 rounded-lg border border-gray-200 pl-1 pr-3 focus-within:border-2 focus-within:border-brand-primary transition-colors">
             <input
               type="text"
               placeholder="Search by name, status or plan"
@@ -1012,7 +1013,7 @@ function AgencySubacount({ selectedAgency }) {
           </div>
           <button
             disabled={twililoConectedStatus}
-            className="flex h-10 shrink-0 px-3 items-center justify-center bg-brand-primary text-white text-sm font-medium rounded-lg border-none outline-none shadow-md transition-shadow active:scale-[0.98] transition-transform hover:shadow-lg"
+            className="flex h-10 shrink-0 px-3 items-center justify-center bg-brand-primary text-white text-sm font-medium rounded-lg border-none outline-none shadow-md transition-shadow transition-transform duration-200 ease-out active:scale-[0.98] hover:shadow-lg"
             style={{
               boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
             }}
@@ -1030,7 +1031,7 @@ function AgencySubacount({ selectedAgency }) {
           </button>
         </div>
 
-        <div className="w-full flex flex-row justify-between h-10 mt-2 px-3 mt-10">
+        <div className="w-full flex flex-row justify-between h-[40px] px-3 pt-3 uppercase">
           <div className="w-2/12">
             <div style={styles.text}>Sub Account</div>
           </div>
@@ -1070,12 +1071,12 @@ function AgencySubacount({ selectedAgency }) {
           </div>
         ) : (
           <div
-            className="h-full overflow-auto w-full text-sm px-3"
+            className="h-full overflow-auto w-full text-sm"
             id="scrollableDiv1"
             style={{ scrollbarWidth: 'none' }}
           >
             {filteredList?.length > 0 ? (
-              <div className="flex flex-col gap-0.5 h-full">
+              <div className="flex flex-col gap-0.5 h-full w-full">
                 {filteredList.map((item) => (
                   <div
                     key={item.id}
@@ -1363,7 +1364,17 @@ function AgencySubacount({ selectedAgency }) {
 
                   <button
                     disabled={twililoConectedStatus}
-                    className={`flex px-5 py-3 bg-brand-primary rounded-lg text-white font-medium border-none outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`flex h-[40px] shrink-0 px-5 py-3 items-center justify-center bg-brand-primary rounded-lg text-white text-sm font-medium border-none outline-none shadow-md transition-shadow transition-transform duration-200 ease-out active:scale-[0.98] hover:shadow-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    style={{
+                      fontSize: 14,
+                      boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = '0 10px 15px -3px hsl(var(--brand-primary) / 0.25), 0 4px 6px -4px hsl(var(--brand-primary) / 0.25)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)'
+                    }}
                     onClick={() => {
                       handleCheckPlans();
                     }}

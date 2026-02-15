@@ -10,7 +10,6 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
@@ -287,21 +286,23 @@ function TransactionTable({
 
           {/* Search Input */}
           <div
-            className={`relative ${filters.dateFilter === 'customRange' ? 'col-span-2' : 'col-span-3'}`}
+            className={cn(
+              'flex h-10 flex-row items-center gap-1 flex-shrink-0 rounded-lg border border-gray-200 pl-1 pr-3 focus-within:border-2 focus-within:border-brand-primary transition-colors w-full',
+              filters.dateFilter === 'customRange' ? 'col-span-2' : 'col-span-3'
+            )}
           >
-            <Image
-              src="/svgIcons/searchIcon.svg"
-              alt="Search"
-              width={16}
-              height={16}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <Input
+            <input
               type="text"
               placeholder="Search Subaccount"
               value={searchQuery}
               onChange={handleSearchChange}
-              className="pl-10 pr-10 w-full h-auto py-2 text-sm border-gray-200"
+              className="flex-grow outline-none font-[500] text-sm border-none bg-transparent focus:outline-none focus:ring-0 flex-shrink-0 rounded-full min-w-0"
+            />
+            <Image
+              src="/svgIcons/searchIcon.svg"
+              alt="Search"
+              width={20}
+              height={20}
             />
           </div>
         </div>

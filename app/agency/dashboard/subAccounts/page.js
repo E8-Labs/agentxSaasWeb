@@ -19,7 +19,7 @@ const Page = () => {
           </div>
         }
       >
-        <div className="w-full h-auto bg-transparent">
+        <div className="w-full h-full bg-white">
           <AgencySubacount />
         </div>
       </ProtectedRoute>

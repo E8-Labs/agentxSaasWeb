@@ -6,8 +6,10 @@ import {
   Modal,
   Select,
 } from '@mui/material'
+import Check from '@mui/icons-material/Check'
 import React, { useEffect, useState } from 'react'
 
+import { getAgencySelectMenuProps } from '@/components/agency/agencySelectMenuConfig'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 const SubAccountFilters = ({
@@ -80,14 +82,14 @@ const SubAccountFilters = ({
       }}
     >
       <Box
-        className="bg-white w-[500px] max-w-[95vw] h-[70vh] border-none outline-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-0 rounded-2xl overflow-hidden"
+        className="bg-white w-[500px] max-w-[95vw] h-auto border-none outline-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-0 rounded-2xl overflow-hidden"
         sx={{
           borderRadius: '16px',
           boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -4px rgba(0,0,0,0.3)',
         }}
       >
-        <div className="w-full flex flex-col items-center justify-between h-[100%]">
-          <div className="w-full h-[90%] overflow-auto scrollbar-hide flex flex-col gap-3 p-0 rounded-2xl">
+        <div className="w-full flex flex-col items-center justify-between gap-3 min-h-[550px] h-auto">
+          <div className="w-full h-full overflow-auto scrollbar-hide flex flex-col gap-3 p-0 rounded-2xl">
             <div className="w-full flex flex-row items-center justify-between border-b border-[#EDEDED] py-4 px-4">
               <div className="text-lg font-semibold" style={{ letterSpacing: '-0.5px' }}>Filter Sub Accounts</div>
               <CloseBtn onClick={handleClose} />
@@ -165,13 +167,14 @@ const SubAccountFilters = ({
                 </div>
               </div>
             </div>
-            <div className="px-4 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
-              Select SubAccount Status
-            </div>
-            <div className="w-full px-4">
-              <FormControl sx={{}} className="w-full h-[50px]">
-                <Select
-                  value={accountStatus}
+            <div className="flex flex-col gap-2">
+              <div className="px-4 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
+                Select SubAccount Status
+              </div>
+              <div className="w-full px-4">
+                <FormControl sx={{}} className="w-full h-[50px]">
+                  <Select
+                    value={accountStatus}
                   // label="Age"
                   onChange={(event) => {
                     setAccountStatus(event.target.value)
@@ -204,22 +207,16 @@ const SubAccountFilters = ({
                       border: 'none', // Remove outline on focus
                     },
                     '&.MuiSelect-select': {
-                      py: 0, // Optional padding adjustments
+                      py: 0,
+                      fontSize: 14,
                     },
                   }}
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: '30vh', // Limit dropdown height
-                        overflow: 'auto', // Enable scrolling in dropdown
-                        scrollbarWidth: 'none',
-                        // borderRadius: "10px"
-                      },
-                    },
-                  }}
+                  MenuProps={getAgencySelectMenuProps()}
                 >
                   <MenuItem className="w-full" value="">
-                    <button onClick={() => {}}>None</button>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>None</span>
+                    </Box>
                   </MenuItem>
                   {subAccountStatus?.map((item, index) => {
                     return (
@@ -228,20 +225,27 @@ const SubAccountFilters = ({
                         value={item.value}
                         key={index}
                       >
-                        <button onClick={() => {}}>{item.title}</button>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                          <span>{item.title}</span>
+                          {accountStatus === item.value && (
+                            <Check sx={{ fontSize: 16, color: 'hsl(var(--brand-primary))' }} />
+                          )}
+                        </Box>
                       </MenuItem>
                     )
                   })}
                 </Select>
               </FormControl>
+              </div>
             </div>
-            <div className="px-4 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
-              Select Plan
-            </div>
-            <div className="w-full px-4">
-              <FormControl sx={{}} className="w-full h-[50px]">
-                <Select
-                  value={selectPlanId}
+            <div className="flex flex-col gap-2">
+              <div className="px-4 text-sm font-medium" style={{ color: 'rgba(0,0,0,0.8)' }}>
+                Select Plan
+              </div>
+              <div className="w-full px-4">
+                <FormControl sx={{}} className="w-full h-[50px]">
+                  <Select
+                    value={selectPlanId}
                   // label="Age"
                   onChange={(event) => {
                     setSelectPlanId(event.target.value)
@@ -270,22 +274,16 @@ const SubAccountFilters = ({
                       border: 'none', // Remove outline on focus
                     },
                     '&.MuiSelect-select': {
-                      py: 0, // Optional padding adjustments
+                      py: 0,
+                      fontSize: 14,
                     },
                   }}
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: '30vh', // Limit dropdown height
-                        overflow: 'auto', // Enable scrolling in dropdown
-                        scrollbarWidth: 'none',
-                        // borderRadius: "10px"
-                      },
-                    },
-                  }}
+                  MenuProps={getAgencySelectMenuProps()}
                 >
                   <MenuItem className="w-full" value="">
-                    <button onClick={() => {}}>None</button>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>None</span>
+                    </Box>
                   </MenuItem>
                   {plansList
                     ?.slice()
@@ -297,23 +295,30 @@ const SubAccountFilters = ({
                           value={item.id}
                           key={index}
                         >
-                          <button onClick={() => {}}>{item.title}</button>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                            <span>{item.title}</span>
+                            {selectPlanId === item.id && (
+                              <Check sx={{ fontSize: 16, color: 'hsl(var(--brand-primary))' }} />
+                            )}
+                          </Box>
                         </MenuItem>
                       )
                     })}
                 </Select>
               </FormControl>
+              </div>
             </div>
-          </div>
-          <div className="w-full h-[10%] flex flex-col justify-center py-4 px-4">
+            </div>
+          <div className="w-full h-auto flex flex-col justify-center py-4 px-4" style={{ fontSize: 14 }}>
             {initialLoader ? (
-              <div className="flex flex-row items-center justify-center h-[50px] w-full">
+              <div className="flex flex-row items-center justify-center h-[40px] w-full">
                 <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
               <button
-                className="w-full h-10 rounded-lg bg-brand-primary text-white text-sm font-medium border-none outline-none shadow-md transition-shadow active:scale-[0.98] transition-transform hover:shadow-lg"
+                className="w-full h-[40px] rounded-lg bg-brand-primary text-white text-sm font-medium border-none outline-none shadow-md transition-shadow transition-transform duration-200 ease-out active:scale-[0.98] hover:shadow-lg"
                 style={{
+                  fontSize: 14,
                   boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
                 }}
                 onMouseEnter={(e) => {

@@ -2166,6 +2166,7 @@ const AdminLeads = ({
                   <span>New Leads</span>
                 </button>
               </div>
+            </div>
             )}
 
             {/* <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
