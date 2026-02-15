@@ -15,7 +15,9 @@ import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscript
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import Apis from '@/components/apis/Apis'
+import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
+import voicesList from '@/components/createagent/Voices'
 import remarkGfm from 'remark-gfm'
 
 const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
@@ -96,6 +98,8 @@ const AiChatModal = ({
   const [agentsList, setAgentsList] = useState([]) // from API: array of { id: mainAgentId, name, agents: [{ id: agentId, name, ... }] }
   const [selectedAgentId, setSelectedAgentId] = useState(null) // AgentModel.id (sub-agent), loaded from message settings (DB)
   const [agentsLoading, setAgentsLoading] = useState(false)
+  const [userAvatarImageError, setUserAvatarImageError] = useState(false)
+  const [failedUserAvatarIds, setFailedUserAvatarIds] = useState(() => new Set())
   const messagesEndRef = useRef(null)
   const aiEditorRef = useRef(null)
   const hasLoadedRef = useRef(false)
@@ -238,6 +242,7 @@ const AiChatModal = ({
             content: msg.content,
             role: msg.role,
             createdAt: msg.createdAt,
+            ...(msg.senderUser && { senderUser: msg.senderUser }),
           })),
         )
       }
@@ -263,19 +268,62 @@ const AiChatModal = ({
     setInputValue('')
     setMessages([])
     setAiKeyError(false)
+    setUserAvatarImageError(false)
     onClose()
   }
 
-  // Flat list of sub-agents (AgentModel) for dropdown: each main agent has .agents array
+  // Reset user avatar error when modal opens so profile image is retried
+  useEffect(() => {
+    if (open) {
+      setUserAvatarImageError(false)
+      setFailedUserAvatarIds(new Set())
+    }
+  }, [open])
+
+  // Flat list of sub-agents (AgentModel) for dropdown; include thumb and voiceId for avatar (profile image → voice avatar → orb, same as myAgentX)
   const flatAgentsList = React.useMemo(() => {
     if (!Array.isArray(agentsList)) return []
     return agentsList.flatMap((m) =>
       (m.agents || []).map((a) => ({
         id: a.id,
         name: a.name || m.name || `Agent ${a.id}`,
+        thumb_profile_image: a.thumb_profile_image || null,
+        voiceId: a.voiceId || null,
       })),
     )
   }, [agentsList])
+
+  // Agent avatar for dropdown: profile image → voice avatar (from voiceId) → orb fallback (same logic as myAgentX getAgentProfileImage)
+  const getAgentAvatarForDropdown = (agent, size = 20) => {
+    if (!agent) return <AgentXOrb width={size} height={size} className="shrink-0 rounded-full" />
+    if (agent.thumb_profile_image) {
+      return (
+        <Image
+          src={agent.thumb_profile_image}
+          width={size}
+          height={size}
+          alt=""
+          className="rounded-full object-cover shrink-0"
+          unoptimized
+        />
+      )
+    }
+    if (agent.voiceId) {
+      const selectedVoice = voicesList.find((v) => v.voice_id === agent.voiceId)
+      if (selectedVoice?.img) {
+        return (
+          <Image
+            src={selectedVoice.img}
+            width={size}
+            height={size}
+            alt=""
+            className="rounded-full object-cover shrink-0"
+          />
+        )
+      }
+    }
+    return <AgentXOrb width={size} height={size} className="shrink-0 rounded-full" />
+  }
 
   // Persist selected AI chat agent to message settings (DB)
   const persistAgentSelectionToDb = useCallback(async (agentId) => {
@@ -304,7 +352,12 @@ const AiChatModal = ({
 
   const agentDropdownOptions = React.useMemo(() => {
     const defaultOpt = {
-      label: 'Default prompt',
+      label: (
+        <span className="flex items-center gap-2">
+          <AgentXOrb width={20} height={20} />
+          <span>Sky</span>
+        </span>
+      ),
       value: '__default__',
       onSelect: () => {
         setSelectedAgentId(null)
@@ -312,7 +365,12 @@ const AiChatModal = ({
       },
     }
     const agentOpts = flatAgentsList.map((agent) => ({
-      label: agent.name,
+      label: (
+        <span className="flex items-center gap-2">
+          {getAgentAvatarForDropdown(agent, 20)}
+          <span className="truncate">{agent.name}</span>
+        </span>
+      ),
       value: agent.id,
       onSelect: () => {
         setSelectedAgentId(agent.id)
@@ -325,7 +383,20 @@ const AiChatModal = ({
   const agentDropdownLabel =
     selectedAgentId != null
       ? (flatAgentsList.find((a) => a.id == selectedAgentId)?.name ?? 'Select agent')
-      : 'Default prompt'
+      : 'Sky'
+
+  // Trigger icon: orb for Sky, agent avatar for selected agent (profile → voice avatar → orb, same as myAgentX)
+  const AgentDropdownTriggerIcon = ({ className }) => {
+    const sel = flatAgentsList.find((a) => a.id == selectedAgentId)
+    if (sel) {
+      return (
+        <span className={cn('shrink-0 mr-2', className)}>
+          {getAgentAvatarForDropdown(sel, 24)}
+        </span>
+      )
+    }
+    return <AgentXOrb width={24} height={24} className={cn('shrink-0 mr-2', className)} />
+  }
 
   const handleSend = async () => {
     const messageText = stripHTML(inputValue).trim()
@@ -381,7 +452,7 @@ const AiChatModal = ({
         return
       }
 
-      // Replace optimistic user message with persisted one
+      // Replace optimistic user message with persisted one (include senderUser for avatar)
       setMessages((prev) =>
         prev.map((m) =>
           m.id === userMessage.id
@@ -390,6 +461,7 @@ const AiChatModal = ({
               content: data.userMessage.content,
               role: data.userMessage.role,
               createdAt: data.userMessage.createdAt,
+              ...(data.userMessage.senderUser && { senderUser: data.userMessage.senderUser }),
             }
             : m,
         ),
@@ -456,6 +528,22 @@ const AiChatModal = ({
     ? moment(callSummaryMessage.createdAt).format('MMM D, h:mm A')
     : ''
 
+  // Current (logged-in) user for outgoing message avatar: profile pic if available, else first letter
+  const currentUserForAvatar = React.useMemo(() => {
+    try {
+      const local = localStorage.getItem('User')
+      if (!local) return { thumb_profile_image: null, name: null }
+      const data = JSON.parse(local)
+      const user = data?.user || data
+      return {
+        thumb_profile_image: user?.thumb_profile_image || null,
+        name: user?.name || user?.firstName || null,
+      }
+    } catch {
+      return { thumb_profile_image: null, name: null }
+    }
+  }, [open])
+
   return (
     <Drawer
       open={open}
@@ -503,6 +591,7 @@ const AiChatModal = ({
             ) : (
               <DropdownCn
                 label={agentDropdownLabel}
+                icon={AgentDropdownTriggerIcon}
                 options={agentDropdownOptions}
                 align="end"
                 chevronIcon={ChevronDown}
@@ -580,7 +669,7 @@ const AiChatModal = ({
 
           {/* Chat messages */}
           <div className="space-y-3 px-2">
-            {messages.map((msg) => {
+            {messages.filter(Boolean).map((msg) => {
               const isUser = msg.role === 'user'
 
               return (
@@ -614,14 +703,35 @@ const AiChatModal = ({
                       )}
                     </div>
 
-                    {/* User avatar on right */}
-                    {isUser && (
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
-                          Y
+                    {/* User avatar on right: sender's profile pic (from API) or current user's, else first letter */}
+                    {isUser && (() => {
+                      const sender = msg.senderUser ?? currentUserForAvatar
+                      const avatarId = msg.senderUser?.id ?? 'current'
+                      const thumb = msg.senderUser?.thumb_profile_image ?? currentUserForAvatar?.thumb_profile_image
+                      const displayName = (msg.senderUser?.name ?? msg.senderUser?.firstName) || currentUserForAvatar?.name
+                      const imageFailed = failedUserAvatarIds.has(avatarId) || (avatarId === 'current' && userAvatarImageError)
+                      return (
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                            {thumb && !imageFailed ? (
+                              <Image
+                                src={thumb}
+                                width={32}
+                                height={32}
+                                alt=""
+                                className="w-full h-full object-cover"
+                                unoptimized
+                                onError={() => setFailedUserAvatarIds((prev) => new Set(prev).add(avatarId))}
+                              />
+                            ) : (
+                              <span className="text-white font-semibold text-xs bg-brand-primary w-full h-full flex items-center justify-center">
+                                {(displayName || 'Y').charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )
+                    })()}
                   </div>
 
                   {/* Timestamp */}
@@ -629,7 +739,7 @@ const AiChatModal = ({
                     className={`mt-1 text-[10px] text-muted-foreground ${isUser ? 'text-right mr-10' : 'ml-10'
                       }`}
                   >
-                    {moment(msg.createdAt).format('h:mm A')}
+                    {msg?.createdAt ? moment(msg.createdAt).format('h:mm A') : ''}
                   </div>
                 </div>
               )
