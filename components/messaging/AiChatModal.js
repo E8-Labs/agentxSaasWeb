@@ -23,6 +23,7 @@ import remarkGfm from 'remark-gfm'
 const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
 
 // Markdown components for AI replies: compact styling inside the chat bubble
+// li > p as inline so "1." and "Identify the Bottleneck:" stay on same line (remark-gfm wraps list text in <p>)
 const markdownComponents = {
   p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
   h1: ({ children }) => <h1 className="text-base font-semibold mb-1.5 mt-2 first:mt-0">{children}</h1>,
@@ -31,7 +32,11 @@ const markdownComponents = {
   strong: ({ children }) => <strong className="font-bold">{children}</strong>,
   ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
   ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
-  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+  li: ({ children }) => (
+    <li className="leading-relaxed [&>p]:inline [&>p]:m-0 [&>p:not(:last-child)]:mr-1">
+      {children}
+    </li>
+  ),
 }
 
 // Lottie animation for "Thinking..." state (load once)
