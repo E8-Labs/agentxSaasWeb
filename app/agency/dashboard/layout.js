@@ -48,9 +48,9 @@ export default function DashboardLayout({ children }) {
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
         >
-          {/* Sidebar - fixed width 250px, no max-width */}
+          {/* Sidebar - fixed, does not scroll with page */}
           <div
-            className="h-screen w-[250px] min-w-[250px] shrink-0"
+            className="fixed left-0 top-0 z-20 h-screen w-[250px] min-w-[250px] shrink-0"
             style={{
               borderRight: '1px solid #00000010',
               backgroundColor: 'white',
@@ -59,8 +59,8 @@ export default function DashboardLayout({ children }) {
             <AgencyNavBar />
           </div>
 
-          {/* Main Content - page background #f9f9f9 */}
-          <div className="agency-dashboard-content flex-1 min-w-0 w-full min-h-screen bg-[#f9f9f9]">
+          {/* Main Content - offset for fixed sidebar */}
+          <div className="agency-dashboard-content ml-[250px] flex-1 min-w-0 w-full min-h-screen max-h-none bg-white">
             <div>{/* <NoPlanPopup /> */}</div>
             {children}
           </div>

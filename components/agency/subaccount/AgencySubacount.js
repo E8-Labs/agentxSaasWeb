@@ -831,7 +831,7 @@ function AgencySubacount({ selectedAgency }) {
   }
 
   return (
-    <div className="w-full flex flex-col items-center ">
+    <div className="w-full flex flex-col items-center h-auto bg-transparent">
       {rortingLoader && (
         <LoaderAnimation
           loaderModal={true}
@@ -847,17 +847,15 @@ function AgencySubacount({ selectedAgency }) {
         type={showSnackType}
         message={showSnackMessage}
       />
-      <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
+      <div className="sticky top-0 z-30 flex w-full flex-row items-center justify-between px-5 py-5 border-b h-[60px] bg-white">
         <div
+          className="text-2xl font-semibold"
           style={{
-            fontSize: 22,
-            fontWeight: '700',
             color: 'black',
+            letterSpacing: '-1px',
           }}
         >
-          Sub Accounts
-          {/* <EditAgencyName
-            flex={true} /> */}
+          Sub Accounts: {totalCount > 0 ? totalCount : (filteredList?.length || 0)}
         </div>
 
         <div className="flex flex-row items-center gap-2">
@@ -893,47 +891,16 @@ function AgencySubacount({ selectedAgency }) {
       //   setShowSnackType(SnackbarTypes.Success);
       // }}
       />
-      <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
-     
-        <div
-          className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, hsl(var(--brand-primary)), hsl(var(--brand-primary) / 0.8))`,
-          }}
-        >
-          {/* Content */}
-          <div className="relative z-10 flex flex-row items-center justify-between w-full">
-            <div
-              style={{
-                fontSize: 29,
-                fontWeight: '700',
-                color: 'white',
-              }}
-            >
-              Total Sub Accounts: {totalCount > 0 ? totalCount : (filteredList?.length || 0)}
-            </div>
-
-            <button
-              disabled={twililoConectedStatus}
-              className="flex px-5 py-3 bg-white rounded-lg text-brand-primary font-medium border-none outline-none"
-              onClick={() => {
-                handleCheckPlans()
-              }}
-            >
-              {loading ? <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} /> : 'Create Sub Account'}
-            </button>
-          </div>
-        </div>
-
-
-
-        <div className="w-full flex flex-row items-center justify-start mb-2 ps-10 mt-4 gap-4">
-          <div className="flex flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
+      <div className="w-full max-w-[1300px] min-h-full max-h-none flex flex-col items-center gap-3 p-0 pt-4 rounded-none bg-transparent">
+        {/* Fixed header: Total Sub Accounts, Search/Filter, Table header */}
+        <div className="sticky top-[60px] z-50 w-full flex flex-col gap-3 pt-4 !bg-white">
+        <div className="w-full flex flex-row items-center justify-between px-3 gap-3">
+          <div className="flex flex-row items-center gap-3 flex-1 min-w-0">
+          <div className="flex h-10 flex-row items-center gap-1 w-[22vw] flex-shrink-0 rounded-lg border border-gray-200 pl-1 pr-3 focus-within:border-brand-primary transition-colors">
             <input
-              style={{ fontSize: 15 }}
               type="text"
               placeholder="Search by name, status or plan"
-              className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
+              className="flex-grow outline-none font-[500] text-sm border-none bg-transparent focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
               value={searchValue}
               onChange={(e) => {
                 const value = e.target.value
@@ -1031,9 +998,28 @@ function AgencySubacount({ selectedAgency }) {
               </div>
             </div>
           </div>
+          </div>
+          <button
+            disabled={twililoConectedStatus}
+            className="flex h-10 shrink-0 px-3 items-center justify-center bg-brand-primary text-white text-sm font-medium rounded-lg border-none outline-none shadow-md transition-shadow active:scale-[0.98] transition-transform hover:shadow-lg"
+            style={{
+              boxShadow: '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px hsl(var(--brand-primary) / 0.25), 0 4px 6px -4px hsl(var(--brand-primary) / 0.25)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px hsl(var(--brand-primary) / 0.1), 0 2px 4px -2px hsl(var(--brand-primary) / 0.1)'
+            }}
+            onClick={() => {
+              handleCheckPlans()
+            }}
+          >
+            {loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Create Sub Account'}
+          </button>
         </div>
 
-        <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
+        <div className="w-full flex flex-row justify-between h-10 mt-2 px-3 mt-10">
           <div className="w-2/12">
             <div style={styles.text}>Sub Account</div>
           </div>
@@ -1064,6 +1050,8 @@ function AgencySubacount({ selectedAgency }) {
             <div style={styles.text}>Action</div>
           </div>
         </div>
+        </div>
+        {/* End fixed header */}
 
         {initialLoader ? (
           <div className="w-full h-[68vh] flex flex-row justify-center mt-4">
@@ -1071,17 +1059,17 @@ function AgencySubacount({ selectedAgency }) {
           </div>
         ) : (
           <div
-            className={`h-[68vh] overflow-auto w-full`}
+            className="h-full overflow-auto w-full text-sm px-3"
             id="scrollableDiv1"
             style={{ scrollbarWidth: 'none' }}
           >
             {filteredList?.length > 0 ? (
-              <div>
+              <div className="flex flex-col gap-0.5 h-full">
                 {filteredList.map((item) => (
                   <div
                     key={item.id}
                     style={{ cursor: 'pointer' }}
-                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-brand-primary/5 py-2 cursor-pointer cursor-pointer"
+                    className="w-full flex flex-row justify-between items-center h-auto px-3 hover:bg-black/[0.02] py-[10px] cursor-pointer border-b border-[#EDEDED]"
                   // onClick={(e) => handleTogglePopover(e, item)}
                   // onClick={(event) => {
                   //   if (activeAccount === item.id) {
@@ -1109,17 +1097,17 @@ function AgencySubacount({ selectedAgency }) {
                         <Image
                           src={item.thumb_profile_image}
                           className="rounded-full bg-red"
-                          height={40}
-                          width={40}
+                          height={32}
+                          width={32}
                           style={{
-                            height: '40px',
-                            width: '40px',
+                            height: '32px',
+                            width: '32px',
                             objectFit: 'cover',
                           }}
                           alt="*"
                         />
                       ) : (
-                        <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                        <div className="h-8 w-8 rounded-full bg-black flex flex-row items-center justify-center text-white">
                           {item.name.slice(0, 1).toUpperCase()}
                         </div>
                       )}
@@ -1217,8 +1205,8 @@ function AgencySubacount({ selectedAgency }) {
                       >
                         <Image
                           src={'/svgIcons/threeDotsIcon.svg'}
-                          height={24}
-                          width={24}
+                          height={16}
+                          width={16}
                           alt="menu"
                         />
                       </button>
@@ -1549,7 +1537,7 @@ const styles = {
   },
   text2: {
     textAlignLast: 'left',
-    fontSize: 15,
+    fontSize: 14,
     color: '#000000',
     fontWeight: '500',
     whiteSpace: 'nowrap', // Prevent text from wrapping

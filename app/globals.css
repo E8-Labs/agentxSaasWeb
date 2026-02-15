@@ -158,19 +158,6 @@ input[type="date"]::-moz-datetime-edit-year-field {
     min-height: 100vh;
   }
 
-  /* Agency dashboard page: exclude from .flex.flex-col.w-full white background rule */
-  .agency-dashboard-content .flex.flex-col.w-full,
-  .agency-dashboard-content.flex.flex-col.w-full {
-    background-color: transparent !important;
-    background: transparent !important;
-  }
-
-  /* Parent and grandparent of content: transparent, override any !important */
-  .agency-dashboard-layout-wrap,
-  .agency-dashboard-layout-row {
-    background-color: transparent !important;
-    background: transparent !important;
-  }
 
   /* Agency dashboard/integrations inner: force #f9f9f9 */
   .agency-dashboard-inner {

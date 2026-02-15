@@ -748,7 +748,7 @@ function NotficationsDrawer({ close }) {
           setShowNotificationDrawer(true)
           getNotifications()
         }}
-        className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0"
+        className="mb-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-black/[0.02]"
       >
         <div className="flex flex-row relative">
           <Image
@@ -777,8 +777,13 @@ function NotficationsDrawer({ close }) {
         anchor="right"
         sx={{
           '& .MuiDrawer-paper': {
-            width: '35%', // Drawer width
-            boxSizing: 'border-box', // Ensure padding doesn't shrink content
+            width: '35%',
+            maxWidth: '600px',
+            height: '96%',
+            borderRadius: '12px',
+            boxSizing: 'border-box',
+            marginTop: '16px',
+            marginRight: '16px',
           },
         }}
         open={showNotificationDrawer}
@@ -793,7 +798,7 @@ function NotficationsDrawer({ close }) {
         }}
       >
         <div className="w-full h-full flex flex-col">
-          <div className="flex flex-row items-center justify-between p-6">
+          <div className="flex h-[60px] flex-row items-center justify-between p-6">
             <div className="flex flex-row gap-2 items-center">
               <div className="flex flex-row ">
                 <Image
