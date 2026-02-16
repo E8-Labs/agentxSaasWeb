@@ -16,13 +16,13 @@ import { TypographyBody } from '@/lib/typography'
  * @param {string} props.height - Optional height class (e.g., 'p-1', 'p-2', 'p-1.5')
  * @param {string} props.roundedness - Optional roundedness class (e.g., 'rounded-lg', 'rounded-xl', 'rounded-md')
  */
-const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2', roundedness = 'rounded-xl' }) => {
+const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2', roundedness = 'rounded-full' }) => {
   return (
     <div
       style={{
         backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
       }}
-      className={cn(height, roundedness, "flex flex-row items-center justify-center gap-2", className)}
+      className={cn(height, "flex flex-row items-center justify-center gap-2 rounded-full", className)}
     >
       {options.map((option) => {
         const isSelected = value === option.value
@@ -33,8 +33,11 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
             key={option.value}
             onClick={() => onChange(option.value)}
             className={cn(
-              "px-2 py-1 rounded-lg transition-colors",
-              isSelected ? 'bg-white text-brand-primary' : 'bg-transparent text-black'
+              "px-2 py-1 transition-colors",
+              isSelected ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
+              isSelected ? "rounded-full" : "rounded-none",
+              // isSelected && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+              isSelected && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
             )}
           >
             <TypographyBody className="flex items-center gap-2">
