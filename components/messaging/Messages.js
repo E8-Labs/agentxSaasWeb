@@ -81,6 +81,13 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
   const [selectedEmailAccount, setSelectedEmailAccount] = useState(null)
   const lastSelectedEmailAccountRef = useRef(null) // Store last selected email account when switching tabs
   const initialEmailAccountsFetchedRef = useRef(false) // Prevent re-fetching email accounts on every messages update
+  // Global message settings: default "From" number/email (loaded from API, applied when lists are fetched)
+  const defaultSendingPhoneNumberIdRef = useRef(null)
+  const defaultSendingEmailAccountIdRef = useRef(null)
+  // Refs for current selection so debounced save has latest values
+  const selectedPhoneNumberRef = useRef(null)
+  const selectedEmailAccountRef = useRef(null)
+  const saveDefaultSendingTimeoutRef = useRef(null)
   const [userData, setUserData] = useState(null)
   const [sendingMessage, setSendingMessage] = useState(false)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -421,7 +428,7 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
   })
 
   const MESSAGES_PER_PAGE = 30
-  const SMS_CHAR_LIMIT = 160
+  const SMS_CHAR_LIMIT = 300
   const MAX_ATTACHMENTS = 5
   const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB
 
@@ -2189,6 +2196,76 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
     }
   }
 
+  // Fetch full message settings (for default From number/email); returns { defaultSendingPhoneNumberId, defaultSendingEmailAccountId } or null
+  const fetchMessageSettingsDefaults = useCallback(async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return null
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      let url = `${Apis.BasePath}api/mail/settings`
+      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      const data = res.data?.data
+      if (data) {
+        defaultSendingPhoneNumberIdRef.current = data.defaultSendingPhoneNumberId ?? null
+        defaultSendingEmailAccountIdRef.current = data.defaultSendingEmailAccountId ?? null
+        return data
+      }
+      return null
+    } catch (err) {
+      console.error('Error fetching message settings for defaults:', err)
+      return null
+    }
+  }, [selectedUser?.id])
+
+  // Persist default From number/email to message settings (debounced)
+  const saveDefaultSendingToSettings = useCallback((phoneId, emailId) => {
+    if (saveDefaultSendingTimeoutRef.current) clearTimeout(saveDefaultSendingTimeoutRef.current)
+    saveDefaultSendingTimeoutRef.current = setTimeout(async () => {
+      saveDefaultSendingTimeoutRef.current = null
+      try {
+        const localData = localStorage.getItem('User')
+        if (!localData) return
+        const userData = JSON.parse(localData)
+        const token = userData.token
+        let url = `${Apis.BasePath}api/mail/settings`
+        if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+        await axios.put(url, {
+          defaultSendingPhoneNumberId: phoneId != null && phoneId !== '' ? Number(phoneId) : null,
+          defaultSendingEmailAccountId: emailId != null && emailId !== '' ? Number(emailId) : null,
+        }, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        })
+      } catch (err) {
+        console.error('Error saving default sending to message settings:', err)
+      }
+    }, 500)
+  }, [selectedUser?.id])
+
+  // Wrapped setters: update state + refs and persist to message settings when user changes From dropdown
+  const handlePhoneNumberChange = useCallback((id) => {
+    selectedPhoneNumberRef.current = id
+    setSelectedPhoneNumber(id)
+    saveDefaultSendingToSettings(id, selectedEmailAccountRef.current)
+  }, [saveDefaultSendingToSettings])
+
+  const handleEmailAccountChange = useCallback((id) => {
+    selectedEmailAccountRef.current = id
+    setSelectedEmailAccount(id)
+    saveDefaultSendingToSettings(selectedPhoneNumberRef.current, id)
+  }, [saveDefaultSendingToSettings])
+
+  // Keep refs in sync when state is set elsewhere (e.g. from fetch or thread restore)
+  useEffect(() => {
+    selectedPhoneNumberRef.current = selectedPhoneNumber
+  }, [selectedPhoneNumber])
+  useEffect(() => {
+    selectedEmailAccountRef.current = selectedEmailAccount
+  }, [selectedEmailAccount])
+
   // Fetch phone numbers
   const fetchPhoneNumbers = useCallback(async () => {
     try {
@@ -2212,9 +2289,14 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
       })
 
       if (response.data?.status && response.data?.data) {
-        setPhoneNumbers(response.data.data)
-        if (response.data.data.length > 0) {
-          setSelectedPhoneNumber(response.data.data[0].id)
+        const list = response.data.data
+        setPhoneNumbers(list)
+        if (list.length > 0) {
+          const defaultId = defaultSendingPhoneNumberIdRef.current
+          const inList = defaultId != null && list.some((p) => p.id === defaultId || p.id === Number(defaultId))
+          const value = inList ? String(defaultId) : (list[0].id?.toString() ?? String(list[0].id))
+          selectedPhoneNumberRef.current = value
+          setSelectedPhoneNumber(value)
         }
       }
     } catch (error) {
@@ -2261,21 +2343,35 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
       })
 
       if (response.data?.status && response.data?.data) {
-        setEmailAccounts(response.data.data)
+        const list = response.data.data
+        setEmailAccounts(list)
 
-        if (response.data.data.length > 0) {
+        if (list.length > 0) {
           // Priority order:
-          // 1. If preserving selection and we have a last selected account, restore it
-          // 2. If restoreLastUsed is true, try to get from thread's last sent email
-          // 3. If selecting a draft, don't auto-select
-          // 4. Otherwise, select first account
+          // 1. Saved default from message settings (when not preserving / not restoreLastUsed)
+          // 2. If preserving selection and we have a last selected account, restore it
+          // 3. If restoreLastUsed is true, try to get from thread's last sent email
+          // 4. If selecting a draft, don't auto-select
+          // 5. Otherwise, select first account
+
+          if (!preserveSelection && !restoreLastUsed && !isSelectingDraftRef.current) {
+            const defaultId = defaultSendingEmailAccountIdRef.current
+            const inList = defaultId != null && list.some((acc) => acc.id === defaultId || acc.id === Number(defaultId))
+            if (inList) {
+              const value = String(defaultId)
+              selectedEmailAccountRef.current = value
+              setSelectedEmailAccount(value)
+              return
+            }
+          }
 
           if (preserveSelection && lastSelectedEmailAccountRef.current) {
             // Check if the last selected account still exists in the list
-            const accountExists = response.data.data.some(
+            const accountExists = list.some(
               acc => acc.id.toString() === lastSelectedEmailAccountRef.current
             )
             if (accountExists) {
+              selectedEmailAccountRef.current = lastSelectedEmailAccountRef.current
               setSelectedEmailAccount(lastSelectedEmailAccountRef.current)
               return
             }
@@ -2285,10 +2381,11 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
             const lastUsedAccountId = getLastEmailAccountFromThread()
             if (lastUsedAccountId) {
               // Check if the last used account exists in the list
-              const accountExists = response.data.data.some(
+              const accountExists = list.some(
                 acc => acc.id.toString() === lastUsedAccountId
               )
               if (accountExists) {
+                selectedEmailAccountRef.current = lastUsedAccountId
                 setSelectedEmailAccount(lastUsedAccountId)
                 return
               }
@@ -2297,7 +2394,9 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
 
           // Only auto-select first account if not preserving selection and not selecting a draft
           if (!preserveSelection && !isSelectingDraftRef.current) {
-            setSelectedEmailAccount(response.data.data[0].id)
+            const value = list[0].id?.toString() ?? String(list[0].id)
+            selectedEmailAccountRef.current = value
+            setSelectedEmailAccount(value)
           }
         }
       }
@@ -2620,19 +2719,21 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
     prevComposerModeRef.current = composerMode
   }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread])
 
-  // Initial load for phone numbers and email accounts
+  // Initial load: fetch message settings (for default From), then phone numbers and email accounts
   useEffect(() => {
-    fetchPhoneNumbers()
-    // Only fetch email accounts once on initial load.
-    // Subsequent re-fetches are triggered explicitly (e.g. after Gmail auth at AuthSelectionPopup).
-    // Without this guard, fetchEmailAccounts identity changes every time messages update
-    // (via getLastEmailAccountFromThread dep), causing this effect to re-run and
-    // reset selectedEmailAccount to the first account.
-    if (!initialEmailAccountsFetchedRef.current) {
-      fetchEmailAccounts()
-      initialEmailAccountsFetchedRef.current = true
+    let cancelled = false
+    const run = async () => {
+      await fetchMessageSettingsDefaults()
+      if (cancelled) return
+      fetchPhoneNumbers()
+      if (!initialEmailAccountsFetchedRef.current) {
+        fetchEmailAccounts()
+        initialEmailAccountsFetchedRef.current = true
+      }
     }
-  }, [fetchPhoneNumbers, fetchEmailAccounts])
+    run()
+    return () => { cancelled = true }
+  }, [fetchMessageSettingsDefaults, fetchPhoneNumbers, fetchEmailAccounts])
 
   // Handle search with debounce and initial load
   useEffect(() => {
@@ -3071,10 +3172,10 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
                       removeBccEmail={removeBccEmail}
                       phoneNumbers={phoneNumbers}
                       selectedPhoneNumber={selectedPhoneNumber}
-                      setSelectedPhoneNumber={setSelectedPhoneNumber}
+                      setSelectedPhoneNumber={handlePhoneNumberChange}
                       emailAccounts={emailAccounts}
                       selectedEmailAccount={selectedEmailAccount}
-                      setSelectedEmailAccount={setSelectedEmailAccount}
+                      setSelectedEmailAccount={handleEmailAccountChange}
                       removeAttachment={removeAttachment}
                       richTextEditorRef={richTextEditorRef}
                       SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}

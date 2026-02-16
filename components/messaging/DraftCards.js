@@ -34,7 +34,7 @@ const DraftCards = ({
     if (draft.source === 'call_summary_follow_up') {
       return `Follow-Up Response ${draft.variantNumber || 1}`
     }
-    const typeLabel = draft.messageType === 'email' ? 'Email' : 'SMS'
+    const typeLabel = draft.messageType === 'email' ? 'Email' : 'Text'
     return `${typeLabel} Response ${draft.variantNumber || 1}`
   }
 
