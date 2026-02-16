@@ -2,7 +2,14 @@
 
 import 'react-phone-input-2/lib/style.css'
 
-import { Button, CircularProgress, Fab, Tooltip, colors } from '@mui/material'
+import {
+  Button,
+  CircularProgress,
+  Fab,
+  Popover,
+  Tooltip,
+  colors,
+} from '@mui/material'
 import { Box, Drawer, Modal } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
@@ -33,14 +40,16 @@ import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import StandardHeader from '@/components/common/StandardHeader'
+import TeamMemberActivityDrawer from '@/components/dashboard/teams/TeamMemberActivityDrawer'
 
 function AdminTeam({ selectedUser, agencyUser }) {
   const timerRef = useRef(null)
   const router = useRouter()
   const [teamDropdown, setteamDropdown] = useState(null)
   const [openTeamDropdown, setOpenTeamDropdown] = useState(false)
-  const [moreDropdown, setMoreDropdown] = useState(null)
   const [openMoreDropdown, setOpenMoreDropdown] = useState(false)
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [popoverTeamMember, setPopoverTeamMember] = useState(null)
   const [selectedItem, setSelectedItem] = useState("Noah's Team")
   const [openInvitePopup, setOpenInvitePopup] = useState(false)
   const [name, setName] = useState('')
@@ -73,6 +82,10 @@ function AdminTeam({ selectedUser, agencyUser }) {
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
 
   const [selectedUserDetails, setSelectedUserDetails] = useState(null)
+
+  //code for activity drawer
+  const [activityDrawerOpen, setActivityDrawerOpen] = useState(false)
+  const [activityDrawerTeamMember, setActivityDrawerTeamMember] = useState(null)
 
   let agencyData = null
 
@@ -442,6 +455,16 @@ function AdminTeam({ selectedUser, agencyUser }) {
     setOpenMoreDropdown(false)
   }
 
+  const handlePopoverOpen = (event, item) => {
+    setAnchorEl(event.currentTarget)
+    setPopoverTeamMember(item)
+  }
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null)
+    setPopoverTeamMember(null)
+  }
+
   function canShowMenuDots(team) {
     let user = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (user) {
@@ -547,7 +570,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
         className=" w-full flex flex-row justify-between items-center px-4"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        
+
 
         <StandardHeader
           titleContent={
@@ -650,7 +673,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
                 {myTeam?.map((item, index) => {
                   // //console.log;
                   return (
-                    <div key={item.id} className="relative w-6/12 p-6">
+                    <div key={item.id} className="relative w-4/12 p-6">
                       <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
                         {item.invitedUser?.thumb_profile_image ? (
                           <div
@@ -707,12 +730,9 @@ function AdminTeam({ selectedUser, agencyUser }) {
                         {canShowMenuDots(item) && (
                           <button
                             id={`dropdown-toggle-${item.id}`}
-                            onClick={() =>
-                              setMoreDropdown(
-                                moreDropdown === item.id ? null : item.id,
-                              )
-                            }
+                            onClick={(e) => handlePopoverOpen(e, item)}
                             className="relative"
+                            aria-label="Open menu"
                           >
                             <img
                               src={'/otherAssets/threeDotsIcon.png'}
@@ -724,35 +744,60 @@ function AdminTeam({ selectedUser, agencyUser }) {
                         )}
                       </div>
 
-                      {/* Custom Dropdown */}
-                      {moreDropdown === item.id && (
-                        <div
-                          className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
-                          style={{ width: '200px' }}
-                        >
-                          {canShowResendOption(item) && (
-                            <div
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                      <Popover
+                        open={Boolean(anchorEl)}
+                        anchorEl={anchorEl}
+                        onClose={handlePopoverClose}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'right',
+                        }}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'right',
+                        }}
+                        PaperProps={{
+                          sx: {
+                            boxShadow:
+                              '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
+                            border: 'none',
+                          },
+                        }}
+                      >
+                        <div className="flex flex-col">
+                          {popoverTeamMember &&
+                            canShowResendOption(popoverTeamMember) && (
+                              <MenuItem
+                                onClick={() => {
+                                  handleResendInvite(popoverTeamMember)
+                                  handlePopoverClose()
+                                }}
+                              >
+                                Resend Invite
+                              </MenuItem>
+                            )}
+                          {popoverTeamMember?.invitedUser?.id && (
+                            <MenuItem
                               onClick={() => {
-                                handleResendInvite(item)
-                                setMoreDropdown(null)
+                                setActivityDrawerTeamMember(popoverTeamMember)
+                                setActivityDrawerOpen(true)
+                                handlePopoverClose()
                               }}
                             >
-                              Resend Invite
-                            </div>
+                              Activity
+                            </MenuItem>
                           )}
-                          <div
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-500"
+                          <MenuItem
+                            sx={{ color: 'red' }}
                             onClick={() => {
-                              // //console.log;
-                              DeleteTeamMember(item)
-                              setMoreDropdown(null)
+                              DeleteTeamMember(popoverTeamMember)
+                              handlePopoverClose()
                             }}
                           >
                             Delete
-                          </div>
+                          </MenuItem>
                         </div>
-                      )}
+                      </Popover>
                     </div>
                   )
                 })}
@@ -1172,6 +1217,21 @@ function AdminTeam({ selectedUser, agencyUser }) {
           </div>
         </Box>
       </Modal>
+
+      {/* Code for activity drawer tab */}
+      {
+        activityDrawerOpen && (
+          <TeamMemberActivityDrawer
+            open={activityDrawerOpen}
+            onClose={() => {
+              setActivityDrawerOpen(false)
+              setActivityDrawerTeamMember(null)
+            }}
+            teamMember={activityDrawerTeamMember}
+            admin={myTeam?.[0]?.invitedUser || myTeam?.[0]?.invitingUser}
+          />
+        )
+      }
 
       {/* UpgradePlan Modal - For users without team access */}
       {showUpgradePlanModal && (
