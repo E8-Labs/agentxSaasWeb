@@ -887,7 +887,7 @@ export const AreaOfFocus = [
   { id: 12232, title: 'Pest Control', description: 'Inspection, treatment, and prevention of residential pest issues.', agentType: 'HomeServices' },
   { id: 12233, title: 'Cleaning Services', description: 'Residential or commercial cleaning, recurring or one-time services.', agentType: 'HomeServices' },
   { id: 12234, title: 'Remodeling / General Contractor', description: 'Home renovations, additions, and full-scale construction projects.', agentType: 'HomeServices' },
-  { id: 12235, title: 'Other', description: 'Type here', agentType: 'HomeServices' },
+  // { id: 12235, title: 'Other', description: 'Type here', agentType: 'HomeServices' },
 ]
 
 export function GetAreasOfFocusForUser(type) {
