@@ -962,7 +962,7 @@ function AgencySubacount({ selectedAgency }) {
           <div className="w-[75vw] flex flex-row items-center gap-4">
             <div className="flex flex-row items-center gap-4 flex-shrink-0 w-[90%]">
               <button
-                className="flex h-10 flex-shrink-0 flex-row items-center gap-1.5 rounded-lg bg-black/[0.02] px-3 outline-none transition-[transform,background-color] hover:bg-black/[0.05] active:scale-[0.98]"
+                className="flex h-10 flex-shrink-0 flex-row items-center gap-1.5 rounded-lg bg-[#ededed] px-3 outline-none transition-[transform,background-color] hover:bg-[#e0e0e0] active:scale-[0.98]"
                 onClick={() => {
                   setShowFilterModal(true)
                 }}
