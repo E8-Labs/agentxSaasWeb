@@ -35,7 +35,6 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limi
   const res = await axios.get(`${Apis.getTeamMemberActivities}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
-  console.log('[Activities] [trace] API response:', res.data)
   return res.data
 }
 
@@ -60,6 +59,12 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [totals, setTotals] = useState({ sms: 0, email: 0, calls: 0 })
   const [activitiesLoading, setActivitiesLoading] = useState(false)
   const [range, setRange] = useState('all')
+  const [customFrom, setCustomFrom] = useState(() => {
+    const d = new Date()
+    d.setDate(1)
+    return d.toISOString().slice(0, 10)
+  })
+  const [customTo, setCustomTo] = useState(() => new Date().toISOString().slice(0, 10))
   const [counts, setCounts] = useState({ todo: 0, 'in-progress': 0, done: 0 })
   const [taskStatusFilter, setTaskStatusFilter] = useState(null)
   const [selectedLeadIdForModal, setSelectedLeadIdForModal] = useState(null)
@@ -87,9 +92,12 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
   const loadActivities = useCallback(async () => {
     if (!teamMemberUserId) return
+    if (range === 'custom' && (!customFrom || !customTo)) return
     setActivitiesLoading(true)
     try {
-      const res = await fetchTeamMemberActivities(teamMemberUserId, range)
+      const from = range === 'custom' ? customFrom : undefined
+      const to = range === 'custom' ? customTo : undefined
+      const res = await fetchTeamMemberActivities(teamMemberUserId, range, from, to)
       const data = res?.data
       setActivities(data?.activities ?? [])
       setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
@@ -100,7 +108,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     } finally {
       setActivitiesLoading(false)
     }
-  }, [teamMemberUserId, range])
+  }, [teamMemberUserId, range, customFrom, customTo])
 
   useEffect(() => {
     if (open && activeTab === 'tasks' && teamMemberUserId) loadTasks()
@@ -282,17 +290,36 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
               <div className="flex items-center justify-between px-6 h-14 shrink-0 border-b border-border">
                 
               </div>
-              <div className="flex items-center justify-between px-6 h-14 shrink-0 ">
+              <div className="flex items-center justify-between px-6 h-14 shrink-0 flex-wrap gap-2">
                 <span className="text-lg font-semibold text-foreground">Activity Log</span>
-                <select
-                  value={range}
-                  onChange={(e) => setRange(e.target.value)}
-                  className="text-sm  border-none rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  {RANGE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <select
+                    value={range}
+                    onChange={(e) => setRange(e.target.value)}
+                    className="text-sm border border-input rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    {RANGE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                  {range === 'custom' && (
+                    <>
+                      <input
+                        type="date"
+                        value={customFrom}
+                        onChange={(e) => setCustomFrom(e.target.value)}
+                        className="text-sm border border-input rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                      />
+                      <span className="text-muted-foreground">to</span>
+                      <input
+                        type="date"
+                        value={customTo}
+                        onChange={(e) => setCustomTo(e.target.value)}
+                        className="text-sm border border-input rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    </>
+                  )}
+                </div>
               </div>
               {/* Stats section: background wrapper, cards with no border, label above count, brand icons */}
               <div className="px-6 py-5 border-b border-border ">
