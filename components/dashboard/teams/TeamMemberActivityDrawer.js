@@ -35,6 +35,7 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limi
   const res = await axios.get(`${Apis.getTeamMemberActivities}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
+  console.log('[Activities] [trace] API response:', res.data)
   return res.data
 }
 
@@ -345,6 +346,64 @@ const GAP_ICON_CONTENT = '1rem'
 const ICON_COL_WIDTH = '2rem'
 const LINE_LEFT = `calc(${DATE_COL_WIDTH} + ${GAP_DATE_ICON} + ${ICON_COL_WIDTH} / 2)`
 
+/** Normalize CC/BCC from activity item (array, JSON string, or metadata) */
+function normalizeCcBcc(value, fallback) {
+  if (value == null) return fallback
+  let arr = value
+  if (typeof value === 'string') {
+    try {
+      arr = value.trim().startsWith('[') ? JSON.parse(value) : null
+    } catch {
+      return value || fallback
+    }
+  }
+  if (Array.isArray(arr) && arr.length > 0) {
+    return arr.filter(Boolean).join(', ')
+  }
+  return fallback
+}
+
+/** Build email details for popover (from, to, cc, bcc, date, subject) from activity item — same shape as Messages getEmailDetails */
+function getEmailDetailsFromActivity(item) {
+  const headers = item.metadata?.headers ?? item.metadata?.emailHeaders ?? item.metadata?.rawHeaders ?? {}
+  const getHeader = (key) => {
+    if (!headers || typeof headers !== 'object') return ''
+    const direct = headers[key] ?? headers[key.toLowerCase()] ?? headers[key?.toUpperCase()]
+    if (direct) return direct
+    const foundKey = Object.keys(headers).find((k) => k && String(k).toLowerCase() === key?.toLowerCase())
+    return foundKey ? headers[foundKey] : ''
+  }
+  const ensureString = (val) => {
+    if (val == null) return ''
+    if (Array.isArray(val)) return val.filter(Boolean).join(', ')
+    return String(val)
+  }
+  const ccFallback = ensureString(item.metadata?.cc ?? getHeader('cc'))
+  const bccFallback = ensureString(item.metadata?.bcc ?? getHeader('bcc'))
+  const ccValue = normalizeCcBcc(item.ccEmails, ccFallback)
+  const bccValue = normalizeCcBcc(item.bccEmails, bccFallback)
+  const fromEmail = ensureString(item.fromEmail ?? item.metadata?.from ?? getHeader('from'))
+  const toEmail = ensureString(item.toEmail ?? item.lead?.email ?? item.metadata?.to ?? getHeader('to'))
+  const dateStr =
+    item.createdAt &&
+    new Date(item.createdAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+  return {
+    from: fromEmail,
+    to: toEmail,
+    cc: ccValue,
+    bcc: bccValue,
+    subject: ensureString(item.subject ?? getHeader('subject')),
+    date: dateStr || '',
+  }
+}
+
 function ActivityTimeline({ activities, onLeadClick }) {
   return (
     <div className="relative">
@@ -364,6 +423,7 @@ function ActivityTimeline({ activities, onLeadClick }) {
 }
 
 function ActivityTimelineItem({ item, onLeadClick }) {
+  const [showEmailDetails, setShowEmailDetails] = useState(false)
   const leadName = item.lead
     ? [item.lead.firstName, item.lead.lastName].filter(Boolean).join(' ') || item.lead.email || 'Lead'
     : 'Lead'
@@ -437,7 +497,60 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                 <span className="text-brand-primary underline">{leadName}</span>
               )}
             </TypographyBody>
-            {item.subject && <TypographyBody className="text-sm text-foreground mt-1">Subject: {item.subject}</TypographyBody>}
+            {item.subject && (
+              <div className="text-sm text-foreground mt-1 flex items-start gap-1 flex-wrap">
+                <span
+                  className="font-normal cursor-pointer relative inline"
+                  onMouseEnter={() => setShowEmailDetails(true)}
+                  onMouseLeave={() => setShowEmailDetails(false)}
+                >
+                  Subject:
+                  {showEmailDetails && (
+                    <div
+                      className="absolute z-50 left-0 top-full mt-1 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900"
+                      style={{
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
+                      }}
+                      onMouseEnter={() => setShowEmailDetails(true)}
+                      onMouseLeave={() => setShowEmailDetails(false)}
+                    >
+                      <div className="px-2.5 py-2 border-b border-gray-200">
+                        <span className="text-[11px] font-medium text-gray-700">Message details</span>
+                      </div>
+                      {(() => {
+                        const details = getEmailDetailsFromActivity(item)
+                        // Same row order as Messages page: from, to, cc, bcc, date, subject (always show cc/bcc, use — when empty)
+                        const rows = [
+                          { label: 'from', value: details.from || '—' },
+                          { label: 'to', value: details.to || '—' },
+                          { label: 'cc', value: details.cc || '—' },
+                          { label: 'bcc', value: details.bcc || '—' },
+                          { label: 'date', value: details.date || '—' },
+                          { label: 'subject', value: details.subject || '—' },
+                        ]
+                        return (
+                          <div className="px-2.5 py-2 text-[11px] text-gray-600 space-y-1">
+                            {rows.map((row) => (
+                              <div key={row.label} className="flex items-start gap-2">
+                                <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">
+                                  {row.label}:
+                                </span>
+                                <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">
+                                  {row.value}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  )}
+                </span>
+                <span className="overflow-hidden text-ellipsis" title={item.subject}>
+                  {item.subject}
+                </span>
+              </div>
+            )}
             {item.content && (
               <div
                 className="prose prose-sm max-w-none break-words text-sm text-muted-foreground mt-1
