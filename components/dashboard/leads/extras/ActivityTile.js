@@ -42,7 +42,7 @@ const ActivityTile = ({
   }
 
   const isExpandDisabled =
-    item?.callOutcome === 'Email Failed' || item?.callOutcome === 'Text Failed'
+    item?.callOutcome === 'Email Failed' || item?.callOutcome === 'Text Failed' || outcome === 'Ongoing'
   const shouldShowChevron =
     item.callOutcome !== 'No Answer' && !isExpandDisabled
 

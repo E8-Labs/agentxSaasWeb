@@ -646,6 +646,8 @@ const AiChatModal = ({
                     onPlayRecording={onPlayRecording}
                     onCopyCallId={onCopyCallId}
                     onReadTranscript={onReadTranscript}
+                    leadName={selectedThread?.lead?.firstName}
+                    leadId={selectedThread?.lead?.id}
                   />
                 </div>
               </div>
