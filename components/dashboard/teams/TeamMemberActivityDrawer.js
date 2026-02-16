@@ -2,9 +2,22 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
-import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo } from 'lucide-react'
+import { format } from 'date-fns'
+import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo, ChevronDown, CalendarIcon } from 'lucide-react'
 import Drawer from '@mui/material/Drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { getTasks } from '@/components/onboarding/services/apisServices/TaskService'
 import Apis from '@/components/apis/Apis'
 import TaskCard from '@/components/messaging/TaskCard'
@@ -20,7 +33,7 @@ const getAuthToken = () => {
       const Data = JSON.parse(localData)
       return Data.token
     }
-  } catch (e) {}
+  } catch (e) { }
   return null
 }
 
@@ -32,6 +45,7 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limi
     params.append('from', from)
     params.append('to', to)
   }
+  console.log(`[Activities] [trace] API params:  ${Apis.getTeamMemberActivities}?${params.toString()}`)
   const res = await axios.get(`${Apis.getTeamMemberActivities}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
@@ -63,6 +77,13 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [counts, setCounts] = useState({ todo: 0, 'in-progress': 0, done: 0 })
   const [taskStatusFilter, setTaskStatusFilter] = useState(null)
   const [selectedLeadIdForModal, setSelectedLeadIdForModal] = useState(null)
+  const [rangeDropdownOpen, setRangeDropdownOpen] = useState(false)
+  const [customFromDate, setCustomFromDate] = useState(null)
+  const [customToDate, setCustomToDate] = useState(null)
+  const [customFromOpen, setCustomFromOpen] = useState(false)
+  const [customToOpen, setCustomToOpen] = useState(false)
+  //show date modals
+  const [showCustomDateModal, setShowCustomDateModal] = useState(false)
 
   const teamMemberUserId = teamMember?.invitedUserId || teamMember?.invitedUser?.id
 
@@ -87,9 +108,12 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
   const loadActivities = useCallback(async () => {
     if (!teamMemberUserId) return
+    if (range === 'custom' && (!customFromDate || !customToDate)) return
+    const fromStr = range === 'custom' && customFromDate ? format(customFromDate, 'yyyy-MM-dd') : undefined
+    const toStr = range === 'custom' && customToDate ? format(customToDate, 'yyyy-MM-dd') : undefined
     setActivitiesLoading(true)
     try {
-      const res = await fetchTeamMemberActivities(teamMemberUserId, range)
+      const res = await fetchTeamMemberActivities(teamMemberUserId, range, fromStr, toStr)
       const data = res?.data
       setActivities(data?.activities ?? [])
       setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
@@ -100,7 +124,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     } finally {
       setActivitiesLoading(false)
     }
-  }, [teamMemberUserId, range])
+  }, [teamMemberUserId, range, customFromDate, customToDate])
 
   useEffect(() => {
     if (open && activeTab === 'tasks' && teamMemberUserId) loadTasks()
@@ -108,7 +132,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
   useEffect(() => {
     if (open && activeTab === 'activity' && teamMemberUserId) loadActivities()
-  }, [open, activeTab, teamMemberUserId, range, loadActivities])
+  }, [open, activeTab, teamMemberUserId, range, customFromDate, customToDate, loadActivities])
 
   const displayName = teamMember?.name || teamMember?.invitedUser?.name || 'Team Member'
   const displayEmail = teamMember?.email || teamMember?.invitedUser?.email || ''
@@ -149,14 +173,6 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
         <div className="flex flex-col w-[20vw] shrink-0 border-r border-border bg-background">
           <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border">
             <span className="text-base font-semibold text-foreground">Team Member</span>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-md hover:bg-muted transition-colors"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5 text-muted-foreground" />
-            </button>
           </div>
           {teamMember && (
             <>
@@ -217,11 +233,18 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
         {/* Right column: content - header height h-14 to align divider line with left */}
         <div className="flex flex-col flex-1 min-w-0 w-[80vw]">
+          <div className="flex flex-row items-center justify-end px-4 h-14 shrink-0 border-b border-border">
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-md hover:bg-muted transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5 text-muted-foreground" />
+            </button>
+          </div>
           {activeTab === 'tasks' && (
             <>
-              <div className="flex items-center h-14 shrink-0 border-b border-border">
-                
-              </div>
               <span className="text-lg font-semibold text-foreground ml-2 mt-2 mb-3">Task</span>
               <div className="px-5 py-3 flex flex-wrap gap-2 border-b border-border">
                 {STATUS_OPTIONS.map((opt) => (
@@ -279,21 +302,138 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
           {activeTab === 'activity' && (
             <>
-              <div className="flex items-center justify-between px-6 h-14 shrink-0 border-b border-border">
-                
-              </div>
-              <div className="flex items-center justify-between px-6 h-14 shrink-0 ">
+              <div className="flex flex-row items-center justify-between px-6 h-14 shrink-0 ">
                 <span className="text-lg font-semibold text-foreground">Activity Log</span>
-                <select
-                  value={range}
-                  onChange={(e) => setRange(e.target.value)}
-                  className="text-sm  border-none rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  {RANGE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+                <DropdownMenu open={rangeDropdownOpen} onOpenChange={setRangeDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        'flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm',
+                        'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring min-w-[140px]'
+                      )}
+                      aria-label="Select range"
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <span>{RANGE_OPTIONS.find((o) => o.value === range)?.label ?? 'Range'}</span>
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[140px] z-[5010]">
+                    {RANGE_OPTIONS.map((opt) => (
+                      <DropdownMenuItem
+                        key={opt.value}
+                        onSelect={(e) => {
+                          if (opt.value === 'custom') e.preventDefault()
+                        }}
+                        onClick={() => {
+                          setRange(opt.value)
+                          if (opt.value === 'custom') {
+                            setShowCustomDateModal(true)
+                          } else {
+                            setShowCustomDateModal(false)
+                            setRangeDropdownOpen(false)
+                          }
+                        }}
+                      >
+                        {opt.label}
+                      </DropdownMenuItem>
+                    ))}
+
+                    {showCustomDateModal && (
+                      <>
+                        <div className="my-1 h-px bg-muted" />
+                        <div className="p-2 space-y-2">
+                          <div className="text-xs font-medium text-muted-foreground px-2">From / To</div>
+                          <div className="flex flex-col gap-2">
+                            <Popover open={customFromOpen} onOpenChange={setCustomFromOpen}>
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={cn(
+                                    'flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm w-full justify-start',
+                                    'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring'
+                                  )}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (!customFromOpen) setCustomFromOpen(true)
+                                  }}
+                                >
+                                  <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                  <span className="text-muted-foreground">
+                                    {customFromDate ? format(customFromDate, 'MM/dd/yyyy') : 'From date'}
+                                  </span>
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                                style={{ zIndex: 5020 }}
+                                onOpenAutoFocus={(e) => e.preventDefault()}
+                              >
+                                <div className="p-3">
+                                  <Calendar
+                                    mode="single"
+                                    selected={customFromDate}
+                                    onSelect={(d) => {
+                                      setCustomFromDate(d ?? null)
+                                      setCustomFromOpen(false)
+                                      if (customToDate && d) setRangeDropdownOpen(false)
+                                    }}
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                            <Popover open={customToOpen} onOpenChange={setCustomToOpen}>
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={cn(
+                                    'flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm w-full justify-start',
+                                    'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring'
+                                  )}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (!customToOpen) setCustomToOpen(true)
+                                  }}
+                                >
+                                  <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                  <span className="text-muted-foreground">
+                                    {customToDate ? format(customToDate, 'MM/dd/yyyy') : 'To date'}
+                                  </span>
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                                style={{ zIndex: 5020 }}
+                                onOpenAutoFocus={(e) => e.preventDefault()}
+                              >
+                                <div className="p-3">
+                                  <Calendar
+                                    mode="single"
+                                    selected={customToDate}
+                                    onSelect={(d) => {
+                                      setCustomToDate(d ?? null)
+                                      setCustomToOpen(false)
+                                      if (customFromDate && d) setRangeDropdownOpen(false)
+                                    }}
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
+
               {/* Stats section: background wrapper, cards with no border, label above count, brand icons */}
               <div className="px-6 py-5 border-b border-border ">
                 <div className="grid grid-cols-3 gap-3 bg-[#F9F9F9] p-3 rounded-lg">
@@ -434,13 +574,13 @@ function ActivityTimelineItem({ item, onLeadClick }) {
   const leadId = item.leadId ?? item.lead?.id
   const dateStr = item.createdAt
     ? new Date(item.createdAt).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      })
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
     : ''
   const contentSnippet = item.content ? (item.content.length > 120 ? item.content.slice(0, 120) + '...' : item.content) : ''
   const hasLongContent = item.content && item.content.length > 120
