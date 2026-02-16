@@ -32,6 +32,8 @@ const TaskForm = ({
   hideBorder = false,
   isValidForm = false,
   setIsValidForm = () => { },
+  elevatedZIndex = false,
+  defaultAssignees = null,
 }) => {
   const titleInputRef = useRef(null)
   const titleContainerRef = useRef(null)
@@ -90,7 +92,7 @@ const TaskForm = ({
   const [dueDate, setDueDate] = useState(task?.dueDate ? new Date(task.dueDate) : null)
   const [dueTime, setDueTime] = useState(task?.dueTime || '')
   const [selectedAssignees, setSelectedAssignees] = useState(
-    task?.assignedMembers?.map((m) => m.id) || [],
+    task?.assignedMembers?.map((m) => m.id) || defaultAssignees || [],
   )
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [isSavingDate, setIsSavingDate] = useState(false)
@@ -421,6 +423,7 @@ const TaskForm = ({
               onSelect={(option) => setPriority(option.value)}
               backgroundClassName="text-foreground"
               className="border-0 shadow-none h-[36px]"
+              contentClassName={elevatedZIndex ? 'z-[6100]' : undefined}
             />
           </div>
         </div>
@@ -445,6 +448,7 @@ const TaskForm = ({
             label="Assign"
             options={teamMemberOptions}
             onToggle={handleAssigneeToggle}
+            contentClassName={elevatedZIndex ? 'z-[6100]' : undefined}
           />
 
           {/* Due Date */}
@@ -493,7 +497,7 @@ const TaskForm = ({
             <PopoverContent
               className="w-auto p-0"
               align="start"
-              style={{ zIndex: 1500 }}
+              style={{ zIndex: elevatedZIndex ? 6100 : 1500 }}
               onInteractOutside={(e) => {
                 // const taskBoard = document.querySelector('[data-task-board]')
                 // // Check if clicking on the popover content itself
@@ -616,6 +620,7 @@ const TaskForm = ({
               onSelect={(option) => setStatus(option.value)}
               backgroundClassName="text-foreground"
               className="h-[36px]"
+              contentClassName={elevatedZIndex ? 'z-[6100]' : undefined}
             />
           </div>
         </div>

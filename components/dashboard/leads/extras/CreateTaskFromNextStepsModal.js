@@ -13,6 +13,7 @@ import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiS
 import { formatNextStepsForDescription } from './activityUtils'
 import { toast } from 'sonner'
 import { TypographyH3 } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 
 const CreateTaskFromNextStepsModal = ({
   open,
@@ -22,6 +23,8 @@ const CreateTaskFromNextStepsModal = ({
   leadName,
   callId = null,
   selectedUser = null,
+  elevatedZIndex = false,
+  onTaskCreated = null,
 }) => {
   const [teamMembers, setTeamMembers] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -29,8 +32,10 @@ const CreateTaskFromNextStepsModal = ({
   // Fetch team members
   const fetchTeamMembers = useCallback(async () => {
     try {
+      console.log("SElecteduser passed is", selectedUser);
       const response = await getTeamsList(selectedUser?.id)
       if (response) {
+        console.log("Response of getteamslist api is", response);
         const members = []
         // Add admin
         if (response.admin) {
@@ -88,6 +93,9 @@ const CreateTaskFromNextStepsModal = ({
         // Dispatch custom event for task updates
         window.dispatchEvent(new CustomEvent('tasksChanged'))
 
+        // Notify parent (e.g. to switch tab and refetch tasks)
+        onTaskCreated?.(taskData)
+
         // Close modal
         onClose()
       } else {
@@ -104,9 +112,20 @@ const CreateTaskFromNextStepsModal = ({
   // Format next steps for description
   const formattedDescription = nextSteps ? formatNextStepsForDescription(nextSteps) : ''
 
+  // When opened from team member context (e.g. activity drawer), pre-select that team member in Assign dropdown
+  const defaultAssignees = selectedUser
+    ? [selectedUser.invitedUserId || selectedUser.invitedUser?.id || selectedUser.id].filter(Boolean)
+    : []
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogContent
+        className={cn(
+          'sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col p-0',
+          elevatedZIndex && 'z-[6001]'
+        )}
+        overlayClassName={elevatedZIndex ? 'z-[6000]' : undefined}
+      >
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle>
             <TypographyH3>New Task</TypographyH3>
@@ -130,6 +149,9 @@ const CreateTaskFromNextStepsModal = ({
             hideBorder={true}
             isValidForm={isValidForm}
             setIsValidForm={setIsValidForm}
+            selectedUser={selectedUser}
+            elevatedZIndex={elevatedZIndex}
+            defaultAssignees={defaultAssignees.length > 0 ? defaultAssignees : undefined}
           />
         </div>
 

@@ -11,13 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 import { TypographyBody } from './TypographyCN'
 
 /**
  * Pill-shaped multi-select dropdown for assigning team members.
  * options: [{ id, label, avatar, selected }]
  */
-const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => {
+const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle, contentClassName }) => {
   const [open, setOpen] = useState(false)
   
   const selectedCount = useMemo(
@@ -102,7 +103,10 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1 max-h-[300px] overflow-y-auto"
+        className={cn(
+          'z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1 max-h-[300px] overflow-y-auto',
+          contentClassName
+        )}
         onInteractOutside={(e) => {
           // Only prevent if clicking inside the task board (to prevent modal from closing)
           // Otherwise, let the dropdown close normally

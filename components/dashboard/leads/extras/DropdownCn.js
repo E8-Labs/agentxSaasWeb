@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
  * chevronIcon: Optional custom icon component to replace the default ChevronDown
  * onChevronClick: Optional handler for when the chevron/icon is clicked (for split button behavior)
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
 
@@ -138,7 +138,10 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         </div>
         <DropdownMenuContent
           align={align}
-          className="z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-muted/70 bg-white text-foreground shadow-lg"
+          className={cn(
+            'z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-muted/70 bg-white text-foreground shadow-lg',
+            contentClassName
+          )}
           onCloseAutoFocus={(e) => {
             // Prevent focus from being stolen when dropdown closes
             e.preventDefault()
