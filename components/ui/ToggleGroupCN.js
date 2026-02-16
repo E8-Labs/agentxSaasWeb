@@ -25,6 +25,8 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
       className={cn(height, "flex flex-row items-center justify-center gap-2 rounded-full", className)}
     >
       {options.map((option) => {
+        console.log("toggle group action btn option is",value)
+        console.log("toggle group action btn option is compare su",option.value)
         const isSelected = value === option.value
         const Icon = option.icon
         

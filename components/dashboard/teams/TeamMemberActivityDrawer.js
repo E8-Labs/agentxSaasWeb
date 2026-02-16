@@ -246,22 +246,44 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           {activeTab === 'tasks' && (
             <>
               <span className="text-lg font-semibold text-foreground ml-2 mt-2 mb-3">Task</span>
-              <div className="px-5 py-3 flex flex-wrap gap-2 border-b border-border">
+              <div
+                // className="px-5 py-3 flex flex-wrap gap-2 border-b border-border"
+                style={{
+                  backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                  width: 'fit-content',
+                  marginLeft: 15
+                }}
+                className={cn("px-3 py-2 flex flex-wrap gap-2 border-b border-border rounded-full", "flex flex-row items-center justify-center gap-2 rounded-full")}
+              >
                 {STATUS_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => setTaskStatusFilter(taskStatusFilter === opt.value ? null : opt.value)}
+                    // className={cn(
+                    //   'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                    //   taskStatusFilter === opt.value
+                    //     ? 'bg-brand-primary text-white'
+                    //     : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                    // )}
                     className={cn(
-                      'px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-                      taskStatusFilter === opt.value
-                        ? 'bg-brand-primary text-white'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                      "px-2 py-1 transition-colors",
+                      taskStatusFilter === opt.value ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
+                      taskStatusFilter === opt.value ? "rounded-full" : "rounded-none",
+                      // taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+                      taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
                     )}
                   >
                     {opt.label} {counts[opt.value] ?? 0}
                   </button>
                 ))}
+                {/*<ToggleGroupCN
+                  options={STATUS_OPTIONS}
+                  value={taskStatusFilter}
+                  onChange={setTaskStatusFilter}
+                  height="p-1.5"
+                  roundedness="rounded-lg"
+                />*/}
               </div>
               <ScrollArea className="flex-1">
                 <div className="p-5">
@@ -439,17 +461,17 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                 <div className="grid grid-cols-3 gap-3 bg-[#F9F9F9] p-3 rounded-lg">
                   <div className="rounded-lg p-4 flex flex-col items-center gap-1 bg-transparent">
                     <Phone className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody style={{color: "#666666"}} className="text-sm font-regular text-foreground">Calls</TypographyBody>
+                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Calls</TypographyBody>
                     <span className="text-base font-semibold text-foreground">{totals.calls}</span>
                   </div>
                   <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
                     <MessageSquareDot className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody style={{color: "#666666"}} className="text-sm font-regular text-foreground">Texts</TypographyBody>
+                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Texts</TypographyBody>
                     <span className="text-base font-semibold text-foreground">{totals.sms}</span>
                   </div>
                   <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
                     <Mail className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody style={{color: "#666666"}} className="text-sm font-regular text-foreground">Emails</TypographyBody>
+                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Emails</TypographyBody>
                     <span className="text-base font-semibold text-foreground">{totals.email}</span>
                   </div>
                 </div>

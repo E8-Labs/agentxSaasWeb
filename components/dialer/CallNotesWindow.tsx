@@ -115,7 +115,24 @@ export default function CallNotesWindow({
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
         <div className="flex items-center gap-2">
           <StickyNote size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
-          <h3 className="text-sm font-semibold text-gray-900">New Notes</h3>
+          <h3 className="text-sm font-semibold text-gray-900">Notes for
+            {leadName && (
+              <div className="flex items-center gap-2 mb-4 ps-1">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+                >
+                  <span
+                    className="text-xs font-semibold"
+                    style={{ color: 'hsl(var(--brand-primary))' }}
+                  >
+                    {leadName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-gray-900">{leadName}</span>
+              </div>
+            )}
+          </h3>
         </div>
         <button
           onClick={onClose}
@@ -129,22 +146,6 @@ export default function CallNotesWindow({
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 flex flex-col">
         {/* Lead Name */}
-        {leadName && (
-          <div className="flex items-center gap-2 mb-4">
-            <div
-              className="w-6 h-6 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
-            >
-              <span
-                className="text-xs font-semibold"
-                style={{ color: 'hsl(var(--brand-primary))' }}
-              >
-                {leadName.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <span className="text-sm font-medium text-gray-900">{leadName}</span>
-          </div>
-        )}
 
         {/* Text Area */}
         <textarea

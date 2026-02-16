@@ -304,7 +304,7 @@ const NotesTabCN = forwardRef(({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              <TypographyBodySemibold>Add your notes</TypographyBodySemibold>
+              <TypographyBodySemibold>{selectedLeadsDetails?.firstName ? `Add notes for ${selectedLeadsDetails?.firstName[0]?.toUpperCase()}` + selectedLeadsDetails?.firstName?.slice(1) : "Add your notes"}</TypographyBodySemibold>
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">
@@ -352,7 +352,7 @@ const NotesTabCN = forwardRef(({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              <TypographyBodySemibold>Edit your note</TypographyBodySemibold>
+              <TypographyBodySemibold>{selectedLeadsDetails?.firstName ? `Edit notes for ${selectedLeadsDetails?.firstName[0]?.toUpperCase()}` + selectedLeadsDetails?.firstName?.slice(1) : "Edit your notes"}</TypographyBodySemibold>
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">

@@ -1823,6 +1823,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
           <div className="w-11/12 flex flex-col items-start">
 
             {myTeam.length > 0 ? (
+              <>
               <div
                 className="pt-3 flex flex-row w-full flex-wrap"
                 style={{ overflow: 'auto', scrollbarWidth: 'none' }}
@@ -1892,20 +1893,18 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           </div>
                         </div>
 
-                        {canShowMenuDots(item) && (
-                          <button
-                            id={`dropdown-toggle-${item.id}`}
-                            onClick={(e) => handlePopoverOpen(e, item)}
-                            className="relative"
-                          >
-                            <img
-                              src={'/otherAssets/threeDotsIcon.png'}
-                              height={24}
-                              width={24}
-                              alt="threeDots"
-                            />
-                          </button>
-                        )}
+                        <button
+                          id={`dropdown-toggle-${item.id}`}
+                          onClick={(e) => handlePopoverOpen(e, item)}
+                          className="relative"
+                        >
+                          <img
+                            src={'/otherAssets/threeDotsIcon.png'}
+                            height={24}
+                            width={24}
+                            alt="threeDots"
+                          />
+                        </button>
                       </div>
 
                       {/* Custom Dropdown
@@ -1937,81 +1936,81 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           </div>
                         </div>
                       )} */}
-
-                      <Popover
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handlePopoverClose}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'right',
-                        }}
-                        PaperProps={{
-                          sx: {
-                            boxShadow:
-                              '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
-                            border: 'none', // optional: add a light border instead
-                          },
-                        }}
-                      >
-                        <div className="flex flex-col">
-                          {popoverTeam && canShowResendOption(popoverTeam) && (
-                            <MenuItem
-                              onClick={() => {
-                                handleResendInvite(popoverTeam)
-                                handlePopoverClose()
-                              }}
-                            >
-                              Resend Invite
-                            </MenuItem>
-                          )}
-                          {(agencyData?.userRole === 'Agency' ||
-                            userLocalData?.userRole === 'Agency' ||
-                            agencyData?.userRole === 'AgentX' ||
-                            userLocalData?.userRole === 'AgentX' ||
-                            agencyData?.userRole === 'AgencySubAccount' ||
-                            userLocalData?.userRole === 'AgencySubAccount') &&
-                            (popoverTeam?.invitedUserId || popoverTeam?.status === 'Pending') && (
-                              <MenuItem
-                                onClick={() => {
-                                  setSelectedTeamMemberForPermissions(popoverTeam)
-                                  setShowPermissionModal(true)
-                                  handlePopoverClose()
-                                }}
-                              >
-                                Manage Permissions
-                              </MenuItem>
-                            )}
-                          {popoverTeam?.invitedUserId && (
-                            <MenuItem
-                              onClick={() => {
-                                setActivityDrawerTeamMember(popoverTeam)
-                                setActivityDrawerOpen(true)
-                                handlePopoverClose()
-                              }}
-                            >
-                              Activity
-                            </MenuItem>
-                          )}
-                          <MenuItem
-                            sx={{ color: 'red' }}
-                            onClick={() => {
-                              DeleteTeamMember(popoverTeam)
-                              handlePopoverClose()
-                            }}
-                          >
-                            Delete
-                          </MenuItem>
-                        </div>
-                      </Popover>
                     </div>
                   )
                 })}
               </div>
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handlePopoverClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                PaperProps={{
+                  sx: {
+                    boxShadow:
+                      '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
+                    border: 'none',
+                  },
+                }}
+              >
+                <div className="flex flex-col">
+                  {popoverTeam && canShowResendOption(popoverTeam) && (
+                    <MenuItem
+                      onClick={() => {
+                        handleResendInvite(popoverTeam)
+                        handlePopoverClose()
+                      }}
+                    >
+                      Resend Invite
+                    </MenuItem>
+                  )}
+                  {(agencyData?.userRole === 'Agency' ||
+                    userLocalData?.userRole === 'Agency' ||
+                    agencyData?.userRole === 'AgentX' ||
+                    userLocalData?.userRole === 'AgentX' ||
+                    agencyData?.userRole === 'AgencySubAccount' ||
+                    userLocalData?.userRole === 'AgencySubAccount') &&
+                    (popoverTeam?.invitedUserId || popoverTeam?.status === 'Pending') && (
+                      <MenuItem
+                        onClick={() => {
+                          setSelectedTeamMemberForPermissions(popoverTeam)
+                          setShowPermissionModal(true)
+                          handlePopoverClose()
+                        }}
+                      >
+                        Manage Permissions
+                      </MenuItem>
+                    )}
+                  {popoverTeam?.status?.toLowerCase() !== 'pending' && (
+                    <MenuItem
+                      onClick={() => {
+                        setActivityDrawerTeamMember(popoverTeam)
+                        setActivityDrawerOpen(true)
+                        handlePopoverClose()
+                      }}
+                    >
+                      Activity
+                    </MenuItem>
+                  )}
+                  <MenuItem
+                    sx={{ color: 'red' }}
+                    onClick={() => {
+                      DeleteTeamMember(popoverTeam)
+                      handlePopoverClose()
+                    }}
+                  >
+                    Delete
+                  </MenuItem>
+                </div>
+              </Popover>
+              </>
             ) : (
               <div className="h-screen w-full flex flex-col items-center justify-center -mt-16">
                 <Image
@@ -2481,7 +2480,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           containerClass="phone-input-container"
                           className="outline-none bg-white focus:ring-0"
                           country={'us'} // Default country
-                          onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US and Canada only
+                          onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US and Canada only
                           disableDropdown={false} // Enable dropdown to switch between US/CA
                           countryCodeEditable={false}
                           disableCountryCode={false}
