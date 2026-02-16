@@ -1742,6 +1742,8 @@ const LeadDetails = ({
 
     console.log("Data dispatching for dialer modal", dispatchData)
 
+    console.log("Selected user passed in leaddetails", selectedUser)
+
     dispatch(openDialer({
       leadId: selectedLeadsDetails?.id,
       leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,

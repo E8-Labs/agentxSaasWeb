@@ -1065,7 +1065,7 @@ function SelectedUserDetails({
                     handleClose={handleClose}
                   />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
-                  <Messages selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
+                  <Messages selectedUser={selectedUser} agencyUser={enablePermissionChecks} from={from} />
                 ) : (
                   'Coming soon...'
                 )}

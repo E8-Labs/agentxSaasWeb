@@ -40,7 +40,7 @@ function plainTextToHtml(text) {
   return text.replace(/\n/g, '<br>')
 }
 
-const Messages = ({ selectedUser = null, agencyUser = null }) => {
+const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
   const [threads, setThreads] = useState([])
   const [selectedThread, setSelectedThread] = useState(null)
@@ -3145,6 +3145,7 @@ const Messages = ({ selectedUser = null, agencyUser = null }) => {
 
                     {/* Composer */}
                     <MessageComposer
+                      from={from}
                       composerMode={composerMode}
                       setComposerMode={setComposerMode}
                       selectedThread={selectedThread}
