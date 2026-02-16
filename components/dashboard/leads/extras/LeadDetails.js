@@ -1744,14 +1744,26 @@ const LeadDetails = ({
 
     console.log("Selected user passed in leaddetails", selectedUser)
 
+    // Determine dialer user: prefer selectedUser (e.g. from pipeline/lead page), else derive from lead (owner or first assigned team)
+    let dialerUser = selectedUser?.id ? selectedUser : null
+    if (!dialerUser && selectedLeadsDetails) {
+      if (selectedLeadsDetails.userId) {
+        dialerUser = { id: selectedLeadsDetails.userId }
+      } else if (selectedLeadsDetails.teamsAssigned?.length > 0) {
+        const first = selectedLeadsDetails.teamsAssigned[0]
+        const id = first.id ?? first.invitedUserId ?? first.invitedUser?.id
+        if (id) dialerUser = { id }
+      }
+    }
+
     dispatch(openDialer({
       leadId: selectedLeadsDetails?.id,
       leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
       phoneNumber: selectedLeadsDetails?.phone || '',
       selectedLeadDetails: selectedLeadsDetails, // Full object
     }))
-    if (selectedUser?.id) {
-      dispatch(setSelectedUser(selectedUser))
+    if (dialerUser?.id) {
+      dispatch(setSelectedUser(dialerUser))
     }
   }
 
