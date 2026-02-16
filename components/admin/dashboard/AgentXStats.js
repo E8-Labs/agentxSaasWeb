@@ -473,7 +473,7 @@ function VoicesComponent({
           className={`cursor-pointer absolute top-0 left-1/2 transform -translate-x-1/2 w-28 h-20 ${color} rounded-full blur-2xl`}
         />
         <div className="cursor-pointer relative w-16 h-16 mb-4 ">
-          <div className="cursor-pointer -top-[15px] absolute left-1/2 transform -translate-x-1/2 inset-0 bg-white/40 w-12 h-12 rounded-full backdrop-blur-md" />
+          <div className="cursor-pointer -top-[15px] absolute left-1/2 transform -translate-x-1/2 inset-0 bg-white/40 w-[48px] h-[48px] rounded-full backdrop-blur-md" />
           <Avatar className="cursor-pointer w-9 h-9 absolute  left-1/2 transform -translate-x-1/2 top-1/3 transform -translate-y-1/3">
             <AvatarImage
               src={FindVoice(voiceIds[index].voiceId).img}

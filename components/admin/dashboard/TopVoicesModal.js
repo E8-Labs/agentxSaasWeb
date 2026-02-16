@@ -16,7 +16,7 @@ export default function TopVoicesModal({ open, onClose, topVoices }) {
       open={open}
       onClose={onClose}
       BackdropProps={{
-        sx: { backgroundColor: 'rgba(0, 0, 0, 0.05)' }, // 10% black opacity
+        sx: { backgroundColor: 'rgba(0, 0, 0, 0.6)' },
       }}
     >
       <Box
@@ -118,7 +118,7 @@ function VoiceCard({ voice, index }) {
 
       {/* Avatar Container */}
       <div className="cursor-pointer relative w-16 h-16 mb-4">
-        <div className="cursor-pointer -top-[15px] absolute left-1/2 transform -translate-x-1/2 inset-0 bg-white/40 w-12 h-12 rounded-full backdrop-blur-md" />
+        <div className="cursor-pointer -top-[15px] absolute left-1/2 transform -translate-x-1/2 inset-0 bg-white/40 w-[48px] h-[48px] rounded-full backdrop-blur-md" />
         <Avatar className="cursor-pointer w-9 h-9 absolute left-1/2 transform -translate-x-1/2 top-1/3 -translate-y-1/3">
           <AvatarImage src={getAvatarUrl(voice.voiceId)} alt={voice.name} />
         </Avatar>

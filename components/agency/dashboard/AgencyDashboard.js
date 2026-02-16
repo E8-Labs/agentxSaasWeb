@@ -100,13 +100,13 @@ export default function AgencyDashboard({ selectedAgency }) {
         </div>
         {/* Tabs for navigation */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full bg-transparent">
-          <TabsList className="flex h-[70px] flex-row items-center justify-center pb-2 w-full bg-transparent outline-none focus:outline-none">
-            <div className="w-auto mx-auto p-1 flex flex-row items-center gap-2 bg-[#EFEFEF] rounded-[14px]">
-              <TabsTrigger value="user-activity" className="outline-none py-1.5 px-3 rounded-xl active:scale-[0.95] transition-transform">
+          <TabsList className="flex h-[70px] flex-row items-center justify-center pb-2 w-full bg-transparent outline-none focus:outline-none gap-2">
+            <div className="w-full p-1 flex flex-row items-center justify-between gap-2 bg-[#EFEFEF] rounded-[14px]">
+              <TabsTrigger value="user-activity" className="h-[38px] min-w-[38px] outline-none py-1.5 px-3 rounded-xl active:scale-[0.95] transition-transform">
                 User Activity
               </TabsTrigger>
               {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
-              <TabsTrigger value="revenue" className="outline-none py-1.5 px-3 rounded-xl active:scale-[0.95] transition-transform">
+              <TabsTrigger value="revenue" className="h-[38px] min-w-[38px] outline-none py-1.5 px-3 rounded-xl active:scale-[0.95] transition-transform">
                 Revenue
               </TabsTrigger>
             </div>

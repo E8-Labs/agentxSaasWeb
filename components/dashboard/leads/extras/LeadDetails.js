@@ -1909,7 +1909,13 @@ const LeadDetails = ({
           })
         }}
       />
-      <div className="flex flex-col w-full h-full  py-2 px-1 rounded-xl">
+      <div
+        className="flex flex-col w-full h-full py-2 px-1 rounded-xl"
+        style={{
+          border: '1px solid #eaeaea',
+          boxShadow: '1px -5px 30px rgba(0, 0, 0, 0.08)',
+        }}
+      >
         <div className="w-full flex flex-col items-center h-full">
 
           <div className="w-full">
@@ -1922,15 +1928,9 @@ const LeadDetails = ({
                 className="h-[95vh] overflow-auto w-full"
                 style={{ scrollbarWidth: 'none' }}
               >
-                <div
-                  className="flex  flex-col w-full"
-                  style={{
-                    padding: 20,
-                    paddingInline: 30,
-                  }}
-                >
+                <>
                   {!renderInline && (
-                    <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
+                    <div className="w-full flex flex-row items-center justify-between px-4 pt-3 pb-4 border-b">
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
                       </div>
@@ -1943,9 +1943,9 @@ const LeadDetails = ({
                       </button>
                     </div>
                   )}
-                  <div>
+                  <div className="m-0">
                     <div className="flex flex-row items-start justify-between mt-4  w-full">
-                      <div className="flex flex-col items-start  w-full">
+                      <div className="flex flex-col items-start w-full gap-0.5 bg-transparent px-4 py-0">
                         <div className="flex flex-row items-between justify-between w-full">
                           <div className="flex flex-row items-center gap-3">
 
@@ -2087,7 +2087,7 @@ const LeadDetails = ({
                             </div>
                           </div>
                         </div>
-                        <div className="space-y-2 text-sm mt-2">
+                        <div className="space-y-2 text-sm mt-0 w-full [&>*]:m-0 [&>*]:w-full [&>*]:min-h-[10px] [&>*]:h-auto">
                           {/* Email with edit functionality */}
 
 
@@ -2727,7 +2727,7 @@ const LeadDetails = ({
                       )}
                     </div>
                   </div>
-                </div>
+                </>
               </div>
             )}
           </div>

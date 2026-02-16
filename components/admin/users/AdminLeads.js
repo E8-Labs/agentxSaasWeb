@@ -2251,7 +2251,7 @@ const AdminLeads = ({
                                     key={index}
                                     className={`border-none px-4 py-2 text-left text-[14px] text-[#00000060] font-[500] ${
                                       isMoreColumn
-                                        ? 'sticky right-0 bg-white'
+                                        ? 'sticky right-0 bg-transparent'
                                         : ''
                                     }`}
                                     style={{
@@ -2273,13 +2273,13 @@ const AdminLeads = ({
                           <tbody>
                             {FilterLeads.map((item, index) => {
                               return (
-                                <tr key={index} className="hover:bg-gray-50">
+                                <tr key={index} className="hover:bg-black/[0.02]">
                                   {leadColumns.map((column, colIndex) => (
                                     <td
                                       key={colIndex}
                                       className={`border-none px-4 py-2 text-[14px] ${
                                         column.title === 'More'
-                                          ? 'sticky right-0 bg-white'
+                                          ? 'sticky right-0 bg-transparent'
                                           : ''
                                       }`}
                                       style={{
