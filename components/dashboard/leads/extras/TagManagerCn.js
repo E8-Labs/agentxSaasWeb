@@ -103,7 +103,9 @@ const TagManagerCn = ({
 
   return (
     <div className={`flex flex-row gap-2 ${from === "dashboardPipeline" && "w-full"}`}>
-      <div className={`flex flex-row items-center gap-2 ${from === "dashboardPipeline" && "max-w-[60%]"}`}>
+      <div
+        className={`flex flex-row items-center gap-2`} // ${from === "dashboardPipeline" && "max-w-[60%]"}
+      >
         {displayedTags.map((tag) => (
           <TagPill
             from={from}
@@ -151,7 +153,9 @@ const TagManagerCn = ({
         )}
       </div>
 
-      <div className={`${from === "dashboardPipeline" ? "w-[40%]" : "relative"}`}>
+      <div
+        className={`${from === "dashboardPipeline" ? "w-[40%]" : "relative"}`}
+      >
         <Input
           ref={tagInputRef}
           type="text"

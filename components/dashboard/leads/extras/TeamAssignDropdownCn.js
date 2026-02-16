@@ -26,7 +26,7 @@ import { toast } from '@/utils/toast'
  * onSettingsUpdate: Callback when settings are updated (optional)
  */
 const TeamAssignDropdownCn = ({
-  label = 'Assign',
+  label = '',
   teamOptions = [],
   selectedUser = null,
   onToggle,
@@ -243,14 +243,14 @@ const TeamAssignDropdownCn = ({
             </div>
           ) : (
             <>
-              <Users className="mr-2 h-4 w-4" />
+              <Users className="h-4 w-4" />
               <span>{label}</span>
             </>
           )}
           {withoutBorder ? null : (
             <span className="mx-3 h-6 w-px bg-muted/80" />
           )}
-          <ChevronDown className={`${withoutBorder ? 'ml-4' : ''} h-4 w-4 text-foreground`} />
+          <ChevronDown className={`${withoutBorder ? 'ml-2' : ''} h-4 w-4 text-foreground`} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

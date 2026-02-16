@@ -25,6 +25,8 @@ import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { TypographyH3, TypographyBody, TypographyH3Semibold, TypographyCaption, TypographyTitle, TypographyButtonText, TypographyAlert, TypographyCaptionMedium } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import { sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
+import CreateTaskFromNextStepsModal from '../leads/extras/CreateTaskFromNextStepsModal'
+import { Button } from '@/components/ui/button'
 
 const getAuthToken = () => {
   try {
@@ -67,6 +69,13 @@ const STATUS_OPTIONS = [
 ]
 
 export default function TeamMemberActivityDrawer({ open, onClose, teamMember, admin }) {
+
+
+  //code for create task modal
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
+  const [taskData, setTaskData] = useState(null)
+
+
   const [activeTab, setActiveTab] = useState('tasks')
   const [tasks, setTasks] = useState([])
   const [tasksLoading, setTasksLoading] = useState(false)
@@ -87,12 +96,13 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
   const teamMemberUserId = teamMember?.invitedUserId || teamMember?.invitedUser?.id
 
-  const loadTasks = useCallback(async () => {
+  const loadTasks = useCallback(async (statusOverride) => {
     if (!teamMemberUserId) return
+    const effectiveStatus = statusOverride !== undefined ? statusOverride : taskStatusFilter
     setTasksLoading(true)
     try {
       const params = { assignedTo: teamMemberUserId }
-      if (taskStatusFilter) params.status = taskStatusFilter
+      if (effectiveStatus) params.status = effectiveStatus
       const res = await getTasks(params)
       const list = Array.isArray(res?.data) ? res.data : res?.data?.tasks ?? res?.tasks ?? []
       setTasks(list)
@@ -105,6 +115,17 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       setTasksLoading(false)
     }
   }, [teamMemberUserId, taskStatusFilter])
+
+  const handleTaskCreatedFromDrawer = useCallback((taskData) => {
+    setActiveTab('tasks')
+    const status = taskData?.status
+    if (status) {
+      setTaskStatusFilter(status)
+      loadTasks(status)
+    } else {
+      loadTasks()
+    }
+  }, [loadTasks])
 
   const loadActivities = useCallback(async () => {
     if (!teamMemberUserId) return
@@ -143,6 +164,13 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       ? `(${displayPhone.slice(-10, -7)}) ${displayPhone.slice(-7, -4)}-${displayPhone.slice(-4)}`
       : displayPhone
     : ''
+
+  //code for create task modal
+  const handleCreateTask = async (taskData) => {
+    console.log('Creating task:', taskData)
+    setTaskData(taskData)
+    setTaskModalOpen(true)
+  }
 
   return (
     <Drawer
@@ -491,6 +519,30 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
               </ScrollArea>
             </>
           )}
+
+          <div className="w-full flex flex-row justify-end pb-4 pe-4">
+            <Button
+              className="bg-brand-primary text-white hover:bg-brand-primary/90"
+              onClick={() => setTaskModalOpen(true)}
+            >
+              + New Task
+            </Button>
+          </div>
+          {
+            taskModalOpen && (
+              <CreateTaskFromNextStepsModal
+                open={taskModalOpen}
+                onClose={() => setTaskModalOpen(false)}
+                leadId={selectedLeadIdForModal}
+                leadName={selectedLeadIdForModal}
+                callId={selectedLeadIdForModal}
+                selectedUser={teamMember}
+                elevatedZIndex
+                onTaskCreated={handleTaskCreatedFromDrawer}
+              />
+            )
+          }
+
         </div>
       </div>
       {selectedLeadIdForModal != null && (

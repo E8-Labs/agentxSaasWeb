@@ -3000,14 +3000,14 @@ const Pipeline1 = () => {
                                             />
                                           )}
                                       </div>
-                                      <div className="flex flex-row items-center justify-between w-full mt-1">
+                                      <div className="flex flex-row items-center justify-between w-full mt-2">
                                         {/* Loader only for this card's lead (array item), not selectedLeadsDetails */}
                                         {assignLoaderLeadId === lead.lead.id ? (
                                           <CircularProgress size={20} />
                                         ) : (
                                           <TeamAssignDropdownCn
                                             withoutBorder={true}
-                                            label="Assign"
+                                            label=""
                                             teamOptions={getTeamOptionsForLead(lead.lead)}
                                             onToggle={(teamId, team, shouldAssign) => {
                                               if (shouldAssign) {

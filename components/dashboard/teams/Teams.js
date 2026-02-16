@@ -1824,90 +1824,90 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
             {myTeam.length > 0 ? (
               <>
-              <div
-                className="pt-3 flex flex-row w-full flex-wrap"
-                style={{ overflow: 'auto', scrollbarWidth: 'none' }}
-              >
-                {myTeam.map((item, index) => {
-                  // //console.log;
-                  return (
-                    <div key={item.id} className="relative w-4/12 p-3">
-                      <div className="p-4 flex flex-row justify-between items-start border rounded-lg">
-                        {/* Img code here */}
-                        <div className="flex flex-row items-start gap-4">
-                          <div>
-                            {item.invitedUser?.thumb_profile_image ? (
-                              <div
-                                style={{
-                                  width: '37px',
-                                  height: '37px',
-                                  borderRadius: '50%', // Ensures circular shape
-                                  overflow: 'hidden', // Clips any overflow from the image
-                                  display: 'flex', // Centers the image if needed
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                <img
-                                  src={item.invitedUser?.thumb_profile_image}
-                                  alt="*"
-                                  style={{ height: '100%', width: '100%' }}
-                                />
+                <div
+                  className="pt-3 flex flex-row w-full flex-wrap"
+                  style={{ overflow: 'auto', scrollbarWidth: 'none' }}
+                >
+                  {myTeam.map((item, index) => {
+                    // //console.log;
+                    return (
+                      <div key={item.id} className="relative w-4/12 p-3">
+                        <div className="p-4 flex flex-row justify-between items-start border rounded-lg">
+                          {/* Img code here */}
+                          <div className="flex flex-row items-start gap-4">
+                            <div>
+                              {item.invitedUser?.thumb_profile_image ? (
+                                <div
+                                  style={{
+                                    width: '37px',
+                                    height: '37px',
+                                    borderRadius: '50%', // Ensures circular shape
+                                    overflow: 'hidden', // Clips any overflow from the image
+                                    display: 'flex', // Centers the image if needed
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <img
+                                    src={item.invitedUser?.thumb_profile_image}
+                                    alt="*"
+                                    style={{ height: '100%', width: '100%' }}
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="flex rounded-full justify-center items-center bg-black text-white text-md"
+                                  style={{
+                                    height: 37,
+                                    width: 37,
+                                    textTransform: 'capitalize',
+                                  }}
+                                >
+                                  {item.name?.[0] || 'U'}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap flex-col items-start gap-2">
+                              <div className="text-lg font-medium text-black">
+                                {item.name}
                               </div>
-                            ) : (
-                              <div
-                                className="flex rounded-full justify-center items-center bg-black text-white text-md"
-                                style={{
-                                  height: 37,
-                                  width: 37,
-                                  textTransform: 'capitalize',
-                                }}
-                              >
-                                {item.name?.[0] || 'U'}
+                              <div className="text-sm font-medium text-gray-500">
+                                {item?.phone
+                                  ? formatPhoneNumber(item.phone)
+                                  : 'No phone'}
                               </div>
-                            )}
+                              <div className="text-sm font-medium text-gray-500 underline">
+                                {item.email.length > 25
+                                  ? item.email.slice(0, 25) + '...'
+                                  : item.email}
+                              </div>
+                              <div
+                                className={`text-sm font-medium ${item.status === 'Pending'
+                                  ? 'text-red-500'
+                                  : 'text-green-500'
+                                  }`}
+                              >
+                                {item.status}
+                              </div>
+                            </div>
                           </div>
 
-                          <div className="flex flex-wrap flex-col items-start gap-2">
-                            <div className="text-lg font-medium text-black">
-                              {item.name}
-                            </div>
-                            <div className="text-sm font-medium text-gray-500">
-                              {item?.phone
-                                ? formatPhoneNumber(item.phone)
-                                : 'No phone'}
-                            </div>
-                            <div className="text-sm font-medium text-gray-500 underline">
-                              {item.email.length > 25
-                                ? item.email.slice(0, 25) + '...'
-                                : item.email}
-                            </div>
-                            <div
-                              className={`text-sm font-medium ${item.status === 'Pending'
-                                ? 'text-red-500'
-                                : 'text-green-500'
-                                }`}
-                            >
-                              {item.status}
-                            </div>
-                          </div>
+                          <button
+                            id={`dropdown-toggle-${item.id}`}
+                            onClick={(e) => handlePopoverOpen(e, item)}
+                            className="relative"
+                          >
+                            <img
+                              src={'/otherAssets/threeDotsIcon.png'}
+                              height={24}
+                              width={24}
+                              alt="threeDots"
+                            />
+                          </button>
                         </div>
 
-                        <button
-                          id={`dropdown-toggle-${item.id}`}
-                          onClick={(e) => handlePopoverOpen(e, item)}
-                          className="relative"
-                        >
-                          <img
-                            src={'/otherAssets/threeDotsIcon.png'}
-                            height={24}
-                            width={24}
-                            alt="threeDots"
-                          />
-                        </button>
-                      </div>
-
-                      {/* Custom Dropdown
+                        {/* Custom Dropdown
                       {moreDropdown === item.id && (
                         <div
                           className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
@@ -1936,80 +1936,80 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           </div>
                         </div>
                       )} */}
-                    </div>
-                  )
-                })}
-              </div>
-              <Popover
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handlePopoverClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                PaperProps={{
-                  sx: {
-                    boxShadow:
-                      '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
-                    border: 'none',
-                  },
-                }}
-              >
-                <div className="flex flex-col">
-                  {popoverTeam && canShowResendOption(popoverTeam) && (
-                    <MenuItem
-                      onClick={() => {
-                        handleResendInvite(popoverTeam)
-                        handlePopoverClose()
-                      }}
-                    >
-                      Resend Invite
-                    </MenuItem>
-                  )}
-                  {(agencyData?.userRole === 'Agency' ||
-                    userLocalData?.userRole === 'Agency' ||
-                    agencyData?.userRole === 'AgentX' ||
-                    userLocalData?.userRole === 'AgentX' ||
-                    agencyData?.userRole === 'AgencySubAccount' ||
-                    userLocalData?.userRole === 'AgencySubAccount') &&
-                    (popoverTeam?.invitedUserId || popoverTeam?.status === 'Pending') && (
+                      </div>
+                    )
+                  })}
+                </div>
+                <Popover
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handlePopoverClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  PaperProps={{
+                    sx: {
+                      boxShadow:
+                        '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
+                      border: 'none',
+                    },
+                  }}
+                >
+                  <div className="flex flex-col">
+                    {popoverTeam && canShowResendOption(popoverTeam) && (
                       <MenuItem
                         onClick={() => {
-                          setSelectedTeamMemberForPermissions(popoverTeam)
-                          setShowPermissionModal(true)
+                          handleResendInvite(popoverTeam)
                           handlePopoverClose()
                         }}
                       >
-                        Manage Permissions
+                        Resend Invite
                       </MenuItem>
                     )}
-                  {popoverTeam?.status?.toLowerCase() !== 'pending' && (
+                    {(agencyData?.userRole === 'Agency' ||
+                      userLocalData?.userRole === 'Agency' ||
+                      agencyData?.userRole === 'AgentX' ||
+                      userLocalData?.userRole === 'AgentX' ||
+                      agencyData?.userRole === 'AgencySubAccount' ||
+                      userLocalData?.userRole === 'AgencySubAccount') &&
+                      (popoverTeam?.invitedUserId || popoverTeam?.status === 'Pending') && (
+                        <MenuItem
+                          onClick={() => {
+                            setSelectedTeamMemberForPermissions(popoverTeam)
+                            setShowPermissionModal(true)
+                            handlePopoverClose()
+                          }}
+                        >
+                          Manage Permissions
+                        </MenuItem>
+                      )}
+                    {popoverTeam?.status?.toLowerCase() !== 'pending' && (
+                      <MenuItem
+                        onClick={() => {
+                          setActivityDrawerTeamMember(popoverTeam)
+                          setActivityDrawerOpen(true)
+                          handlePopoverClose()
+                        }}
+                      >
+                        Activity
+                      </MenuItem>
+                    )}
                     <MenuItem
+                      sx={{ color: 'red' }}
                       onClick={() => {
-                        setActivityDrawerTeamMember(popoverTeam)
-                        setActivityDrawerOpen(true)
+                        DeleteTeamMember(popoverTeam)
                         handlePopoverClose()
                       }}
                     >
-                      Activity
+                      Delete
                     </MenuItem>
-                  )}
-                  <MenuItem
-                    sx={{ color: 'red' }}
-                    onClick={() => {
-                      DeleteTeamMember(popoverTeam)
-                      handlePopoverClose()
-                    }}
-                  >
-                    Delete
-                  </MenuItem>
-                </div>
-              </Popover>
+                  </div>
+                </Popover>
               </>
             ) : (
               <div className="h-screen w-full flex flex-col items-center justify-center -mt-16">
@@ -3418,16 +3418,19 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
         initialPermissions={selectedInvitationPermissions}
         allowedSubaccountIds={selectedSubaccountIds}
       />
-
-      <TeamMemberActivityDrawer
-        open={activityDrawerOpen}
-        onClose={() => {
-          setActivityDrawerOpen(false)
-          setActivityDrawerTeamMember(null)
-        }}
-        teamMember={activityDrawerTeamMember}
-        admin={myTeam?.[0]?.invitedUser || myTeam?.[0]?.invitingUser}
-      />
+      {
+        activityDrawerOpen && (
+          <TeamMemberActivityDrawer
+            open={activityDrawerOpen}
+            onClose={() => {
+              setActivityDrawerOpen(false)
+              setActivityDrawerTeamMember(null)
+            }}
+            teamMember={activityDrawerTeamMember}
+            admin={myTeam?.[0]?.invitedUser || myTeam?.[0]?.invitingUser}
+          />
+        )
+      }
     </div>
   );
 }
