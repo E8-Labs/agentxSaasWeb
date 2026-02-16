@@ -29,6 +29,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
+import { getAgentsListImage } from '@/utilities/agentUtilities'
 import CloseBtn from '../globalExtras/CloseBtn'
 import CreateSmartlistModal from './CreateSmartlistModal'
 
@@ -416,8 +417,11 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
             mainAgentId: mainAgentId,
             name: outboundSubAgent?.name || agent.name,
             thumb_profile_image: outboundSubAgent?.thumb_profile_image || agent.thumb_profile_image,
+            voiceId: outboundSubAgent?.voiceId || agent.voiceId,
             stages: agent.stages || [],
             pipeline: agent.pipeline,
+            // Full agent from API so getAgentsListImage can use same logic as myAgentX (profile/voice/orb)
+            _fullAgent: agent,
           })
         }
       })
@@ -1151,6 +1155,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                           id,
                           label: agent.name,
                           avatar: agent.thumb_profile_image,
+                          avatarNode: getAgentsListImage(agent._fullAgent || agent, 24, 24),
                           selected: isSelected,
                           raw: { ...agent, type: 'agent' },
                         }

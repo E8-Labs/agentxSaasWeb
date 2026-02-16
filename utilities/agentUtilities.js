@@ -169,23 +169,24 @@ export const getAgentsListImage = (
   showExtraheight = true,
 
 ) => {
-  //// //console.log;
-
-  // Extract subagents
-  // const subagents = item.agents || [];
-  //// //console.log;
-
-  // console.log("Sub agent passed is", subAgent);
-  //// //console.log;
+  // When given a full agent (with agents[]), resolve display image from outbound sub-agent — same logic as myAgentX
+  let displayAgent = subAgent
+  if (subAgent?.agents?.length) {
+    const outbound = subAgent.agents.find((a) => a.agentType === 'outbound')
+    displayAgent = outbound || subAgent.agents[0] || subAgent
+    // Prefer outbound's thumb_profile_image / voiceId; fall back to main agent
+    if (!displayAgent.thumb_profile_image && subAgent.thumb_profile_image) {
+      displayAgent = { ...displayAgent, thumb_profile_image: subAgent.thumb_profile_image }
+    }
+    if (!displayAgent.voiceId && subAgent.voiceId) {
+      displayAgent = { ...displayAgent, voiceId: subAgent.voiceId }
+    }
+  }
 
   let height = imgHeight || 62
   let width = imgWidth || 62
 
-  //// //console.log;
-  //// //console.log;
-
-  console.log("subAgent? is", subAgent)
-  if (subAgent?.thumb_profile_image) {
+  if (displayAgent?.thumb_profile_image) {
     return (
       <div
         className="flex flex-row items-center justify-center"
@@ -198,7 +199,7 @@ export const getAgentsListImage = (
         }}
       >
         <img
-          src={subAgent?.thumb_profile_image}
+          src={displayAgent.thumb_profile_image}
           alt="*"
           className="rounded-full"
           style={{
@@ -213,9 +214,9 @@ export const getAgentsListImage = (
   }
 
   // Check for voiceId and map it to an image
-  if (subAgent?.voiceId) {
+  if (displayAgent?.voiceId) {
     const selectedVoice = voicesList.find(
-      (voice) => voice.voice_id === subAgent.voiceId,
+      (voice) => voice.voice_id === displayAgent.voiceId,
     )
     //// //console.log;
     if (selectedVoice && selectedVoice.img) {
