@@ -35,6 +35,7 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limi
   const res = await axios.get(`${Apis.getTeamMemberActivities}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
+  console.log('[Activities] [trace] API response:', res.data)
   return res.data
 }
 
@@ -345,7 +346,24 @@ const GAP_ICON_CONTENT = '1rem'
 const ICON_COL_WIDTH = '2rem'
 const LINE_LEFT = `calc(${DATE_COL_WIDTH} + ${GAP_DATE_ICON} + ${ICON_COL_WIDTH} / 2)`
 
-/** Build email details for popover (from, to, cc, bcc, date, subject) from activity item */
+/** Normalize CC/BCC from activity item (array, JSON string, or metadata) */
+function normalizeCcBcc(value, fallback) {
+  if (value == null) return fallback
+  let arr = value
+  if (typeof value === 'string') {
+    try {
+      arr = value.trim().startsWith('[') ? JSON.parse(value) : null
+    } catch {
+      return value || fallback
+    }
+  }
+  if (Array.isArray(arr) && arr.length > 0) {
+    return arr.filter(Boolean).join(', ')
+  }
+  return fallback
+}
+
+/** Build email details for popover (from, to, cc, bcc, date, subject) from activity item — same shape as Messages getEmailDetails */
 function getEmailDetailsFromActivity(item) {
   const headers = item.metadata?.headers ?? item.metadata?.emailHeaders ?? item.metadata?.rawHeaders ?? {}
   const getHeader = (key) => {
@@ -360,14 +378,10 @@ function getEmailDetailsFromActivity(item) {
     if (Array.isArray(val)) return val.filter(Boolean).join(', ')
     return String(val)
   }
-  const ccValue =
-    Array.isArray(item.ccEmails) && item.ccEmails.length > 0
-      ? item.ccEmails.join(', ')
-      : ensureString(item.metadata?.cc ?? getHeader('cc'))
-  const bccValue =
-    Array.isArray(item.bccEmails) && item.bccEmails.length > 0
-      ? item.bccEmails.join(', ')
-      : ensureString(item.metadata?.bcc ?? getHeader('bcc'))
+  const ccFallback = ensureString(item.metadata?.cc ?? getHeader('cc'))
+  const bccFallback = ensureString(item.metadata?.bcc ?? getHeader('bcc'))
+  const ccValue = normalizeCcBcc(item.ccEmails, ccFallback)
+  const bccValue = normalizeCcBcc(item.bccEmails, bccFallback)
   const fromEmail = ensureString(item.fromEmail ?? item.metadata?.from ?? getHeader('from'))
   const toEmail = ensureString(item.toEmail ?? item.lead?.email ?? item.metadata?.to ?? getHeader('to'))
   const dateStr =
@@ -505,30 +519,27 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                       </div>
                       {(() => {
                         const details = getEmailDetailsFromActivity(item)
+                        // Same row order as Messages page: from, to, cc, bcc, date, subject (always show cc/bcc, use — when empty)
                         const rows = [
-                          { label: 'from', value: details.from },
-                          { label: 'to', value: details.to },
-                          { label: 'cc', value: details.cc },
-                          { label: 'bcc', value: details.bcc },
-                          { label: 'date', value: details.date },
-                          { label: 'subject', value: details.subject },
-                        ].filter((row) => row.value)
+                          { label: 'from', value: details.from || '—' },
+                          { label: 'to', value: details.to || '—' },
+                          { label: 'cc', value: details.cc || '—' },
+                          { label: 'bcc', value: details.bcc || '—' },
+                          { label: 'date', value: details.date || '—' },
+                          { label: 'subject', value: details.subject || '—' },
+                        ]
                         return (
                           <div className="px-2.5 py-2 text-[11px] text-gray-600 space-y-1">
-                            {rows.length === 0 ? (
-                              <div className="text-[10px] text-gray-400">No metadata available.</div>
-                            ) : (
-                              rows.map((row) => (
-                                <div key={row.label} className="flex items-start gap-2">
-                                  <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">
-                                    {row.label}:
-                                  </span>
-                                  <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">
-                                    {row.value}
-                                  </span>
-                                </div>
-                              ))
-                            )}
+                            {rows.map((row) => (
+                              <div key={row.label} className="flex items-start gap-2">
+                                <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">
+                                  {row.label}:
+                                </span>
+                                <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">
+                                  {row.value}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         )
                       })()}
