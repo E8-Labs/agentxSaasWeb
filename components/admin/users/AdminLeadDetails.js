@@ -2353,6 +2353,8 @@ const AdminLeadDetails = ({
                                 setShowNoAudioPlay(true)
                               }
                             }}
+                            leadName={selectedLeadsDetails?.firstName}
+                            leadId={selectedLeadsDetails?.id}
                           />
                         )}
                       </div>

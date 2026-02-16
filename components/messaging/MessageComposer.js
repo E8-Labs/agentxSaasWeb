@@ -128,6 +128,7 @@ const getCharCountFromHTML = (html) => {
 
 
 const MessageComposer = ({
+  from = null,
   selectedUser,
   composerMode,
   setComposerMode,
@@ -223,7 +224,7 @@ const MessageComposer = ({
 
 
   //debugging
-  useEffect(()=> {
+  useEffect(() => {
     console.log('[composerDataUseEffect] composer data changed')
     console.log('🔍 [composerDataUseEffect] composerMode:', composerMode)
 
@@ -1424,7 +1425,15 @@ const MessageComposer = ({
                                 <div className="border-t border-gray-200 p-2">
                                   <button
                                     onClick={() => {
-                                      router.push('/dashboard/myAccount?tab=7')
+                                      if (from === 'admin') {
+                                        const url = `/admin/users?userId=${selectedUser.id}&enablePermissionChecks=true&tab=account`
+                                        window.open(url, '_blank')
+                                      } else if (from === 'subaccount' || from === 'agency') {
+                                        const url = `/agency/users?userId=${selectedUser.id}&enablePermissionChecks=true&tab=account`
+                                        window.open(url, '_blank')
+                                      } else {
+                                        router.push('/dashboard/myAccount?tab=7')
+                                      }
                                       setPhoneDropdownOpen(false)
                                     }}
                                     className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"

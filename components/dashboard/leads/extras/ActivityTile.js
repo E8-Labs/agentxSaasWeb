@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -23,9 +23,12 @@ const ActivityTile = ({
   const outcomeColor = getOutcomeColor(item)
 
   const getIcon = () => {
+    if (React.isValidElement(iconPath)) {
+      return <div className="flex h-4 w-4 items-center justify-center shrink-0">{iconPath}</div>
+    }
     return (
       <div
-        className="h-4 w-4"
+        className="h-4 w-4 shrink-0"
         style={{
           backgroundColor: '#000000',
           WebkitMaskImage: `url(${iconPath})`,
@@ -42,7 +45,7 @@ const ActivityTile = ({
   }
 
   const isExpandDisabled =
-    item?.callOutcome === 'Email Failed' || item?.callOutcome === 'Text Failed'
+    item?.callOutcome === 'Email Failed' || item?.callOutcome === 'Text Failed' || outcome === 'Ongoing'
   const shouldShowChevron =
     item.callOutcome !== 'No Answer' && !isExpandDisabled
 

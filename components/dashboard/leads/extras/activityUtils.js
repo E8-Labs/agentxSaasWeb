@@ -1,4 +1,4 @@
-import { Smile, Frown, Meh, Flame, Sun, Snowflake } from 'lucide-react'
+import { Smile, Frown, Meh, Flame, Sun, Snowflake, MessageSquareDot } from 'lucide-react'
 import { callStatusColors } from '@/constants/Constants'
 
 /**
@@ -11,7 +11,7 @@ export const getCommunicationTypeIcon = (item) => {
   const isDialerCall = item.callOrigin === 'Dialer' || (item.communicationType === 'call' && item.isWebCall === false)
 
   if (item.communicationType == 'sms') {
-    return '/otherAssets/smsIcon.png'
+    return <MessageSquareDot size={18} color="#000000" />
   } else if (item.communicationType == 'email') {
     return '/otherAssets/email.png'
   } else if (item.communicationType == 'call' || isDialerCall) {
@@ -29,7 +29,11 @@ export const getCommunicationTypeIcon = (item) => {
 export const getOutcome = (item) => {
   if (item.communicationType == 'sms') {
     // return 'Text Sent'
-    return item?.callOutcome
+    if (item?.endCallReason === "sms_failed") {
+      return "Text Failed"
+    } else if (item?.endCallReason === "sms_sent") {
+      return "Text Sent"
+    }
   } else if (item.communicationType == 'email') {
     // return 'Email Sent'
     return item?.callOutcome
@@ -48,10 +52,10 @@ export const getOutcome = (item) => {
 export const getOutcomeColor = (item) => {
   const color =
     callStatusColors[
-      Object.keys(callStatusColors).find(
-        (key) =>
-          key.toLowerCase() === (item?.callOutcome || '').toLowerCase(),
-      )
+    Object.keys(callStatusColors).find(
+      (key) =>
+        key.toLowerCase() === (item?.callOutcome || '').toLowerCase(),
+    )
     ] || '#000'
 
   return color
@@ -99,7 +103,7 @@ export const getTemperatureIconForActivity = (temperature) => {
  */
 export const formatNextStepsForTooltip = (nextSteps) => {
   if (!nextSteps) return 'No next steps'
-  if(nextSteps === '[]') return 'No next steps'
+  if (nextSteps === '[]') return 'No next steps'
   try {
     const steps = typeof nextSteps === 'string' ? JSON.parse(nextSteps) : nextSteps
     if (Array.isArray(steps) && steps.length > 0) {

@@ -4,6 +4,7 @@ import Script from 'next/script'
 
 // import "./globals.css";
 import GhlOauthWatcher from '@/components/dashboard/oAuthWatcher/GhlOauthWatcher'
+import AgencyDialerProvider from '@/components/common/AgencyDialerProvider'
 
 export default function RootLayout({ children }) {
   return (
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
 
           `}
         </Script>
+        <AgencyDialerProvider />
       </body>
     </html>
   )

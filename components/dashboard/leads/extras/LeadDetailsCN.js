@@ -375,6 +375,8 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
                     showColor={leadData?.showColor}
                     callTranscript={leadData?.callTranscript}
                     emailSmsTranscript={leadData?.emailSmsTranscript}
+                    leadName={leadData?.selectedLeadsDetails?.firstName}
+                    leadId={leadData?.selectedLeadsDetails?.id}
                   />
                 </TabsContent>
 

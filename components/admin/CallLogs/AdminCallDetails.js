@@ -349,6 +349,8 @@ const AdminCallDetails = ({
                           setShowNoAudioPlay(true)
                         }
                       }}
+                      leadName={selectedLead?.firstName}
+                      leadId={selectedLead?.id} // in case donot works add LeadModel?.id
                     />
                   </div>
 

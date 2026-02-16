@@ -2856,7 +2856,7 @@ const Pipeline1 = () => {
                         ).length > 0 && (
                             <div
                               id={`scrollableDiv-${stage.id}`}
-                              className="relative w-full flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl bg-none"
+                              className="pipeline-stage-scroll relative w-full flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl"
                               style={{
                                 scrollbarWidth: 'none',
                                 // borderWidth: 1,
