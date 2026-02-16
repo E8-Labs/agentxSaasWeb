@@ -888,7 +888,7 @@ function SMSTempletePopup({
                         }}
                       >
                         <MenuItem value="" disabled>
-                          <em>Insert Variable</em>
+                          <em>Variables</em>
                         </MenuItem>
                         {uniqueColumns.map((variable, index) => {
                           const displayText = variable.startsWith('{') && variable.endsWith('}')
@@ -914,8 +914,8 @@ function SMSTempletePopup({
                     value={body}
                     onChange={(e) => {
                       const newValue = e.target.value
-                      // Enforce 160 character limit for SMS
-                      if (newValue.length <= 160) {
+                      // Enforce 300 character limit for text (Twilio sends multi-segment; we count 1 credit per message)
+                      if (newValue.length <= 300) {
                         setBody(newValue)
                       }
                     }}
@@ -935,7 +935,7 @@ function SMSTempletePopup({
                   {/* Character count and balance at bottom of message area */}
                   <div className="flex flex-row items-center justify-between w-full mt-2 pt-2 border-t border-gray-200">
                     <div className="text-sm text-gray-600">
-                      {body.length}/160 char
+                      {body.length}/300 char
                     </div>
                     <div className="flex flex-row items-center gap-2 text-sm text-gray-600">
 

@@ -140,7 +140,7 @@ export default function CallingScript({
       ]
 
       const columns = await getUniquesColumn()
-      
+
       // Merge default columns with API response, removing duplicates
       if (columns && Array.isArray(columns)) {
         const mergedColumns = [
@@ -358,7 +358,7 @@ export default function CallingScript({
     >
       {/* Header - Title and Add Script button - Only show when not viewing a script */}
       {!selectedScript && (
-        <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
+        <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between h-[10%]" style={{ position: 'relative', zIndex: 2000 }}>
           <h3 className="font-bold text-xl text-gray-900">
             Script
           </h3>
@@ -384,7 +384,7 @@ export default function CallingScript({
 
       {/* Content Area */}
       <div
-        className="flex-1 overflow-y-auto px-6"
+        className="flex-1 overflow-y-hidden px-6 h-[90%]"
         style={{ position: 'relative', zIndex: 2000 }}
       >
         {loading ? (
@@ -422,117 +422,119 @@ export default function CallingScript({
           </div>
         ) : isCreating || isEditing ? (
           <div
-            className="space-y-4 pb-6"
+            className="space-y-4 pb-6 h-full overflow-y-hidden"
             style={{ position: 'relative', zIndex: 2000 }}
           >
-              <label className="text-sm font-medium mb-2 block text-gray-700">Title</label>
-            <div style={{ position: 'relative', zIndex: 2001 ,backgroundColor:'transparent'}}>
-              <Input
-                ref={titleInputRef}
-                type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                placeholder="Enter script title"
-                className="border border-[#00000020] p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
-                style={{
-                  fontSize: '14px',
-                  position: 'relative',
-                  zIndex: 2001,
-                  borderRadius: '7px',
-                }}
-                autoFocus
-                tabIndex={0}
-              />
-            </div>
-            <div style={{ position: 'relative', zIndex: 2001 }}>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium block text-gray-700">Script</label>
-                {uniqueColumns && uniqueColumns.length > 0 && (
-                  <FormControl size="small" sx={{ minWidth: 150 }}>
-                    <Select
-                      value={selectedVariable}
-                      onChange={(e) => {
-                        const value = e.target.value as string
-                        setSelectedVariable('')
-                        if (value && contentTextareaRef.current) {
-                          const textarea = contentTextareaRef.current
-                          const start = textarea.selectionStart || 0
-                          const end = textarea.selectionEnd || 0
-                          const variableText = value.startsWith('{') && value.endsWith('}')
-                            ? value
-                            : `{${value}}`
-                          const newContent = editContent.substring(0, start) + variableText + editContent.substring(end)
-                          setEditContent(newContent)
-                          // Set cursor position after inserted variable
-                          setTimeout(() => {
-                            textarea.focus()
-                            textarea.setSelectionRange(start + variableText.length, start + variableText.length)
-                          }, 0)
-                        }
-                      }}
-                      displayEmpty
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '32px',
-                        backgroundColor: 'white',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#d1d5db',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
+            <div className='h-[90%] overflow-y-auto'>
+              <label className="text-sm font-medium mb-2 block text-gray-700 mt-2">Title</label>
+              <div style={{ position: 'relative', zIndex: 2001, backgroundColor: 'transparent' }}>
+                <Input
+                  ref={titleInputRef}
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  placeholder="Enter script title"
+                  className="border border-[#00000020] p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
+                  style={{
+                    fontSize: '14px',
+                    position: 'relative',
+                    zIndex: 2001,
+                    borderRadius: '7px',
+                  }}
+                  autoFocus
+                  tabIndex={0}
+                />
+              </div>
+              <div style={{ position: 'relative', zIndex: 2001 }}>
+                <div className="flex items-center justify-between mb-2 mt-2">
+                  <label className="text-sm font-medium block text-gray-700">Script</label>
+                  {uniqueColumns && uniqueColumns.length > 0 && (
+                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                      <Select
+                        value={selectedVariable}
+                        onChange={(e) => {
+                          const value = e.target.value as string
+                          setSelectedVariable('')
+                          if (value && contentTextareaRef.current) {
+                            const textarea = contentTextareaRef.current
+                            const start = textarea.selectionStart || 0
+                            const end = textarea.selectionEnd || 0
+                            const variableText = value.startsWith('{') && value.endsWith('}')
+                              ? value
+                              : `{${value}}`
+                            const newContent = editContent.substring(0, start) + variableText + editContent.substring(end)
+                            setEditContent(newContent)
+                            // Set cursor position after inserted variable
+                            setTimeout(() => {
+                              textarea.focus()
+                              textarea.setSelectionRange(start + variableText.length, start + variableText.length)
+                            }, 0)
+                          }
+                        }}
+                        displayEmpty
+                        sx={{
+                          fontSize: '0.875rem',
+                          height: '32px',
+                          backgroundColor: 'white',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#d1d5db',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: '30vh',
+                              overflow: 'auto',
+                              scrollbarWidth: 'none',
+                              zIndex: 2002,
+                            },
+                          },
+                          disablePortal: false,
+                          container: typeof document !== 'undefined' ? document.body : null,
                           style: {
-                            maxHeight: '30vh',
-                            overflow: 'auto',
-                            scrollbarWidth: 'none',
                             zIndex: 2002,
                           },
-                        },
-                        disablePortal: false,
-                        container: typeof document !== 'undefined' ? document.body : null,
-                        style: {
-                          zIndex: 2002,
-                        },
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Insert Variable</em>
-                      </MenuItem>
-                      {uniqueColumns.map((variable, index) => {
-                        const displayText = variable.startsWith('{') && variable.endsWith('}')
-                          ? variable
-                          : `{${variable}}`
-                        return (
-                          <MenuItem key={index} value={variable}>
-                            {displayText}
-                          </MenuItem>
-                        )
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
-              </div>
+                        }}
+                      >
+                        <MenuItem value="" disabled>
+                          <em>Variables</em>
+                        </MenuItem>
+                        {uniqueColumns.map((variable, index) => {
+                          const displayText = variable.startsWith('{') && variable.endsWith('}')
+                            ? variable
+                            : `{${variable}}`
+                          return (
+                            <MenuItem key={index} value={variable}>
+                              {displayText}
+                            </MenuItem>
+                          )
+                        })}
+                      </Select>
+                    </FormControl>
+                  )}
+                </div>
 
-              <Textarea
-                ref={contentTextareaRef}
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                placeholder="Enter script content..."
-                className="w-full min-h-[400px] resize-none border-2 border-[#00000020] rounded-lg px-3 py-2 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
-                style={{
-                  fontSize: '14px',
-                  position: 'relative',
-                  zIndex: 2001,
-                  borderRadius: '7px',
-                }}
-                tabIndex={0}
-              />
+                <Textarea
+                  ref={contentTextareaRef}
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  placeholder="Enter script content..."
+                  className="w-full min-h-[300px] resize-none border-2 border-[#00000020] rounded-lg px-3 py-2 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
+                  style={{
+                    fontSize: '14px',
+                    position: 'relative',
+                    zIndex: 2001,
+                    borderRadius: '7px',
+                  }}
+                  tabIndex={0}
+                />
+              </div>
             </div>
             <div className="flex gap-2">
               <Button
@@ -547,7 +549,7 @@ export default function CallingScript({
             </div>
           </div>
         ) : selectedScript ? (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full overflow-y-auto">
             {/* Header - Title and Back button */}
             <div className="py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
               <div className="flex items-center gap-3">
@@ -602,7 +604,7 @@ export default function CallingScript({
             </div>
           </div>
         ) : scripts.length > 0 ? (
-          <div className="space-y-3 py-4">
+          <div className="space-y-3 py-4 h-full overflow-y-auto">
             {scripts.map((script, index) => (
               <div
                 key={script.id}
@@ -774,7 +776,7 @@ export default function CallingScript({
           setShowDeleteConfirm(false)
           setScriptToDelete(0)
         }}
-        BackdropProps={{  
+        BackdropProps={{
           timeout: 200,
           sx: {
             backgroundColor: '#00000020',
@@ -791,7 +793,7 @@ export default function CallingScript({
           className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
           sx={{ ...styles.modalsStyle, backgroundColor: 'white', zIndex: 15010 }}
         >
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, zIndex: 15015}}>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, zIndex: 15015 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontWeight: '500', fontSize: 17 }}>
                 Delete Script
@@ -804,7 +806,7 @@ export default function CallingScript({
             <div style={{ display: 'flex', justifyContent: 'between', gap: 10, width: '100%' }}>
               <Button variant="outline-none" className="w-1/2 text-left text-[#6b7280]" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
               <Button className="bg-brand-primary text-white hover:bg-brand-primary/90 w-1/2" onClick={() => confirmDeleteScript()} disabled={deleting}>
-                  {deleting ? "Deleting..." : 'Delete'}</Button>
+                {deleting ? "Deleting..." : 'Delete'}</Button>
             </div>
           </div>
         </Box>

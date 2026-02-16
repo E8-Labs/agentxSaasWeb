@@ -2576,8 +2576,8 @@ const Pipeline1 = () => {
                             className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
                             style={{
                               ...styles.heading,
-                              backgroundColor: stage.defaultColor,
-                              color: 'white',
+                              backgroundColor: "transparent", //stage.defaultColor,
+                              color: 'black',
                               // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
                             }}
                           >
@@ -2591,7 +2591,8 @@ const Pipeline1 = () => {
                               )}
                             </span>
                             <div
-                              className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
+                              // className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
+                              className="rounded-full bg-white flex items-center justify-center text-black min-w-8 min-h-8 w-8 h-8 shrink-0 px-1"
                               style={{ ...styles.paragraph, fontSize: 14 }}
                             >
                               {/* {leadCounts[stage.id] ? (
@@ -2856,7 +2857,7 @@ const Pipeline1 = () => {
                         ).length > 0 && (
                             <div
                               id={`scrollableDiv-${stage.id}`}
-                              className="relative w-full flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl bg-none"
+                              className="pipeline-stage-scroll relative w-full flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl"
                               style={{
                                 scrollbarWidth: 'none',
                                 // borderWidth: 1,
@@ -2976,7 +2977,7 @@ const Pipeline1 = () => {
                                               19,
                                             )}
                                           </div>
-                                          <div style={styles.paragraph}>
+                                          <div style={styles.paragraph} className="-ms-8">
                                             {lead.lead.firstName}
                                           </div>
                                         </button>
@@ -3088,21 +3089,7 @@ const Pipeline1 = () => {
                                               >
                                                 ${planPrice}
                                               </div>
-                                            ) : (
-                                              <div
-                                                className="rounded-full flex flex-row items-center justify-center"
-                                                style={{
-                                                  fontSize: '11px',
-                                                  fontWeight: "400",
-                                                  height: "28px",
-                                                  width: "70px",
-                                                  backgroundColor: "#00000005",
-                                                  fontSize: "14px",
-                                                }}
-                                              >
-                                                $12
-                                              </div>
-                                            )
+                                            ) : null
                                           })()}
                                         </div>
                                       </div>
@@ -3161,6 +3148,7 @@ const Pipeline1 = () => {
                                           onLeadDetailsUpdated={(deletedTagName) =>
                                             handleLeadDetailsUpdatedForLead(deletedTagName, lead)
                                           }
+                                          from={"dashboardPipeline"}
                                         />
                                       </div>
 

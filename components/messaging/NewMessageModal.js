@@ -187,7 +187,7 @@ const NewMessageModal = ({
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
   // SMS character limit
-  const SMS_CHAR_LIMIT = 160
+  const SMS_CHAR_LIMIT = 300
 
   // Check if user can send messages/emails
   // For SMS: check allowTextMessages capability
@@ -2772,7 +2772,7 @@ const NewMessageModal = ({
                             ref={smsTextareaRef}
                             value={smsMessageBody}
                             onChange={(e) => {
-                              // Enforce max 160 characters for SMS
+                              // Enforce max 300 characters for text (Twilio multi-segment; we count 1 credit per message)
                               if (e.target.value.length <= SMS_CHAR_LIMIT) {
                                 setSmsMessageBody(e.target.value)
                               }

@@ -62,10 +62,14 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
                 .map((opt, index) => (
                   <div
                     key={opt.id || opt.value || index}
-                    className="relative"
+                    className="relative w-5 h-5 flex-shrink-0"
                     style={{ zIndex: selectedCount - index }}
                   >
-                    {opt.avatar ? (
+                    {opt.avatarNode ? (
+                      <div className="w-5 h-5 rounded-full border-2 border-white overflow-hidden flex items-center justify-center [&>*]:scale-[0.833]">
+                        {opt.avatarNode}
+                      </div>
+                    ) : opt.avatar ? (
                       <img
                         src={opt.avatar}
                         alt={opt.label}
@@ -138,7 +142,9 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
                 </span>
                 
                 <div className="flex items-center gap-2 flex-1">
-                  {opt.avatar ? (
+                  {opt.avatarNode ? (
+                    <div className="h-6 w-6 flex-shrink-0">{opt.avatarNode}</div>
+                  ) : opt.avatar ? (
                     <img
                       src={opt.avatar}
                       alt={opt.label}

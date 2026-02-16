@@ -140,7 +140,7 @@ const AdvancedSettingsModalCN = ({
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
           p: 4,
           width: '100%',
-          maxWidth: '600px',
+          maxWidth: '450px',
           mx: 2,
           maxHeight: '90vh',
           overflow: 'auto',
@@ -207,7 +207,7 @@ const AdvancedSettingsModalCN = ({
             >
               The maximum duration of a call in minutes
             </Typography>
-            <div className="flex flex-row items-center border rounded w-1/2 focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+            <div className="flex flex-row items-center border rounded w-full focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
               <Input
                 type="number"
                 value={maxDurationSeconds}
@@ -237,7 +237,7 @@ const AdvancedSettingsModalCN = ({
             >
               Time before considering user as idle
             </Typography>
-            <div className="flex flex-row items-center border rounded w-1/2 focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+            <div className="flex flex-row items-center border rounded w-full focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
               <Input
                 type="number"
                 value={idleTimeoutSeconds}

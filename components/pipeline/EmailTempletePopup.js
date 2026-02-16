@@ -1238,29 +1238,31 @@ function EmailTempletePopup({
                           <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         </button>
                         {emailDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                            {googleAccounts.map((account) => (
-                              <button
-                                key={account.id}
-                                type="button"
-                                onClick={() => {
-                                  setAccountChanged(true)
-                                  setSelectedGoogleAccount(account)
-                                  setEmailDropdownOpen(false)
-                                }}
-                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedGoogleAccount?.id === account.id ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                  }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span>{account.email || account.name || account.displayName}</span>
-                                  {account.provider && (
-                                    <span className="text-xs text-gray-500 ml-2">
-                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                    </span>
-                                  )}
-                                </div>
-                              </button>
-                            ))}
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                            <div className="max-h-44 overflow-y-auto">
+                              {googleAccounts.map((account) => (
+                                <button
+                                  key={account.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setAccountChanged(true)
+                                    setSelectedGoogleAccount(account)
+                                    setEmailDropdownOpen(false)
+                                  }}
+                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedGoogleAccount?.id === account.id ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                    }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span>{account.email || account.name || account.displayName}</span>
+                                    {account.provider && (
+                                      <span className="text-xs text-gray-500 ml-2">
+                                        {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                      </span>
+                                    )}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
                             <div className="border-t border-gray-200 p-2">
                               <button
                                 onClick={() => {

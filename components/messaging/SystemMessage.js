@@ -529,7 +529,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                                   }
                                   setAiActionType(null)
                                   setAiActionInput('')
-                                  toast.success('Follow-up drafts generated. Select one to send.')
+                                  // toast.success('Follow-up drafts generated. Select one to send.')
                                 } else {
                                   toast.error(res.data?.message || 'Failed to generate drafts')
                                 }

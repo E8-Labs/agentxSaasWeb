@@ -2,9 +2,22 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
-import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo } from 'lucide-react'
+import { format } from 'date-fns'
+import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo, ChevronDown, CalendarIcon, MessageSquareDot } from 'lucide-react'
 import Drawer from '@mui/material/Drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { getTasks } from '@/components/onboarding/services/apisServices/TaskService'
 import Apis from '@/components/apis/Apis'
 import TaskCard from '@/components/messaging/TaskCard'
@@ -20,7 +33,7 @@ const getAuthToken = () => {
       const Data = JSON.parse(localData)
       return Data.token
     }
-  } catch (e) {}
+  } catch (e) { }
   return null
 }
 
@@ -62,6 +75,13 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [counts, setCounts] = useState({ todo: 0, 'in-progress': 0, done: 0 })
   const [taskStatusFilter, setTaskStatusFilter] = useState(null)
   const [selectedLeadIdForModal, setSelectedLeadIdForModal] = useState(null)
+  const [rangeDropdownOpen, setRangeDropdownOpen] = useState(false)
+  const [customFromDate, setCustomFromDate] = useState(null)
+  const [customToDate, setCustomToDate] = useState(null)
+  const [customFromOpen, setCustomFromOpen] = useState(false)
+  const [customToOpen, setCustomToOpen] = useState(false)
+  //show date modals
+  const [showCustomDateModal, setShowCustomDateModal] = useState(false)
 
   const teamMemberUserId = teamMember?.invitedUserId || teamMember?.invitedUser?.id
 
@@ -86,9 +106,12 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
   const loadActivities = useCallback(async () => {
     if (!teamMemberUserId) return
+    if (range === 'custom' && (!customFromDate || !customToDate)) return
+    const fromStr = range === 'custom' && customFromDate ? format(customFromDate, 'yyyy-MM-dd') : undefined
+    const toStr = range === 'custom' && customToDate ? format(customToDate, 'yyyy-MM-dd') : undefined
     setActivitiesLoading(true)
     try {
-      const res = await fetchTeamMemberActivities(teamMemberUserId, range)
+      const res = await fetchTeamMemberActivities(teamMemberUserId, range, fromStr, toStr)
       const data = res?.data
       setActivities(data?.activities ?? [])
       setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
@@ -99,7 +122,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     } finally {
       setActivitiesLoading(false)
     }
-  }, [teamMemberUserId, range])
+  }, [teamMemberUserId, range, customFromDate, customToDate])
 
   useEffect(() => {
     if (open && activeTab === 'tasks' && teamMemberUserId) loadTasks()
@@ -107,7 +130,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
   useEffect(() => {
     if (open && activeTab === 'activity' && teamMemberUserId) loadActivities()
-  }, [open, activeTab, teamMemberUserId, range, loadActivities])
+  }, [open, activeTab, teamMemberUserId, range, customFromDate, customToDate, loadActivities])
 
   const displayName = teamMember?.name || teamMember?.invitedUser?.name || 'Team Member'
   const displayEmail = teamMember?.email || teamMember?.invitedUser?.email || ''
@@ -124,6 +147,9 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       anchor="right"
       open={open}
       onClose={onClose}
+      ModalProps={{
+        sx: { zIndex: 5000 },
+      }}
       PaperProps={{
         sx: {
           // width: { xs: 'calc(100% - 32px)', sm: 720 },
@@ -136,6 +162,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           // left: 'auto',
           borderRadius: '12px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          zIndex: 5000
         },
       }}
     >
@@ -144,14 +171,6 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
         <div className="flex flex-col w-[20vw] shrink-0 border-r border-border bg-background">
           <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border">
             <span className="text-base font-semibold text-foreground">Team Member</span>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-md hover:bg-muted transition-colors"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5 text-muted-foreground" />
-            </button>
           </div>
           {teamMember && (
             <>
@@ -212,28 +231,57 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
         {/* Right column: content - header height h-14 to align divider line with left */}
         <div className="flex flex-col flex-1 min-w-0 w-[80vw]">
+          <div className="flex flex-row items-center justify-end px-4 h-14 shrink-0 border-b border-border">
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-md hover:bg-muted transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5 text-muted-foreground" />
+            </button>
+          </div>
           {activeTab === 'tasks' && (
             <>
-              <div className="flex items-center h-14 shrink-0 border-b border-border">
-                
-              </div>
               <span className="text-lg font-semibold text-foreground ml-2 mt-2 mb-3">Task</span>
-              <div className="px-5 py-3 flex flex-wrap gap-2 border-b border-border">
+              <div
+                // className="px-5 py-3 flex flex-wrap gap-2 border-b border-border"
+                style={{
+                  backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                  width: 'fit-content',
+                  marginLeft: 15
+                }}
+                className={cn("px-3 py-2 flex flex-wrap gap-2 border-b border-border rounded-full", "flex flex-row items-center justify-center gap-2 rounded-full")}
+              >
                 {STATUS_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => setTaskStatusFilter(taskStatusFilter === opt.value ? null : opt.value)}
+                    // className={cn(
+                    //   'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                    //   taskStatusFilter === opt.value
+                    //     ? 'bg-brand-primary text-white'
+                    //     : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                    // )}
                     className={cn(
-                      'px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-                      taskStatusFilter === opt.value
-                        ? 'bg-brand-primary text-white'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                      "px-2 py-1 transition-colors",
+                      taskStatusFilter === opt.value ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
+                      taskStatusFilter === opt.value ? "rounded-full" : "rounded-none",
+                      // taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+                      taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
                     )}
                   >
                     {opt.label} {counts[opt.value] ?? 0}
                   </button>
                 ))}
+                {/*<ToggleGroupCN
+                  options={STATUS_OPTIONS}
+                  value={taskStatusFilter}
+                  onChange={setTaskStatusFilter}
+                  height="p-1.5"
+                  roundedness="rounded-lg"
+                />*/}
               </div>
               <ScrollArea className="flex-1">
                 <div className="p-5">
@@ -274,38 +322,155 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
           {activeTab === 'activity' && (
             <>
-              <div className="flex items-center justify-between px-6 h-14 shrink-0 border-b border-border">
-                
-              </div>
-              <div className="flex items-center justify-between px-6 h-14 shrink-0 ">
+              <div className="flex flex-row items-center justify-between px-6 h-14 shrink-0 ">
                 <span className="text-lg font-semibold text-foreground">Activity Log</span>
-                <select
-                  value={range}
-                  onChange={(e) => setRange(e.target.value)}
-                  className="text-sm  border-none rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  {RANGE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
+                <DropdownMenu open={rangeDropdownOpen} onOpenChange={setRangeDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        'flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm',
+                        'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring min-w-[140px]'
+                      )}
+                      aria-label="Select range"
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <span>{RANGE_OPTIONS.find((o) => o.value === range)?.label ?? 'Range'}</span>
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[140px] z-[5010]">
+                    {RANGE_OPTIONS.map((opt) => (
+                      <DropdownMenuItem
+                        key={opt.value}
+                        onSelect={(e) => {
+                          if (opt.value === 'custom') e.preventDefault()
+                        }}
+                        onClick={() => {
+                          setRange(opt.value)
+                          if (opt.value === 'custom') {
+                            setShowCustomDateModal(true)
+                          } else {
+                            setShowCustomDateModal(false)
+                            setRangeDropdownOpen(false)
+                          }
+                        }}
+                      >
+                        {opt.label}
+                      </DropdownMenuItem>
+                    ))}
+
+                    {showCustomDateModal && (
+                      <>
+                        <div className="my-1 h-px bg-muted" />
+                        <div className="p-2 space-y-2">
+                          <div className="text-xs font-medium text-muted-foreground px-2">From / To</div>
+                          <div className="flex flex-col gap-2">
+                            <Popover open={customFromOpen} onOpenChange={setCustomFromOpen}>
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={cn(
+                                    'flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm w-full justify-start',
+                                    'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring'
+                                  )}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (!customFromOpen) setCustomFromOpen(true)
+                                  }}
+                                >
+                                  <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                  <span className="text-muted-foreground">
+                                    {customFromDate ? format(customFromDate, 'MM/dd/yyyy') : 'From date'}
+                                  </span>
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                                style={{ zIndex: 5020 }}
+                                onOpenAutoFocus={(e) => e.preventDefault()}
+                              >
+                                <div className="p-3">
+                                  <Calendar
+                                    mode="single"
+                                    selected={customFromDate}
+                                    onSelect={(d) => {
+                                      setCustomFromDate(d ?? null)
+                                      setCustomFromOpen(false)
+                                      if (customToDate && d) setRangeDropdownOpen(false)
+                                    }}
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                            <Popover open={customToOpen} onOpenChange={setCustomToOpen}>
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  className={cn(
+                                    'flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm w-full justify-start',
+                                    'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring'
+                                  )}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (!customToOpen) setCustomToOpen(true)
+                                  }}
+                                >
+                                  <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                  <span className="text-muted-foreground">
+                                    {customToDate ? format(customToDate, 'MM/dd/yyyy') : 'To date'}
+                                  </span>
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                                style={{ zIndex: 5020 }}
+                                onOpenAutoFocus={(e) => e.preventDefault()}
+                              >
+                                <div className="p-3">
+                                  <Calendar
+                                    mode="single"
+                                    selected={customToDate}
+                                    onSelect={(d) => {
+                                      setCustomToDate(d ?? null)
+                                      setCustomToOpen(false)
+                                      if (customFromDate && d) setRangeDropdownOpen(false)
+                                    }}
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
+
               {/* Stats section: background wrapper, cards with no border, label above count, brand icons */}
               <div className="px-6 py-5 border-b border-border ">
                 <div className="grid grid-cols-3 gap-3 bg-[#F9F9F9] p-3 rounded-lg">
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-1 bg-background/80">
-                    <PhoneCall className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody className="text-sm font-medium text-foreground">Calls</TypographyBody>
-                    <span className="text-2xl font-semibold text-foreground">{totals.calls}</span>
+                  <div className="rounded-lg p-4 flex flex-col items-center gap-1 bg-transparent">
+                    <Phone className="h-6 w-6 text-brand-primary shrink-0" />
+                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Calls</TypographyBody>
+                    <span className="text-base font-semibold text-foreground">{totals.calls}</span>
                   </div>
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-background/80">
-                    <MessageSquare className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody className="text-sm font-medium text-foreground">Texts</TypographyBody>
-                    <span className="text-2xl font-semibold text-foreground">{totals.sms}</span>
+                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
+                    <MessageSquareDot className="h-6 w-6 text-brand-primary shrink-0" />
+                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Texts</TypographyBody>
+                    <span className="text-base font-semibold text-foreground">{totals.sms}</span>
                   </div>
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-background/80">
+                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
                     <Mail className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody className="text-sm font-medium text-foreground">Emails</TypographyBody>
-                    <span className="text-2xl font-semibold text-foreground">{totals.email}</span>
+                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Emails</TypographyBody>
+                    <span className="text-base font-semibold text-foreground">{totals.email}</span>
                   </div>
                 </div>
               </div>
@@ -345,6 +510,64 @@ const GAP_ICON_CONTENT = '1rem'
 const ICON_COL_WIDTH = '2rem'
 const LINE_LEFT = `calc(${DATE_COL_WIDTH} + ${GAP_DATE_ICON} + ${ICON_COL_WIDTH} / 2)`
 
+/** Normalize CC/BCC from activity item (array, JSON string, or metadata) */
+function normalizeCcBcc(value, fallback) {
+  if (value == null) return fallback
+  let arr = value
+  if (typeof value === 'string') {
+    try {
+      arr = value.trim().startsWith('[') ? JSON.parse(value) : null
+    } catch {
+      return value || fallback
+    }
+  }
+  if (Array.isArray(arr) && arr.length > 0) {
+    return arr.filter(Boolean).join(', ')
+  }
+  return fallback
+}
+
+/** Build email details for popover (from, to, cc, bcc, date, subject) from activity item — same shape as Messages getEmailDetails */
+function getEmailDetailsFromActivity(item) {
+  const headers = item.metadata?.headers ?? item.metadata?.emailHeaders ?? item.metadata?.rawHeaders ?? {}
+  const getHeader = (key) => {
+    if (!headers || typeof headers !== 'object') return ''
+    const direct = headers[key] ?? headers[key.toLowerCase()] ?? headers[key?.toUpperCase()]
+    if (direct) return direct
+    const foundKey = Object.keys(headers).find((k) => k && String(k).toLowerCase() === key?.toLowerCase())
+    return foundKey ? headers[foundKey] : ''
+  }
+  const ensureString = (val) => {
+    if (val == null) return ''
+    if (Array.isArray(val)) return val.filter(Boolean).join(', ')
+    return String(val)
+  }
+  const ccFallback = ensureString(item.metadata?.cc ?? getHeader('cc'))
+  const bccFallback = ensureString(item.metadata?.bcc ?? getHeader('bcc'))
+  const ccValue = normalizeCcBcc(item.ccEmails, ccFallback)
+  const bccValue = normalizeCcBcc(item.bccEmails, bccFallback)
+  const fromEmail = ensureString(item.fromEmail ?? item.metadata?.from ?? getHeader('from'))
+  const toEmail = ensureString(item.toEmail ?? item.lead?.email ?? item.metadata?.to ?? getHeader('to'))
+  const dateStr =
+    item.createdAt &&
+    new Date(item.createdAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+  return {
+    from: fromEmail,
+    to: toEmail,
+    cc: ccValue,
+    bcc: bccValue,
+    subject: ensureString(item.subject ?? getHeader('subject')),
+    date: dateStr || '',
+  }
+}
+
 function ActivityTimeline({ activities, onLeadClick }) {
   return (
     <div className="relative">
@@ -364,19 +587,20 @@ function ActivityTimeline({ activities, onLeadClick }) {
 }
 
 function ActivityTimelineItem({ item, onLeadClick }) {
+  const [showEmailDetails, setShowEmailDetails] = useState(false)
   const leadName = item.lead
     ? [item.lead.firstName, item.lead.lastName].filter(Boolean).join(' ') || item.lead.email || 'Lead'
     : 'Lead'
   const leadId = item.leadId ?? item.lead?.id
   const dateStr = item.createdAt
     ? new Date(item.createdAt).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      })
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
     : ''
   const contentSnippet = item.content ? (item.content.length > 120 ? item.content.slice(0, 120) + '...' : item.content) : ''
   const hasLongContent = item.content && item.content.length > 120
@@ -437,7 +661,60 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                 <span className="text-brand-primary underline">{leadName}</span>
               )}
             </TypographyBody>
-            {item.subject && <TypographyBody className="text-sm text-foreground mt-1">Subject: {item.subject}</TypographyBody>}
+            {item.subject && (
+              <div className="text-sm text-foreground mt-1 flex items-start gap-1 flex-wrap">
+                <span
+                  className="font-normal cursor-pointer relative inline"
+                  onMouseEnter={() => setShowEmailDetails(true)}
+                  onMouseLeave={() => setShowEmailDetails(false)}
+                >
+                  Subject:
+                  {showEmailDetails && (
+                    <div
+                      className="absolute z-50 left-0 top-full mt-1 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900"
+                      style={{
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
+                      }}
+                      onMouseEnter={() => setShowEmailDetails(true)}
+                      onMouseLeave={() => setShowEmailDetails(false)}
+                    >
+                      <div className="px-2.5 py-2 border-b border-gray-200">
+                        <span className="text-[11px] font-medium text-gray-700">Message details</span>
+                      </div>
+                      {(() => {
+                        const details = getEmailDetailsFromActivity(item)
+                        // Same row order as Messages page: from, to, cc, bcc, date, subject (always show cc/bcc, use — when empty)
+                        const rows = [
+                          { label: 'from', value: details.from || '—' },
+                          { label: 'to', value: details.to || '—' },
+                          { label: 'cc', value: details.cc || '—' },
+                          { label: 'bcc', value: details.bcc || '—' },
+                          { label: 'date', value: details.date || '—' },
+                          { label: 'subject', value: details.subject || '—' },
+                        ]
+                        return (
+                          <div className="px-2.5 py-2 text-[11px] text-gray-600 space-y-1">
+                            {rows.map((row) => (
+                              <div key={row.label} className="flex items-start gap-2">
+                                <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">
+                                  {row.label}:
+                                </span>
+                                <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">
+                                  {row.value}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  )}
+                </span>
+                <span className="overflow-hidden text-ellipsis" title={item.subject}>
+                  {item.subject}
+                </span>
+              </div>
+            )}
             {item.content && (
               <div
                 className="prose prose-sm max-w-none break-words text-sm text-muted-foreground mt-1

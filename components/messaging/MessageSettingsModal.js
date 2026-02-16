@@ -55,6 +55,20 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
   const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' for AI integration
 
+  /** Normalize agentSettings from API: may be string (JSON) or object; always return object or null */
+  const parseAgentSettings = (raw) => {
+    if (raw == null) return null
+    if (typeof raw === 'object' && raw !== null) return raw
+    if (typeof raw === 'string') {
+      try {
+        return JSON.parse(raw)
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
   // Helper function to mask API key (show last 6 chars, rest as stars) - used only when server sends raw key (legacy)
   const maskApiKey = (key) => {
     if (!key || key.length === 0) return ''
@@ -148,6 +162,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
       if (response.data?.status && response.data?.data) {
         const data = response.data.data
+        const agentSettings = parseAgentSettings(data.agentSettings)
         setSettings({
           aiIntegrationId: data.aiIntegrationId || null,
           replyDelayEnabled: data.replyDelayEnabled || false,
@@ -160,9 +175,9 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           explainingComplexConcepts: data.explainingComplexConcepts ?? null,
           givingUpdates: data.givingUpdates ?? null,
           handlingObjections: data.handlingObjections ?? null,
-          agentSettings: data.agentSettings ?? null,
+          agentSettings: agentSettings ?? null,
         })
-        const meter = data.agentSettings?.agentMeterSettings
+        const meter = agentSettings?.agentMeterSettings
         if (meter && typeof meter === 'object') {
           setAgentMeterDraft({
             salesDrive: typeof meter.salesDrive === 'number' && meter.salesDrive >= 1 && meter.salesDrive <= 10 ? meter.salesDrive : 5,
@@ -383,6 +398,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
       }
 
       // Save message settings (including communication settings from backend)
+      const agentSettings = parseAgentSettings(settings.agentSettings)
       const payload = {
         aiIntegrationId: integrationId || null,
         replyDelayEnabled: settings.replyDelayEnabled,
@@ -395,7 +411,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         explainingComplexConcepts: settings.explainingComplexConcepts ?? null,
         givingUpdates: settings.givingUpdates ?? null,
         handlingObjections: settings.handlingObjections ?? null,
-        agentSettings: settings.agentSettings ?? null,
+        agentSettings: agentSettings ?? null,
       }
 
       // Add userId if viewing subaccount from admin/agency
@@ -559,6 +575,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
       })
       if (response.data?.status && response.data?.data) {
         const data = response.data.data
+        const agentSettings = parseAgentSettings(data.agentSettings)
         setSettings((prev) => ({
           ...prev,
           communicationStyle: data.communicationStyle ?? null,
@@ -568,7 +585,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           explainingComplexConcepts: data.explainingComplexConcepts ?? null,
           givingUpdates: data.givingUpdates ?? null,
           handlingObjections: data.handlingObjections ?? null,
-          agentSettings: data.agentSettings ?? prev.agentSettings,
+          agentSettings: agentSettings ?? prev.agentSettings,
         }))
         setSubModalKey(null)
         toast.success('Saved')
@@ -613,7 +630,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
       })
       if (response.data?.status && response.data?.data) {
         const data = response.data.data
-        setSettings((prev) => ({ ...prev, agentSettings: data.agentSettings ?? prev.agentSettings }))
+        const agentSettings = parseAgentSettings(data.agentSettings)
+        setSettings((prev) => ({ ...prev, agentSettings: agentSettings ?? prev.agentSettings }))
         setSubModalKey(null)
         toast.success('Saved')
       } else {
@@ -1107,9 +1125,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-regular text-gray-900">Agent meter</div>
                           {settings.agentSettings?.agentMeterSettings && (
-                            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
-                              Persuasiveness: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
-                            </span>
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                                Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
+                              </span>
+                              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                                Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
+                              </span>
+                              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                                Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
+                              </span>
+                            </div>
                           )}
                         </div>
                         <ChevronRight className="shrink-0 w-5 h-5 text-gray-400" />

@@ -128,6 +128,7 @@ const getCharCountFromHTML = (html) => {
 
 
 const MessageComposer = ({
+  from = null,
   selectedUser,
   composerMode,
   setComposerMode,
@@ -223,7 +224,7 @@ const MessageComposer = ({
 
 
   //debugging
-  useEffect(()=> {
+  useEffect(() => {
     console.log('[composerDataUseEffect] composer data changed')
     console.log('🔍 [composerDataUseEffect] composerMode:', composerMode)
 
@@ -1424,7 +1425,15 @@ const MessageComposer = ({
                                 <div className="border-t border-gray-200 p-2">
                                   <button
                                     onClick={() => {
-                                      router.push('/dashboard/myAccount?tab=7')
+                                      if (from === 'admin') {
+                                        const url = `/admin/users?userId=${selectedUser.id}&enablePermissionChecks=true&tab=account`
+                                        window.open(url, '_blank')
+                                      } else if (from === 'subaccount' || from === 'agency') {
+                                        const url = `/agency/users?userId=${selectedUser.id}&enablePermissionChecks=true&tab=account`
+                                        window.open(url, '_blank')
+                                      } else {
+                                        router.push('/dashboard/myAccount?tab=7')
+                                      }
                                       setPhoneDropdownOpen(false)
                                     }}
                                     className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
@@ -1468,48 +1477,50 @@ const MessageComposer = ({
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
                             {emailDropdownOpen && (
-                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                                {emailAccounts.map((account) => (
-                                  <div
-                                    key={account.id}
-                                    className="group relative w-full"
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedEmailAccount(account.id.toString())
-                                        setEmailDropdownOpen(false)
-                                      }}
-                                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                        }`}
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60">
+                                <div className="max-h-44 overflow-y-auto">
+                                  {emailAccounts.map((account) => (
+                                    <div
+                                      key={account.id}
+                                      className="group relative w-full"
                                     >
-                                      <div className="flex items-center justify-between">
-                                        <span>{account.email || account.name || account.displayName}</span>
-                                        <div className="flex items-center gap-2">
-                                          {account.provider && (
-                                            <span className="text-xs text-gray-500">
-                                              {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                            </span>
-                                          )}
-                                          {/* Delete icon - visible on hover */}
-                                          <button
-                                            type="button"
-                                            onClick={(e) => handleDeleteEmailAccount(account, e)}
-                                            disabled={deletingEmailAccountId === account.id}
-                                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
-                                            title="Delete email account"
-                                          >
-                                            {deletingEmailAccountId === account.id ? (
-                                              <CircularProgress size={14} />
-                                            ) : (
-                                              <Trash2 size={14} />
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedEmailAccount(account.id.toString())
+                                          setEmailDropdownOpen(false)
+                                        }}
+                                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                          }`}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span>{account.email || account.name || account.displayName}</span>
+                                          <div className="flex items-center gap-2">
+                                            {account.provider && (
+                                              <span className="text-xs text-gray-500">
+                                                {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                              </span>
                                             )}
-                                          </button>
+                                            {/* Delete icon - visible on hover */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                              disabled={deletingEmailAccountId === account.id}
+                                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                              title="Delete email account"
+                                            >
+                                              {deletingEmailAccountId === account.id ? (
+                                                <CircularProgress size={14} />
+                                              ) : (
+                                                <Trash2 size={14} />
+                                              )}
+                                            </button>
+                                          </div>
                                         </div>
-                                      </div>
-                                    </button>
-                                  </div>
-                                ))}
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
                                 <div className="border-t border-gray-200 p-2">
                                   <button
                                     onClick={() => {

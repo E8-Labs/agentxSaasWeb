@@ -131,8 +131,8 @@ input[type="date"]::-moz-datetime-edit-year-field {
     min-height: 100vh;
   }
 
-  /* Ensure all layout wrappers have white background (exclude support widget, sidebar nav, account popover rows, activity metric cards) */
-  .flex.flex-col.w-full:not(.sms-note-container):not(.agency-support-widget-row):not(.agency-sidebar-nav-row):not(.account-popover-row):not(.agency-activity-metric-card) {
+  /* Ensure all layout wrappers have white background */
+  .flex.flex-col.w-full:not(.sms-note-container):not(.pipeline-stage-scroll) {
     background-color: #ffffff !important;
     background: #ffffff !important;
   }

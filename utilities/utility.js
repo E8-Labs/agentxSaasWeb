@@ -67,22 +67,25 @@ export function GetFormattedDateString(
   return formatted
 }
 /**
- * Format booking datetime in the given timezone and append abbreviation (e.g. "Feb 12, 2026 9:00 PM PST").
- * Do not convert to viewer's local time; display as stored for the booking timezone.
+ * Format booking datetime as stored — no timezone conversion.
+ * Displays the date and time exactly as in the ISO string; timezone label from booking.timezone when provided.
  *
  * @param {string} datetime - ISO datetime string (e.g. from booking.datetime)
- * @param {string|null|undefined} timezone - IANA timezone (e.g. America/Los_Angeles) or abbreviation
- * @returns {string} Formatted string with timezone abbreviation, or fallback formatted date if invalid
+ * @param {string|null|undefined} timezone - Timezone from booking (e.g. "PST"); used for the displayed label only.
+ * @returns {string} Formatted string (e.g. "Feb 18, 2026 9:30 AM PST")
  */
 export function FormatBookingDateTime(datetime, timezone) {
   if (typeof datetime === 'undefined' || datetime == null) return ''
   try {
     const dt = DateTime.fromISO(datetime, { setZone: true })
     if (!dt.isValid) return GetFormattedDateString(datetime, true)
-    const zone = timezone || 'UTC'
-    const inZone = dt.setZone(zone)
-    const formatted = inZone.toFormat('MMM dd, yyyy h:mm a')
-    const abbr = inZone.offsetNameShort || zone
+    // Use the datetime as-is (no setZone conversion); format in its stored zone
+    const formatted = dt.toFormat('MMM dd, yyyy h:mm a')
+    // Use timezone from booking object when provided, otherwise fall back to offset from datetime
+    const abbr =
+      timezone && String(timezone).trim() !== ''
+        ? String(timezone).trim()
+        : dt.offsetNameShort || dt.toFormat('Z')
     return `${formatted} ${abbr}`
   } catch (error) {
     console.error('Error formatting booking datetime:', error)

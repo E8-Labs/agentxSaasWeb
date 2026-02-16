@@ -1,4 +1,4 @@
- 'use client'
+'use client'
 
 import { useMemo, useState } from 'react'
 import { Input } from '@/components/ui/input'
@@ -11,6 +11,7 @@ import { Trash2 } from 'lucide-react'
 import { SnackbarTypes } from '../AgentSelectSnackMessage'
 
 const TagManagerCn = ({
+  from = null,
   tags = [],
   tagInputRef,
   tagInputValue,
@@ -59,29 +60,29 @@ const TagManagerCn = ({
         console.error('No auth token found')
         return
       }
-     
+
 
       let ApiData = {
         tagName: tag,
       }
 
-      if(selectedUser?.id) {
+      if (selectedUser?.id) {
         ApiData.userId = selectedUser.id
       }
-      
+
 
       const ApiPath = Apis.delLeadTagPermanently
 
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-        Authorization: 'Bearer ' + AuthToken,
-        'Content-Type': 'application/json',
-      },
-    })
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
 
       if (response?.data?.status === true) {
-        if(showSnackbar) {
+        if (showSnackbar) {
           showSnackbar(response.data.message, SnackbarTypes.Success)
         }
         // Refresh the suggestions list
@@ -101,12 +102,13 @@ const TagManagerCn = ({
   }
 
   return (
-    <div className="flex flex-row gap-2">
-      <div className="flex flex-row items-center gap-2">
+    <div className={`flex flex-row gap-2 ${from === "dashboardPipeline" && "w-full"}`}>
+      <div className={`flex flex-row items-center gap-2 ${from === "dashboardPipeline" && "max-w-[60%]"}`}>
         {displayedTags.map((tag) => (
-          <TagPill 
-            key={tag} 
-            label={tag} 
+          <TagPill
+            from={from}
+            key={tag}
+            label={tag}
             onRemove={onRemoveTag}
             isLoading={delTagLoader === tag}
           />
@@ -116,13 +118,13 @@ const TagManagerCn = ({
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="rounded-full bg-muted/60 hover:bg-muted px-2.5 py-1 text-xs font-semibold text-foreground transition-all select-none cursor-pointer border border-border/50 hover:border-border shadow-sm hover:shadow"
+                className="rounded-full bg-muted/60 hover:bg-muted px-2.5 py-2 text-xs font-semibold text-foreground transition-all select-none cursor-pointer border border-border/50 hover:border-border shadow-sm hover:shadow"
               >
                 +{remainingCount}
               </button>
             </PopoverTrigger>
-            <PopoverContent 
-              className="w-auto min-w-[200px] max-w-[320px] p-4 shadow-lg border-border/50 !z-[1450]" 
+            <PopoverContent
+              className="w-auto min-w-[200px] max-w-[320px] p-4 shadow-lg border-border/50 !z-[1450]"
               align="start"
               side="bottom"
               sideOffset={8}
@@ -132,9 +134,10 @@ const TagManagerCn = ({
                 <TypographyBodySemibold className="text-sm">All Tags</TypographyBodySemibold>
                 <div className="flex flex-wrap items-center gap-2">
                   {tags.map((tag) => (
-                    <TagPill 
-                      key={tag} 
-                      label={tag} 
+                    <TagPill
+                      // from={from}
+                      key={tag}
+                      label={tag}
                       onRemove={handleRemoveTag}
                       isLoading={delTagLoader === tag}
                       onDeletePermanently={handleDeleteTagPermanently}
@@ -148,7 +151,7 @@ const TagManagerCn = ({
         )}
       </div>
 
-      <div className="relative">
+      <div className={`${from === "dashboardPipeline" ? "w-[40%]" : "relative"}`}>
         <Input
           ref={tagInputRef}
           type="text"
@@ -165,7 +168,7 @@ const TagManagerCn = ({
           }}
           placeholder={tags.length > 0 ? 'Add tag...' : 'Add tags...'}
           disabled={addTagLoader}
-          className="w-[7vw] rounded-full border border-border/50 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors shadow-sm hover:border-border"
+          className={`${from === "dashboardPipeline" ? "w-[100%] py-0.5" : "w-[7vw] py-2"} rounded-full border border-border/50 bg-background px-3 text-sm focus:outline-none focus:ring-0 focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors shadow-sm hover:border-border`}
         />
         {showSuggestions && tagSuggestions.length > 0 && (
           <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-border bg-popover shadow-lg">
