@@ -6,6 +6,8 @@ import Image from 'next/image'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import axios from 'axios'
 
+import { ArrowUpRight, ChevronRight } from 'lucide-react'
+
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { cn } from '@/lib/utils'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -289,7 +291,12 @@ const AgencySupportWidget = ({
           >
             <div
               ref={supportListContainerRef}
-              className="relative w-[230px] flex flex-col items-center gap-1 px-3 text-[14px] !bg-transparent"
+              className="relative w-[300px] flex flex-col items-center gap-1 rounded-[12px] border px-3 py-3 text-[14px] !bg-transparent"
+              style={{
+                // Medium elevation (reference for future annotations): 1px border #eaeaea, shadow 1px -5px 30px rgba(0,0,0,0.08)
+                borderColor: '#eaeaea',
+                boxShadow: '1px -5px 30px rgba(0, 0, 0, 0.08)',
+              }}
               onMouseLeave={() => setHoverIndex(null)}
             >
               {hoverIndex !== null && pillStyle && (
@@ -302,7 +309,7 @@ const AgencySupportWidget = ({
                     left: pillStyle.left,
                     top: pillStyle.top,
                     width: pillStyle.width,
-                    height: 40,
+                    height: pillStyle.height ?? 40,
                   }}
                   aria-hidden
                 />
@@ -312,28 +319,39 @@ const AgencySupportWidget = ({
                   key={index}
                   ref={(el) => { supportItemRefs.current[index] = el }}
                   onMouseEnter={() => setHoverIndex(index)}
-                  className="relative z-10 w-full h-10 flex flex-col justify-center rounded-xl !bg-transparent"
+                  className="agency-support-widget-row relative z-10 w-full flex flex-col justify-center rounded-xl !bg-transparent py-5"
                   style={{ backgroundColor: 'transparent' }}
                 >
                   <button
                     type="button"
-                    className="w-full h-full flex flex-row items-center gap-2 px-3 rounded-xl !bg-transparent active:scale-[0.95] transition-transform duration-150 ease-out origin-center"
+                    className="w-full h-full flex flex-row items-center gap-2 rounded-xl !bg-transparent active:scale-[0.95] transition-transform duration-150 ease-out origin-center px-[12px]"
                     style={{ backgroundColor: 'transparent' }}
                     onClick={() => handleOnClick(item, index)}
                   >
-                    {renderBrandedIcon(
-                      index === hoverIndex ? item.image2 : item.image,
-                      item.width || 16,
-                      item.height || 16,
+                    {(item.id === 5 || item.label === 'Speak to a Geek') ? (
+                      <ArrowUpRight
+                        className={cn('flex-shrink-0', index === hoverIndex ? 'text-brand-primary' : 'text-black/80')}
+                        size={16}
+                        aria-hidden
+                      />
+                    ) : (
+                      renderBrandedIcon(
+                        index === hoverIndex ? item.image2 : item.image,
+                        item.width || 16,
+                        item.height || 16,
+                      )
                     )}
                     <div
                       className={cn(
-                        'text-[14px] font-medium whitespace-nowrap',
+                        'text-[14px] font-medium whitespace-nowrap flex-1 text-left',
                         index === hoverIndex ? 'text-brand-primary' : 'text-black/80',
                       )}
                     >
                       {item.label}
                     </div>
+                    {index === hoverIndex && (
+                      <ChevronRight className="flex-shrink-0 text-brand-primary" size={16} aria-hidden />
+                    )}
                     {(item.id === 5 || item.label === 'Speak to a Geek') && (
                       <div className="ml-auto px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300]">
                         AI

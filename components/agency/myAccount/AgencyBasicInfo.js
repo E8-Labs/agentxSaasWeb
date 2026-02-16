@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
 import { UpdateProfile } from '@/components/apis/UpdateProfile'
+import { getAgencySelectMenuProps } from '@/components/agency/agencySelectMenuConfig'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
@@ -792,7 +793,7 @@ function AgencyBasicInfo({ selectedAgency }) {
 
       <div style={styles.headingStyle}>Company Size</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
-        <FormControl fullWidth>
+        <FormControl fullWidth sx={{ height: 50 }}>
           <Select
             value={minSize && maxSize ? `${minSize}-${maxSize}` : ''}
             onChange={(e) => {
@@ -809,21 +810,15 @@ function AgencyBasicInfo({ selectedAgency }) {
               }
             }}
             displayEmpty
+            MenuProps={getAgencySelectMenuProps()}
             sx={{
-              height: '40px',
-              borderRadius: '7px',
-              fontSize: '15px',
-              fontWeight: '500',
+              height: '48px',
+              borderRadius: '13px',
+              fontSize: 14,
               border: '1px solid #00000020',
-              '& .MuiOutlinedInput-notchedOutline': {
-                border: '1px solid #00000020',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                border: '1px solid #00000020',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                border: '1px solid #000',
-              },
+              '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '&.MuiSelect-select': { py: 0 },
             }}
           >
             <MenuItem value="">

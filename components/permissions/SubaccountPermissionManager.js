@@ -18,6 +18,7 @@ import {
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
+import { getAgencySelectMenuProps } from '@/components/agency/agencySelectMenuConfig'
 import { usePermission } from '@/contexts/PermissionContext'
 
 /**
@@ -162,12 +163,21 @@ function SubaccountPermissionManager({
           Control what this team member can do on specific subaccounts
         </Typography>
 
-        <FormControl fullWidth sx={{ mb: 3 }}>
+        <FormControl fullWidth sx={{ mb: 3, height: 50 }}>
           <InputLabel>Select Subaccount</InputLabel>
           <Select
             value={selectedSubaccountId || ''}
             onChange={(e) => setSelectedSubaccountId(e.target.value)}
             label="Select Subaccount"
+            MenuProps={getAgencySelectMenuProps()}
+            sx={{
+              height: '48px',
+              borderRadius: '13px',
+              border: '1px solid #00000020',
+              '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '&.MuiSelect-select': { py: 0, fontSize: 14 },
+            }}
           >
             {subaccounts.map((subaccount) => (
               <MenuItem key={subaccount.id} value={subaccount.id}>

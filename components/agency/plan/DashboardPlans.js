@@ -1,5 +1,7 @@
 import { Box, CircularProgress, Menu, MenuItem, Modal } from '@mui/material'
 import axios from 'axios'
+
+import { getAgencySelectMenuProps } from '@/components/agency/agencySelectMenuConfig'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
@@ -1014,6 +1016,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                                   vertical: 'top',
                                   horizontal: 'right',
                                 }}
+                                {...getAgencySelectMenuProps()}
                               >
                                 <MenuItem
                                   onClick={() => {

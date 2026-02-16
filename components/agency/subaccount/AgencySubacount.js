@@ -962,17 +962,18 @@ function AgencySubacount({ selectedAgency }) {
           <div className="w-[75vw] flex flex-row items-center gap-4">
             <div className="flex flex-row items-center gap-4 flex-shrink-0 w-[90%]">
               <button
-                className="flex-shrink-0 outline-none"
+                className="flex h-10 flex-shrink-0 flex-row items-center gap-1.5 rounded-lg bg-black/[0.02] px-3 outline-none transition-[transform,background-color] hover:bg-black/[0.05] active:scale-[0.98]"
                 onClick={() => {
                   setShowFilterModal(true)
                 }}
               >
                 <Image
-                  src={'/otherAssets/filterBtn.png'}
-                  height={36}
-                  width={36}
-                  alt="Search"
+                  src={'/assets/filterIcon.png'}
+                  height={16}
+                  width={16}
+                  alt="Filter"
                 />
+                <span className="text-[14px] font-medium text-black/80">Filter</span>
               </button>
 
               {/* Filter Pills Row */}
@@ -1294,7 +1295,7 @@ function AgencySubacount({ selectedAgency }) {
                         ref={popoverListContainerRef}
                         className="account-popover-menu relative rounded-[12px] inline-flex flex-col items-center gap-1 w-[200px] px-3 py-2 bg-white border border-[#eaeaea]"
                         style={{
-                          boxShadow: '0 6px 16px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.12)',
+                          boxShadow: '1px -5px 30px rgba(0, 0, 0, 0.08)',
                         }}
                         onMouseLeave={() => setPopoverHoveredIndex(null)}
                       >

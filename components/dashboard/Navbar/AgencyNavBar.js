@@ -65,7 +65,7 @@ function PermissionNavLink({ item, isActive, hasAccess }) {
 function NavLinkItem({ item, isActive }) {
   return (
     <div className={cn(
-      'relative z-10 w-full flex flex-col px-3 h-10 flex justify-center gap-2 rounded-xl transition-colors [&_*]:!bg-transparent',
+      'agency-sidebar-nav-row relative z-10 w-full flex flex-col px-3 h-10 flex justify-center gap-2 rounded-xl transition-colors [&_*]:!bg-transparent',
       isActive(item.href) ? 'bg-brand-primary/5' : '!bg-transparent',
     )}>
       <Link

@@ -131,8 +131,8 @@ input[type="date"]::-moz-datetime-edit-year-field {
     min-height: 100vh;
   }
 
-  /* Ensure all layout wrappers have white background */
-  .flex.flex-col.w-full:not(.sms-note-container) {
+  /* Ensure all layout wrappers have white background (exclude support widget, sidebar nav, account popover rows) */
+  .flex.flex-col.w-full:not(.sms-note-container):not(.agency-support-widget-row):not(.agency-sidebar-nav-row):not(.account-popover-row) {
     background-color: #ffffff !important;
     background: #ffffff !important;
   }
@@ -164,6 +164,12 @@ input[type="date"]::-moz-datetime-edit-year-field {
   .account-popover-menu .agency-sidebar-pill {
     background-color: #f9f9f9 !important;
     background: #f9f9f9 !important;
+  }
+
+  /* Support widget list rows only: enforce transparent background (no override from parent) */
+  .agency-support-widget-row.relative.z-10 {
+    background-color: transparent !important;
+    background: transparent !important;
   }
 
   /* Agency dashboard content: force #f9f9f9 and override parent */

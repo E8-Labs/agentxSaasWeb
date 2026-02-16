@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
 
+import { getAgencySelectMenuProps } from '@/components/agency/agencySelectMenuConfig'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput'
@@ -139,7 +140,7 @@ const EditEmailNotification = ({
               <label className="text-sm font-medium text-gray-700">Body</label>
               {notificationData?.availableVariables &&
                 notificationData.availableVariables.length > 0 && (
-                  <FormControl size="small" sx={{ minWidth: 180 }}>
+                  <FormControl size="small" sx={{ minWidth: 180, height: 48 }}>
                     <Select
                       value={selectedVariable}
                       onChange={(e) => {
@@ -150,18 +151,17 @@ const EditEmailNotification = ({
                         }
                       }}
                       displayEmpty
+                      MenuProps={getAgencySelectMenuProps()}
                       sx={{
-                        fontSize: '0.875rem',
-                        height: '36px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#d1d5db',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
-                        },
+                        height: '48px',
+                        borderRadius: '13px',
+                        border: '1px solid #00000020',
+                        fontSize: 14,
+                        '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
+                          border: 'none',
                         },
+                        '&.MuiSelect-select': { py: 0 },
                       }}
                     >
                       <MenuItem value="" disabled>
