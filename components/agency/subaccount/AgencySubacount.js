@@ -4,7 +4,7 @@ import { Box, CircularProgress, Modal, Popover } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react'
 
 import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails'
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
@@ -20,6 +20,7 @@ import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 import { TwilioWarning } from '@/components/onboarding/extras/StickyModals'
 import TwillioWarning from '@/components/onboarding/extras/TwillioWarning'
 import { useUser } from '@/hooks/redux-hooks'
+import { cn } from '@/lib/utils'
 import { convertSecondsToMinDuration } from '@/utilities/utility'
 import { PersistanceKeys } from '@/constants/Constants'
 
@@ -79,6 +80,11 @@ function AgencySubacount({ selectedAgency }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [activeAccount, setActiveAccount] = useState(null)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false) // Boolean to control popover visibility
+  const [popoverHoveredIndex, setPopoverHoveredIndex] = useState(null)
+  const [popoverPillStyle, setPopoverPillStyle] = useState(null)
+  const [popoverPillScaleIn, setPopoverPillScaleIn] = useState(false)
+  const popoverListContainerRef = useRef(null)
+  const popoverItemRefs = useRef([])
 
   //filter and search variable
   const [showFilterModal, setShowFilterModal] = useState(false)
@@ -350,8 +356,34 @@ function AgencySubacount({ selectedAgency }) {
   const handleClosePopover = () => {
     setAnchorEl(null)
     setActiveAccount(null)
-    setIsPopoverOpen(false) // Close popover using boolean
+    setIsPopoverOpen(false)
+    setPopoverHoveredIndex(null)
   }
+
+  // Sliding pill for account popover (same interaction as agency sidebar)
+  useLayoutEffect(() => {
+    if (popoverHoveredIndex === null || !popoverListContainerRef.current) {
+      setPopoverPillStyle(null)
+      setPopoverPillScaleIn(false)
+      return
+    }
+    const itemEl = popoverItemRefs.current[popoverHoveredIndex]
+    const containerEl = popoverListContainerRef.current
+    if (!itemEl || !containerEl) return
+    const itemRect = itemEl.getBoundingClientRect()
+    const containerRect = containerEl.getBoundingClientRect()
+    setPopoverPillStyle({
+      left: itemRect.left - containerRect.left,
+      top: itemRect.top - containerRect.top,
+      width: itemRect.width,
+      height: itemRect.height,
+    })
+    setPopoverPillScaleIn(false)
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setPopoverPillScaleIn(true))
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [popoverHoveredIndex])
 
   // get agency data from local
 
@@ -903,7 +935,7 @@ function AgencySubacount({ selectedAgency }) {
       //   setShowSnackType(SnackbarTypes.Success);
       // }}
       />
-      <div className="w-full max-w-[1300px] h-full min-h-full max-h-none flex flex-col items-center gap-3 p-0 pt-0 rounded-none bg-transparent border-x border-[#eaeaea]">
+      <div className="w-full max-w-[1300px] h-full min-h-full max-h-none flex flex-col items-center gap-3 p-0 pt-0 rounded-none bg-transparent">
         {/* Fixed header: Total Sub Accounts, Search/Filter, Table header */}
         <div className="sticky top-[60px] z-50 w-full flex flex-col gap-3 pt-0 bg-white [&>div]:border-b [&>div]:border-[#eaeaea] [&>div:last-child]:border-b-0">
         <div className="w-full flex flex-row items-center justify-between px-3 gap-3 h-[60px] border-b border-[#eaeaea]">
@@ -1258,65 +1290,100 @@ function AgencySubacount({ selectedAgency }) {
                         },
                       }}
                     >
-                      <div className="rounded-[10px] inline-flex flex-col gap-4 w-[200px] shadow-lg">
-                        <button
-                          className="px-4 pt-1 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
-                          onClick={() => {
-                            handleClosePopover() // Close menu immediately
-                            setSelectedUser(item)
-                          }}
-                        >
-                          View Detail
-                        </button>
-                        <button
-                          className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
-                          onClick={() => {
-                            handleClosePopover() // Close menu immediately
-                            setOpenInvitePopup(true)
-                          }}
-                        >
-                          Invite Team
-                        </button>
-                        <button
-                          className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
-                          onClick={() => {
-                            handleClosePopover() // Close menu immediately
-                            setShowPlans(true)
-                          }}
-                        >
-                          View Plans
-                        </button>
-
-                        <button
-                          className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
-                          onClick={() => {
-                            handleClosePopover() // Close menu immediately
-                            setShowXBarPlans(true)
-                          }}
-                        >
-                          View XBar
-                        </button>
-                        <button
-                          className="px-4  hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
-                          onClick={() => {
-                            handleClosePopover() // Close menu immediately
-                            setShowPauseConfirmationPopup(true)
-                          }}
-                        >
-                          {item?.profile_status === 'paused'
-                            ? 'Reinstate'
-                            : 'Pause'}
-                        </button>
-                        <button
-                          className="px-4 pb-1 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
-                          onClick={() => {
-                            handleClosePopover() // Close menu immediately
-                            setShowDelConfirmationPopup(true)
-                          }}
-                          disabled={item?.profile_status === 'deleted'}
-                        >
-                          Delete
-                        </button>
+                      <div
+                        ref={popoverListContainerRef}
+                        className="account-popover-menu relative rounded-[12px] inline-flex flex-col items-center gap-1 w-[200px] px-3 py-2 bg-white border border-[#eaeaea]"
+                        style={{
+                          boxShadow: '0 6px 16px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.12)',
+                        }}
+                        onMouseLeave={() => setPopoverHoveredIndex(null)}
+                      >
+                        {popoverHoveredIndex !== null && popoverPillStyle && (
+                          <div
+                            className={cn(
+                              'agency-sidebar-pill absolute z-0 rounded-xl bg-[#f9f9f9] pointer-events-none transition-all duration-200 ease-out',
+                              popoverPillScaleIn ? 'scale-100' : 'scale-[0.95]',
+                            )}
+                            style={{
+                              left: popoverPillStyle.left,
+                              top: popoverPillStyle.top,
+                              width: popoverPillStyle.width,
+                              height: 40,
+                            }}
+                            aria-hidden
+                          />
+                        )}
+                        {[
+                          {
+                            label: 'View Detail',
+                            onClick: () => {
+                              handleClosePopover()
+                              setSelectedUser(item)
+                            },
+                            className: 'pt-1',
+                          },
+                          {
+                            label: 'Invite Team',
+                            onClick: () => {
+                              handleClosePopover()
+                              setOpenInvitePopup(true)
+                            },
+                          },
+                          {
+                            label: 'View Plans',
+                            onClick: () => {
+                              handleClosePopover()
+                              setShowPlans(true)
+                            },
+                          },
+                          {
+                            label: 'View XBar',
+                            onClick: () => {
+                              handleClosePopover()
+                              setShowXBarPlans(true)
+                            },
+                          },
+                          {
+                            label: item?.profile_status === 'paused' ? 'Reinstate' : 'Pause',
+                            onClick: () => {
+                              handleClosePopover()
+                              setShowPauseConfirmationPopup(true)
+                            },
+                          },
+                          {
+                            label: 'Delete',
+                            onClick: () => {
+                              handleClosePopover()
+                              setShowDelConfirmationPopup(true)
+                            },
+                            disabled: item?.profile_status === 'deleted',
+                            className: 'pb-1',
+                          },
+                        ].map((entry, index) => (
+                          <div
+                            key={entry.label}
+                            ref={(el) => { popoverItemRefs.current[index] = el }}
+                            onMouseEnter={() => setPopoverHoveredIndex(index)}
+                            className="account-popover-row relative z-10 w-full h-10 flex flex-col justify-center rounded-xl !bg-transparent"
+                            style={{ background: 'none', backgroundColor: 'transparent' }}
+                          >
+                            <button
+                              type="button"
+                              className={cn(
+                                'w-full h-full px-4 rounded-xl text-sm font-medium text-start !bg-transparent transition-colors',
+                                popoverHoveredIndex === index
+                                  ? 'text-brand-primary'
+                                  : 'text-black/80',
+                                entry.className,
+                              )}
+                              style={{ background: 'none', backgroundColor: 'transparent' }}
+                              onClick={entry.onClick}
+                              disabled={entry.disabled}
+                            >
+                              {entry.label}
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     </Popover>
                   </div>

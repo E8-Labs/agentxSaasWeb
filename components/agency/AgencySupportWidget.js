@@ -3,10 +3,11 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import axios from 'axios'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { cn } from '@/lib/utils'
 import { PersistanceKeys } from '@/constants/Constants'
 import { SupportWidget } from '@/components/askSky/support-widget'
 import { toast } from '@/utils/toast'
@@ -24,9 +25,38 @@ const AgencySupportWidget = ({
   const [showIcon, setShowIcon] = useState(false)
   const [userDetails, setUserDetails] = useState(null)
   const [hoverIndex, setHoverIndex] = useState(null)
+  const [pillStyle, setPillStyle] = useState(null)
+  const [pillScaleIn, setPillScaleIn] = useState(false)
+  const supportListContainerRef = useRef(null)
+  const supportItemRefs = useRef([])
   const [showAskSkyModal, setShowAskSkyModal] = useState(false)
   const [shouldStartCall, setShouldStartCall] = useState(false)
   const [agencyBranding, setAgencyBranding] = useState(null)
+
+  // Sliding pill position (same interaction as agency sidebar nav)
+  useLayoutEffect(() => {
+    if (hoverIndex === null || !supportListContainerRef.current) {
+      setPillStyle(null)
+      setPillScaleIn(false)
+      return
+    }
+    const itemEl = supportItemRefs.current[hoverIndex]
+    const containerEl = supportListContainerRef.current
+    if (!itemEl || !containerEl) return
+    const itemRect = itemEl.getBoundingClientRect()
+    const containerRect = containerEl.getBoundingClientRect()
+    setPillStyle({
+      left: itemRect.left - containerRect.left,
+      top: itemRect.top - containerRect.top,
+      width: itemRect.width,
+      height: itemRect.height,
+    })
+    setPillScaleIn(false)
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setPillScaleIn(true))
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [hoverIndex])
 
   // Agency-specific support options
   const [buttons, setButtons] = useState([
@@ -36,8 +66,8 @@ const AgencySupportWidget = ({
       image: '/svgIcons/resourceHubBlack.svg',
       image2: '/svgIcons/resourceHubBlue.svg',
       url: PersistanceKeys.AgencySkoolUrl,
-      height: 18,
-      width: 18,
+      height: 16,
+      width: 16,
     },
     {
       id: 2,
@@ -252,37 +282,60 @@ const AgencySupportWidget = ({
       return (
         <div className="flex flex-col items-end justify-end w-full gap-3">
           <div
-            className="w-full mt-5 bg-white shadow-lg text-black w-full"
+            className="w-auto m-0 bg-white shadow-lg text-black"
             style={{
               borderRadius: '8px',
-              padding: '16px 24px',
             }}
           >
-            <div className="w-full flex flex-col items-start gap-4">
+            <div
+              ref={supportListContainerRef}
+              className="relative w-[230px] flex flex-col items-center gap-1 px-3 text-[14px] !bg-transparent"
+              onMouseLeave={() => setHoverIndex(null)}
+            >
+              {hoverIndex !== null && pillStyle && (
+                <div
+                  className={cn(
+                    'agency-sidebar-pill absolute z-0 rounded-xl bg-[#f9f9f9] pointer-events-none transition-all duration-200 ease-out',
+                    pillScaleIn ? 'scale-100' : 'scale-[0.95]',
+                  )}
+                  style={{
+                    left: pillStyle.left,
+                    top: pillStyle.top,
+                    width: pillStyle.width,
+                    height: 40,
+                  }}
+                  aria-hidden
+                />
+              )}
               {buttons.map((item, index) => (
                 <div
                   key={index}
-                  style={{ cursor: 'pointer' }}
+                  ref={(el) => { supportItemRefs.current[index] = el }}
                   onMouseEnter={() => setHoverIndex(index)}
-                  onMouseLeave={() => setHoverIndex(null)}
+                  className="relative z-10 w-full h-10 flex flex-col justify-center rounded-xl !bg-transparent"
+                  style={{ backgroundColor: 'transparent' }}
                 >
                   <button
-                    className="w-full flex flex-row items-center gap-2"
+                    type="button"
+                    className="w-full h-full flex flex-row items-center gap-2 px-3 rounded-xl !bg-transparent active:scale-[0.95] transition-transform duration-150 ease-out origin-center"
+                    style={{ backgroundColor: 'transparent' }}
                     onClick={() => handleOnClick(item, index)}
                   >
                     {renderBrandedIcon(
                       index === hoverIndex ? item.image2 : item.image,
-                      item.width || 24,
-                      item.height || 24,
+                      item.width || 16,
+                      item.height || 16,
                     )}
                     <div
-                      className="text-black hover:text-brand-primary whitespace-nowrap"
-                      style={{ fontSize: 15, fontWeight: '500' }}
+                      className={cn(
+                        'text-[14px] font-medium whitespace-nowrap',
+                        index === hoverIndex ? 'text-brand-primary' : 'text-black/80',
+                      )}
                     >
                       {item.label}
                     </div>
                     {(item.id === 5 || item.label === 'Speak to a Geek') && (
-                      <div className="px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300] ml-5">
+                      <div className="ml-auto px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300]">
                         AI
                       </div>
                     )}

@@ -151,6 +151,21 @@ input[type="date"]::-moz-datetime-edit-year-field {
     background: #f9f9f9 !important;
   }
 
+  /* Account popover menu: no background on children except the sliding pill */
+  .account-popover-menu * {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+  /* Parent row of buttons: override global .flex.flex-col.w-full so it stays transparent */
+  .account-popover-menu .account-popover-row.w-full {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+  .account-popover-menu .agency-sidebar-pill {
+    background-color: #f9f9f9 !important;
+    background: #f9f9f9 !important;
+  }
+
   /* Agency dashboard content: force #f9f9f9 and override parent */
   .agency-dashboard-content {
     background-color: #f9f9f9 !important;
@@ -163,6 +178,12 @@ input[type="date"]::-moz-datetime-edit-year-field {
   .agency-dashboard-inner {
     background-color: #f9f9f9 !important;
     background: #f9f9f9 !important;
+  }
+
+  /* User activity metric cards: keep background transparent (override .flex.flex-col.w-full) */
+  .agency-activity-metric-card {
+    background-color: transparent !important;
+    background: transparent !important;
   }
 
   /* Prevent any black space at top - ensure body and html are white */

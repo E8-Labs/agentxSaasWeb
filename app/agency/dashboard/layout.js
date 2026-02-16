@@ -74,7 +74,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Main Content - offset for fixed sidebar */}
-          <div className="agency-dashboard-content ml-[250px] mb-0.5 flex-1 min-w-0 w-full min-h-screen max-h-none bg-white">
+          <div className="agency-dashboard-content ml-[250px] mb-0 mt-0 flex-1 min-w-0 w-full h-auto min-h-0 max-h-none bg-white">
             <div>{/* <NoPlanPopup /> */}</div>
             {children}
           </div>

@@ -274,7 +274,7 @@ className="cursor-pointer font-medium text-2xl"
           </svg>
         </div>
         {/* Top Metrics */}
-        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
+        <Card className="agency-activity-metric-card cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
             <CardTitle className="text-[14px] font-medium">Daily Active Users</CardTitle>
           </CardHeader>
@@ -290,7 +290,7 @@ className="cursor-pointer font-medium text-2xl"
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
+        <Card className="agency-activity-metric-card cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
             <CardTitle className="text-[14px] font-medium">Avg Weekly Sign Ups</CardTitle>
           </CardHeader>
@@ -307,7 +307,7 @@ className="cursor-pointer font-medium text-2xl"
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
+        <Card className="agency-activity-metric-card cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
             <CardTitle className="text-[14px] font-medium">Monthly Active Users</CardTitle>
           </CardHeader>
@@ -323,7 +323,7 @@ className="cursor-pointer font-medium text-2xl"
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
+        <Card className="agency-activity-metric-card cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
             <CardTitle className="text-[14px] font-medium">Session Length</CardTitle>
           </CardHeader>

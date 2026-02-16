@@ -764,7 +764,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   }
 
   return (
-    <div className="w-full flex flex-col items-center ">
+    <div className="w-full h-auto flex flex-col items-center ">
       {/* Code for snack msg */}
       <AgentSelectSnackMessage
         isVisible={snackMsg !== null}
@@ -789,7 +789,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           <NotficationsDrawer />
         </div>
       </div>
-      <div className="m-0 w-11/12 max-w-[1300px] h-full rounded-none flex flex-col items-center gap-1 border-l border-r border-[#eaeaea] p-0 bg-white">
+      <div className="m-0 w-11/12 max-w-[1300px] h-auto rounded-none flex flex-col items-center gap-1 p-0 bg-white">
         <div className="m-0 flex w-full flex-row items-center justify-between py-3 px-3 border-b border-[#eaeaea]">
           <div className="flex h-10 flex-row items-center gap-1 w-[22vw] min-w-0 flex-shrink-0 rounded-lg border border-gray-200 pl-1 pr-3 focus-within:border-2 focus-within:border-brand-primary transition-colors">
             <input
@@ -916,7 +916,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                     <CircularProgress size={30} />
                   </div>
                 ) : (
-                  <div className="w-full text-sm">
+                  <div className="h-auto w-full text-sm">
                     <div className="flex flex-col gap-[2px] text-sm">
                       {filteredList
                         .slice()
@@ -925,7 +925,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                           <div
                             key={item.id}
                             style={{ cursor: 'pointer' }}
-                            className="m-0 w-full flex flex-row justify-between items-center py-[10px] px-3 border-b border-[#eaeaea] hover:bg-black/[0.02]"
+                            className="m-0 h-auto w-full flex flex-row justify-between items-center py-[12px] px-3 border-b border-[#eaeaea] hover:bg-black/[0.02]"
                           >
                             <div
                               className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
@@ -1238,7 +1238,7 @@ export default DashboardPlans
 const styles = {
   text: {
     fontSize: 14,
-    color: '#00000090',
+    color: 'rgba(0,0,0,0.8)',
     fontWeight: '600',
     // textAlign: "start",
     // backgroundColor: "red"
@@ -1246,7 +1246,7 @@ const styles = {
   text2: {
     textAlignLast: 'left',
     fontSize: 14,
-    color: '#000000',
+    color: 'rgba(0,0,0,0.8)',
     fontWeight: '500',
     whiteSpace: 'nowrap', // Prevent text from wrapping
     overflow: 'hidden', // Hide overflow text
