@@ -4528,6 +4528,7 @@ const Pipeline1 = () => {
               handleDelLead={handleDelLead}
               leadStageUpdated={HandleUpdateStage}
               leadAssignedTeam={HandleLeadAssignedTeam}
+              selectedUser={user}
             />
           )}
           {/* Modal for audio play */}
