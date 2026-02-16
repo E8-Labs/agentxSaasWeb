@@ -25,6 +25,13 @@ import {
 } from 'lucide-react'
 import { useMemo } from 'react'
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -82,7 +89,7 @@ export const InfoRow = ({ icon, children }) => (
   </div>
 )
 
-export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, deletePermanentLoader }) => {
+export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, deletePermanentLoader, from = null }) => {
   const handleRemove = (e) => {
     e.stopPropagation()
     e.preventDefault()
@@ -102,11 +109,31 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
   return (
     <Badge
       variant="outline"
-      className="rounded-full border-border/50 px-3 py-1 bg-muted/50 hover:bg-muted flex items-center gap-1.5 group relative transition-colors shadow-sm"
+      className="rounded-full border-border/50 px-2 py-2 bg-muted/50 hover:bg-muted flex items-center gap-1.5 group relative transition-colors shadow-sm"
     >
-      <TypographyCaption className="font-medium text-foreground">{label}</TypographyCaption>
+      {/*<TypographyCaption className="font-medium text-foreground">{from === "dashboardPipeline" ? label.length > 10 ? label.slice(0, 10) + "..." : label : label}</TypographyCaption>*/}
+
+      {from === "dashboardPipeline" && label.length > 10 ? (
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-block">
+                <TypographyCaption className="font-medium text-foreground">
+                  {label.slice(0, 10) + "..."}
+                </TypographyCaption>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{label}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <TypographyCaption className="font-medium text-foreground">
+          {label}
+        </TypographyCaption>
+      )}
+
       <div className="flex items-center gap-0.5 ml-1">
-     {/*   {onDeletePermanently && (
+        {/*   {onDeletePermanently && (
           <button
             type="button"
             onClick={handleDeletePermanently}
@@ -125,7 +152,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
               <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
             )}
           </button>
-        )}*/} 
+        )}*/}
         {onRemove && (
           <button
             type="button"
@@ -272,15 +299,15 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
                       options={
                         leadData?.stagesList?.length
                           ? leadData.stagesList.map((s) => ({
-                              label: s.stageTitle,
-                              value: s.stageTitle,
-                              onSelect: () => leadData?.updateLeadStage?.(s),
-                            }))
+                            label: s.stageTitle,
+                            value: s.stageTitle,
+                            onSelect: () => leadData?.updateLeadStage?.(s),
+                          }))
                           : [
-                              { label: 'Booked', value: 'Booked' },
-                              { label: 'Hot Lead', value: 'Hot Lead' },
-                              { label: 'No Stage', value: 'No Stage' },
-                            ]
+                            { label: 'Booked', value: 'Booked' },
+                            { label: 'Hot Lead', value: 'Hot Lead' },
+                            { label: 'No Stage', value: 'No Stage' },
+                          ]
                       }
                       onSelect={(opt) => leadData?.setSelectedStage?.(opt.value)}
                     />
@@ -333,61 +360,61 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
 
               <div className="mt-6">
                 <Tabs defaultValue="insights" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 rounded-none border-b bg-transparent">
-                  {leadTabs.map((tab) => (
-                    <TabsTrigger
-                      key={tab.id}
-                      value={tab.id}
-                      className="flex flex-col items-center gap-2 rounded-none border-b-2 border-transparent px-3 py-3 data-[state=active]:border-brand-primary data-[state=active]:text-brand-primary"
-                    >
-                      {tab.icon}
-                      <TypographyCaption className="font-medium">{tab.label}</TypographyCaption>
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+                  <TabsList className="grid w-full grid-cols-4 rounded-none border-b bg-transparent">
+                    {leadTabs.map((tab) => (
+                      <TabsTrigger
+                        key={tab.id}
+                        value={tab.id}
+                        className="flex flex-col items-center gap-2 rounded-none border-b-2 border-transparent px-3 py-3 data-[state=active]:border-brand-primary data-[state=active]:text-brand-primary"
+                      >
+                        {tab.icon}
+                        <TypographyCaption className="font-medium">{tab.label}</TypographyCaption>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
 
-                <TabsContent value="insights">
-                  <InsightsTabCN
-                    selectedLeadsDetails={leadData?.selectedLeadsDetails}
-                    showConfirmPerplexity={leadData?.showConfirmPerplexity}
-                    setshowConfirmPerplexity={leadData?.setshowConfirmPerplexity}
-                    userLocalData={leadData?.userLocalData}
-                    handleEnrichLead={leadData?.handleEnrichLead}
-                    loading={leadData?.loading}
-                    creditCost={leadData?.creditCost}
-                  />
-                </TabsContent>
+                  <TabsContent value="insights">
+                    <InsightsTabCN
+                      selectedLeadsDetails={leadData?.selectedLeadsDetails}
+                      showConfirmPerplexity={leadData?.showConfirmPerplexity}
+                      setshowConfirmPerplexity={leadData?.setshowConfirmPerplexity}
+                      userLocalData={leadData?.userLocalData}
+                      handleEnrichLead={leadData?.handleEnrichLead}
+                      loading={leadData?.loading}
+                      creditCost={leadData?.creditCost}
+                    />
+                  </TabsContent>
 
-                <TabsContent value="kyc">
-                  <KYCTabCN kycs={leadData?.selectedLeadsDetails?.kycs || []} />
-                </TabsContent>
+                  <TabsContent value="kyc">
+                    <KYCTabCN kycs={leadData?.selectedLeadsDetails?.kycs || []} />
+                  </TabsContent>
 
-                <TabsContent value="activity">
-                  <ActivityTabCN
-                    callActivity={leadData?.selectedLeadsDetails?.callActivity || []}
-                    isExpandedActivity={leadData?.isExpandedActivity || []}
-                    onToggleExpand={leadData?.onToggleExpand}
-                    onCopyCallId={leadData?.onCopyCallId}
-                    onReadTranscript={leadData?.onReadTranscript}
-                    onPlayRecording={leadData?.onPlayRecording}
-                    getCommunicationTypeIcon={leadData?.getCommunicationTypeIcon}
-                    getOutcome={leadData?.getOutcome}
-                    showColor={leadData?.showColor}
-                    callTranscript={leadData?.callTranscript}
-                    emailSmsTranscript={leadData?.emailSmsTranscript}
-                    leadName={leadData?.selectedLeadsDetails?.firstName}
-                    leadId={leadData?.selectedLeadsDetails?.id}
-                  />
-                </TabsContent>
+                  <TabsContent value="activity">
+                    <ActivityTabCN
+                      callActivity={leadData?.selectedLeadsDetails?.callActivity || []}
+                      isExpandedActivity={leadData?.isExpandedActivity || []}
+                      onToggleExpand={leadData?.onToggleExpand}
+                      onCopyCallId={leadData?.onCopyCallId}
+                      onReadTranscript={leadData?.onReadTranscript}
+                      onPlayRecording={leadData?.onPlayRecording}
+                      getCommunicationTypeIcon={leadData?.getCommunicationTypeIcon}
+                      getOutcome={leadData?.getOutcome}
+                      showColor={leadData?.showColor}
+                      callTranscript={leadData?.callTranscript}
+                      emailSmsTranscript={leadData?.emailSmsTranscript}
+                      leadName={leadData?.selectedLeadsDetails?.firstName}
+                      leadId={leadData?.selectedLeadsDetails?.id}
+                    />
+                  </TabsContent>
 
-                <TabsContent value="notes">
-                  <NotesTabCN
-                    noteDetails={leadData?.noteDetails || []}
-                    selectedLeadsDetails={leadData?.selectedLeadsDetails}
-                    onNotesUpdated={leadData?.onNotesUpdated}
-                  />
-                </TabsContent>
-              </Tabs>
+                  <TabsContent value="notes">
+                    <NotesTabCN
+                      noteDetails={leadData?.noteDetails || []}
+                      selectedLeadsDetails={leadData?.selectedLeadsDetails}
+                      onNotesUpdated={leadData?.onNotesUpdated}
+                    />
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </ScrollArea>
