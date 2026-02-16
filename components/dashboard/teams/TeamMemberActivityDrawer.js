@@ -45,11 +45,9 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limi
     params.append('from', from)
     params.append('to', to)
   }
-  console.log(`[Activities] [trace] API params:  ${Apis.getTeamMemberActivities}?${params.toString()}`)
   const res = await axios.get(`${Apis.getTeamMemberActivities}?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   })
-  console.log('[Activities] [trace] API response:', res.data)
   return res.data
 }
 
