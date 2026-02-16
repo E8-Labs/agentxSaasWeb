@@ -124,6 +124,9 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       anchor="right"
       open={open}
       onClose={onClose}
+      ModalProps={{
+        sx: { zIndex: 5000 },
+      }}
       PaperProps={{
         sx: {
           // width: { xs: 'calc(100% - 32px)', sm: 720 },
@@ -136,6 +139,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           // left: 'auto',
           borderRadius: '12px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          zIndex: 5000
         },
       }}
     >
