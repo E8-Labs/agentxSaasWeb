@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { format } from 'date-fns'
-import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo, ChevronDown, CalendarIcon } from 'lucide-react'
+import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo, ChevronDown, CalendarIcon, MessageSquareDot } from 'lucide-react'
 import Drawer from '@mui/material/Drawer'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -437,20 +437,20 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
               {/* Stats section: background wrapper, cards with no border, label above count, brand icons */}
               <div className="px-6 py-5 border-b border-border ">
                 <div className="grid grid-cols-3 gap-3 bg-[#F9F9F9] p-3 rounded-lg">
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-1 bg-background/80">
-                    <PhoneCall className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody className="text-sm font-medium text-foreground">Calls</TypographyBody>
-                    <span className="text-2xl font-semibold text-foreground">{totals.calls}</span>
+                  <div className="rounded-lg p-4 flex flex-col items-center gap-1 bg-transparent">
+                    <Phone className="h-6 w-6 text-brand-primary shrink-0" />
+                    <TypographyBody style={{color: "#666666"}} className="text-sm font-regular text-foreground">Calls</TypographyBody>
+                    <span className="text-base font-semibold text-foreground">{totals.calls}</span>
                   </div>
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-background/80">
-                    <MessageSquare className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody className="text-sm font-medium text-foreground">Texts</TypographyBody>
-                    <span className="text-2xl font-semibold text-foreground">{totals.sms}</span>
+                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
+                    <MessageSquareDot className="h-6 w-6 text-brand-primary shrink-0" />
+                    <TypographyBody style={{color: "#666666"}} className="text-sm font-regular text-foreground">Texts</TypographyBody>
+                    <span className="text-base font-semibold text-foreground">{totals.sms}</span>
                   </div>
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-background/80">
+                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
                     <Mail className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody className="text-sm font-medium text-foreground">Emails</TypographyBody>
-                    <span className="text-2xl font-semibold text-foreground">{totals.email}</span>
+                    <TypographyBody style={{color: "#666666"}} className="text-sm font-regular text-foreground">Emails</TypographyBody>
+                    <span className="text-base font-semibold text-foreground">{totals.email}</span>
                   </div>
                 </div>
               </div>
