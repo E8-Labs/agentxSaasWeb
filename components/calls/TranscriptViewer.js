@@ -31,6 +31,7 @@ export function TranscriptBubble({
   comment,
   msgId,
   liked,
+  showLikeDislike = true,
 }) {
   const isBot = sender === 'bot'
   const commentBtnRef = useRef(null)
@@ -58,28 +59,32 @@ export function TranscriptBubble({
         </div>
         {isBot && (
           <div className="flex gap-2 mt-1 pl-2">
-            <button
-              ref={likeBtnRef}
-              className="text-gray-500 hover:text-black border-none outline-none"
-              onClick={() => onCommentClick(index, msgId, likeBtnRef, true)}
-            >
-              {liked === true ? (
-                <ThumbUp fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
-              ) : (
-                <ThumbUpOutlined fontSize="small" />
-              )}
-            </button>
-            <button
-              ref={dislikeBtnRef}
-              className="text-gray-500 hover:text-black border-none outline-none"
-              onClick={() => onCommentClick(index, msgId, dislikeBtnRef, false)}
-            >
-              {liked === false ? (
-                <ThumbDown fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
-              ) : (
-                <ThumbDownOutlined fontSize="small" />
-              )}
-            </button>
+            {showLikeDislike && (
+              <>
+                <button
+                  ref={likeBtnRef}
+                  className="text-gray-500 hover:text-black border-none outline-none"
+                  onClick={() => onCommentClick(index, msgId, likeBtnRef, true)}
+                >
+                  {liked === true ? (
+                    <ThumbUp fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <ThumbUpOutlined fontSize="small" />
+                  )}
+                </button>
+                <button
+                  ref={dislikeBtnRef}
+                  className="text-gray-500 hover:text-black border-none outline-none"
+                  onClick={() => onCommentClick(index, msgId, dislikeBtnRef, false)}
+                >
+                  {liked === false ? (
+                    <ThumbDown fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <ThumbDownOutlined fontSize="small" />
+                  )}
+                </button>
+              </>
+            )}
             <button
               ref={commentBtnRef}
               className="text-gray-500 hover:text-black border-none outline-none"
@@ -142,6 +147,7 @@ export function TranscriptBubble({
 
 export function TranscriptViewer({ callId }) {
   const [messages, setMessages] = useState([])
+  const [callDetails, setCallDetails] = useState(null)
   const [activeIndex, setActiveIndex] = useState(null)
   const [showCommentModal, setShowCommentModal] = useState(false)
   const [comment, setComment] = useState('')
@@ -149,6 +155,8 @@ export function TranscriptViewer({ callId }) {
   const [commentMsgId, setCommentMsgId] = useState(null)
   const [addCommentLoader, setAddCommentLoader] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const showLikeDislike = callDetails?.callOrigin !== 'dialer'
 
   const handleCommentClick = (index, msgId, buttonRef, isLike) => {
     const currentMessage = messages[index]
@@ -295,6 +303,9 @@ export function TranscriptViewer({ callId }) {
           const filteredMessages = getMessagesWithLoopCheck(response.data.data)
           // const parsedMessages = parseTranscript(response.data.data.transcript);
           setMessages(filteredMessages)
+          if (response.data.callDetails) {
+            setCallDetails(response.data.callDetails)
+          }
         }
       }
     } catch (error) {
@@ -356,6 +367,7 @@ export function TranscriptViewer({ callId }) {
             msgId={msg.id}
             liked={msg.liked}
             onCommentClick={handleCommentClick}
+            showLikeDislike={showLikeDislike}
           />
         ))
       )}
