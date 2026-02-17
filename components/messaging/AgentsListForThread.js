@@ -5,6 +5,7 @@ import { Circle } from 'lucide-react'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { TypographyBody } from '@/components/dashboard/leads/extras/TypographyCN'
 import { toast } from '@/utils/toast'
 
@@ -114,7 +115,7 @@ export default function AgentsListForThread({
 
   return (
     <div className="max-h-[220px] overflow-y-auto space-y-0.5">
-      {/* Option: no specific agent (use auto-resolve) */}
+      {/* First option: Sky (default for normal chats, same as AI Chat) */}
       <button
         type="button"
         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/70 cursor-pointer text-left"
@@ -131,7 +132,10 @@ export default function AgentsListForThread({
             <Circle className="absolute h-2 w-2 fill-current text-brand-primary" />
           )}
         </span>
-        <TypographyBody className="text-sm text-foreground">Auto (resolve from context)</TypographyBody>
+        <div className="shrink-0 w-6 h-6 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+          <AgentXOrb width={24} height={24} />
+        </div>
+        <TypographyBody className="text-sm text-foreground">Sky</TypographyBody>
       </button>
 
       {flatAgents.map((agent) => {
