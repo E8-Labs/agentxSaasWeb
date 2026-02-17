@@ -1384,9 +1384,9 @@ const UserAddCard = ({
                     By continuing you agree to our
                     <a
                       href="#"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.preventDefault()
-                        const { termsUrl } = getPolicyUrls()
+                        const { termsUrl } = await getPolicyUrls(selectedUser)
                         window.open(termsUrl, '_blank')
                       }}
                       style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }}

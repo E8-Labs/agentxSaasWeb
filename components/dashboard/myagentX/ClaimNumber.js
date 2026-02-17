@@ -53,6 +53,8 @@ const ClaimNumber = ({
     if (localData) {
       const data = JSON.parse(localData)
       // setIsFromAgencyOrAdmin(data);
+      // console.log("Data of isFromAdminOrAgency is", data);
+      // console.log("Data of selected user from dialer modal is", selectedUSer);
       const id = data?.subAccountData?.id ? data.subAccountData.id : selectedUSer?.id;
       const subUserProfile = await AdminGetProfileDetails(
         id,

@@ -887,15 +887,15 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 if (redirect) {
                   redirectPath = redirect
                 } else {
-                  if (response.data.data.user.userType == 'admin') {
+                  if (response?.data?.data?.user?.userType == 'admin') {
                     redirectPath = '/admin'
                   } else if (
-                    response.data.data.user.userRole == 'AgencySubAccount'
+                    response?.data?.data?.user?.userRole == 'AgencySubAccount'
                   ) {
-                    if (response.data.data.user.plan) {
+                    if (response?.data?.data?.user?.plan) {
                       redirectPath = '/dashboard'
                     } else {
-                       if(response.data.data.user.plan.status !== 'active' && response.data.data.user.totalSecondsAvailable <= 120){
+                       if(response?.data?.data?.user?.plan?.status !== 'active' && response?.data?.data?.user?.totalSecondsAvailable <= 120){
                         redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
                       } else {
                         redirectPath = '/dashboard'
@@ -903,8 +903,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       // redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
                     }
                   } else if (
-                    response.data.data.user.userRole == 'Agency' ||
-                    response.data.data.user.agencyTeammember === true
+                    response?.data?.data?.user?.userRole == 'Agency' ||
+                    response?.data?.data?.user?.agencyTeammember === true
                   ) {
                     redirectPath = '/agency/dashboard'
                   } else {

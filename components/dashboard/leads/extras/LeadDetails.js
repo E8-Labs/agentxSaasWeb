@@ -2755,6 +2755,7 @@ const LeadDetails = ({
               }
             }}
             callId={isExpanded?.id || isExpanded?.callId || ''}
+            callData={isExpanded}
           />
           {/* delete lead modal */}
 

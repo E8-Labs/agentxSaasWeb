@@ -37,6 +37,19 @@ const markdownComponents = {
       {children}
     </li>
   ),
+  pre: ({ children }) => (
+    <pre className="whitespace-pre-wrap break-words max-w-full my-2 p-2 rounded bg-muted text-sm">
+      {children}
+    </pre>
+  ),
+  code: ({ className, children }) => {
+    const isBlock = className?.includes('language-')
+    return isBlock ? (
+      <code className={cn(className, 'whitespace-pre-wrap break-words')}>{children}</code>
+    ) : (
+      <code className="break-words rounded px-1 py-0.5 bg-muted">{children}</code>
+    )
+  },
 }
 
 // Lottie animation for "Thinking..." state (load once)
@@ -696,7 +709,7 @@ const AiChatModal = ({
 
                     {/* Message bubble */}
                     <div
-                      className={`max-w-[75%] min-w-[100px] px-4 py-2.5 text-sm leading-relaxed ${isUser
+                      className={`max-w-[75%] min-w-[100px] min-w-0 overflow-hidden break-words px-4 py-2.5 text-sm leading-relaxed ${isUser
                         ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
                         : 'bg-gray-100 text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
                         }`}
