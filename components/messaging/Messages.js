@@ -42,12 +42,7 @@ function plainTextToHtml(text) {
 
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
-  const THREADS_PAGE_SIZE = 50
   const [threads, setThreads] = useState([])
-  const [threadsOffset, setThreadsOffset] = useState(0)
-  const [hasMoreThreads, setHasMoreThreads] = useState(true)
-  const [loadingMoreThreads, setLoadingMoreThreads] = useState(false)
-  const threadsOffsetRef = useRef(0)
   const [selectedThread, setSelectedThread] = useState(null)
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
@@ -481,120 +476,88 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }))
   }
 
-  // Keep ref in sync for loadMore callback
-  useEffect(() => {
-    threadsOffsetRef.current = threadsOffset
-  }, [threadsOffset])
+  // Fetch threads
+  const fetchThreads = useCallback(async (searchQuery = '', teamMemberIdsFilter = []) => {
+    const requestId = ++threadsRequestIdRef.current
+    const isSearch = searchQuery && searchQuery.trim()
+    try {
+      setLoading(true)
+      // Set searchLoading if this is a search operation
+      if (isSearch) {
+        setSearchLoading(true)
+      }
+      // Clear threads immediately when starting a new fetch to prevent showing stale data
+      // Only clear if there's a search query (to avoid flicker on initial load)
+      if (isSearch) {
+        setThreads([])
+      }
 
-  // Fetch threads (offset/limit for pagination; append=true loads next page)
-  const fetchThreads = useCallback(
-    async (
-      searchQuery = '',
-      teamMemberIdsFilter = [],
-      offset = 0,
-      limit = THREADS_PAGE_SIZE,
-      append = false,
-    ) => {
-      const requestId = ++threadsRequestIdRef.current
-      const isSearch = searchQuery && searchQuery.trim()
-      try {
-        if (append) {
-          setLoadingMoreThreads(true)
-        } else {
-          setLoading(true)
-          if (isSearch) {
-            setSearchLoading(true)
-          }
-          if (isSearch) {
-            setThreads([])
-          }
-        }
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        setThreads([])
+        return
+      }
 
-        const localData = localStorage.getItem('User')
-        if (!localData) {
-          if (!append) setThreads([])
-          return
-        }
+      const userData = JSON.parse(localData)
+      const token = userData.token
 
-        const userData = JSON.parse(localData)
-        const token = userData.token
+      const params = {}
+      if (searchQuery && searchQuery.trim()) {
+        params.search = searchQuery.trim()
+      }
+      // Add teamMemberIds to query if filter is active
+      if (teamMemberIdsFilter && teamMemberIdsFilter.length > 0) {
+        params.teamMemberIds = teamMemberIdsFilter.join(',')
+      }
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        params.userId = selectedUser.id
+      }
 
-        const params = { offset, limit }
-        if (searchQuery && searchQuery.trim()) {
-          params.search = searchQuery.trim()
-        }
-        if (teamMemberIdsFilter && teamMemberIdsFilter.length > 0) {
-          params.teamMemberIds = teamMemberIdsFilter.join(',')
-        }
-        if (selectedUser?.id) {
-          params.userId = selectedUser.id
-        }
+      const response = await axios.get('/api/messaging/threads', {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
 
-        const response = await axios.get('/api/messaging/threads', {
-          params,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+      // Ignore responses for stale requests so older calls can't overwrite newer results
+      if (requestId !== threadsRequestIdRef.current) {
+        return
+      }
+
+      if (response.data?.status && Array.isArray(response.data?.data)) {
+        // Sort by lastMessageAt descending
+        const sortedThreads = response.data.data.sort((a, b) => {
+          const dateA = new Date(a.lastMessageAt || a.createdAt)
+          const dateB = new Date(b.lastMessageAt || b.createdAt)
+          return dateB - dateA
         })
 
-        if (requestId !== threadsRequestIdRef.current) {
-          return
-        }
-
-        if (response.data?.status && Array.isArray(response.data?.data)) {
-          const sortedThreads = response.data.data.sort((a, b) => {
-            const dateA = new Date(a.lastMessageAt || a.createdAt)
-            const dateB = new Date(b.lastMessageAt || b.createdAt)
-            return dateB - dateA
-          })
-
-          if (append) {
-            setThreads((prev) => {
-              const existingIds = new Set(prev.map((t) => t.id))
-              const newThreads = sortedThreads.filter((t) => !existingIds.has(t.id))
-              return [...prev, ...newThreads]
-            })
-            setThreadsOffset((prev) => prev + sortedThreads.length)
-            setHasMoreThreads(sortedThreads.length >= limit)
-          } else {
-            setThreads(sortedThreads)
-            setThreadsOffset(sortedThreads.length)
-            setHasMoreThreads(sortedThreads.length >= limit)
-          }
-        } else {
-          if (!append) {
-            setThreads([])
-          }
-          setHasMoreThreads(false)
-        }
-      } catch (error) {
-        console.error('Error fetching threads:', error)
-        if (requestId === threadsRequestIdRef.current) {
-          if (!append) setThreads([])
-          setHasMoreThreads(false)
-        }
-      } finally {
-        if (requestId === threadsRequestIdRef.current) {
-          if (append) {
-            setLoadingMoreThreads(false)
-          } else {
-            setLoading(false)
-            if (isSearch) {
-              setSearchLoading(false)
-            }
-          }
+        // Store all threads (for filtering)
+        setThreads(sortedThreads)
+      } else {
+        // Clear threads if no valid response or empty results
+        setThreads([])
+      }
+    } catch (error) {
+      console.error('Error fetching threads:', error)
+      // Clear threads on error only if this is the latest request
+      if (requestId === threadsRequestIdRef.current) {
+        setThreads([])
+      }
+    } finally {
+      // Only clear loading state for the latest request
+      if (requestId === threadsRequestIdRef.current) {
+        setLoading(false)
+        // Clear searchLoading if this was a search operation
+        if (isSearch) {
+          setSearchLoading(false)
         }
       }
-    },
-    [selectedUser],
-  )
-
-  const loadMoreThreads = useCallback(() => {
-    if (loadingMoreThreads || !hasMoreThreads || loading) return
-    const offset = threadsOffsetRef.current
-    fetchThreads(searchValue || '', appliedTeamMemberIds, offset, THREADS_PAGE_SIZE, true)
-  }, [loadingMoreThreads, hasMoreThreads, loading, fetchThreads, searchValue, appliedTeamMemberIds])
+    }
+  }, [selectedUser])
 
   // Fetch messages for a thread
   const fetchMessages = useCallback(
@@ -3071,9 +3034,6 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                   <ThreadsList
                     loading={loading}
                     threads={filteredThreads}
-                    hasMoreThreads={hasMoreThreads}
-                    loadingMoreThreads={loadingMoreThreads}
-                    onLoadMoreThreads={loadMoreThreads}
                     selectedThread={selectedThread}
                     onSelectThread={handleThreadSelect}
                     onNewMessage={(mode) => {

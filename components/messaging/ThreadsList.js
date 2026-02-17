@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -14,7 +14,6 @@ import { useUser } from '@/hooks/redux-hooks'
 import { UpgradeTag, UpgradeTagWithModal } from '../constants/constants'
 import { toast } from '@/utils/toast'
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
-import InfiniteScroll from '@/components/ui/infinite-scroll'
 
 const ThreadsList = ({
   loading,
@@ -47,22 +46,11 @@ const ThreadsList = ({
   agencyUser = null,
   onOpenMessageSettings = null,
   userLocalData = null,
-  hasMoreThreads = true,
-  loadingMoreThreads = false,
-  onLoadMoreThreads,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
   const filterButtonRef = useRef(null)
   const filterPopoverRef = useRef(null)
-  const scrollContainerRef = useRef(null)
-  const [scrollRoot, setScrollRoot] = useState(null)
-
-  const setScrollContainerRef = useCallback((el) => {
-    scrollContainerRef.current = el
-    setScrollRoot(el || null)
-  }, [])
-
   const { user: reduxUser, setUser: setReduxUser } = useUser()
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -261,9 +249,9 @@ const ThreadsList = ({
             setReduxUser={setReduxUser}
             requestFeature={emailCapability.showRequestFeature}
             externalTrigger={triggerEmailUpgradeModal > 0}
-            onModalClose={() => {
-              setTriggerEmailUpgradeModal(0)
-            }}
+            onModalClose={()=>{
+               setTriggerEmailUpgradeModal(0)
+              }}
             hideTag={true}
             selectedUser={selectedUser}
             featureTitle="Enable Emails"
@@ -275,9 +263,9 @@ const ThreadsList = ({
             setReduxUser={setReduxUser}
             requestFeature={smsCapability.showRequestFeature}
             externalTrigger={triggerSMSUpgradeModal > 0}
-            onModalClose={() => {
-              setTriggerSMSUpgradeModal(0)
-            }}
+            onModalClose={()=>{
+               setTriggerSMSUpgradeModal(0)
+              }}
             hideTag={true}
             selectedUser={selectedUser}
           />
@@ -348,23 +336,20 @@ const ThreadsList = ({
           )}
         </div>
 
-        <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && 
+          <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
           onClick={() => {
             //show toast here to show the feature is coming soon
             // toast.success('This feature is coming soon')
             onOpenMessageSettings()
 
           }}
-        >
-          <Image src="/communcationSetting.png" width={24} height={24} alt="Filter" />
-        </button>
+          >
+            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
+          </button> }
       </div>
 
-      <div
-        ref={setScrollContainerRef}
-        className="flex-1 overflow-y-auto"
-        aria-label="Threads list"
-      >
+      <div className="flex-1 overflow-y-auto">
         {searchLoading ? (
           <div className="p-4 text-center text-gray-500">Searching...</div>
         ) : loading ? (
@@ -379,169 +364,145 @@ const ThreadsList = ({
             </p>
           </div>
         ) : (
-          <InfiniteScroll
-            isLoading={loadingMoreThreads}
-            hasMore={hasMoreThreads}
-            root={scrollRoot}
-            rootMargin="200px"
-            threshold={1}
-            next={onLoadMoreThreads ?? (() => { })}
-          >
-            <div className="">
-              {threads.map((thread) => (
-                <div
-                  key={thread.id}
-                  onClick={() => onSelectThread(thread)}
-                  className={cn(
-                    "relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg  my-1",
-                    selectedThread?.id === thread.id
-                      ? 'bg-thread-selected'
-                      : 'hover:bg-gray-50'
-                  )}
-                >
-                  <div className="flex items-start gap-3 ">
-                    <div className="relative flex-shrink-0">
-                      <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
-                        {getLeadName(thread)}
-                      </div>
-                      {getRecentMessageType(thread) === 'email' ? (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/email message type icon.svg"
-                            width={10}
-                            height={10}
-                            alt="Email"
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/text type message icon.svg"
-                            width={10}
-                            height={10}
-                            alt="SMS"
-                            className="object-contain"
-                          />
-                        </div>
-                      )}
-                      {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
-                          <TypographyCaptionSemibold className="text-white">
-                            {formatUnreadCount(thread.unreadCount)}
-                          </TypographyCaptionSemibold>
-                        </div>
-                      )}
+          <div className="">
+            {threads.map((thread) => (
+              <div
+                key={thread.id}
+                onClick={() => onSelectThread(thread)}
+                className={cn(
+                  "relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg  my-1",
+                  selectedThread?.id === thread.id
+                    ? 'bg-thread-selected'
+                    : 'hover:bg-gray-50'
+                )}
+              >
+                <div className="flex items-start gap-3 ">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
+                      {getLeadName(thread)}
                     </div>
+                    {getRecentMessageType(thread) === 'email' ? (
+                      <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                        <Image
+                          src="/messaging/email message type icon.svg"
+                          width={10}
+                          height={10}
+                          alt="Email"
+                          className="object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                        <Image
+                          src="/messaging/text type message icon.svg"
+                          width={10}
+                          height={10}
+                          alt="SMS"
+                          className="object-contain"
+                        />
+                      </div>
+                    )}
+                    {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
+                        <TypographyCaptionSemibold className="text-white">
+                          {formatUnreadCount(thread.unreadCount)}
+                        </TypographyCaptionSemibold>
+                      </div>
+                    )}
+                  </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <TypographyBody className="font-semibold text-black truncate">
-                          {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
-                        </TypographyBody>
-                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                          <TypographyCaption className="text-gray-500">
-                            {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
-                          </TypographyCaption>
-                          <div className="relative">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setOpenMenuId(openMenuId === thread.id ? null : thread.id)
-                              }}
-                              className="p-1 hover:bg-gray-200 rounded transition-colors"
-                            >
-                              <MoreVertical size={16} className="text-gray-500" />
-                            </button>
-                            {openMenuId === thread.id && (
-                              <>
-                                <div
-                                  className="fixed inset-0 z-10"
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <TypographyBody className="font-semibold text-black truncate">
+                        {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
+                      </TypographyBody>
+                      <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                        <TypographyCaption className="text-gray-500">
+                          {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
+                        </TypographyCaption>
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenMenuId(openMenuId === thread.id ? null : thread.id)
+                            }}
+                            className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          >
+                            <MoreVertical size={16} className="text-gray-500" />
+                          </button>
+                          {openMenuId === thread.id && (
+                            <>
+                              <div
+                                className="fixed inset-0 z-10"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenMenuId(null)
+                                }}
+                              />
+                              <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[120px]">
+                                <button
                                   onClick={(e) => {
                                     e.stopPropagation()
+                                    if (onDeleteThread && thread.lead?.id) {
+                                      onDeleteThread(thread.lead.id, thread.id)
+                                    }
                                     setOpenMenuId(null)
                                   }}
-                                />
-                                <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[120px]">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      if (onDeleteThread && thread.lead?.id) {
-                                        onDeleteThread(thread.lead.id, thread.id)
-                                      }
-                                      setOpenMenuId(null)
-                                    }}
-                                    className="w-full whitespace-nowrap px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                  >
-                                    <Trash size={16} />
-                                    Delete
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
+                                  className="w-full whitespace-nowrap px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <Trash size={16} />
+                                  Delete
+                                </button>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
-                      <TypographyCaption className="text-gray-500 truncate">
-                        {(() => {
-                          const lastMessage = thread.messages?.[0]
-                          if (!lastMessage) return 'No messages yet'
-                          const text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
-                          const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
-                          return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
-                        })()}
-                      </TypographyCaption>
-                      {thread.lead?.pipelineStage?.stageTitle && (
-                        <div className="inline-flex items-center gap-2 px-2.5 py-1 mt-1 border border-gray-200 rounded-md">
-                          <TypographyCaption className="text-darkGray font-semibold">
-                            {thread.lead.pipelineStage.stageTitle}
-                          </TypographyCaption>
-                        </div>
-                      )}
-                      {/* Hot Lead Tags */}
-                      {thread.lead?.tags && thread.lead.tags.length > 0 && (
-                        <div className="flex items-center gap-2 mt-1">
-                          {thread.lead.tags.map((tag, index) => {
-                            // Check if tag is "Hot lead" or similar
-                            const isHotLead = tag.toLowerCase().includes('hot') || tag.toLowerCase().includes('lead')
-                            if (isHotLead) {
-                              return (
-                                <div
-                                  key={index}
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100"
-                                >
-                                  <span>🔥</span>
-                                  <TypographyCaption className="text-gray-700">
-                                    Hot lead
-                                  </TypographyCaption>
-                                </div>
-                              )
-                            }
-                            return null
-                          })}
-                        </div>
-                      )}
                     </div>
+                    <TypographyCaption className="text-gray-500 truncate">
+                      {(() => {
+                        const lastMessage = thread.messages?.[0]
+                        if (!lastMessage) return 'No messages yet'
+                        const text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                        const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
+                        return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
+                      })()}
+                    </TypographyCaption>
+                    {thread.lead?.pipelineStage?.stageTitle && (
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 mt-1 border border-gray-200 rounded-md">
+                        <TypographyCaption className="text-darkGray font-semibold">
+                          {thread.lead.pipelineStage.stageTitle}
+                        </TypographyCaption>
+                      </div>
+                    )}
+                    {/* Hot Lead Tags */}
+                    {thread.lead?.tags && thread.lead.tags.length > 0 && (
+                      <div className="flex items-center gap-2 mt-1">
+                        {thread.lead.tags.map((tag, index) => {
+                          // Check if tag is "Hot lead" or similar
+                          const isHotLead = tag.toLowerCase().includes('hot') || tag.toLowerCase().includes('lead')
+                          if (isHotLead) {
+                            return (
+                              <div
+                                key={index}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100"
+                              >
+                                <span>🔥</span>
+                                <TypographyCaption className="text-gray-700">
+                                  Hot lead
+                                </TypographyCaption>
+                              </div>
+                            )
+                          }
+                          return null
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
-            {loadingMoreThreads && (
-              <div className="flex justify-center py-4" aria-hidden="true">
-                <div
-                  className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full"
-                  role="status"
-                  aria-label="Loading more threads"
-                />
               </div>
-            )}
-            {!hasMoreThreads && threads.length > 0 && (
-              <p className="text-center py-4 text-sm text-muted-foreground">
-                You are all caught up
-              </p>
-            )}
-            <div aria-hidden="true" />
-          </InfiniteScroll>
+            ))}
+          </div>
         )}
       </div>
       {/* New Contact Drawer */}

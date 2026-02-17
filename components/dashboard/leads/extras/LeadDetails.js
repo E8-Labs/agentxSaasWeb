@@ -825,12 +825,11 @@ const LeadDetails = ({
       }
 
       const ApiData = {
-        leadId: selectedLead ? selectedLead : selectedLeadsDetails?.id,
+        leadId: selectedLead,
         stageId: stage.id,
       }
 
-      console.log("Lead is passing in update stage api is", selectedLeadsDetails);
-      console.log("Api data passing in update stage api is", ApiData);
+      // //console.log;
 
       const ApiPath = Apis.updateLeadStageApi
       // return
@@ -846,7 +845,6 @@ const LeadDetails = ({
         setUpdateLeadLoader(false)
         if (response.data.status === true) {
           showSnackbar(response.data.message, SnackbarTypes.Success)
-          console.log("Trying to triger leadsstage")
           leadStageUpdated(stage)
         } else if (response.data.status === false) {
           showSnackbar(response.data.message, SnackbarTypes.Error)
@@ -2088,6 +2086,7 @@ const LeadDetails = ({
                                     {updateLeadLoader ? (
                                       <CircularProgress size={20} />
                                     ) : (
+
                                       <SelectStageDropdown
                                         selectedStage={selectedStage}
                                         handleStageChange={handleStageChange}

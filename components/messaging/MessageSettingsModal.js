@@ -56,10 +56,6 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
   const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' for AI integration
 
-  // useEffect(() => {
-  //   console.log("Value of api key is", apiKey)
-  // }, [apiKey])
-
   /** Normalize agentSettings from API: may be string (JSON) or object; always return object or null */
   const parseAgentSettings = (raw) => {
     if (raw == null) return null
@@ -607,16 +603,6 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
   const handleSaveAgentMeter = async () => {
     const localData = localStorage.getItem('User')
-    console.log("Value of api key is", apiKey)
-    if(!apiKey){
-      toast.error('Please set an API key first')
-      return;
-    }
-    if (settings?.replyDelayEnabled && (!settings.replyDelaySeconds || settings.replyDelaySeconds < 10)) {
-      // console.log("Reply delay seconds is not set", settings);
-      toast.error('Please set a valid delay time in seconds')
-      return;
-    }
     if (!localData) {
       toast.error('Please log in to save')
       return
@@ -723,7 +709,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
                       </div>
                       <div>
-                        <TypographyH4Semibold className=" mt-1">Persuasiveness</TypographyH4Semibold>
+                      <TypographyH4Semibold className=" mt-1">Persuasiveness</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
@@ -752,7 +738,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             </div>
                           </div>
                         </div>
-
+                        
                       </div>
                       <div>
                         <TypographyH4Semibold className="mt-1">Client Handling</TypographyH4Semibold>
@@ -941,7 +927,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   {/* API Key Section */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-900">AI Provider</label>
-                    <div className="flex gap-4 ms-2">
+                    <div className="flex gap-4">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="radio"
