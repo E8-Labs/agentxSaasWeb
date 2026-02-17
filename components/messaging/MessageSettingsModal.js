@@ -941,7 +941,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   {/* API Key Section */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-900">AI Provider</label>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 ms-2">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="radio"

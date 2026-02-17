@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import Apis from '@/components/apis/Apis'
 import { PersistanceKeys } from '@/constants/Constants'
+import { UserRole } from '@/constants/UserRole'
 
 /**
  * AppLogo Component
@@ -31,6 +32,14 @@ const AppLogo = ({
   const [brandingResolved, setBrandingResolved] = useState(false)
 
   useEffect(() => {
+    console.log("Value of logoUrl is", logoUrl)
+  }, [logoUrl])
+
+  useEffect(() => {
+    console.log("Value of companyName is", companyName)
+  }, [companyName])
+
+  useEffect(() => {
     if (typeof window === 'undefined') return
 
     const hostname = window.location.hostname
@@ -50,7 +59,7 @@ const AppLogo = ({
           parsedUser?.user?.userRole === 'AgencySubAccount' ||
           parsedUser?.userRole === 'AgencySubAccount'
       }
-    } catch (error) {}
+    } catch (error) { }
 
     // Check if agency/admin is creating agent for subaccount
     let isAgencyCreatingForSubaccount = false
@@ -64,7 +73,7 @@ const AppLogo = ({
           subaccountData = parsed.subAccountData
         }
       }
-    } catch (error) {}
+    } catch (error) { }
 
     // If assignx domain AND not a subaccount AND not agency creating for subaccount, always show assignx logo
     // Exception: If subaccount OR agency creating for subaccount, check for agency branding even on assignx.ai domains
@@ -81,7 +90,7 @@ const AppLogo = ({
     try {
       const cookies = document.cookie.split(';')
       const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
-      
+
       if (brandingCookie) {
         const value = brandingCookie.split('=')[1]
         // Cookie may be double-encoded, try decoding twice
@@ -107,7 +116,7 @@ const AppLogo = ({
       if (storedBranding) {
         try {
           branding = JSON.parse(storedBranding)
-        } catch (error) {}
+        } catch (error) { }
       }
     }
 
@@ -121,7 +130,7 @@ const AppLogo = ({
           else if (parsedUser?.agencyBranding) branding = parsedUser.agencyBranding
           else if (parsedUser?.user?.agency?.agencyBranding) branding = parsedUser.user.agency.agencyBranding
         }
-      } catch (error) {}
+      } catch (error) { }
     }
 
     // Function to fetch branding from API (for custom domains or subaccounts)
@@ -279,14 +288,14 @@ const AppLogo = ({
             try {
               b = JSON.parse(decoded)
             } catch (e) {
-              try { b = JSON.parse(decodeURIComponent(decoded)) } catch (e2) {}
+              try { b = JSON.parse(decodeURIComponent(decoded)) } catch (e2) { }
             }
           }
-        } catch (e) {}
-        
+        } catch (e) { }
+
         if (!b) {
           const stored = localStorage.getItem('agencyBranding')
-          if (stored) try { b = JSON.parse(stored) } catch (e) {}
+          if (stored) try { b = JSON.parse(stored) } catch (e) { }
         }
         setLogoUrl(b?.logoUrl || null)
         setCompanyName(b?.companyName || null)
@@ -350,7 +359,8 @@ const AppLogo = ({
       />
     )
   }
-  if (companyName) {
+  if (companyName && companyName !== "AssignX") { //userole !== AssignX
+    // UserRole.AgentX   
     return (
       <div
         className={className}
