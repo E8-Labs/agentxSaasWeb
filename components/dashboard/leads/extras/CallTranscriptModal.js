@@ -19,11 +19,12 @@ import { ScrollArea } from '@/components/ui/scroll-area'
  * @param {function} onClose - Callback when modal should close (receives boolean)
  * @param {string|number} callId - The call ID to display transcript for
  */
-const CallTranscriptModal = ({ open, onClose, callId }) => {
-  if (!callId) return null
+const CallTranscriptModal = ({ open, onClose, callId, callData }) => {
+  if (!callId || !callData) return null
 
   // Override z-index for overlay and content to appear above LeadDetails Drawer
   useEffect(() => {
+    console.log("Call data is", callData);
     if (open && typeof window !== 'undefined') {
       const timer = setTimeout(() => {
         const overlays = document.querySelectorAll('[data-radix-dialog-overlay]')
