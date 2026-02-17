@@ -22,7 +22,7 @@ const MessageComposerTabCN = ({
 }) => {
   // Get brand color for icon when active
   const getIconColor = () => {
-    if (typeof window === 'undefined') return 'hsl(0 0% 60%)'
+    if (typeof window === 'undefined') return "#6c757d"//'hsl(0 0% 60%)'
     
     if (isActive) {
       const root = document.documentElement
@@ -32,7 +32,7 @@ const MessageComposerTabCN = ({
       }
       return 'hsl(var(--brand-primary))'
     }
-    return 'hsl(0 0% 60%)' // Muted gray for inactive
+    return "#6c757d" // Muted gray for inactive
   }
 
   const iconColor = getIconColor()
@@ -71,7 +71,7 @@ const MessageComposerTabCN = ({
         transition-all duration-200
         ${isActive 
           ? 'text-brand-primary' 
-          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+          : 'text-[#6c757d] hover:text-[#5C646B] hover:bg-gray-100'
         }
       `}
       style={{ backgroundColor }}

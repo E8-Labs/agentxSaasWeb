@@ -1744,6 +1744,7 @@ const AdminLeadDetails = ({
                             }
                           }}
                           callId={isExpanded?.id || isExpanded?.callId || ''}
+                          callData={isExpanded}
                         />
 
                         {/* Modal for All Emails */}
