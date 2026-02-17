@@ -33,7 +33,7 @@ import parsePhoneNumberFromString from 'libphonenumber-js'
 import moment from 'moment'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
@@ -44,14 +44,20 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 // import NotficationsDrawer from "../notofications/NotficationsDrawer";
 import CallWorthyReviewsPopup from '@/components/dashboard/leads/CallWorthyReviewsPopup'
-import LeadTeamsAssignedList from '@/components/dashboard/leads/LeadTeamsAssignedList'
 // import Tags from '../dashboard/leads/TagsInput';
 // import TagInput from "../test/TagInput";
 import TagsInput from '@/components/dashboard/leads/TagsInput'
 import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
+import TagManagerCn from '@/components/dashboard/leads/extras/TagManagerCn'
+import TeamAssignDropdownCn from '@/components/dashboard/leads/extras/TeamAssignDropdownCn'
+import { getUniqueTags as fetchUniqueTags } from '@/components/globalExtras/GetUniqueTags'
 import ColorPicker from '@/components/dashboardPipeline/ColorPicker'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
-import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
+import {
+  AssignTeamMember,
+  UnassignTeamMember,
+  getTeamsList,
+} from '@/components/onboarding/services/apisServices/ApiService'
 import RearrangeStages from '@/components/pipeline/RearrangeStages'
 import { PersistanceKeys } from '@/constants/Constants'
 import { getAgentsListImage, getLeadProfileImage } from '@/utilities/agentUtilities'
@@ -273,6 +279,26 @@ const AdminPipeline1 = ({ selectedUser }) => {
   //variabl for deltag
   const [DelTagLoader, setDelTagLoader] = useState(null)
 
+  // tag input with autocomplete — per-lead state for TagManagerCn
+  const [tagInputValues, setTagInputValues] = useState({})
+  const [tagSuggestionsByLead, setTagSuggestionsByLead] = useState({})
+  const [showTagSuggestionsByLead, setShowTagSuggestionsByLead] = useState({})
+  const [uniqueColumns, setUniqueColumns] = useState([])
+  const [addTagLoaderLeadId, setAddTagLoaderLeadId] = useState(null)
+  const [delTagLoaderByLead, setDelTagLoaderByLead] = useState({})
+  const [assignLoaderLeadId, setAssignLoaderLeadId] = useState(null)
+  const tagInputRefsMap = useRef({})
+  const getOrCreateInputRef = (leadId) => {
+    if (!tagInputRefsMap.current[leadId]) {
+      tagInputRefsMap.current[leadId] = { current: null }
+    }
+    return tagInputRefsMap.current[leadId]
+  }
+
+  const showSnackbar = useCallback((message, type) => {
+    setSnackMessage({ message, type })
+  }, [])
+
   //code for the lead details modal
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null)
@@ -314,6 +340,25 @@ const AdminPipeline1 = ({ selectedUser }) => {
     let data = getUserLocalData()
     setUser(data?.user ?? null)
   }, [])
+
+  // Load unique tags once when user is available (for TagManagerCn)
+  const getUniqueTags = useCallback(async () => {
+    try {
+      const userId = user?.id ?? selectedUser?.id ?? null
+      const tags = await fetchUniqueTags(userId)
+      if (tags && Array.isArray(tags)) {
+        setUniqueColumns(tags)
+      }
+    } catch (error) {
+      console.error('Error fetching unique tags:', error)
+    }
+  }, [user?.id, selectedUser?.id])
+
+  useEffect(() => {
+    if (user?.id ?? selectedUser?.id) {
+      getUniqueTags()
+    }
+  }, [user?.id, selectedUser?.id, getUniqueTags])
 
   useEffect(() => {
     getImportantCalls()
@@ -751,6 +796,278 @@ const AdminPipeline1 = ({ selectedUser }) => {
       setDelTagLoader(null)
     }
   }
+
+  // Add tag for a specific lead (used by TagManagerCn)
+  const handleAddTag = useCallback(async (tagValue, lead) => {
+    if (!tagValue || !tagValue.trim() || !lead?.lead?.id) return
+    const trimmedTag = tagValue.trim()
+    const leadId = lead.lead.id
+    const existingTags = lead.lead.tags || []
+    if (existingTags.includes(trimmedTag)) {
+      showSnackbar('Tag already exists', SnackbarTypes.Error)
+      setTagInputValues((prev) => ({ ...prev, [leadId]: '' }))
+      return
+    }
+    try {
+      setAddTagLoaderLeadId(leadId)
+      let AuthToken = null
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const localData = JSON.parse(userData)
+        AuthToken = localData.token
+      }
+      const updatedTags = [...existingTags, trimmedTag]
+      const ApiData = {
+        leadId: lead.lead.id,
+        tag: trimmedTag,
+        smartListId: lead.lead.sheetId,
+        phoneNumber: lead.lead.phone,
+      }
+      if (selectedUser?.id) ApiData.userId = selectedUser.id
+      const ApiPath = Apis.updateLead
+      const response = await axios.put(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true) {
+        setTagInputValues((prev) => ({ ...prev, [leadId]: '' }))
+        setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: false }))
+        setTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: [] }))
+        showSnackbar('Tag added successfully', SnackbarTypes.Success)
+        setLeadsList((prev) =>
+          prev.map((item) =>
+            item.lead?.id === leadId
+              ? { ...item, lead: { ...item.lead, tags: updatedTags } }
+              : item
+          )
+        )
+        if (selectedLeadsDetails?.id === leadId) {
+          setSelectedLeadsDetails((prev) => (prev ? { ...prev, tags: updatedTags } : prev))
+        }
+      } else {
+        showSnackbar(response?.data?.message || 'Failed to add tag', SnackbarTypes.Error)
+      }
+    } catch (error) {
+      console.error('Error occurred in update lead api:', error)
+      showSnackbar('Failed to add tag. Please try again.', SnackbarTypes.Error)
+    } finally {
+      setAddTagLoaderLeadId(null)
+    }
+  }, [showSnackbar, selectedLeadsDetails?.id, selectedUser?.id])
+
+  const handleTagInputChange = useCallback((e, lead) => {
+    const value = e.target.value
+    const leadId = lead?.lead?.id
+    if (leadId == null) return
+    setTagInputValues((prev) => ({ ...prev, [leadId]: value }))
+    const existingTags = lead?.lead?.tags || []
+    if (value.trim()) {
+      const filtered = uniqueColumns
+        .filter((tag) => tag.toLowerCase().includes(value.toLowerCase()))
+        .filter((tag) => !existingTags.includes(tag))
+      setTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: filtered }))
+      setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: filtered.length > 0 }))
+    } else {
+      setTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: [] }))
+      setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: false }))
+    }
+  }, [uniqueColumns])
+
+  const handleTagInputKeyDown = useCallback(
+    (e, lead) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+        e.preventDefault()
+        e.stopPropagation()
+        const leadId = lead?.lead?.id
+        if (leadId == null) return
+        const value = (tagInputValues[leadId] ?? '').trim()
+        if (value) handleAddTag(value, lead)
+      } else if (e.key === 'Escape') {
+        const leadId = lead?.lead?.id
+        if (leadId != null) {
+          setShowTagSuggestionsByLead((prev) => ({ ...prev, [leadId]: false }))
+        }
+      }
+    },
+    [tagInputValues, handleAddTag]
+  )
+
+  const handleTagSuggestionClick = useCallback(
+    (suggestion, lead) => {
+      handleAddTag(suggestion, lead)
+    },
+    [handleAddTag]
+  )
+
+  const handleDelTagForLead = useCallback(async (tag, lead) => {
+    const leadId = lead?.lead?.id
+    if (!leadId) return
+    try {
+      setDelTagLoaderByLead((prev) => ({ ...prev, [leadId]: tag }))
+      let AuthToken = null
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const localData = JSON.parse(userData)
+        AuthToken = localData.token
+      }
+      const ApiData = { leadId, tag }
+      if (selectedUser?.id) ApiData.userId = selectedUser.id
+      const response = await axios.post(Apis.delLeadTag, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true) {
+        const updatedTags = (lead.lead.tags || []).filter((t) => t !== tag)
+        setLeadsList((prev) =>
+          prev.map((item) =>
+            item.lead?.id === leadId
+              ? { ...item, lead: { ...item.lead, tags: updatedTags } }
+              : item
+          )
+        )
+        if (selectedLeadsDetails?.id === leadId) {
+          setSelectedLeadsDetails((prev) => (prev ? { ...prev, tags: updatedTags } : prev))
+        }
+      }
+    } catch (error) {
+      console.error('Error in del tag api:', error)
+    } finally {
+      setDelTagLoaderByLead((prev) => {
+        const next = { ...prev }
+        delete next[leadId]
+        return next
+      })
+    }
+  }, [selectedLeadsDetails?.id, selectedUser?.id])
+
+  const handleLeadDetailsUpdatedForLead = useCallback((deletedTagName, lead) => {
+    const leadId = lead?.lead?.id
+    if (!leadId || !deletedTagName) return
+    setLeadsList((prev) =>
+      prev.map((item) =>
+        item.lead?.id === leadId
+          ? {
+              ...item,
+              lead: {
+                ...item.lead,
+                tags: (item.lead?.tags || []).filter((t) => t !== deletedTagName),
+              },
+            }
+          : item
+      )
+    )
+    if (selectedLeadsDetails?.id === leadId) {
+      setSelectedLeadsDetails((prev) =>
+        prev ? { ...prev, tags: (prev.tags || []).filter((t) => t !== deletedTagName) } : prev
+      )
+    }
+  }, [selectedLeadsDetails?.id])
+
+  // Team assign: options per lead (same shape as LeadDetails teamOptions)
+  const getTeamOptionsForLead = useCallback(
+    (lead) => {
+      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      const teamsAssigned = lead?.teamsAssigned || []
+      return allTeams.map((tm) => {
+        const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
+        const isSelected = teamsAssigned.some((assigned) => {
+          const assignedId = assigned.invitedUserId || assigned.invitedUser?.id || assigned.id
+          return String(assignedId) === String(id)
+        })
+        return {
+          id,
+          label: tm.name || tm.invitedUser?.name || 'Unknown',
+          avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
+          selected: isSelected,
+          raw: tm,
+        }
+      })
+    },
+    [myTeamAdmin, myTeamList]
+  )
+
+  const handleAssignLeadToTeammember = useCallback(
+    async (item, lead) => {
+      if (!lead?.id) return
+      const leadId = lead.id
+      setAssignLoaderLeadId(leadId)
+      try {
+        const teamMemberUserId = item.invitedUserId || item.id
+        const ApiData = { leadId, teamMemberUserId }
+        const response = await AssignTeamMember(ApiData, selectedUser)
+        if (response?.data?.status === true) {
+          const newTeamMember = {
+            id: item.id,
+            invitedUserId: item.invitedUserId,
+            invitingUserId: item.invitingUserId,
+            name: item.name || item.invitedUser?.name,
+            thumb_profile_image: item.thumb_profile_image || item.invitedUser?.thumb_profile_image,
+            invitedUser: item.invitedUser || {
+              id: item.invitedUserId || item.id,
+              name: item.name,
+              thumb_profile_image: item.thumb_profile_image,
+            },
+          }
+          HandleLeadAssignedTeam(newTeamMember, lead)
+          showSnackbar(
+            response.data.message || 'Team member assigned successfully',
+            SnackbarTypes.Success
+          )
+        } else {
+          showSnackbar(
+            response?.data?.message || 'Failed to assign team member',
+            SnackbarTypes.Error
+          )
+        }
+      } catch (error) {
+        console.error('handleAssignLeadToTeammember error:', error)
+        showSnackbar('Failed to assign team member. Please try again.', SnackbarTypes.Error)
+      } finally {
+        setAssignLoaderLeadId(null)
+      }
+    },
+    [showSnackbar, selectedUser]
+  )
+
+  const handleUnassignLeadFromTeammember = useCallback(
+    async (userId, lead) => {
+      if (!lead?.id) return
+      const leadId = lead.id
+      setAssignLoaderLeadId(leadId)
+      try {
+        const ApiData = { leadId, teamMemberUserId: userId }
+        if (selectedUser?.id) ApiData.userId = selectedUser.id
+        const response = await UnassignTeamMember(ApiData)
+        if (response?.data?.status === true) {
+          const filteredTeams = (lead.teamsAssigned || []).filter((assigned) => {
+            const assignedId = assigned.invitedUserId || assigned.invitedUser?.id || assigned.id
+            return String(assignedId) !== String(userId)
+          })
+          const updatedLead = { ...lead, teamsAssigned: filteredTeams }
+          HandleLeadAssignedTeam(null, updatedLead)
+          showSnackbar(
+            response.data.message || 'Team member unassigned successfully',
+            SnackbarTypes.Success
+          )
+        } else if (response?.data?.status === false) {
+          showSnackbar(
+            response.data.message || 'Failed to unassign team member',
+            SnackbarTypes.Error
+          )
+        }
+      } catch (error) {
+        console.error('handleUnassignLeadFromTeammember error:', error)
+        showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error)
+      } finally {
+        setAssignLoaderLeadId(null)
+      }
+    },
+    [showSnackbar, selectedUser?.id]
+  )
 
   //code for poovers
 
@@ -2286,7 +2603,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           ) : (
             <div className="flex flex-col items-center w-full">
               <div
-                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-8
+                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-4
             scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             "
               >
@@ -2294,20 +2611,20 @@ const AdminPipeline1 = ({ selectedUser }) => {
 
                 <div className="flex flex-row items-start gap-2">
                   <div className="flex flex-row items-start gap-4">
-                    {StagesList.map((stage, index) => (
+                    {StagesList?.map((stage, index) => (
                       <div
                         key={index}
                         style={{ width: '300px' }}
-                        className="flex flex-col items-start h-full gap-8"
+                        className="flex flex-col items-start h-full gap-8 bg-[#00000005] rounded-xl p-4"
                       >
                         {/* Display the stage */}
-                        <div className="flex flex-row items-center w-full justify-between">
+                        <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">
                           <div
                             className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
                             style={{
                               ...styles.heading,
-                              backgroundColor: stage.defaultColor,
-                              color: 'white',
+                              backgroundColor: "transparent", //stage.defaultColor,
+                              color: 'black',
                               // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
                             }}
                           >
@@ -2322,7 +2639,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             </span>
                             <div
                               // className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
+                              className="rounded-full bg-white flex items-center justify-center text-black min-w-8 min-h-8 w-8 h-8 shrink-0 px-1"
                               style={{ ...styles.paragraph, fontSize: 14 }}
                             >
                               {/* {leadCounts[stage.id] ? (
@@ -2577,21 +2894,22 @@ const AdminPipeline1 = ({ selectedUser }) => {
                         </Popover>
 
                         {/* Display leads matching this stage */}
-                        {LeadsList.filter((lead) => lead.lead.stage === stage.id)
-                          .length > 0 && (
+                        {LeadsList?.filter(
+                          (lead) => lead.lead.stage === stage.id,
+                        ).length > 0 && (
                             <div
                               id={`scrollableDiv-${stage.id}`}
-                              className="relative flex flex-col gap-4 mt-4 h-[75vh] overflow-y-auto rounded-xl"
+                              className="pipeline-stage-scroll relative w-full flex flex-col gap-4 h-[75vh] overflow-y-auto rounded-xl"
                               style={{
                                 scrollbarWidth: 'none',
-                                borderWidth: 1,
-                                borderRadius: '12px',
-                                borderStyle: 'solid',
-                                borderColor: '#00000010',
+                                // borderWidth: 1,
+                                // borderRadius: '12px',
+                                // borderStyle: 'solid',
+                                // borderColor: '#00000010',
                               }}
                             >
                               <InfiniteScroll
-                                className="mt-4"
+                                // className="mt-4"
                                 endMessage={
                                   <p
                                     style={{
@@ -2609,23 +2927,27 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                 }
                                 scrollableTarget={`scrollableDiv-${stage.id}`}
                                 dataLength={
-                                  LeadsList.filter(
+                                  LeadsList?.filter(
                                     (lead) => lead.lead.stage === stage.id,
                                   ).length
                                 }
                                 next={() => {
-                                  let leadsInStage = LeadsList.filter(
+                                  let leadsInStage = LeadsList?.filter(
                                     (lead) => lead.lead.stage === stage.id,
                                   )
 
-                                  // getMoreLeadsInStage(
-                                  //   stage.id,
-                                  //   leadsInStage.length
-                                  // );
-                                  getMoreLeadsInStage({
-                                    stageId: stage.id,
-                                    offset: leadsInStage.length,
-                                  })
+                                  if (searchValue) {
+                                    getMoreLeadsInStage({
+                                      stageId: stage.id,
+                                      offset: leadsInStage.length,
+                                      search: searchValue,
+                                    })
+                                  } else {
+                                    getMoreLeadsInStage({
+                                      stageId: stage.id,
+                                      offset: leadsInStage.length,
+                                    })
+                                  }
                                 }} // Fetch more when scrolled
                                 hasMore={hasMoreMap[stage.id] !== false}
                                 loader={
@@ -2638,15 +2960,28 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                 }
                                 style={{ overflow: 'unset' }}
                               >
-                                {LeadsList.filter(
+                                {LeadsList?.filter(
                                   (lead) => lead.lead.stage === stage.id,
                                 ).map((lead, leadIndex) => (
                                   <div
-                                    className="px-3 pt-2 mt-4 h-full"
-                                    style={{ width: '300px', height: 'auto' }}
+                                    className="mb-4 h-full"
+                                    style={{ height: 'auto', backgroundColor: 'transparent' }}
                                     key={leadIndex}
                                   >
-                                    <div className="border rounded-xl px-4 py-2 h-full">
+                                    <div
+                                      className="border bg-[#ffffff] rounded-xl px-3 py-4 h-full"
+                                      style={{ border: '1px solid #1515151A' }}
+                                      onMouseEnter={() => {
+                                        const latestLead = LeadsList.find(
+                                          (item) => item.lead?.id === lead.lead?.id
+                                        )
+                                        const leadToUse = latestLead?.lead || lead.lead
+                                        setSelectedLeadsDetails(leadToUse)
+                                      }}
+                                      onMouseLeave={() => {
+                                        setSelectedLeadsDetails(null)
+                                      }}
+                                    >
                                       <div className="flex flex-row items-center justify-between w-full">
                                         <button
                                           className="flex flex-row items-center gap-3"
@@ -2663,8 +2998,25 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                           }}
                                         >
                                           {/* Lead profile picture with initials fallback */}
-                                          {getLeadProfileImage(lead.lead, 27, 27)}
-                                          <div style={styles.paragraph}>
+                                          <div>{getLeadProfileImage(lead.lead, 27, 27)}</div>
+                                          <div
+                                            style={{
+                                              position: 'relative',
+                                              top: 10,
+                                              left: -27,
+                                              zIndex: 1000,
+                                            }}
+                                          >
+                                            {getAgentsListImage(
+                                              lead.agent?.agents[0]?.agentType ===
+                                                'outbound'
+                                                ? lead.agent?.agents[0]
+                                                : lead.agent?.agents[1] ? lead.agent?.agents[1] : lead.agent?.agents[0],
+                                              19,
+                                              19,
+                                            )}
+                                          </div>
+                                          <div style={styles.paragraph} className="-ms-8">
                                             {lead.lead.firstName}
                                           </div>
                                         </button>
@@ -2687,50 +3039,64 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                             />
                                           )}
                                       </div>
-                                      <div className="flex flex-row items-center justify-between w-full mt-1">
+                                      <div className="flex flex-row items-center justify-between w-full mt-2">
+                                        {/* Loader only for this card's lead, not selectedLeadsDetails */}
+                                        {assignLoaderLeadId === lead.lead.id ? (
+                                          <CircularProgress size={20} />
+                                        ) : (
+                                          <TeamAssignDropdownCn
+                                            withoutBorder={true}
+                                            label=""
+                                            teamOptions={getTeamOptionsForLead(lead.lead)}
+                                            onToggle={(teamId, team, shouldAssign) => {
+                                              if (shouldAssign) {
+                                                if (team?.raw) {
+                                                  handleAssignLeadToTeammember(team.raw, lead.lead)
+                                                } else {
+                                                  const allTeams = [
+                                                    ...(myTeamAdmin ? [myTeamAdmin] : []),
+                                                    ...(myTeamList || []),
+                                                  ]
+                                                  const teamToAssign = allTeams.find((t) => {
+                                                    const tId =
+                                                      t.invitedUserId || t.invitedUser?.id || t.id
+                                                    return String(tId) === String(teamId)
+                                                  })
+                                                  if (teamToAssign) {
+                                                    handleAssignLeadToTeammember(
+                                                      teamToAssign,
+                                                      lead.lead
+                                                    )
+                                                  }
+                                                }
+                                              } else {
+                                                handleUnassignLeadFromTeammember(teamId, lead.lead)
+                                              }
+                                            }}
+                                          />
+                                        )}
                                         <div className="flex flex-col gap-1">
-                                          <div
-                                            className="text-[#00000060]"
-                                            style={styles.agentName}
-                                          >
-                                            {(lead?.lead?.email
-                                              ? lead?.lead?.email?.slice(0, 10) +
-                                              '...'
-                                              : '') || ''}
-                                          </div>
                                           {/* Display plan price for agency_use pipeline leads */}
-                                          {SelectedPipeline?.pipelineType === 'agency_use' &&
-                                            lead?.lead?.agencyUseInfo?.planPrice && (
+                                          {(() => {
+                                            const isAgencyUse = SelectedPipeline?.pipelineType === 'agency_use'
+                                            const planPrice = lead?.lead?.agencyUseInfo?.planPrice
+
+                                            return isAgencyUse && planPrice ? (
                                               <div
-                                                className="text-green-600 font-semibold text-xs"
-                                                style={{ fontSize: '11px' }}
+                                                className="rounded-full flex flex-row items-center justify-center"
+                                                style={{
+                                                  fontWeight: '400',
+                                                  height: '28px',
+                                                  width: '70px',
+                                                  backgroundColor: '#00000005',
+                                                  fontSize: '14px',
+                                                }}
                                               >
-                                                ${lead.lead.agencyUseInfo.planPrice}
+                                                ${planPrice}
                                               </div>
-                                            )}
+                                            ) : null
+                                          })()}
                                         </div>
-                                        {
-                                          lead.agent && (
-                                            <div className="flex flex-row items-center gap-2">
-                                              {getAgentsListImage(
-                                                lead.agent?.agents[0]?.agentType ===
-                                                  'outbound'
-                                                  ? lead.agent?.agents[0]
-                                                  : lead.agent?.agents[1] ? lead.agent?.agents[1] : lead.agent?.agents[0],
-                                                24,
-                                                24,
-                                              )}
-                                              <div
-                                                className="text-brand-primary underline"
-                                                style={styles.agentName}
-                                              >
-                                                {lead.agent?.agents[0]?.agentType ===
-                                                  'outbound'
-                                                  ? lead.agent?.agents[0]?.name
-                                                  : lead.agent?.agents[1] ? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name}
-                                              </div>
-                                            </div>
-                                          )}
                                       </div>
 
                                       {lead?.lead?.booking?.date && (
@@ -2751,7 +3117,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                             style={{ filter: 'opacity(50%)' }}
                                           />
                                           <p
-                                            style={{ fontSize: 13, fontWeight: 500 }}
+                                            style={{
+                                              fontSize: 13,
+                                              fontWeight: 500,
+                                            }}
                                           >
                                             {FormatBookingDateTime(
                                               lead?.lead?.booking?.datetime,
@@ -2761,100 +3130,30 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                         </div>
                                       )}
 
-                                      <div className="w-full flex flex-row items-center justify-between">
-                                        {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                          <LeadTeamsAssignedList
-                                            users={lead?.lead?.teamsAssigned}
-                                            maxVisibleUsers={1}
-                                          />
-                                        ) : (
-                                          <div className="w-8 h-8" />
-                                        )}
-                                        {/* <div className="flex flex-row items-center gap-3">
-                                                                        <div className="text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-3xl rounded-lg">
-                                                                            Tag
-                                                                        </div>
-                                                                        <div className="text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-3xl rounded-lg">
-                                                                            Tag
-                                                                        </div>
-                                                                    </div> */}
-
-                                        {lead.lead.tags.length > 0 ? (
-                                          <div className="flex flex-row items-center gap-1">
-                                            {lead?.lead?.tags
-                                              .slice(0, 1)
-                                              .map((tagVal, index) => {
-                                                return (
-                                                  // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                                  //     {tagVal}
-                                                  // </div>
-                                                  <div
-                                                    key={index}
-                                                    className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
-                                                    style={{
-                                                      backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
-                                                      maxWidth: 'fit-content',
-                                                    }}
-                                                  >
-                                                    <div
-                                                      className="text-brand-primary"
-                                                      style={{
-                                                        fontSize: 13,
-                                                        maxWidth: '12ch',
-                                                        wordBreak: 'break-word',
-                                                        overflowWrap: 'break-word',
-                                                        whiteSpace: 'normal',
-                                                        lineHeight: '1.2',
-                                                      }}
-                                                    >
-                                                      {tagVal}
-                                                    </div>
-                                                    {DelTagLoader &&
-                                                      lead.lead.id === DelTagLoader ? (
-                                                      <div>
-                                                        <CircularProgress size={15} />
-                                                      </div>
-                                                    ) : (
-                                                      <button
-                                                        onClick={() => {
-                                                          // console.log(
-                                                          //   "Tag value is",
-                                                          //   tagVal
-                                                          // );
-                                                          handleDelTag(tagVal, lead)
-                                                          let updatedTags =
-                                                            lead.lead.tags.filter(
-                                                              (tag) => tag != tagVal,
-                                                            ) || []
-                                                          lead.lead.tags = updatedTags
-                                                          let newLeadCad = []
-                                                          LeadsList.map((item) => {
-                                                            if (item.id == lead.id) {
-                                                              newLeadCad.push(lead)
-                                                            } else {
-                                                              newLeadCad.push(item)
-                                                            }
-                                                          })
-                                                          setLeadsList(newLeadCad)
-                                                        }}
-                                                      >
-                                                        <X
-                                                          size={15}
-                                                          weight="bold"
-                                                          color="hsl(var(--brand-primary))"
-                                                        />
-                                                      </button>
-                                                    )}
-                                                  </div>
-                                                );
-                                              })}
-                                            {lead.lead.tags.length > 1 && (
-                                              <div>+{lead.lead.tags.length - 1}</div>
-                                            )}
-                                          </div>
-                                        ) : (
-                                          '-'
-                                        )}
+                                      <div className="flex items-center flex-row gap-2 mt-2">
+                                        <TagManagerCn
+                                          tags={lead.lead.tags || []}
+                                          tagInputRef={getOrCreateInputRef(lead.lead.id)}
+                                          tagInputValue={tagInputValues[lead.lead.id] ?? ''}
+                                          onInputChange={(e) => handleTagInputChange(e, lead)}
+                                          onInputKeyDown={(e) => handleTagInputKeyDown(e, lead)}
+                                          showSuggestions={showTagSuggestionsByLead[lead.lead.id] ?? false}
+                                          setShowSuggestions={(show) =>
+                                            setShowTagSuggestionsByLead((prev) => ({ ...prev, [lead.lead.id]: show }))
+                                          }
+                                          tagSuggestions={tagSuggestionsByLead[lead.lead.id] ?? []}
+                                          onSuggestionClick={(suggestion) => handleTagSuggestionClick(suggestion, lead)}
+                                          addTagLoader={addTagLoaderLeadId === lead.lead.id}
+                                          onRemoveTag={(tag) => handleDelTagForLead(tag, lead)}
+                                          delTagLoader={delTagLoaderByLead[lead.lead.id]}
+                                          onRefreshSuggestions={getUniqueTags}
+                                          selectedUser={user ?? selectedUser}
+                                          showSnackbar={showSnackbar}
+                                          onLeadDetailsUpdated={(deletedTagName) =>
+                                            handleLeadDetailsUpdatedForLead(deletedTagName, lead)
+                                          }
+                                          from="dashboardPipeline"
+                                        />
                                       </div>
                                     </div>
                                   </div>
