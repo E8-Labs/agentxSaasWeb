@@ -544,6 +544,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   }
 
   const handleSaveCommunicationSubModal = async (settingsKey, value) => {
+    console.log("Saving communication setting", value)
     const localData = localStorage.getItem('User')
     if (!localData) {
       toast.error('Please log in to save')
