@@ -2110,9 +2110,13 @@ const Pipeline1 = () => {
   }
 
   //If lead stage is updated manually
-  function HandleUpdateStage(stage) {
+  async function HandleUpdateStage(stage) {
+    // Refresh pipeline data from server so lead appears in correct stage column and counts are correct
+    if (SelectedPipeline) {
+      await getPipelineDetails(SelectedPipeline)
+    }
     // setShowDetailsModal(false);
-
+    console.log("Stage is passing in handle update stage api is", stage);
     let selLead = selectedLeadsDetails
     selLead.stage = stage.id
     let updatedLeads = []
@@ -2155,7 +2159,7 @@ const Pipeline1 = () => {
     setStagesList(SelectedPipeline.stages)
 
     setPipeLines(updatedPipelines)
-    handleCloseOtherPipeline();
+    handleCloseOtherPipeline()
   }
 
   function HandleLeadAssignedTeam(team, lead) {
