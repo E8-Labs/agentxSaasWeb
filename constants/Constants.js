@@ -207,6 +207,15 @@ export const models = [
     responseTime: '750 ms',
   },
   {
+    name: 'OpenClaw',
+    provider: 'openai',
+    value: 'openclaw',
+    icon: '/openclaw.png',
+    disabled: false,
+    model: 'gpt-4.1-mini', //'gpt-4.1-nano',
+    responseTime: '650 ms',
+  },
+  {
     name: 'GPT-5',
     provider: 'openai',
     model: 'gpt-5',
