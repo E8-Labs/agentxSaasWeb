@@ -1386,7 +1386,7 @@ const UserAddCard = ({
                       href="#"
                       onClick={(e) => {
                         e.preventDefault()
-                        const { termsUrl } = getPolicyUrls()
+                        const { termsUrl } = getPolicyUrls(selectedUser)
                         window.open(termsUrl, '_blank')
                       }}
                       style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }}
