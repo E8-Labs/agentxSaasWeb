@@ -303,6 +303,7 @@ export function TranscriptViewer({ callId }) {
           const filteredMessages = getMessagesWithLoopCheck(response.data.data)
           // const parsedMessages = parseTranscript(response.data.data.transcript);
           setMessages(filteredMessages)
+          console.log('Call Details Transcript', response.data)
           if (response.data.callDetails) {
             setCallDetails(response.data.callDetails)
           }
