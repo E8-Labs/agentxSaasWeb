@@ -31,6 +31,7 @@ import SubAccountSupport from './SubAccountSupport'
 import SubAccountTerms from './SubAccountTerms'
 import SubAccountCancellationRefund from './SubAccountCancellationRefund'
 import { UserRole } from '@/constants/UserRole'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 function SubAccountMyAccount() {
   let searchParams = useSearchParams()
@@ -66,20 +67,20 @@ function SubAccountMyAccount() {
 
             if (response?.data?.status === true && response?.data?.data?.branding) {
               const branding = response.data.data.branding
-              
+
               // Update localStorage with fresh branding data
               localStorage.setItem('agencyBranding', JSON.stringify(branding))
-              
+
               // Update xbar title if available
               if (branding?.xbarTitle) {
                 setXbarTitle(branding.xbarTitle)
                 return
               }
             }
-          } catch (error) {}
+          } catch (error) { }
         }
-      } catch (error) {}
-      
+      } catch (error) { }
+
       // Fallback: Get Xbar title from localStorage
       const getXbarTitle = () => {
         try {
@@ -101,17 +102,17 @@ function SubAccountMyAccount() {
               return
             }
           }
-        } catch (error) {}
+        } catch (error) { }
         // Default title
         setXbarTitle('Bar Services')
       }
-      
+
       getXbarTitle()
     }
-    
+
     // Fetch branding on mount
     fetchBrandingAndUpdateTitle()
-    
+
     // Listen for branding updates
     const handleBrandingUpdate = (event) => {
       if (event?.detail?.xbarTitle) {
@@ -133,7 +134,7 @@ function SubAccountMyAccount() {
       }
     }
     window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     }
@@ -370,7 +371,7 @@ function SubAccountMyAccount() {
       case 5: // My Phone Numbers
         return <SubAccountMyPhoneNumber />
       case 6: // Invite Agents (if enabled)
-      return <TwilioTrustHub />
+        return <TwilioTrustHub />
       case 7: // Terms & Conditions
         return <SubAccountTerms />
       case 8: // Privacy Policy
@@ -384,6 +385,17 @@ function SubAccountMyAccount() {
 
   const handleTabSelect = async (item) => {
     // For all menu items, set the selected tab using menu ID to display in the right panel
+    const { termsUrl, privacyUrl, cancellationUrl } = await getPolicyUrls()
+    if (item.id === 7) {
+      window.open(termsUrl, '_blank')
+      return
+    } else if (item.id === 8) {
+      window.open(privacyUrl, '_blank')
+      return
+    } else if (item.id === 9) {
+      window.open(cancellationUrl, '_blank')
+      return
+    }
     setTabSelected(item.id)
     setParamsInSearchBar(item.id)
   }

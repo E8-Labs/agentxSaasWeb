@@ -33,10 +33,19 @@ export const getOutcome = (item) => {
       return "Text Failed"
     } else if (item?.endCallReason === "sms_sent") {
       return "Text Sent"
+    } else {
+      return "Text Sent"
     }
   } else if (item.communicationType == 'email') {
+    if (item?.endCallReason === "sms_sent"){
+      return "Email Sent"
+    } else if (item?.endCallReason === "email_failed"){
+      return "Email Failed"
+    } else {
+      // return item?.callOutcome
+      return "Email Sent"
+    }
     // return 'Email Sent'
-    return item?.callOutcome
   } else if (item.callOutcome) {
     return item?.callOutcome
   } else {

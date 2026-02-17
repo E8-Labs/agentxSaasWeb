@@ -301,6 +301,7 @@ export function TranscriptViewer({ callId }) {
         setLoading(false)
         if (response.data.status === true) {
           const filteredMessages = getMessagesWithLoopCheck(response.data.data)
+          console.log("Filtered messages are", filteredMessages);
           // const parsedMessages = parseTranscript(response.data.data.transcript);
           setMessages(filteredMessages)
           if (response.data.callDetails) {

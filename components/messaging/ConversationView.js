@@ -426,6 +426,7 @@ const ConversationView = ({
           }
         }}
         callId={showTranscriptModal?.callId || showTranscriptModal?.id || ''}
+        callData={showTranscriptModal}
       />
     </div>
   );
