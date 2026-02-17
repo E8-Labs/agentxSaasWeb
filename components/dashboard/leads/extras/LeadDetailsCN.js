@@ -109,7 +109,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
   return (
     <Badge
       variant="outline"
-      className="rounded-full border-border/50 px-2 py-2 bg-muted/50 hover:bg-muted flex items-center gap-1.5 group relative transition-colors shadow-sm"
+      className="rounded w-auto border border-border/50 px-2 py-1 text-sm bg-black/5 hover:bg-black/5 flex items-center gap-1 group relative transition-colors shadow-sm min-w-0"
     >
       {/*<TypographyCaption className="font-medium text-foreground">{from === "dashboardPipeline" ? label.length > 10 ? label.slice(0, 10) + "..." : label : label}</TypographyCaption>*/}
 
@@ -123,7 +123,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
                 </TypographyCaption>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{label}</TooltipContent>
+            <TooltipContent className="bg-black text-white">{label}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ) : (

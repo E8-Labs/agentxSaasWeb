@@ -154,7 +154,7 @@ const TagManagerCn = ({
       </div>
 
       <div
-        className={`${from === "dashboardPipeline" ? "w-[40%]" : "relative"}`}
+        className={`${from === "dashboardPipeline" ? "w-[40%] hidden" : "relative"}`}
       >
         <Input
           ref={tagInputRef}

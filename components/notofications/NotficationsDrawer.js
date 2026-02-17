@@ -748,13 +748,13 @@ function NotficationsDrawer({ close }) {
           setShowNotificationDrawer(true)
           getNotifications()
         }}
-        className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0"
+        className="mb-1 h-10 px-3 py-3 rounded-lg bg-[#efefef] hover:opacity-70 transition-opacity flex-shrink-0 flex items-center justify-center"
       >
         <div className="flex flex-row relative">
           <Image
             src="/svgIcons/notificationIcon.svg"
-            height={22}
-            width={22}
+            height={20}
+            width={20}
             alt="Notification Icon"
           />
           {unread > 0 && (

@@ -59,6 +59,25 @@ Process UI feedback captured via the Agentation toolbar and make the requested c
 - Check for CSS/Tailwind classes that match the selector
 - The DOM path helps identify the component hierarchy
 
+## Limitations: Popups and Modals
+
+When a popup or modal is open, the Agentation toolbar’s annotation field is often **disabled** (focus is trapped in the overlay, or the tool doesn’t target portaled content). The app is configured so the annotation field **can** receive focus when a modal is open (MUI `disableEnforceFocus`, Radix `trapFocus={false}`). You can add annotations inside modals by clicking the annotation field and typing.
+
+**If a modal still traps focus — manual workaround:**
+
+1. Close the modal/popup if needed, then add an entry to `AGENTATION_NOTES.md` in this format:
+
+```markdown
+## Annotation: manual-modal
+**Element:** [describe the element, e.g. "Filter modal header"]
+**Path:** [optional, e.g. "Pipeline page > Filter modal"]
+**Note:** [describe the change you want, e.g. "Header height 60px, Apply button use brand primary"]
+```
+
+2. Run `/process-agentation` (or ask the assistant to process agentation). The assistant will find the modal/popup component and apply the change from the **Note** field.
+
+The assistant can also accept the same feedback in chat (e.g. “In the pipeline filter modal, make the title 18px and the Apply button primary”) and apply it without a manual note file entry.
+
 ## Notes
 
 - Always read the full annotation before making changes
@@ -66,3 +85,4 @@ Process UI feedback captured via the Agentation toolbar and make the requested c
 - Preserve existing functionality while implementing the requested changes
 - The dev server must be running for annotations to sync to the file
 - **NEVER use chrome-devtools or browser MCP tools unless the user explicitly requests it**
+- **"Medium elevation"** (when requested for a container/popover/paper): apply border `1px solid #eaeaea`, boxShadow `0 4px 30px rgba(0, 0, 0, 0.15)`, borderRadius `12px`. In Pipeline1.js use `styles.mediumElevation`; elsewhere define or reuse the same values.

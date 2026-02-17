@@ -10,6 +10,7 @@ import { Toaster } from '../components/ui/sonner'
 import { ReduxProvider } from '../components/providers/redux-provider'
 import { AgentationProvider } from '../components/providers/agentation-provider'
 import { BrandingProvider } from '../components/providers/branding-provider'
+import { MuiModalThemeProvider } from '../components/providers/mui-modal-theme-provider'
 import { LayoutTracker } from '../components/providers/layout-tracker'
 import DynamicTitle from '../components/common/DynamicTitle'
 import { getServerBranding, getBrandingForMetadata } from '../lib/getServerBranding'
@@ -512,15 +513,17 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
-        <ReduxProvider>
-          <BrandingProvider>
-            <LayoutTracker />
-            <DynamicTitle />
-            {children}
-          </BrandingProvider>
-        </ReduxProvider>
-        <Toaster />
-        <AgentationProvider />
+        <MuiModalThemeProvider>
+          <ReduxProvider>
+            <BrandingProvider>
+              <LayoutTracker />
+              <DynamicTitle />
+              {children}
+            </BrandingProvider>
+          </ReduxProvider>
+          <Toaster />
+          <AgentationProvider />
+        </MuiModalThemeProvider>
 
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">

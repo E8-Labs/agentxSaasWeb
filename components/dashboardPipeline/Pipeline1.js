@@ -74,7 +74,7 @@ import ScoringProgress from '../ui/ScoringProgress'
 import ColorPicker from './ColorPicker'
 import ConfigurePopup from './ConfigurePopup'
 import PipelineLoading from './PipelineLoading'
-import { Check, TagIcon } from 'lucide-react'
+import { Check, LayoutGrid, Pencil, TagIcon, Trash2 } from 'lucide-react'
 import PipelineLeadTeamsAssignedList from '../dashboard/leads/PipelineLeadTeamsAssignedList'
 import TagManagerCn from '../dashboard/leads/extras/TagManagerCn'
 import { getUniqueTags as fetchUniqueTags } from '@/components/globalExtras/GetUniqueTags'
@@ -110,6 +110,11 @@ const Pipeline1 = () => {
   const [StageAnchorel, setStageAnchorel] = useState(null)
   const openStage = Boolean(StageAnchorel)
   const stageId = StageAnchorel ? 'stageAnchor' : undefined
+
+  const pipelineMenuContainerRef = useRef(null)
+  const [pipelineMenuPillRect, setPipelineMenuPillRect] = useState(null)
+  const pipelinesListContainerRef = useRef(null)
+  const [pipelinesListPillRect, setPipelinesListPillRect] = useState(null)
 
   const [initialLoader, setInitialLoader] = useState(true)
   const [pipelineDetailLoader, setPipelineDetailLoader] = useState(false)
@@ -2282,6 +2287,10 @@ const Pipeline1 = () => {
       fontWeight: '500',
       fontSize: 15,
     },
+    paragraph14: {
+      fontWeight: '500',
+      fontSize: 14,
+    },
     agentName: {
       fontWeight: '600',
       fontSize: 12,
@@ -2315,6 +2324,12 @@ const Pipeline1 = () => {
       fontSize: 15,
       color: '#00000080',
     },
+    /** Reusable "medium elevation" for popovers/paper: 1px border #eaeaea + shadow. Use when annotation says "medium elevation". */
+    mediumElevation: {
+      borderRadius: 12,
+      border: '1px solid #eaeaea',
+      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+    },
   }
 
   return (
@@ -2342,8 +2357,8 @@ const Pipeline1 = () => {
           />
           <StandardHeader
             titleContent={
-              <div className="flex flex-row items-center gap-2">
-                <TypographyH3>
+              <div className="flex flex-row items-center gap-[8px] py-2 px-3 rounded-lg hover:bg-black/[0.02] transition-colors">
+                <TypographyH3 className="text-[18px] font-semibold tracking-[-1px]">
                   {SelectedPipeline?.title}
                 </TypographyH3>
                 <div>
@@ -2362,40 +2377,88 @@ const Pipeline1 = () => {
                     slotProps={{
                       paper: {
                         style: {
-                          // maxHeight: "40svh",
-                          width: '220px',
-                          marginLeft: "30px"
+                          ...styles.mediumElevation,
+                          width: '176px',
+                          marginLeft: '16px',
+                        },
+                        sx: {
+                          '@keyframes slideUp20': {
+                            from: { transform: 'translateY(20px)', opacity: 0 },
+                            to: { transform: 'translateY(0)', opacity: 1 },
+                          },
+                          animation: 'slideUp20 0.2s ease-out',
                         },
                       },
                       list: {
                         'aria-labelledby': 'long-button',
+                        sx: { paddingBottom: '8px', paddingLeft: '2px', paddingRight: '2px' },
                       },
                     }}
                   >
-                    <div className='max-h-[20svh] overflow-y-auto'>
-                      {PipeLines.map((item, index) => (
-                        <MenuItem
-                          key={index}
-                          onClick={() => {
-                            handleSelectOtherPipeline(item, index)
-                            handleCloseOtherPipeline() // Close menu after selection
+                    <div
+                      ref={pipelinesListContainerRef}
+                      className="relative py-0 px-0 pb-2 flex flex-col gap-0.5 text-[14px] opacity-100"
+                      onMouseLeave={() => setPipelinesListPillRect(null)}
+                    >
+                      {/* Sliding pill hover background: same as pipeline menu */}
+                      {pipelinesListPillRect && (
+                        <div
+                          className="absolute rounded-lg transition-all duration-200 ease-out pointer-events-none"
+                          style={{
+                            left: pipelinesListPillRect.left,
+                            top: pipelinesListPillRect.top,
+                            width: pipelinesListPillRect.width,
+                            height: pipelinesListPillRect.height,
+                            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                            borderRadius: 8,
                           }}
-                        >
-                          <div className='w-full flex flex-row items-center justify-between'>
-                            <div>{item.title}</div>
-                            {
-                              SelectedPipeline?.title === item.title && (
-                                <Check
-                                  className={`w-5 h-5 flex-shrink-0 text-[#00000080]`}
-                                />
-                              )
-                            }
-                          </div>
-                        </MenuItem>
-                      ))}
-                    </div>
-                    <button
-                      className={`flex flex-row items-center px-4 text-purple ${PipeLines.length > 1 && !pipelineDetailLoader ? 'mt-1' : 'mt-0'}`}
+                        />
+                      )}
+                      <div className='max-h-[20svh] overflow-y-auto'>
+                        {PipeLines.map((item, index) => (
+                          <MenuItem
+                            key={index}
+                            disableRipple
+                            sx={{
+                              fontSize: 14,
+                              '&:hover': { backgroundColor: 'transparent' },
+                              '&.Mui-focusVisible': { backgroundColor: 'transparent' },
+                            }}
+                            onClick={() => {
+                              handleSelectOtherPipeline(item, index)
+                              handleCloseOtherPipeline() // Close menu after selection
+                            }}
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect()
+                              const container = pipelinesListContainerRef.current
+                              if (!container) return
+                              const cRect = container.getBoundingClientRect()
+                              setPipelinesListPillRect({
+                                left: rect.left - cRect.left,
+                                top: rect.top - cRect.top,
+                                width: rect.width,
+                                height: rect.height,
+                              })
+                            }}
+                          >
+                            <div className='w-full flex flex-row items-center justify-between text-[14px] text-black opacity-100'>
+                              <div className={SelectedPipeline?.title === item.title ? 'text-brand-primary' : 'text-black'}>
+                                {item.title}
+                              </div>
+                              {
+                                SelectedPipeline?.title === item.title && (
+                                  <Check
+                                    className="w-5 h-5 flex-shrink-0 text-brand-primary"
+                                  />
+                                )
+                              }
+                            </div>
+                          </MenuItem>
+                        ))}
+                      </div>
+                      <button
+                      className={`flex flex-row items-center px-4 py-2 w-full text-purple outline-none ${PipeLines.length > 1 && !pipelineDetailLoader ? 'mt-1' : 'mt-0'}`}
+                      style={styles.paragraph14}
                       onClick={() => {
                         if (
                           user?.planCapabilities.maxPipelines >
@@ -2406,12 +2469,25 @@ const Pipeline1 = () => {
                           setShowUpgradeModal(true)
                         }
                       }}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const container = pipelinesListContainerRef.current
+                        if (!container) return
+                        const cRect = container.getBoundingClientRect()
+                        setPipelinesListPillRect({
+                          left: rect.left - cRect.left,
+                          top: rect.top - cRect.top,
+                          width: rect.width,
+                          height: rect.height,
+                        })
+                      }}
                     >
                       {/*<Plus size={17} weight="bold" />{' '}*/}
-                      <span style={{ fontWeight: '500', fontSize: 16 }}>
+                      <span style={{ fontWeight: '500', fontSize: 14 }}>
                         New Pipeline
                       </span>
                     </button>
+                    </div>
                   </Menu>
                 </div>
                 <button
@@ -2431,17 +2507,58 @@ const Pipeline1 = () => {
                     vertical: 'bottom',
                     horizontal: 'left',
                   }}
+                  slotProps={{
+                    paper: {
+                      style: styles.mediumElevation,
+                      sx: {
+                        '@keyframes slideUp20': {
+                          from: { transform: 'translateY(20px)', opacity: 0 },
+                          to: { transform: 'translateY(0)', opacity: 1 },
+                        },
+                        animation: 'slideUp20 0.2s ease-out',
+                      },
+                    },
+                  }}
                 >
-                  <div className="p-3">
+                  <div
+                    className="relative py-3 px-3 flex flex-col gap-0.5 text-[14px]"
+                    ref={pipelineMenuContainerRef}
+                    onMouseLeave={() => setPipelineMenuPillRect(null)}
+                  >
+                    {/* Sliding pill hover background: black 2% opacity, 8px radius, slides under hovered child */}
+                    {pipelineMenuPillRect && (
+                      <div
+                        className="absolute rounded-lg transition-all duration-200 ease-out pointer-events-none"
+                        style={{
+                          left: pipelineMenuPillRect.left,
+                          top: pipelineMenuPillRect.top,
+                          width: pipelineMenuPillRect.width,
+                          height: pipelineMenuPillRect.height,
+                          backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                          borderRadius: 8,
+                        }}
+                      />
+                    )}
                     <button
-                      className="outline-none flex flex-row items-center gap-4 w-full"
-                      // aria-describedby={OtherPipelineId}
-                      // variant="contained"
+                      className="outline-none flex flex-row items-center gap-4 w-full py-2 px-2 h-auto text-black"
+                      style={styles.paragraph14}
                       onClick={handleShowOtherPipeline}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const container = pipelineMenuContainerRef.current
+                        if (!container) return
+                        const cRect = container.getBoundingClientRect()
+                        setPipelineMenuPillRect({
+                          left: rect.left - cRect.left,
+                          top: rect.top - cRect.top,
+                          width: rect.width,
+                          height: rect.height,
+                        })
+                      }}
                     >
-                      <div style={{ borderRadius: '50%', width: '15px', height: '15px', backgroundColor: 'transparent', border: '1px solid #000000' }} />
+                      <LayoutGrid size={16} className="flex-shrink-0" />
                       <div className="flex flex-row items-center justify-between flex-1">
-                        <div style={{ fontWeight: '500', fontSize: 15 }}>Pipelines</div>
+                        <div style={{ fontWeight: '500', fontSize: 14 }}>Pipelines</div>
                         <div
                           className="outline-none"
                           aria-describedby={OtherPipelineId}
@@ -2454,30 +2571,49 @@ const Pipeline1 = () => {
                     </button>
                     {SelectedPipeline?.pipelineType !== 'agency_use' && (
                       <>
-                        <div className="w-full flex flex-row mt-4">
+                        <div className="w-full flex flex-row mt-0">
                           <button
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
+                            className="text-black flex flex-row items-center gap-4 w-full py-2 px-2 h-auto outline-none"
+                            style={styles.paragraph14}
                             onClick={() => {
                               setShowRenamePipelinePopup(true)
                               setRenamePipeline(SelectedPipeline.title)
                             }}
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect()
+                              const container = pipelineMenuContainerRef.current
+                              if (!container) return
+                              const cRect = container.getBoundingClientRect()
+                              setPipelineMenuPillRect({
+                                left: rect.left - cRect.left,
+                                top: rect.top - cRect.top,
+                                width: rect.width,
+                                height: rect.height,
+                              })
+                            }}
                           >
-                            <Image
-                              src={'/assets/editPen.png'}
-                              height={15}
-                              width={15}
-                              alt="*"
-                            />
+                            <Pencil size={16} className="flex-shrink-0" />
                             Rename
                           </button>
                         </div>
-                        <div className="w-full flex flex-row mt-4">
+                        <div className="w-full flex flex-row mt-0">
                           <button
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
+                            className="text-black flex flex-row items-center gap-4 w-full py-2 px-2 h-auto outline-none"
+                            style={styles.paragraph14}
                             onClick={() => {
                               setAddNewStageModal(true)
+                            }}
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect()
+                              const container = pipelineMenuContainerRef.current
+                              if (!container) return
+                              const cRect = container.getBoundingClientRect()
+                              setPipelineMenuPillRect({
+                                left: rect.left - cRect.left,
+                                top: rect.top - cRect.top,
+                                width: rect.width,
+                                height: rect.height,
+                              })
                             }}
                           >
                             <Image
@@ -2489,12 +2625,24 @@ const Pipeline1 = () => {
                             Add Stage
                           </button>
                         </div>
-                        <div className="w-full flex flex-row mt-4">
+                        <div className="w-full flex flex-row mt-0">
                           <button
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
+                            className="text-black flex flex-row items-center gap-4 w-full py-2 px-2 h-auto outline-none"
+                            style={styles.paragraph14}
                             onClick={() => {
                               setShowStagesPopup(true)
+                            }}
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect()
+                              const container = pipelineMenuContainerRef.current
+                              if (!container) return
+                              const cRect = container.getBoundingClientRect()
+                              setPipelineMenuPillRect({
+                                left: rect.left - cRect.left,
+                                top: rect.top - cRect.top,
+                                width: rect.width,
+                                height: rect.height,
+                              })
                             }}
                           >
                             <Image
@@ -2510,18 +2658,25 @@ const Pipeline1 = () => {
                     )}
 
                     <button
-                      className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
-                      style={styles.paragraph}
+                      className="text-red flex flex-row items-center gap-4 mt-0 w-full py-2 px-2 h-auto outline-none"
+                      style={styles.paragraph14}
                       onClick={() => {
                         setShowDeletePiplinePopup(true)
                       }}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const container = pipelineMenuContainerRef.current
+                        if (!container) return
+                        const cRect = container.getBoundingClientRect()
+                        setPipelineMenuPillRect({
+                          left: rect.left - cRect.left,
+                          top: rect.top - cRect.top,
+                          width: rect.width,
+                          height: rect.height,
+                        })
+                      }}
                     >
-                      <Image
-                        src={'/assets/delIcon.png'}
-                        height={18}
-                        width={18}
-                        alt="*"
-                      />
+                      <Trash2 size={16} className="flex-shrink-0" />
                       Delete
                     </button>
                   </div>
@@ -2534,21 +2689,21 @@ const Pipeline1 = () => {
             filterBadge={appliedTeamMemberIds.length > 0 ? appliedTeamMemberIds.length : null}
             rightContent={
               <div
-                className="flex flex-row items-center justify-between border h-[35px] px-4 gap-2 rounded-full"
+                className="flex flex-row items-center gap-1 w-auto min-w-[350px] border border-gray-200 rounded-lg pl-1 pr-4 h-10 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border focus-within:border-brand-primary transition-shadow"
               >
                 <input
-                  style={{ MozOutline: 'none' }}
+                  style={{ fontSize: 14, MozOutline: 'none' }}
                   value={searchValue}
                   onChange={handldSearch}
-                  className="outline-none bg-transparent border-none text-sm focus:outline-none focus:ring-0 rounded-full"
+                  className="flex-grow outline-none font-[500] bg-transparent border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-lg text-[14px] placeholder:text-[14px]"
                   placeholder="Search by name, phone or email"
                 />
-                <button className="outline-none">
+                <button type="button" className="outline-none flex-shrink-0">
                   <Image
-                    src={'/assets/searchIcon.png'}
-                    height={24}
-                    width={24}
-                    alt="*"
+                    src={'/otherAssets/searchIcon.png'}
+                    height={20}
+                    width={20}
+                    alt="Search"
                   />
                 </button>
               </div>
@@ -2566,18 +2721,18 @@ const Pipeline1 = () => {
               >
                 <div className="flex flex-row items-center gap-4"></div>
 
-                <div className="flex flex-row items-start gap-2">
-                  <div className="flex flex-row items-start gap-4">
+                <div className="flex flex-row items-start gap-2 h-full">
+                  <div className="flex flex-row items-start gap-4 h-full">
                     {StagesList?.map((stage, index) => (
                       <div
                         key={index}
-                        style={{ width: '300px' }}
-                        className="flex flex-col items-start h-full gap-4 bg-[#00000005] rounded-xl p-4"
+                        style={{ width: '350px' }}
+                        className="flex flex-col items-start h-full min-h-full gap-4 bg-[#00000005] rounded-xl p-4"
                       >
                         {/* Display the stage */}
                         <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">
                           <div
-                            className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
+                            className="h-[36px] flex flex-row items-center justify-start gap-2 rounded-xl px-4"
                             style={{
                               ...styles.heading,
                               backgroundColor: "transparent", //stage.defaultColor,
@@ -2585,7 +2740,7 @@ const Pipeline1 = () => {
                               // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
                             }}
                           >
-                            <span>
+                            <span className="font-semibold">
                               {stage.stageTitle.length > 15 ? (
                                 <div className="flex flex-row items-center gap-1">
                                   {stage.stageTitle.slice(0, 15) + '...'}
@@ -2596,7 +2751,7 @@ const Pipeline1 = () => {
                             </span>
                             <div
                               // className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full bg-white flex items-center justify-center text-black min-w-8 min-h-8 w-8 h-8 shrink-0 px-1"
+                              className="rounded-full bg-white flex items-center justify-center text-black w-6 h-6 min-w-6 min-h-6 shrink-0 px-1"
                               style={{ ...styles.paragraph, fontSize: 14 }}
                             >
                               {/* {leadCounts[stage.id] ? (
@@ -2879,7 +3034,7 @@ const Pipeline1 = () => {
                                       paddingTop: '10px',
                                       fontWeight: '400',
                                       fontFamily: 'inter',
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       color: '#00000060',
                                       paddingBottom: 20,
                                     }}
@@ -2981,7 +3136,7 @@ const Pipeline1 = () => {
                                               19,
                                             )}
                                           </div>
-                                          <div style={styles.paragraph} className="-ms-8">
+                                          <div style={{ ...styles.paragraph, fontSize: 16 }} className="-ms-8">
                                             {lead.lead.firstName}
                                           </div>
                                         </button>
