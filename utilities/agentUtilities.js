@@ -516,17 +516,13 @@ export function getAgentImageWithMemoji(agent) {
 }
 
 export function findLLMModel(value) {
-  let model = null
-  for (const m of models) {
-    if (m.model == value) {
-      model = m
-    }
-  }
-  if (model === null) {
-    return models[0] // Default to the first model if not found
-  }
-
-  return model
+  // Prefer match by unique option value (AssignX vs OpenClaw stay distinct)
+  let model = models.find((m) => m.value === value)
+  if (model) return model
+  // Backward compatibility: stored value may be the API model string
+  model = models.find((m) => m.model === value)
+  if (model) return model
+  return models[0]
 }
 
 export function agentImage(agent) {

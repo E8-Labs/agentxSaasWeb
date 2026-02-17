@@ -2864,7 +2864,7 @@ function Page() {
     }
 
     setShowModelLoader(true)
-    await updateSubAgent(null, model.model)
+    await updateSubAgent(null, model.value)
     setShowModelLoader(false)
     setOpenGptManu(null)
   }
