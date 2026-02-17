@@ -1005,9 +1005,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       return
     }
 
-    // If we're showing call-summary follow-up drafts, fetch those (by messageId) instead of inbound
+    // When showing call-summary follow-up drafts, we already have them from handleGenerateCallSummaryDrafts.
+    // Do NOT refetch here: the GET drafts API may filter by inbound message id, so passing the system
+    // message id would return [] and overwrite the new drafts we just set.
     if (callSummaryDraftsMessageId) {
-      fetchDrafts(selectedThread.id, callSummaryDraftsMessageId)
       return
     }
 
@@ -1147,9 +1148,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       }
     }
 
-    // Poll for new drafts (only if there's a last inbound message)
+    // Poll for new drafts (only if there's a last inbound message).
+    // Skip when showing call-summary drafts so we don't overwrite them with inbound drafts.
     const pollForDrafts = async () => {
-      // Only poll if we have a last inbound message ID
+      if (callSummaryDraftsMessageId) return
       if (!lastInboundMessageId) return
 
       try {
@@ -1192,7 +1194,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     return () => {
       clearInterval(intervalId)
     };
-  }, [selectedThread?.id, fetchMessages, selectedUser, lastInboundMessageId])
+  }, [selectedThread?.id, fetchMessages, selectedUser, lastInboundMessageId, callSummaryDraftsMessageId])
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
