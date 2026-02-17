@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,7 @@ import { useUser } from '@/hooks/redux-hooks'
 import { UpgradeTag, UpgradeTagWithModal } from '../constants/constants'
 import { toast } from '@/utils/toast'
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
+import InfiniteScroll from '@/components/ui/infinite-scroll'
 
 const ThreadsList = ({
   loading,
@@ -46,11 +47,22 @@ const ThreadsList = ({
   agencyUser = null,
   onOpenMessageSettings = null,
   userLocalData = null,
+  hasMoreThreads = true,
+  loadingMoreThreads = false,
+  onLoadMoreThreads,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
   const filterButtonRef = useRef(null)
   const filterPopoverRef = useRef(null)
+  const scrollContainerRef = useRef(null)
+  const [scrollRoot, setScrollRoot] = useState(null)
+
+  const setScrollContainerRef = useCallback((el) => {
+    scrollContainerRef.current = el
+    setScrollRoot(el || null)
+  }, [])
+
   const { user: reduxUser, setUser: setReduxUser } = useUser()
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -349,7 +361,11 @@ const ThreadsList = ({
           </button> }
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div
+        ref={setScrollContainerRef}
+        className="flex-1 overflow-y-auto"
+        aria-label="Threads list"
+      >
         {searchLoading ? (
           <div className="p-4 text-center text-gray-500">Searching...</div>
         ) : loading ? (
@@ -364,8 +380,16 @@ const ThreadsList = ({
             </p>
           </div>
         ) : (
-          <div className="">
-            {threads.map((thread) => (
+          <InfiniteScroll
+            isLoading={loadingMoreThreads}
+            hasMore={hasMoreThreads}
+            root={scrollRoot}
+            rootMargin="200px"
+            threshold={1}
+            next={onLoadMoreThreads ?? (() => {})}
+          >
+            <div className="">
+              {threads.map((thread) => (
               <div
                 key={thread.id}
                 onClick={() => onSelectThread(thread)}
@@ -502,7 +526,23 @@ const ThreadsList = ({
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+            {loadingMoreThreads && (
+              <div className="flex justify-center py-4" aria-hidden="true">
+                <div
+                  className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full"
+                  role="status"
+                  aria-label="Loading more threads"
+                />
+              </div>
+            )}
+            {!hasMoreThreads && threads.length > 0 && (
+              <p className="text-center py-4 text-sm text-muted-foreground">
+                You are all caught up
+              </p>
+            )}
+            <div aria-hidden="true" />
+          </InfiniteScroll>
         )}
       </div>
       {/* New Contact Drawer */}
