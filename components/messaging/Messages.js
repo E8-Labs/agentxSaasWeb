@@ -117,6 +117,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [lastInboundMessageId, setLastInboundMessageId] = useState(null)
   // When set, drafts are from call-summary follow-up (don't overwrite with inbound fetch)
   const [callSummaryDraftsMessageId, setCallSummaryDraftsMessageId] = useState(null)
+  // Ref to current drafts so AI Action callback can discard them before setting new drafts
+  const draftsRef = useRef([])
+
+  // Keep drafts ref in sync for use in handleGenerateCallSummaryDrafts
+  useEffect(() => {
+    draftsRef.current = drafts
+  }, [drafts])
 
   // Debug: Log when modal state changes
   useEffect(() => { }, [showUpgradePlanModal])
@@ -911,11 +918,36 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [selectedUser, selectedDraft])
 
-  // Callback when call-summary follow-up drafts are generated (from SystemMessage AI Text/Email Submit)
-  const handleGenerateCallSummaryDrafts = useCallback((drafts, parentMessageId) => {
-    setDrafts(drafts || [])
+  // Callback when call-summary follow-up drafts are generated (from SystemMessage AI Text/Email Submit).
+  // Discard any existing pending drafts (mark as discarded via API) then show the new AI-generated drafts.
+  const handleGenerateCallSummaryDrafts = useCallback(async (newDrafts, parentMessageId) => {
+    const currentDrafts = draftsRef.current || []
+    if (currentDrafts.length > 0) {
+      try {
+        const localData = localStorage.getItem('User')
+        if (localData) {
+          const userData = JSON.parse(localData)
+          const token = userData.token
+          const discardPromises = currentDrafts.map((d) => {
+            let apiPath = `${Apis.discardDraft}/${d.id}`
+            if (selectedUser?.id) apiPath = `${apiPath}?userId=${selectedUser.id}`
+            return axios.delete(apiPath, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            })
+          })
+          await Promise.allSettled(discardPromises)
+        }
+      } catch (err) {
+        console.error('Error discarding existing drafts before showing AI drafts:', err)
+      }
+    }
+    setDrafts(newDrafts || [])
     setCallSummaryDraftsMessageId(parentMessageId || null)
-  }, [])
+    setSelectedDraft(null)
+  }, [selectedUser])
 
   // Update latest message ID ref when messages change
   useEffect(() => {
