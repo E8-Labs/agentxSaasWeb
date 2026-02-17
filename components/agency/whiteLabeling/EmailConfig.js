@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { CheckCircle, XCircle, AlertCircle, Plus, Trash2, Eye } from 'lucide-react'
+import { CheckCircle, XCircle, AlertCircle, Plus, Trash2, Eye, KeyRound } from 'lucide-react'
 
 import Apis from '../../apis/Apis'
 import AgentSelectSnackMessage, {
@@ -24,6 +24,7 @@ import { generateOAuthState } from '@/utils/oauthState'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 import MailgunDomainSetup from '../../messaging/MailgunDomainSetup'
 import ViewDnsRecordsModal from '../../messaging/ViewDnsRecordsModal'
+import UpdateMailgunApiKeyModal from '../../messaging/UpdateMailgunApiKeyModal'
 
 const EmailConfig = ({ selectedAgency }) => {
   // Mail account state
@@ -38,6 +39,7 @@ const EmailConfig = ({ selectedAgency }) => {
   const [showMailgunSetup, setShowMailgunSetup] = useState(false)
   const [verifyingDomain, setVerifyingDomain] = useState(null)
   const [viewingDnsRecords, setViewingDnsRecords] = useState(null)
+  const [updatingApiKeyIntegration, setUpdatingApiKeyIntegration] = useState(null)
 
   // Commented out: Sender Details state variables
   // const [profileName, setProfileName] = useState('')
@@ -684,6 +686,22 @@ const EmailConfig = ({ selectedAgency }) => {
                           )}
                         </div>
                         <div className="flex flex-row items-center gap-2">
+                          {integration.verificationStatus === 'verified' && (
+                            <Button
+                              variant="outlined"
+                              onClick={() => setUpdatingApiKeyIntegration(integration)}
+                              sx={{
+                                textTransform: 'none',
+                                borderRadius: '8px',
+                                px: 2,
+                                borderColor: 'hsl(var(--brand-primary))',
+                                color: 'hsl(var(--brand-primary))',
+                              }}
+                            >
+                              <KeyRound size={16} className="mr-2" />
+                              Update API key
+                            </Button>
+                          )}
                           <Button
                             variant="outlined"
                             onClick={() => setViewingDnsRecords(integration)}
@@ -767,6 +785,20 @@ const EmailConfig = ({ selectedAgency }) => {
             mailgunIntegrationId={viewingDnsRecords.id}
           />
         )}
+
+        {/* Update API key Modal */}
+        <UpdateMailgunApiKeyModal
+          open={!!updatingApiKeyIntegration}
+          onClose={() => setUpdatingApiKeyIntegration(null)}
+          integration={updatingApiKeyIntegration}
+          onSuccess={() => {
+            fetchMailgunIntegrations()
+            setShowSnack({
+              message: 'API key updated successfully',
+              type: SnackbarTypes.Success,
+            })
+          }}
+        />
       </>
       {/* )} */}
 
