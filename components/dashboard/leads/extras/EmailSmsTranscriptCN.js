@@ -8,11 +8,46 @@ import {
   TypographyBodyMedium,
   TypographyCaption,
 } from '@/lib/typography'
-import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import {
+  formatFileSize,
+  sanitizeHTMLForEmailBody,
+  linkifyText,
+} from '@/utilities/textUtils'
+
+/** Unescape HTML entities in a string (for content that may be stored escaped). */
+function unescapeHtmlEntities(str) {
+  if (!str || typeof str !== 'string') return str
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = str
+    return tempDiv.textContent || tempDiv.innerText || str
+  }
+  return str
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+}
 
 const EmailSmsTranscriptCN = ({ item }) => {
-  // Logs only when this tile is expanded (ActivityTile renders children only when isExpanded)
-  // console.log("item for email sms transcript", item);
+  const isEmail = item.communicationType === 'email'
+  const rawContent = item.sentContent
+
+  // Preserve format: email with HTML → sanitized HTML; SMS or plain text → linkify (links + line breaks)
+  const displayHtml = (() => {
+    if (!rawContent || typeof rawContent !== 'string') return ''
+    let content = rawContent
+    if (content.includes('&lt;') || content.includes('&gt;') || content.includes('&amp;')) {
+      content = unescapeHtmlEntities(content)
+    }
+    if (isEmail && /<[^>]+>/.test(content)) {
+      return sanitizeHTMLForEmailBody(content)
+    }
+    return linkifyText(content)
+  })()
+
   return (
     <div className="flex flex-col items-start gap-2 text-sm">
       {item.sentSubject && (
@@ -26,36 +61,15 @@ const EmailSmsTranscriptCN = ({ item }) => {
       )}
       {item.sentContent && (
         <div className="flex flex-col items-start gap-2 w-full">
-          <TypographyCaption className="whitespace-pre-wrap break-words text-foreground leading-normal">
-            {(() => {
-              let content = item.sentContent
-              
-              if (!content || typeof content !== 'string') {
-                return ''
-              }
-              
-              // First, unescape any HTML entities (like &lt; becomes <)
-              if (content.includes('&lt;') || content.includes('&gt;') || content.includes('&amp;')) {
-                if (typeof document !== 'undefined') {
-                  const tempDiv = document.createElement('div')
-                  tempDiv.innerHTML = content
-                  content = tempDiv.textContent || tempDiv.innerText || content
-                } else {
-                  // SSR fallback: manually unescape
-                  content = content
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&quot;/g, '"')
-                    .replace(/&#39;/g, "'")
-                    .replace(/&nbsp;/g, ' ')
-                }
-              }
-              
-              // Now convert HTML to plain text (strips <p>, <div>, etc. tags)
-              return htmlToPlainText(content)
-            })()}
-          </TypographyCaption>
+          <div
+            className="prose prose-sm max-w-none break-words text-foreground leading-normal
+              [&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug
+              [&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc
+              [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
+              [&_li]:!my-[0.15em]
+              [&_a]:text-brand-primary [&_a]:underline hover:[&_a]:opacity-80"
+            dangerouslySetInnerHTML={{ __html: displayHtml }}
+          />
         </div>
       )}
       {item.template?.attachments?.length > 0 && (
