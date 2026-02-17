@@ -99,7 +99,7 @@ export const createTask = async (taskData, userId = null) => {
  * @param {Object} taskData - Task data to update
  * @returns {Promise<Object>} Updated task
  */
-export const updateTask = async (taskId, taskData,userId = null) => {
+export const updateTask = async (taskId, taskData, userId = null) => {
   try {
     if (userId) {
       taskData.userId = userId
@@ -131,16 +131,15 @@ export const updateTask = async (taskId, taskData,userId = null) => {
  */
 export const deleteTask = async (taskId, userId = null) => {
   try {
-    if (userId) {
-      path = path + `?userId=${userId}`
-    }
+
+    const url = `${Apis.deleteTask}/${taskId}${userId ? `?userId=${userId}` : ''}`
 
     const AuthToken = getAuthToken()
     if (!AuthToken) {
       throw new Error('Authentication token not found')
     }
 
-    const response = await axios.delete(`${Apis.deleteTask}/${taskId}`, {
+    const response = await axios.delete(url, {
       headers: {
         Authorization: `Bearer ${AuthToken}`,
         'Content-Type': 'application/json',
