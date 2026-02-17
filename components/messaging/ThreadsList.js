@@ -147,6 +147,7 @@ const ThreadsList = ({
 
   // Handler to trigger email upgrade modal
   const handleEmailUpgradeClick = React.useCallback(() => {
+    console.log("this is test change")
     setTriggerEmailUpgradeModal(prev => prev + 1)
   }, [])
 
