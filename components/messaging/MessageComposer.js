@@ -1852,7 +1852,7 @@ const MessageComposer = ({
                             <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
                               <span>
                                 {composerMode === 'email'
-                                  ? `${getCharCountFromHTML(composerData.emailBody)}/120 char`
+                                  ? `${getCharCountFromHTML(composerData.emailBody)} char`
                                   : `${composerData.smsBody.length}/${SMS_CHAR_LIMIT} char`
                                 }
                               </span>
