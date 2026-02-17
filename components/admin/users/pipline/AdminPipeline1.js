@@ -951,12 +951,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
       prev.map((item) =>
         item.lead?.id === leadId
           ? {
-              ...item,
-              lead: {
-                ...item.lead,
-                tags: (item.lead?.tags || []).filter((t) => t !== deletedTagName),
-              },
-            }
+            ...item,
+            lead: {
+              ...item.lead,
+              tags: (item.lead?.tags || []).filter((t) => t !== deletedTagName),
+            },
+          }
           : item
       )
     )
@@ -1880,8 +1880,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
   }
 
   //If lead stage is updated manually
-  function HandleUpdateStage(stage) {
+  async function HandleUpdateStage(stage) {
     // setShowDetailsModal(false);
+
+    if (selectedUser && SelectedPipeline) {
+      await getPipelines(SelectedPipeline)
+    }
 
     let selLead = selectedLeadsDetails
     selLead.stage = stage.id
@@ -1925,6 +1929,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
     setStagesList(SelectedPipeline.stages)
 
     setPipeLines(updatedPipelines)
+
+    // Refresh pipeline data from server so lead appears in correct stage column and counts are correct
   }
 
   function HandleLeadAssignedTeam(team, lead) {
@@ -4458,7 +4464,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           setShowDetailsModal={setShowDetailsModal}
           isPipeline={true}
           handleDelLead={handleDelLead}
-          leadStageUpdated={HandleUpdateStage}
+          leadStageUpdated={(stagePassed) => {HandleUpdateStage(stagePassed)}}
           leadAssignedTeam={HandleLeadAssignedTeam}
         />
       )}
