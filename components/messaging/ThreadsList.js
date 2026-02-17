@@ -250,9 +250,9 @@ const ThreadsList = ({
             setReduxUser={setReduxUser}
             requestFeature={emailCapability.showRequestFeature}
             externalTrigger={triggerEmailUpgradeModal > 0}
-            onModalClose={()=>{
-               setTriggerEmailUpgradeModal(0)
-              }}
+            onModalClose={() => {
+              setTriggerEmailUpgradeModal(0)
+            }}
             hideTag={true}
             selectedUser={selectedUser}
             featureTitle="Enable Emails"
@@ -264,9 +264,9 @@ const ThreadsList = ({
             setReduxUser={setReduxUser}
             requestFeature={smsCapability.showRequestFeature}
             externalTrigger={triggerSMSUpgradeModal > 0}
-            onModalClose={()=>{
-               setTriggerSMSUpgradeModal(0)
-              }}
+            onModalClose={() => {
+              setTriggerSMSUpgradeModal(0)
+            }}
             hideTag={true}
             selectedUser={selectedUser}
           />
@@ -337,11 +337,18 @@ const ThreadsList = ({
           )}
         </div>
 
-          <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
-            onClick={() => onOpenMessageSettings?.()}
-          >
-            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
-          </button>
+
+        <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          onClick={() => {
+            //show toast here to show the feature is coming soon
+            // toast.success('This feature is coming soon')
+            onOpenMessageSettings()
+            console.log("opening communication settings")
+
+          }}
+        >
+          <Image src="/communcationSetting.png" width={24} height={24} alt="Filter" />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
