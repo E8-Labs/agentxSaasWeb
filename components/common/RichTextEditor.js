@@ -15,6 +15,27 @@ import { Input } from '@/components/ui/input'
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false })
 
+/** Get plain text from HTML (for length and truncation). */
+function getPlainText(html) {
+  if (!html) return ''
+  if (typeof document === 'undefined') return ''
+  const div = document.createElement('div')
+  div.innerHTML = html
+  return (div.textContent || div.innerText || '').trim()
+}
+
+function getPlainTextLength(html) {
+  return getPlainText(html).length
+}
+
+/** Build a single-paragraph HTML string from plain text, escaped for safety. */
+function plainTextToHtml(text) {
+  if (typeof document === 'undefined') return `<p>${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</p>`
+  const div = document.createElement('div')
+  div.textContent = text
+  return `<p>${div.innerHTML}</p>`
+}
+
 const RichTextEditor = forwardRef(
   (
     {
@@ -26,6 +47,7 @@ const RichTextEditor = forwardRef(
       customToolbarElement = null, // Custom element to render on the right side of toolbar
       attachmentButton = null, // Attachment button to render right after toolbar buttons
       editorHeight = null, // Optional prop to set custom editor height
+      maxCharLimit = null, // Optional; when set, enforces max length (plain-text count)
     },
     ref,
   ) => {
@@ -113,6 +135,31 @@ const RichTextEditor = forwardRef(
       // Use Quill's HTML output directly to avoid reformatting loops
       const html = editor.getHTML()
       const outgoing = html && html.trim() ? html : '<p><br></p>'
+
+      // Enforce max character limit: truncate to first maxCharLimit chars (paste gets first 120, rest removed)
+      if (maxCharLimit != null && getPlainTextLength(outgoing) > maxCharLimit) {
+        const plain = getPlainText(outgoing)
+        const truncated = plain.slice(0, maxCharLimit)
+        const truncatedHtml = truncated ? plainTextToHtml(truncated) : '<p><br></p>'
+        lastHtmlRef.current = truncatedHtml
+        onChange(truncatedHtml)
+        const quill = quillRef.current?.getEditor?.()
+        if (quill?.clipboard) {
+          setTimeout(() => {
+            try {
+              quill.clipboard.dangerouslyPasteHTML(truncatedHtml, 'silent')
+              // Place cursor at end so typing doesn't appear at start (right-to-left)
+              const len = quill.getLength()
+              if (len > 0) {
+                quill.setSelection(Math.max(0, len - 1), 0)
+              }
+            } catch (_) {
+              // ignore if editor was unmounted
+            }
+          }, 0)
+        }
+        return
+      }
 
       // Avoid sending the same value repeatedly (prevents render loops when toggling formats)
       if (outgoing !== lastHtmlRef.current) {

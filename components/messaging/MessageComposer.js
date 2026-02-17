@@ -1730,6 +1730,7 @@ const MessageComposer = ({
                           ref={richTextEditorRef}
                           value={composerData.emailBody}
                           onChange={(html) => setComposerData((prev) => ({ ...prev, emailBody: html }))}
+                          maxCharLimit={120}
                           placeholder="Type your message..."
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
