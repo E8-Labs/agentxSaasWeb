@@ -115,6 +115,8 @@ const Pipeline1 = () => {
   const [pipelineMenuPillRect, setPipelineMenuPillRect] = useState(null)
   const pipelinesListContainerRef = useRef(null)
   const [pipelinesListPillRect, setPipelinesListPillRect] = useState(null)
+  const stageAnchorContainerRef = useRef(null)
+  const [stageAnchorPillRect, setStageAnchorPillRect] = useState(null)
 
   const [initialLoader, setInitialLoader] = useState(true)
   const [pipelineDetailLoader, setPipelineDetailLoader] = useState(false)
@@ -2378,7 +2380,7 @@ const Pipeline1 = () => {
                       paper: {
                         style: {
                           ...styles.mediumElevation,
-                          width: '176px',
+                          width: '194px',
                           marginLeft: '16px',
                         },
                         sx: {
@@ -2813,19 +2815,54 @@ const Pipeline1 = () => {
                             horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                           }}
                           PaperProps={{
-                            elevation: 0, // This will remove the shadow
-                            style: {
-                              boxShadow:
-                                '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
-                              borderRadius: '12px',
-                            },
+                            elevation: 0,
+                            style: styles.mediumElevation,
                           }}
                         >
-                          <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
-                            <div className="self-stretch flex flex-col justify-start items-start gap-2">
+                          <div
+                            className="bg-white inline-flex flex-col justify-start items-start gap-4"
+                            style={{
+                              ...styles.mediumElevation,
+                              paddingLeft: '2px',
+                              paddingRight: '2px',
+                              paddingTop: '12px',
+                              paddingBottom: '12px',
+                              width: '126px',
+                            }}
+                          >
+                            <div
+                              ref={stageAnchorContainerRef}
+                              className="relative self-stretch flex flex-col justify-start items-start gap-2 text-[14px]"
+                              onMouseLeave={() => setStageAnchorPillRect(null)}
+                            >
+                              {stageAnchorPillRect && (
+                                <div
+                                  className="absolute rounded-lg transition-all duration-200 ease-out pointer-events-none"
+                                  style={{
+                                    left: stageAnchorPillRect.left,
+                                    top: stageAnchorPillRect.top,
+                                    width: stageAnchorPillRect.width,
+                                    height: stageAnchorPillRect.height,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                    borderRadius: 8,
+                                  }}
+                                />
+                              )}
                               {SelectedPipeline?.pipelineType !== 'agency_use' && (
                                 <button
-                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
+                                  onMouseEnter={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect()
+                                    const container = stageAnchorContainerRef.current
+                                    if (!container) return
+                                    const cRect = container.getBoundingClientRect()
+                                    setStageAnchorPillRect({
+                                      left: rect.left - cRect.left,
+                                      top: rect.top - cRect.top,
+                                      width: rect.width,
+                                      height: rect.height,
+                                    })
+                                  }}
                                   onClick={() => {
                                     setShowRenamePopup(true)
                                     // //console.log;
@@ -2841,13 +2878,25 @@ const Pipeline1 = () => {
                                     width={16}
                                     alt="*"
                                   />
-                                  <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                  <div className="w-36 text-start justify-start text-black text-[14px] font-normal font-['Inter'] leading-normal">
                                     Rename
                                   </div>
                                 </button>
                               )}
                               <button
-                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
+                                onMouseEnter={(e) => {
+                                  const rect = e.currentTarget.getBoundingClientRect()
+                                  const container = stageAnchorContainerRef.current
+                                  if (!container) return
+                                  const cRect = container.getBoundingClientRect()
+                                  setStageAnchorPillRect({
+                                    left: rect.left - cRect.left,
+                                    top: rect.top - cRect.top,
+                                    width: rect.width,
+                                    height: rect.height,
+                                  })
+                                }}
                                 onClick={() => colorPickerRef.current.click()}
                               >
                                 <div
@@ -2860,7 +2909,7 @@ const Pipeline1 = () => {
                                   }}
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
-                                <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                <div className="justify-start text-start text-black text-[14px] font-normal font-['Inter'] leading-normal">
                                   Color
                                 </div>
                                 <div
@@ -2883,7 +2932,19 @@ const Pipeline1 = () => {
                               </button>
                               {showConfigureBtn && (
                                 <button
-                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
+                                  onMouseEnter={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect()
+                                    const container = stageAnchorContainerRef.current
+                                    if (!container) return
+                                    const cRect = container.getBoundingClientRect()
+                                    setStageAnchorPillRect({
+                                      left: rect.left - cRect.left,
+                                      top: rect.top - cRect.top,
+                                      width: rect.width,
+                                      height: rect.height,
+                                    })
+                                  }}
                                   onClick={() => {
                                     // Parse advancedConfig JSON string to get action and examples
                                     let parsedConfig = {}
@@ -2978,14 +3039,26 @@ const Pipeline1 = () => {
                                     width={18}
                                     alt="*"
                                   />
-                                  <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                  <div className="justify-start text-black text-[14px] font-normal font-['Inter'] leading-normal">
                                     Configure
                                   </div>
                                 </button>
                               )}
                               {!showDelBtn && SelectedPipeline?.pipelineType !== 'agency_use' && (
                                 <button
-                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
+                                  onMouseEnter={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect()
+                                    const container = stageAnchorContainerRef.current
+                                    if (!container) return
+                                    const cRect = container.getBoundingClientRect()
+                                    setStageAnchorPillRect({
+                                      left: rect.left - cRect.left,
+                                      top: rect.top - cRect.top,
+                                      width: rect.width,
+                                      height: rect.height,
+                                    })
+                                  }}
                                   onClick={() => {
                                     // console.log(
                                     //   "Selected stage is:",
@@ -3001,7 +3074,7 @@ const Pipeline1 = () => {
                                     width={18}
                                     alt="*"
                                   />
-                                  <div className="w-36 justify-start text-start text-red text-base font-normal font-['Inter'] leading-normal">
+                                  <div className="w-36 justify-start text-start text-red text-[14px] font-normal font-['Inter'] leading-normal">
                                     Delete
                                   </div>
                                 </button>

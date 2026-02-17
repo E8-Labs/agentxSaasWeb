@@ -109,7 +109,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
   return (
     <Badge
       variant="outline"
-      className="rounded w-auto border border-border/50 px-2 py-1 text-sm bg-black/5 hover:bg-black/5 flex items-center gap-1 group relative transition-colors shadow-sm min-w-0"
+      className="rounded-[8px] w-auto border border-border/50 pl-1 pr-0.5 py-1 text-sm bg-black/[0.02] hover:bg-black/[0.02] flex items-center gap-1 group relative transition-colors shadow-sm min-w-0"
     >
       {/*<TypographyCaption className="font-medium text-foreground">{from === "dashboardPipeline" ? label.length > 10 ? label.slice(0, 10) + "..." : label : label}</TypographyCaption>*/}
 
@@ -162,7 +162,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
               e.preventDefault()
             }}
             disabled={isLoading}
-            className="h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer opacity-0 group-hover:opacity-100"
+            className="h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
             aria-label={`Remove tag ${label}`}
             title="Remove tag from lead"
           >
