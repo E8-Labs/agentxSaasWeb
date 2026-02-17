@@ -20,6 +20,7 @@ import {
   HANDLING_OBJECTIONS_OPTIONS,
 } from '@/components/constants/constants'
 import { TypographyBody, TypographyH3Semibold, TypographyH4Semibold } from '@/lib/typography'
+import { cn } from '@/lib/utils'
 
 const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [loading, setLoading] = useState(false)
@@ -914,7 +915,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
             <div>
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">Message Settings</DialogTitle>
+                <DialogTitle className="text-2xl font-bold">AI Message Settings</DialogTitle>
               </DialogHeader>
 
               {loading ? (
@@ -991,7 +992,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           }
                         }
                       }}
-                      className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-brand-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-brand-primary"
+                      className={cn('h-10')}
                     />
                     {apiKeyError && (
                       <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
@@ -1032,14 +1033,22 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         />
                       </div>
                       {settings.replyDelayEnabled && (
-                        <Input
-                          type="number"
-                          placeholder="Set delay time (in seconds)"
-                          value={settings.replyDelaySeconds || ''}
-                          onChange={(e) => handleDelaySecondsChange(e.target.value)}
-                          min="0"
-                          className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-brand-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-brand-primary"
-                        />
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            placeholder="Set delay time (in seconds)"
+                            value={settings.replyDelaySeconds || ''}
+                            onChange={(e) => handleDelaySecondsChange(e.target.value)}
+                            min={0}
+                            className={cn('h-10 pr-10')}
+                          />
+                          <span
+                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+                            aria-hidden
+                          >
+                            sec
+                          </span>
+                        </div>
                       )}
                     </div>
                   )}
