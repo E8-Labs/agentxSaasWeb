@@ -1387,7 +1387,7 @@ const UserAddCard = ({
                       onClick={async (e) => {
                         e.preventDefault()
                         const { termsUrl } = await getPolicyUrls(selectedUser)
-                        window.open(termsUrl?.termsUrl, '_blank')
+                        window.open(termsUrl, '_blank')
                       }}
                       style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }}
                       className="ms-1 me-1"
