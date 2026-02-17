@@ -353,6 +353,7 @@ const ThreadsList = ({
             //show toast here to show the feature is coming soon
             // toast.success('This feature is coming soon')
             onOpenMessageSettings()
+            console.log("opening communication settings")
 
           }}
         >
