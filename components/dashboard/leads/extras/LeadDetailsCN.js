@@ -109,7 +109,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
   return (
     <Badge
       variant="outline"
-      className="rounded-[8px] w-auto border border-border/50 pl-1 pr-0.5 py-1 text-sm bg-black/[0.02] hover:bg-black/[0.02] flex items-center gap-1 group relative transition-colors shadow-sm min-w-0"
+      className="rounded-[8px] w-auto border border-border/50 pl-1 pr-0.5 py-1 text-[14px] text-black/80 bg-black/[0.02] hover:bg-black/[0.02] flex items-center gap-0.5 group relative transition-colors min-w-0"
     >
       {/*<TypographyCaption className="font-medium text-foreground">{from === "dashboardPipeline" ? label.length > 10 ? label.slice(0, 10) + "..." : label : label}</TypographyCaption>*/}
 
@@ -241,7 +241,13 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
 
   return (
     <Sheet open={!!showDetailsModal} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="p-0 sm:max-w-xl">
+      <SheetContent
+        side="right"
+        className="p-0 sm:max-w-xl"
+        onInteractOutside={(e) => {
+          if (e.target.closest?.('[data-agentation]')) e.preventDefault()
+        }}
+      >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b px-6 py-4">
             <TypographyTitle className="font-semibold">More Info</TypographyTitle>

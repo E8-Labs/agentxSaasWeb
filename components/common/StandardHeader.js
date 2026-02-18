@@ -84,7 +84,7 @@ function StandardHeader({
           {showFilters && onFilterClick && (
             <button
               onClick={onFilterClick}
-              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-[#efefef] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center"
+              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center"
               title="Filter"
             >
               {filterIcon || (
@@ -159,7 +159,7 @@ function StandardHeader({
                 setTaskBoardOpen(true)
                 window.dispatchEvent(new CustomEvent('hideSlider', { detail: { update: true } }))
               }}
-              className="mb-1 w-auto h-auto p-2 rounded-lg flex flex-row items-center justify-center gap-1.5 flex-shrink-0 relative bg-[#efefef] hover:opacity-70 transition-opacity active:scale-[0.98]"
+              className="mb-1 w-auto h-auto p-2 rounded-lg flex flex-row items-center justify-center gap-1.5 flex-shrink-0 relative bg-black/[0.02] hover:opacity-70 transition-opacity active:scale-[0.98]"
             >
               <Image 
                 src='/messaging/checkList.svg' 

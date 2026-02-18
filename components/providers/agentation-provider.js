@@ -38,7 +38,8 @@ export function AgentationProvider() {
   }
 
   return (
-    <Agentation
+    <div className="relative z-[9999]" data-agentation="toolbar" aria-hidden="false">
+      <Agentation
       onAnnotationAdd={(annotation) => {
         syncAnnotation('add', annotation)
       }}
@@ -52,5 +53,6 @@ export function AgentationProvider() {
         syncAnnotation('clear', null)
       }}
     />
+    </div>
   )
 }

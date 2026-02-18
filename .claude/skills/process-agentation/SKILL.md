@@ -86,3 +86,13 @@ The assistant can also accept the same feedback in chat (e.g. “In the pipeline
 - The dev server must be running for annotations to sync to the file
 - **NEVER use chrome-devtools or browser MCP tools unless the user explicitly requests it**
 - **"Medium elevation"** (when requested for a container/popover/paper): apply border `1px solid #eaeaea`, boxShadow `0 4px 30px rgba(0, 0, 0, 0.15)`, borderRadius `12px`. In Pipeline1.js use `styles.mediumElevation`; elsewhere define or reuse the same values.
+
+## User-defined modal shortcuts
+
+When the user says **"modal cleanup"** (or "apply modal cleanup"), apply the Add Pipeline modal’s layout and styling to the modal in focus:
+- Container: `w-[400px] flex flex-col gap-3 p-0 overflow-hidden`
+- Style: `backgroundColor: '#ffffff'`, medium elevation with `boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)'`, `border: '1px solid #eaeaea'`, `borderRadius: 12`
+
+When the user says **"animate modal"** (or "apply animate modal"), apply the Add Pipeline modal’s animation and backdrop to the modal in focus:
+- Backdrop: `backgroundColor: '#00000099'` (60% opacity), `timeout: 250`
+- Content entry: scale 0.95→1, opacity 0→1 over 0.25s with `cubic-bezier(0.34, 1.56, 0.64, 1)`

@@ -211,7 +211,7 @@ const TeamAssignDropdownCn = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className={`flex items-center ${withoutBorder ? '' : 'shadow-sm border px-4 py-2  border-muted/70 rounded-xl '} bg-white text-base font-semibold  focus:outline-none`}>
+        <button className={`flex items-center h-10 w-auto px-1 rounded-full hover:bg-black/[0.02] transition-colors ${withoutBorder ? '' : 'shadow-sm border border-muted/70 rounded-xl '} bg-white text-base font-semibold focus:outline-none`}>
           {selectedTeams.length > 0 ? (
             <div className="flex items-center -space-x-2">
               {selectedTeams

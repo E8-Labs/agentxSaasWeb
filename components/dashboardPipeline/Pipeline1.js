@@ -2729,7 +2729,7 @@ const Pipeline1 = () => {
                       <div
                         key={index}
                         style={{ width: '350px' }}
-                        className="flex flex-col items-start h-full min-h-full gap-4 bg-[#00000005] rounded-xl p-4"
+                        className="flex flex-col items-start h-full min-h-full gap-3 bg-[#00000005] rounded-xl p-4"
                       >
                         {/* Display the stage */}
                         <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">
@@ -2753,7 +2753,7 @@ const Pipeline1 = () => {
                             </span>
                             <div
                               // className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full bg-white flex items-center justify-center text-black w-6 h-6 min-w-6 min-h-6 shrink-0 px-1"
+                              className="rounded-full bg-white flex items-center justify-center text-black w-[42px] h-[42px] min-w-[42px] min-h-[42px] shrink-0 px-1"
                               style={{ ...styles.paragraph, fontSize: 14 }}
                             >
                               {/* {leadCounts[stage.id] ? (
@@ -2816,13 +2816,24 @@ const Pipeline1 = () => {
                           }}
                           PaperProps={{
                             elevation: 0,
-                            style: styles.mediumElevation,
+                            style: {
+                              borderRadius: 12,
+                              border: '1px solid #eaeaea',
+                              boxShadow: 'none',
+                            },
+                            sx: {
+                              boxShadow: 'none',
+                              border: '1px solid #eaeaea',
+                              borderRadius: 12,
+                            },
                           }}
                         >
                           <div
                             className="bg-white inline-flex flex-col justify-start items-start gap-4"
                             style={{
-                              ...styles.mediumElevation,
+                              borderRadius: 12,
+                              border: '1px solid #eaeaea',
+                              boxShadow: 'none',
                               paddingLeft: '2px',
                               paddingRight: '2px',
                               paddingTop: '12px',
@@ -3099,7 +3110,7 @@ const Pipeline1 = () => {
                               }}
                             >
                               <InfiniteScroll
-                                // className="mt-4"
+                                className="flex flex-col gap-[2px]"
                                 endMessage={
                                   <p
                                     style={{
@@ -3159,7 +3170,7 @@ const Pipeline1 = () => {
                                     key={leadIndex}
                                   >
                                     <div
-                                      className="border bg-[#ffffff] rounded-xl px-3 py-4 h-full"
+                                      className="border bg-[#ffffff] rounded-xl p-3 pb-0 h-full flex flex-col gap-0.5"
                                       style={{ border: "1px solid ##1515151A" }}
                                       onMouseEnter={() => {
                                         const latestLead = LeadsList.find(
@@ -3191,25 +3202,24 @@ const Pipeline1 = () => {
                                           }}
                                         >
                                           {/* Lead profile picture with initials fallback */}
-                                          <div>{getLeadProfileImage(lead.lead, 27, 27)}</div>
-                                          <div
-                                            style={{
-                                              position: "relative",
-                                              top: 10,
-                                              left: -27,
-                                              zIndex: 1000,
-                                            }}
-                                          >
-                                            {getAgentsListImage(
-                                              lead.agent?.agents[0]?.agentType ===
-                                                'outbound'
-                                                ? lead.agent?.agents[0]
-                                                : lead.agent?.agents[1] ? lead.agent?.agents[1] : lead.agent?.agents[0],
-                                              19,
-                                              19,
-                                            )}
+                                          <div className="relative">
+                                            <div className="p-[1px] hover:bg-black/[0.02] rounded-full w-[38px] h-[38px] flex items-center justify-center transition-colors">
+                                              {getLeadProfileImage(lead.lead, 36, 36)}
+                                            </div>
+                                            <div
+                                              className="absolute -bottom-0.5 -right-0.5 z-[1000] rounded-full border border-white flex items-center justify-center overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                                            >
+                                              {getAgentsListImage(
+                                                lead.agent?.agents[0]?.agentType ===
+                                                  'outbound'
+                                                  ? lead.agent?.agents[0]
+                                                  : lead.agent?.agents[1] ? lead.agent?.agents[1] : lead.agent?.agents[0],
+                                                22,
+                                                22,
+                                              )}
+                                            </div>
                                           </div>
-                                          <div style={{ ...styles.paragraph, fontSize: 16 }} className="-ms-8">
+                                          <div style={{ ...styles.paragraph, fontSize: 16, fontWeight: 500, letterSpacing: '-0.5px' }} className="ml-1 capitalize">
                                             {lead.lead.firstName}
                                           </div>
                                         </button>
@@ -3232,7 +3242,7 @@ const Pipeline1 = () => {
                                             />
                                           )}
                                       </div>
-                                      <div className="flex flex-row items-center justify-between w-full mt-2">
+                                      <div className="flex flex-row items-center justify-between w-full mt-2 min-h-10">
                                         {/* Loader only for this card's lead (array item), not selectedLeadsDetails */}
                                         {assignLoaderLeadId === lead.lead.id ? (
                                           <CircularProgress size={20} />
@@ -3357,7 +3367,7 @@ const Pipeline1 = () => {
                                         </div>
                                       )}
 
-                                      <div className="flex items-center flex-row gap-2 mt-2">
+                                      <div className="flex items-center flex-row gap-2 mt-2 pt-2 pb-3 border-t border-[#eaeaea]">
 
                                         <TagManagerCn
                                           tags={lead.lead.tags || []}
@@ -3434,69 +3444,71 @@ const Pipeline1 = () => {
             onClose={() => {
               setShowDeletePiplinePopup(false)
             }}
+            closeAfterTransition
             BackdropProps={{
-              timeout: 200,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
-                // //backdropFilter: "blur(20px)",
+                backgroundColor: '#00000099',
               },
             }}
           >
             <Box
-              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
-              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+              className="lg:w-5/12 sm:w-7/12 w-8/12"
+              sx={{
+                ...styles.modalsStyle,
+                '@keyframes addPipelineModalEntry': {
+                  from: { transform: 'scale(0.95) translateY(-55%)', opacity: 0 },
+                  to: { transform: 'scale(1) translateY(-55%)', opacity: 1 },
+                },
+                animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+              }}
             >
-              <div style={{ width: '100%' }}>
+              <div className="flex flex-row justify-center w-auto min-w-0">
                 <div
-                  className="max-h-[60vh] overflow-auto"
-                  style={{ scrollbarWidth: 'none' }}
+                  className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    ...styles.mediumElevation,
+                    boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                    borderRadius: 12,
+                  }}
                 >
-                  <div
-                    style={{
-                      width: '100%',
-                      direction: 'row',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {/* <div style={{ width: "20%" }} /> */}
-                    <div style={{ fontWeight: '500', fontSize: 17 }}>
+              <div className="flex flex-row justify-between h-auto py-3 px-4 w-full border-b" style={{ borderColor: '#eaeaea', borderWidth: '1px' }}>
+                    <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Delete Pipeline
                     </div>
-                    <div
-                      style={{
-                        direction: 'row',
-                        display: 'flex',
-                        justifyContent: 'end',
+                    <button
+                      onClick={() => {
+                        setShowDeletePiplinePopup(false)
                       }}
+                      className="outline-none"
                     >
-                      <button
-                        onClick={() => {
-                          setShowDeletePiplinePopup(false)
-                        }}
-                        className="outline-none"
-                      >
-                        <Image
-                          src={'/assets/crossIcon.png'}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
+                      <Image
+                        src={'/assets/cross.png'}
+                        height={14}
+                        width={14}
+                        alt="Close"
+                      />
+                    </button>
                   </div>
-
                   <div
-                    className="mt-6"
-                    style={{ fontWeight: '700', fontSize: 22 }}
+                    className="max-h-[60vh] overflow-auto px-4 py-3"
+                    style={{ scrollbarWidth: 'none' }}
                   >
-                    Are you sure you want to delete this pipeline?
-                  </div>
-                </div>
+                    <div
+                      className="mb-4"
+                      style={{ fontWeight: '700', fontSize: 18 }}
+                    >
+                      Are you sure you want to delete this pipeline?
+                    </div>
 
                 <div className="flex flex-row items-center justify-center gap-4 mt-6">
-                  <button className="w-1/2 mt-[13px]">Never mind</button>
+                  <button
+                        className="w-1/2 mt-[13px]"
+                        onClick={() => setShowDeletePiplinePopup(false)}
+                      >
+                        Never mind
+                      </button>
                   <div className="w-1/2">
                     {deletePipelineLoader ? (
                       <div className="flex flex-row items-center w-full mt-4">
@@ -3521,6 +3533,8 @@ const Pipeline1 = () => {
                   </div>
                 </div>
               </div>
+                </div>
+              </div>
             </Box>
           </Modal>
           {/* Code for add stage modal */}
@@ -3529,57 +3543,55 @@ const Pipeline1 = () => {
             onClose={() => {
               handleCloseAddStage()
             }}
+            closeAfterTransition
             BackdropProps={{
-              timeout: 100,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
-                // //backdropFilter: "blur(20px)",
+                backgroundColor: '#00000099',
               },
             }}
           >
             <Box
-              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+              className="lg:w-5/12 sm:w-7/12 w-8/12"
+              sx={{
+                ...styles.modalsStyle,
+                '@keyframes addPipelineModalEntry': {
+                  from: { transform: 'scale(0.95) translateY(-55%)', opacity: 0 },
+                  to: { transform: 'scale(1) translateY(-55%)', opacity: 1 },
+                },
+                animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+              }}
             >
-              <div style={{ width: '100%' }}>
-                <div>
-                  <div
-                    style={{
-                      width: '100%',
-                      direction: 'row',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {/* <div style={{ width: "20%" }} /> */}
-                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+              <div className="flex flex-row justify-center w-auto min-w-0">
+                <div
+                  className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    ...styles.mediumElevation,
+                    boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                    borderRadius: 12,
+                  }}
+                >
+                  <div className="flex flex-row justify-between h-auto py-3 px-4 w-full border-b" style={{ borderColor: '#eaeaea', borderWidth: '1px' }}>
+                    <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       {isEditingStage ? 'Configure Stage' : 'Add New Stage'}
                     </div>
-                    <div
-                      style={{
-                        direction: 'row',
-                        display: 'flex',
-                        justifyContent: 'end',
+                    <button
+                      onClick={() => {
+                        handleCloseAddStage()
                       }}
+                      className="outline-none"
                     >
-                      <button
-                        onClick={() => {
-                          handleCloseAddStage()
-                        }}
-                        className="outline-none"
-                      >
-                        <Image
-                          src={'/assets/crossIcon.png'}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
+                      <Image
+                        src={'/assets/cross.png'}
+                        height={14}
+                        width={14}
+                        alt="Close"
+                      />
+                    </button>
                   </div>
 
-                  <div>
+                  <div className="max-h-[60vh] overflow-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
                     <div
                       className="mt-4"
                       style={{
@@ -3970,7 +3982,6 @@ const Pipeline1 = () => {
                       </>
                     </div>
                   )}
-                </div>
 
                 <div className="w-full h-[80px]">
                   {
@@ -4023,6 +4034,7 @@ const Pipeline1 = () => {
                   }
                 </div>
               </div>
+            </div>
             </Box>
           </Modal>
           {/* Modal to Rename the Stage */}
@@ -4032,17 +4044,25 @@ const Pipeline1 = () => {
               setShowRenamePopup(false)
               handleCloseStagePopover()
             }}
+            closeAfterTransition
             BackdropProps={{
-              timeout: 100,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
-                //backdropFilter: "blur(20px)",
+                backgroundColor: '#00000099',
               },
             }}
           >
             <Box
               className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+              sx={{
+                ...styles.modalsStyle,
+                backgroundColor: 'white',
+                '@keyframes addPipelineModalEntry': {
+                  from: { transform: 'scale(0.95) translateY(-55%)', opacity: 0 },
+                  to: { transform: 'scale(1) translateY(-55%)', opacity: 1 },
+                },
+                animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+              }}
             >
               <div style={{ width: '100%' }}>
                 <div
@@ -4510,25 +4530,35 @@ const Pipeline1 = () => {
             }}
             closeAfterTransition
             BackdropProps={{
-              timeout: 1000,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
+                backgroundColor: '#00000099',
                 // ////backdropFilter: "blur(5px)",
               },
             }}
           >
-            <Box className="lg:w-5/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
-              <div className="flex flex-row justify-center w-full">
+            <Box
+              className="lg:w-5/12 sm:w-7/12 w-8/12"
+              sx={{
+                ...styles.modalsStyle,
+                '@keyframes addPipelineModalEntry': {
+                  from: { transform: 'scale(0.95) translateY(-55%)', opacity: 0 },
+                  to: { transform: 'scale(1) translateY(-55%)', opacity: 1 },
+                },
+                animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+              }}
+            >
+              <div className="flex flex-row justify-center w-auto min-w-0">
                 <div
-                  className="w-full"
+                  className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
                   style={{
                     backgroundColor: '#ffffff',
-                    padding: 20,
-                    borderRadius: '13px',
+                    ...styles.mediumElevation,
+                    boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
                   }}
                 >
-                  <div className="flex flex-row justify-between">
-                    <div style={{ fontWeight: '600', fontSize: 22 }}>
+                  <div className="flex flex-row justify-between h-auto py-3 px-4 w-full border-b" style={{ borderColor: '#eaeaea', borderWidth: '1px' }}>
+                    <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Add Pipeline
                     </div>
                     <button
@@ -4546,9 +4576,10 @@ const Pipeline1 = () => {
                       />
                     </button>
                   </div>
-                  <div className="w-full">
+                  <div className="w-full flex flex-col gap-2 px-4 py-3">
                     <div
-                      style={{ fontWeight: '500', fontSize: 15, marginTop: 10 }}
+                      className="w-full"
+                      style={{ fontWeight: '500', fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
                     >
                       Pipeline Name
                     </div>
@@ -4558,12 +4589,12 @@ const Pipeline1 = () => {
                       onChange={(e) => {
                         setNewPipelineTitle(e.target.value)
                       }}
-                      className="outline-none rounded-xl focus:ring-0 w-full mt-4 h-[50px]"
+                      className="outline-none rounded-[8px] focus:border focus:border-brand-primary w-full mt-4 h-[40px] px-3"
                       placeholder="Type Here"
                       style={{
                         border: '1px solid #00000020',
                         fontWeight: '500',
-                        fontSize: 15,
+                        fontSize: 14,
                       }}
                     />
 
@@ -4597,16 +4628,19 @@ const Pipeline1 = () => {
                                     </button>
                                 </div> */}
 
+                    </div>
+                  <div className="py-4 px-4 w-full">
                     {addPipelineLoader ? (
-                      <div className="w-full flex flex-row justify-center mt-12">
+                      <div className="w-full flex flex-row justify-center">
                         <CircularProgress size={30} />
                       </div>
                     ) : (
                       <button
-                        className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-12"
+                        className="w-full h-[40px] rounded-xl bg-brand-primary text-white px-3 active:scale-[0.98] transition-transform"
                         style={{
-                          fontWeight: '600',
-                          fontSize: 16.8,
+                          fontWeight: 500,
+                          fontSize: 14,
+                          boxShadow: '0 2px 8px rgba(121, 2, 223, 0.1)',
                         }}
                         onClick={() => {
                           handleCreatePipeline()
