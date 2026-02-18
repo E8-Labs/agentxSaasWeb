@@ -3504,7 +3504,7 @@ const Pipeline1 = () => {
 
                 <div className="flex flex-row items-center justify-center gap-4 mt-6">
                   <button
-                        className="w-1/2 h-[40px] px-3 rounded-lg outline-none"
+                        className="w-auto h-[40px] px-3 rounded-lg outline-none"
                         style={{
                           backgroundColor: '#efefef',
                           fontWeight: 500,
@@ -3514,14 +3514,14 @@ const Pipeline1 = () => {
                       >
                         Never mind
                       </button>
-                  <div className="w-1/2">
+                  <div className="w-auto">
                     {deletePipelineLoader ? (
-                      <div className="flex flex-row items-center w-full mt-4">
+                      <div className="flex flex-row items-center w-full">
                         <CircularProgress size={25} />
                       </div>
                     ) : (
                       <button
-                        className="h-[40px] px-3 outline-none bg-red w-full rounded-xl"
+                        className="h-[40px] px-3 outline-none bg-red w-auto rounded-xl"
                         style={{
                           color: 'white',
                           fontWeight: 500,
@@ -3566,12 +3566,13 @@ const Pipeline1 = () => {
             >
               <div className="flex flex-row justify-center w-auto min-w-0">
                 <div
-                  className="w-[500px] flex flex-col gap-3 p-0 overflow-hidden"
+                  className="w-[500px] flex flex-col gap-[1px] p-0 overflow-hidden transition-all duration-300 ease-out"
                   style={{
                     backgroundColor: '#ffffff',
                     ...styles.mediumElevation,
                     boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
                     borderRadius: 12,
+                    maxHeight: 550,
                   }}
                 >
                   <div className="flex flex-row justify-between h-auto py-3 px-4 w-full border-b bg-white" style={{ borderColor: '#eaeaea', borderWidth: '1px' }}>
@@ -3593,45 +3594,50 @@ const Pipeline1 = () => {
                     </button>
                   </div>
 
-                  <div className="max-h-[450px] overflow-auto" style={{ scrollbarWidth: 'none' }}>
-                  <div className="max-h-[60vh] overflow-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
-                    <div
-                      style={{
-                        fontWeight: '600',
-                        fontSize: 12,
-                        paddingBottom: 5,
-                      }}
-                    >
-                      Stage Title*
+                  <div className="h-[450px] overflow-auto pb-6" style={{ paddingBottom: 24 }}>
+                  <div className="max-h-[60vh] overflow-auto px-4 py-3 flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
+                    <div className="flex flex-col gap-2">
+                      <div
+                        style={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                          color: 'rgba(0, 0, 0, 0.8)',
+                          paddingBottom: 0,
+                        }}
+                      >
+                        Stage Title*
+                      </div>
+                      <input
+                        value={newStageTitle}
+                        onChange={(e) => {
+                          setNewStageTitle(e.target.value)
+                        }}
+                        placeholder="Enter stage title"
+                        className="outline-none bg-transparent w-full border border-black/[0.12] focus:outline-none focus:ring-0 rounded-lg h-[40px] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
+                        style={{ fontSize: 14 }}
+                      />
                     </div>
-                    <input
-                      value={newStageTitle}
-                      onChange={(e) => {
-                        setNewStageTitle(e.target.value)
-                      }}
-                      placeholder="Enter stage title"
-                      className="outline-none bg-transparent w-full border border-black/[0.12] focus:outline-none focus:ring-0 focus:border-brand-primary rounded-lg h-[40px]"
-                      style={{ fontSize: 14 }}
-                    />
-                    <div
-                      style={{
-                        marginTop: 20,
-                        fontWeight: '600',
-                        fontSize: 12,
-                        paddingBottom: 5,
-                      }}
-                    >
-                      color
+                    <div className="flex flex-col gap-2">
+                      <div
+                        style={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                          color: 'rgba(0, 0, 0, 0.8)',
+                          paddingBottom: 0,
+                        }}
+                      >
+                        color
+                      </div>
+                      <ColorPicker setStageColor={setStageColor} />
                     </div>
-                    <ColorPicker setStageColor={setStageColor} />
                   </div>
 
-                  <div className="text-brand-primary mt-4 h-[40px] flex items-center">
+                  <div className="text-brand-primary mt-4 h-[40px] flex items-center px-4">
                     <button
                       onClick={() => {
                         setShowAdvanceSettings(!showAdvanceSettings)
                       }}
-                      className="outline-none flex flex-row items-center gap-2"
+                      className="outline-none flex flex-row items-center gap-2 w-full h-[40px]"
                     >
                       <div style={{ fontWeight: '600', fontSize: 15 }}>
                         Advanced Settings
@@ -3646,25 +3652,27 @@ const Pipeline1 = () => {
 
                   {showAdvanceSettings && (
                     <div
-                      className="max-h-[40vh] overflow-auto px-4"
-                      style={{ scrollbarWidth: 'none' }}
+                      className="overflow-visible px-4 flex flex-col gap-3"
+                      style={{ height: 'auto', maxHeight: 'none' }}
                     >
-                      <div className="flex flex-row items-center gap-2 mt-4">
-                        <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
-                          Action
-                        </p>
-                        {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                        <Image
-                          src="/svgIcons/infoIcon.svg"
-                          height={20}
-                          width={20}
-                          alt="*"
-                          style={{ filter: 'brightness(0)' }}
-                          aria-owns={open ? 'mouse-over-popover' : undefined}
-                          aria-haspopup="true"
-                          onMouseEnter={handlePopoverOpen}
-                          onMouseLeave={handlePopoverClose}
-                        />
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-row items-center gap-2">
+                          <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
+                            Action
+                          </p>
+                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                          <Image
+                            src="/svgIcons/infoIcon.svg"
+                            height={20}
+                            width={20}
+                            alt="*"
+                            style={{ filter: 'brightness(0)', opacity: 0.6 }}
+                            aria-owns={open ? 'mouse-over-popover' : undefined}
+                            aria-haspopup="true"
+                            onMouseEnter={handlePopoverOpen}
+                            onMouseLeave={handlePopoverClose}
+                          />
+                        </div>
 
                         <Popover
                           id="mouse-over-popover"
@@ -3682,10 +3690,8 @@ const Pipeline1 = () => {
                             horizontal: 'left',
                           }}
                           PaperProps={{
-                            elevation: 1, // This will remove the shadow
-                            style: {
-                              boxShadow: '0px 10px 10px rgba(0, 0, 0, 0.1)',
-                            },
+                            elevation: 0,
+                            style: styles.mediumElevation,
                           }}
                           onClose={handlePopoverClose}
                           disableRestoreFocus
@@ -3706,41 +3712,25 @@ const Pipeline1 = () => {
                             </div>
                           </div>
                         </Popover>
-                      </div>
-                      {/*
-                        <input
-                          className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                        <textarea
+                          className="min-h-[50px] px-2 outline-none focus:ring-0 w-full rounded-lg border border-black/[0.12] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
                           placeholder="Ex: Does the human express interest getting a CMA "
                           style={{
-                            border: "1px solid #00000020",
-                            fontWeight: "500",
-                            fontSize: 15,
+                            fontWeight: '500',
+                            fontSize: 14,
+                            color: 'rgba(0, 0, 0, 0.8)',
+                            resize: 'vertical',
+                            maxHeight: '200px',
                           }}
                           value={action}
                           onChange={(e) => {
-                            setAction(e.target.value);
+                            setAction(e.target.value)
                           }}
+                          rows={2}
                         />
-                      */}
+                      </div>
 
-                      <textarea
-                        className="min-h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
-                        placeholder="Ex: Does the human express interest getting a CMA "
-                        style={{
-                          border: '1px solid #00000020',
-                          fontWeight: '500',
-                          fontSize: 15,
-                          resize: 'vertical',
-                          maxHeight: '200px',
-                        }}
-                        value={action}
-                        onChange={(e) => {
-                          setAction(e.target.value)
-                        }}
-                        rows={2}
-                      />
-
-                      <div className="flex flex-row items-center gap-2 mt-4">
+                      <div className="flex flex-row items-center gap-2">
                         <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
                           Sample Answers
                         </p>
@@ -3750,7 +3740,7 @@ const Pipeline1 = () => {
                           height={20}
                           width={20}
                           alt="*"
-                          style={{ filter: 'brightness(0)' }}
+                          style={{ filter: 'brightness(0)', opacity: 0.6 }}
                           aria-owns={open ? 'mouse-over-popover2' : undefined}
                           aria-haspopup="true"
                           onMouseEnter={(event) => {
@@ -3765,19 +3755,20 @@ const Pipeline1 = () => {
                       </div>
 
                       <div
-                        className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                        className="max-h-[30vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: 'none' }}
                       >
                         {inputs.map((input, index) => (
                           <div
                             key={input.id}
-                            className="w-full flex flex-row items-center gap-4 mt-4"
+                            className="w-full flex flex-row items-center gap-3"
                           >
                             <input
-                              className="border border-black/[0.12] rounded-lg px-3 outline-none focus:outline-none focus:ring-0 focus:border-brand-primary h-[40px] w-[95%]"
+                              className="border border-black/[0.12] rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[40px] w-[95%] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
                               style={{
                                 fontWeight: '500',
                                 fontSize: 14,
+                                color: 'rgba(0, 0, 0, 0.8)',
                               }}
                               placeholder={input.placeholder}
                               // placeholder={`
@@ -3812,28 +3803,29 @@ const Pipeline1 = () => {
                       {/*!isEditingStage && (
                       )*/}
                       <>
-                        <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
-                            Assign to
-                          </p>
-                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                          <Image
-                            src="/svgIcons/infoIcon.svg"
-                            height={20}
-                            width={20}
-                            alt="*"
-                            style={{ filter: 'brightness(0)' }}
-                            aria-owns={open ? 'mouse-over-popover2' : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={(event) => {
-                              setAssigntoActionInfoEl(event.currentTarget)
-                            }}
-                            onMouseLeave={handlePopoverClose}
-                          />
-                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-row items-center gap-2">
+                            <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
+                              Assign to
+                            </p>
+                            {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                            <Image
+                              src="/svgIcons/infoIcon.svg"
+                              height={20}
+                              width={20}
+                              alt="*"
+                              style={{ filter: 'brightness(0)', opacity: 0.6 }}
+                              aria-owns={open ? 'mouse-over-popover2' : undefined}
+                              aria-haspopup="true"
+                              onMouseEnter={(event) => {
+                                setAssigntoActionInfoEl(event.currentTarget)
+                              }}
+                              onMouseLeave={handlePopoverClose}
+                            />
+                          </div>
 
-                        <Popover
-                          id="mouse-over-popover2"
+                          <Popover
+                            id="mouse-over-popover2"
                           sx={{
                             pointerEvents: 'none',
                           }}
@@ -3848,10 +3840,8 @@ const Pipeline1 = () => {
                             horizontal: 'left',
                           }}
                           PaperProps={{
-                            elevation: 1, // This will remove the shadow
-                            style: {
-                              boxShadow: '0px 10px 10px rgba(0, 0, 0, 0.1)',
-                            },
+                            elevation: 0,
+                            style: styles.mediumElevation,
                           }}
                           onClose={handlePopoverClose}
                           disableRestoreFocus
@@ -3872,20 +3862,9 @@ const Pipeline1 = () => {
                               </p>
                             </div>
                           </div>
-                        </Popover>
+                          </Popover>
 
-                        {/* <button
-                    className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
-                    style={{ border: "1px solid #00000020" }}
-                  >
-                    <div>Select team member</div>
-                    <div>
-                      <CaretDown size={20} weight="bold" />
-                    </div>
-                  </button> */}
-
-                        <div className="mt-2">
-                          <FormControl fullWidth>
+                          <FormControl fullWidth className="mt-0">
                             <Select
                               id="demo-simple-select"
                               value={assignToMember || ''} // Default to empty string when no value is selected
@@ -3902,27 +3881,37 @@ const Pipeline1 = () => {
                                 return selected
                               }}
                               sx={{
-                                border: '1px solid #00000020', // Default border
+                                border: '1px solid #00000020',
+                                borderRadius: '8px',
+                                minHeight: 40,
+                                height: 40,
                                 '&:hover': {
-                                  border: '1px solid #00000020', // Same border on hover
+                                  border: '1px solid #00000020',
                                 },
                                 '& .MuiOutlinedInput-notchedOutline': {
-                                  border: 'none', // Remove the default outline
+                                  border: 'none',
                                 },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none',
                                 },
                                 '&.MuiSelect-select': {
-                                  py: 0, // Optional padding adjustments
+                                  py: 0,
                                 },
                               }}
                               MenuProps={{
                                 PaperProps: {
                                   style: {
-                                    maxHeight: '30vh', // Limit dropdown height
-                                    overflow: 'auto', // Enable scrolling in dropdown
+                                    ...styles.mediumElevation,
+                                    maxHeight: '30vh',
+                                    overflow: 'auto',
                                     scrollbarWidth: 'none',
+                                  },
+                                  sx: {
+                                    '@keyframes slideUp20': {
+                                      from: { transform: 'translateY(20px)', opacity: 0 },
+                                      to: { transform: 'translateY(0)', opacity: 1 },
+                                    },
+                                    animation: 'slideUp20 0.2s ease-out',
                                   },
                                 },
                               }}
@@ -3939,7 +3928,8 @@ const Pipeline1 = () => {
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem
-                                    className="flex flex-row items-center gap-2"
+                                    disableRipple
+                                    className="flex flex-row items-center gap-2 text-[14px]"
                                     key={index}
                                     value={item?.invitedUser?.name}
                                   >
@@ -3951,8 +3941,8 @@ const Pipeline1 = () => {
                                                             /> */}
                                     {getAgentsListImage(
                                       item?.invitedUser,
-                                      42,
-                                      42,
+                                      24,
+                                      24,
                                     )}
                                     {item.invitedUser?.name}
                                     {item.id === -1 && (
@@ -3967,18 +3957,18 @@ const Pipeline1 = () => {
                           </FormControl>
                         </div>
 
-                        <p
-                          className="mt-2"
-                          style={{ fontWeight: '500', fontSize: 15 }}
-                        >
-                          Tags
-                        </p>
-
-                        <div
-                          className="h-[45px] p-2 rounded-lg  items-center gap-2"
-                          style={{ border: '0px solid #00000030' }}
-                        >
-                          <TagsInput setTags={setTagsValue} tags={tagsValue} />
+                        <div className="flex flex-col gap-2">
+                          <p
+                            style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}
+                          >
+                            Tags
+                          </p>
+                          <div
+                            className="h-[40px] min-h-[40px] p-2 rounded-lg items-center gap-2"
+                            style={{ border: '0px solid #00000030' }}
+                          >
+                            <TagsInput setTags={setTagsValue} tags={tagsValue} controlHeight={40} />
+                          </div>
                         </div>
                       </>
                     </div>
@@ -3986,26 +3976,28 @@ const Pipeline1 = () => {
 
                   </div>
 
-                <div className="w-full h-[80px]">
+                <div className="w-full h-auto py-4 px-4">
                   {
                     //inputs.filter(input => input.value.trim()).length === 3 &&
                     canProceed() ? (
-                      <div>
+                      <div className="m-0">
                         {addStageLoader ? (
-                          <div className="flex flex-row iems-center justify-center w-full mt-4">
+                          <div className="flex flex-row items-center justify-center w-full m-0">
                             <CircularProgress size={25} />
                           </div>
                         ) : (
                           <button
-                            className="mt-4 outline-none"
+                            className="outline-none w-full transition-transform active:scale-[0.98]"
                             style={{
                               backgroundColor: 'hsl(var(--brand-primary))',
                               color: 'white',
-                              height: '50px',
-                              borderRadius: '10px',
+                              height: 40,
+                              minHeight: 40,
+                              borderRadius: 8,
                               width: '100%',
                               fontWeight: 600,
-                              fontSize: '20',
+                              fontSize: 14,
+                              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.12)',
                             }}
                             onClick={
                               isEditingStage
@@ -4020,15 +4012,16 @@ const Pipeline1 = () => {
                     ) : (
                       <button
                         disabled={true}
-                        className="mt-4 outline-none"
+                        className="outline-none w-full"
                         style={{
                           backgroundColor: '#00000020',
                           color: 'black',
-                          height: '50px',
-                          borderRadius: '10px',
+                          height: 40,
+                          minHeight: 40,
+                          borderRadius: 8,
                           width: '100%',
                           fontWeight: 600,
-                          fontSize: '20',
+                          fontSize: 14,
                         }}
                       >
                         Add
@@ -4098,7 +4091,7 @@ const Pipeline1 = () => {
                   </div>
 
                   <div
-                    className="max-h-[60vh] overflow-auto flex flex-col gap-3 px-4"
+                    className="max-h-[60vh] overflow-auto flex flex-col gap-3 px-4 pb-4"
                     style={{ scrollbarWidth: 'none' }}
                   >
                     <div className="flex flex-col gap-2">
@@ -4122,20 +4115,22 @@ const Pipeline1 = () => {
                         style={{ fontSize: 14 }}
                       />
                     </div>
-                    <div
-                      style={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                        color: 'rgba(0, 0, 0, 0.8)',
-                        paddingBottom: 5,
-                      }}
-                    >
-                      color
+                    <div className="flex flex-col gap-2">
+                      <div
+                        style={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                          color: 'rgba(0, 0, 0, 0.8)',
+                          paddingBottom: 0,
+                        }}
+                      >
+                        color
+                      </div>
+                      <ColorPicker
+                        setStageColor={setUpdateStageColor}
+                        stageColor={updateStageColor}
+                      />
                     </div>
-                    <ColorPicker
-                      setStageColor={setUpdateStageColor}
-                      stageColor={updateStageColor}
-                    />
                   </div>
 
                   <div className="p-4">
@@ -4656,39 +4651,45 @@ const Pipeline1 = () => {
             }}
             closeAfterTransition
             BackdropProps={{
-              timeout: 1000,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
-                // ////backdropFilter: "blur(5px)",
+                backgroundColor: '#00000099',
               },
             }}
           >
             <Box
-              className="lg:w-6/12 sm:w-8/12 w-10/12"
+              className="w-[500px] max-w-[90vw]"
               sx={{
                 height: 'auto',
                 bgcolor: 'transparent',
-                p: 2,
+                p: 0,
                 mx: 'auto',
                 my: '50vh',
                 transform: 'translateY(-50%)',
                 borderRadius: 2,
                 border: 'none',
                 outline: 'none',
+                '@keyframes addPipelineModalEntry': {
+                  from: { transform: 'translateY(-50%) scale(0.95)', opacity: 0 },
+                  to: { transform: 'translateY(-50%) scale(1)', opacity: 1 },
+                },
+                animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
               }}
             >
               <div className="flex flex-row justify-center w-full h-[100%]">
                 <div
-                  className="w-full h-[100%]"
+                  className="w-full h-[100%] flex flex-col gap-px p-0 overflow-hidden"
                   style={{
                     backgroundColor: '#ffffff',
-                    padding: 20,
                     borderRadius: '13px',
                     maxHeight: '90svh',
                   }}
                 >
-                  <div className="flex flex-row justify-between h-[10%] w-full">
-                    <div style={{ fontWeight: '600', fontSize: 22 }}>
+                  <div
+                    className="flex flex-row justify-between h-auto w-full m-0 py-3 px-4 border-b"
+                    style={{ borderColor: '#eaeaea', borderWidth: '1px' }}
+                  >
+                    <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Rearrange Stages
                     </div>
                     <CloseBtn
@@ -4701,7 +4702,7 @@ const Pipeline1 = () => {
                   </div>
 
                   <div
-                    className="w-full h-[80%] overflow-auto"
+                    className="w-full h-auto overflow-auto m-0 px-4"
                     style={{ scrollbarWidth: 'none' }}
                   >
                     <RearrangeStages
@@ -4730,16 +4731,16 @@ const Pipeline1 = () => {
                     />
                   </div>
 
-                  <div className="w-full h-[10%]">
+                  <div className="w-full h-auto m-0 p-4">
                     {reorderStageLoader ? (
-                      <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
+                      <div className="w-full flex flex-row items-center h-[50px] justify-center m-0">
                         <CircularProgress size={25} />
                       </div>
                     ) : (
-                      <div>
+                      <div className="m-0">
                         <button
                           disabled={!showReorderBtn}
-                          className="w-full bg-brand-primary text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
+                          className="w-full bg-brand-primary text-white h-[40px] rounded-lg text-sm font-medium m-0"
                           onClick={() => {
                             handleReorder()
                           }}

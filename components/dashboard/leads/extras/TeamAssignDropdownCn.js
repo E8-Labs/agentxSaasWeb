@@ -267,7 +267,7 @@ const TeamAssignDropdownCn = ({
             return (
               <DropdownMenuItem
                 key={team.id}
-                className="gap-2 px-2 justify-end pl-8 text-brand-primary hover:text-brand-primary cursor-pointer"
+                className="gap-2 px-2 justify-end pl-8 text-brand-primary hover:text-brand-primary cursor-pointer text-[14px]"
                 onSelect={(e) => {
                   e.preventDefault()
                   handleTeamClick(team)
@@ -285,19 +285,19 @@ const TeamAssignDropdownCn = ({
                   )}
                 </span>
                 
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex items-center gap-2 flex-1 text-[14px]">
                   {team.avatar ? (
                     <img
                       src={team.avatar}
                       alt={team.label}
-                      className="h-6 w-6 rounded-full object-cover"
+                      className="w-6 h-6 min-w-[24px] min-h-[24px] rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-bold">
+                    <div className="flex w-6 h-6 min-w-[24px] min-h-[24px] items-center justify-center rounded-full bg-muted text-xs font-bold">
                       {team.label?.[0]?.toUpperCase() || '?'}
                     </div>
                   )}
-                  <TypographyBody className="text-black">{team.label}</TypographyBody>
+                  <TypographyBody className="text-black text-[14px]">{team.label}</TypographyBody>
                 </div>
               </DropdownMenuItem>
             )

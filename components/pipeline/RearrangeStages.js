@@ -405,7 +405,7 @@ const RearrangeStages = ({
       fontWeight: '700',
     },
     inputStyle: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '500',
     },
     dropdownMenu: {
@@ -474,6 +474,7 @@ const RearrangeStages = ({
             }}
           >
             <div
+              className="flex flex-col gap-1"
               style={{
                 height: '60svh',
                 overflow: 'auto',
@@ -494,14 +495,15 @@ const RearrangeStages = ({
                       {...provided.dragHandleProps}
                       style={{
                         ...provided.draggableProps.style,
-                        // border: "1px solid red",
-                        borderRadius: '10px',
-                        // padding: "15px",
-                        marginBottom: '10px',
+                        borderRadius: 0,
+                        height: 'auto',
+                        margin: 0,
                         backgroundColor: '#fff',
-                        // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        paddingTop: 12,
+                        paddingBottom: 12,
+                        borderBottom: '1px solid #eaeaea',
                       }}
-                      className="flex flex-row items-start overflow-auto"
+                      className="flex flex-row items-start"
                     >
                       <div className="w-[5%]">
                         <div className="outline-none mt-2">
@@ -515,18 +517,18 @@ const RearrangeStages = ({
                           )}
                         </div>
                       </div>
-                      <div className="border w-[95%] rounded-xl p-3 px-4">
+                      <div className="border w-[95%] rounded-xl p-3 px-4 h-auto">
                         <div className="flex flex-row items-center justify-between">
-                          <div>
+                          <div className="flex flex-col gap-3">
                             <div style={styles.inputStyle}>
                               {item.stageTitle}
                             </div>
                             <div
-                              className="mt-3"
+                              className="mt-0"
                               style={{
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: '500',
-                                color: '#00000060',
+                                color: 'rgba(0, 0, 0, 0.8)',
                               }}
                             >
                               {item.description}
