@@ -1173,7 +1173,7 @@ function EmailTempletePopup({
             {/* Header - Unified design for both cases */}
             <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
               <h2 className="text-xl font-semibold">
-                {!isLeadEmail && (addRow || isEditing) ? 'Email Template' : 'New Message'}
+                {!isLeadEmail && (addRow || isEditing) ? 'Email Template' : 'New Email'}
               </h2>
               <CloseBtn onClick={onClose} />
             </div>
