@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Link2, Loader2 } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUserLocalData } from '@/components/constants/constants'
@@ -19,6 +20,12 @@ import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 
 
@@ -167,6 +174,10 @@ const MessageComposer = ({
   handleFileChange,
   handleSendMessage,
   sendingMessage,
+  onSendSocialMessage,
+  hasFacebookConnection = false,
+  hasInstagramConnection = false,
+  onConnectionSuccess,
   onOpenAuthPopup,
   onCommentAdded,
 }) => {
@@ -199,6 +210,13 @@ const MessageComposer = ({
   const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
   const [showDeleteEmailModal, setShowDeleteEmailModal] = useState(false)
   const [accountToDelete, setAccountToDelete] = useState(null)
+  const [socialContent, setSocialContent] = useState('')
+  const [sendingSocialMessage, setSendingSocialMessage] = useState(false)
+  const [connectModalOpen, setConnectModalOpen] = useState(false)
+  const [connectPlatform, setConnectPlatform] = useState('facebook')
+  const [connectForm, setConnectForm] = useState({ externalId: '', accessToken: '', displayName: '' })
+  const [connectSubmitting, setConnectSubmitting] = useState(false)
+  const [connectingOAuth, setConnectingOAuth] = useState(false)
 
   // Variables state
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -277,6 +295,12 @@ const MessageComposer = ({
       setUserData(user)
     }
   }, [])
+
+  // When selecting a Messenger/Instagram thread, switch to the corresponding tab
+  useEffect(() => {
+    if (selectedThread?.threadType === 'messenger') setComposerMode('facebook')
+    else if (selectedThread?.threadType === 'instagram') setComposerMode('instagram')
+  }, [selectedThread?.id, selectedThread?.threadType])
 
   // Smooth height transition when switching tabs
   useEffect(() => {
@@ -1078,6 +1102,121 @@ const MessageComposer = ({
     }
   }
 
+  const isSocialThread = selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram'
+  const isFacebookMode = composerMode === 'facebook'
+  const isInstagramMode = composerMode === 'instagram'
+  // Use same full composer UI for social threads (no minimal "Reply in Messenger" only form)
+  const sendableSocial = (isFacebookMode && selectedThread?.threadType === 'messenger' && hasFacebookConnection) ||
+    (isInstagramMode && selectedThread?.threadType === 'instagram' && hasInstagramConnection)
+  const showSocialComposer = false
+
+  const handleSendSocial = async (e) => {
+    e?.preventDefault()
+    const text = (socialContent || '').trim()
+    if (!text || !selectedThread?.id || !onSendSocialMessage) return
+    if (sendingSocialMessage) return
+    setSendingSocialMessage(true)
+    try {
+      await onSendSocialMessage(selectedThread.id, text)
+      setSocialContent('')
+      toast.success('Message sent')
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to send')
+    } finally {
+      setSendingSocialMessage(false)
+    }
+  }
+
+  const openConnectModal = (platform) => {
+    setConnectPlatform(platform)
+    setConnectForm({ externalId: '', accessToken: '', displayName: '' })
+    setConnectModalOpen(true)
+  }
+
+  const connectWithFacebookOAuth = async () => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please sign in to connect')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : ''
+    try {
+      setConnectingOAuth(true)
+      let url = Apis.socialFacebookAuthorize
+      const params = new URLSearchParams()
+      if (redirectUrl) params.set('redirectUrl', redirectUrl)
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      if (params.toString()) url += `?${params.toString()}`
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.data?.url) {
+        window.location.href = res.data.url
+      } else {
+        toast.error(res.data?.message || 'Could not start Facebook connect')
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Could not start Facebook connect')
+    } finally {
+      setConnectingOAuth(false)
+    }
+  }
+
+  const handleConnectSubmit = async (e) => {
+    e?.preventDefault()
+    const externalId = (connectForm.externalId || '').trim()
+    const accessToken = (connectForm.accessToken || '').trim()
+    if (!externalId || !accessToken) {
+      toast.error('Page/Account ID and Access Token are required')
+      return
+    }
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      let url = Apis.socialConnections
+      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      setConnectSubmitting(true)
+      await axios.post(url, {
+        platform: connectPlatform,
+        externalId,
+        accessToken,
+        displayName: (connectForm.displayName || '').trim() || undefined,
+      }, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      toast.success(connectPlatform === 'facebook' ? 'Facebook Page connected' : 'Instagram account connected')
+      setConnectModalOpen(false)
+      onConnectionSuccess?.()
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to connect')
+    } finally {
+      setConnectSubmitting(false)
+    }
+  }
+
+  if (showSocialComposer) {
+    return (
+      <div className="mx-4 mb-4 rounded-lg bg-white border border-gray-200 px-4 py-3">
+        <form onSubmit={handleSendSocial} className="flex gap-2">
+          <Input
+            value={socialContent}
+            onChange={(e) => setSocialContent(e.target.value)}
+            placeholder={`Reply in ${selectedThread?.threadType === 'messenger' ? 'Messenger' : 'Instagram'}...`}
+            className="flex-1 min-w-0"
+            disabled={sendingSocialMessage}
+          />
+          <Button type="submit" disabled={!socialContent.trim() || sendingSocialMessage}>
+            {sendingSocialMessage ? <CircularProgress size={18} color="inherit" sx={{ display: 'block' }} /> : 'Send'}
+          </Button>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-4 mb-0 rounded-lg bg-white">
       <div className="px-4 py-2">
@@ -1144,6 +1283,24 @@ const MessageComposer = ({
                 setIsExpanded(true)
               }}
             />
+            <MessageComposerTabCN
+              icon={MessageSquare}
+              label="Facebook"
+              isActive={composerMode === 'facebook'}
+              onClick={() => {
+                setComposerMode('facebook')
+                setIsExpanded(true)
+              }}
+            />
+            <MessageComposerTabCN
+              icon={MessageSquare}
+              label="Instagram"
+              isActive={composerMode === 'instagram'}
+              onClick={() => {
+                setComposerMode('instagram')
+                setIsExpanded(true)
+              }}
+            />
           </div>
 
           <div className="flex items-center gap-2">
@@ -1191,9 +1348,80 @@ const MessageComposer = ({
           </div>
         </div>
 
-        {!isExpanded ? (
+        {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
+          <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3">
+            {isFacebookMode && !hasFacebookConnection ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Connect a Facebook Page to send Messenger messages.
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
+                    Connect with Facebook
+                  </Button>
+                  <span className="text-xs text-muted-foreground">or</span>
+                  <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('facebook')} disabled={connectingOAuth}>
+                    Connect manually
+                  </Button>
+                </div>
+              </div>
+            ) : isFacebookMode && hasFacebookConnection && selectedThread?.threadType !== 'messenger' ? (
+              <p className="text-sm text-muted-foreground">
+                Select a Messenger conversation from the list to reply here.
+              </p>
+            ) : isInstagramMode && !hasInstagramConnection ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Connect an Instagram account to send messages.
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
+                    Connect with Instagram
+                  </Button>
+                  <span className="text-xs text-muted-foreground">or</span>
+                  <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('instagram')} disabled={connectingOAuth}>
+                    Connect manually
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Select an Instagram conversation from the list to reply here.
+              </p>
+            )}
+          </div>
+        ) : !isExpanded ? (
           // Collapsed view - show text input with send button
-          (<div className="mt-2 flex items-center gap-2">
+          sendableSocial ? (
+            <div className="mt-2 flex items-center gap-2">
+              <Input
+                value={socialContent}
+                onChange={(e) => setSocialContent(e.target.value)}
+                onFocus={() => setIsExpanded(true)}
+                onClick={() => setIsExpanded(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    if (socialContent?.trim() && !sendingSocialMessage) handleSendSocial(e)
+                  }
+                }}
+                placeholder={`Reply in ${selectedThread?.threadType === 'messenger' ? 'Messenger' : 'Instagram'}...`}
+                className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                style={{ height: '42px' }}
+              />
+              <button
+                onClick={handleSendSocial}
+                disabled={!socialContent?.trim() || sendingSocialMessage}
+                className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                style={{ height: '42px' }}
+              >
+                {sendingSocialMessage ? <CircularProgress size={20} color="inherit" sx={{ display: 'block' }} /> : <PaperPlaneTilt size={20} weight="fill" />}
+              </button>
+            </div>
+          ) : (
+          <div className="mt-2 flex items-center gap-2">
             <Input
               value={
                 composerMode === 'sms'
@@ -1252,7 +1480,8 @@ const MessageComposer = ({
             >
               <PaperPlaneTilt size={20} weight="fill" />
             </button>
-          </div>)
+          </div>
+          )
         ) : (
           <div
             ref={composerContentRef}
@@ -1263,8 +1492,49 @@ const MessageComposer = ({
               willChange: isTransitioning ? 'height' : 'auto',
             }}
           >
-            {/* Comment Tab */}
-            {composerMode === 'comment' ? (
+            {/* Messenger/Instagram expanded: same-style editor + send */}
+            {sendableSocial ? (
+              <div className="mt-2">
+                <div className="mb-2">
+                  <label className="text-sm font-semibold text-foreground">
+                    {selectedThread?.threadType === 'messenger' ? 'Reply in Messenger' : 'Reply in Instagram'}
+                  </label>
+                </div>
+                <div className="border border-brand-primary/20 rounded-lg bg-white">
+                  <textarea
+                    value={socialContent}
+                    onChange={(e) => setSocialContent(e.target.value)}
+                    placeholder={`Type your message...`}
+                    className="w-full min-h-[100px] p-3 rounded-lg resize-y border-0 focus:outline-none focus:ring-0 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        if (socialContent?.trim() && !sendingSocialMessage) handleSendSocial(e)
+                      }
+                    }}
+                  />
+                  <div className="flex justify-end p-2 border-t border-gray-100">
+                    <button
+                      onClick={handleSendSocial}
+                      disabled={!socialContent?.trim() || sendingSocialMessage}
+                      className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {sendingSocialMessage ? (
+                        <>
+                          <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
+                          <span className="text-sm">Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-sm">Send</span>
+                          <PaperPlaneTilt size={16} weight="fill" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : composerMode === 'comment' ? (
               <div className="mt-2">
                 <div className="mb-2">
                   <label className="text-sm font-semibold text-foreground">Comment</label>
@@ -2105,6 +2375,57 @@ const MessageComposer = ({
           </div>
         </Box>
       </Modal>
+
+      {/* Connect Facebook / Instagram modal */}
+      <Dialog open={connectModalOpen} onOpenChange={(open) => !connectSubmitting && setConnectModalOpen(open)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {connectPlatform === 'facebook' ? 'Connect Facebook Page' : 'Connect Instagram Account'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleConnectSubmit} className="space-y-4 mt-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {connectPlatform === 'facebook' ? 'Page ID' : 'Instagram Business Account ID'}
+              </label>
+              <Input
+                value={connectForm.externalId}
+                onChange={(e) => setConnectForm((f) => ({ ...f, externalId: e.target.value }))}
+                placeholder={connectPlatform === 'facebook' ? 'Page ID from Meta Developer Console' : 'IG Business Account ID'}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
+              <Input
+                type="password"
+                value={connectForm.accessToken}
+                onChange={(e) => setConnectForm((f) => ({ ...f, accessToken: e.target.value }))}
+                placeholder="Paste token from Meta Developer Console"
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Display name (optional)</label>
+              <Input
+                value={connectForm.displayName}
+                onChange={(e) => setConnectForm((f) => ({ ...f, displayName: e.target.value }))}
+                placeholder="e.g. Page name or @handle"
+                className="w-full"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setConnectModalOpen(false)} disabled={connectSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={connectSubmitting}>
+                {connectSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

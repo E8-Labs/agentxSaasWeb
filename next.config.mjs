@@ -2,6 +2,12 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  // Proxy API to backend when using single ngrok (tunnel to frontend only)
+  async rewrites() {
+    const backend =
+      process.env.NEXT_PUBLIC_BACKEND_ORIGIN || "http://localhost:8002";
+    return [{ source: "/api/:path*", destination: `${backend}/api/:path*` }];
+  },
   images: {
     remotePatterns: [
       {

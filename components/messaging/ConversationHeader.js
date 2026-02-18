@@ -13,9 +13,11 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import { useRouter } from 'next/navigation'
 import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { X, Link2 } from 'lucide-react'
+import LinkToLeadModal from '@/components/messaging/LinkToLeadModal'
 
-function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, selectedUser, onThreadUpdated }) {
+function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, selectedUser, onThreadUpdated, onThreadLinked }) {
     const router = useRouter()
     
     // Stage management state
@@ -52,6 +54,12 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     // Lead settings state
     const [leadSettings, setLeadSettings] = useState(null)
     const [loadingLeadSettings, setLoadingLeadSettings] = useState(false)
+
+    // Link to lead (dummy Messenger/Instagram thread)
+    const [showLinkToLeadModal, setShowLinkToLeadModal] = useState(false)
+    const isDummySocialThread =
+      selectedThread?.lead?.source === 'messenger_dummy' ||
+      selectedThread?.lead?.source === 'instagram_dummy'
 
     // Helper function to show snackbar messages
     const showSnackbar = (message, type = SnackbarTypes.Success) => {
@@ -697,12 +705,14 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 <TypographyBody 
                     className="cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => {
-                        if (selectedThread?.leadId) {
+                        if (selectedThread?.leadId && !isDummySocialThread) {
                             setShowLeadDetailsModal(true)
                         }
                     }}
                 >
-                    {selectedThread.lead?.firstName || 'Unknown Lead'}
+                    {isDummySocialThread
+                      ? (selectedThread?.threadType === 'messenger' ? 'Messenger (unlinked)' : 'Instagram (unlinked)')
+                      : (selectedThread.lead?.firstName || 'Unknown Lead')}
                 </TypographyBody>
 
 
@@ -734,6 +744,19 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 {/* Stage and Team Assignment Controls */}
                 <div className="flex flex-row items-center gap-3">
                     
+
+                    {/* Link to lead (dummy Messenger/Instagram only) */}
+                    {isDummySocialThread && onThreadLinked && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5"
+                            onClick={() => setShowLinkToLeadModal(true)}
+                        >
+                            <Link2 className="h-3.5 w-3.5" />
+                            Link to lead
+                        </Button>
+                    )}
 
                     {/* Assign Dropdown (Team Members - Radio Buttons) */}
                     {selectedThread.leadId && (
@@ -810,6 +833,18 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     hideDelete={true}
                 />
             )}
+
+            {/* Link to lead modal (dummy social threads) */}
+            <LinkToLeadModal
+                open={showLinkToLeadModal}
+                onClose={() => setShowLinkToLeadModal(false)}
+                threadId={selectedThread?.id}
+                selectedUser={selectedUser}
+                onLinked={(linkedThread) => {
+                    setShowLinkToLeadModal(false)
+                    onThreadLinked?.(linkedThread)
+                }}
+            />
         </>
     )
 }
