@@ -20,16 +20,14 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
   return (
     <div
       style={{
-        backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+        backgroundColor: 'rgba(0, 0, 0, 0.05)',
       }}
-      className={cn(height, "flex flex-row items-center justify-center gap-2 rounded-full", className)}
+      className={cn(height, "flex flex-row items-center justify-center gap-2", roundedness, className)}
     >
       {options.map((option) => {
-        console.log("toggle group action btn option is",value)
-        console.log("toggle group action btn option is compare su",option.value)
         const isSelected = value === option.value
         const Icon = option.icon
-        
+
         return (
           <button
             key={option.value}
@@ -37,9 +35,8 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
             className={cn(
               "px-2 py-1 transition-colors",
               isSelected ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
-              isSelected ? "rounded-full" : "rounded-none",
-              // isSelected && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
-              isSelected && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+              isSelected ? 'rounded-lg' : 'rounded-none',
+              isSelected && 'shadow-[0_2px_4px_rgba(0,0,0,0.06)]'
             )}
           >
             <TypographyBody className="flex items-center gap-2">
