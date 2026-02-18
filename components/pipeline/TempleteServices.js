@@ -216,21 +216,22 @@ export const updateTemplete = async (data, tempId) => {
 
 export const deleteTemplete = async (tempData) => {
   try {
-    let token = AuthToken()
-    let path = `${Apis.templets}/${tempData?.templateId}`
+    let token = AuthToken();
+    const templateId = tempData?.templateId || tempData?.id;
+    let path = `${Apis.templets}/${templateId}`
 
     if (tempData?.selectedUser) {
       path = path + '?userId=' + tempData?.selectedUser?.id
     }
 
     console.log("path in deleteTemplete is", path);
+    // return
 
     const response = await axios.delete(path, {
       headers: {
         Authorization: 'Bearer ' + token,
       },
     })
-
     // On 2xx, always return success so UI never shows "failed" when backend succeeded
     if (response?.status >= 200 && response?.status < 300) {
       const data = response?.data

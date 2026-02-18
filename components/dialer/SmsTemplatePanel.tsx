@@ -134,7 +134,7 @@ export default function SmsTemplatePanel({
             }}
           >
             <Plus size={14} className="mr-0" />
-            Add SMS
+            Add Text
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">

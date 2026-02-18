@@ -2706,7 +2706,7 @@ const Pipeline1 = () => {
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
                                 <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                  Color
+                                  Branding Color
                                 </div>
                                 <div
                                   style={{
@@ -4077,15 +4077,16 @@ const Pipeline1 = () => {
                       </div>
                     ) : (
                       <button
-                        className="mt-10 outline-none bg-purple"
+                        // className="mt-10 outline-none bg-purple"
+                        className="mt-10 bg-brand-primary text-white hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
                         disabled={!assignNextStage}
                         style={{
-                          color: 'white',
+                          // color: 'white',
                           height: '50px',
                           borderRadius: '10px',
                           width: '100%',
-                          backgroundColor: !assignNextStage && '#00000020',
-                          color: !assignNextStage ? '#000000' : '#fff',
+                          // backgroundColor: !assignNextStage && '#00000020',
+                          // color: !assignNextStage ? '#000000' : '#fff',
                           fontWeight: 600,
                           fontSize: '20',
                         }}
