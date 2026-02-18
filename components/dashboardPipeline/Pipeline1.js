@@ -12,6 +12,7 @@ import {
   Menu,
   MenuItem,
   Modal,
+  Paper,
   Popover,
   Select,
   Snackbar,
@@ -117,6 +118,8 @@ const Pipeline1 = () => {
   const [pipelinesListPillRect, setPipelinesListPillRect] = useState(null)
   const stageAnchorContainerRef = useRef(null)
   const [stageAnchorPillRect, setStageAnchorPillRect] = useState(null)
+  const teamSelectListRef = useRef(null)
+  const [teamSelectPillRect, setTeamSelectPillRect] = useState(null)
 
   const [initialLoader, setInitialLoader] = useState(true)
   const [pipelineDetailLoader, setPipelineDetailLoader] = useState(false)
@@ -2753,7 +2756,7 @@ const Pipeline1 = () => {
                             </span>
                             <div
                               // className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full bg-white flex items-center justify-center text-black w-[42px] h-[42px] min-w-[42px] min-h-[42px] shrink-0 px-1"
+                              className="rounded-full bg-white flex items-center justify-center text-black w-6 h-6 min-w-6 min-h-6 shrink-0 px-1"
                               style={{ ...styles.paragraph, fontSize: 14 }}
                             >
                               {/* {leadCounts[stage.id] ? (
@@ -3496,45 +3499,43 @@ const Pipeline1 = () => {
                     style={{ scrollbarWidth: 'none' }}
                   >
                     <div
-                      className="mb-4"
                       style={{ fontWeight: 400, fontSize: 14 }}
                     >
                       Are you sure you want to delete this pipeline?
                     </div>
-
-                <div className="flex flex-row items-center justify-center gap-4 mt-6">
-                  <button
-                        className="w-auto h-[40px] px-3 rounded-lg outline-none"
-                        style={{
-                          backgroundColor: '#efefef',
-                          fontWeight: 500,
-                          fontSize: 14,
-                        }}
-                        onClick={() => setShowDeletePiplinePopup(false)}
-                      >
-                        Never mind
-                      </button>
-                  <div className="w-auto">
-                    {deletePipelineLoader ? (
-                      <div className="flex flex-row items-center w-full">
-                        <CircularProgress size={25} />
-                      </div>
-                    ) : (
-                      <button
-                        className="h-[40px] px-3 outline-none bg-red w-auto rounded-xl"
-                        style={{
-                          color: 'white',
-                          fontWeight: 500,
-                          fontSize: 14,
-                        }}
-                        onClick={handleDeletePipeline}
-                      >
-                        Yes! Delete
-                      </button>
-                    )}
                   </div>
-                </div>
-              </div>
+                  <div className="flex flex-row items-center justify-between py-4 px-4">
+                    <button
+                      className="w-auto h-[40px] px-3 rounded-lg outline-none"
+                      style={{
+                        backgroundColor: '#efefef',
+                        fontWeight: 500,
+                        fontSize: 14,
+                      }}
+                      onClick={() => setShowDeletePiplinePopup(false)}
+                    >
+                      Never mind
+                    </button>
+                    <div className="w-auto">
+                      {deletePipelineLoader ? (
+                        <div className="flex flex-row items-center w-full">
+                          <CircularProgress size={25} />
+                        </div>
+                      ) : (
+                        <button
+                          className="h-[40px] px-3 outline-none bg-red w-auto rounded-xl"
+                          style={{
+                            color: 'white',
+                            fontWeight: 500,
+                            fontSize: 14,
+                          }}
+                          onClick={handleDeletePipeline}
+                        >
+                          Yes! Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </Box>
@@ -3899,6 +3900,13 @@ const Pipeline1 = () => {
                                 },
                               }}
                               MenuProps={{
+                                MenuListProps: {
+                                  sx: {
+                                    position: 'relative',
+                                    paddingLeft: 8,
+                                    paddingRight: 8,
+                                  },
+                                },
                                 PaperProps: {
                                   style: {
                                     ...styles.mediumElevation,
@@ -3913,6 +3921,33 @@ const Pipeline1 = () => {
                                     },
                                     animation: 'slideUp20 0.2s ease-out',
                                   },
+                                  component: (paperProps) => {
+                                    const { children: paperChildren, ...rest } = paperProps
+                                    return (
+                                      <Paper {...rest}>
+                                        <div
+                                          ref={teamSelectListRef}
+                                          style={{ position: 'relative' }}
+                                          onMouseLeave={() => setTeamSelectPillRect(null)}
+                                        >
+                                          {teamSelectPillRect && (
+                                            <div
+                                              className="absolute rounded-lg transition-all duration-200 ease-out pointer-events-none"
+                                              style={{
+                                                left: teamSelectPillRect.left,
+                                                top: teamSelectPillRect.top,
+                                                width: teamSelectPillRect.width,
+                                                height: teamSelectPillRect.height,
+                                                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                                borderRadius: 8,
+                                              }}
+                                            />
+                                          )}
+                                          {paperChildren}
+                                        </div>
+                                      </Paper>
+                                    )
+                                  },
                                 },
                               }}
                             >
@@ -3926,29 +3961,47 @@ const Pipeline1 = () => {
                         </MenuItem> */}
 
                               {myTeamList.map((item, index) => {
+                                const name = item?.invitedUser?.name
+                                const isSelected = name === assignToMember
                                 return (
                                   <MenuItem
                                     disableRipple
-                                    className="flex flex-row items-center gap-2 text-[14px]"
+                                    className={`flex flex-row items-center gap-2 text-[14px] ${isSelected ? 'text-brand-primary' : ''}`}
+                                    sx={{ fontSize: 14 }}
                                     key={index}
-                                    value={item?.invitedUser?.name}
+                                    value={name}
+                                    onMouseEnter={(e) => {
+                                      const rect = e.currentTarget.getBoundingClientRect()
+                                      const container = teamSelectListRef.current
+                                      if (!container) return
+                                      const cRect = container.getBoundingClientRect()
+                                      setTeamSelectPillRect({
+                                        left: rect.left - cRect.left,
+                                        top: rect.top - cRect.top,
+                                        width: rect.width,
+                                        height: rect.height,
+                                      })
+                                    }}
                                   >
-                                    {/* <Image
-                                                              src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
-                                                              width={35}
-                                                              height={35}
-                                                              alt="*"
-                                                            /> */}
                                     {getAgentsListImage(
                                       item?.invitedUser,
                                       24,
                                       24,
                                     )}
-                                    {item.invitedUser?.name}
+                                    <span className={isSelected ? 'text-brand-primary' : ''}>
+                                      {item.invitedUser?.name}
+                                    </span>
                                     {item.id === -1 && (
                                       <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                                         Admin
                                       </div>
+                                    )}
+                                    {isSelected && (
+                                      <Check
+                                        size={16}
+                                        className="ml-auto flex-shrink-0 text-brand-primary"
+                                        style={{ color: 'hsl(var(--brand-primary))' }}
+                                      />
                                     )}
                                   </MenuItem>
                                 )
@@ -4678,7 +4731,7 @@ const Pipeline1 = () => {
             >
               <div className="flex flex-row justify-center w-full h-[100%]">
                 <div
-                  className="w-full h-[100%] flex flex-col gap-px p-0 overflow-hidden"
+                  className="w-full h-[600px] flex flex-col gap-px p-0 overflow-hidden"
                   style={{
                     backgroundColor: '#ffffff',
                     borderRadius: '13px',
