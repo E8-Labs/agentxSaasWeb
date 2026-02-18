@@ -5010,9 +5010,9 @@ const Pipeline1 = () => {
             onClose={() => setShowFilterModal(false)}
             closeAfterTransition
             BackdropProps={{
-              timeout: 1000,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
+                backgroundColor: '#00000099',
               },
             }}
           >
@@ -5030,19 +5030,24 @@ const Pipeline1 = () => {
                 outline: 'none',
                 scrollbarWidth: 'none',
                 overflow: 'hidden',
+                '@keyframes addPipelineModalEntry': {
+                  from: { transform: 'scale(0.95) translateY(-55%)', opacity: 0 },
+                  to: { transform: 'scale(1) translateY(-55%)', opacity: 1 },
+                },
+                animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
               }}
             >
-              <div className="flex flex-col w-full">
+              <div className="flex flex-row justify-center w-full">
                 <div
-                  className="w-full rounded-[13px] overflow-hidden"
+                  className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
                   style={{
                     backgroundColor: '#ffffff',
-                    padding: 20,
-                    paddingInline: 30,
-                    borderRadius: '13px',
+                    ...styles.mediumElevation,
+                    boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                    borderRadius: 12,
                   }}
                 >
-                  <div className="flex flex-row items-center justify-between mb-4">
+                  <div className="flex flex-row items-center justify-between px-4 pt-3 pb-0">
                     <div style={{ fontWeight: '700', fontSize: 22 }}>
                       Filter
                     </div>
@@ -5050,7 +5055,7 @@ const Pipeline1 = () => {
                   </div>
 
                   <div
-                    className="mt-4"
+                    className="px-4"
                     style={{
                       maxHeight: '400px',
                       overflowY: 'auto',
@@ -5092,10 +5097,10 @@ const Pipeline1 = () => {
                     )}
                   </div>
 
-                  <div className="w-full mt-4">
+                  <div className="w-full px-4 pb-3">
                     <button
                       onClick={handleApplyFilter}
-                      className="bg-purple h-[50px] rounded-xl text-white w-full"
+                      className="bg-purple h-[50px] rounded-xl text-white w-full mt-0"
                       style={{
                         fontWeight: '600',
                         fontSize: 16,
