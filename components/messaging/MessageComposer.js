@@ -1105,9 +1105,11 @@ const MessageComposer = ({
   const isSocialThread = selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram'
   const isFacebookMode = composerMode === 'facebook'
   const isInstagramMode = composerMode === 'instagram'
-  // Use same full composer UI for social threads (no minimal "Reply in Messenger" only form)
-  const sendableSocial = (isFacebookMode && selectedThread?.threadType === 'messenger' && hasFacebookConnection) ||
-    (isInstagramMode && selectedThread?.threadType === 'instagram' && hasInstagramConnection)
+  // Thread is replyable via Messenger if it's a messenger thread or has receiverMessengerPsid (e.g. merged SMS thread)
+  const canReplyMessenger = (selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid) && hasFacebookConnection
+  const canReplyInstagram = (selectedThread?.threadType === 'instagram' || !!selectedThread?.receiverInstagramPsid) && hasInstagramConnection
+  const sendableSocial = (isFacebookMode && canReplyMessenger) || (isInstagramMode && canReplyInstagram)
+  const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
   const showSocialComposer = false
 
   const handleSendSocial = async (e) => {
@@ -1205,7 +1207,7 @@ const MessageComposer = ({
           <Input
             value={socialContent}
             onChange={(e) => setSocialContent(e.target.value)}
-            placeholder={`Reply in ${selectedThread?.threadType === 'messenger' ? 'Messenger' : 'Instagram'}...`}
+            placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
             className="flex-1 min-w-0"
             disabled={sendingSocialMessage}
           />
@@ -1366,7 +1368,7 @@ const MessageComposer = ({
                   </Button>
                 </div>
               </div>
-            ) : isFacebookMode && hasFacebookConnection && selectedThread?.threadType !== 'messenger' ? (
+            ) : isFacebookMode && hasFacebookConnection && !canReplyMessenger ? (
               <p className="text-sm text-muted-foreground">
                 Select a Messenger conversation from the list to reply here.
               </p>
@@ -1407,7 +1409,7 @@ const MessageComposer = ({
                     if (socialContent?.trim() && !sendingSocialMessage) handleSendSocial(e)
                   }
                 }}
-                placeholder={`Reply in ${selectedThread?.threadType === 'messenger' ? 'Messenger' : 'Instagram'}...`}
+                placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
                 className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
                 style={{ height: '42px' }}
               />
@@ -1497,7 +1499,7 @@ const MessageComposer = ({
               <div className="mt-2">
                 <div className="mb-2">
                   <label className="text-sm font-semibold text-foreground">
-                    {selectedThread?.threadType === 'messenger' ? 'Reply in Messenger' : 'Reply in Instagram'}
+                    {isMessengerReply ? 'Reply in Messenger' : 'Reply in Instagram'}
                   </label>
                 </div>
                 <div className="border border-brand-primary/20 rounded-lg bg-white">
