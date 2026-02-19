@@ -44,7 +44,23 @@ const isDevelopment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Product
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat, onGenerateCallSummaryDrafts, selectedLead, leadName, hasAiKey: hasAiKeyProp }) => {
+const SystemMessage = ({
+  message,
+  getAgentAvatar,
+  selectedThread,
+  onReadTranscript,
+  onOpenMessageSettings,
+  onOpenAiChat,
+  onGenerateCallSummaryDrafts,
+  selectedLead,
+  leadName,
+  hasAiKey: hasAiKeyProp,
+  allowAIEmailAndText = false,
+  shouldShowAllowAiEmailAndTextUpgrade = false,
+  shouldShowAiEmailAndTextRequestFeature = false,
+  onShowUpgrade,
+  onShowRequestFeature,
+}) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
   const [aiActionInput, setAiActionInput] = useState('')
@@ -374,103 +390,149 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                       onCopyCallId={handleCopyCallId}
                       onReadTranscript={handleReadTranscript}
                       bottomRightContent={
-                        isDevelopment ? (
-                          hasAiKey === true ? (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors">
-                                  <Image
-                                    src="/otherAssets/starsIcon2.png"
-                                    height={14}
-                                    width={14}
-                                    alt="AI"
-                                  />
-                                  <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
-                                  <ChevronDown className="h-3 w-3" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="min-w-[140px]">
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setAiActionType('email')
-                                    setAiActionInput('')
-                                  }}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
-                                  <Mail className="h-4 w-4" />
-                                  <span>Email</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setAiActionType('text')
-                                    setAiActionInput('')
-                                  }}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
-                                  <MessageSquareDot />
-                                  <span>Text</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    if (typeof onOpenAiChat === 'function') {
-                                      onOpenAiChat({
-                                        message,
-                                        callData,
-                                        onPlayRecording: handlePlayRecording,
-                                        onCopyCallId: handleCopyCallId,
-                                        onReadTranscript: handleReadTranscript,
-                                      })
-                                    }
-                                  }}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
-                                  <MessagesSquare className="h-4 w-4" />
-                                  <span>Chat</span>
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          ) : hasAiKey === false ? (
-                            <HoverCard openDelay={200} closeDelay={100}>
-                              <HoverCardTrigger asChild>
-                                <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
-                                  <Image
-                                    src="/otherAssets/starsIcon2.png"
-                                    height={14}
-                                    width={14}
-                                    alt="AI"
-                                  />
-                                  <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
-                                  <ChevronDown className="h-3 w-3" />
-                                </button>
-                              </HoverCardTrigger>
-                              <HoverCardContent align="end" className="w-auto">
-                                <div className="flex flex-col gap-3">
-                                  <p className="text-sm font-medium text-foreground">API key required</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    Add an AI provider API key to use AI actions.
-                                  </p>
-                                  <Button
-                                    size="sm"
-                                    className="w-full"
-                                    onClick={() => {
-                                      if (typeof onOpenMessageSettings === 'function') {
-                                        onOpenMessageSettings()
-                                      }
-                                    }}
-                                  >
-                                    Add API key
-                                  </Button>
-                                </div>
-                              </HoverCardContent>
-                            </HoverCard>
-                          ) : (
-                            <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground opacity-70 cursor-default" disabled>
-                              <Image src="/otherAssets/starsIcon2.png" height={14} width={14} alt="AI" />
+                        // When feature is not in plan: show Upgrade or Request Feature
+                        !allowAIEmailAndText &&
+                        (shouldShowAiEmailAndTextRequestFeature ||
+                          shouldShowAllowAiEmailAndTextUpgrade) ? (
+                          shouldShowAiEmailAndTextRequestFeature ? (
+                            <button
+                              type="button"
+                              className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+                              onClick={() => {
+                                if (typeof onShowRequestFeature === 'function') {
+                                  onShowRequestFeature()
+                                }
+                              }}
+                            >
+                              <Image
+                                src="/otherAssets/starsIcon2.png"
+                                height={14}
+                                width={14}
+                                alt="AI"
+                              />
                               <span>AI Action</span>
                               <ChevronDown className="h-3 w-3" />
+                              <span className="ml-1 text-brand-primary">Request Feature</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+                              onClick={() => {
+                                if (typeof onShowUpgrade === 'function') {
+                                  onShowUpgrade()
+                                }
+                              }}
+                            >
+                              <Image
+                                src="/otherAssets/starsIcon2.png"
+                                height={14}
+                                width={14}
+                                alt="AI"
+                              />
+                              <span>AI Action</span>
+                              <ChevronDown className="h-3 w-3" />
+                              <span className="ml-1 text-brand-primary">Upgrade</span>
                             </button>
                           )
-                        ) : null
+                        ) : allowAIEmailAndText && hasAiKey === true ? (
+                          // Feature available and AI key present: full AI action dropdown
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors">
+                                <Image
+                                  src="/otherAssets/starsIcon2.png"
+                                  height={14}
+                                  width={14}
+                                  alt="AI"
+                                />
+                                <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
+                                <ChevronDown className="h-3 w-3" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="min-w-[140px]">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setAiActionType('email')
+                                  setAiActionInput('')
+                                }}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <Mail className="h-4 w-4" />
+                                <span>Email</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setAiActionType('text')
+                                  setAiActionInput('')
+                                }}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <MessageSquareDot />
+                                <span>Text</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  if (typeof onOpenAiChat === 'function') {
+                                    onOpenAiChat({
+                                      message,
+                                      callData,
+                                      onPlayRecording: handlePlayRecording,
+                                      onCopyCallId: handleCopyCallId,
+                                      onReadTranscript: handleReadTranscript,
+                                    })
+                                  }
+                                }}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <MessagesSquare className="h-4 w-4" />
+                                <span>Chat</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ) : allowAIEmailAndText && hasAiKey === false ? (
+                          // Feature available but no AI key: show tooltip to add API key
+                          <HoverCard openDelay={200} closeDelay={100}>
+                            <HoverCardTrigger asChild>
+                              <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
+                                <Image
+                                  src="/otherAssets/starsIcon2.png"
+                                  height={14}
+                                  width={14}
+                                  alt="AI"
+                                />
+                                <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
+                                <ChevronDown className="h-3 w-3" />
+                              </button>
+                            </HoverCardTrigger>
+                            <HoverCardContent align="end" className="w-auto">
+                              <div className="flex flex-col gap-3">
+                                <p className="text-sm font-medium text-foreground">API key required</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Add an AI provider API key to use AI actions.
+                                </p>
+                                <Button
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => {
+                                    if (typeof onOpenMessageSettings === 'function') {
+                                      onOpenMessageSettings()
+                                    }
+                                  }}
+                                >
+                                  Add API key
+                                </Button>
+                              </div>
+                            </HoverCardContent>
+                          </HoverCard>
+                        ) : (
+                          // Loading (hasAiKey null) or no feature: disabled AI action
+                          <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground opacity-70 cursor-default" disabled>
+                            <Image src="/otherAssets/starsIcon2.png" height={14} width={14} alt="AI" />
+                            <span>AI Action</span>
+                            <ChevronDown className="h-3 w-3" />
+                          </button>
+                        )
                       }
                     />
 

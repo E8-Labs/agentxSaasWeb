@@ -104,8 +104,8 @@ const EmailBubble = ({
               if (updateComposerFromMessage && message.messageType === 'email') {
                 updateComposerFromMessage(message)
               }
-              if (onOpenEmailTimeline && message.subject) {
-                onOpenEmailTimeline(message.subject)
+              if (onOpenEmailTimeline) {
+                onOpenEmailTimeline(message.subject || null, message)
               } else if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
                 setShowEmailTimeline(true)
                 setEmailTimelineLeadId(selectedThread.lead.id)

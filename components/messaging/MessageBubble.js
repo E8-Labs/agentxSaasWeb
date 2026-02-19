@@ -1,6 +1,37 @@
 import moment from 'moment'
-import { linkifyText } from '@/utilities/textUtils'
+import {
+  linkifyText,
+  sanitizeHTMLForEmailBody,
+} from '@/utilities/textUtils'
 import AttachmentList from './AttachmentList'
+
+function unescapeHtmlEntities(str) {
+  if (!str || typeof str !== 'string') return str
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = str
+    return tempDiv.textContent || tempDiv.innerText || str
+  }
+  return str
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+}
+
+function getDisplayHtml(content) {
+  if (!content || typeof content !== 'string') return ''
+  let text = content
+  if (text.includes('&lt;') || text.includes('&gt;') || text.includes('&amp;')) {
+    text = unescapeHtmlEntities(text)
+  }
+  if (/<[^>]+>/.test(text)) {
+    return sanitizeHTMLForEmailBody(text)
+  }
+  return linkifyText(text)
+}
 
 const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
   <div className="flex flex-col">
@@ -12,12 +43,18 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
       style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary))' } : {}}
     >
       <div
-        className={`prose prose-sm max-w-none break-words whitespace-pre-wrap ${isOutbound
+        className={`prose prose-sm max-w-none break-words
+          [&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug
+          [&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc
+          [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
+          [&_li]:!my-[0.15em]
+          [&_a]:text-brand-primary [&_a]:underline hover:[&_a]:opacity-80
+          ${isOutbound
           ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
           : 'text-black'
           }`}
         style={isOutbound ? { color: 'white' } : {}}
-        dangerouslySetInnerHTML={{ __html: linkifyText(message.content || '') }}
+        dangerouslySetInnerHTML={{ __html: getDisplayHtml(message.content || '') }}
       />
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
     </div>

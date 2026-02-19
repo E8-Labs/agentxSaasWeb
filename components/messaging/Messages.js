@@ -29,6 +29,7 @@ import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import MessageSettingsModal from './MessageSettingsModal'
 import DraftCards from './DraftCards'
 import AiChatModal from './AiChatModal'
@@ -109,6 +110,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+  const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
   // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
@@ -199,6 +201,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
   // Check if user has access to messaging features
   const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || reduxUser?.planCapabilities?.allowTextMessages === true
+  // AI Email & Text plan flags for SystemMessage (call transcript AI actions)
+  const allowAIEmailAndText = reduxUser?.planCapabilities?.allowAIEmailAndText === true
+  const shouldShowAllowAiEmailAndTextUpgrade = reduxUser?.planCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
+  const shouldShowAiEmailAndTextRequestFeature = reduxUser?.planCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -865,8 +871,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       })
 
       if (response.data?.status && response.data?.data) {
-        // Filter for pending drafts only
-        const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+        // Filter for pending drafts only; sort by variantNumber so response 1 is first, response 2 second
+        const pendingDrafts = response.data.data
+          .filter(d => d.status === 'pending')
+          .sort((a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0))
         setDrafts(pendingDrafts)
       } else {
         setDrafts([])
@@ -982,7 +990,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         console.error('Error discarding existing drafts before showing AI drafts:', err)
       }
     }
-    setDrafts(newDrafts || [])
+    // Ensure order: response 1 first, response 2 second (by variantNumber), regardless of API completion order
+    const sorted =
+      Array.isArray(newDrafts) && newDrafts.length > 0
+        ? [...newDrafts].sort(
+            (a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0),
+          )
+        : []
+    setDrafts(sorted)
     setCallSummaryDraftsMessageId(parentMessageId || null)
     setSelectedDraft(null)
   }, [selectedUser])
@@ -1176,7 +1191,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         })
 
         if (response.data?.status && response.data?.data) {
-          const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+          const pendingDrafts = response.data.data
+            .filter(d => d.status === 'pending')
+            .sort((a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0))
           setDrafts(pendingDrafts)
         }
       } catch (error) {
@@ -1824,8 +1841,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   }
 
   // Handle opening email timeline (for Load More or subject click)
-  const handleOpenEmailTimeline = (subject) => {
-    if (!selectedThread?.lead?.id) return
+  // When opened by clicking a message, pass that message so the modal can use it as replyToMessage
+  const handleOpenEmailTimeline = (subject, message = null) => {
+    if (!selectedThread?.lead?.id) {
+      toast.error('Please select a lead to open email timeline')
+      return;
+    }
+
+    if (message) {
+      setReplyToMessage(message)
+    }
 
     setShowEmailTimeline(true)
     setEmailTimelineLeadId(selectedThread.lead.id)
@@ -3151,6 +3176,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         selectedUser={selectedUser}
       />
 
+      <UnlockPremiunFeatures
+        title="Unlock AI Email & Text"
+        open={showAiRequestFeatureModal}
+        handleClose={() => setShowAiRequestFeatureModal(false)}
+        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+      />
+
       {
         !hasMessagingAccess ? (
           <UnlockMessagesView />
@@ -3305,6 +3337,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       onOpenAiChat={setAiChatContext}
                       onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
                       hasAiKey={messageSettingsHasAiKey}
+                      allowAIEmailAndText={allowAIEmailAndText}
+                      shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                      shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                      onShowUpgrade={() => setShowUpgradePlanModal(true)}
+                      onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
                     />
 
                     {/* AI-Generated Draft Responses */}
@@ -3535,36 +3572,40 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               )}
 
               {/* Email Timeline Modal */}
-              <EmailTimelineModal
-                open={showEmailTimeline}
-                onClose={() => {
-                  setShowEmailTimeline(false)
-                  setEmailTimelineLeadId(null)
-                  // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
-                  // when sending from the main composer. They'll be cleared when a new thread is selected.
-                  // setEmailTimelineSubject(null)
-                  // setEmailTimelineMessages([])
-                  setReplyToMessage(null)
-                }}
+              {
+                showEmailTimeline && (
+                  <EmailTimelineModal
+                    open={showEmailTimeline}
+                    onClose={() => {
+                      setShowEmailTimeline(false)
+                      setEmailTimelineLeadId(null)
+                      // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+                      // when sending from the main composer. They'll be cleared when a new thread is selected.
+                      // setEmailTimelineSubject(null)
+                      // setEmailTimelineMessages([])
+                      setReplyToMessage(null)
+                    }}
 
-                getLeadName={getLeadName}
-                leadId={emailTimelineLeadId}
-                subject={emailTimelineSubject}
-                messages={emailTimelineMessages}
-                loading={emailTimelineLoading}
-                selectedThread={selectedThread}
-                emailAccounts={emailAccounts}
-                selectedEmailAccount={selectedEmailAccount}
-                setSelectedEmailAccount={setSelectedEmailAccount}
-                onSendSuccess={async () => {
-                  if (emailTimelineLeadId && emailTimelineSubject) {
-                    await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
-                  }
-                }}
-                fetchThreads={fetchThreads}
-                onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-                replyToMessage={replyToMessage}
-              />
+                    getLeadName={getLeadName}
+                    leadId={emailTimelineLeadId}
+                    subject={emailTimelineSubject}
+                    messages={emailTimelineMessages}
+                    loading={emailTimelineLoading}
+                    selectedThread={selectedThread}
+                    emailAccounts={emailAccounts}
+                    selectedEmailAccount={selectedEmailAccount}
+                    setSelectedEmailAccount={setSelectedEmailAccount}
+                    onSendSuccess={async () => {
+                      if (emailTimelineLeadId && emailTimelineSubject) {
+                        await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
+                      }
+                    }}
+                    fetchThreads={fetchThreads}
+                    onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                    replyToMessage={replyToMessage}
+                  />
+                )
+              }
 
               {/* Auth Selection Popup for Gmail Connection */}
               <AuthSelectionPopup

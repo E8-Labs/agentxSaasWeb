@@ -35,14 +35,14 @@ const EmailSmsTranscriptCN = ({ item }) => {
   const isEmail = item.communicationType === 'email'
   const rawContent = item.sentContent
 
-  // Preserve format: email with HTML → sanitized HTML; SMS or plain text → linkify (links + line breaks)
+  // Any content with HTML → sanitize and render as formatted; plain text → linkify (links + line breaks)
   const displayHtml = (() => {
     if (!rawContent || typeof rawContent !== 'string') return ''
     let content = rawContent
     if (content.includes('&lt;') || content.includes('&gt;') || content.includes('&amp;')) {
       content = unescapeHtmlEntities(content)
     }
-    if (isEmail && /<[^>]+>/.test(content)) {
+    if (/<[^>]+>/.test(content)) {
       return sanitizeHTMLForEmailBody(content)
     }
     return linkifyText(content)
