@@ -30,7 +30,12 @@ export const getOutcome = (item) => {
   // console.log("End call reason passing is", item)
   if (item.communicationType == 'sms') {
     // return 'Text Sent'
-    if (item?.endCallReason === "sms_failed" || item?.status !== "completed" || item?.status !== "success") {
+
+    if(item?.callOutcome === "Text Sent" || item?.callOutcome === "Sent"){
+      return 'Text Sent'
+    } else 
+    if (item?.endCallReason === "sms_failed" || item?.status!== "completed") {
+
       return "Text Failed"
     } else if (item?.endCallReason === "sms_sent" || item?.status === "completed" || item?.status === "success") {
       return "Text Sent"
@@ -38,7 +43,12 @@ export const getOutcome = (item) => {
       return "Text Sent"
     }
   } else if (item.communicationType == 'email') {
-    if (item?.endCallReason === "email_sent" || item?.status === "completed" || item?.status === "success") {
+
+    if(item?.callOutcome === "Email Sent" || item?.callOutcome === "Sent"){
+      return 'Email Sent'
+    }
+    else if (item?.endCallReason === "email_sent" || item?.status==="completed"){
+
       return "Email Sent"
     } else if (item?.endCallReason === "email_failed" || item?.status !== "completed" || item?.status !== "success") {
       return "Email Failed"

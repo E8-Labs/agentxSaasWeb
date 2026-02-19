@@ -671,7 +671,7 @@ const Page = () => {
                     <Card
                       icon="/otherAssets/smsSentIcon.png"
                       title="Texts Sent"
-                      value={statsDetails?.smsSents || '-'}
+                      value={statsDetails?.smsSent || '-'}
                       borderSide="border-l-2 border-t-2"
                     />
                   </div>
