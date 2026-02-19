@@ -82,6 +82,7 @@ export default function PlanConfiguration({
     voicemail: false,
     allowTextMessages: false,
     allowEmails: false,
+    allowAIEmailAndText: false,
     twilio: false,
     sendText: false,
     allowTrial: false,
@@ -99,6 +100,7 @@ export default function PlanConfiguration({
     voicemail: false,
     allowTextMessages: false,
     allowEmails: false,
+    allowAIEmailAndText: false,
     twilio: false,
     allowTrial: true,
     allowTeamSeats: false,
@@ -164,6 +166,12 @@ export default function PlanConfiguration({
       stateKey: 'allowTextMessages',
     },
     {
+      label: 'Allow AI Emails and Texts',
+      tooltip:
+        'Allow AI actions for email and text from call transcripts and messaging (e.g. AI-drafted follow-ups).',
+      stateKey: 'allowAIEmailAndText',
+    },
+    {
       label: 'Emails',
       tooltip: 'Enable email messaging capabilities for agents. Allow sending and receiving emails.',
       stateKey: 'allowEmails',
@@ -205,29 +213,30 @@ export default function PlanConfiguration({
       setLanguageTitle('English and Spanish Compatible')
       setTrialValidForDays('')
       setTrialDaysError(false)
-      setFeatures({
-        allowLanguageSelection: false,
-        toolsActions: false,
-        calendars: false,
-        liveTransfer: false,
-        ragKnowledgeBase: false,
-        embedBrowserWebhookAgent: false,
-        apiKey: false,
-        voicemail: false,
-        allowTextMessages: false,
-        allowEmails: false,
-        allowDialer: false,
-        twilio: false,
-        sendText: false,
-        allowTrial: false,
-        allowTeamSeats: false,
-        allowLeadSource: false,
-      })
-      setCustomFeatures([])
-      setAllowedFeatures([])
-      setNoOfSeats('')
-      setCostPerAdditionalSeat('')
-    }
+    setFeatures({
+      allowLanguageSelection: false,
+      toolsActions: false,
+      calendars: false,
+      liveTransfer: false,
+      ragKnowledgeBase: false,
+      embedBrowserWebhookAgent: false,
+      apiKey: false,
+      voicemail: false,
+      allowTextMessages: false,
+      allowEmails: false,
+      allowAIEmailAndText: false,
+      allowDialer: false,
+      twilio: false,
+      sendText: false,
+      allowTrial: false,
+      allowTeamSeats: false,
+      allowLeadSource: false,
+    })
+    setCustomFeatures([])
+    setAllowedFeatures([])
+    setNoOfSeats('')
+    setCostPerAdditionalSeat('')
+  }
   }, [open, isEditPlan, configurationData])
 
   // Initialize current agency plan when component opens or selectedAgency changes
@@ -463,6 +472,8 @@ export default function PlanConfiguration({
           dynamicFeatures?.allowEmails ||
           dynamicFeatures?.allowEmailMessages ||
           false,
+        allowAIEmailAndText:
+          dynamicFeatures?.allowAIEmailAndText === true,
         allowDialer:
           dynamicFeatures?.allowDialer ||
           dynamicFeatures?.allowDialerCapability ||
@@ -536,6 +547,8 @@ export default function PlanConfiguration({
       apiKey: false,
       voicemail: false,
       allowTextMessages: false,
+      allowEmails: false,
+      allowAIEmailAndText: false,
       twilio: false,
       sendText: false,
       allowTrial: false,
@@ -601,6 +614,7 @@ export default function PlanConfiguration({
     formData.append('allowVoicemail', features.voicemail)
     formData.append('allowTextMessages', features.allowTextMessages)
     formData.append('allowEmails', features.allowEmails)
+    formData.append('allowAIEmailAndText', features.allowAIEmailAndText)
     formData.append('allowDialer', features.allowDialer)
     formData.append('allowTwilio', features.twilio)
     formData.append('allowTrial', features.allowTrial)
@@ -884,6 +898,7 @@ export default function PlanConfiguration({
           dynamicFeatures?.allowEmails ||
           dynamicFeatures?.allowEmailMessages ||
           false,
+        allowAIEmailAndText: dynamicFeatures?.allowAIEmailAndText === true,
         allowDialer:
           dynamicFeatures?.allowDialer ||
           dynamicFeatures?.allowDialerCapability ||

@@ -29,6 +29,7 @@ import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import MessageSettingsModal from './MessageSettingsModal'
 import DraftCards from './DraftCards'
 import AiChatModal from './AiChatModal'
@@ -109,6 +110,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+  const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
   // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
@@ -198,6 +200,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
   // Check if user has access to messaging features
   const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || reduxUser?.planCapabilities?.allowTextMessages === true
+  // AI Email & Text plan flags for SystemMessage (call transcript AI actions)
+  const allowAIEmailAndText = reduxUser?.planCapabilities?.allowAIEmailAndText === true
+  const shouldShowAllowAiEmailAndTextUpgrade = reduxUser?.planCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
+  const shouldShowAiEmailAndTextRequestFeature = reduxUser?.planCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -3074,6 +3080,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         selectedUser={selectedUser}
       />
 
+      <UnlockPremiunFeatures
+        title="Unlock AI Email & Text"
+        open={showAiRequestFeatureModal}
+        handleClose={() => setShowAiRequestFeatureModal(false)}
+        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+      />
+
       {
         !hasMessagingAccess ? (
           <UnlockMessagesView />
@@ -3217,6 +3230,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       onOpenAiChat={setAiChatContext}
                       onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
                       hasAiKey={messageSettingsHasAiKey}
+                      allowAIEmailAndText={allowAIEmailAndText}
+                      shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                      shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                      onShowUpgrade={() => setShowUpgradePlanModal(true)}
+                      onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
                     />
 
                     {/* AI-Generated Draft Responses */}
