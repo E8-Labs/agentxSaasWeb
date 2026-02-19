@@ -32,13 +32,14 @@ export function TranscriptBubble({
   msgId,
   liked,
   showLikeDislike = true,
+  callDetails,
 }) {
   const isBot = sender === 'bot'
   const commentBtnRef = useRef(null)
   const likeBtnRef = useRef(null)
   const dislikeBtnRef = useRef(null)
   //code for read more comment modal
-  const [readMoreModal, setReadMoreModal] = useState(null)
+  const [readMoreModal, setReadMoreModal] = useState(null);
 
   const bubbleClasses = isBot
     ? 'rounded-br-2xl rounded-tr-2xl rounded-bl-2xl'
@@ -59,7 +60,7 @@ export function TranscriptBubble({
         </div>
         {isBot && (
           <div className="flex gap-2 mt-1 pl-2">
-            {showLikeDislike && (
+            {showLikeDislike || callDetails?.callOrigin !== 'dialer' && (
               <>
                 <button
                   ref={likeBtnRef}
@@ -370,6 +371,7 @@ export function TranscriptViewer({ callId }) {
             liked={msg.liked}
             onCommentClick={handleCommentClick}
             showLikeDislike={showLikeDislike}
+            callDetails={callDetails}
           />
         ))
       )}

@@ -1831,8 +1831,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   }
 
   // Handle opening email timeline (for Load More or subject click)
-  const handleOpenEmailTimeline = (subject) => {
-    if (!selectedThread?.lead?.id) return
+  // When opened by clicking a message, pass that message so the modal can use it as replyToMessage
+  const handleOpenEmailTimeline = (subject, message = null) => {
+    if (!selectedThread?.lead?.id) {
+      toast.error('Please select a lead to open email timeline')
+      return;
+    }
+
+    if (message) {
+      setReplyToMessage(message)
+    }
 
     setShowEmailTimeline(true)
     setEmailTimelineLeadId(selectedThread.lead.id)
@@ -3461,36 +3469,40 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               )}
 
               {/* Email Timeline Modal */}
-              <EmailTimelineModal
-                open={showEmailTimeline}
-                onClose={() => {
-                  setShowEmailTimeline(false)
-                  setEmailTimelineLeadId(null)
-                  // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
-                  // when sending from the main composer. They'll be cleared when a new thread is selected.
-                  // setEmailTimelineSubject(null)
-                  // setEmailTimelineMessages([])
-                  setReplyToMessage(null)
-                }}
+              {
+                showEmailTimeline && (
+                  <EmailTimelineModal
+                    open={showEmailTimeline}
+                    onClose={() => {
+                      setShowEmailTimeline(false)
+                      setEmailTimelineLeadId(null)
+                      // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+                      // when sending from the main composer. They'll be cleared when a new thread is selected.
+                      // setEmailTimelineSubject(null)
+                      // setEmailTimelineMessages([])
+                      setReplyToMessage(null)
+                    }}
 
-                getLeadName={getLeadName}
-                leadId={emailTimelineLeadId}
-                subject={emailTimelineSubject}
-                messages={emailTimelineMessages}
-                loading={emailTimelineLoading}
-                selectedThread={selectedThread}
-                emailAccounts={emailAccounts}
-                selectedEmailAccount={selectedEmailAccount}
-                setSelectedEmailAccount={setSelectedEmailAccount}
-                onSendSuccess={async () => {
-                  if (emailTimelineLeadId && emailTimelineSubject) {
-                    await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
-                  }
-                }}
-                fetchThreads={fetchThreads}
-                onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-                replyToMessage={replyToMessage}
-              />
+                    getLeadName={getLeadName}
+                    leadId={emailTimelineLeadId}
+                    subject={emailTimelineSubject}
+                    messages={emailTimelineMessages}
+                    loading={emailTimelineLoading}
+                    selectedThread={selectedThread}
+                    emailAccounts={emailAccounts}
+                    selectedEmailAccount={selectedEmailAccount}
+                    setSelectedEmailAccount={setSelectedEmailAccount}
+                    onSendSuccess={async () => {
+                      if (emailTimelineLeadId && emailTimelineSubject) {
+                        await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
+                      }
+                    }}
+                    fetchThreads={fetchThreads}
+                    onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                    replyToMessage={replyToMessage}
+                  />
+                )
+              }
 
               {/* Auth Selection Popup for Gmail Connection */}
               <AuthSelectionPopup
