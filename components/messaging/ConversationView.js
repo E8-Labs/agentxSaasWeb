@@ -39,6 +39,11 @@ const ConversationView = ({
   onOpenAiChat,
   onGenerateCallSummaryDrafts,
   hasAiKey = null,
+  allowAIEmailAndText = false,
+  shouldShowAllowAiEmailAndTextUpgrade = false,
+  shouldShowAiEmailAndTextRequestFeature = false,
+  onShowUpgrade,
+  onShowRequestFeature,
 }) => {
 
   //lead details
@@ -324,6 +329,11 @@ const ConversationView = ({
                       onOpenAiChat={onOpenAiChat}
                       onGenerateCallSummaryDrafts={onGenerateCallSummaryDrafts}
                       hasAiKey={hasAiKey}
+                      allowAIEmailAndText={allowAIEmailAndText}
+                      shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                      shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                      onShowUpgrade={onShowUpgrade}
+                      onShowRequestFeature={onShowRequestFeature}
                     />
                   ) : (
                     <div
