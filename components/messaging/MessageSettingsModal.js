@@ -656,7 +656,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md px-0" overlayClassName="bg-black/40" hideCloseButton={isSubScreen}>
+      <DialogContent
+        className="max-w-md px-0"
+        overlayClassName="bg-black/40"
+        hideCloseButton={isSubScreen}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onFocusOutside={(e) => e.preventDefault()}
+      >
         {/* Sub-screen: Agent Meter (sliders) or Communication setting (radio options) */}
         {isSubScreen ? (
           isAgentMeterScreen ? (
