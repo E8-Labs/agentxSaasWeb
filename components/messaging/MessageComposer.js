@@ -230,9 +230,16 @@ const MessageComposer = ({
 
   }, [composerMode])
 
-  // Close dropdowns when clicking outside
+  // Close dropdowns when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (
+        event.target?.closest?.('[data-feedback-toolbar]') ||
+        event.target?.closest?.('[data-annotation-popup]') ||
+        event.target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
       if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target)) {
         setPhoneDropdownOpen(false)
       }

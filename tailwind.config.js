@@ -126,6 +126,15 @@ module.exports = {
       boxShadow: {
         custom: '0px 4px 31.5px rgba(121, 2, 223, 0.04)',
       },
+      keyframes: {
+        modalEntry: {
+          from: { transform: 'scale(0.95) translate(-50%, -50%)', opacity: '0' },
+          to: { transform: 'scale(1) translate(-50%, -50%)', opacity: '1' },
+        },
+      },
+      animation: {
+        'modal-entry': 'modalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+      },
     },
   },
   plugins: [

@@ -410,6 +410,15 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         return
       }
 
+      // Don't close when clicking Agentation toolbar (allows annotating while task board is open)
+      if (
+        target?.closest?.('[data-feedback-toolbar]') ||
+        target?.closest?.('[data-annotation-popup]') ||
+        target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
+
       // If clicking outside task board, check if any dropdowns are open
       // If dropdowns are open, don't close modal (let dropdown handle its own closing)
       const hasOpenDropdown = document.querySelector('[data-radix-dropdown-menu-content][data-state="open"]') ||

@@ -81,6 +81,14 @@ const ThreadsList = ({
         buttonEl &&
         !buttonEl.contains(event.target)
       ) {
+        // Don't close when clicking Agentation toolbar (allows annotating while popover is open)
+        if (
+          event.target?.closest?.('[data-feedback-toolbar]') ||
+          event.target?.closest?.('[data-annotation-popup]') ||
+          event.target?.closest?.('[data-annotation-marker]')
+        ) {
+          return
+        }
         onFilterToggle?.(false)
       }
     }

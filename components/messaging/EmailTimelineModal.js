@@ -105,9 +105,16 @@ const EmailTimelineModal = ({
     }
   }, [])
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (
+        event.target?.closest?.('[data-feedback-toolbar]') ||
+        event.target?.closest?.('[data-annotation-popup]') ||
+        event.target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
       if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
         setEmailDropdownOpen(false)
       }

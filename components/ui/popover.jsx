@@ -5,6 +5,20 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+/** True if target is inside Agentation toolbar, popup, or marker (prevents popover close when annotating) */
+function isAgentationTarget(target) {
+  return (
+    target?.closest?.('[data-feedback-toolbar]') != null ||
+    target?.closest?.('[data-annotation-popup]') != null ||
+    target?.closest?.('[data-annotation-marker]') != null
+  )
+}
+
+/** True if target is inside the popover content */
+function isInsideContent(contentRef, target) {
+  return contentRef?.current?.contains?.(target) === true
+}
+
 const Popover = PopoverPrimitive.Root
 
 const PopoverTrigger = PopoverPrimitive.Trigger
@@ -12,10 +26,34 @@ const PopoverTrigger = PopoverPrimitive.Trigger
 const PopoverAnchor = PopoverPrimitive.Anchor
 
 const PopoverContent = React.forwardRef(
-  ({ className, align = 'center', sideOffset = 4, style, ...props }, ref) => (
+  ({ className, align = 'center', sideOffset = 4, style, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
+    const contentRef = React.useRef(null)
+    const setRef = React.useCallback(
+      (el) => {
+        contentRef.current = el
+        if (typeof ref === 'function') ref(el)
+        else if (ref) ref.current = el
+      },
+      [ref],
+    )
+    const handlePointerDownOutside = React.useCallback(
+      (e) => {
+        if (isAgentationTarget(e.target) || isInsideContent(contentRef, e.target)) e.preventDefault()
+        onPointerDownOutside?.(e)
+      },
+      [onPointerDownOutside],
+    )
+    const handleInteractOutside = React.useCallback(
+      (e) => {
+        if (isAgentationTarget(e.target) || isInsideContent(contentRef, e.target)) e.preventDefault()
+        onInteractOutside?.(e)
+      },
+      [onInteractOutside],
+    )
+    return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
-        ref={ref}
+        ref={setRef}
         align={align}
         sideOffset={sideOffset}
         className={cn(
@@ -23,10 +61,13 @@ const PopoverContent = React.forwardRef(
           className,
         )}
         style={{ ...style, zIndex: style?.zIndex || 200 }}
+        onInteractOutside={handleInteractOutside}
+        onPointerDownOutside={handlePointerDownOutside}
         {...props}
       />
     </PopoverPrimitive.Portal>
-  ),
+    )
+  },
 )
 PopoverContent.displayName = PopoverPrimitive.Content.displayName
 

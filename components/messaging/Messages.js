@@ -199,10 +199,19 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   // Check if user has access to messaging features
   const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || reduxUser?.planCapabilities?.allowTextMessages === true
 
-  // Close email detail popover when clicking outside
+  // Close email detail popover when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
     if (!openEmailDetailId) return
-    const handleClickOutside = () => setOpenEmailDetailId(null)
+    const handleClickOutside = (event) => {
+      if (
+        event.target?.closest?.('[data-feedback-toolbar]') ||
+        event.target?.closest?.('[data-annotation-popup]') ||
+        event.target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
+      setOpenEmailDetailId(null)
+    }
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
   }, [openEmailDetailId])

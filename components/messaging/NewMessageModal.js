@@ -910,9 +910,16 @@ const NewMessageModal = ({
     }
   }, [open, selectedMode, isBookingStage])
 
-  // Close dropdowns when clicking outside (phone/email use Popover and close via onClose)
+  // Close dropdowns when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (
+        event.target?.closest?.('[data-feedback-toolbar]') ||
+        event.target?.closest?.('[data-annotation-popup]') ||
+        event.target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
       if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target)) {
         setShowTemplatesDropdown(false)
       }
@@ -1121,9 +1128,16 @@ const NewMessageModal = ({
     setSelectedLeads((prev) => prev.filter((l) => l.id !== leadId))
   }
 
-  // Handle click outside to hide lead list
+  // Handle click outside to hide lead list (but not when clicking Agentation toolbar)
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (
+        event.target?.closest?.('[data-feedback-toolbar]') ||
+        event.target?.closest?.('[data-annotation-popup]') ||
+        event.target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
       if (leadSearchRef.current && !leadSearchRef.current.contains(event.target)) {
         setShowLeadList(false)
         // Clear search query when closing dropdown if no leads selected
