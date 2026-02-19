@@ -864,8 +864,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       })
 
       if (response.data?.status && response.data?.data) {
-        // Filter for pending drafts only
-        const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+        // Filter for pending drafts only; sort by variantNumber so response 1 is first, response 2 second
+        const pendingDrafts = response.data.data
+          .filter(d => d.status === 'pending')
+          .sort((a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0))
         setDrafts(pendingDrafts)
       } else {
         setDrafts([])
@@ -981,7 +983,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         console.error('Error discarding existing drafts before showing AI drafts:', err)
       }
     }
-    setDrafts(newDrafts || [])
+    // Ensure order: response 1 first, response 2 second (by variantNumber), regardless of API completion order
+    const sorted =
+      Array.isArray(newDrafts) && newDrafts.length > 0
+        ? [...newDrafts].sort(
+            (a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0),
+          )
+        : []
+    setDrafts(sorted)
     setCallSummaryDraftsMessageId(parentMessageId || null)
     setSelectedDraft(null)
   }, [selectedUser])
@@ -1175,7 +1184,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         })
 
         if (response.data?.status && response.data?.data) {
-          const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+          const pendingDrafts = response.data.data
+            .filter(d => d.status === 'pending')
+            .sort((a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0))
           setDrafts(pendingDrafts)
         }
       } catch (error) {
