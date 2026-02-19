@@ -2858,10 +2858,21 @@ function BasicInfo() {
                         .filter(Boolean)
                         .join(', ')
                     }}
+                    MenuProps={{
+                      PaperProps: { style: { maxHeight: 320 } },
+                    }}
                   >
                     {HOME_SERVICES_MAIN_GOAL_OPTIONS.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
-                        {item.title}
+                        <Checkbox
+                          checked={
+                            (homeServicesMainGoal || []).indexOf(item.id) > -1
+                          }
+                          className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                        />
+                        <span className="ml-2 text-sm font-medium">
+                          {item.title}
+                        </span>
                       </MenuItem>
                     ))}
                   </Select>
