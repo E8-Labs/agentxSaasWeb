@@ -1045,7 +1045,10 @@ const MessageComposer = ({
 
     try {
       setDelTempLoader(template)
-      await deleteTemplete(template)
+      console.log("template in handleDeleteTemplate is", template);
+      // return
+      const deleteTemplateResponse = await deleteTemplete(template)
+      console.log("Delete Template Response is", deleteTemplateResponse);
       // Remove from templates list - check both id and templateId fields
       toast.success('Template deleted successfully')
       setTemplates((prev) => prev.filter((t) => {
@@ -2107,11 +2110,23 @@ const MessageComposer = ({
                                       <button
                                         key={template.id || template.templateId}
                                         onClick={() => handleTemplateSelect(template)}
-                                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                        className="w-full flex flex-row items-center justify-between px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
                                       >
                                         <div className="font-medium text-gray-900 truncate">
                                           {template.templateName || 'Untitled Template'}
                                         </div>
+                                        {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                                          <CircularProgress size={16} />
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={(e) => handleDeleteTemplate(template, e)}
+                                            className="flex-shrink-0 p-1 rounded transition-colors"
+                                            title="Delete template"
+                                          >
+                                            <Trash2 size={16} className="text-brand-primary" />
+                                          </button>
+                                        )}
                                       </button>
                                     </Tooltip>
                                   ))

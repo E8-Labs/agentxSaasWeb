@@ -90,7 +90,7 @@ export function getReadableStatus(status) {
     case BatchStatus.PausedForNonPayment:
       return 'Paused (Non Payment)'
     case BatchStatus.PausedForUpdateCadence:
-      return 'Paused (Cadence Updated)'
+      return "Paused (Pipeline Updated)" //'Paused (Cadence Updated)'
     case BatchStatus.PausedForNoPhoneNumber:
       return 'Paused (No Phone)'
     case BatchStatus.Completed:

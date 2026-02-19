@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import Apis from '@/components/apis/Apis'
 import { PersistanceKeys } from '@/constants/Constants'
 import { UserRole } from '@/constants/UserRole'
+import { useUser } from '@/hooks/redux-hooks'
 
 /**
  * AppLogo Component
@@ -20,6 +21,14 @@ const AppLogo = ({
   style = {},
   alt = 'logo',
 }) => {
+  //get the logged in user
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+  // const [user, setUser] = useState(reduxUser) // Keep local state for compatibility
+  
+  // useEffect(() => {
+  //   console.log("Value of reduxUser is", reduxUser)
+  // }, [reduxUser])
+
   const [logoUrl, setLogoUrl] = useState(null)
   const [companyName, setCompanyName] = useState(null)
   // Initialize isAssignxDomain based on current hostname (if available)
@@ -359,8 +368,8 @@ const AppLogo = ({
       />
     )
   }
-  if (companyName && companyName !== "AssignX") { //userole !== AssignX
-    // UserRole.AgentX   
+  if (companyName && reduxUser?.teamFor !== UserRole.AgentX && reduxUser?.userRole !== UserRole.AgentX) { //userole !== AssignX
+    // UserRole.AgentX   && companyName !== "AssignX" || reduxUser?.userRole !== UserRole.Invitee
     return (
       <div
         className={className}

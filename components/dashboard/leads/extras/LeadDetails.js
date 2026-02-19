@@ -2093,6 +2093,7 @@ const LeadDetails = ({
                                         stagesList={stagesList}
                                         updateLeadStage={updateLeadStage}
                                         chevronIcon={ChevronDown}
+                                        textSize="14px"
                                       />
                                     )}
                                   </>
@@ -2991,7 +2992,10 @@ const LeadDetails = ({
         }}
         PaperProps={{
           sx: {
-            width: '35%', // Adjust width as needed
+            // width: '35%', // Adjust width as needed
+            width: '35vw',
+            minWidth: 320,
+            maxWidth: 600,
             borderRadius: '20px', // Rounded corners
             padding: '0px', // Internal padding
             boxShadow: 3, // Light shadow

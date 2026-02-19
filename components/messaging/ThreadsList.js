@@ -14,6 +14,12 @@ import { UpgradeTag, UpgradeTagWithModal } from '../constants/constants'
 import { toast } from '@/utils/toast'
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const ThreadsList = ({
   loading,
@@ -206,7 +212,7 @@ const ThreadsList = ({
         <ToggleGroupCN
           options={[
             { label: 'All', value: 'all', count: allCount },
-            { label: 'Unread', value: 'unreplied', count: unrepliedCount },
+            { label: 'Un Replied', value: 'unreplied', count: unrepliedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
@@ -349,18 +355,22 @@ const ThreadsList = ({
           )}
         </div>
 
-
-        <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
-          onClick={() => {
-            //show toast here to show the feature is coming soon
-            // toast.success('This feature is coming soon')
-            onOpenMessageSettings()
-            console.log("opening communication settings")
-
-          }}
-        >
-          <Image src="/communcationSetting.png" width={24} height={24} alt="Filter" />
-        </button>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                onClick={() => {
+                  onOpenMessageSettings()
+                }}
+              >
+                <Image src="/communcationSetting.png" width={24} height={24} alt="Communication Settings" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Communication Settings</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <div

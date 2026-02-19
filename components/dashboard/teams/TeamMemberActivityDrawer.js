@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils'
 import { sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
 import CreateTaskFromNextStepsModal from '../leads/extras/CreateTaskFromNextStepsModal'
 import { Button } from '@/components/ui/button'
+import CloseIcon from '@mui/icons-material/Close'
 
 const getAuthToken = () => {
   try {
@@ -266,7 +267,8 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
               className="p-1.5 rounded-md hover:bg-muted transition-colors"
               aria-label="Close"
             >
-              <X className="h-5 w-5 text-muted-foreground" />
+              {/*<X className="h-5 w-5 text-muted-foreground" />*/}
+              <CloseIcon />
             </button>
           </div>
           {activeTab === 'tasks' && (

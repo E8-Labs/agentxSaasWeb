@@ -1231,7 +1231,7 @@ const PipelineStages = ({
                             </div>
                             <div className="border rounded-xl py-4 px-4 mt-4">
                               <div>
-                                {(rowsByIndex[index] || []).map(
+                                {[...(rowsByIndex[index] || [])].reverse().map(
                                   (row, rowIndex) => {
                                     // Ensure row has referencePoint initialized
                                     // Check identifier from selectedPipelineStages (source of truth) or item as fallback
@@ -2414,7 +2414,7 @@ const PipelineStages = ({
                           className=" mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
                           style={{ scrollbarWidth: 'none' }}
                         >
-                          {inputs.map((input, index) => (
+                          {inputs?.reverse().map((input, index) => (
                             <div
                               key={input.id}
                               className="w-full flex flex-row items-center gap-4 mt-4"

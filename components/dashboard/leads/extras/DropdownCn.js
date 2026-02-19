@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
  * chevronIcon: Optional custom icon component to replace the default ChevronDown
  * onChevronClick: Optional handler for when the chevron/icon is clicked (for split button behavior)
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
 
@@ -66,8 +66,13 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           {onChevronClick ? (
             <>
               <DropdownMenuTrigger asChild>
-                <button 
-                  className={cn("flex items-center px-4 py-[1px] text-base font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors h-[36px]", backgroundClassName)}
+                <button
+                  // className={cn("flex items-center px-4 py-[1px] text-base font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors h-[36px]", backgroundClassName)}
+                  className={cn(
+                    "flex items-center px-4 py-[1px] font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors h-[36px]",
+                    textSize ? "" : "text-base",
+                    backgroundClassName
+                  )}
                   onMouseDown={(e) => {
                     // Prevent event from bubbling up to modal close handler
                     e.stopPropagation()
@@ -76,6 +81,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                     // Prevent event from bubbling up to modal close handler
                     e.stopPropagation()
                   }}
+                  style={{fontSize: textSize ? textSize : ''}}
                 >
                   {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
@@ -108,7 +114,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
             </>
           ) : (
             <DropdownMenuTrigger asChild>
-              <button 
+              <button
                 className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName)}
                 style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
@@ -156,72 +162,72 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
             }
           }}
         >
-        {title && (
-          <>
-            <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
-              {title}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        {options.length ? (
-          options.map((opt) => (
-            <DropdownMenuItem
-              key={opt.value || opt.label}
-              className="gap-2 whitespace-nowrap"
-              onSelect={(e) => {
-                // Close dropdown immediately for all selections
-                setOpen(false)
-                
-                // If upgrade tag is shown, trigger upgrade modal instead of the action
-                if (opt.showUpgradeTag) {
-                  e.preventDefault()
-                  // Call the upgrade handler if provided
-                  if (opt.onUpgradeClick && typeof opt.onUpgradeClick === 'function') {
-                    opt.onUpgradeClick()
+          {title && (
+            <>
+              <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
+                {title}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          {options.length ? (
+            options.map((opt) => (
+              <DropdownMenuItem
+                key={opt.value || opt.label}
+                className="gap-2 whitespace-nowrap"
+                onSelect={(e) => {
+                  // Close dropdown immediately for all selections
+                  setOpen(false)
+
+                  // If upgrade tag is shown, trigger upgrade modal instead of the action
+                  if (opt.showUpgradeTag) {
+                    e.preventDefault()
+                    // Call the upgrade handler if provided
+                    if (opt.onUpgradeClick && typeof opt.onUpgradeClick === 'function') {
+                      opt.onUpgradeClick()
+                    }
+                    return
                   }
-                  return
-                }
-                handleSelect(opt)
-              }}
-              disabled={opt.disabled && !opt.upgradeTag}
-            >
-              <div className="flex items-center justify-between w-full gap-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  {opt.icon ? <opt.icon className="h-4 w-4 shrink-0" /> : null}
-                  {React.isValidElement(opt.label) ? (
-                    opt.label
-                  ) : (
-                    <span className="truncate">{opt.label}</span>
+                  handleSelect(opt)
+                }}
+                disabled={opt.disabled && !opt.upgradeTag}
+              >
+                <div className="flex items-center justify-between w-full gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {opt.icon ? <opt.icon className="h-4 w-4 shrink-0" /> : null}
+                    {React.isValidElement(opt.label) ? (
+                      opt.label
+                    ) : (
+                      <span className="truncate">{opt.label}</span>
+                    )}
+                  </div>
+                  {opt.upgradeTag && (
+                    <div
+                      onClick={(e) => {
+                        // Stop propagation to prevent menu item's onSelect from firing
+                        e.stopPropagation()
+                        // Close the dropdown immediately so upgrade modal isn't covered
+                        setOpen(false)
+                      }}
+                      onMouseDown={(e) => {
+                        // Stop propagation to prevent dropdown from handling the event
+                        e.stopPropagation()
+                        // Close dropdown on mouseDown to ensure it closes before modal opens
+                        setOpen(false)
+                      }}
+                      className="flex-shrink-0"
+                    >
+                      {opt.upgradeTag}
+                    </div>
                   )}
                 </div>
-                {opt.upgradeTag && (
-                  <div 
-                    onClick={(e) => {
-                      // Stop propagation to prevent menu item's onSelect from firing
-                      e.stopPropagation()
-                      // Close the dropdown immediately so upgrade modal isn't covered
-                      setOpen(false)
-                    }}
-                    onMouseDown={(e) => {
-                      // Stop propagation to prevent dropdown from handling the event
-                      e.stopPropagation()
-                      // Close dropdown on mouseDown to ensure it closes before modal opens
-                      setOpen(false)
-                    }}
-                    className="flex-shrink-0"
-                  >
-                    {opt.upgradeTag}
-                  </div>
-                )}
-              </div>
-            </DropdownMenuItem>
-          ))
-        ) : (
-          <DropdownMenuItem disabled>No options</DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <DropdownMenuItem disabled>No options</DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }
