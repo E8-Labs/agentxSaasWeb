@@ -810,11 +810,18 @@ const LeadDetails = ({
     emailInputRef.current.blur()
   }
 
+  // useEffect(() => {
+  //   console.log("Testing the lead update api", selectedLead);
+  // }, [selectedLead]);
+
   //function to update stage
   const updateLeadStage = async (stage) => {
     try {
       // //console.log;
       let AuthToken = null
+      // console.log("Testing the lead update api", selectedLead);
+      // console.log("Testing the lead update api details", selectedLeadsDetails);
+      // return;
       setUpdateLeadLoader(true)
 
       const localDetails = localStorage.getItem('User')
@@ -824,12 +831,14 @@ const LeadDetails = ({
         AuthToken = Data.token
       }
 
+      const LEAD_ID = selectedLead || selectedLeadsDetails?.id
+
       const ApiData = {
-        leadId: selectedLead,
+        leadId: LEAD_ID,
         stageId: stage.id,
       }
 
-      // //console.log;
+      console.log("Testing the lead stage update api", ApiData);
 
       const ApiPath = Apis.updateLeadStageApi
       // return
