@@ -2066,7 +2066,7 @@ const MessageComposer = ({
         }}
       >
         <Box
-          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          className="lg:w-3/12 sm:w-4/12 w-6/12"
           sx={{
             position: 'absolute',
             top: '50%',
@@ -2087,13 +2087,13 @@ const MessageComposer = ({
                 borderRadius: '13px',
               }}
             >
-              <div className="font-bold text-lg mt-6">
+              <div className="font-bold text-lg">
                 Delete Email
               </div>
               <div className="font-regular text-sm mt-3">
                 Are you sure you want to delete {accountToDelete?.email || accountToDelete?.name || accountToDelete?.displayName || 'this email account'}?
               </div>
-              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+              <div className="flex flex-row items-center gap-4 w-full mt-6">
                 <button
                   className="w-1/2 font-bold text-lg text-[#6b7280] h-[50px]"
                   onClick={() => {
