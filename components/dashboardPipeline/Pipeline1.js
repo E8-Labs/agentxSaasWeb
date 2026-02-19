@@ -2694,13 +2694,13 @@ const Pipeline1 = () => {
             filterBadge={appliedTeamMemberIds.length > 0 ? appliedTeamMemberIds.length : null}
             rightContent={
               <div
-                className="flex flex-row items-center gap-1 w-auto min-w-[350px] border border-gray-200 rounded-lg pl-1 pr-4 h-10 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border focus-within:border-brand-primary transition-shadow"
+                className="flex flex-row items-center gap-1 w-auto min-w-[350px] border border-gray-200 rounded-[64px] pl-1 pr-4 h-10 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border focus-within:border-brand-primary transition-shadow"
               >
                 <input
                   style={{ fontSize: 14, MozOutline: 'none' }}
                   value={searchValue}
                   onChange={handldSearch}
-                  className="flex-grow outline-none font-[500] bg-transparent border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-lg text-[14px] placeholder:text-[14px]"
+                  className="flex-grow outline-none font-[500] bg-transparent border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-[64px] text-[14px] placeholder:text-[14px]"
                   placeholder="Search by name, phone or email"
                 />
                 <button type="button" className="outline-none flex-shrink-0">
@@ -3580,22 +3580,14 @@ const Pipeline1 = () => {
                     <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       {isEditingStage ? 'Configure Stage' : 'Add New Stage'}
                     </div>
-                    <button
+                    <CloseBtn
                       onClick={() => {
                         handleCloseAddStage()
                       }}
-                      className="outline-none"
-                    >
-                      <Image
-                        src={'/assets/cross.png'}
-                        height={14}
-                        width={14}
-                        alt="Close"
-                      />
-                    </button>
+                    />
                   </div>
 
-                  <div className="h-[450px] overflow-auto pb-6" style={{ paddingBottom: 24 }}>
+                  <div className="h-auto overflow-auto pb-6" style={{ paddingBottom: 24 }}>
                   <div className="max-h-[60vh] overflow-auto px-4 py-3 flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
                     <div className="flex flex-col gap-2">
                       <div
