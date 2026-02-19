@@ -44,7 +44,23 @@ const isDevelopment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Product
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat, onGenerateCallSummaryDrafts, selectedLead, leadName, hasAiKey: hasAiKeyProp }) => {
+const SystemMessage = ({
+  message,
+  getAgentAvatar,
+  selectedThread,
+  onReadTranscript,
+  onOpenMessageSettings,
+  onOpenAiChat,
+  onGenerateCallSummaryDrafts,
+  selectedLead,
+  leadName,
+  hasAiKey: hasAiKeyProp,
+  allowAIEmailAndText = false,
+  shouldShowAllowAiEmailAndTextUpgrade = false,
+  shouldShowAiEmailAndTextRequestFeature = false,
+  onShowUpgrade,
+  onShowRequestFeature,
+}) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
   const [aiActionInput, setAiActionInput] = useState('')
@@ -374,7 +390,53 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                       onCopyCallId={handleCopyCallId}
                       onReadTranscript={handleReadTranscript}
                       bottomRightContent={
-                        hasAiKey === true ? (
+                        // When feature is not in plan: show Upgrade or Request Feature
+                        !allowAIEmailAndText &&
+                        (shouldShowAiEmailAndTextRequestFeature ||
+                          shouldShowAllowAiEmailAndTextUpgrade) ? (
+                          shouldShowAiEmailAndTextRequestFeature ? (
+                            <button
+                              type="button"
+                              className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+                              onClick={() => {
+                                if (typeof onShowRequestFeature === 'function') {
+                                  onShowRequestFeature()
+                                }
+                              }}
+                            >
+                              <Image
+                                src="/otherAssets/starsIcon2.png"
+                                height={14}
+                                width={14}
+                                alt="AI"
+                              />
+                              <span>AI Action</span>
+                              <ChevronDown className="h-3 w-3" />
+                              <span className="ml-1 text-brand-primary">Request Feature</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+                              onClick={() => {
+                                if (typeof onShowUpgrade === 'function') {
+                                  onShowUpgrade()
+                                }
+                              }}
+                            >
+                              <Image
+                                src="/otherAssets/starsIcon2.png"
+                                height={14}
+                                width={14}
+                                alt="AI"
+                              />
+                              <span>AI Action</span>
+                              <ChevronDown className="h-3 w-3" />
+                              <span className="ml-1 text-brand-primary">Upgrade</span>
+                            </button>
+                          )
+                        ) : allowAIEmailAndText && hasAiKey === true ? (
+                          // Feature available and AI key present: full AI action dropdown
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors">
@@ -428,7 +490,8 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        ) : hasAiKey === false ? (
+                        ) : allowAIEmailAndText && hasAiKey === false ? (
+                          // Feature available but no AI key: show tooltip to add API key
                           <HoverCard openDelay={200} closeDelay={100}>
                             <HoverCardTrigger asChild>
                               <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
@@ -463,6 +526,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                             </HoverCardContent>
                           </HoverCard>
                         ) : (
+                          // Loading (hasAiKey null) or no feature: disabled AI action
                           <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground opacity-70 cursor-default" disabled>
                             <Image src="/otherAssets/starsIcon2.png" height={14} width={14} alt="AI" />
                             <span>AI Action</span>
