@@ -23,6 +23,7 @@ import getProfileDetails from '@/components/apis/GetProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import DashboardSkeletonLoader from '@/components/dashboard/leads/extras/DashboardSkeletonLoader'
 import BackgroundVideo from '@/components/general/BackgroundVideo'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import StandardHeader from '@/components/common/StandardHeader'
@@ -46,6 +47,7 @@ const Page = () => {
   const [statsDetails, setStatsDetails] = useState(null)
   const [statsComparisonDetails, setStatsComparisonDetails] = useState(null)
   const [initialLoader, setInitialLoader] = useState(false)
+  const [tileLoader, setTileLoader] = useState(false)
   const [isinItiallyLoaded, setIsInitiallyLoaded] = useState(false)
 
   //variable for hover
@@ -143,6 +145,10 @@ const Page = () => {
       // //console.log;
       let durationValue = 1
 
+      if (duration) {
+        setTileLoader(true)
+      }
+
       if (duration === '24 hrs') {
         durationValue = 1
       } else if (duration === 'Last 7 Days') {
@@ -184,6 +190,7 @@ const Page = () => {
       })
 
       if (response) {
+        setTileLoader(false)
         if (response.data.status === true) {
           console.log("Dashboard screen data", response.data.data)
           setStatsDetails(response.data.data.stats)
@@ -260,7 +267,7 @@ const Page = () => {
                   width={20}
                   alt="*"
                 />
-                
+
               </div>
             )}
           </div>
@@ -315,7 +322,7 @@ const Page = () => {
               setShowSnackMsg({ type: null, message: '', isVisible: false })
             }
           />
-      {/* Slider code<div
+          {/* Slider code<div
         style={{
           position: "absolute",
           right: 0,
@@ -323,349 +330,347 @@ const Page = () => {
         }}>
         <DashboardSlider />
       </div> */}
-      {/* <div style={backgroundImage}></div> */}
-      {initialLoader ? (
-        <div className="flex flex-row items-center w-full justify-center h-[100%]">
-          <CircularProgress size={45} />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center w-full h-[100%] relative">
-          <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '20%',
-              objectFit: 'cover',
-              zIndex: 0, // Behind content but visible
-              overflow: 'hidden',
-            }}
-          >
-          </div>
-          {/* Standard Header */}
-          <div className="absolute top-0 left-0 right-0 z-20">
-            <StandardHeader title="" showTasks={true} showSeparator={false} variant="light" />
-          </div>
-          <div className="w-9/12 flex flex-col items-center h-[100%] relative z-10">
-            {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
+          {/* <div style={backgroundImage}></div> */}
+          <div className="flex flex-col items-center w-full h-[100%] relative">
+            <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '20%',
+                objectFit: 'cover',
+                zIndex: 0, // Behind content but visible
+                overflow: 'hidden',
+              }}
+            >
+            </div>
+            {/* Standard Header */}
+            <div className="absolute top-0 left-0 right-0 z-20">
+              <StandardHeader title="" showTasks={true} showSeparator={false} variant="light" />
+            </div>
+            <div className="w-9/12 flex flex-col items-center h-[100%] relative z-10">
+              {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
-            <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl mt-12">
-              <div className="w-11/12 h-[100%]">
-                <div className="w-full flex flex-row items-center justify-between h-[30%]">
-                  <div className="w-2/12 flex flex-col gap-1">
-                    <div
-                      style={{ fontSize: 29, fontWeight: '600', color: '#000' }}
-                    >
-                      Usage
-                    </div>
-                    <div
-                      style={{ fontSize: 15, fontWeight: '400', color: '#000' }}
-                    >
-                      Total Activity
-                    </div>
-                    <div
-                      style={{
-                        fontSize:
-                          screenHeight < 640
-                            ? 35
-                            : screenHeight < 800
-                              ? 50
-                              : 75,
-                        fontWeight: '700',
-                        color: '#000',
-                      }}
-                    >
-                      {statsDetails?.totalCalls || '-'}
-                    </div>
-                  </div>
-                  <div className="w-8/12 flex flex-col items-end gap-2">
-                    <div
-                      className="w-fit-content flex flex-row justify-between"
-                      style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}
-                    >
-                      {/* <div style={{ fontSize: 15 }}>
+              {initialLoader || tileLoader ? (
+                <DashboardSkeletonLoader />
+              ) : (
+                <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl mt-12">
+                  <div className="w-11/12 h-[100%]">
+                    <div className="w-full flex flex-row items-center justify-between h-[30%]">
+                      <div className="w-2/12 flex flex-col gap-1">
+                        <div
+                          style={{ fontSize: 29, fontWeight: '600', color: '#000' }}
+                        >
+                          Usage
+                        </div>
+                        <div
+                          style={{ fontSize: 15, fontWeight: '400', color: '#000' }}
+                        >
+                          Total Activity
+                        </div>
+                        <div
+                          style={{
+                            fontSize:
+                              screenHeight < 640
+                                ? 35
+                                : screenHeight < 800
+                                  ? 50
+                                  : 75,
+                            fontWeight: '700',
+                            color: '#000',
+                          }}
+                        >
+                          {statsDetails?.totalCalls || '-'}
+                        </div>
+                      </div>
+                      <div className="w-8/12 flex flex-col items-end gap-2">
+                        <div
+                          className="w-fit-content flex flex-row justify-between"
+                          style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}
+                        >
+                          {/* <div style={{ fontSize: 15 }}>
  Last 24hrs
  </div> */}
 
-                      <FormControl>
-                        {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
-                        <Select
-                          // labelId="demo-simple-select-label"
-                          // id="demo-simple-select"
-                          value={Duration}
-                          // label="Age"
-                          onChange={handleChange}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
-                            }
-                            return selected
-                          }}
-                          sx={{
-                            border: 'none', // Default border
-                            '&:hover': {
-                              border: 'none', // Same border on hover
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove the default outline
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove outline on focus
-                            },
-                            '&.MuiSelect-select': {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: '30vh', // Limit dropdown height
-                                overflow: 'auto', // Enable scrolling in dropdown
-                                scrollbarWidth: 'none',
-                                // borderRadius: "10px"
-                              },
-                            },
-                          }}
-                        >
-                          <MenuItem
-                            className="hover:bg-brand-primary/10"
-                            value={'24 hrs'}
-                            style={{
-                              backgroundColor:
-                                Duration === '24 hrs' && 'hsl(var(--brand-primary, 270 75% 50%))',
-                              color: Duration === '24 hrs' && '#ffffff',
-                            }}
-                          >
-                            Last 24 Hours
-                          </MenuItem>
-                          <MenuItem
-                            className="hover:bg-brand-primary/10"
-                            value={'Last 7 Days'}
-                            style={{
-                              backgroundColor:
-                                Duration === 'Last 7 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
-                              color: Duration === 'Last 7 Days' && '#ffffff',
-                            }}
-                          >
-                            Last 7 Days
-                          </MenuItem>
-                          <MenuItem
-                            className="hover:bg-brand-primary/10"
-                            value={'Last 30 Days'}
-                            style={{
-                              backgroundColor:
-                                Duration === 'Last 30 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
-                              color: Duration === 'Last 30 Days' && '#ffffff',
-                            }}
-                          >
-                            Last 30 Days
-                          </MenuItem>
-                          <MenuItem
-                            className="hover:bg-brand-primary/10"
-                            value={'All time'}
-                            style={{
-                              backgroundColor:
-                                Duration === 'All time' && 'hsl(var(--brand-primary, 270 75% 50%))',
-                              color: Duration === 'All time' && '#ffffff',
-                            }}
-                          >
-                            All time
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </div>
-
-                    <div
-                      className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4 relative overflow-hidden"
-                      style={{
-                        backgroundColor: 'hsl(var(--brand-primary))',
-                        width: '40vw',
-                        minHeight: '13vh',
-                        borderRadius: 10,
-                      }}
-                    >
-                      {/* Content */}
-                      <div className="flex flex-row gap-3 items-start relative z-10">
-                        <Image
-                          src={'/svgIcons/timerIcon.svg'}
-                          height={50}
-                          width={50}
-                          alt="timer"
-                        />
-                        <div className="flex flex-col">
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: '400',
-                              color: '#fff',
-                            }}
-                          >
-                            Balance
-                          </div>
-
-                          <div
-                            className="lg:text-2xl md:text-3xl sm:text-xl text-lg font-bold text-white"
-                            style={{
-                              // fontSize: 40,
-                              fontWeight: '400',
-                              color: '#fff',
-                            }}
-                          >
-                            {(userDetails?.totalSecondsAvailable / 60).toFixed(
-                              2,
-                            )}{' '}
-                            AI Credits
-                          </div>
+                          <FormControl>
+                            {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
+                            <Select
+                              // labelId="demo-simple-select-label"
+                              // id="demo-simple-select"
+                              value={Duration}
+                              // label="Age"
+                              onChange={handleChange}
+                              displayEmpty // Enables placeholder
+                              renderValue={(selected) => {
+                                if (!selected) {
+                                  return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
+                                }
+                                return selected
+                              }}
+                              sx={{
+                                border: 'none', // Default border
+                                '&:hover': {
+                                  border: 'none', // Same border on hover
+                                },
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none', // Remove the default outline
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none', // Remove outline on focus
+                                },
+                                '&.MuiSelect-select': {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: '30vh', // Limit dropdown height
+                                    overflow: 'auto', // Enable scrolling in dropdown
+                                    scrollbarWidth: 'none',
+                                    // borderRadius: "10px"
+                                  },
+                                },
+                              }}
+                            >
+                              <MenuItem
+                                className="hover:bg-brand-primary/10"
+                                value={'24 hrs'}
+                                style={{
+                                  backgroundColor:
+                                    Duration === '24 hrs' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  color: Duration === '24 hrs' && '#ffffff',
+                                }}
+                              >
+                                Last 24 Hours
+                              </MenuItem>
+                              <MenuItem
+                                className="hover:bg-brand-primary/10"
+                                value={'Last 7 Days'}
+                                style={{
+                                  backgroundColor:
+                                    Duration === 'Last 7 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  color: Duration === 'Last 7 Days' && '#ffffff',
+                                }}
+                              >
+                                Last 7 Days
+                              </MenuItem>
+                              <MenuItem
+                                className="hover:bg-brand-primary/10"
+                                value={'Last 30 Days'}
+                                style={{
+                                  backgroundColor:
+                                    Duration === 'Last 30 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  color: Duration === 'Last 30 Days' && '#ffffff',
+                                }}
+                              >
+                                Last 30 Days
+                              </MenuItem>
+                              <MenuItem
+                                className="hover:bg-brand-primary/10"
+                                value={'All time'}
+                                style={{
+                                  backgroundColor:
+                                    Duration === 'All time' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  color: Duration === 'All time' && '#ffffff',
+                                }}
+                              >
+                                All time
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
                         </div>
-                      </div>
 
-                      <div className="flex flex-col gap-2 relative z-10">
                         <div
+                          className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4 relative overflow-hidden"
                           style={{
-                            fontSize: 15,
-                            fontWeight: '400',
-                            color: '#fff',
+                            backgroundColor: 'hsl(var(--brand-primary))',
+                            width: '40vw',
+                            minHeight: '13vh',
+                            borderRadius: 10,
                           }}
                         >
-                          Scale your business
-                        </div>
-                        <button
-                          className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
-                          onClick={() => {
-                            setShowUpgradePlanPopup(true)
-                          }}
-                        >
-                          <Image
-                            src={'/svgIcons/king.svg'}
-                            height={20}
-                            width={20}
-                            alt="*"
-                          />
-                          <div
-                            style={{
-                              fontWeight: '500',
-                              fontSize: 15,
-                            }}
-                          >
-                            Upgrade
+                          {/* Content */}
+                          <div className="flex flex-row gap-3 items-start relative z-10">
+                            <Image
+                              src={'/svgIcons/timerIcon.svg'}
+                              height={50}
+                              width={50}
+                              alt="timer"
+                            />
+                            <div className="flex flex-col">
+                              <div
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: '400',
+                                  color: '#fff',
+                                }}
+                              >
+                                Balance
+                              </div>
+
+                              <div
+                                className="lg:text-2xl md:text-3xl sm:text-xl text-lg font-bold text-white"
+                                style={{
+                                  // fontSize: 40,
+                                  fontWeight: '400',
+                                  color: '#fff',
+                                }}
+                              >
+                                {(userDetails?.totalSecondsAvailable / 60).toFixed(
+                                  2,
+                                )}{' '}
+                                AI Credits
+                              </div>
+                            </div>
                           </div>
-                        </button>
+
+                          <div className="flex flex-col gap-2 relative z-10">
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: '400',
+                                color: '#fff',
+                              }}
+                            >
+                              Scale your business
+                            </div>
+                            <button
+                              className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
+                              onClick={() => {
+                                setShowUpgradePlanPopup(true)
+                              }}
+                            >
+                              <Image
+                                src={'/svgIcons/king.svg'}
+                                height={20}
+                                width={20}
+                                alt="*"
+                              />
+                              <div
+                                style={{
+                                  fontWeight: '500',
+                                  fontSize: 15,
+                                }}
+                              >
+                                Upgrade
+                              </div>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div className="w-full py-8 overflow-none">
-                  {/* Metrics Section */}
-                  <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                    {/* Card: Conversations > 10 Sec */}
-                    <Card
-                      icon="/svgIcons/convosIcon.svg"
-                      title="Convos"
-                      value={statsDetails?.totalCallsGt10 || '-'}
-                      subtitle="Answer rate"
-                      rate={
-                        statsComparisonDetails?.callsGt10Change
-                          ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                              2,
-                            )}%`
-                          : '-'
-                      }
-                      borderSide="border-b-2"
-                    />
+                    <div className="w-full py-8 overflow-none">
+                      {/* Metrics Section */}
+                      <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                        {/* Card: Conversations > 10 Sec */}
+                        <Card
+                          icon="/svgIcons/convosIcon.svg"
+                          title="Convos"
+                          value={statsDetails?.totalCallsGt10 || '-'}
+                          subtitle="Answer rate"
+                          rate={
+                            statsComparisonDetails?.callsGt10Change
+                              ? `${statsComparisonDetails?.callsGt10Change.toFixed(
+                                2,
+                              )}%`
+                              : '-'
+                          }
+                          borderSide="border-b-2"
+                        />
 
-                    {/* Card: Hot Leads */}
-                    <Card
-                      icon="/svgIcons/hotLeadsIcon.svg"
-                      title="Hot Leads"
-                      value={statsDetails?.hotLeads || '-'}
-                      subtitle="Conversion rate"
-                      rate={
-                        statsComparisonDetails?.hotLeadsChange
-                          ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                              2,
-                            )}%`
-                          : '-'
-                      }
-                      borderSide="border-l-2 border-b-2"
-                      recomendation={false}
-                    />
+                        {/* Card: Hot Leads */}
+                        <Card
+                          icon="/svgIcons/hotLeadsIcon.svg"
+                          title="Hot Leads"
+                          value={statsDetails?.hotLeads || '-'}
+                          subtitle="Conversion rate"
+                          rate={
+                            statsComparisonDetails?.hotLeadsChange
+                              ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
+                                2,
+                              )}%`
+                              : '-'
+                          }
+                          borderSide="border-l-2 border-b-2"
+                          recomendation={false}
+                        />
 
-                    {/* Card: Booked Meetings */}
-                    <Card
-                      icon="/svgIcons/bookedMeetingsIcon.svg"
-                      title="Booked Meetings"
-                      value={statsDetails?.meetingScheduled || '-'}
-                      subtitle="Conversion rate"
-                      // rate={
-                      // statsComparisonDetails?.durationChange
-                      // ? `${statsComparisonDetails?.durationChange.toFixed(
-                      // 2
-                      // )}%`
-                      // : "-"
-                      // }
-                      rate={
-                        statsComparisonDetails?.bookingChange
-                          ? `${statsComparisonDetails?.bookingChange.toFixed(
-                              2,
-                            )}%`
-                          : '-'
-                      }
-                      borderSide="border-l-2 border-b-2"
-                      recomendation={false}
-                    />
+                        {/* Card: Booked Meetings */}
+                        <Card
+                          icon="/svgIcons/bookedMeetingsIcon.svg"
+                          title="Booked Meetings"
+                          value={statsDetails?.meetingScheduled || '-'}
+                          subtitle="Conversion rate"
+                          // rate={
+                          // statsComparisonDetails?.durationChange
+                          // ? `${statsComparisonDetails?.durationChange.toFixed(
+                          // 2
+                          // )}%`
+                          // : "-"
+                          // }
+                          rate={
+                            statsComparisonDetails?.bookingChange
+                              ? `${statsComparisonDetails?.bookingChange.toFixed(
+                                2,
+                              )}%`
+                              : '-'
+                          }
+                          borderSide="border-l-2 border-b-2"
+                          recomendation={false}
+                        />
 
-                    {/* Card: Voicemails */}
-                    <Card
-                      icon="/svgIcons/voicemailIcon.svg"
-                      title="Voicemails"
-                      value={statsDetails?.voicemail || '-'}
-                      borderSide=""
-                    />
+                        {/* Card: Voicemails */}
+                        <Card
+                          icon="/svgIcons/voicemailIcon.svg"
+                          title="Voicemails"
+                          value={statsDetails?.voicemail || '-'}
+                          borderSide=""
+                        />
 
-                    {/* Card: Not Interested */}
-                    <Card
-                      icon="/svgIcons/notInterestedIcon.svg"
-                      title="Not Interested"
-                      value={statsDetails?.notInterested || '-'}
-                      borderSide="border-l-2"
-                    />
+                        {/* Card: Not Interested */}
+                        <Card
+                          icon="/svgIcons/notInterestedIcon.svg"
+                          title="Not Interested"
+                          value={statsDetails?.notInterested || '-'}
+                          borderSide="border-l-2"
+                        />
 
-                    {/* Card: Avg Convo Duration */}
-                    <Card
-                      icon="/svgIcons/avgDurationIcon.svg"
-                      title="Avg Convo Duration"
-                      // value={
-                      //   statsDetails?.formattedAvDuration ?
-                      //     moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
-                      //     : "-"
-                      // }
-                      value={
-                        statsDetails?.formattedAvDuration &&
-                        statsDetails?.formattedAvDuration != 'N/A'
-                          ? statsDetails?.formattedAvDuration
-                          : '-'
-                      }
-                      borderSide="border-l-2"
-                    />
+                        {/* Card: Avg Convo Duration */}
+                        <Card
+                          icon="/svgIcons/avgDurationIcon.svg"
+                          title="Avg Convo Duration"
+                          // value={
+                          //   statsDetails?.formattedAvDuration ?
+                          //     moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
+                          //     : "-"
+                          // }
+                          value={
+                            statsDetails?.formattedAvDuration &&
+                              statsDetails?.formattedAvDuration != 'N/A'
+                              ? statsDetails?.formattedAvDuration
+                              : '-'
+                          }
+                          borderSide="border-l-2"
+                        />
 
-                    {/* Card: credits used */}
-                    <Card
-                      icon="/otherAssets/creditsUsedIcons.png"
-                      title="Credits Used"
-                      value={statsDetails?.creditsUsed || '-'}
-                      borderSide="border-t-2"
-                    />
+                        {/* Card: credits used */}
+                        <Card
+                          icon="/otherAssets/creditsUsedIcons.png"
+                          title="Credits Used"
+                          value={statsDetails?.creditsUsed || '-'}
+                          borderSide="border-t-2"
+                        />
 
-                    {/* Card: Emails Sent */}
-                    <Card
-                      icon="/otherAssets/emailSentIcon.png"
-                      title="Emails Sent"
-                      value={statsDetails?.emailsSent || '-'}
-                      borderSide="border-l-2 border-t-2"
-                    />
+                        {/* Card: Emails Sent */}
+                        <Card
+                          icon="/otherAssets/emailSentIcon.png"
+                          title="Emails Sent"
+                          value={statsDetails?.emailsSent || '-'}
+                          borderSide="border-l-2 border-t-2"
+                        />
 
                     {/* Card: Texts send */}
                     <Card
@@ -676,7 +681,7 @@ const Page = () => {
                     />
                   </div>
 
-                  {/* <div className="w-full flex flex-row items-center justify-between mt-4">
+                      {/* <div className="w-full flex flex-row items-center justify-between mt-4">
                     <div
                       className="w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4"
                       style={{
@@ -791,23 +796,23 @@ const Page = () => {
                       </div>
                     </div>
                       </div>*/}
+                    </div>
+                  </div>
                 </div>
+              ) }
               </div>
-            </div>
-          </div>
 
-          <Elements stripe={stripePromise}>
-            <UpgradePlan
-              setSelectedPlan={() => {}}
-              open={showUpgradePlanPopup}
-              handleClose={() => {
-                setShowUpgradePlanPopup(false)
-              }}
-              // setShowSnackMsg={setShowSnackMsg}
-            />
-          </Elements>
-        </div>
-      )}
+              <Elements stripe={stripePromise}>
+                <UpgradePlan
+                  setSelectedPlan={() => { }}
+                  open={showUpgradePlanPopup}
+                  handleClose={() => {
+                    setShowUpgradePlanPopup(false)
+                  }}
+                // setShowSnackMsg={setShowSnackMsg}
+                />
+              </Elements>
+            </div>
         </div>
       </ProtectedRoute>
     </PermissionProvider>

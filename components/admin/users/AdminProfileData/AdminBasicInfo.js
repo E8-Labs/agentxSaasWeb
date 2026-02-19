@@ -112,6 +112,13 @@ function AdminBasicInfo({ selectedUser }) {
   const casesPerMonthRef = useRef(null)
   const teritorryRef = useRef(null)
 
+  // Email validation and checking states
+  const [originalEmail, setOriginalEmail] = useState('')
+  const [emailLoader, setEmailLoader] = useState(false)
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null)
+  const [validEmail, setValidEmail] = useState('')
+  const emailTimerRef = useRef(null)
+
   const [selected, setSelected] = useState([])
   const [selectedArea, setSelectedArea] = useState([])
 
@@ -250,6 +257,7 @@ function AdminBasicInfo({ selectedUser }) {
         setName(userData?.name)
         setSelectedImage(LocalData?.thumb_profile_image)
         setEmail(userData?.email)
+        setOriginalEmail(userData?.email || '')
         setFarm(userData?.farm)
         setTransaction(userData?.averageTransactionPerYear)
         setBrokerAge(userData?.brokerage)
@@ -367,18 +375,79 @@ function AdminBasicInfo({ selectedUser }) {
     }
   }
 
+  // Email validation function
+  const validateEmail = (emailVal) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    if (/\.\./.test(emailVal)) {
+      return false
+    }
+    return emailPattern.test(emailVal)
+  }
+
+  // Function to check if email exists in database
+  const checkEmail = async (value) => {
+    try {
+      if (value === originalEmail) {
+        setEmailCheckResponse(null)
+        setValidEmail('')
+        return
+      }
+
+      setValidEmail('')
+      setEmailLoader(true)
+
+      const ApiPath = Apis.CheckEmail
+      let ApiData = { email: value }
+
+      if (selectedUser) {
+        ApiData.userId = selectedUser?.id
+      }
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response) {
+        setEmailCheckResponse(response.data)
+      }
+    } catch (error) {
+      console.error('Error checking email:', error)
+    } finally {
+      setEmailLoader(false)
+    }
+  }
+
   const handleEmailSave = async () => {
     try {
+      if (!validateEmail(email)) {
+        return
+      }
+
+      if (email !== originalEmail) {
+        if (emailLoader) {
+          return
+        }
+        if (emailCheckResponse === null) {
+          return
+        }
+        if (emailCheckResponse.status === false) {
+          return
+        }
+      }
+
       setLoading15(true)
       const data = { email: email }
       if (selectedUser) {
         data.userId = selectedUser?.id
       }
-      // console.log("admin basic ",data)
-      // return
       await UpdateProfile(data)
       setLoading15(false)
       setIsEmailChanged(false)
+      setOriginalEmail(email)
+      setEmailCheckResponse(null)
+      setValidEmail('')
     } catch (e) {
       setLoading15(false)
     }
@@ -806,8 +875,27 @@ function AdminBasicInfo({ selectedUser }) {
             onBlur={() => setFocusedEmail(false)}
             value={email}
             onChange={(event) => {
-              setEmail(event.target.value)
+              const value = event.target.value
+              setEmail(value)
               setIsEmailChanged(true)
+              setEmailCheckResponse(null)
+
+              if (!value) {
+                setValidEmail('')
+                return
+              }
+
+              if (!validateEmail(value)) {
+                setValidEmail('Invalid')
+              } else {
+                setValidEmail('')
+                if (emailTimerRef.current) {
+                  clearTimeout(emailTimerRef.current)
+                }
+                emailTimerRef.current = setTimeout(() => {
+                  checkEmail(value)
+                }, 300)
+              }
             }}
             type="email"
             placeholder="Email"
@@ -815,8 +903,12 @@ function AdminBasicInfo({ selectedUser }) {
           />
         </div>
         {isEmailChanged ? (
-          loading15 ? (
+          emailLoader ? (
             <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+          ) : validEmail === 'Invalid' ? (
+            <div style={{ fontSize: 12, color: 'red' }}>Invalid</div>
+          ) : emailCheckResponse?.status === false ? (
+            <div style={{ fontSize: 12, color: 'red' }}>Taken</div>
           ) : (
             <button
               onClick={async () => {
