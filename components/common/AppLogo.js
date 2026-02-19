@@ -368,7 +368,7 @@ const AppLogo = ({
       />
     )
   }
-  if (companyName && reduxUser?.userRole !== UserRole.AgentX) { //userole !== AssignX
+  if (companyName && reduxUser?.teamFor !== UserRole.AgentX && reduxUser?.userRole !== UserRole.AgentX) { //userole !== AssignX
     // UserRole.AgentX   && companyName !== "AssignX" || reduxUser?.userRole !== UserRole.Invitee
     return (
       <div
