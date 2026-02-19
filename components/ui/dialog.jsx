@@ -88,7 +88,7 @@ const DialogContent = React.forwardRef(
         <div
           data-agentation-fallback-overlay
           className={cn(
-            'fixed inset-0 z-[1400] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'fixed inset-0 z-[1400] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 pointer-events-none',
             overlayClassName
           )}
           aria-hidden

@@ -639,13 +639,13 @@ const AiChatModal = ({
 
               {/* Called by label */}
               {callerName ? (
-                <div className="text-xs text-system-text text-center px-4 mb-2">
+                <div className="text-sm text-system-text text-center px-4 mb-2">
                   Called by{' '}
                   <strong className="font-semibold">{callerName}</strong> on{' '}
                   {callDate}
                 </div>
               ) : (
-                <div className="text-xs text-system-text text-center px-4 mb-2">
+                <div className="text-sm text-system-text text-center px-4 mb-2">
                   <strong className="font-semibold">This lead</strong> was
                   called on {callDate}
                 </div>

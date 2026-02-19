@@ -52,11 +52,11 @@ const CallTranscriptCN = ({
   // }, [leadId])
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-2">
       {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
-      <div className="flex flex-row items-center justify-between mt-2 text-sm">
+      <div className="flex flex-row items-center justify-between text-sm">
         <div className="flex flex-row items-center gap-3">
-          <TypographyBodyMedium className="text-foreground">
+          <TypographyBodyMedium className="text-foreground font-normal">
             {moment(item?.duration * 1000).format('mm:ss')}
           </TypographyBodyMedium>
           <button
@@ -191,7 +191,7 @@ const CallTranscriptCN = ({
       </div>
 
       {/* Summary text */}
-      <div className="w-full mt-4 text-sm">
+      <div className="w-full text-sm">
         <TypographyBodySemibold className="mb-2 text-muted-foreground">
           Summary
         </TypographyBodySemibold>
@@ -201,7 +201,7 @@ const CallTranscriptCN = ({
       </div>
 
       {/* Bottom row: Call ID, Transcript icons (left), optional right content */}
-      <div className="flex flex-row items-center justify-between mt-4">
+      <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-4">
           {/* Call ID Icon */}
           <Tooltip

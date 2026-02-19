@@ -679,7 +679,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     })
                 }}
             />
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+        <div className="px-6 py-4 h-[65px] border-b border-gray-200 flex items-center justify-between bg-white">
             <div className="flex flex-row items-center gap-2">
             <div 
                 className="relative flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
@@ -695,7 +695,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
            
           </div>
                 <TypographyBody 
-                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    className="text-[18px] font-medium capitalize cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => {
                         if (selectedThread?.leadId) {
                             setShowLeadDetailsModal(true)

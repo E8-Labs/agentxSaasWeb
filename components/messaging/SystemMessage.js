@@ -81,7 +81,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
     // Fallback: check senderUser directly
     if (message.senderUser?.thumb_profile_image) {
       return (
-        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
           <img
             src={message.senderUser.thumb_profile_image}
             alt={message.senderUser.name || 'Team Member'}
@@ -93,7 +93,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
               if (parent) {
                 const name = message.senderUser?.name || message.senderUser?.email || 'T'
                 const letter = name.charAt(0).toUpperCase()
-                parent.className = 'w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0'
+                parent.className = 'w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0'
                 parent.textContent = letter
               }
             }}
@@ -106,7 +106,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
     const senderName = message.senderUser?.name || message.senderUser?.email || 'T'
     const avatarLetter = senderName.charAt(0).toUpperCase()
     return (
-      <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
         {avatarLetter}
       </div>
     )
@@ -353,19 +353,19 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
 
                 {
                   callerName === null ?
-                    (<div className="text-xs text-system-text text-center px-4 mb-2">
+                    (<div className="text-sm text-system-text text-center px-4 mb-2">
                       <strong className="font-semibold">This lead</strong> was called on {callDate}
                     </div>) :
                     (
 
-                      <div className="text-xs text-system-text text-center px-4 mb-2">
+                      <div className="text-sm text-system-text text-center px-4 mb-2">
                         Called by <strong className="font-semibold">{callerName}</strong> on {callDate}
                       </div>
                     )
                 }
 
                 <div className="w-full max-w-2xl px-4">
-                  <div className={`rounded-xl border border-border bg-background px-4 ${aiActionType ? 'pb-4' : 'pb-2'} shadow-sm`}>
+                  <div className="rounded-xl border border-border bg-background p-3 shadow-sm">
                     <CallTranscriptCN
                       leadId={selectedLead}
                       leadName={leadName}
@@ -377,7 +377,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                         hasAiKey === true ? (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors">
+                              <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors [&_img]:hover:animate-pulse">
                                 <Image
                                   src="/otherAssets/starsIcon2.png"
                                   height={14}
@@ -385,7 +385,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                                   alt="AI"
                                 />
                                 <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
-                                <ChevronDown className="h-3 w-3" />
+                                <ChevronDown className="h-4 w-4 shrink-0" />
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="min-w-[140px]">
@@ -431,7 +431,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                         ) : hasAiKey === false ? (
                           <HoverCard openDelay={200} closeDelay={100}>
                             <HoverCardTrigger asChild>
-                              <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
+                              <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer [&_img]:hover:animate-pulse">
                                 <Image
                                   src="/otherAssets/starsIcon2.png"
                                   height={14}
@@ -439,7 +439,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                                   alt="AI"
                                 />
                                 <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
-                                <ChevronDown className="h-3 w-3" />
+                                <ChevronDown className="h-4 w-4 shrink-0" />
                               </button>
                             </HoverCardTrigger>
                             <HoverCardContent align="end" className="w-auto">
@@ -463,17 +463,17 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                             </HoverCardContent>
                           </HoverCard>
                         ) : (
-                          <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground opacity-70 cursor-default" disabled>
+                          <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground opacity-70 cursor-default" disabled>
                             <Image src="/otherAssets/starsIcon2.png" height={14} width={14} alt="AI" />
                             <span>AI Action</span>
-                            <ChevronDown className="h-3 w-3" />
+                            <ChevronDown className="h-4 w-4 shrink-0" />
                           </button>
                         )
                       }
                     />
 
                     {aiActionType && (
-                      <div ref={aiActionRef} className="mt-3 border-t border-border pt-3">
+                      <div ref={aiActionRef} className="border-t border-border pt-3 mt-0">
                         <Textarea
                           placeholder="Send a follow up message to lead"
                           value={aiActionInput}
@@ -481,7 +481,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                           className="min-h-[80px] resize-none text-sm"
                           disabled={followUpSubmitting}
                         />
-                        <div className="flex items-center justify-end gap-2 mt-2">
+                        <div className="flex items-center justify-end gap-2 m-0">
                           <button
                             onClick={() => {
                               setAiActionType(null)
@@ -649,7 +649,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                     />
                   </div>
                   <div className="mt-1 mr-1 flex items-center justify-end gap-3">
-                    <span className="text-[10px] text-[#00000060]">
+                    <span className="text-[12px] text-[#00000060]">
                       {moment(message.createdAt).format('h:mm A')}
                     </span>
                   </div>

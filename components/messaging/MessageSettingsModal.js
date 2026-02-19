@@ -676,17 +676,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 </button>
                 <DialogTitle className="text-xl font-bold flex-1">Agent Meter</DialogTitle>
               </DialogHeader>
-              <div className="space-y-6 py-4 px-4 overflow-y-auto max-h-[60svh]">
+              <div className="flex flex-col gap-2 py-4 px-4 overflow-y-auto max-h-[60svh]">
                 {(() => {
                   const bubbleStyle = (leftPct) => ({ left: `${leftPct}%`, transform: 'translateX(-50%)', top: -44 })
                   return (
                     <>
-                      <div>
-                        <TypographyH4Semibold>Sales Drive</TypographyH4Semibold>
+                      <div className="flex flex-col gap-2 py-2">
+                        <TypographyH4Semibold className="!font-medium">Sales Drive</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-0">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
                             <div ref={salesDriveTrackRef} className="relative flex-1 min-w-0 overflow-visible">
@@ -706,19 +706,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 }}
                               />
                             </div>
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
                         </div>
 
                       </div>
-                      <div>
-                      <TypographyH4Semibold className=" mt-1">Persuasiveness</TypographyH4Semibold>
+                      <div className="flex flex-col gap-2 py-2">
+                      <TypographyH4Semibold className="mt-1 !font-medium">Persuasiveness</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
                             <div ref={persuasivenessTrackRef} className="relative flex-1 min-w-0 overflow-visible">
@@ -738,19 +738,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 }}
                               />
                             </div>
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
                         </div>
                         
                       </div>
-                      <div>
-                        <TypographyH4Semibold className="mt-1">Client Handling</TypographyH4Semibold>
+                      <div className="flex flex-col gap-2 py-2">
+                        <TypographyH4Semibold className="mt-1 !font-medium">Client Handling</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
                             <div ref={clientHandlingTrackRef} className="relative flex-1 min-w-0 overflow-visible">
@@ -770,7 +770,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 }}
                               />
                             </div>
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
@@ -782,7 +782,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               </div>
               <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t p-4">
                 <Button variant="outline" onClick={() => setSubModalKey(null)} disabled={savingSubModal}>Cancel</Button>
-                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} style={{ backgroundColor: 'hsl(var(--brand-primary))' }} className="text-white hover:opacity-90">
+                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} style={{ backgroundColor: 'hsl(var(--brand-primary))' }} className="h-8 rounded-lg text-sm text-white hover:opacity-90 transition-transform duration-150 ease-out active:scale-[0.98]">
                   {savingSubModal ? 'Saving...' : 'Save'}
                 </Button>
               </DialogFooter>
@@ -859,7 +859,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           )}
                         </span>
                       </span>
-                      <div className="min-w-0 flex flex-col gap-1">
+                      <div className="min-w-0 flex flex-col gap-2">
                         <span
                           className="text-sm font-medium"
                           style={isOptSelected ? { color: 'hsl(var(--brand-primary))' } : undefined}
@@ -925,7 +925,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                     aria-label="Close"
                     className="h-8 w-8 rounded-lg bg-transparent hover:bg-white/5 flex items-center justify-center transition-colors active:scale-[0.98]"
                   >
-                    <X className="h-[12.6px] w-[12.6px] opacity-80" strokeWidth={2} />
+                    <X className="h-[14px] w-[14px] opacity-80" strokeWidth={2} />
                   </button>
                 </DialogClose>
               </div>
@@ -1168,17 +1168,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 variant="outline"
                 onClick={onClose}
                 disabled={saving}
-                className="h-10 rounded-lg bg-[#EAEAEA] border-0 hover:bg-[#e0e0e0] active:scale-[0.98] transition-transform"
+                className="h-10 rounded-lg px-4 py-2 bg-[#EAEAEA] border-0 shadow-sm hover:bg-[#e0e0e0] active:scale-[0.98] transition-transform"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={saving || loading}
-                className="h-10 rounded-lg hover:opacity-90 text-white active:scale-[0.98] transition-transform"
+                className="h-10 rounded-lg px-4 py-2 hover:opacity-90 text-white active:scale-[0.98] transition-transform"
                 style={{
                   backgroundColor: 'hsl(var(--brand-primary))',
-                  boxShadow: '0 2px 8px hsl(var(--brand-primary) / 0.2)',
+                  boxShadow: '0 2px 8px hsl(var(--brand-primary) / 0.22)',
                 }}
               >
                 {saving ? 'Saving...' : 'Save Changes'}

@@ -150,7 +150,7 @@ const EmailBubble = ({
 
     </div>
     <div className="mt-1 mr-1 flex items-center justify-end gap-3">
-      <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
+      <span className={`text-[12px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
     </div>
   </>
 )

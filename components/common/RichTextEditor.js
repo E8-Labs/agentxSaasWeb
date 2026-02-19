@@ -48,6 +48,7 @@ const RichTextEditor = forwardRef(
       attachmentButton = null, // Attachment button to render right after toolbar buttons
       editorHeight = null, // Optional prop to set custom editor height
       maxCharLimit = null, // Optional; when set, enforces max length (plain-text count)
+      toolbarDropdownOpen = false, // When true, removes wrapper border (e.g. when Variables dropdown is open)
     },
     ref,
   ) => {
@@ -256,7 +257,7 @@ const RichTextEditor = forwardRef(
         <div
           className={`quill-editor-wrapper ${
             toolbarPosition === 'bottom' ? 'toolbar-bottom' : 'toolbar-top'
-          }`}
+          } ${toolbarDropdownOpen ? 'toolbar-dropdown-open' : ''}`}
           style={editorHeight ? { '--editor-height': editorHeight } : {}}
         >
           <ReactQuill
@@ -329,6 +330,9 @@ const RichTextEditor = forwardRef(
             margin-top: 0;
             position: relative;
             z-index: 1;
+          }
+          .quill-editor-wrapper.toolbar-dropdown-open {
+            border-color: transparent;
           }
 
           /* ReactQuill root element - needs flex display */
@@ -413,8 +417,12 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper .ql-editor {
             min-height: 120px;
+            font-size: 14px;
             ${editorHeight ? `height: var(--editor-height); max-height: var(--editor-height);` : 'max-height: 400px;'}
             overflow-y: auto;
+          }
+          .quill-editor-wrapper .ql-editor p {
+            font-size: 14px;
           }
 
           /* Prevent auto-capitalization and line jumping in headings */

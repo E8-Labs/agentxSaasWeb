@@ -63,6 +63,10 @@ const ThreadsList = ({
   const filterPopoverRef = useRef(null)
   const scrollContainerRef = useRef(null)
   const [scrollRoot, setScrollRoot] = useState(null)
+  const [filterHoveredKey, setFilterHoveredKey] = useState(null)
+  const [filterPillStyle, setFilterPillStyle] = useState({ top: 0, height: 0 })
+  const filterListRef = useRef(null)
+  const filterOptionRefs = useRef(Object.create(null))
 
   const setScrollContainerRef = useCallback((el) => {
     scrollContainerRef.current = el
@@ -96,6 +100,22 @@ const ThreadsList = ({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [showFilterPopover, onFilterToggle])
+
+  // Update sliding pill position when hovered filter option changes
+  useEffect(() => {
+    if (filterHoveredKey == null || !filterListRef.current) {
+      setFilterPillStyle({ top: 0, height: 0 })
+      return
+    }
+    const el = filterOptionRefs.current[filterHoveredKey]
+    const list = filterListRef.current
+    if (!el || !list) return
+    const listRect = list.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    const top = elRect.top - listRect.top + list.scrollTop
+    const height = elRect.height
+    setFilterPillStyle({ top, height })
+  }, [filterHoveredKey])
 
   const isAllSelected = selectedTeamMemberIds.length === 0
 
@@ -184,22 +204,24 @@ const ThreadsList = ({
 
 
 
-  const renderFilterOption = (option, isAll = false) => {
+  const renderFilterOption = (option, isAll = false, optionKey) => {
     const isSelected = isAll ? isAllSelected : selectedTeamMemberIds.includes(option.id)
     const nameInitial = option.name?.charAt(0)?.toUpperCase() || '?'
     const displayInitial = isAll ? 'All' : nameInitial
-
+    const key = optionKey ?? (isAll ? 'all-members' : option.id)
 
     return (
       <button
-        key={isAll ? 'all-members' : option.id}
+        key={key}
+        ref={(el) => { if (el) filterOptionRefs.current[key] = el }}
+        onMouseEnter={() => setFilterHoveredKey(key)}
         onClick={() => onSelectTeamMember?.(isAll ? null : option.id)}
-        className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+        className="flex items-center gap-3 w-full h-[40px] px-3 py-0 rounded-lg hover:bg-transparent transition-transform duration-150 ease-out active:scale-[0.98] text-left relative z-[1]"
       >
-        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-semibold text-sm">
+        <div className="w-[28px] h-[28px] rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-semibold text-[16px] shrink-0">
           {displayInitial}
         </div>
-        <span className="flex-1 text-sm text-gray-900">{isAll ? 'All Members' : option.name}</span>
+        <span className="flex-1 font-medium text-[14px] text-gray-900 truncate">{isAll ? 'All Members' : option.name}</span>
         <span
           className={cn(
             'w-5 h-5 rounded-full border-2 flex items-center justify-center',
@@ -213,8 +235,8 @@ const ThreadsList = ({
   }
 
   return (
-    <div className={`w-80 border-r px-3 border-gray-200 flex flex-col ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
-      <div className="w-full flex flex-row items-center justify-between mt-4">
+    <div className={`w-[400px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
+      <div className="w-full flex flex-row items-center justify-between mt-0 px-3 py-3">
 
         {/* Toggle Buttons - All / Unreplied */}
         <ToggleGroupCN
@@ -268,6 +290,8 @@ const ThreadsList = ({
           // icon={ChevronDown}
           onSelect={(opt) => opt?.onSelect?.()}
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
+          triggerClassName="h-10 rounded-lg text-sm"
+          contentClassName="bg-black text-white text-sm border-black/20"
         />
 
         {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
@@ -299,7 +323,7 @@ const ThreadsList = ({
         )}
       </div>
 
-      <div className="relative flex items-center gap-2 mt-4">
+      <div className="relative flex items-center gap-2 mt-0 py-3 px-3">
         <div className="relative flex-1 ">
           <Input
             type="text"
@@ -329,29 +353,42 @@ const ThreadsList = ({
           {showFilterPopover && (
             <div
               ref={filterPopoverRef}
-              className="absolute right-0 top-12 z-30 w-64 bg-white rounded-2xl shadow-xl border border-gray-200"
+              data-state="open"
+              className="absolute right-0 top-full mt-1 z-30 w-[230px] bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out"
             >
-              <div className="px-4 pt-3 pb-2 text-sm font-semibold text-gray-600">Filter by</div>
-              <div className="flex flex-col max-h-64 overflow-y-auto pb-2">
-                {renderFilterOption({}, true)}
+              <div className="px-4 pt-3 pb-2 text-sm font-semibold text-black/70 border-b border-[#eaeaea]">Filter by</div>
+              <div
+                ref={filterListRef}
+                className="relative flex flex-col gap-0.5 max-h-64 overflow-y-auto py-3"
+                onMouseLeave={() => setFilterHoveredKey(null)}
+              >
+                {filterPillStyle.height > 0 && (
+                  <div
+                    className="absolute left-2 right-2 rounded-xl bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                    style={{ top: filterPillStyle.top, height: filterPillStyle.height }}
+                    aria-hidden
+                  />
+                )}
+                {renderFilterOption({}, true, 'all-members')}
                 {filterTeamMembers.length === 0 ? (
                   <div className="px-4 py-4 text-sm text-gray-500">No team members available</div>
                 ) : (
-                  filterTeamMembers.map((member) => renderFilterOption(member, false))
+                  filterTeamMembers.map((member) => renderFilterOption(member, false, member.id))
                 )}
               </div>
               <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                <button
+                <Button
+                  variant="outline"
                   onClick={() => {
                     onClearFilter?.()
                   }}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="h-8 rounded-lg px-4 py-2 bg-[#EAEAEA] border-0 shadow-sm hover:bg-[#e0e0e0] active:scale-[0.98] transition-transform text-sm font-medium text-gray-700"
                 >
                   Clear
-                </button>
+                </Button>
                 <Button
                   size="sm"
-                  className="bg-brand-primary hover:bg-brand-primary/90 text-white"
+                  className="w-auto h-8 px-4 py-2 rounded-lg text-sm bg-brand-primary hover:bg-brand-primary/90 text-white transition-transform duration-150 ease-out active:scale-[0.98]"
                   onClick={() => {
                     onApplyFilter?.()
                   }}
@@ -408,39 +445,46 @@ const ThreadsList = ({
             threshold={1}
             next={onLoadMoreThreads ?? (() => { })}
           >
-            <div className="">
+            <div className="flex flex-col gap-1">
               {threads.map((thread) => (
                 <div
                   key={thread.id}
                   onClick={() => onSelectThread(thread)}
                   className={cn(
-                    "relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg  my-1",
+                    "relative py-4 px-3 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-none transition-transform duration-150 ease-out active:scale-[0.98]",
                     selectedThread?.id === thread.id
                       ? 'bg-thread-selected'
                       : 'hover:bg-gray-50'
                   )}
                 >
+                  {selectedThread?.id === thread.id && (
+                    <div
+                      className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r"
+                      style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
+                      aria-hidden
+                    />
+                  )}
                   <div className="flex items-start gap-3 ">
                     <div className="relative flex-shrink-0">
-                      <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
+                      <div className="w-10 h-10 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
                         {getLeadName(thread)}
                       </div>
                       {getRecentMessageType(thread) === 'email' ? (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                        <div className="absolute bottom-0 right-0 w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center border border-white shadow-sm" style={{ transform: 'translateY(calc(50% - 5px))' }}>
                           <Image
                             src="/messaging/email message type icon.svg"
-                            width={10}
-                            height={10}
+                            width={20}
+                            height={20}
                             alt="Email"
                             className="object-contain"
                           />
                         </div>
                       ) : (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                        <div className="absolute bottom-0 right-0 w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center border border-white shadow-sm" style={{ transform: 'translateY(calc(50% - 5px))' }}>
                           <Image
                             src="/messaging/text type message icon.svg"
-                            width={10}
-                            height={10}
+                            width={20}
+                            height={20}
                             alt="SMS"
                             className="object-contain"
                           />
@@ -455,13 +499,16 @@ const ThreadsList = ({
                       )}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <TypographyBody className="font-semibold text-black truncate">
-                          {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
+                    <div className="flex-1 min-w-0 flex flex-col gap-0.5 items-start">
+                      <div className="flex w-full items-center justify-between">
+                        <TypographyBody className="font-medium text-black truncate text-[14px]">
+                          {(() => {
+                            const name = thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'
+                            return name.charAt(0).toUpperCase() + name.slice(1)
+                          })()}
                         </TypographyBody>
                         <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                          <TypographyCaption className="text-gray-500">
+                          <TypographyCaption className="text-gray-500 text-[14px] leading-[18px]">
                             {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
                           </TypographyCaption>
                           <div className="relative">
@@ -503,7 +550,7 @@ const ThreadsList = ({
                           </div>
                         </div>
                       </div>
-                      <TypographyCaption className="text-gray-500 truncate">
+                      <TypographyCaption className="text-gray-500 truncate text-[14px] leading-[18px]">
                         {(() => {
                           const lastMessage = thread.messages?.[0]
                           if (!lastMessage) return 'No messages yet'
@@ -513,8 +560,8 @@ const ThreadsList = ({
                         })()}
                       </TypographyCaption>
                       {thread.lead?.pipelineStage?.stageTitle && (
-                        <div className="inline-flex items-center gap-2 px-2.5 py-1 mt-1 border border-gray-200 rounded-md">
-                          <TypographyCaption className="text-darkGray font-semibold">
+                        <div className="inline-flex w-fit items-center gap-2 px-2.5 py-1 mt-0.5 border border-gray-200 rounded-md">
+                          <TypographyCaption className="text-darkGray font-semibold text-[14px] leading-[18px]">
                             {thread.lead.pipelineStage.stageTitle}
                           </TypographyCaption>
                         </div>

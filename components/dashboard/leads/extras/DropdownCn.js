@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
  * chevronIcon: Optional custom icon component to replace the default ChevronDown
  * onChevronClick: Optional handler for when the chevron/icon is clicked (for split button behavior)
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null, triggerClassName }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
 
@@ -115,7 +115,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           ) : (
             <DropdownMenuTrigger asChild>
               <button
-                className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName)}
+                className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName, triggerClassName)}
                 style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
                   // Prevent event from bubbling up to modal close handler
@@ -126,7 +126,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                   e.stopPropagation()
                 }}
               >
-                <div className="flex items-center px-3 py-[1px] text-base font-regular">
+                <div className={cn("flex items-center px-3 py-[1px] font-regular", triggerClassName ? 'text-sm' : 'text-base')}>
                   {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
                 </div>

@@ -51,7 +51,7 @@ export default function ThreadOptionsDropdown({
         <button
           className={`flex items-center ${
             withoutBorder ? '' : 'shadow-sm border px-4 py-2 border-muted/70 rounded-xl '
-          } bg-white text-base font-semibold focus:outline-none`}
+          } bg-white text-sm font-semibold focus:outline-none`}
         >
           {selectedTeams.length > 0 ? (
             <div className="flex items-center -space-x-2">

@@ -39,42 +39,21 @@ const MessageComposerTabCN = ({
   const [backgroundColor, setBackgroundColor] = useState('transparent')
 
   useEffect(() => {
-    if (isActive && typeof window !== 'undefined') {
-      const root = document.documentElement
-      const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
-      
-      if (brandColor && brandColor.trim()) {
-        // The CSS variable is in format "270 75% 50%" (space-separated, without hsl())
-        // Convert to hsla with opacity - add commas for hsla() function
-        const parts = brandColor.trim().split(/\s+/)
-        if (parts.length >= 3) {
-          const [h, s, l] = parts
-          setBackgroundColor(`hsla(${h}, ${s}, ${l}, 0.1)`)
-        } else {
-          // If format is unexpected, try using it as-is
-          setBackgroundColor(`hsla(${brandColor.trim()}, 0.1)`)
-        }
-      } else {
-        // Fallback: use default purple with opacity
-        setBackgroundColor('hsla(270, 75%, 50%, 0.1)')
-      }
-    } else {
-      setBackgroundColor('transparent')
-    }
+    if (!isActive) setBackgroundColor('transparent')
   }, [isActive])
 
   return (
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full
+        flex items-center gap-2 px-3 h-8 text-sm font-medium rounded-lg
         transition-all duration-200
         ${isActive 
-          ? 'text-brand-primary' 
+          ? 'text-brand-primary bg-black/[0.05]' 
           : 'text-[#6c757d] hover:text-[#5C646B] hover:bg-gray-100'
         }
       `}
-      style={{ backgroundColor }}
+      style={isActive ? undefined : { backgroundColor }}
       aria-label={label}
       aria-selected={isActive}
     >

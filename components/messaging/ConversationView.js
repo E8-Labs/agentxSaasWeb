@@ -303,7 +303,7 @@ const ConversationView = ({
                   {showDateSeparator && (
                     <div className="flex items-center justify-center my-6">
                       <div className="border-t border-gray-200 flex-1"></div>
-                      <span className="px-4 text-xs text-gray-400">
+                      <span className="px-4 text-sm text-gray-400">
                         {moment(message.createdAt).format('MMMM DD, YYYY')}
                       </span>
                       <div className="border-t border-gray-200 flex-1"></div>
@@ -356,7 +356,7 @@ const ConversationView = ({
                       >
                         {!isOutbound && (
                           <div className="relative flex-shrink-0">
-                            <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
+                            <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                               {getLeadName(selectedThread)}
                             </div>
                           </div>

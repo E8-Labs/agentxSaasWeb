@@ -653,7 +653,7 @@ const EmailTimelineModal = ({
                     {showDateSeparator && (
                       <div className="flex items-center justify-center my-3">
                         <div className="border-t border-gray-200 flex-1"></div>
-                        <span className="px-4 text-xs text-gray-400">
+                        <span className="px-4 text-sm text-gray-400">
                           {moment(message.createdAt).format('MMMM DD, YYYY')}
                         </span>
                         <div className="border-t border-gray-200 flex-1"></div>
