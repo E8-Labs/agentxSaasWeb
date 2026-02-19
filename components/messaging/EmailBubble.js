@@ -23,10 +23,10 @@ const EmailBubble = ({
   <>
     <div
       className={`px-4 py-2 ${isOutbound
-        ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+        ? 'text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
         }`}
-      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary))' } : {}}
+      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : {}}
     >
       {message.subject && (
         <div className="font-semibold mb-2 flex items-start">
@@ -114,7 +114,7 @@ const EmailBubble = ({
                 }
               }
             }}
-            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-xs"
+            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-xs text-black"
             title={message.subject}
           >
             {message.subject}
@@ -128,10 +128,10 @@ const EmailBubble = ({
           [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
           [&_li]:!my-[0.15em]
           ${isOutbound
-          ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
+          ? 'text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a]:!text-brand-primary [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black'
           : 'text-black'
           }`}
-        style={isOutbound ? { color: 'white' } : {}}
+        style={isOutbound ? { color: 'black' } : {}}
         dangerouslySetInnerHTML={{
           __html: (() => {
             const content = message.content || ''

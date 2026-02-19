@@ -1148,8 +1148,8 @@ const MessageComposer = ({
   }
 
   return (
-    <div className="m-0 px-0.5 w-full rounded-lg bg-white">
-      <div className="w-full py-2 px-0.5 flex flex-col gap-1">
+    <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+      <div className="w-full px-0.5 flex flex-col gap-1">
         <div className="flex items-center justify-between border-b m-0 gap-1 py-1">
           <div className="flex items-center gap-2 pb-1 h-8">
             <MessageComposerTabCN
@@ -1325,11 +1325,10 @@ const MessageComposer = ({
         ) : (
           <div
             ref={composerContentRef}
-            className="flex flex-col gap-1"
+            className="flex flex-col gap-1 transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
             style={{
               height: contentHeight,
               overflow: 'hidden',
-              transition: isTransitioning ? 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
               willChange: isTransitioning ? 'height' : 'auto',
             }}
           >
@@ -2032,7 +2031,7 @@ const MessageComposer = ({
                         }}
                         placeholder="Type your message..."
                         maxLength={SMS_CHAR_LIMIT}
-                        className="w-full px-4 py-3 border border-[#eaeaea] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
+                        className="w-full px-4 py-3 border border-[#eaeaea] rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
                       />
 
                       {/* Footer with Template, Character Count, and Send Button */}

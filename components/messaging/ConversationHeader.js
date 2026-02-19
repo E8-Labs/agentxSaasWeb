@@ -689,7 +689,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     }
                 }}
             >
-            <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
+            <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
                             {getLeadName(selectedThread)}
             </div>
            
