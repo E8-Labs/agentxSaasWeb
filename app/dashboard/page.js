@@ -185,6 +185,7 @@ const Page = () => {
 
       if (response) {
         if (response.data.status === true) {
+          console.log("Dashboard screen data", response.data.data)
           setStatsDetails(response.data.data.stats)
           setStatsComparisonDetails(response.data.data.statsComparison)
 
