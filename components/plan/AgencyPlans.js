@@ -540,8 +540,8 @@ function AgencyPlans({
     const currentPlans = getCurrentPlans()
 
     return (
-      <div className="h-screen overflow-hidden flex flex-col w-full">
-        <div className="relative z-10 flex-1 flex flex-col overflow-hidden h-screen">
+      <div className="h-[100svh] overflow-hidden flex flex-col w-full">
+        <div className="relative z-10 flex-1 flex flex-col overflow-hidden h-[100svh]">
           {/* Main Card - Scrollable */}
 
           <div className="w-full flex h-full flex-col items-center  overflow-hidden">
