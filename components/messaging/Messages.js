@@ -3332,6 +3332,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       getRecentMessageType={getRecentMessageType}
                       formatUnreadCount={formatUnreadCount}
                       getLeadName={getLeadName}
+                      getThreadDisplayName={getThreadDisplayName}
                       onThreadUpdated={(updated) => {
                         if (updated?.id != null) {
                           setSelectedThread((prev) =>

@@ -16,8 +16,9 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { X, Link2 } from 'lucide-react'
 import LinkToLeadModal from '@/components/messaging/LinkToLeadModal'
+import PlatformIcon from '@/components/messaging/PlatformIcon'
 
-function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, selectedUser, onThreadUpdated, onThreadLinked }) {
+function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, getThreadDisplayName, selectedUser, onThreadUpdated, onThreadLinked }) {
     const router = useRouter()
     
     // Stage management state
@@ -60,6 +61,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     const isDummySocialThread =
       selectedThread?.lead?.source === 'messenger_dummy' ||
       selectedThread?.lead?.source === 'instagram_dummy'
+    const displayName = getThreadDisplayName ? getThreadDisplayName(selectedThread) : (selectedThread?.lead?.firstName || selectedThread?.lead?.name || 'Unknown Lead')
+    const isUnlinkedPlaceholder = displayName === 'Messenger (unlinked)' || displayName === 'Instagram (unlinked)'
+    const showLinkToLeadButton = isDummySocialThread && isUnlinkedPlaceholder && onThreadLinked
 
     // Helper function to show snackbar messages
     const showSnackbar = (message, type = SnackbarTypes.Success) => {
@@ -700,7 +704,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
                             {getLeadName(selectedThread)}
             </div>
-           
+            {(selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram' || selectedThread?.threadType === 'email' || selectedThread?.threadType === 'sms') && (
+              <PlatformIcon type={selectedThread.threadType} size={10} showInBadge />
+            )}
           </div>
                 <TypographyBody 
                     className="cursor-pointer hover:opacity-80 transition-opacity"
@@ -710,9 +716,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                         }
                     }}
                 >
-                    {isDummySocialThread
-                      ? (selectedThread?.threadType === 'messenger' ? 'Messenger (unlinked)' : 'Instagram (unlinked)')
-                      : (selectedThread.lead?.firstName || 'Unknown Lead')}
+                    {displayName || 'Unknown Lead'}
                 </TypographyBody>
 
 
@@ -745,8 +749,8 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 <div className="flex flex-row items-center gap-3">
                     
 
-                    {/* Link to lead (dummy Messenger/Instagram only) */}
-                    {isDummySocialThread && onThreadLinked && (
+                    {/* Link to lead (only when dummy thread has no lead name yet) */}
+                    {showLinkToLeadButton && (
                         <Button
                             variant="outline"
                             size="sm"

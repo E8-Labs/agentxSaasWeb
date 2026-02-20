@@ -2,6 +2,7 @@ import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
+import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
@@ -417,31 +418,23 @@ const ThreadsList = ({
                       <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
                         {getLeadName(thread)}
                       </div>
-                      {getRecentMessageType(thread) === 'email' ? (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/email message type icon.svg"
-                            width={10}
-                            height={10}
-                            alt="Email"
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : getRecentMessageType(thread) === 'messenger' || getRecentMessageType(thread) === 'instagram' ? (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm text-[10px] font-semibold text-muted-foreground">
-                          {getRecentMessageType(thread) === 'messenger' ? 'M' : 'IG'}
-                        </div>
-                      ) : (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/text type message icon.svg"
-                            width={10}
-                            height={10}
-                            alt="SMS"
-                            className="object-contain"
-                          />
-                        </div>
-                      )}
+                      {(() => {
+                        const sourceType = thread.threadType || getRecentMessageType(thread)
+                        if (sourceType === 'email' || sourceType === 'messenger' || sourceType === 'instagram' || sourceType === 'sms') {
+                          return <PlatformIcon type={sourceType} size={10} showInBadge />
+                        }
+                        return (
+                          <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                            <Image
+                              src="/messaging/text type message icon.svg"
+                              width={10}
+                              height={10}
+                              alt="SMS"
+                              className="object-contain"
+                            />
+                          </div>
+                        )
+                      })()}
                       {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
                         <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
                           <TypographyCaptionSemibold className="text-white">

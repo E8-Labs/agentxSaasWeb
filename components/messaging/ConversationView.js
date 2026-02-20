@@ -5,6 +5,7 @@ import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
 import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
+import PlatformIcon from './PlatformIcon'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import axios from 'axios'
@@ -372,6 +373,9 @@ const ConversationView = ({
                             <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                               {getLeadName(selectedThread)}
                             </div>
+                            {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                              <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                            )}
                           </div>
                         )}
 
@@ -423,8 +427,11 @@ const ConversationView = ({
                         </div>
 
                         {isOutbound && (
-                          <div className="flex-shrink-0">
+                          <div className="relative flex-shrink-0">
                             {getAgentAvatar(message)}
+                            {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                              <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                            )}
                           </div>
                         )}
                       </div>
