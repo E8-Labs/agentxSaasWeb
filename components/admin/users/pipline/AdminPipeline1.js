@@ -3739,7 +3739,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             : handleAddCustomStage
                         }
                       >
-                        {isEditingStage ? 'Update Stage' : 'Add Stage'}
+                        {isEditingStage ? 'Apply' : 'Add Stage'}
                       </button>
                     )}
                   </div>

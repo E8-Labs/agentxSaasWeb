@@ -2372,6 +2372,7 @@ const Pipeline1 = () => {
                     anchorEl={otherPipelinePopoverAnchorel}
                     open={openOtherPipelines}
                     onClose={handleCloseOtherPipeline}
+                    transitionDuration={0}
                     MenuListProps={{
                       'aria-labelledby': OtherPipelineId,
                     }}
@@ -2387,38 +2388,21 @@ const Pipeline1 = () => {
                           marginLeft: '16px',
                         },
                         sx: {
-                          '@keyframes slideUp20': {
-                            from: { transform: 'translateY(20px)', opacity: 0 },
-                            to: { transform: 'translateY(0)', opacity: 1 },
-                          },
-                          animation: 'slideUp20 0.2s ease-out',
+                          transition: 'none',
+                          animation: 'none',
                         },
+                        // No entry animation or sliding pill — hover state caused entry animation to glitch/restart
                       },
                       list: {
                         'aria-labelledby': 'long-button',
-                        sx: { paddingBottom: '8px', paddingLeft: '2px', paddingRight: '2px' },
+                        sx: {
+                          padding: '8px',
+                          '& > *': { width: '100%' },
+                        },
                       },
                     }}
                   >
-                    <div
-                      ref={pipelinesListContainerRef}
-                      className="relative py-0 px-0 pb-2 flex flex-col gap-0.5 text-[14px] opacity-100"
-                      onMouseLeave={() => setPipelinesListPillRect(null)}
-                    >
-                      {/* Sliding pill hover background: same as pipeline menu */}
-                      {pipelinesListPillRect && (
-                        <div
-                          className="absolute rounded-lg transition-all duration-200 ease-out pointer-events-none"
-                          style={{
-                            left: pipelinesListPillRect.left,
-                            top: pipelinesListPillRect.top,
-                            width: pipelinesListPillRect.width,
-                            height: pipelinesListPillRect.height,
-                            backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                            borderRadius: 8,
-                          }}
-                        />
-                      )}
+                    <div className="relative py-0 px-0 pb-2 flex flex-col gap-0.5 text-[14px] opacity-100">
                       <div className='max-h-[20svh] overflow-y-auto'>
                         {PipeLines.map((item, index) => (
                           <MenuItem
@@ -2426,24 +2410,12 @@ const Pipeline1 = () => {
                             disableRipple
                             sx={{
                               fontSize: 14,
-                              '&:hover': { backgroundColor: 'transparent' },
+                              '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                               '&.Mui-focusVisible': { backgroundColor: 'transparent' },
                             }}
                             onClick={() => {
                               handleSelectOtherPipeline(item, index)
                               handleCloseOtherPipeline() // Close menu after selection
-                            }}
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect()
-                              const container = pipelinesListContainerRef.current
-                              if (!container) return
-                              const cRect = container.getBoundingClientRect()
-                              setPipelinesListPillRect({
-                                left: rect.left - cRect.left,
-                                top: rect.top - cRect.top,
-                                width: rect.width,
-                                height: rect.height,
-                              })
                             }}
                           >
                             <div className='w-full flex flex-row items-center justify-between text-[14px] text-black opacity-100'>
@@ -2474,18 +2446,6 @@ const Pipeline1 = () => {
                           setShowUpgradeModal(true)
                         }
                       }}
-                      onMouseEnter={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect()
-                        const container = pipelinesListContainerRef.current
-                        if (!container) return
-                        const cRect = container.getBoundingClientRect()
-                        setPipelinesListPillRect({
-                          left: rect.left - cRect.left,
-                          top: rect.top - cRect.top,
-                          width: rect.width,
-                          height: rect.height,
-                        })
-                      }}
                     >
                       {/*<Plus size={17} weight="bold" />{' '}*/}
                       <span style={{ fontWeight: '500', fontSize: 14 }}>
@@ -2515,51 +2475,14 @@ const Pipeline1 = () => {
                   slotProps={{
                     paper: {
                       style: styles.mediumElevation,
-                      sx: {
-                        '@keyframes slideUp20': {
-                          from: { transform: 'translateY(20px)', opacity: 0 },
-                          to: { transform: 'translateY(0)', opacity: 1 },
-                        },
-                        animation: 'slideUp20 0.2s ease-out',
-                      },
                     },
                   }}
                 >
-                  <div
-                    className="relative py-3 px-3 flex flex-col gap-0.5 text-[14px]"
-                    ref={pipelineMenuContainerRef}
-                    onMouseLeave={() => setPipelineMenuPillRect(null)}
-                  >
-                    {/* Sliding pill hover background: black 2% opacity, 8px radius, slides under hovered child */}
-                    {pipelineMenuPillRect && (
-                      <div
-                        className="absolute rounded-lg transition-all duration-200 ease-out pointer-events-none"
-                        style={{
-                          left: pipelineMenuPillRect.left,
-                          top: pipelineMenuPillRect.top,
-                          width: pipelineMenuPillRect.width,
-                          height: pipelineMenuPillRect.height,
-                          backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                          borderRadius: 8,
-                        }}
-                      />
-                    )}
+                  <div className="relative py-3 px-3 flex flex-col gap-0.5 text-[14px]">
                     <button
                       className="outline-none flex flex-row items-center gap-4 w-full py-2 px-2 h-auto text-black"
                       style={styles.paragraph14}
                       onClick={handleShowOtherPipeline}
-                      onMouseEnter={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect()
-                        const container = pipelineMenuContainerRef.current
-                        if (!container) return
-                        const cRect = container.getBoundingClientRect()
-                        setPipelineMenuPillRect({
-                          left: rect.left - cRect.left,
-                          top: rect.top - cRect.top,
-                          width: rect.width,
-                          height: rect.height,
-                        })
-                      }}
                     >
                       <LayoutGrid size={16} className="flex-shrink-0" />
                       <div className="flex flex-row items-center justify-between flex-1">
@@ -2584,18 +2507,6 @@ const Pipeline1 = () => {
                               setShowRenamePipelinePopup(true)
                               setRenamePipeline(SelectedPipeline.title)
                             }}
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect()
-                              const container = pipelineMenuContainerRef.current
-                              if (!container) return
-                              const cRect = container.getBoundingClientRect()
-                              setPipelineMenuPillRect({
-                                left: rect.left - cRect.left,
-                                top: rect.top - cRect.top,
-                                width: rect.width,
-                                height: rect.height,
-                              })
-                            }}
                           >
                             <Pencil size={16} className="flex-shrink-0" />
                             Rename
@@ -2607,18 +2518,6 @@ const Pipeline1 = () => {
                             style={styles.paragraph14}
                             onClick={() => {
                               setAddNewStageModal(true)
-                            }}
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect()
-                              const container = pipelineMenuContainerRef.current
-                              if (!container) return
-                              const cRect = container.getBoundingClientRect()
-                              setPipelineMenuPillRect({
-                                left: rect.left - cRect.left,
-                                top: rect.top - cRect.top,
-                                width: rect.width,
-                                height: rect.height,
-                              })
                             }}
                           >
                             <Image
@@ -2636,18 +2535,6 @@ const Pipeline1 = () => {
                             style={styles.paragraph14}
                             onClick={() => {
                               setShowStagesPopup(true)
-                            }}
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect()
-                              const container = pipelineMenuContainerRef.current
-                              if (!container) return
-                              const cRect = container.getBoundingClientRect()
-                              setPipelineMenuPillRect({
-                                left: rect.left - cRect.left,
-                                top: rect.top - cRect.top,
-                                width: rect.width,
-                                height: rect.height,
-                              })
                             }}
                           >
                             <Image
@@ -2667,18 +2554,6 @@ const Pipeline1 = () => {
                       style={styles.paragraph14}
                       onClick={() => {
                         setShowDeletePiplinePopup(true)
-                      }}
-                      onMouseEnter={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect()
-                        const container = pipelineMenuContainerRef.current
-                        if (!container) return
-                        const cRect = container.getBoundingClientRect()
-                        setPipelineMenuPillRect({
-                          left: rect.left - cRect.left,
-                          top: rect.top - cRect.top,
-                          width: rect.width,
-                          height: rect.height,
-                        })
                       }}
                     >
                       <Trash2 size={16} className="flex-shrink-0" />
@@ -3808,7 +3683,7 @@ const Pipeline1 = () => {
                           </div>
                           </Popover>
 
-                          <FormControl fullWidth className="mt-0">
+                          <FormControl fullWidth className="mt-0 hidden">
                             <Select
                               id="demo-simple-select"
                               value={assignToMember || ''} // Default to empty string when no value is selected
@@ -3845,7 +3720,6 @@ const Pipeline1 = () => {
                               MenuProps={{
                                 MenuListProps: {
                                   sx: {
-                                    position: 'relative',
                                     paddingLeft: 8,
                                     paddingRight: 8,
                                   },
@@ -3857,41 +3731,8 @@ const Pipeline1 = () => {
                                     overflow: 'auto',
                                     scrollbarWidth: 'none',
                                   },
-                                  sx: {
-                                    '@keyframes slideUp20': {
-                                      from: { transform: 'translateY(20px)', opacity: 0 },
-                                      to: { transform: 'translateY(0)', opacity: 1 },
-                                    },
-                                    animation: 'slideUp20 0.2s ease-out',
-                                  },
-                                  component: (paperProps) => {
-                                    const { children: paperChildren, ...rest } = paperProps
-                                    return (
-                                      <Paper {...rest}>
-                                        <div
-                                          ref={teamSelectListRef}
-                                          style={{ position: 'relative' }}
-                                          onMouseLeave={() => setTeamSelectPillRect(null)}
-                                        >
-                                          {teamSelectPillRect && (
-                                            <div
-                                              className="absolute rounded-lg transition-all duration-200 ease-out pointer-events-none"
-                                              style={{
-                                                left: teamSelectPillRect.left,
-                                                top: teamSelectPillRect.top,
-                                                width: teamSelectPillRect.width,
-                                                height: teamSelectPillRect.height,
-                                                backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                                                borderRadius: 8,
-                                              }}
-                                            />
-                                          )}
-                                          {paperChildren}
-                                        </div>
-                                      </Paper>
-                                    )
-                                  },
                                 },
+                                transitionDuration: 0,
                               }}
                             >
                               {/* <MenuItem value={myTeamAdmin?.name}>
@@ -3913,18 +3754,6 @@ const Pipeline1 = () => {
                                     sx={{ fontSize: 14 }}
                                     key={index}
                                     value={name}
-                                    onMouseEnter={(e) => {
-                                      const rect = e.currentTarget.getBoundingClientRect()
-                                      const container = teamSelectListRef.current
-                                      if (!container) return
-                                      const cRect = container.getBoundingClientRect()
-                                      setTeamSelectPillRect({
-                                        left: rect.left - cRect.left,
-                                        top: rect.top - cRect.top,
-                                        width: rect.width,
-                                        height: rect.height,
-                                      })
-                                    }}
                                   >
                                     {getAgentsListImage(
                                       item?.invitedUser,
@@ -4001,7 +3830,7 @@ const Pipeline1 = () => {
                                 : handleAddCustomStage
                             }
                           >
-                            {isEditingStage ? 'Update Stage' : 'Add Stage'}
+                            {isEditingStage ? 'Apply' : 'Add Stage'}
                           </button>
                         )}
                       </div>
