@@ -1497,7 +1497,7 @@ const ProfileNav = () => {
         >
           <div className="w-full flex flex-col gap-2">
             {/* Show company name if no logo for subaccount users */}
-            {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding && !reduxUser.agencyBranding.logoUrl && reduxUser.agencyBranding.companyName ? (
+            {reduxUser && reduxUser?.teamFor !== "AgentX" && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding && !reduxUser.agencyBranding.logoUrl && reduxUser.agencyBranding.companyName ? (
               <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
                 <div className="text-lg font-bold text-black truncate">
                   {reduxUser.agencyBranding.companyName}

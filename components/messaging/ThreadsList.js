@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/lib/typography'
@@ -15,6 +14,12 @@ import { UpgradeTag, UpgradeTagWithModal } from '../constants/constants'
 import { toast } from '@/utils/toast'
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const ThreadsList = ({
   loading,
@@ -23,6 +28,7 @@ const ThreadsList = ({
   onSelectThread,
   onNewMessage,
   getLeadName,
+  getThreadDisplayName,
   getRecentMessageType,
   formatUnreadCount,
   onDeleteThread,
@@ -206,7 +212,7 @@ const ThreadsList = ({
         <ToggleGroupCN
           options={[
             { label: 'All', value: 'all', count: allCount },
-            { label: 'Unread', value: 'unreplied', count: unrepliedCount },
+            { label: 'UnReplied', value: 'unreplied', count: unrepliedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
@@ -349,18 +355,22 @@ const ThreadsList = ({
           )}
         </div>
 
-
-        <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
-          onClick={() => {
-            //show toast here to show the feature is coming soon
-            // toast.success('This feature is coming soon')
-            onOpenMessageSettings()
-            console.log("opening communication settings")
-
-          }}
-        >
-          <Image src="/communcationSetting.png" width={24} height={24} alt="Filter" />
-        </button>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                onClick={() => {
+                  onOpenMessageSettings()
+                }}
+              >
+                <Image src="/communcationSetting.png" width={24} height={24} alt="Communication Settings" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Communication Settings</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <div
@@ -417,6 +427,10 @@ const ThreadsList = ({
                             className="object-contain"
                           />
                         </div>
+                      ) : getRecentMessageType(thread) === 'messenger' || getRecentMessageType(thread) === 'instagram' ? (
+                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm text-[10px] font-semibold text-muted-foreground">
+                          {getRecentMessageType(thread) === 'messenger' ? 'M' : 'IG'}
+                        </div>
                       ) : (
                         <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                           <Image
@@ -440,7 +454,7 @@ const ThreadsList = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <TypographyBody className="font-semibold text-black truncate">
-                          {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
+                          {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Lead')}
                         </TypographyBody>
                         <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                           <TypographyCaption className="text-gray-500">

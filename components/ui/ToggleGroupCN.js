@@ -25,6 +25,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
       className={cn(height, "flex flex-row items-center justify-center gap-2", roundedness, className)}
     >
       {options.map((option) => {
+
         const isSelected = value === option.value
         const Icon = option.icon
 
@@ -42,7 +43,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
             <TypographyBody className="flex items-center gap-2">
               {Icon && (
                 <Icon 
-                  size={20} 
+                  size={18} 
                   className={isSelected ? 'text-brand-primary' : 'text-black'} 
                 />
               )}

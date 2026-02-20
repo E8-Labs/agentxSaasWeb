@@ -29,6 +29,7 @@ import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import MessageSettingsModal from './MessageSettingsModal'
 import DraftCards from './DraftCards'
 import AiChatModal from './AiChatModal'
@@ -109,6 +110,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+  const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
   // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
@@ -185,6 +187,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Filter state
   const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
+  const [socialConnections, setSocialConnections] = useState([]) // for composer Facebook/Instagram tabs
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
   const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
   const [filterTeamMembers, setFilterTeamMembers] = useState([])
@@ -198,6 +201,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
   // Check if user has access to messaging features
   const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || reduxUser?.planCapabilities?.allowTextMessages === true
+  // AI Email & Text plan flags for SystemMessage (call transcript AI actions)
+  const allowAIEmailAndText = reduxUser?.planCapabilities?.allowAIEmailAndText === true
+  const shouldShowAllowAiEmailAndTextUpgrade = reduxUser?.planCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
+  const shouldShowAiEmailAndTextRequestFeature = reduxUser?.planCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -438,6 +445,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     title: null,
     type: SnackbarTypes.Error,
   })
+  const [linkingLeadId, setLinkingLeadId] = useState(null)
 
   const MESSAGES_PER_PAGE = 30
   const SMS_CHAR_LIMIT = 300
@@ -864,8 +872,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       })
 
       if (response.data?.status && response.data?.data) {
-        // Filter for pending drafts only
-        const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+        // Filter for pending drafts only; sort by variantNumber so response 1 is first, response 2 second
+        const pendingDrafts = response.data.data
+          .filter(d => d.status === 'pending')
+          .sort((a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0))
         setDrafts(pendingDrafts)
       } else {
         setDrafts([])
@@ -981,7 +991,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         console.error('Error discarding existing drafts before showing AI drafts:', err)
       }
     }
-    setDrafts(newDrafts || [])
+    // Ensure order: response 1 first, response 2 second (by variantNumber), regardless of API completion order
+    const sorted =
+      Array.isArray(newDrafts) && newDrafts.length > 0
+        ? [...newDrafts].sort(
+            (a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0),
+          )
+        : []
+    setDrafts(sorted)
     setCallSummaryDraftsMessageId(parentMessageId || null)
     setSelectedDraft(null)
   }, [selectedUser])
@@ -1175,7 +1192,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         })
 
         if (response.data?.status && response.data?.data) {
-          const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+          const pendingDrafts = response.data.data
+            .filter(d => d.status === 'pending')
+            .sort((a, b) => (a.variantNumber ?? 0) - (b.variantNumber ?? 0))
           setDrafts(pendingDrafts)
         }
       } catch (error) {
@@ -1195,6 +1214,56 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       clearInterval(intervalId)
     };
   }, [selectedThread?.id, fetchMessages, selectedUser, lastInboundMessageId, callSummaryDraftsMessageId])
+
+  const handleLinkToLeadFromMessage = useCallback(
+    async (threadId, targetLeadId) => {
+      if (!threadId || !targetLeadId) return
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      setLinkingLeadId(targetLeadId)
+      try {
+        let url = `${Apis.linkThreadToLead}/${threadId}/link-lead`
+        if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+        const body = { targetLeadId }
+        if (selectedUser?.id) body.userId = selectedUser.id
+        const response = await axios.post(url, body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        if (response.data?.status && response.data?.data?.thread) {
+          const linkedThread = response.data.data.thread
+          fetchThreads(searchValue || '', appliedTeamMemberIds)
+          setSelectedThread(linkedThread)
+          fetchMessages(linkedThread.id, null, false)
+          setSnackbar({
+            isVisible: true,
+            message: 'Conversation linked to lead.',
+            type: SnackbarTypes.Success,
+          })
+        } else {
+          setSnackbar({
+            isVisible: true,
+            message: response.data?.message || 'Failed to link thread',
+            type: SnackbarTypes.Error,
+          })
+        }
+      } catch (err) {
+        console.error('Error linking thread to lead:', err)
+        setSnackbar({
+          isVisible: true,
+          message: err.response?.data?.message || err.message || 'Failed to link thread',
+          type: SnackbarTypes.Error,
+        })
+      } finally {
+        setLinkingLeadId(null)
+      }
+    },
+    [selectedUser, fetchThreads, searchValue, appliedTeamMemberIds, fetchMessages],
+  )
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
@@ -1400,8 +1469,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     setBccEmails(bccEmails.filter((email) => email !== emailToRemove))
   }
 
-  // Get lead name for avatar
+  // Get lead name for avatar (single letter)
   const getLeadName = (thread) => {
+    // if (thread.lead?.source === 'messenger_dummy') return 'M'
+    // if (thread.lead?.source === 'instagram_dummy') return 'I'
     if (thread.lead?.firstName) {
       return thread.lead.firstName.charAt(0).toUpperCase()
     }
@@ -1419,20 +1490,26 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Get display name for thread (full name, not just initial)
   const getThreadDisplayName = (thread) => {
+    
     // Try lead name first
     if (thread.lead?.firstName) {
       const lastName = thread.lead?.lastName ? ` ${thread.lead.lastName}` : ''
       return `${thread.lead.firstName}${lastName}`
     }
-    if (thread.lead?.name) {
-      return thread.lead.name
-    }
+    
     // Fallback to email or phone if lead is null
     if (thread.receiverEmail) {
       return thread.receiverEmail
     }
     if (thread.receiverPhoneNumber) {
       return thread.receiverPhoneNumber
+    }
+    // Unlinked Messenger/Instagram (dummy lead)
+    if (thread.lead?.source === 'messenger_dummy') {
+      return 'Messenger (unlinked)'
+    }
+    if (thread.lead?.source === 'instagram_dummy') {
+      return 'Instagram (unlinked)'
     }
     return 'Unknown Contact'
   }
@@ -1814,8 +1891,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   }
 
   // Handle opening email timeline (for Load More or subject click)
-  const handleOpenEmailTimeline = (subject) => {
-    if (!selectedThread?.lead?.id) return
+  // When opened by clicking a message, pass that message so the modal can use it as replyToMessage
+  const handleOpenEmailTimeline = (subject, message = null) => {
+    if (!selectedThread?.lead?.id) {
+      toast.error('Please select a lead to open email timeline')
+      return;
+    }
+
+    if (message) {
+      setReplyToMessage(message)
+    }
 
     setShowEmailTimeline(true)
     setEmailTimelineLeadId(selectedThread.lead.id)
@@ -1963,6 +2048,84 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       </div>
     )
   }
+
+  // Send message in a Messenger/Instagram thread via Meta API
+  const handleSendSocialMessage = useCallback(async (threadId, content) => {
+    const localData = localStorage.getItem('User')
+    if (!localData) return
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    let url = `${Apis.sendSocialMessage}/${threadId}/send-social-message`
+    if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+    const res = await axios.post(url, { content: (content || '').trim() }, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    })
+    if (!res.data?.status) throw new Error(res.data?.message || 'Failed to send')
+    const newMessage = res.data?.data?.message
+    if (newMessage) {
+      setMessages((prev) => [...prev, newMessage])
+      setTimeout(() => {
+        if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+    fetchThreads(searchValue || '', appliedTeamMemberIds)
+  }, [selectedUser?.id, searchValue, appliedTeamMemberIds])
+
+  const fetchSocialConnections = useCallback(async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      let url = Apis.socialConnections
+      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      if (res.data?.status && Array.isArray(res.data?.data)) {
+        setSocialConnections(res.data.data)
+      } else {
+        setSocialConnections([])
+      }
+    } catch (err) {
+      console.error('fetchSocialConnections error:', err)
+      setSocialConnections([])
+    }
+  }, [selectedUser?.id])
+
+  useEffect(() => {
+    fetchSocialConnections()
+  }, [fetchSocialConnections])
+
+  // After Facebook/Instagram OAuth redirect: refetch connections, show toast, clean URL (once per landing)
+  const handledSocialConnectRef = useRef(null)
+  useEffect(() => {
+    const socialConnect = searchParams?.get('social_connect')
+    if (socialConnect !== 'success' && socialConnect !== 'error') {
+      handledSocialConnectRef.current = null
+      return
+    }
+    const key = `${socialConnect}-${searchParams?.get('error') || ''}-${searchParams?.get('count') || ''}`
+    if (handledSocialConnectRef.current === key) return
+    handledSocialConnectRef.current = key
+    fetchSocialConnections()
+    if (socialConnect === 'success') {
+      toast.success('Facebook/Instagram connected')
+      // Backend saves connections in the background; refetch again so new connections appear
+      const t = setTimeout(() => fetchSocialConnections(), 2500)
+      return () => clearTimeout(t)
+    } else {
+      const errMsg = searchParams?.get('error') || searchParams?.get('error_reason') || 'Connection failed'
+      toast.error(errMsg)
+    }
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.delete('social_connect')
+    params.delete('error')
+    params.delete('error_reason')
+    params.delete('count')
+    const newPath = params.toString() ? `${typeof window !== 'undefined' ? window.location.pathname : ''}?${params}` : (typeof window !== 'undefined' ? window.location.pathname : '')
+    if (typeof window !== 'undefined' && newPath) window.history.replaceState(null, '', newPath)
+  }, [searchParams, fetchSocialConnections])
 
   // Handle send message
   const handleSendMessage = async () => {
@@ -3037,7 +3200,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   }
 
   return (
-    <div className={`w-full flex flex-col bg-white h-full`}>
+    <div className={`w-full flex flex-col bg-white h-[100svh]`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}
@@ -3063,11 +3226,18 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         selectedUser={selectedUser}
       />
 
+      <UnlockPremiunFeatures
+        title="Unlock AI Email & Text"
+        open={showAiRequestFeatureModal}
+        handleClose={() => setShowAiRequestFeatureModal(false)}
+        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+      />
+
       {
         !hasMessagingAccess ? (
           <UnlockMessagesView />
         ) : (
-          <div className={`w-full h-full flex flex-col bg-white`}>
+          <div className={`w-full h-[100svh] flex flex-col bg-white`}>
             <MessageHeader selectedThread={selectedThread} selectedUser={selectedUser} />
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
@@ -3152,9 +3322,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               })()}
 
               {/* Right Side - Messages View (relative so LeadDetails wrapper doesn't affect layout) */}
-              <div className={`relative flex-1 flex flex-col min-w-0 ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
+              <div className={`relative flex-1 flex flex-col min-w-0 overflow-hidden ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
                 {selectedThread ? (
-                  <>
+                  <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                     {/* Messages Header */}
                     <ConversationHeader
                       selectedUser={selectedUser}
@@ -3172,53 +3342,74 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           )
                         }
                       }}
+                      onThreadLinked={(linkedThread) => {
+                        if (!linkedThread?.id) return
+                        fetchThreads(searchValue || '', appliedTeamMemberIds)
+                        setSelectedThread(linkedThread)
+                        fetchMessages(linkedThread.id, null, false)
+                        setSnackbar({
+                          isVisible: true,
+                          message: 'Conversation linked to lead.',
+                          type: SnackbarTypes.Success,
+                        })
+                      }}
                     />
 
-                    {/* Messages Container */}
-                    <ConversationView
-                      selectedThread={selectedThread}
-                      messages={messages}
-                      messagesLoading={messagesLoading}
-                      loadingOlderMessages={loadingOlderMessages}
-                      messagesContainerRef={messagesContainerRef}
-                      messagesEndRef={messagesEndRef}
-                      messagesTopRef={messagesTopRef}
-                      sanitizeHTML={sanitizeHTML}
-                      sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
-                      getLeadName={getLeadName}
-                      getAgentAvatar={getAgentAvatar}
-                      getImageUrl={getImageUrl}
-                      setImageAttachments={setImageAttachments}
-                      setCurrentImageIndex={setCurrentImageIndex}
-                      setImageModalOpen={setImageModalOpen}
-                      setSnackbar={setSnackbar}
-                      SnackbarTypes={SnackbarTypes}
-                      openEmailDetailId={openEmailDetailId}
-                      setOpenEmailDetailId={setOpenEmailDetailId}
-                      getEmailDetails={getEmailDetails}
-                      setShowEmailTimeline={setShowEmailTimeline}
-                      setEmailTimelineLeadId={setEmailTimelineLeadId}
-                      setEmailTimelineSubject={setEmailTimelineSubject}
-                      onReplyClick={handleReplyClick}
-                      onOpenEmailTimeline={handleOpenEmailTimeline}
-                      updateComposerFromMessage={updateComposerFromMessage}
-                      onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
-                      onOpenAiChat={setAiChatContext}
-                      onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
-                      hasAiKey={messageSettingsHasAiKey}
-                    />
+                    {/* Conversation takes remaining space and scrolls internally */}
+                    <div className="flex-1 min-h-0 flex flex-col">
+                      <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+                        <ConversationView
+                        selectedThread={selectedThread}
+                        messages={messages}
+                        messagesLoading={messagesLoading}
+                        loadingOlderMessages={loadingOlderMessages}
+                        messagesContainerRef={messagesContainerRef}
+                        messagesEndRef={messagesEndRef}
+                        messagesTopRef={messagesTopRef}
+                        sanitizeHTML={sanitizeHTML}
+                        sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
+                        getLeadName={getLeadName}
+                        getAgentAvatar={getAgentAvatar}
+                        getImageUrl={getImageUrl}
+                        setImageAttachments={setImageAttachments}
+                        setCurrentImageIndex={setCurrentImageIndex}
+                        setImageModalOpen={setImageModalOpen}
+                        setSnackbar={setSnackbar}
+                        SnackbarTypes={SnackbarTypes}
+                        openEmailDetailId={openEmailDetailId}
+                        setOpenEmailDetailId={setOpenEmailDetailId}
+                        getEmailDetails={getEmailDetails}
+                        setShowEmailTimeline={setShowEmailTimeline}
+                        setEmailTimelineLeadId={setEmailTimelineLeadId}
+                        setEmailTimelineSubject={setEmailTimelineSubject}
+                        onReplyClick={handleReplyClick}
+                        onOpenEmailTimeline={handleOpenEmailTimeline}
+                        updateComposerFromMessage={updateComposerFromMessage}
+                        onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
+                        onOpenAiChat={setAiChatContext}
+                        onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
+                        hasAiKey={messageSettingsHasAiKey}
+                        allowAIEmailAndText={allowAIEmailAndText}
+                        shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                        shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                        onShowUpgrade={() => setShowUpgradePlanModal(true)}
+                        onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
+                      />
+                      </div>
 
-                    {/* AI-Generated Draft Responses */}
-                    <DraftCards
-                      drafts={drafts}
-                      loading={draftsLoading}
-                      onSelectDraft={handleSelectDraft}
-                      onDiscardDraft={handleDiscardDraft}
-                      selectedDraftId={selectedDraft?.id}
-                    />
+                      {/* AI-Generated Draft Responses */}
+                      <DraftCards
+                        drafts={drafts}
+                        loading={draftsLoading}
+                        onSelectDraft={handleSelectDraft}
+                        onDiscardDraft={handleDiscardDraft}
+                        selectedDraftId={selectedDraft?.id}
+                      />
+                    </div>
 
-                    {/* Composer */}
-                    <MessageComposer
+                    {/* Composer - fixed at bottom with max height so long emails scroll inside */}
+                    <div className="flex-shrink-0 max-h-[50vh] overflow-hidden">
+                      <MessageComposer
                       from={from}
                       composerMode={composerMode}
                       setComposerMode={setComposerMode}
@@ -3257,6 +3448,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       handleFileChange={handleFileChange}
                       handleSendMessage={handleSendMessage}
                       sendingMessage={sendingMessage}
+                      onSendSocialMessage={handleSendSocialMessage}
+                      hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
+                      hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
+                      onConnectionSuccess={fetchSocialConnections}
                       onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
                       onCommentAdded={(newMessage) => {
                         // If new message is provided, add it to messages and refresh
@@ -3275,7 +3470,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       selectedUser={selectedUser}
                       searchLoading={searchLoading}
                     />
-                  </>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
                     <div className="mb-6">
@@ -3432,36 +3628,40 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               )}
 
               {/* Email Timeline Modal */}
-              <EmailTimelineModal
-                open={showEmailTimeline}
-                onClose={() => {
-                  setShowEmailTimeline(false)
-                  setEmailTimelineLeadId(null)
-                  // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
-                  // when sending from the main composer. They'll be cleared when a new thread is selected.
-                  // setEmailTimelineSubject(null)
-                  // setEmailTimelineMessages([])
-                  setReplyToMessage(null)
-                }}
+              {
+                showEmailTimeline && (
+                  <EmailTimelineModal
+                    open={showEmailTimeline}
+                    onClose={() => {
+                      setShowEmailTimeline(false)
+                      setEmailTimelineLeadId(null)
+                      // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+                      // when sending from the main composer. They'll be cleared when a new thread is selected.
+                      // setEmailTimelineSubject(null)
+                      // setEmailTimelineMessages([])
+                      setReplyToMessage(null)
+                    }}
 
-                getLeadName={getLeadName}
-                leadId={emailTimelineLeadId}
-                subject={emailTimelineSubject}
-                messages={emailTimelineMessages}
-                loading={emailTimelineLoading}
-                selectedThread={selectedThread}
-                emailAccounts={emailAccounts}
-                selectedEmailAccount={selectedEmailAccount}
-                setSelectedEmailAccount={setSelectedEmailAccount}
-                onSendSuccess={async () => {
-                  if (emailTimelineLeadId && emailTimelineSubject) {
-                    await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
-                  }
-                }}
-                fetchThreads={fetchThreads}
-                onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-                replyToMessage={replyToMessage}
-              />
+                    getLeadName={getLeadName}
+                    leadId={emailTimelineLeadId}
+                    subject={emailTimelineSubject}
+                    messages={emailTimelineMessages}
+                    loading={emailTimelineLoading}
+                    selectedThread={selectedThread}
+                    emailAccounts={emailAccounts}
+                    selectedEmailAccount={selectedEmailAccount}
+                    setSelectedEmailAccount={setSelectedEmailAccount}
+                    onSendSuccess={async () => {
+                      if (emailTimelineLeadId && emailTimelineSubject) {
+                        await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
+                      }
+                    }}
+                    fetchThreads={fetchThreads}
+                    onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                    replyToMessage={replyToMessage}
+                  />
+                )
+              }
 
               {/* Auth Selection Popup for Gmail Connection */}
               <AuthSelectionPopup

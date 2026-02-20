@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
-import { TypographyBody, TypographyCaption } from './TypographyCN'
+import { TypographyBody, TypographyBodySemibold, TypographyCaption } from './TypographyCN'
 import Apis from '@/components/apis/Apis'
 import { toast } from '@/utils/toast'
 
@@ -40,7 +40,7 @@ const TeamAssignDropdownCn = ({
     () => teamOptions.map(opt => `${opt.id}-${opt.selected}`).join(','),
     [teamOptions]
   )
-  
+
   const selectedTeams = useMemo(
     () => teamOptions.filter((opt) => opt.selected),
     [teamOptionsKey, teamOptions],
@@ -203,7 +203,7 @@ const TeamAssignDropdownCn = ({
   const handleTeamClick = (team) => {
     const teamId = String(team.id)
     const isCurrentlySelected = team.selected
-    
+
     // Toggle: if selected, unassign; if not selected, assign
     onToggle?.(teamId, team, !isCurrentlySelected)
   }
@@ -220,7 +220,7 @@ const TeamAssignDropdownCn = ({
                   <div
                     key={team.id || index}
                     className={`relative rounded-full -mr-2 `}
-                    style={{ zIndex: selectedTeams.length - index,}}
+                    style={{ zIndex: selectedTeams.length - index, }}
                   >
                     {team.avatar ? (
                       <img
@@ -244,7 +244,7 @@ const TeamAssignDropdownCn = ({
           ) : (
             <>
               <Users className="h-4 w-4" />
-              <span>{label}</span>
+              <TypographyBodySemibold>{label}</TypographyBodySemibold>
             </>
           )}
           {withoutBorder ? null : (
@@ -275,17 +275,18 @@ const TeamAssignDropdownCn = ({
               >
                 {/* Radio button indicator */}
                 <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                  <Circle 
-                    className={`h-3.5 w-3.5 stroke-current stroke-2 fill-none ${
-                      isSelected ? 'text-brand-primary' : 'text-muted-foreground'
-                    }`} 
+                  <Circle
+                    className={`h-3.5 w-3.5 stroke-current stroke-2 fill-none ${isSelected ? 'text-brand-primary' : 'text-muted-foreground'
+                      }`}
                   />
                   {isSelected && (
                     <Circle className="absolute h-2 w-2 fill-current text-brand-primary" />
                   )}
                 </span>
+
                 
                 <div className="flex items-center gap-2 flex-1 text-[14px]">
+
                   {team.avatar ? (
                     <img
                       src={team.avatar}
@@ -310,7 +311,7 @@ const TeamAssignDropdownCn = ({
         {leadId && (
           <>
             <DropdownMenuSeparator className="my-1" />
-            
+
             {/* Disable Auto Replies Toggle */}
             <div className="px-2 py-1.5">
               <div className="flex items-center justify-between gap-2">

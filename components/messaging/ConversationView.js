@@ -3,6 +3,7 @@ import moment from 'moment'
 import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscriptModal'
 import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
+import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
@@ -39,6 +40,13 @@ const ConversationView = ({
   onOpenAiChat,
   onGenerateCallSummaryDrafts,
   hasAiKey = null,
+  allowAIEmailAndText = false,
+  shouldShowAllowAiEmailAndTextUpgrade = false,
+  shouldShowAiEmailAndTextRequestFeature = false,
+  onShowUpgrade,
+  onShowRequestFeature,
+  onLinkToLeadFromMessage,
+  linkingLeadId = null,
 }) => {
 
   //lead details
@@ -324,6 +332,11 @@ const ConversationView = ({
                       onOpenAiChat={onOpenAiChat}
                       onGenerateCallSummaryDrafts={onGenerateCallSummaryDrafts}
                       hasAiKey={hasAiKey}
+                      allowAIEmailAndText={allowAIEmailAndText}
+                      shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                      shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                      onShowUpgrade={onShowUpgrade}
+                      onShowRequestFeature={onShowRequestFeature}
                     />
                   ) : (
                     <div
@@ -384,6 +397,14 @@ const ConversationView = ({
                             />
                           ) : (
                             <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                          )}
+                          {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (
+                            <SuggestedLeadLinks
+                              suggestedLeads={message.metadata.suggestedLeads}
+                              threadId={selectedThread.id}
+                              onLink={onLinkToLeadFromMessage}
+                              linkingLeadId={linkingLeadId}
+                            />
                           )}
                           {isEmail && !isOutbound && onReplyClick && (
                             <div className="mt-1 flex justify-end">

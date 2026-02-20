@@ -129,27 +129,27 @@ const EmailTimelineModal = ({
   // Format quoted message content (WhatsApp-style)
   const formatQuotedMessage = (message) => {
     if (!message) return ''
-    
+
     // Extract sender name
     let senderName = 'Unknown'
     if (message.direction === 'outbound') {
       senderName = 'You'
     } else {
-      senderName = selectedThread?.lead?.firstName || 
-                   selectedThread?.lead?.name || 
-                   message.fromEmail?.split('@')[0] || 
-                   'Unknown'
+      senderName = selectedThread?.lead?.firstName ||
+        selectedThread?.lead?.name ||
+        message.fromEmail?.split('@')[0] ||
+        'Unknown'
     }
-    
+
     // Format timestamp
     const timestamp = moment(message.createdAt).format('MMM D, YYYY, h:mm A')
-    
+
     // Extract plain text from HTML content
     const plainText = htmlToPlainText(message.content || '')
-    
+
     // Format with > prefix on each line
     const quotedLines = plainText.split('\n').map(line => `> ${line}`).join('\n')
-    
+
     // Combine into WhatsApp-style quote
     return `> ${senderName} wrote on ${timestamp}:\n${quotedLines}\n\n`
   }
@@ -166,28 +166,30 @@ const EmailTimelineModal = ({
 
   // Initialize reply fields when replyToMessage changes
   useEffect(() => {
+    console.log("replyToMessage", replyToMessage)
     if (replyToMessage && open) {
+      console.log("Check after condition")
       // Determine recipient email
       let recipientEmail = ''
       if (replyToMessage.direction === 'outbound') {
         // Replying to outbound message - reply to the recipient
-        recipientEmail = replyToMessage.toEmail || 
-                        replyToMessage.metadata?.to || 
-                        selectedThread?.lead?.email || 
-                        ''
+        recipientEmail = replyToMessage.toEmail ||
+          replyToMessage.metadata?.to ||
+          selectedThread?.lead?.email ||
+          ''
       } else {
         // Replying to inbound message - reply to the sender
-        recipientEmail = replyToMessage.fromEmail || 
-                        replyToMessage.metadata?.from || 
-                        (replyToMessage.metadata?.headers?.from ? 
-                          replyToMessage.metadata.headers.from.match(/<(.+)>/)?.pop() || 
-                          replyToMessage.metadata.headers.from : 
-                          '') ||
-                        selectedThread?.lead?.email || 
-                        ''
+        recipientEmail = replyToMessage.fromEmail ||
+          replyToMessage.metadata?.from ||
+          (replyToMessage.metadata?.headers?.from ?
+            replyToMessage.metadata.headers.from.match(/<(.+)>/)?.pop() ||
+            replyToMessage.metadata.headers.from :
+            '') ||
+          selectedThread?.lead?.email ||
+          ''
       }
       setReplyToEmail(recipientEmail)
-      
+
       // Format subject with "Re:" prefix
       if (replyToMessage.subject) {
         setReplySubject(formatReplySubject(replyToMessage.subject))
@@ -196,19 +198,19 @@ const EmailTimelineModal = ({
       } else {
         setReplySubject('')
       }
-      
+
       // Extract CC and BCC from message metadata
-      const ccList = parseEmailList(replyToMessage.metadata?.cc || replyToMessage.cc)
-      const bccList = parseEmailList(replyToMessage.metadata?.bcc || replyToMessage.bcc)
-      
+      const ccList = parseEmailList(replyToMessage.metadata?.cc || replyToMessage.cc || replyToMessage.ccEmails)
+      const bccList = parseEmailList(replyToMessage.metadata?.bcc || replyToMessage.bcc || replyToMessage.bccEmails)
+
       setCcEmails(ccList)
       setBccEmails(bccList)
       setShowCC(ccList.length > 0)
       setShowBCC(bccList.length > 0)
-      
+
       // Keep reply body blank - user will type their own reply
       setReplyBody('')
-      
+
       // Focus the editor after a short delay
       setTimeout(() => {
         if (richTextEditorRef.current) {
@@ -340,7 +342,7 @@ const EmailTimelineModal = ({
       emailSubject = formatReplySubject(replyToMessage.subject)
       setReplySubject(emailSubject) // Save it for next time
     }
-    
+
     if (!hasTextContent(replyBody) || !selectedEmailAccount || !leadId || !emailSubject) {
       toast.error('Please fill in all required fields', {
         style: {
@@ -374,7 +376,7 @@ const EmailTimelineModal = ({
       formData.append('subject', emailSubject)
       formData.append('body', replyBody)
       formData.append('emailAccountId', selectedEmailAccount)
-      
+
       // Add CC and BCC if they exist
       if (ccEmails.length > 0) {
         formData.append('cc', ccEmails.join(', '))
@@ -382,7 +384,7 @@ const EmailTimelineModal = ({
       if (bccEmails.length > 0) {
         formData.append('bcc', bccEmails.join(', '))
       }
-      
+
       // Add replyToMessageId if replying to a specific message
       if (replyToMessage && replyToMessage.id) {
         formData.append('replyToMessageId', replyToMessage.id.toString())
@@ -445,7 +447,7 @@ const EmailTimelineModal = ({
     if (replyToMessage && replyToEmail) {
       return replyToEmail
     }
-    
+
     // Otherwise, use the default logic
     if (!messages || messages.length === 0) {
       return selectedThread?.lead?.email || ''
@@ -457,7 +459,7 @@ const EmailTimelineModal = ({
       return firstMessage.fromEmail || selectedThread?.lead?.email || ''
     }
   }
-  
+
   const getDisplaySubject = () => {
     // If in reply mode, use the reply subject
     if (replyToMessage && replySubject) {
@@ -466,17 +468,17 @@ const EmailTimelineModal = ({
     // Otherwise, use the timeline subject
     return subject || ''
   }
-  
+
   const getReplySenderName = () => {
     if (!replyToMessage) return ''
-    
+
     if (replyToMessage.direction === 'outbound') {
       return 'You'
     } else {
-      return selectedThread?.lead?.firstName || 
-             selectedThread?.lead?.name || 
-             replyToMessage.fromEmail?.split('@')[0] || 
-             'Unknown'
+      return selectedThread?.lead?.firstName ||
+        selectedThread?.lead?.name ||
+        replyToMessage.fromEmail?.split('@')[0] ||
+        'Unknown'
     }
   }
 
@@ -492,7 +494,7 @@ const EmailTimelineModal = ({
     const isOutbound = message.direction === 'outbound'
     const senderName = getSenderName(message)
     const avatarLetter = senderName.charAt(0).toUpperCase()
-    
+
     // Create a unique key for this message's avatar
     const avatarKey = `avatar-${message.id}-${isOutbound ? 'outbound' : 'inbound'}`
 
@@ -513,7 +515,7 @@ const EmailTimelineModal = ({
           </div>
         )
       }
-      
+
       // Priority 2: Agent profile image
       if (message.agent?.thumb_profile_image && !imageErrors.has(avatarKey)) {
         return (
@@ -529,7 +531,7 @@ const EmailTimelineModal = ({
           </div>
         )
       }
-      
+
       // Priority 3: Current user profile image from localStorage
       if (currentUserData?.user?.thumb_profile_image && !imageErrors.has(avatarKey)) {
         return (
@@ -637,7 +639,7 @@ const EmailTimelineModal = ({
                 const showDateSeparator =
                   index === 0 ||
                   moment(message.createdAt).format('YYYY-MM-DD') !==
-                    moment(messages[index - 1].createdAt).format('YYYY-MM-DD')
+                  moment(messages[index - 1].createdAt).format('YYYY-MM-DD')
 
                 const senderName = getSenderName(message)
 
@@ -664,9 +666,8 @@ const EmailTimelineModal = ({
 
                         <div className="flex flex-col max-w-[80%] min-w-[240px]">
                           <div
-                            className={`px-4 py-3 rounded-2xl ${
-                              message.direction === 'outbound' ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-800'
-                            }`}
+                            className={`px-4 py-3 rounded-2xl ${message.direction === 'outbound' ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-800'
+                              }`}
                           >
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <span className="font-semibold text-sm">{senderName}</span>
@@ -675,7 +676,7 @@ const EmailTimelineModal = ({
                               </span>
                             </div>
 
-                            <div 
+                            <div
                               className={`text-sm whitespace-pre-wrap ${message.direction === 'outbound' ? 'text-white [&_a]:!text-white [&_a:hover]:!text-white/80' : 'text-gray-800'}`}
                               dangerouslySetInnerHTML={{
                                 __html: linkifyText(message.content || ''),
@@ -687,9 +688,8 @@ const EmailTimelineModal = ({
                                 {message.metadata.attachments.map((attachment, idx) => (
                                   <div
                                     key={idx}
-                                    className={`flex items-center gap-2 text-sm ${
-                                      message.direction === 'outbound' ? 'text-white' : 'text-brand-primary'
-                                    }`}
+                                    className={`flex items-center gap-2 text-sm ${message.direction === 'outbound' ? 'text-white' : 'text-brand-primary'
+                                      }`}
                                   >
                                     <Paperclip size={14} />
                                     <span className="underline">
@@ -697,9 +697,8 @@ const EmailTimelineModal = ({
                                     </span>
                                     {attachment.size && (
                                       <span
-                                        className={`text-xs ${
-                                          message.direction === 'outbound' ? 'text-white/70' : 'text-gray-500'
-                                        }`}
+                                        className={`text-xs ${message.direction === 'outbound' ? 'text-white/70' : 'text-gray-500'
+                                          }`}
                                       >
                                         ({formatFileSize(attachment.size)})
                                       </span>
@@ -729,22 +728,20 @@ const EmailTimelineModal = ({
         {messages && messages.length > 0 && subject && leadId && (
           <div className="border-t pt-2 mt-2 bg-white">
             <div className="space-y-2">
-            
+
               {/* CC and BCC toggle buttons */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowCC(!showCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${
-                    showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                 >
                   Cc
                 </button>
                 <button
                   onClick={() => setShowBCC(!showBCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${
-                    showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                 >
                   Bcc
                 </button>
@@ -826,17 +823,16 @@ const EmailTimelineModal = ({
                   toolbarPosition="bottom"
                   className="min-h-[80px]"
                 />
-                
+
                 {/* Overlapping send button above toolbar */}
                 <div className="absolute bottom-[2px] right-0 flex items-center gap-2 z-10 pr-2">
                   <button
                     onClick={handleSend}
                     disabled={sending || !hasTextContent(replyBody) || !selectedEmailAccount}
-                    className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors flex items-center gap-2 ${
-                      sending || !hasTextContent(replyBody) || !selectedEmailAccount
+                    className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors flex items-center gap-2 ${sending || !hasTextContent(replyBody) || !selectedEmailAccount
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'bg-brand-primary hover:bg-brand-primary/90'
-                    }`}
+                      }`}
                   >
                     {sending ? (
                       <>

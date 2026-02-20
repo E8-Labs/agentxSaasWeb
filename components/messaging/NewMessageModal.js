@@ -813,19 +813,24 @@ const NewMessageModal = ({
 
 
     try {
+      console.log("Passign selected template is", selectedTemplate);
+      // return;
       setDelTempLoader(template)
       const templatePayload = getTargetUserId() ? { ...template, selectedUser } : template
-      await deleteTemplete(templatePayload)
+      const delTemplateResponse = await deleteTemplete(templatePayload);
+      console.log("delTemplateResponse is", delTemplateResponse);
       // Remove from templates list - check both id and templateId fields
-      setTemplates((prev) => prev.filter((t) => {
-        const templateId = template.id || template.templateId
-        const tId = t.id || t.templateId
-        return tId !== templateId
-      }))
-      setDelTempLoader(null)
-      // If the deleted template was selected, clear selection
-      if (selectedTemplate && (selectedTemplate.id === template.id || selectedTemplate.templateId === template.templateId)) {
+      if (delTemplateResponse?.status === true) {
+        toast.success("Template deleted successfully")
+        // If the deleted template was selected, clear selection
+        // if (selectedTemplate && (selectedTemplate.id === template.id || selectedTemplate.templateId === template.templateId)) {
+        console.log("selectedTemplate is", selectedTemplate);
         setSelectedTemplate(null)
+        setTemplates((prev) => prev.filter((t) => {
+          const templateId = template.id || template.templateId
+          const tId = t.id || t.templateId
+          return tId !== templateId
+        }))
         // Clear form fields
         if (selectedMode === 'email') {
           setEmailSubject('')
@@ -835,9 +840,15 @@ const NewMessageModal = ({
         } else {
           setSmsMessageBody('')
         }
+        // }
+      } else {
+        toast.error(delTemplateResponse.message)
       }
 
-      toast.success('Template deleted successfully')
+      setDelTempLoader(null)
+
+
+      // toast.success('Template deleted successfully')
     } catch (error) {
       console.error('Error deleting template:', error)
       toast.error('Failed to delete template')
@@ -3112,23 +3123,24 @@ const NewMessageModal = ({
         slotProps={{
           root: {
             style: {
-              zIndex: 1500,
+              zIndex: 99991,
             },
           },
         }}
         sx={{
-          zIndex: 1500,
+          zIndex: 99991,
         }}
         BackdropProps={{
           timeout: 1000,
           sx: {
             backgroundColor: '#00000020',
-            zIndex: 1500,
+            zIndex: 99991,
           },
         }}
       >
         <Box
-          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          className="lg:w-3/12 sm:w-4/12 w-6/12"
+          onClick={(e) => e.stopPropagation()}
           sx={{
             position: 'absolute',
             top: '50%',
@@ -3137,7 +3149,7 @@ const NewMessageModal = ({
             bgcolor: 'background.paper',
             boxShadow: 24,
             borderRadius: '13px',
-            zIndex: 1501,
+            zIndex: 99992,
           }}
         >
           <div className="flex flex-row justify-center w-full">
@@ -3149,10 +3161,10 @@ const NewMessageModal = ({
                 borderRadius: '13px',
               }}
             >
-              <div className="font-bold text-xl mt-6">
+              <div className="font-bold text-xl">
                 Are you sure you want to delete {accountToDelete?.email || accountToDelete?.name || accountToDelete?.displayName || 'this email account'}?
               </div>
-              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+              <div className="flex flex-row items-center gap-4 w-full mt-6">
                 <button
                   className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
                   onClick={() => {

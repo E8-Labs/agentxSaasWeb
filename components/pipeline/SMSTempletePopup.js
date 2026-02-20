@@ -10,13 +10,15 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Plus, PaperPlaneTilt, Trash } from '@phosphor-icons/react'
+import { Plus, PaperPlaneTilt, Trash, CaretDown } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useState, useRef } from 'react'
 
 import ChipInput from '@/constants/ChipsInput'
 import { PersistanceKeys } from '@/constants/Constants'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 import { getUserLocalData } from '../constants/constants'
 import { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
@@ -74,6 +76,21 @@ function SMSTempletePopup({
   const [showNewTemplateModal, setShowNewTemplateModal] = useState(false)
   const [newTemplateName, setNewTemplateName] = useState('')
   const [saveAsTemplate, setSaveAsTemplate] = useState(true) // Default to true for cadence templates
+  const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
+  const templatesDropdownRef = useRef(null)
+
+  // Close templates dropdown when clicking outside (use capture so we run before any child stopPropagation)
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!showTemplatesDropdown) return
+      if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target)) {
+        setShowTemplatesDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside, true)
+    return () => document.removeEventListener('mousedown', handleClickOutside, true)
+  }, [showTemplatesDropdown])
+
   useEffect(() => {
     let data = getUserLocalData()
     setUser(data.user)
@@ -446,11 +463,6 @@ function SMSTempletePopup({
       <Modal
         open={open}
         onClose={(event, reason) => {
-          // #region agent log
-          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:303', message: 'Modal onClose called', data: { reason, eventType: event?.type, targetTag: event?.target?.tagName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-          // #endregion
-          // Only close if reason is 'backdropClick' and user explicitly clicked backdrop
-          // Don't close for other reasons like clicking inside content
           if (reason === 'backdropClick') {
             onClose()
           }
@@ -459,381 +471,217 @@ function SMSTempletePopup({
         disableAutoFocus={true}
         disableRestoreFocus={true}
         disableBackdropClick={false}
+        aria-labelledby="sms-template-modal"
+        aria-describedby="sms-template-description"
+        sx={{ zIndex: 1500, '& .MuiBackdrop-root': { zIndex: 1500 } }}
         BackdropProps={{
           timeout: 500,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-            padding: 0,
-            margin: 0,
-            zIndex: 1500,
-            // Ensure backdrop doesn't block dropdowns
-            pointerEvents: 'auto',
-          },
+          sx: { backgroundColor: '#00000020', zIndex: 1500, pointerEvents: 'auto' },
           onClick: (e) => {
-            // #region agent log
-            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:318', message: 'Backdrop onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, currentTargetTag: e.currentTarget?.tagName, targetIsBackdrop: e.target === e.currentTarget, hasMuiBackdropClass: e.target?.classList?.contains('MuiBackdrop-root'), clientX: e.clientX, clientY: e.clientY }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-            // #endregion
-            // Only close if clicking directly on the backdrop element itself
-            // Check if the click target is the backdrop root element
             const backdropRoot = e.currentTarget
             const clickTarget = e.target
-
-            // Check if click is actually on the backdrop (not on any child element)
-            // The backdrop should be the direct target, not a child
             const isDirectBackdropClick = clickTarget === backdropRoot ||
               (clickTarget.classList && clickTarget.classList.contains('MuiBackdrop-root'))
-
-            // Also check if the click is outside the modal content area
-            // Get the modal content box
             const modalContent = backdropRoot?.parentElement?.querySelector('.MuiBox-root')
             const isClickOutsideContent = modalContent && !modalContent.contains(clickTarget)
-
-            // #region agent log
-            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:335', message: 'Backdrop click analysis', data: { isDirectBackdropClick, isClickOutsideContent, hasModalContent: !!modalContent }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-            // #endregion
-
-            // Only close if clicking directly on backdrop AND outside content
             if (isDirectBackdropClick && isClickOutsideContent) {
-              // #region agent log
-              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:343', message: 'Closing modal from backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-              // #endregion
               onClose()
             } else {
-              // #region agent log
-              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:347', message: 'Backdrop click ignored - not valid backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-              // #endregion
-              // Prevent the click from propagating
               e.stopPropagation()
             }
-          },
-        }}
-        sx={{
-          zIndex: 1500,
-          // Ensure modal content doesn't block dropdowns
-          '& .MuiBackdrop-root': {
-            zIndex: 1500,
           },
         }}
       >
         <Box
-          className="w-full h-full py-4 flex items-center justify-center"
           sx={{
-            ...styles.modalsStyle,
-            position: 'relative',
-            zIndex: 1501, // Above backdrop (1500)
-            pointerEvents: 'auto',
-          }}
-          onClick={(e) => {
-            // #region agent log
-            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:355', message: 'Box onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, isBox: e.target === e.currentTarget }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-            // #endregion
-            // Only close if clicking directly on the Box (outside content)
-            if (e.target === e.currentTarget) {
-              onClose()
-            }
-            e.stopPropagation()
-          }}
-          onMouseDown={(e) => {
-            // Prevent mousedown from reaching backdrop
-            e.stopPropagation()
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            zIndex: 1501,
+            p: 0,
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'visible',
           }}
         >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-xl font-semibold" id="sms-template-modal">
+              {isLeadSMS
+                ? 'Send Text Message'
+                : isEditing && !IsDefaultCadence
+                  ? 'Update Text'
+                  : 'New Text Message'}
+            </h2>
+            <CloseBtn onClick={onClose} />
+          </div>
+
+          {/* Content - close templates dropdown when user clicks anywhere here (e.g. inputs, textarea) */}
           <div
-            className="flex flex-col w-full max-w-2xl px-8 py-6 bg-white max-h-[85vh] rounded-2xl justify-between relative z-10"
-            style={{ pointerEvents: 'auto' }}
-            onClick={(e) => {
-              // #region agent log
-              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:370', message: 'Content div onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-              // #endregion
-              // Prevent clicks inside modal content from closing the modal
-              e.stopPropagation()
-            }}
-            onMouseDown={(e) => {
-              // #region agent log
-              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:377', message: 'Content div onMouseDown fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-              // #endregion
-              // Prevent mousedown events from bubbling to backdrop
-              e.stopPropagation()
+            className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4"
+            style={{ position: 'relative' }}
+            id="sms-template-description"
+            onMouseDown={() => {
+              if (showTemplatesDropdown) setShowTemplatesDropdown(false)
             }}
           >
+            <AgentSelectSnackMessage
+              type={showSnackBar.type}
+              message={showSnackBar.message}
+              isVisible={showSnackBar.message !== ''}
+              hide={() => {
+                setShowSnackBar({
+                  message: '',
+                  type: SnackbarTypes.Success,
+                })
+              }}
+            />
+
             <div
-              className="flex flex-col w-full h-[80%] overflow-auto"
-              style={{ scrollbarWidth: 'none' }}
+              className="w-full flex flex-col items-center p-3 rounded-[8px] mb-4 sms-note-container border"
+              style={{ backgroundColor: 'rgb(248 250 252)', borderColor: '#E2E8F0' }}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
             >
-              <AgentSelectSnackMessage
-                type={showSnackBar.type}
-                message={showSnackBar.message}
-                isVisible={showSnackBar.message !== ''}
-                hide={() => {
-                  setShowSnackBar({
-                    message: '',
-                    type: SnackbarTypes.Success,
-                  })
-                }}
-              />
-
-              <div
-                className="w-full flex flex-row items-center justify-between mb-8"
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                <div className="text-[15px] font-[700]">
-                  {isLeadSMS
-                    ? 'Send Text Message'
-                    : isEditing && !IsDefaultCadence
-                      ? 'Update Text'
-                      : 'New Text Message'}
-                </div>
-
-                <CloseBtn onClick={onClose} />
-              </div>
-
-              <div
-                className="w-full flex flex-col items-center p-3 rounded-lg mb-4 sms-note-container"
-                style={{
-                  backgroundColor: '#F5F5F5',
-                }}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                <div className="flex flex-row w-full mb-1">
-                  <div className="text-[13px] font-[400] text-black flex flex-row flex-wrap">
-                    <span className="font-bold me-1">Note: </span>{" "} You can add variables like {' '}
-                    <span className="text-brand-primary ms-1">{`{First Name}, {Address}.`}</span>
-                    {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
-                      <div className="flex flex-row flex-wrap gap-2">
-                        {uniqueColumns.map((item, index) => (
-                          <div
-                            key={index}
-                            className="flex flex-row items-center gap-2 text-brand-primary"
-                          >
-                            {`{${item}}`},
-                          </div>
-                        ))}
-                        <button
-                          className="text-brand-primary outline-none"
-                          onClick={handleShowUniqueCols}
-                        >
-                          show less
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        {uniqueColumns.length > 0 && (
-                          <button
-                            className="text-brand-primary flex flex-row items-center font-bold outline-none"
-                            onClick={() => {
-                              handleShowUniqueCols()
-                            }}
-                          >
-                            <Plus
-                              weight="bold"
-                              size={15}
-                              style={{
-                                strokeWidth: 40, // Adjust as needed
-                              }}
-                            />
-                            {uniqueColumns.length}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Templates dropdown */}
-              {!isLeadSMS && (
-                <div
-                  className="w-full mb-4"
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Template:
-                  </label>
-                  {templatesLoading ? (
-                    <div className="flex items-center justify-center h-[44px]">
-                      <CircularProgress size={30} />
+              <div className="flex flex-row w-full mb-1">
+                <div className="text-[13px] font-[400] text-black flex flex-row flex-wrap">
+                  <span className="font-bold me-1">Note: </span> You can add variables like{' '}
+                  <span className="text-brand-primary ms-1">{`{First Name}, {Address}.`}</span>
+                  {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
+                    <div className="flex flex-row flex-wrap gap-2">
+                      {uniqueColumns.map((item, index) => (
+                        <div key={index} className="flex flex-row items-center gap-2 text-brand-primary">
+                          {`{${item}}`},
+                        </div>
+                      ))}
+                      <button className="text-brand-primary outline-none" onClick={handleShowUniqueCols}>
+                        show less
+                      </button>
                     </div>
                   ) : (
-                    <FormControl sx={{ height: '50px', width: '100%' }}>
-                      <Select
-                        value={selectedTemplate || ''}
-                        onChange={(event) => {
-                          if (event.target.value === 'new-template') {
-                            setShowNewTemplateModal(true)
-                          } else {
-                            handleTemplateSelect(event.target.value)
-                          }
-                        }}
-                        displayEmpty
-                        renderValue={(selected) =>
-                          selected?.templateName || (
-                            <div style={{ color: '#aaa' }}>Select a template</div>
-                          )
-                        }
-                        sx={{
-                          ...styles.dropdownMenu,
-                          backgroundColor: '#FFFFFF',
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'transparent',
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: '30vh',
-                              overflow: 'auto',
-                              scrollbarWidth: 'none',
-                              zIndex: 1700,
-                            },
-                          },
-                          disablePortal: false,
-                          container: typeof document !== 'undefined' ? document.body : null,
-                          style: {
-                            zIndex: 1700,
-                          },
-                        }}
-                      >
-                        <MenuItem value="">
-                          <em>None (Start from scratch)</em>
-                        </MenuItem>
-                        {smsTemplates?.length > 0 ? (
-                          smsTemplates.map((template, index) => (
-                            <MenuItem key={template.id || index} value={template}>
-                              <div className="flex flex-row items-center gap-2 w-full">
-                                <div className="text-[15px] font-[500] flex-1 truncate min-w-0">
-                                  {template.templateName || 'Untitled Template'}
-                                </div>
-                                {delTempLoader?.id === template.id ? (
-                                  <CircularProgress size={20} className="flex-shrink-0" />
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      e.stopPropagation()
-                                      handleDelete(e, template)
-                                    }}
-                                    className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
-                                  >
-                                    <Trash size={16} />
-                                  </button>
-                                )}
-                              </div>
-                            </MenuItem>
-                          ))
-                        ) : (
-                          <MenuItem disabled>No templates found</MenuItem>
-                        )}
-                        <MenuItem
-                          value="new-template"
-                          sx={{
-                            color: 'hsl(var(--brand-primary))',
-                            fontWeight: 500,
-                            borderTop: '1px solid #e5e7eb',
-                            marginTop: '4px',
-                            paddingTop: '8px',
-                          }}
+                    <div>
+                      {uniqueColumns.length > 0 && (
+                        <button
+                          className="text-brand-primary flex flex-row items-center font-bold outline-none"
+                          onClick={() => handleShowUniqueCols()}
                         >
-                          <div className="flex items-center gap-2">
-                            <Plus size={16} />
-                            New Template
-                          </div>
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
+                          <Plus weight="bold" size={15} style={{ strokeWidth: 40 }} />
+                          {uniqueColumns.length}
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-
-              {/* From field */}
-              <div
-                className="w-full mb-4"
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  From:
-                </label>
-                {phoneLoading ? (
-                  <div className="flex items-center justify-center h-[44px]">
-                    <CircularProgress size={30} />
-                  </div>
-                ) : (
-                  <FormControl sx={{ height: '50px', width: '100%' }}>
-                    <Select
-                      value={selectedPhone || ''}
-                      onChange={(event) => handleSelect(event.target.value)}
-                      displayEmpty
-                      renderValue={(selected) =>
-                        selected?.phone || (
-                          <div style={{ color: '#aaa' }}>Select phone number</div>
-                        )
-                      }
-                      sx={{
-                        ...styles.dropdownMenu,
-                        backgroundColor: '#FFFFFF',
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'transparent',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: '30vh',
-                            overflow: 'auto',
-                            scrollbarWidth: 'none',
-                            zIndex: 1700, // Higher than modal (1500) and backdrop
-                          },
-                        },
-                        disablePortal: false,
-                        container: typeof document !== 'undefined' ? document.body : null,
-                        style: {
-                          zIndex: 1700,
-                        },
-                      }}
-                    >
-                      {phoneNumbers?.length > 0 ? (
-                        phoneNumbers?.map((item, index) => (
-                          <MenuItem key={index} value={item}>
-                            <div className="flex flex-row items-center gap-2">
-                              <div className="text-[15] font-[500] w-48">
-                                {item.phone}
-                              </div>
-                            </div>
-                          </MenuItem>
-                        ))
-                      ) : (
-                        <div className="p-2">No number found</div>
-                      )}
-                    </Select>
-                  </FormControl>
-                )}
               </div>
+            </div>
 
-              {/* Message field */}
-              <div
-                className="w-full mb-4"
-                onClick={(e) => {
-                  // #region agent log
-                  //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:527', message: 'Message field div onClick', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-                  // #endregion
-                  e.stopPropagation()
-                }}
-                onMouseDown={(e) => {
-                  // #region agent log
-                  //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:534', message: 'Message field div onMouseDown', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-                  // #endregion
-                  e.stopPropagation()
-                }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Message:
-                  </label>
-                  {uniqueColumns && uniqueColumns.length > 0 && (
+            {/* From field */}
+            <div
+              className="w-full mb-4"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                From:
+              </label>
+              {phoneLoading ? (
+                <div className="flex items-center justify-center h-[44px]">
+                  <CircularProgress size={30} />
+                </div>
+              ) : (
+                <FormControl sx={{ height: '50px', width: '100%' }}>
+                  <Select
+                    value={selectedPhone || ''}
+                    onChange={(event) => handleSelect(event.target.value)}
+                    displayEmpty
+                    renderValue={(selected) =>
+                      selected?.phone || (
+                        <div style={{ color: '#aaa' }}>Select phone number</div>
+                      )
+                    }
+                    sx={{
+                      ...styles.dropdownMenu,
+                      backgroundColor: '#FFFFFF',
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'transparent',
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: '30vh',
+                          overflow: 'auto',
+                          scrollbarWidth: 'none',
+                          zIndex: 1700, // Higher than modal (1500) and backdrop
+                        },
+                      },
+                      disablePortal: false,
+                      container: typeof document !== 'undefined' ? document.body : null,
+                      style: {
+                        zIndex: 1700,
+                      },
+                    }}
+                  >
+                    {phoneNumbers?.length > 0 ? (
+                      phoneNumbers?.map((item, index) => (
+                        <MenuItem key={index} value={item}>
+                          <div className="flex flex-row items-center gap-2">
+                            <div className="text-[15] font-[500] w-48">
+                              {item.phone}
+                            </div>
+                          </div>
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <div className="p-2">No number found</div>
+                    )}
+                  </Select>
+                </FormControl>
+              )}
+            </div>
+
+            {/* Message field - variables dropdown inside textarea like NewMessageModal */}
+            <div
+              className="w-full mb-4"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Message:
+              </label>
+              <div className="relative" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                <textarea
+                  ref={textareaRef}
+                  value={body}
+                  onChange={(e) => {
+                    const newValue = e.target.value
+                    if (newValue.length <= 300) {
+                      setBody(newValue)
+                    }
+                  }}
+                  placeholder="Type your message here"
+                  className="w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary resize-none min-h-[120px] pr-24"
+                  style={{
+                    minHeight: '120px',
+                    fontFamily: 'inherit',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    borderColor: '#E2E8F0',
+                    borderWidth: '1px',
+                  }}
+                  rows={6}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                />
+                {/* Variables dropdown inside textarea - bottom right like NewMessageModal */}
+                {uniqueColumns && uniqueColumns.length > 0 && (
+                  <div className="absolute bottom-2 right-2">
                     <FormControl size="small" sx={{ minWidth: 150 }}>
                       <Select
                         value={selectedVariable}
@@ -848,43 +696,30 @@ function SMSTempletePopup({
                               ? value
                               : `{${value}}`
                             const newBody = body.substring(0, start) + variableText + body.substring(end)
-                            setBody(newBody)
-                            // Set cursor position after inserted variable
-                            setTimeout(() => {
-                              textarea.focus()
-                              textarea.setSelectionRange(start + variableText.length, start + variableText.length)
-                            }, 0)
+                            if (newBody.length <= 300) {
+                              setBody(newBody)
+                              setTimeout(() => {
+                                textarea.focus()
+                                textarea.setSelectionRange(start + variableText.length, start + variableText.length)
+                              }, 0)
+                            }
                           }
                         }}
                         displayEmpty
                         sx={{
                           fontSize: '0.875rem',
-                          height: '32px',
+                          height: '36px',
                           backgroundColor: 'white',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#d1d5db',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
+                          borderRadius: '8px',
+                          '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E2E8F0' },
+                          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--brand-primary))' },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--brand-primary))', borderWidth: '2px' },
                         }}
                         MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: '30vh',
-                              overflow: 'auto',
-                              scrollbarWidth: 'none',
-                              zIndex: 1700,
-                            },
-                          },
+                          PaperProps: { style: { maxHeight: '30vh', overflow: 'auto', zIndex: 1700, borderRadius: 8 } },
                           disablePortal: false,
                           container: typeof document !== 'undefined' ? document.body : null,
-                          style: {
-                            zIndex: 1700,
-                          },
+                          style: { zIndex: 1700 },
                         }}
                       >
                         <MenuItem value="" disabled>
@@ -902,99 +737,164 @@ function SMSTempletePopup({
                         })}
                       </Select>
                     </FormControl>
-                  )}
-                </div>
-                <div
-                  className="relative w-[99%] ml-1"
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <textarea
-                    ref={textareaRef}
-                    value={body}
-                    onChange={(e) => {
-                      const newValue = e.target.value
-                      // Enforce 300 character limit for text (Twilio sends multi-segment; we count 1 credit per message)
-                      if (newValue.length <= 300) {
-                        setBody(newValue)
-                      }
-                    }}
-                    placeholder="Type your message..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary resize-none"
-                    rows={6}
-                    style={{
-                      minHeight: '120px',
-                      fontFamily: 'inherit',
-                      fontSize: '14px',
-                      lineHeight: '1.5',
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
-                  />
-
-                  {/* Character count and balance at bottom of message area */}
-                  <div className="flex flex-row items-center justify-between w-full mt-2 pt-2 border-t border-gray-200">
-                    <div className="text-sm text-gray-600">
-                      {body.length}/300 char
-                    </div>
-                    <div className="flex flex-row items-center gap-2 text-sm text-gray-600">
-
-                      <div className="flex flex-row items-center gap-1">
-                        <span>{((user?.totalSecondsAvailable || 0) / 60).toFixed(2)} credits left</span>
-                        <Tooltip
-                          title="10 text messages equal 1 credit"
-                          arrow
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#ffffff',
-                                color: '#333',
-                              },
-                            },
-                          }}
-                        >
-                          <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={10} height={10} />
-                        </Tooltip>
-                      </div>
-                    </div>
+                  </div>
+                )}
+              </div>
+              {/* Credits below textarea */}
+              <div className="flex flex-row items-center justify-end w-full mt-2 pt-2 border-t border-gray-200">
+                <div className="flex flex-row items-center gap-2 text-sm text-gray-600">
+                  <div className="flex flex-row items-center gap-1">
+                    <span>{((user?.totalSecondsAvailable || 0) / 60).toFixed(2)} credits left</span>
+                    <Tooltip
+                      title="10 text messages equal 1 credit"
+                      placement="top"
+                      arrow
+                      componentsProps={{
+                        tooltip: { sx: { backgroundColor: '#ffffff', color: '#333' } },
+                      }}
+                    >
+                      <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={14} height={14} className="cursor-pointer" />
+                    </Tooltip>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Save as template checkbox - only show when not in lead SMS mode */}
-            {!isLeadSMS && (
-              <div className="flex items-center gap-2 mb-2">
-                <input
-                  type="checkbox"
-                  id="saveAsTemplateSMS"
-                  checked={saveAsTemplate}
-                  onChange={(e) => setSaveAsTemplate(e.target.checked)}
-                  className="h-4 w-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary"
-                />
-                <label htmlFor="saveAsTemplateSMS" className="text-sm text-gray-700 cursor-pointer select-none">
-                  {selectedTemplate ? 'Update template' : 'Save as template'}
-                </label>
-              </div>
-            )}
+          {/* Footer with template dropdown, save-as-template checkbox, char count, and dual button - same as NewMessageModal */}
+          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+            <div className="flex items-center gap-2">
+              {/* Templates button + dropdown - only when not lead SMS */}
+              {!isLeadSMS && (
+                <div className="relative" ref={templatesDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!showTemplatesDropdown) {
+                        fetchSmsTemplates()
+                      }
+                      setShowTemplatesDropdown(!showTemplatesDropdown)
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  >
+                    {renderBrandedIcon('/messaging/templateIcon.svg', 18, 18)}
+                    <span>Templates</span>
+                    <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
+                  </button>
 
-            <div className="w-full flex flex-row items-center justify-end gap-3 mt-4">
-              {/* Send Text Only Button */}
-              {sendOnlyLoader ? (
-                <CircularProgress size={30} />
-              ) : (
-                <button
-                  className={`flex flex-row items-center gap-2 px-6 py-3 h-[48px] text-[15px] font-[600] rounded-lg text-white transition-colors ${!body?.trim() || (isLeadSMS ? !leadPhone : !selectedPhone) || sendOnlyLoader
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-brand-primary'
-                    }`}
-                  disabled={!body?.trim() || (isLeadSMS ? !leadPhone : !selectedPhone)}
-                  onClick={handleSendOnly}
-                >
-                  {isEditing && !IsDefaultCadence ? "Update" : "Send"} Text
-                  <PaperPlaneTilt size={18} weight="regular" />
-                </button>
+                  {showTemplatesDropdown && (
+                    <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+                      {templatesLoading ? (
+                        <div className="p-4 text-center">
+                          <CircularProgress size={20} />
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedTemplate(null)
+                              setBody('')
+                              setShowTemplatesDropdown(false)
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-100"
+                          >
+                            None (Start from scratch)
+                          </button>
+                          {smsTemplates?.length > 0 ? (
+                            smsTemplates.map((template, index) => (
+                              <div
+                                key={template.id || index}
+                                className="flex items-center justify-between gap-2 px-4 py-2 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    handleTemplateSelect(template)
+                                    setShowTemplatesDropdown(false)
+                                  }}
+                                  className="flex-1 text-left text-sm min-w-0"
+                                >
+                                  <div className="font-medium text-gray-900 truncate">
+                                    {template.templateName || 'Untitled Template'}
+                                  </div>
+                                </button>
+                                {delTempLoader?.id === template.id ? (
+                                  <CircularProgress size={16} />
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDelete(e, template)
+                                      setShowTemplatesDropdown(false)
+                                    }}
+                                    className="flex-shrink-0 p-1 rounded transition-colors text-brand-primary hover:bg-brand-primary/10"
+                                  >
+                                    <Trash size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-2 text-sm text-gray-500">No templates found</div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowNewTemplateModal(true)
+                              setShowTemplatesDropdown(false)
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm font-medium text-brand-primary hover:bg-brand-primary/10 border-t border-gray-200 flex items-center gap-2"
+                          >
+                            <Plus size={16} />
+                            New Template
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
+
+              {/* Save as template checkbox - in footer like NewMessageModal */}
+              {!isLeadSMS && (
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="saveAsTemplateSMS"
+                    checked={saveAsTemplate}
+                    onCheckedChange={(checked) => setSaveAsTemplate(checked === true)}
+                    className="h-5 w-5"
+                  />
+                  <label htmlFor="saveAsTemplateSMS" className="text-sm text-gray-700 cursor-pointer select-none">
+                    {selectedTemplate ? 'Update template' : 'Save as template'}
+                  </label>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-600">
+                {body.length}/300 char
+              </div>
+              <button
+                type="button"
+                onClick={handleSendOnly}
+                disabled={!body?.trim() || (isLeadSMS ? !leadPhone : !selectedPhone) || sendOnlyLoader}
+                className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+              >
+                {sendOnlyLoader ? (
+                  <>
+                    <CircularProgress size={16} className="text-white" />
+                    {isEditing && !IsDefaultCadence ? 'Updating...' : isLeadSMS ? 'Sending...' : 'Saving...'}
+                  </>
+                ) : (
+                  <>
+                    {isEditing && !IsDefaultCadence ? 'Update' : isLeadSMS ? 'Send' : 'Save'}
+                    <PaperPlaneTilt size={16} weight="regular" />
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </Box>
@@ -1078,17 +978,6 @@ const styles = {
     backgroundColor: 'white',
     fontWeight: '400',
     fontSize: 10,
-  },
-  modalsStyle: {
-    height: 'auto',
-    bgcolor: 'transparent',
-    p: 2,
-    mx: 'auto',
-    my: '50vh',
-    transform: 'translateY(-55%)',
-    borderRadius: 2,
-    border: 'none',
-    outline: 'none',
   },
 }
 
