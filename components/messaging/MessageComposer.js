@@ -19,6 +19,18 @@ import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from 
 import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
+
+// Tab icon for consolidated Messenger/Instagram: uses fb_message_icon PNG (accepts size/style like Lucide)
+const MessengerTabIcon = ({ size = 20, style }) => (
+  <img
+    src="/svgIcons/fb_message_icon.png"
+    width={size}
+    height={size}
+    alt=""
+    className="object-contain flex-shrink-0"
+    style={style}
+  />
+)
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import {
   Dialog,
@@ -1289,20 +1301,11 @@ const MessageComposer = ({
               }}
             />
             <MessageComposerTabCN
-              icon={MessageSquare}
-              label="Facebook"
-              isActive={composerMode === 'facebook'}
+              icon={MessengerTabIcon}
+              label="Messenger"
+              isActive={composerMode === 'facebook' || composerMode === 'instagram'}
               onClick={() => {
-                setComposerMode('facebook')
-                setIsExpanded(true)
-              }}
-            />
-            <MessageComposerTabCN
-              icon={MessageSquare}
-              label="Instagram"
-              isActive={composerMode === 'instagram'}
-              onClick={() => {
-                setComposerMode('instagram')
+                setComposerMode(selectedThread?.threadType === 'instagram' ? 'instagram' : 'facebook')
                 setIsExpanded(true)
               }}
             />
@@ -1354,8 +1357,8 @@ const MessageComposer = ({
         </div>
 
         {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
-          <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3">
-            {isFacebookMode && !hasFacebookConnection ? (
+          <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
+            {!hasFacebookConnection && (
               <div className="flex flex-col gap-2">
                 <p className="text-sm text-muted-foreground">
                   Connect a Facebook Page to send Messenger messages.
@@ -1371,11 +1374,8 @@ const MessageComposer = ({
                   </Button>
                 </div>
               </div>
-            ) : isFacebookMode && hasFacebookConnection && !canReplyMessenger ? (
-              <p className="text-sm text-muted-foreground">
-                Select a Messenger conversation from the list to reply here.
-              </p>
-            ) : isInstagramMode && !hasInstagramConnection ? (
+            )}
+            {!hasInstagramConnection && (
               <div className="flex flex-col gap-2">
                 <p className="text-sm text-muted-foreground">
                   Connect an Instagram account to send messages.
@@ -1391,9 +1391,10 @@ const MessageComposer = ({
                   </Button>
                 </div>
               </div>
-            ) : (
+            )}
+            {hasFacebookConnection && hasInstagramConnection && (
               <p className="text-sm text-muted-foreground">
-                Select an Instagram conversation from the list to reply here.
+                Select a Messenger or Instagram conversation from the list to reply here.
               </p>
             )}
           </div>
