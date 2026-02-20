@@ -3062,7 +3062,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   }
 
   return (
-    <div className={`w-full flex flex-col bg-white h-full`}>
+    <div className={`w-full flex flex-col bg-white h-[100svh]`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}
@@ -3099,7 +3099,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         !hasMessagingAccess ? (
           <UnlockMessagesView />
         ) : (
-          <div className={`w-full h-full flex flex-col bg-white`}>
+          <div className={`w-full h-[100svh] flex flex-col bg-white`}>
             <MessageHeader selectedThread={selectedThread} selectedUser={selectedUser} />
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
@@ -3184,9 +3184,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               })()}
 
               {/* Right Side - Messages View (relative so LeadDetails wrapper doesn't affect layout) */}
-              <div className={`relative flex-1 flex flex-col min-w-0 ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
+              <div className={`relative flex-1 flex flex-col min-w-0 overflow-hidden ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
                 {selectedThread ? (
-                  <>
+                  <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                     {/* Messages Header */}
                     <ConversationHeader
                       selectedUser={selectedUser}
@@ -3206,56 +3206,61 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       }}
                     />
 
-                    {/* Messages Container */}
-                    <ConversationView
-                      selectedThread={selectedThread}
-                      messages={messages}
-                      messagesLoading={messagesLoading}
-                      loadingOlderMessages={loadingOlderMessages}
-                      messagesContainerRef={messagesContainerRef}
-                      messagesEndRef={messagesEndRef}
-                      messagesTopRef={messagesTopRef}
-                      sanitizeHTML={sanitizeHTML}
-                      sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
-                      getLeadName={getLeadName}
-                      getAgentAvatar={getAgentAvatar}
-                      getImageUrl={getImageUrl}
-                      setImageAttachments={setImageAttachments}
-                      setCurrentImageIndex={setCurrentImageIndex}
-                      setImageModalOpen={setImageModalOpen}
-                      setSnackbar={setSnackbar}
-                      SnackbarTypes={SnackbarTypes}
-                      openEmailDetailId={openEmailDetailId}
-                      setOpenEmailDetailId={setOpenEmailDetailId}
-                      getEmailDetails={getEmailDetails}
-                      setShowEmailTimeline={setShowEmailTimeline}
-                      setEmailTimelineLeadId={setEmailTimelineLeadId}
-                      setEmailTimelineSubject={setEmailTimelineSubject}
-                      onReplyClick={handleReplyClick}
-                      onOpenEmailTimeline={handleOpenEmailTimeline}
-                      updateComposerFromMessage={updateComposerFromMessage}
-                      onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
-                      onOpenAiChat={setAiChatContext}
-                      onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
-                      hasAiKey={messageSettingsHasAiKey}
-                      allowAIEmailAndText={allowAIEmailAndText}
-                      shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
-                      shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
-                      onShowUpgrade={() => setShowUpgradePlanModal(true)}
-                      onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
-                    />
+                    {/* Conversation takes remaining space and scrolls internally */}
+                    <div className="flex-1 min-h-0 flex flex-col">
+                      <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+                        <ConversationView
+                        selectedThread={selectedThread}
+                        messages={messages}
+                        messagesLoading={messagesLoading}
+                        loadingOlderMessages={loadingOlderMessages}
+                        messagesContainerRef={messagesContainerRef}
+                        messagesEndRef={messagesEndRef}
+                        messagesTopRef={messagesTopRef}
+                        sanitizeHTML={sanitizeHTML}
+                        sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
+                        getLeadName={getLeadName}
+                        getAgentAvatar={getAgentAvatar}
+                        getImageUrl={getImageUrl}
+                        setImageAttachments={setImageAttachments}
+                        setCurrentImageIndex={setCurrentImageIndex}
+                        setImageModalOpen={setImageModalOpen}
+                        setSnackbar={setSnackbar}
+                        SnackbarTypes={SnackbarTypes}
+                        openEmailDetailId={openEmailDetailId}
+                        setOpenEmailDetailId={setOpenEmailDetailId}
+                        getEmailDetails={getEmailDetails}
+                        setShowEmailTimeline={setShowEmailTimeline}
+                        setEmailTimelineLeadId={setEmailTimelineLeadId}
+                        setEmailTimelineSubject={setEmailTimelineSubject}
+                        onReplyClick={handleReplyClick}
+                        onOpenEmailTimeline={handleOpenEmailTimeline}
+                        updateComposerFromMessage={updateComposerFromMessage}
+                        onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
+                        onOpenAiChat={setAiChatContext}
+                        onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
+                        hasAiKey={messageSettingsHasAiKey}
+                        allowAIEmailAndText={allowAIEmailAndText}
+                        shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                        shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                        onShowUpgrade={() => setShowUpgradePlanModal(true)}
+                        onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
+                      />
+                      </div>
 
-                    {/* AI-Generated Draft Responses */}
-                    <DraftCards
-                      drafts={drafts}
-                      loading={draftsLoading}
-                      onSelectDraft={handleSelectDraft}
-                      onDiscardDraft={handleDiscardDraft}
-                      selectedDraftId={selectedDraft?.id}
-                    />
+                      {/* AI-Generated Draft Responses */}
+                      <DraftCards
+                        drafts={drafts}
+                        loading={draftsLoading}
+                        onSelectDraft={handleSelectDraft}
+                        onDiscardDraft={handleDiscardDraft}
+                        selectedDraftId={selectedDraft?.id}
+                      />
+                    </div>
 
-                    {/* Composer */}
-                    <MessageComposer
+                    {/* Composer - fixed at bottom with max height so long emails scroll inside */}
+                    <div className="flex-shrink-0 max-h-[50vh] overflow-hidden">
+                      <MessageComposer
                       from={from}
                       composerMode={composerMode}
                       setComposerMode={setComposerMode}
@@ -3312,7 +3317,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       selectedUser={selectedUser}
                       searchLoading={searchLoading}
                     />
-                  </>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
                     <div className="mb-6">

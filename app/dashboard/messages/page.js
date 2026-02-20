@@ -12,7 +12,7 @@ const Page = () => {
         permissionKey="agentx.messages.manage"
         hideIfNoPermission={false}
         fallback={
-          <div className="w-full flex flex-col items-center justify-center h-screen">
+          <div className="w-full flex flex-col items-center justify-center h-[100svh]">
             <div style={{ padding: '2rem', textAlign: 'center' }}>
               <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1rem' }}>
                 Access Denied
