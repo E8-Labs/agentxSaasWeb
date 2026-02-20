@@ -1492,7 +1492,9 @@ const MessageComposer = ({
             ref={composerContentRef}
             style={{
               height: contentHeight,
-              overflow: 'hidden',
+              maxHeight: '50vh',
+              overflowY: 'auto',
+              overflowX: 'hidden',
               transition: isTransitioning ? 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
               willChange: isTransitioning ? 'height' : 'auto',
             }}
