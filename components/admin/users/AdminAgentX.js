@@ -380,6 +380,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const [selectedGptManu, setSelectedGptManu] = useState(models[0])
 
+  // Agency custom name for the AssignX (gpt-4.1-mini) model; use selected user's agency branding when editing their agent
+  const assignxModelDisplayName =
+    selectedUser?.agencyBranding?.customizations?.assignxModelDisplayName
+  const getModelDisplayName = (model) =>
+    model?.value === 'gpt-4.1-mini' && assignxModelDisplayName
+      ? assignxModelDisplayName
+      : model?.name
+
   // Note: user state is kept for admin authentication token, but selectedUser should be used for data operations
   const [user, setUser] = useState(null)
 
@@ -3767,7 +3775,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           src={selectedGptManu?.icon}
                           sx={{ width: 24, height: 24, marginRight: 1 }}
                         />
-                        {selectedGptManu?.name}
+                        {getModelDisplayName(selectedGptManu)}
                         <Image
                           src={'/svgIcons/downArrow.svg'}
                           width={18}
@@ -3813,7 +3821,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                               src={model.icon}
                               sx={{ width: 24, height: 24 }}
                             />
-                            {model.name}
+                            {getModelDisplayName(model)}
 
                             <div
                               style={{

@@ -578,6 +578,15 @@ function Page() {
   const [openGptManu, setOpenGptManu] = useState('')
   const [selectedGptManu, setSelectedGptManu] = useState(models[0])
 
+  // Agency custom name for the AssignX (gpt-4.1-mini) model; subaccounts see this via agency branding
+  const assignxModelDisplayName =
+    agencyBranding?.customizations?.assignxModelDisplayName ||
+    reduxUser?.agencyBranding?.customizations?.assignxModelDisplayName
+  const getModelDisplayName = (model) =>
+    model?.value === 'gpt-4.1-mini' && assignxModelDisplayName
+      ? assignxModelDisplayName
+      : model?.name
+
   const [voiceExpressiveness, setVoiceExpressiveness] = useState('')
   const [startingPace, setStartingPace] = useState('')
   const [patienceValue, setPatienceValue] = useState('')
@@ -4804,7 +4813,7 @@ function Page() {
                                 src={selectedGptManu?.icon}
                                 sx={{ width: 24, height: 24, marginRight: 1 }}
                               />
-                              {selectedGptManu?.name}
+                              {getModelDisplayName(selectedGptManu)}
                               <Image
                                 src={'/svgIcons/downArrow.svg'}
                                 width={18}
@@ -4864,7 +4873,7 @@ function Page() {
                                         fontWeight: '500',
                                       }}
                                     >
-                                      {model.name}
+                                      {getModelDisplayName(model)}
                                     </span>
                                   </div>
                                   <div
