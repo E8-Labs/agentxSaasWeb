@@ -212,7 +212,7 @@ const ThreadsList = ({
         <ToggleGroupCN
           options={[
             { label: 'All', value: 'all', count: allCount },
-            { label: 'Un Replied', value: 'unreplied', count: unrepliedCount },
+            { label: 'UnReplied', value: 'unreplied', count: unrepliedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
