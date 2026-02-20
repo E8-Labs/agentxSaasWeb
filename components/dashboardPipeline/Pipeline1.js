@@ -3173,7 +3173,7 @@ const Pipeline1 = () => {
                                     key={leadIndex}
                                   >
                                     <div
-                                      className="border bg-[#ffffff] rounded-xl p-3 pb-0 h-full flex flex-col gap-0.5"
+                                      className="border bg-[#ffffff] rounded-xl p-3 pb-0 h-auto flex flex-col gap-0.5"
                                       style={{ border: "1px solid ##1515151A" }}
                                       onMouseEnter={() => {
                                         const latestLead = LeadsList.find(
@@ -3210,7 +3210,7 @@ const Pipeline1 = () => {
                                               {getLeadProfileImage(lead.lead, 36, 36)}
                                             </div>
                                             <div
-                                              className="absolute -bottom-0.5 -right-0.5 z-[1000] rounded-full border border-white flex items-center justify-center overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                                              className="absolute -bottom-0.5 -right-0.5 z-10 rounded-full border border-white flex items-center justify-center overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
                                             >
                                               {getAgentsListImage(
                                                 lead.agent?.agents[0]?.agentType ===
@@ -3245,8 +3245,83 @@ const Pipeline1 = () => {
                                             />
                                           )}
                                       </div>
-                                      <div className="flex flex-row items-center justify-between w-full mt-2 min-h-10">
-                                        {/* Loader only for this card's lead (array item), not selectedLeadsDetails */}
+                                      {SelectedPipeline?.pipelineType === 'agency_use' && lead?.lead?.agencyUseInfo?.planPrice != null && (
+                                      <div className="flex flex-row items-center justify-between w-full mt-2 h-auto min-h-[2px]">
+                                        <div className="flex flex-col gap-1">
+                                          {/* Display plan price for agency_use pipeline leads */}
+                                          <div
+                                            className="rounded-full flex flex-row items-center justify-center"
+                                            style={{
+                                              fontWeight: "400",
+                                              height: "28px",
+                                              width: "70px",
+                                              backgroundColor: "#00000005",
+                                              fontSize: "14px",
+                                            }}
+                                          >
+                                            ${lead.lead.agencyUseInfo.planPrice}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      )}
+
+                                      {lead?.lead?.booking?.date && (
+                                        <div
+                                          className="flex flex-row items-center gap-2"
+                                          style={{
+                                            // fontWeight: "500",
+
+                                            color: '#15151560',
+                                            // backgroundColor: 'red',
+                                          }}
+                                        >
+                                          <Image
+                                            src="/svgIcons/calendar.svg"
+                                            height={16}
+                                            width={16}
+                                            alt="*"
+                                            style={{ filter: 'opacity(50%)' }}
+                                          />
+                                          <p
+                                            style={{
+                                              fontSize: 13,
+                                              fontWeight: 500,
+                                            }}
+                                          >
+                                            {FormatBookingDateTime(
+                                              lead?.lead?.booking?.datetime,
+                                              lead?.lead?.booking?.timezone,
+                                            )}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      <div className="flex items-center flex-row gap-2 mt-2 pt-2 pb-3">
+
+                                        <TagManagerCn
+                                          tags={lead.lead.tags || []}
+                                          tagInputRef={getOrCreateInputRef(lead.lead.id)}
+                                          tagInputValue={tagInputValues[lead.lead.id] ?? ''}
+                                          onInputChange={(e) => handleTagInputChange(e, lead)}
+                                          onInputKeyDown={(e) => handleTagInputKeyDown(e, lead)}
+                                          showSuggestions={showTagSuggestionsByLead[lead.lead.id] ?? false}
+                                          setShowSuggestions={(show) =>
+                                            setShowTagSuggestionsByLead((prev) => ({ ...prev, [lead.lead.id]: show }))
+                                          }
+                                          tagSuggestions={tagSuggestionsByLead[lead.lead.id] ?? []}
+                                          onSuggestionClick={(suggestion) => handleTagSuggestionClick(suggestion, lead)}
+                                          addTagLoader={addTagLoaderLeadId === lead.lead.id}
+                                          onRemoveTag={(tag) => handleDelTagForLead(tag, lead)}
+                                          delTagLoader={delTagLoaderByLead[lead.lead.id]}
+                                          onRefreshSuggestions={getUniqueTags}
+                                          selectedUser={user}
+                                          showSnackbar={showSnackbar}
+                                          onLeadDetailsUpdated={(deletedTagName) =>
+                                            handleLeadDetailsUpdatedForLead(deletedTagName, lead)
+                                          }
+                                          from={"dashboardPipeline"}
+                                        />
+                                        <div className="ml-auto flex-shrink-0">
                                         {assignLoaderLeadId === lead.lead.id ? (
                                           <CircularProgress size={20} />
                                         ) : (
@@ -3281,120 +3356,7 @@ const Pipeline1 = () => {
                                             }}
                                           />
                                         )}
-                                        <div className="flex flex-col gap-1">
-                                          {/* {lead?.lead?.email && (
-                                            <Tooltip
-                                              title={lead?.lead?.email}
-                                              arrow
-                                              componentsProps={{
-                                                tooltip: {
-                                                  sx: {
-                                                    backgroundColor: '#ffffff',
-                                                    color: '#333',
-                                                    fontSize: '14px',
-                                                    padding: '10px 15px',
-                                                    borderRadius: '8px',
-                                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                  },
-                                                },
-                                                arrow: {
-                                                  sx: {
-                                                    color: '#ffffff',
-                                                  },
-                                                },
-                                              }}
-                                            >
-                                              <div
-                                                className="text-[#00000060]"
-                                                style={styles.agentName}
-                                              >
-                                                {lead?.lead?.email?.slice(0, 10) + '...'}
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                          Display plan price for agency_use pipeline leads */}
-                                          {(() => {
-                                            const isAgencyUse = SelectedPipeline?.pipelineType === 'agency_use'
-                                            const planPrice = lead?.lead?.agencyUseInfo?.planPrice
-
-                                            // Debug logging
-                                            if (isAgencyUse) { }
-
-                                            return isAgencyUse && planPrice ? (
-                                              <div
-                                                className="rounded-full flex flex-row items-center justify-center"
-                                                style={{
-                                                  fontSize: '11px',
-                                                  fontWeight: "400",
-                                                  height: "28px",
-                                                  width: "70px",
-                                                  backgroundColor: "#00000005",
-                                                  fontSize: "14px",
-                                                }}
-                                              >
-                                                ${planPrice}
-                                              </div>
-                                            ) : null
-                                          })()}
                                         </div>
-                                      </div>
-
-                                      {lead?.lead?.booking?.date && (
-                                        <div
-                                          className="flex flex-row items-center gap-2"
-                                          style={{
-                                            // fontWeight: "500",
-
-                                            color: '#15151560',
-                                            // backgroundColor: 'red',
-                                          }}
-                                        >
-                                          <Image
-                                            src="/svgIcons/calendar.svg"
-                                            height={16}
-                                            width={16}
-                                            alt="*"
-                                            style={{ filter: 'opacity(50%)' }}
-                                          />
-                                          <p
-                                            style={{
-                                              fontSize: 13,
-                                              fontWeight: 500,
-                                            }}
-                                          >
-                                            {FormatBookingDateTime(
-                                              lead?.lead?.booking?.datetime,
-                                              lead?.lead?.booking?.timezone,
-                                            )}
-                                          </p>
-                                        </div>
-                                      )}
-
-                                      <div className="flex items-center flex-row gap-2 mt-2 pt-2 pb-3 border-t border-[#eaeaea]">
-
-                                        <TagManagerCn
-                                          tags={lead.lead.tags || []}
-                                          tagInputRef={getOrCreateInputRef(lead.lead.id)}
-                                          tagInputValue={tagInputValues[lead.lead.id] ?? ''}
-                                          onInputChange={(e) => handleTagInputChange(e, lead)}
-                                          onInputKeyDown={(e) => handleTagInputKeyDown(e, lead)}
-                                          showSuggestions={showTagSuggestionsByLead[lead.lead.id] ?? false}
-                                          setShowSuggestions={(show) =>
-                                            setShowTagSuggestionsByLead((prev) => ({ ...prev, [lead.lead.id]: show }))
-                                          }
-                                          tagSuggestions={tagSuggestionsByLead[lead.lead.id] ?? []}
-                                          onSuggestionClick={(suggestion) => handleTagSuggestionClick(suggestion, lead)}
-                                          addTagLoader={addTagLoaderLeadId === lead.lead.id}
-                                          onRemoveTag={(tag) => handleDelTagForLead(tag, lead)}
-                                          delTagLoader={delTagLoaderByLead[lead.lead.id]}
-                                          onRefreshSuggestions={getUniqueTags}
-                                          selectedUser={user}
-                                          showSnackbar={showSnackbar}
-                                          onLeadDetailsUpdated={(deletedTagName) =>
-                                            handleLeadDetailsUpdatedForLead(deletedTagName, lead)
-                                          }
-                                          from={"dashboardPipeline"}
-                                        />
                                       </div>
 
                                     </div>
@@ -3480,19 +3442,7 @@ const Pipeline1 = () => {
                     <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Delete Pipeline
                     </div>
-                    <button
-                      onClick={() => {
-                        setShowDeletePiplinePopup(false)
-                      }}
-                      className="outline-none"
-                    >
-                      <Image
-                        src={'/assets/cross.png'}
-                        height={14}
-                        width={14}
-                        alt="Close"
-                      />
-                    </button>
+                    <CloseBtn iconSize={14} onClick={() => setShowDeletePiplinePopup(false)} />
                   </div>
                   <div
                     className="max-h-[60vh] overflow-auto px-4 py-3"
@@ -3581,6 +3531,7 @@ const Pipeline1 = () => {
                       {isEditingStage ? 'Configure Stage' : 'Add New Stage'}
                     </div>
                     <CloseBtn
+                      iconSize={14}
                       onClick={() => {
                         handleCloseAddStage()
                       }}
@@ -4119,20 +4070,7 @@ const Pipeline1 = () => {
                     <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Rename stage
                     </div>
-                    <button
-                      onClick={() => {
-                        setShowRenamePopup(false)
-                        handleCloseStagePopover()
-                      }}
-                      className="outline-none"
-                    >
-                      <Image
-                        src={'/assets/cross.png'}
-                        height={14}
-                        width={14}
-                        alt="Close"
-                      />
-                    </button>
+                    <CloseBtn iconSize={14} onClick={() => { setShowRenamePopup(false); handleCloseStagePopover() }} />
                   </div>
 
                   <div
@@ -4243,20 +4181,7 @@ const Pipeline1 = () => {
                     <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Delete Stage
                     </div>
-                    <button
-                      onClick={() => {
-                        setShowDelStageModal(false)
-                        handleCloseStagePopover()
-                      }}
-                      className="outline-none"
-                    >
-                      <Image
-                        src={'/assets/cross.png'}
-                        height={14}
-                        width={14}
-                        alt="Close"
-                      />
-                    </button>
+                    <CloseBtn iconSize={14} onClick={() => { setShowDelStageModal(false); handleCloseStagePopover() }} />
                   </div>
 
                   <div className="max-h-[60vh] overflow-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
@@ -4488,21 +4413,7 @@ const Pipeline1 = () => {
                   <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                     Rename pipeline
                   </div>
-                  <button
-                    onClick={() => {
-                      setShowRenamePipelinePopup(false)
-                      handlePipelineClosePopover()
-                      handleCloseOtherPipeline();
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={'/assets/cross.png'}
-                      height={14}
-                      width={14}
-                      alt="Close"
-                    />
-                  </button>
+                  <CloseBtn iconSize={14} onClick={() => { setShowRenamePipelinePopup(false); handlePipelineClosePopover(); handleCloseOtherPipeline() }} />
                 </div>
 
                 <div className="max-h-[60vh] overflow-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
@@ -4590,20 +4501,7 @@ const Pipeline1 = () => {
                     <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Add Pipeline
                     </div>
-                    <button
-                      onClick={() => {
-                        setCreatePipeline(false)
-                        handlePipelineClosePopover()
-                        handleCloseOtherPipeline();
-                      }}
-                    >
-                      <Image
-                        src={'/assets/cross.png'}
-                        height={14}
-                        width={14}
-                        alt="*"
-                      />
-                    </button>
+                    <CloseBtn iconSize={14} onClick={() => { setCreatePipeline(false); handlePipelineClosePopover(); handleCloseOtherPipeline() }} />
                   </div>
                   <div className="w-full flex flex-col gap-2 px-4 py-3">
                     <div
@@ -4738,6 +4636,7 @@ const Pipeline1 = () => {
                       Rearrange Stages
                     </div>
                     <CloseBtn
+                      iconSize={14}
                       onClick={() => {
                         setShowStagesPopup(false)
                         handleCloseStagePopover()
