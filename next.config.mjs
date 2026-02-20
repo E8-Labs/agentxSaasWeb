@@ -2,6 +2,14 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  // Allow dev requests from ngrok (and other tunnel) origins to avoid cross-origin warnings.
+  // allowedDevOrigins: [
+  //   '*.ngrok-free.app',
+  //   '*.ngrok.io',
+  //   '*.ngrok.app',
+  //   // Exact host when using a specific ngrok URL (replace with your current ngrok host if it changes):
+  //   '855f-154-80-6-115.ngrok-free.app',
+  // ],
   // Proxy API to backend when using single ngrok (tunnel to frontend only)
   async rewrites() {
     const backend =
