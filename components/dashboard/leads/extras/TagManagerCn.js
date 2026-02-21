@@ -120,7 +120,7 @@ const TagManagerCn = ({
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="rounded-full bg-muted/60 hover:bg-muted px-2.5 py-2 text-xs font-semibold text-foreground transition-all select-none cursor-pointer border border-border/50 hover:border-border shadow-sm hover:shadow"
+                className="rounded-[8px] bg-muted/60 hover:bg-muted p-[6px] w-[26px] h-[26px] text-[14px] font-normal text-foreground transition-all select-none cursor-pointer border border-border/50 hover:border-border shadow-sm hover:shadow flex items-center justify-center"
               >
                 +{remainingCount}
               </button>
@@ -154,7 +154,7 @@ const TagManagerCn = ({
       </div>
 
       <div
-        className={`${from === "dashboardPipeline" ? "w-[40%]" : "relative"}`}
+        className={`${from === "dashboardPipeline" ? "w-[40%] hidden" : "relative"}`}
       >
         <Input
           ref={tagInputRef}

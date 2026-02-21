@@ -81,7 +81,7 @@ export async function generateMetadata() {
     openGraph: {
       title: branding?.companyName
         ? `${branding.companyName} - AI Agents`
-        : 'Code AI for Sales & Support',
+        : 'AI agents for Sales & Support',
       description:
         'Create your AI agent to operate across your sales and support team. Gets more done than coffee. Cheaper too.',
       url: `${baseUrl}/createagent`,
@@ -101,7 +101,7 @@ export async function generateMetadata() {
       card: 'summary_large_image',
       title: branding?.companyName
         ? `${branding.companyName} - AI Agents`
-        : 'Code AI for Sales & Support - AssignX',
+        : 'AI agents for Sales & Support - AssignX',
       description:
         'Create your AI agent to operate across your sales and support team. Gets more done than coffee. Cheaper too.',
       images: [absoluteTwitterLogoUrl],

@@ -3,7 +3,10 @@ import moment from 'moment'
 import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscriptModal'
 import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
+import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import PlatformIcon from './PlatformIcon'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import axios from 'axios'
@@ -39,6 +42,13 @@ const ConversationView = ({
   onOpenAiChat,
   onGenerateCallSummaryDrafts,
   hasAiKey = null,
+  allowAIEmailAndText = false,
+  shouldShowAllowAiEmailAndTextUpgrade = false,
+  shouldShowAiEmailAndTextRequestFeature = false,
+  onShowUpgrade,
+  onShowRequestFeature,
+  onLinkToLeadFromMessage,
+  linkingLeadId = null,
 }) => {
 
   //lead details
@@ -324,6 +334,11 @@ const ConversationView = ({
                       onOpenAiChat={onOpenAiChat}
                       onGenerateCallSummaryDrafts={onGenerateCallSummaryDrafts}
                       hasAiKey={hasAiKey}
+                      allowAIEmailAndText={allowAIEmailAndText}
+                      shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                      shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                      onShowUpgrade={onShowUpgrade}
+                      onShowRequestFeature={onShowRequestFeature}
                     />
                   ) : (
                     <div
@@ -359,6 +374,9 @@ const ConversationView = ({
                             <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                               {getLeadName(selectedThread)}
                             </div>
+                            {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                              <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                            )}
                           </div>
                         )}
 
@@ -385,6 +403,14 @@ const ConversationView = ({
                           ) : (
                             <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
                           )}
+                          {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (
+                            <SuggestedLeadLinks
+                              suggestedLeads={message.metadata.suggestedLeads}
+                              threadId={selectedThread.id}
+                              onLink={onLinkToLeadFromMessage}
+                              linkingLeadId={linkingLeadId}
+                            />
+                          )}
                           {isEmail && !isOutbound && onReplyClick && (
                             <div className="mt-1 flex justify-end">
                               <button
@@ -402,9 +428,30 @@ const ConversationView = ({
                         </div>
 
                         {isOutbound && (
-                          <div className="flex-shrink-0">
-                            {getAgentAvatar(message)}
-                          </div>
+                          <TooltipProvider delayDuration={0}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="flex-shrink-0 cursor-pointer"
+                                  onClick={() => {
+                                    console.log("message details", message)
+                                  }}
+                                  aria-label={message ? `${message?.agent?.name || message?.senderUser?.name}` : 'Agent'}
+                                >
+                                  <div className="relative flex-shrink-0">
+                                    {getAgentAvatar(message)}
+                                    {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                                      <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                                    )}
+                                  </div>
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {message?.agent?.name || message?.senderUser?.name || 'Agent'}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>

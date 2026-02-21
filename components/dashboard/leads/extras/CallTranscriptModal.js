@@ -60,7 +60,7 @@ const CallTranscriptModal = ({ open, onClose, callId, callData }) => {
           </DialogTitle>
         </DialogHeader>
         <ScrollArea className="flex-1 px-6 py-4">
-          <TranscriptViewer callId={callId} />
+          <TranscriptViewer callId={callId} callData={callData} />
         </ScrollArea>
       </DialogContent>
     </Dialog>

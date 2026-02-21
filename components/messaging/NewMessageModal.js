@@ -682,7 +682,7 @@ const NewMessageModal = ({
         '{Appointment DateTime}',
         '{Timezone}',
         '{Duration}',
-        '{Location}',
+        '{Meeting Location}',
       ]
 
       let res = await getUniquesColumn(userId)
@@ -715,7 +715,7 @@ const NewMessageModal = ({
         '{Address}',
       ]
       if (isBookingStage) {
-        fallback.push('{Appointment DateTime}', '{Timezone}', '{Duration}', '{Location}')
+        fallback.push('{Appointment DateTime}', '{Timezone}', '{Duration}', '{Meeting Location}')
       }
       setUniqueColumns(fallback)
     }
@@ -3153,7 +3153,7 @@ const NewMessageModal = ({
         }}
       >
         <Box
-          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          className="lg:w-3/12 sm:w-4/12 w-6/12"
           onClick={(e) => e.stopPropagation()}
           sx={{
             position: 'absolute',
@@ -3175,10 +3175,10 @@ const NewMessageModal = ({
                 borderRadius: '13px',
               }}
             >
-              <div className="font-bold text-xl mt-6">
+              <div className="font-bold text-xl">
                 Are you sure you want to delete {accountToDelete?.email || accountToDelete?.name || accountToDelete?.displayName || 'this email account'}?
               </div>
-              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+              <div className="flex flex-row items-center gap-4 w-full mt-6">
                 <button
                   className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
                   onClick={() => {

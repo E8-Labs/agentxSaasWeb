@@ -181,7 +181,7 @@ const CallTranscriptCN = ({
                     className="w-full bg-brand-primary text-white hover:bg-brand-primary/90"
                     size="sm"
                   >
-                    Add as task
+                    Add task
                   </Button>
                 </div>
               </PopoverContent>

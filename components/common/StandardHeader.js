@@ -62,7 +62,7 @@ function StandardHeader({
   const textColorClass = isBright ? 'text-white' : ''
 
   // Use containerClassName if provided, otherwise build classes dynamically
-  const containerClasses = containerClassName || `w-full p-4 ${showSeparator ? 'border-b' : ''} flex flex-row items-center justify-between h-14 ${textColorClass}`
+  const containerClasses = containerClassName || `w-full p-4 ${showSeparator ? 'border-b' : ''} flex flex-row items-center justify-between h-[66px] ${textColorClass}`
 
   const handleTaskButtonClick = () => {
     setTaskBoardOpen(true)
@@ -79,18 +79,18 @@ function StandardHeader({
         {titleContent || (typeof title === 'string' ? <TypographyH3 className={textColorClass}>{title}</TypographyH3> : title)}
 
         {/* Right: Icons and Actions - matches MessageHeader structure exactly */}
-        <div className={`flex flex-row items-center justify-end gap-2 ${textColorClass}`}>
+        <div className={`flex flex-row items-center justify-end gap-[12px] px-3 ${textColorClass}`}>
           {rightContent}
           {showFilters && onFilterClick && (
             <button
               onClick={onFilterClick}
-              className="mb-1 hover:opacity-70 transition-opacity outline-none relative flex-shrink-0"
+              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center"
               title="Filter"
             >
               {filterIcon || (
                 <svg
-                  width="22"
-                  height="22"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -159,28 +159,29 @@ function StandardHeader({
                 setTaskBoardOpen(true)
                 window.dispatchEvent(new CustomEvent('hideSlider', { detail: { update: true } }))
               }}
-              className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0 relative"
+              className="mb-1 w-auto h-auto p-2 rounded-lg flex flex-row items-center justify-center gap-1.5 flex-shrink-0 relative bg-black/[0.02] hover:opacity-70 transition-opacity active:scale-[0.98]"
             >
               <Image 
                 src='/messaging/checkList.svg' 
                 alt='Tasks' 
-                width={22} 
-                height={22} 
+                width={20} 
+                height={20} 
               />
+              <span className="text-sm font-medium">Task</span>
               {/* Status indicator dots */}
               {(hasActiveTasks || hasPastDueTasks) && (
                 <div className="absolute -top-1 -right-1 flex items-center gap-0.5">
                   {/* Red dot for past due (highest priority) */}
                   {hasPastDueTasks && (
                     <div 
-                      className="w-2.5 h-2.5 rounded-full border-2 border-white"
+                      className="w-1 h-1 rounded-full border-2 border-white"
                       style={{ backgroundColor: '#EF4444' }}
                     />
                   )}
                   {/* Purple dot for active tasks (todo/in-progress) */}
                   {hasActiveTasks && !hasPastDueTasks && (
                     <div 
-                      className="w-2.5 h-2.5 rounded-full border-2 border-white"
+                      className="w-1 h-1 rounded-full border-2 border-white"
                       style={{ backgroundColor: '#7804DF' }}
                     />
                   )}

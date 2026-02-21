@@ -2,8 +2,8 @@ import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
+import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/lib/typography'
@@ -29,6 +29,7 @@ const ThreadsList = ({
   onSelectThread,
   onNewMessage,
   getLeadName,
+  getThreadDisplayName,
   getRecentMessageType,
   formatUnreadCount,
   onDeleteThread,
@@ -242,7 +243,7 @@ const ThreadsList = ({
         <ToggleGroupCN
           options={[
             { label: 'All', value: 'all', count: allCount },
-            { label: 'Un Replied', value: 'unreplied', count: unrepliedCount },
+            { label: 'UnReplied', value: 'unreplied', count: unrepliedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
@@ -469,27 +470,23 @@ const ThreadsList = ({
                       <div className="w-10 h-10 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
                         {getLeadName(thread)}
                       </div>
-                      {getRecentMessageType(thread) === 'email' ? (
-                        <div className="absolute bottom-0 right-0 w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center border border-white shadow-sm" style={{ transform: 'translateY(calc(50% - 5px))' }}>
-                          <Image
-                            src="/messaging/email message type icon.svg"
-                            width={20}
-                            height={20}
-                            alt="Email"
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div className="absolute bottom-0 right-0 w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center border border-white shadow-sm" style={{ transform: 'translateY(calc(50% - 5px))' }}>
-                          <Image
-                            src="/messaging/text type message icon.svg"
-                            width={20}
-                            height={20}
-                            alt="SMS"
-                            className="object-contain"
-                          />
-                        </div>
-                      )}
+                      {(() => {
+                        const sourceType = thread.threadType || getRecentMessageType(thread)
+                        if (sourceType === 'email' || sourceType === 'messenger' || sourceType === 'instagram' || sourceType === 'sms') {
+                          return <PlatformIcon type={sourceType} size={10} showInBadge />
+                        }
+                        return (
+                          <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                            <Image
+                              src="/messaging/text type message icon.svg"
+                              width={10}
+                              height={10}
+                              alt="SMS"
+                              className="object-contain"
+                            />
+                          </div>
+                        )
+                      })()}
                       {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
                         <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
                           <TypographyCaptionSemibold className="text-white">
@@ -502,10 +499,7 @@ const ThreadsList = ({
                     <div className="flex-1 min-w-0 flex flex-col gap-0.5 items-start">
                       <div className="flex w-full items-center justify-between">
                         <TypographyBody className="font-medium text-black truncate text-[14px]">
-                          {(() => {
-                            const name = thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'
-                            return name.charAt(0).toUpperCase() + name.slice(1)
-                          })()}
+                          {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Lead')}
                         </TypographyBody>
                         <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                           <TypographyCaption className="text-gray-500 text-[14px] leading-[18px]">

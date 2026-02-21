@@ -407,7 +407,11 @@ const Apis = {
   markThreadAsRead: `${BasePath}api/user/messaging/threads`,
   updateThread: `${BasePath}api/user/messaging/threads`,
   deleteThread: `${BasePath}api/user/messaging/threads`,
+  linkThreadToLead: `${BasePath}api/user/messaging/threads`,
+  sendSocialMessage: `${BasePath}api/user/messaging/threads`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
+  socialConnections: `${BasePath}api/mail/social-connections`,
+  socialFacebookAuthorize: `${BasePath}api/mail/social/facebook/authorize`,
 
   // AI Chat APIs
   aiChat: '/api/ai/chat',
