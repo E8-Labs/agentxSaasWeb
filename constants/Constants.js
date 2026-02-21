@@ -219,7 +219,7 @@ export const models = [
     name: 'Claude Haiku 4.5',
     provider: 'anthropic',
     value: 'claude-haiku-4-5-20251001',
-    icon: '/svgIcons/chatgptIcon.svg',
+    icon: '/icons8-claude-48.png',
     disabled: false,
     model: 'claude-haiku-4-5-20251001',
     responseTime: '800 ms',
@@ -253,7 +253,7 @@ export const models = [
   },
   {
     name: 'GPT-4 Mini',
-    value: 'gpt-4.1-mini',
+    value: 'gpt-4.1-nano',
     provider: 'openai',
     icon: '/svgIcons/chatgptIcon.svg',
     disabled: false,
