@@ -63,6 +63,7 @@ import {
   Pencil,
   Check,
   X as XIcon,
+  ArrowLeftIcon,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -136,6 +137,7 @@ const LeadDetails = ({
   selectedUser = null, // Optional prop for admin/agency view
   onTagDeleted,
   elevatedZIndex = false, // When true, drawer z-index is raised (e.g. when opened from TeamMemberActivityDrawer)
+  showAsTab = false,
 }) => {
   // //console.log;
   // //console.log;
@@ -1950,11 +1952,11 @@ const LeadDetails = ({
                 <div
                   className="flex  flex-col w-full"
                   style={{
-                    padding: 20,
-                    paddingInline: 30,
+                    padding: showAsTab ? 5 : 20,
+                    paddingInline: showAsTab ? 15 : 30,
                   }}
                 >
-                  {!renderInline && (
+                  {!renderInline || !showAsTab && (
                     <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
@@ -1969,10 +1971,21 @@ const LeadDetails = ({
                     </div>
                   )}
                   <div>
-                    <div className="flex flex-row items-start justify-between mt-4  w-full">
+                    <div className={`flex flex-row items-start justify-between ${showAsTab ? 'mt-0' : 'mt-4'} w-full`}>
                       <div className="flex flex-col items-start  w-full">
                         <div className="flex flex-row items-between justify-between w-full">
                           <div className="flex flex-row items-center gap-3">
+
+                            {/* only show when showAsTab is true */}
+                            {showAsTab && (
+                              <button
+                              onClick={() => {
+                                setShowDetailsModal(false)
+                              }}
+                              >
+                                <ArrowLeftIcon size={20} />
+                              </button>
+                            )}
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -2992,7 +3005,14 @@ const LeadDetails = ({
     )
   }
 
-
+  //if trying to show as tab, then render with only main content
+  if (showAsTab) {
+    return (
+      <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
+        {mainContent}
+      </div>
+    )
+  }
 
   // Otherwise, render with Drawer (original behavior).
   // Wrapper is zero-size so it does not affect layout when used inside Messages (ConversationHeader);
