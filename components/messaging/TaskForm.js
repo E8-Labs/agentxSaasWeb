@@ -289,7 +289,7 @@ const TaskForm = ({
   // When focused, position mention after input text with spacing
   // When not focused, position mention after "Task for" text (approximately 80px from input start)
   const mentionSpacing = 8 // Gap between input text and mention
-  const taskForTextWidth = 80 // Approximate width of "Task for " text
+  const taskForTextWidth = 40 // Approximate width of "Task for " text
 
   // Calculate the maximum position where mention can be placed (before priority dropdown)
   const maxMentionPosition = Math.max(0, availableSpace - leadMentionApproxWidth)
@@ -355,7 +355,7 @@ const TaskForm = ({
                     zIndex: 1,
                   }}
                 >
-                  Task for{' '}
+                  For{' '}
                 </span>
               )}
 
@@ -373,6 +373,7 @@ const TaskForm = ({
                     maxWidth: `${maxWidthForMention}px`,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
+                    // paddingLeft: '4px',
                   }}
                 >
                   @{leadName}

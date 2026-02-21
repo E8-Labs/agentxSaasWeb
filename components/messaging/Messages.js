@@ -3518,11 +3518,15 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               />
 
               {/* Message Settings Modal */}
-              <MessageSettingsModal
-                open={showMessageSettingsModal}
-                onClose={() => setShowMessageSettingsModal(false)}
-                selectedUser={selectedUser}
-              />
+              {
+                showMessageSettingsModal && (
+                  <MessageSettingsModal
+                    open={showMessageSettingsModal}
+                    onClose={() => setShowMessageSettingsModal(false)}
+                    selectedUser={selectedUser}
+                  />
+                )
+              }
 
               {/* Single AI Chat drawer - always one instance, visibility controlled by open (avoids MUI duplicate backdrop/paper) */}
               <AiChatModal

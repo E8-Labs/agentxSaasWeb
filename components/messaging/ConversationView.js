@@ -4,6 +4,7 @@ import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscr
 import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
 import SystemMessage from './SystemMessage'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import axios from 'axios'
@@ -412,9 +413,25 @@ const ConversationView = ({
                         </div>
 
                         {isOutbound && (
-                          <div className="flex-shrink-0">
-                            {getAgentAvatar(message)}
-                          </div>
+                          <TooltipProvider delayDuration={0}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="flex-shrink-0 cursor-pointer"
+                                  onClick={() => {
+                                    console.log("message details", message)
+                                  }}
+                                  aria-label={message ? `${message?.agent?.name || message?.senderUser?.name}` : 'Agent'}
+                                >
+                                  {getAgentAvatar(message)}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {message?.agent?.name || message?.senderUser?.name || 'Agent'}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>
