@@ -515,17 +515,17 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
         <AgentationDialogProvider>
-        <MuiModalThemeProvider>
-        <ReduxProvider>
-          <BrandingProvider>
-            <LayoutTracker />
-            <DynamicTitle />
-            {children}
-          </BrandingProvider>
-        </ReduxProvider>
-        <Toaster />
-        <AgentationProvider />
-        </MuiModalThemeProvider>
+          <MuiModalThemeProvider>
+            <ReduxProvider>
+              <BrandingProvider>
+                <LayoutTracker />
+                <DynamicTitle />
+                {children}
+              </BrandingProvider>
+            </ReduxProvider>
+            <Toaster />
+            <AgentationProvider />
+          </MuiModalThemeProvider>
         </AgentationDialogProvider>
 
         {/* Step 2 – Signup tracking helper */}
