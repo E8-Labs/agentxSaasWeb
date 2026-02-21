@@ -2683,7 +2683,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                               //   setShowDelBtn(false)
                               // }
                               console.log("stage.identifier", stage.identifier)
-                              if((stage.identifier === 'booked' || (stage.identifier === 'account_created' || stage.identifier === 'on_trial' || stage.identifier === 'paying' || stage.identifier === 'cancelled'))){
+                              if ((stage.identifier === 'new_lead' || stage.identifier === 'booked' || (stage.identifier === 'account_created' || stage.identifier === 'on_trial' || stage.identifier === 'paying' || stage.identifier === 'cancelled'))) {
                                 setShowDelBtn(true)
                               } else {
                                 setShowDelBtn(false)
@@ -4470,7 +4470,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           setShowDetailsModal={setShowDetailsModal}
           isPipeline={true}
           handleDelLead={handleDelLead}
-          leadStageUpdated={(stagePassed) => {HandleUpdateStage(stagePassed)}}
+          leadStageUpdated={(stagePassed) => { HandleUpdateStage(stagePassed) }}
           leadAssignedTeam={HandleLeadAssignedTeam}
         />
       )}
