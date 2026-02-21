@@ -2622,11 +2622,7 @@ const Pipeline1 = () => {
                             aria-describedby={stageId}
                             variant="contained"
                             onClick={(evetn) => {
-                              if (
-                                stage.identifier === 'new_lead' ||
-                                stage.identifier === 'booked'
-                              ) {
-                                // //console.log;
+                              if ((stage.identifier === 'new_lead' || stage.identifier === 'booked' || (stage.identifier === 'account_created' || stage.identifier === 'on_trial' || stage.identifier === 'paying' || stage.identifier === 'cancelled'))) {
                                 setShowDelBtn(true)
                               } else {
                                 setShowDelBtn(false)
