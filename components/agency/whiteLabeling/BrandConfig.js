@@ -23,6 +23,7 @@ const BrandConfig = ({ selectedAgency }) => {
   const [faviconPreview, setFaviconPreview] = useState(null)
   const [faviconText, setFaviconText] = useState('')
   const [xbarTitle, setXbarTitle] = useState('')
+  const [assignxModelDisplayName, setAssignxModelDisplayName] = useState('')
   const [primaryColor, setPrimaryColor] = useState('#7902DF')
   const [secondaryColor, setSecondaryColor] = useState('#8B5CF6')
 
@@ -48,6 +49,8 @@ const BrandConfig = ({ selectedAgency }) => {
     logoUrl: null,
     faviconUrl: null,
     faviconText: '',
+    xbarTitle: '',
+    assignxModelDisplayName: '',
     primaryColor: '#7902DF',
     secondaryColor: '#8B5CF6',
   })
@@ -115,6 +118,9 @@ const BrandConfig = ({ selectedAgency }) => {
         if (branding.xbarTitle) {
           setXbarTitle(branding.xbarTitle)
         }
+        const customizations = branding.customizations && typeof branding.customizations === 'object' ? branding.customizations : {}
+        const assignxModelName = customizations.assignxModelDisplayName ?? ''
+        setAssignxModelDisplayName(assignxModelName)
 
         // Store original values - use defaults if no branding exists
         setOriginalValues({
@@ -122,6 +128,7 @@ const BrandConfig = ({ selectedAgency }) => {
           faviconUrl: branding.faviconUrl || null,
           faviconText: branding.faviconText || '',
           xbarTitle: branding.xbarTitle || '',
+          assignxModelDisplayName: assignxModelName,
           primaryColor: branding.primaryColor || defaultPrimary,
           secondaryColor: branding.secondaryColor || defaultSecondary,
         })
@@ -133,11 +140,13 @@ const BrandConfig = ({ selectedAgency }) => {
         setSecondaryColor(defaultSecondary)
         setFaviconText('')
         setXbarTitle('')
+        setAssignxModelDisplayName('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
           faviconText: '',
           xbarTitle: '',
+          assignxModelDisplayName: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -152,11 +161,13 @@ const BrandConfig = ({ selectedAgency }) => {
         setSecondaryColor(defaultSecondary)
         setFaviconText('')
         setXbarTitle('')
+        setAssignxModelDisplayName('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
           faviconText: '',
           xbarTitle: '',
+          assignxModelDisplayName: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -297,8 +308,18 @@ const BrandConfig = ({ selectedAgency }) => {
     const faviconTextChanged = faviconText !== originalValues.faviconText
     // Check if xbar title has changed
     const xbarTitleChanged = xbarTitle !== originalValues.xbarTitle
+    // Check if default AI model name has changed
+    const assignxModelDisplayNameChanged =
+      assignxModelDisplayName !== originalValues.assignxModelDisplayName
 
-    return colorsChanged || logoChanged || faviconChanged || faviconTextChanged || xbarTitleChanged
+    return (
+      colorsChanged ||
+      logoChanged ||
+      faviconChanged ||
+      faviconTextChanged ||
+      xbarTitleChanged ||
+      assignxModelDisplayNameChanged
+    )
   }
 
   //reset all the values to original and save defaults
@@ -314,6 +335,7 @@ const BrandConfig = ({ selectedAgency }) => {
     setFaviconPreview(originalValues.faviconUrl)
     setFaviconText(originalValues.faviconText)
     setXbarTitle(originalValues.xbarTitle)
+    setAssignxModelDisplayName(originalValues.assignxModelDisplayName)
     setLogoFile(null)
     setFaviconFile(null)
 
@@ -523,25 +545,43 @@ const BrandConfig = ({ selectedAgency }) => {
       }
 
       // Update xbar title if changed
-      if (xbarTitle !== originalValues.xbarTitle) {
+      // Update xbar title and/or customizations (e.g. default AI model name) if changed
+      const xbarTitleChanged = xbarTitle !== originalValues.xbarTitle
+      const assignxModelDisplayNameChanged =
+        assignxModelDisplayName !== originalValues.assignxModelDisplayName
+      if (xbarTitleChanged || assignxModelDisplayNameChanged) {
         const companyData = {
-          xbarTitle: xbarTitle,
+          ...(xbarTitleChanged && { xbarTitle }),
+          ...(assignxModelDisplayNameChanged && {
+            customizations: {
+              assignxModelDisplayName:
+                assignxModelDisplayName?.trim() || null,
+            },
+          }),
         }
-        
-        // Add userId if selectedAgency is provided (admin view)
-        if (selectedAgency?.id) {
-          companyData.userId = selectedAgency.id
-        }
+        if (Object.keys(companyData).length > 0) {
+          // Add userId if selectedAgency is provided (admin view)
+          if (selectedAgency?.id) {
+            companyData.userId = selectedAgency.id
+          }
 
-        const response = await axios.put(Apis.updateAgencyBrandingCompany, companyData, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-          },
-        })
+          const response = await axios.put(
+            Apis.updateAgencyBrandingCompany,
+            companyData,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          )
 
-        if (!response?.data?.status) {
-          throw new Error(response?.data?.message || 'Failed to update xbar title')
+          if (!response?.data?.status) {
+            throw new Error(
+              response?.data?.message ||
+                'Failed to update company info / customizations',
+            )
+          }
         }
       }
 
@@ -555,6 +595,7 @@ const BrandConfig = ({ selectedAgency }) => {
         faviconUrl: uploadedFaviconUrl,
         faviconText: faviconText,
         xbarTitle: xbarTitle,
+        assignxModelDisplayName: assignxModelDisplayName,
         primaryColor: primaryColor,
         secondaryColor: secondaryColor,
       })
@@ -605,9 +646,13 @@ const BrandConfig = ({ selectedAgency }) => {
               // Use uploaded values if fresh response is missing them (race condition protection)
               faviconUrl: freshBranding.faviconUrl || uploadedFaviconUrl,
               logoUrl: freshBranding.logoUrl || uploadedLogoUrl,
-              // Explicitly include xbarTitle and faviconText from current state (they were just saved)
+              // Explicitly include xbarTitle, faviconText, customizations from current state (they were just saved)
               xbarTitle: freshBranding.xbarTitle || xbarTitle,
               faviconText: freshBranding.faviconText || faviconText,
+              customizations: {
+                ...(freshBranding.customizations || {}),
+                assignxModelDisplayName: assignxModelDisplayName?.trim() || undefined,
+              },
             }
 
             // Update cookie and apply branding immediately using centralized function
@@ -625,6 +670,9 @@ const BrandConfig = ({ selectedAgency }) => {
               xbarTitle: xbarTitle,
               primaryColor: primaryColor,
               secondaryColor: secondaryColor,
+              customizations: {
+                assignxModelDisplayName: assignxModelDisplayName?.trim() || undefined,
+              },
             }
             const applied = updateBrandingCookieAndApply(fallbackBranding, true)
             if (applied) {}
@@ -642,6 +690,9 @@ const BrandConfig = ({ selectedAgency }) => {
             xbarTitle: xbarTitle,
             primaryColor: primaryColor,
             secondaryColor: secondaryColor,
+            customizations: {
+              assignxModelDisplayName: assignxModelDisplayName?.trim() || undefined,
+            },
           }
           const applied = updateBrandingCookieAndApply(updatedBranding, true)
           if (applied) {}
@@ -756,6 +807,31 @@ const BrandConfig = ({ selectedAgency }) => {
               value={xbarTitle}
               onChange={(e) => setXbarTitle(e.target.value)}
               placeholder="Enter xbar title"
+              className="w-64 px-3 py-2 border border-neutral-900/10 rounded-[10px] outline-none focus:outline-none focus:ring-0 focus:border-brand-primary text-black text-base font-normal"
+              style={{
+                fontSize: '15px',
+                fontWeight: '500',
+              }}
+            />
+          </div>
+
+          {/* Default AI model name (shown to subaccounts instead of "AssignX" in the model dropdown) */}
+          <div className="self-stretch inline-flex justify-between items-center gap-[3px]">
+            <div className="inline-flex flex-col justify-start items-start">
+              <div className="inline-flex justify-start items-center gap-[3px]">
+                <div className="text-black text-base font-normal leading-normal">
+                  Default AI model name
+                </div>
+              </div>
+              <div className="text-neutral-500 text-sm mt-0.5">
+                Shown to subaccounts in the agent model dropdown (e.g. instead of &quot;AssignX&quot;)
+              </div>
+            </div>
+            <input
+              type="text"
+              value={assignxModelDisplayName}
+              onChange={(e) => setAssignxModelDisplayName(e.target.value)}
+              placeholder="e.g. My Agency AI"
               className="w-64 px-3 py-2 border border-neutral-900/10 rounded-[10px] outline-none focus:outline-none focus:ring-0 focus:border-brand-primary text-black text-base font-normal"
               style={{
                 fontSize: '15px',

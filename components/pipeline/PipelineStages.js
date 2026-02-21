@@ -1231,7 +1231,7 @@ const PipelineStages = ({
                             </div>
                             <div className="border rounded-xl py-4 px-4 mt-4">
                               <div>
-                                {[...(rowsByIndex[index] || [])].reverse().map(
+                                {(rowsByIndex[index] || []).map(
                                   (row, rowIndex) => {
                                     // Ensure row has referencePoint initialized
                                     // Check identifier from selectedPipelineStages (source of truth) or item as fallback

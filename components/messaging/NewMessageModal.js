@@ -682,7 +682,7 @@ const NewMessageModal = ({
         '{Appointment DateTime}',
         '{Timezone}',
         '{Duration}',
-        '{Location}',
+        '{Meeting Location}',
       ]
 
       let res = await getUniquesColumn(userId)
@@ -715,7 +715,7 @@ const NewMessageModal = ({
         '{Address}',
       ]
       if (isBookingStage) {
-        fallback.push('{Appointment DateTime}', '{Timezone}', '{Duration}', '{Location}')
+        fallback.push('{Appointment DateTime}', '{Timezone}', '{Duration}', '{Meeting Location}')
       }
       setUniqueColumns(fallback)
     }
