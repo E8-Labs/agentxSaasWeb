@@ -218,10 +218,10 @@ export const models = [
   {
     name: 'Claude Haiku 4.5',
     provider: 'anthropic',
-    value: 'claude-3-5-haiku-20241022',
+    value: 'claude-haiku-4-5-20251001',
     icon: '/svgIcons/chatgptIcon.svg',
     disabled: false,
-    model: 'claude-3-5-haiku-20241022',
+    model: 'claude-haiku-4-5-20251001',
     responseTime: '800 ms',
   },
   {
