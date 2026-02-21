@@ -2673,11 +2673,17 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             aria-describedby={stageId}
                             variant="contained"
                             onClick={(evetn) => {
-                              if (
-                                stage.identifier === 'new_lead' ||
-                                stage.identifier === 'booked'
-                              ) {
-                                // //console.log;
+                              // if (
+                              //   stage.identifier === 'new_lead' ||
+                              //   stage.identifier === 'booked'
+                              // ) {
+                              //   // //console.log;
+                              //   setShowDelBtn(true)
+                              // } else {
+                              //   setShowDelBtn(false)
+                              // }
+                              console.log("stage.identifier", stage.identifier)
+                              if((stage.identifier === 'booked' || (stage.identifier === 'account_created' || stage.identifier === 'on_trial' || stage.identifier === 'paying' || stage.identifier === 'cancelled'))){
                                 setShowDelBtn(true)
                               } else {
                                 setShowDelBtn(false)
@@ -2872,7 +2878,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                   </div>
                                 </button>
                               )}
-                              {!showDelBtn && SelectedPipeline?.pipelineType !== 'agency_use' && (
+                              {!showDelBtn && ( //&& SelectedPipeline?.pipelineType !== 'agency_use' 
                                 <button
                                   className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                   onClick={() => {
