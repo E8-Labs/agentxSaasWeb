@@ -18,8 +18,9 @@ import {
   Popover,
   Select,
   Snackbar,
-  Tooltip,
+  Tooltip as MuiTooltip,
 } from '@mui/material'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   CaretDown,
   CaretUp,
@@ -134,6 +135,7 @@ const LeadDetails = ({
   renderInline = false,
   selectedUser = null, // Optional prop for admin/agency view
   onTagDeleted,
+  elevatedZIndex = false, // When true, drawer z-index is raised (e.g. when opened from TeamMemberActivityDrawer)
 }) => {
   // //console.log;
   // //console.log;
@@ -1971,14 +1973,24 @@ const LeadDetails = ({
                       <div className="flex flex-col items-start  w-full">
                         <div className="flex flex-row items-between justify-between w-full">
                           <div className="flex flex-row items-center gap-3">
-
-                            <Avatar className="h-8 w-8 bg-red">
-                              {selectedLeadsDetails?.avatar ? (
-                                <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
-                              ) : (
-                                <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
-                              )}
-                            </Avatar>
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-flex cursor-pointer">
+                                    <Avatar className="h-8 w-8 bg-red">
+                                      {selectedLeadsDetails?.avatar ? (
+                                        <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
+                                      ) : (
+                                        <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
+                                      )}
+                                    </Avatar>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                             <div className="flex min-w-0 flex-1 items-center gap-3">
                               <p className="truncate text-lg font-semibold leading-none text-foreground">
                                 {/* max characters 15 combined */}
@@ -2124,14 +2136,14 @@ const LeadDetails = ({
                                 {selectedLeadsDetails?.email ? (
                                   <div className="flex items-center gap-2">
                                     <span>{selectedLeadsDetails.email}</span>
-                                    <Tooltip title="Edit email">
+                                    <MuiTooltip title="Edit email">
                                       <button
                                         onClick={handleEditEmailClick}
                                         className="text-muted-foreground hover:text-foreground transition-colors"
                                       >
                                         <Pencil className="h-3 w-3" />
                                       </button>
-                                    </Tooltip>
+                                    </MuiTooltip>
                                   </div>
                                 ) : selectedLeadsDetails?.emails?.length > 0 ? (
                                   ""
@@ -2172,7 +2184,7 @@ const LeadDetails = ({
                                     <>
                                       {isEditingEmail && (
 
-                                        <Tooltip title="Save">
+                                        <MuiTooltip title="Save">
                                           <button
                                             onClick={updateLeadEmail}
                                             disabled={!editedEmail?.trim()}
@@ -2180,7 +2192,7 @@ const LeadDetails = ({
                                           >
                                             <span className="text-sm font-semibold">Save</span>
                                           </button>
-                                        </Tooltip>
+                                        </MuiTooltip>
                                       )}
                                     </>
                                   )}
@@ -2409,26 +2421,26 @@ const LeadDetails = ({
                       timeout: 1000,
                       sx: {
                         backgroundColor: '#00000020',
-                        zIndex: 1500,
+                        zIndex: 9999,
                         // //backdropFilter: "blur(20px)",
                       },
                     }}
                     slotProps={{
                       root: {
                         style: {
-                          zIndex: 1600,
+                          zIndex: 9999,
                         },
                       },
                     }}
                     sx={{
-                      zIndex: 1600,
+                      zIndex: 9999,
                     }}
                   >
                     <Box
                       className="lg:w-5/12 sm:w-full w-8/12"
                       sx={{
                         ...styles.modalsStyle,
-                        zIndex: 1600, // Higher than backdrop (1500) to appear on top
+                        zIndex: 9999, // Higher than backdrop (1500) to appear on top
                         position: 'relative',
                       }}
                     >
@@ -2777,18 +2789,18 @@ const LeadDetails = ({
             slotProps={{
               root: {
                 style: {
-                  zIndex: 1500,
+                  zIndex: 9999,
                 },
               },
             }}
             sx={{
-              zIndex: 1500, // Higher than drawer modal (1400) to appear on top
+              zIndex: 9999, // Higher than drawer modal (1400) to appear on top
             }}
             BackdropProps={{
               timeout: 1000,
               sx: {
                 backgroundColor: '#00000020',
-                zIndex: 1500, // Match Modal z-index
+                zIndex: 9999, // Match Modal z-index
                 // //backdropFilter: "blur(5px)",
               },
             }}
@@ -2797,7 +2809,7 @@ const LeadDetails = ({
               className="lg:w-4/12 sm:w-4/12 w-6/12"
               sx={{
                 ...styles.modalsStyle,
-                zIndex: 1601, // Higher than backdrop (1500) to appear on top
+                zIndex: 9999, // Higher than backdrop (1500) to appear on top
                 position: 'relative',
               }}
             >
@@ -2897,17 +2909,17 @@ const LeadDetails = ({
           slotProps={{
             root: {
               style: {
-                zIndex: 1600,
+                zIndex: 9999,
               },
             },
           }}
           sx={{
-            zIndex: 1600,
+            zIndex: 9999,
           }}
           BackdropProps={{
             sx: {
               backgroundColor: '#00000020',
-              zIndex: 1600,
+              zIndex: 9999,
             },
           }}
         >
@@ -2915,7 +2927,7 @@ const LeadDetails = ({
             className="lg:w-3/12 sm:w-5/12 w-3/12"
             sx={{
               ...styles.modalsStyle,
-              zIndex: 1601,
+              zIndex: 9999,
               position: 'relative',
             }}
           >
@@ -2997,7 +3009,7 @@ const LeadDetails = ({
         disableAutoFocus={true}
         disableRestoreFocus={true}
         sx={{
-          zIndex: 1400, // Higher than subaccount modals (1300) to appear on top
+          zIndex: elevatedZIndex ? 5010 : 1400, // 5010 above TeamMemberActivityDrawer (5000); else above subaccount modals (1300)
         }}
         PaperProps={{
           sx: {
@@ -3013,14 +3025,14 @@ const LeadDetails = ({
             height: '96.5vh',
             overflow: 'hidden',
             scrollbarWidth: 'none',
-            zIndex: 1401, // Ensure Paper is above backdrop
+            zIndex: elevatedZIndex ? 5011 : 1401, // Paper above backdrop; 5011 when elevated
           },
         }}
         BackdropProps={{
           timeout: 100,
           sx: {
             backgroundColor: '#00000020',
-            zIndex: 1400, // Match Drawer z-index
+            zIndex: elevatedZIndex ? 5010 : 1400, // Match Drawer z-index
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -3078,17 +3090,17 @@ const LeadDetails = ({
         slotProps={{
           root: {
             style: {
-              zIndex: 1600,
+              zIndex: 9999,
             },
           },
         }}
         sx={{
-          zIndex: 1600, // Higher than Drawer (1400) to appear on top
+          zIndex: 9999, // Higher than Drawer (1400) to appear on top
         }}
         BackdropProps={{
           sx: {
             backgroundColor: '#00000020',
-            zIndex: 1600, // Match Modal z-index
+            zIndex: 9999, // Match Modal z-index
           },
         }}
       >
@@ -3096,7 +3108,7 @@ const LeadDetails = ({
           className="lg:w-3/12 sm:w-5/12 w-3/12"
           sx={{
             ...styles.modalsStyle,
-            zIndex: 1601, // Higher than Modal backdrop (1600) to appear on top
+            zIndex: 9999, // Higher than Modal backdrop (1600) to appear on top
             position: 'relative',
           }}
         >

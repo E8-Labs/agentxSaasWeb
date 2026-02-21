@@ -5,6 +5,7 @@ import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
 import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import PlatformIcon from './PlatformIcon'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
@@ -427,12 +428,30 @@ const ConversationView = ({
                         </div>
 
                         {isOutbound && (
-                          <div className="relative flex-shrink-0">
-                            {getAgentAvatar(message)}
-                            {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
-                              <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
-                            )}
-                          </div>
+                          <TooltipProvider delayDuration={0}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="flex-shrink-0 cursor-pointer"
+                                  onClick={() => {
+                                    console.log("message details", message)
+                                  }}
+                                  aria-label={message ? `${message?.agent?.name || message?.senderUser?.name}` : 'Agent'}
+                                >
+                                  <div className="relative flex-shrink-0">
+                                    {getAgentAvatar(message)}
+                                    {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                                      <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                                    )}
+                                  </div>
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {message?.agent?.name || message?.senderUser?.name || 'Agent'}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>

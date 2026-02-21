@@ -46,6 +46,10 @@ const TeamAssignDropdownCn = ({
     [teamOptionsKey, teamOptions],
   )
 
+  useEffect(() => {
+    console.log("teamOptions passed are", teamOptions)
+  }, [teamOptions])
+
   // Lead settings state
   const [autoReplyDisabled, setAutoReplyDisabled] = useState(false)
   const [cadenceDisabled, setCadenceDisabled] = useState(false)

@@ -21,6 +21,8 @@ import {
 } from '@/components/constants/constants'
 import { TypographyBody, TypographyH3Semibold, TypographyH4Semibold } from '@/lib/typography'
 import { cn } from '@/lib/utils'
+import { OpenAiLogoIcon } from '@phosphor-icons/react'
+import Image from 'next/image'
 
 const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [loading, setLoading] = useState(false)
@@ -717,7 +719,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
                       </div>
                       <div>
-                      <TypographyH4Semibold className=" mt-1">Persuasiveness</TypographyH4Semibold>
+                        <TypographyH4Semibold className=" mt-1">Persuasiveness</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
@@ -746,7 +748,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             </div>
                           </div>
                         </div>
-                        
+
                       </div>
                       <div>
                         <TypographyH4Semibold className="mt-1">Client Handling</TypographyH4Semibold>
@@ -945,7 +947,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           onChange={() => setSelectedProvider('openai')}
                           className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
                         />
-                        <span className="text-sm text-gray-700">OpenAI (GPT)</span>
+                        <OpenAiLogoIcon size={19} className="text-brand-primary" />
+                        <span className="text-sm text-gray-700 -ms-1">OpenAI</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -956,7 +959,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           onChange={() => setSelectedProvider('google')}
                           className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
                         />
-                        <span className="text-sm text-gray-700">Google (Gemini)</span>
+                        <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
+                        <span className="text-sm text-gray-700 -ms-1">Gemini</span>
                       </label>
                     </div>
 

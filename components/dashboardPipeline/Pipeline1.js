@@ -1167,8 +1167,11 @@ const Pipeline1 = () => {
   // Team assign: options per lead (same shape as LeadDetails teamOptions)
   const getTeamOptionsForLead = useCallback(
     (lead) => {
-      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      // const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...((myTeamList && myTeamList.length) ? myTeamList.slice(1) : [])]
       const teamsAssigned = lead?.teamsAssigned || []
+      // console.log("teamsAssigned are", teamsAssigned)
+      // console.log("allTeams are", allTeams)
       return allTeams.map((tm) => {
         const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
         const isSelected = teamsAssigned.some((assigned) => {
