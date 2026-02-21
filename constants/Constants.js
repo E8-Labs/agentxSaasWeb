@@ -216,6 +216,24 @@ export const models = [
     responseTime: '650 ms',
   },
   {
+    name: 'Claude Haiku 4.5',
+    provider: 'anthropic',
+    value: 'claude-3-5-haiku-20241022',
+    icon: '/svgIcons/chatgptIcon.svg',
+    disabled: false,
+    model: 'claude-3-5-haiku-20241022',
+    responseTime: '800 ms',
+  },
+  {
+    name: 'Gemini 2.5 Flash Lite',
+    provider: 'google',
+    value: 'gemini-2.5-flash-lite',
+    icon: '/svgIcons/geminiIcon.svg',
+    disabled: false,
+    model: 'gemini-2.5-flash-lite',
+    responseTime: '700 ms',
+  },
+  {
     name: 'GPT-5',
     provider: 'openai',
     model: 'gpt-5',
@@ -273,7 +291,7 @@ export const models = [
     icon: '/svgIcons/deepseekIcon.svg',
     model: 'deepseek-chat',
     disabled: false,
-    responseTime: '400 ms',
+    responseTime: '2000 ms',
   },
 ]
 
