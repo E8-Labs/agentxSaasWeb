@@ -131,12 +131,6 @@ input[type="date"]::-moz-datetime-edit-year-field {
     min-height: 100vh;
   }
 
-  /* Ensure all layout wrappers have white background */
-  .flex.flex-col.w-full:not(.sms-note-container):not(.pipeline-stage-scroll) {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-  }
-
   /* Prevent any black space at top - ensure body and html are white */
   html, body {
     background-color: #ffffff !important;
