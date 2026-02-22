@@ -2269,15 +2269,13 @@ const Leads1 = () => {
         {/* Modal to add lead or import lead */}
         <Modal
           open={addNewLeadModal}
-          // Prevent closing on backdrop click and escape key
           onClose={() => { }}
           closeAfterTransition
           disableEscapeKeyDown
           BackdropProps={{
             timeout: 1000,
             sx: {
-              backgroundColor: '#00000020',
-              // //backdropFilter: "blur(20px)",
+              backgroundColor: '#00000099',
             },
           }}
         >
@@ -2288,7 +2286,7 @@ const Leads1 = () => {
                 style={{
                   backgroundColor: '#ffffff',
                   padding: 20,
-                  borderRadius: '13px',
+                  borderRadius: 0,
                   height: '579px',
                 }}
               >
@@ -2372,7 +2370,7 @@ const Leads1 = () => {
                         setShowNewContactDrawer(true)
                       }}
                     >
-                      <Plus className='text-white' />
+                      <Plus className="text-white" />
                       <span style={styles.headingStyle}>New Contact</span>
                     </button>
                   </div>

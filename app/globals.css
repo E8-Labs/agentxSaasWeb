@@ -137,6 +137,21 @@ input[type="date"]::-moz-datetime-edit-year-field {
     background: #ffffff !important;
   }
 
+  /* Leads: search input wrapper – focus border primary */
+  .search-input-wrapper:focus-within {
+    border-color: hsl(var(--brand-primary)) !important;
+    outline: none;
+  }
+
+  /* Leads: Start Campaign button – glowing when enabled (60% opacity) */
+  .start-campaign-glow {
+    box-shadow: 0 0 20px hsl(var(--brand-primary) / 0.6), 0 0 40px hsl(var(--brand-primary) / 0.6);
+    transition: box-shadow 0.3s ease;
+  }
+  .start-campaign-glow:hover {
+    box-shadow: 0 0 24px hsl(var(--brand-primary) / 0.6), 0 0 48px hsl(var(--brand-primary) / 0.6);
+  }
+
   /* Prevent any black space at top - ensure body and html are white */
   html, body {
     background-color: #ffffff !important;

@@ -64,7 +64,7 @@ import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetailsCN from './extras/LeadDetailsCN'
-import { Check, Trash } from 'lucide-react'
+import { Check, Download, Phone, Settings2, Trash } from 'lucide-react'
 import LeadDetails from './extras/LeadDetails'
 import {
   DropdownMenu,
@@ -1457,8 +1457,8 @@ const Userleads = ({
       case 'Name':
         // //console.log;
         return (
-          <div>
-            <div className="w-full flex flex-row items-center gap-2 truncate">
+          <div className="text-[14px] font-normal">
+            <div className="w-full flex flex-row items-center gap-3 truncate">
               {canShowSelected ? (
                 <button
                   className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
@@ -1480,7 +1480,7 @@ const Userleads = ({
                 />
               )}
               <div
-                className="h-[32px] w-[32px] bg-black cursor-pointer rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
+                className="h-[32px] w-[32px] rounded-[50%] bg-black cursor-pointer flex flex-row items-center justify-center text-white text-[14px] font-normal break-words overflow-hidden text-ellipsis uppercase"
                 onClick={() => {
                   setSelectedLeadsDetails(item) // Pass selected lead data
                   setNoteDetails(item.notes)
@@ -1488,10 +1488,10 @@ const Userleads = ({
                   setColumns(column)
                 }}
               >
-                {item.firstName.slice(0, 1)}
+                {(item.firstName || '').slice(0, 1).toUpperCase()}
               </div>
               <div
-                className="w-[80%] truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
+                className="w-[80%] truncate cursor-pointer break-words overflow-hidden text-ellipsis text-[14px] font-normal"
                 onClick={() => {
                   setSelectedLeadsDetails(item) // Pass selected lead data
                   setNoteDetails(item.notes)
@@ -1507,14 +1507,14 @@ const Userleads = ({
       case 'Phone':
         // //console.log;
         return (
-          <button onClick={() => handleToggleClick(item.id)}>
+          <button onClick={() => handleToggleClick(item.id)} className="text-[14px] font-normal border-none bg-transparent p-0">
             {item.phone ? item.phone : '-'}
           </button>
         )
       case 'Stage':
         // //console.log;
         return (
-          <button onClick={() => handleToggleClick(item.id)}>
+          <button onClick={() => handleToggleClick(item.id)} className="text-[14px] font-normal border-none bg-transparent p-0">
             {item.stage ? item.stage.stageTitle : 'No Stage'}
           </button>
         )
@@ -1524,7 +1524,7 @@ const Userleads = ({
         // //console.log;
         return (
           <button
-            className="underline text-brand-primary"
+            className="underline text-brand-primary text-[14px] font-normal border-none bg-transparent p-0"
             onClick={() => {
               // //console.log;
               setSelectedLeadsDetails(item) // Pass selected lead data
@@ -1544,7 +1544,7 @@ const Userleads = ({
         }
         return (
           <div
-            className="cursor-pointer  break-words overflow-hidden text-ellipsis"
+            className="cursor-pointer break-words overflow-hidden text-ellipsis text-[14px] font-normal"
             onClick={() => {
               handleToggleClick(item.id)
             }}
@@ -1839,8 +1839,8 @@ const Userleads = ({
       fontSize: 17,
     },
     paragraph: {
-      fontWeight: '500',
-      fontSize: 15,
+      fontWeight: '400',
+      fontSize: 14,
     },
     modalsStyle: {
       height: 'auto',
@@ -1980,7 +1980,7 @@ const Userleads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center" style={{ backgroundColor: '#f9f9f9', fontFamily: 'Inter, sans-serif' }}>
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
         (<div className="w-screen">
           <LeadLoading />
@@ -2013,53 +2013,45 @@ const Userleads = ({
               </div>
             }
             showTasks={true}
-            rightContent={
-              <button
-                style={{
-                  backgroundColor:
-                    selectedLeadsList.length > 0 || selectedAll
-                      ? 'hsl(var(--brand-primary))'
-                      : '',
-                  color:
-                    selectedLeadsList.length > 0 || selectedAll
-                      ? 'white'
-                      : '#000000',
-                }}
-                className="flex flex-row items-center gap-4 h-[40px] rounded-lg bg-[#33333315] w-[189px] justify-center"
-                onClick={() => {
-                  if (userLocalDetails?.plan) {
-                    setAssignLeadModal(true)
-                  } else {
-                    setSnackMessage('Add payment method to continue')
-                    setShowSnackMessage(true)
-                    setMessageType(SnackbarTypes.Warning)
-                  }
-                }}
-                disabled={!(selectedLeadsList.length > 0 || selectedAll)}
-              >
-                {selectedLeadsList.length > 0 || selectedAll ? (
-                  <Image
-                    src={'/assets/callBtnFocus.png'}
-                    height={17}
-                    width={17}
-                    alt="*"
-                  />
-                ) : (
-                  <Image
-                    src={'/assets/callBtn.png'}
-                    height={17}
-                    width={17}
-                    alt="*"
-                  />
-                )}
-                <TypographyH4>Start Campaign</TypographyH4>
-              </button>
-            }
           />
 
-          <div className="w-[95%] pe-12 mt-2">
-            <div>
-              <div className="flex flex-row items-center justify-end">
+          <div className="w-[95%] max-w-[1300px] mx-auto bg-transparent m-0 p-0">
+            <div className="pt-0 bg-transparent">
+              <div className="flex flex-row items-center justify-between py-3 px-3 border-b h-auto" style={{ borderColor: '#eaeaea' }}>
+                <h2 className="text-[28px] font-medium tracking-[-1px] m-0">Lead Batch</h2>
+                <button
+                  style={{
+                    backgroundColor:
+                      selectedLeadsList.length > 0 || selectedAll
+                        ? 'hsl(var(--brand-primary))'
+                        : '',
+                    color:
+                      selectedLeadsList.length > 0 || selectedAll
+                        ? 'white'
+                        : '#000000',
+                    boxShadow:
+                      selectedLeadsList.length > 0 || selectedAll
+                        ? '0 4px 24px hsl(var(--brand-primary) / 0.15)'
+                        : 'none',
+                  }}
+                  className="flex flex-row items-center gap-2 h-[40px] w-auto px-3 rounded-lg bg-[#33333315] justify-center"
+                  onClick={() => {
+                    if (userLocalDetails?.plan) {
+                      setAssignLeadModal(true)
+                    } else {
+                      setSnackMessage('Add payment method to continue')
+                      setShowSnackMessage(true)
+                      setMessageType(SnackbarTypes.Warning)
+                    }
+                  }}
+                  disabled={!(selectedLeadsList.length > 0 || selectedAll)}
+                >
+                  <Phone size={16} strokeWidth={2} />
+                  <span className="text-[15px] font-normal">Start Campaign</span>
+                </button>
+              </div>
+              {(hasExportPermission || selectedLeadsList.length > 0 || selectedAll) && (
+              <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
                 <div className="flex flex-row items-center gap-6">
                   {/* <div className='flex flex-row items-center gap-2'>
                                         <Image src={"/assets/buyLeadIcon.png"} height={24} width={24} alt='*' />
@@ -2142,11 +2134,12 @@ const Userleads = ({
                   </Modal>*/}
                 </div>
               </div>
-              <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-                <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[70%]">
-                  <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
+              )}
+              <div className="flex flex-row items-center justify-between w-full px-3 py-3 h-auto">
+                <div className="flex flex-row items-center gap-2 overflow-none flex-shrink-0 w-[70%]">
+                  <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
                     <input
-                      style={styles.paragraph}
+                      style={{ ...styles.paragraph, fontWeight: 400 }}
                       className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
                       placeholder="Search by name, email or phone"
                       value={searchLead}
@@ -2157,31 +2150,34 @@ const Userleads = ({
                         handleSearchChange(value)
                       }}
                     />
-                    <button className="outline-none border-none">
+                    <button className="outline-none border-none" type="button">
                       <Image
                         src={'/assets/searchIcon.png'}
-                        height={24}
-                        width={24}
-                        alt="*"
+                        height={18}
+                        width={18}
+                        alt="Search"
                       />
                     </button>
                   </div>
                   <button
-                    className="outline-none flex-shrink-0"
+                    className="relative outline-none flex-shrink-0 flex flex-row items-center gap-2 px-3 h-10 rounded-lg border-none active:scale-[0.98] transition-transform"
+                    style={{ backgroundColor: '#ededed' }}
                     onClick={() => {
                       setShowFilterModal(true)
                     }}
                   >
-                    <Image
-                      src={'/assets/filterIcon.png'}
-                      height={16}
-                      width={16}
-                      alt="*"
-                    />
+                    <Settings2 size={18} className="flex-shrink-0" aria-hidden />
+                    <span className="text-[14px] font-normal">Filter</span>
+                    {filtersSelected.length > 0 && (
+                      <span
+                        className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-brand-primary"
+                        aria-hidden
+                      />
+                    )}
                   </button>
                   {/* Show filters here in a row*/}
                   <div
-                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[65%]"
+                    className="flex flex-row items-center gap-2 flex-shrink-0 overflow-auto w-[65%]"
                     style={{
                       scrollbarColor: '#00000000',
                       scrollbarWidth: 'none',
@@ -2192,8 +2188,13 @@ const Userleads = ({
                       return (
                         <div className="flex-shrink-0" key={filter.key + index}>
                           <div
-                            className="px-4 py-2 bg-brand-primary/10 text-brand-primary  flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
-                            style={{ fontWeight: '500', fontSize: 15 }}
+                            className="px-2 h-10 flex-shrink-0 rounded-lg flex flex-row items-center gap-1"
+                            style={{
+                              fontWeight: 400,
+                              fontSize: 14,
+                              color: 'rgba(0,0,0,0.8)',
+                              backgroundColor: 'rgba(0,0,0,0.05)',
+                            }}
                           >
                             {getFilterTitle(filter)}
                             <button
@@ -2254,36 +2255,26 @@ const Userleads = ({
                   </div>
                 </div>
 
-                <div className="flex flex-row items-center justify-end gap-2 w-[30%]">
+                <div className="flex flex-row items-center justify-end gap-2 w-[30%] text-[14px] font-normal">
                   {hasExportPermission && (
                     exportLoading ? (
                       <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     ) : (
                       <button
-                        className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
-                        style={{ fontWeight: 400, fontSize: 14 }}
+                        className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0"
+                        style={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                          backgroundColor: '#f7f7f7',
+                          borderRadius: 8,
+                        }}
                         onClick={() => {
                           handleExportLeads()
                         }}
                         disabled={exportLoading}
                       >
-                        <div className="transition-colors duration-150">
-                          Export
-                        </div>
-                        <Image
-                          src={'/otherAssets/exportIcon.png'}
-                          height={24}
-                          width={24}
-                          alt="Export"
-                          className="group-hover:hidden block transition-opacity duration-150"
-                        />
-                        <Image
-                          src={'/otherAssets/exportIconPurple.png'}
-                          height={24}
-                          width={24}
-                          alt="Export"
-                          className="hidden group-hover:block transition-opacity duration-150"
-                        />
+                        <Download size={18} className="flex-shrink-0" aria-hidden />
+                        <span className="text-[14px]">Export</span>
                       </button>
                     )
                   )}
@@ -2365,18 +2356,18 @@ const Userleads = ({
               {/* Hide sheets list when searching across all sheets */}
               {!(searchLead && String(searchLead).trim()) && (
               <div
-                className="flex flex-row items-center mt-8 gap-2"
-                style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+                className="flex flex-row items-center mt-8 gap-2 text-[14px] font-normal border-b px-3"
+                style={{ ...styles.paragraph, borderColor: '#eaeaea' }}
               >
                 <div
-                  className="flex flex-row items-center gap-2 w-full"
+                  className="flex flex-row items-center gap-2 w-full min-h-[40px]"
                   style={{
                     ...styles.paragraph,
                     overflowY: 'hidden',
-                    scrollbarWidth: 'none', // For Firefox
-                    msOverflowStyle: 'none', // For Internet Explorer and Edge
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    fontSize: 14,
+                    fontWeight: 400,
                   }}
                 >
                   <style jsx>
@@ -2390,21 +2381,19 @@ const Userleads = ({
                     return (
                       <div
                         key={index}
-                        className="flex flex-row items-center gap-1 px-3"
+                        className="flex flex-row items-center gap-3 px-3 h-[40px] hover:bg-black/[0.02] rounded-none transition-colors"
                         style={{
                           borderBottom:
                             SelectedSheetId === item.id
                               ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
-                          whiteSpace: 'nowrap', // Prevent text wrapping
+                          whiteSpace: 'nowrap',
                         }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                       >
                         <button
-                          style={styles.paragraph}
-                          className="outline-none w-full"
+                          style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}
+                          className="outline-none w-full text-left"
                           onClick={() => {
                             setSearchLead('')
                             // Update ref immediately to prevent flash
@@ -2547,9 +2536,9 @@ const Userleads = ({
 
               {LeadsList.length > 0 ? (
                 <div
-                  className="h-[70svh] overflow-auto pb-[100px] mt-6"
+                  className="h-[70svh] overflow-auto pb-[100px] mt-6 bg-transparent"
                   id="scrollableDiv1"
-                  style={{ scrollbarWidth: 'none' }}
+                  style={{ scrollbarWidth: 'none', backgroundColor: 'transparent' }}
                 >
                   <InfiniteScroll
                     className="flex flex-col w-full"
@@ -2560,7 +2549,7 @@ const Userleads = ({
                           paddingTop: '10px',
                           fontWeight: '400',
                           fontFamily: 'inter',
-                          fontSize: 16,
+                          fontSize: 12,
                           color: '#00000060',
                         }}
                       >
@@ -2595,9 +2584,10 @@ const Userleads = ({
                             return (
                               <th
                                 key={index}
-                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn ? 'sticky right-0 bg-white' : ''
+                                className={`border-none px-4 py-2 text-left uppercase text-[14px] font-normal ${isMoreColumn ? 'sticky right-0 bg-white' : ''
                                   }`}
                                 style={{
+                                  color: 'rgba(0,0,0,0.6)',
                                   whiteSpace: 'nowrap',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
@@ -2605,8 +2595,8 @@ const Userleads = ({
                                   maxWidth: columnWidth,
                                 }}
                               >
-                                {column.title.charAt(0).toUpperCase() +
-                                  column.title.slice(1)}
+                                {(column.title.charAt(0).toUpperCase() +
+                                  column.title.slice(1)).toUpperCase()}
                               </th>
                             )
                           })}
@@ -2614,12 +2604,20 @@ const Userleads = ({
                       </thead>
                       <tbody>
                         {FilterLeads.map((item, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
+                          <tr
+                            key={index}
+                            className="hover:bg-gray-50"
+                            style={{
+                              paddingTop: 12,
+                              paddingBottom: 12,
+                              borderBottom: '1px solid #eaeaea',
+                            }}
+                          >
                             {leadColumns.map((column, colIndex) => (
                               <td
                                 key={colIndex}
                                 className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === 'More'
-                                  ? 'sticky right-0 bg-white'
+                                  ? 'sticky right-0 bg-transparent'
                                   : ''
                                   }`}
                                 style={{
