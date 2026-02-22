@@ -423,6 +423,7 @@ const RichTextEditor = forwardRef(
           }
           .quill-editor-wrapper .ql-editor p {
             font-size: 14px;
+            font-style: normal;
           }
 
           /* Prevent auto-capitalization and line jumping in headings */
@@ -555,6 +556,23 @@ const RichTextEditor = forwardRef(
           .quill-editor-wrapper .ql-picker.ql-expanded .ql-picker-options {
             display: block;
             z-index: 1000;
+            border: 1px solid #eaeaea;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            animation: ql-picker-entry 0.2s ease-out forwards;
+          }
+          @keyframes ql-picker-entry {
+            from {
+              opacity: 0;
+              transform: translateY(4px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .quill-editor-wrapper .ql-picker-item.ql-selected {
+            color: hsl(var(--brand-primary, 270 75% 50%));
           }
 
           /* Hide default Quill link tooltip since we're using custom modal */

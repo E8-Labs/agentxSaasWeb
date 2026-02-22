@@ -10,14 +10,17 @@ import { cn } from '@/lib/utils'
  */
 function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSize = 'md' }) {
   let sizePx = typeof size === 'number' ? size : 14
+  if (type === 'email') sizePx = Math.round(sizePx * 1.5 * 1.6 * 0.9)
+  else if (type === 'sms') sizePx = Math.round(sizePx * 1.5 * 1.6)
   if (showInBadge && badgeSize === 'sm') sizePx = Math.min(sizePx, 8)
   const isRoundedColored = type === 'messenger' || type === 'instagram'
-  const badgeSizeClass = badgeSize === 'sm' ? 'w-4 h-4' : 'w-5 h-5'
+  const badgeSizeClass = badgeSize === 'sm' ? 'w-4 h-4' : 'w-6 h-6'
+  const badgeTranslate = showInBadge ? 'translate-y-[calc(50%-8px)]' : 'translate-y-1/2'
   const badgeClass =
     showInBadge && isRoundedColored
-      ? `absolute bottom-0 right-0 translate-y-1/2 ${badgeSizeClass} rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-white`
+      ? `absolute bottom-0 right-0 ${badgeTranslate} ${badgeSizeClass} rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-white`
       : showInBadge
-        ? `absolute bottom-0 right-0 translate-y-1/2 ${badgeSizeClass} rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm overflow-hidden`
+        ? `absolute bottom-0 right-0 ${badgeTranslate} ${badgeSizeClass} rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm overflow-hidden`
         : 'flex items-center justify-center flex-shrink-0'
   const wrapperClass = showInBadge ? badgeClass : 'flex items-center justify-center flex-shrink-0 rounded-full overflow-hidden'
 

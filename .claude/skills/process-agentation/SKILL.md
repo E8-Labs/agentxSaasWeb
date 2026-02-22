@@ -96,3 +96,15 @@ When the user says **"modal cleanup"** (or "apply modal cleanup"), apply the Add
 When the user says **"animate modal"** (or "apply animate modal"), apply the Add Pipeline modal’s animation and backdrop to the modal in focus:
 - Backdrop: `backgroundColor: '#00000099'` (60% opacity), `timeout: 250`
 - Content entry: scale 0.95→1, opacity 0→1 over 0.25s with `cubic-bezier(0.34, 1.56, 0.64, 1)`
+
+When the user says **"entry animation"** (or "apply entry animation"), apply the same entry animation as the ThreadsList filter popover (w-[230px] dropdown) to the element in focus. This includes sliding into final position, easing, and transition:
+- Tailwind: `animate-in slide-in-from-bottom-2 duration-200 ease-out` (add or merge into the element's className)
+- Effect: element slides in from the bottom into its final position with a 200ms ease-out transition
+
+When the user says **"page header"** (or "apply page header"), style the selected element with the same sizing and style as the Messages page header bar:
+- Container: `w-full p-4 border-b flex flex-row items-center justify-between h-[66px]`
+
+When the user says **"filter button"** (or "apply filter button"), style the selected button to match the filter button in the page header:
+- Button: `mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center`
+
+When the user says **"filter icon"** (or "apply filter icon"), style the icon to match the filter icon inside that button (same size and style as the 20×20 SVG in the filter button).

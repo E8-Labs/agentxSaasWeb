@@ -26,7 +26,7 @@ import SettingsTabContent from './SettingsTabContent'
  * - onThreadUpdated: (updatedThread) when thread is updated (e.g. selectedAgentId)
  */
 export default function ThreadOptionsDropdown({
-  label = 'Team',
+  label = 'Assign',
   selectedThread,
   teamOptions = [],
   leadSettings = null,
@@ -93,24 +93,26 @@ export default function ThreadOptionsDropdown({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        align="start"
-        className="z-[2000] w-72 border border-muted/70 bg-white text-foreground shadow-lg p-2 max-h-[360px] overflow-hidden flex flex-col"
+        align="center"
+        className="z-[2000] w-[330px] border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl p-2 max-h-[360px] overflow-hidden flex flex-col data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit"
       >
         <Tabs defaultValue="teams" className="flex flex-col flex-1 min-h-0">
-          <TabsList className="grid w-full grid-cols-3 shrink-0">
-            <TabsTrigger value="teams" className="text-xs gap-1">
-              <Users className="h-3.5 w-3.5" />
+          <div className="py-2 px-2">
+            <TabsList className="grid w-full grid-cols-3 shrink-0 h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground text-[14px] [&_svg]:size-4">
+            <TabsTrigger value="teams" className="text-[14px] gap-1">
+              <Users className="h-4 w-4" />
               Teams
             </TabsTrigger>
-            <TabsTrigger value="agents" className="text-xs gap-1">
-              <Bot className="h-3.5 w-3.5" />
+            <TabsTrigger value="agents" className="text-[14px] gap-1">
+              <Bot className="h-4 w-4" />
               Agents
             </TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs gap-1">
-              <Settings className="h-3.5 w-3.5" />
+            <TabsTrigger value="settings" className="text-[14px] gap-1">
+              <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
-          </TabsList>
+            </TabsList>
+          </div>
           <TabsContent value="teams" className="flex-1 mt-2 min-h-0 overflow-auto">
             <TeamsTabContent teamOptions={teamOptions} onToggle={onToggle} />
           </TabsContent>

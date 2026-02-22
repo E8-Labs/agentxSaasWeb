@@ -4,6 +4,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { Check, ChevronRight, Circle } from 'lucide-react'
 import * as React from 'react'
 
+import { AgentationDialogContext } from '@/components/providers/agentation-dialog-provider'
 import { cn } from '@/lib/utils'
 
 /** True if target is inside Agentation toolbar, popup, or marker (prevents dropdown close when annotating) */
@@ -20,7 +21,12 @@ function isInsideContent(contentRef, target) {
   return contentRef?.current?.contains?.(target) === true
 }
 
-const DropdownMenu = DropdownMenuPrimitive.Root
+/** DropdownMenu root – uses modal={false} when Agentation is active so focus can reach the annotation input */
+function DropdownMenu(props) {
+  const useModalFalse = React.useContext(AgentationDialogContext)
+  const modal = props.modal !== undefined ? props.modal : !useModalFalse
+  return <DropdownMenuPrimitive.Root {...props} modal={modal} />
+}
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
 

@@ -380,8 +380,14 @@ const SystemMessage = ({
                     )
                 }
 
-                <div className="w-full max-w-2xl px-4">
-                  <div className="rounded-xl border border-border bg-background p-3 shadow-sm">
+                <div className="w-full max-w-2xl px-4 py-4">
+                  <div
+                    className="rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden"
+                    style={{
+                      boxShadow:
+                        '0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9',
+                    }}
+                  >
                     <CallTranscriptCN
                       leadId={selectedLead}
                       leadName={leadName}
@@ -439,7 +445,7 @@ const SystemMessage = ({
                           // Feature available and AI key present: full AI action dropdown
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors [&_img]:hover:animate-pulse">
+                              <button className="flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors [&_img]:hover:animate-pulse [&_svg]:text-black">
                                 <Image
                                   src="/otherAssets/starsIcon2.png"
                                   height={14}
@@ -450,13 +456,13 @@ const SystemMessage = ({
                                 <ChevronDown className="h-4 w-4 shrink-0" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="min-w-[140px]">
+                            <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom-2 duration-200 ease-out">
                               <DropdownMenuItem
                                 onClick={() => {
                                   setAiActionType('email')
                                   setAiActionInput('')
                                 }}
-                                className="flex items-center gap-2 cursor-pointer"
+                                className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
                               >
                                 <Mail className="h-4 w-4" />
                                 <span>Email</span>
@@ -466,7 +472,7 @@ const SystemMessage = ({
                                   setAiActionType('text')
                                   setAiActionInput('')
                                 }}
-                                className="flex items-center gap-2 cursor-pointer"
+                                className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
                               >
                                 <MessageSquareDot />
                                 <span>Text</span>
@@ -483,7 +489,7 @@ const SystemMessage = ({
                                     })
                                   }
                                 }}
-                                className="flex items-center gap-2 cursor-pointer"
+                                className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
                               >
                                 <MessagesSquare className="h-4 w-4" />
                                 <span>Chat</span>
@@ -655,6 +661,8 @@ const SystemMessage = ({
                 }}
               >
                 <button
+                  type="button"
+                  aria-label="Open recording in new tab"
                   className="mb-3"
                   style={{ fontWeight: '600', fontSize: 15 }}
                   onClick={() => {
@@ -668,7 +676,8 @@ const SystemMessage = ({
                     src={'/otherAssets/share.png'}
                     height={20}
                     width={20}
-                    alt="*"
+                    alt=""
+                    aria-hidden
                   />
                 </button>
 
@@ -680,6 +689,8 @@ const SystemMessage = ({
                 />
 
                 <button
+                  type="button"
+                  aria-label="Close"
                   className="w-full h-[50px] rounded-lg bg-brand-primary text-white mt-4"
                   style={{ fontWeight: '600', fontSize: 15 }}
                   onClick={() => {
@@ -703,11 +714,11 @@ const SystemMessage = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex flex-col w-full items-end pe-2 mb-3 cursor-default">
-              <div className="flex items-start gap-3 w-full justify-end">
+              <div className="flex items-start gap-3 w-full justify-end bg-transparent">
                 <div className="flex flex-col max-w-[75%] min-w-[220px]">
                   <div className="px-4 py-2 bg-gray-100 text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl">
                     <div
-                      className="prose prose-sm max-w-none break-words text-xs text-black"
+                      className="prose prose-sm max-w-none break-words text-[14px] text-black"
                       dangerouslySetInnerHTML={{ __html: parseContent(message.content) }}
                     />
                   </div>

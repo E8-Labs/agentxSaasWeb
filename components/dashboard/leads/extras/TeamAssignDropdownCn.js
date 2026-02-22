@@ -271,7 +271,7 @@ const TeamAssignDropdownCn = ({
             return (
               <DropdownMenuItem
                 key={team.id}
-                className="gap-2 px-2 justify-end pl-8 text-brand-primary hover:text-brand-primary cursor-pointer text-[14px]"
+                className="h-10 gap-2 px-2 justify-end pl-8 text-brand-primary hover:text-brand-primary cursor-pointer text-[14px] focus:bg-transparent hover:bg-transparent"
                 onSelect={(e) => {
                   e.preventDefault()
                   handleTeamClick(team)

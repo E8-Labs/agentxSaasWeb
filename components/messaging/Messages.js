@@ -1963,7 +1963,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
       const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
           {teamMemberLetter}
         </div>
       )
@@ -1974,7 +1974,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (message.agent.thumb_profile_image) {
         const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
         return (
-          <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+          <div className="w-[32px] h-[32px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
             <img
               src={message.agent.thumb_profile_image}
               alt={message.agent.name || 'Agent'}
@@ -1983,7 +1983,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 e.target.style.display = 'none'
                 const parent = e.target.parentElement
                 if (parent) {
-                  parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                  parent.className = 'w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
                   parent.textContent = agentLetter
                 }
               }}
@@ -2000,8 +2000,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             <Image
               src={selectedVoice.img}
               alt="Agent"
-              width={26}
-              height={26}
+              width={32}
+              height={32}
               className="rounded-full"
               style={{ objectFit: 'cover' }}
             />
@@ -2011,7 +2011,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       // Agent exists but no image: show agent initial
       const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
           {agentLetter}
         </div>
       )
@@ -2021,7 +2021,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     if (userData?.user?.thumb_profile_image) {
       const userLetter = (userData.user.name || userData.user.firstName || 'U').charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+        <div className="w-[32px] h-[32px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
           <img
             src={userData.user.thumb_profile_image}
             alt={userData.user.name || 'User'}
@@ -2030,7 +2030,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               e.target.style.display = 'none'
               const parent = e.target.parentElement
               if (parent) {
-                parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                parent.className = 'w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
                 parent.textContent = userLetter
               }
             }}
@@ -2044,7 +2044,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const userName = userData.user.name || userData.user.firstName || 'U'
       const userLetter = userName.charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
           {userLetter}
         </div>
       )
@@ -2052,8 +2052,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
     // Priority 5: Orb fallback when no agent and no user image
     return (
-      <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-        <AgentXOrb width={26} height={26} />
+      <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <AgentXOrb width={32} height={32} />
       </div>
     )
   }

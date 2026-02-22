@@ -236,19 +236,20 @@ const ThreadsList = ({
   }
 
   return (
-    <div className={`w-[400px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
+    <div className={`w-[390px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
       <div className="w-full flex flex-row items-center justify-between mt-0 px-3 py-3">
 
         {/* Toggle Buttons - All / Unreplied */}
         <ToggleGroupCN
           options={[
             { label: 'All', value: 'all', count: allCount },
-            { label: 'UnReplied', value: 'unreplied', count: unrepliedCount },
+            { label: 'Unreplied', value: 'unreplied', count: unrepliedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
         />
         <DropdownCn
+          className="shadow-none"
           label="New"
           options={[
             {
@@ -292,7 +293,7 @@ const ThreadsList = ({
           onSelect={(opt) => opt?.onSelect?.()}
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
           triggerClassName="h-10 rounded-lg text-sm"
-          contentClassName="bg-black text-white text-sm border-black/20"
+          contentClassName="bg-white text-foreground text-sm border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl animate-in slide-in-from-bottom-2 duration-200 ease-out"
         />
 
         {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
@@ -355,7 +356,7 @@ const ThreadsList = ({
             <div
               ref={filterPopoverRef}
               data-state="open"
-              className="absolute right-0 top-full mt-1 z-30 w-[230px] bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out"
+              className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out"
             >
               <div className="px-4 pt-3 pb-2 text-sm font-semibold text-black/70 border-b border-[#eaeaea]">Filter by</div>
               <div
@@ -467,7 +468,7 @@ const ThreadsList = ({
                   )}
                   <div className="flex items-start gap-3 ">
                     <div className="relative flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
+                      <div className="w-10 h-10 rounded-[1px] border border-white bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
                         {getLeadName(thread)}
                       </div>
                       {(() => {
@@ -476,7 +477,7 @@ const ThreadsList = ({
                           return <PlatformIcon type={sourceType} size={10} showInBadge />
                         }
                         return (
-                          <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                          <div className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                             <Image
                               src="/messaging/text type message icon.svg"
                               width={10}
@@ -555,7 +556,7 @@ const ThreadsList = ({
                       </TypographyCaption>
                       {thread.lead?.pipelineStage?.stageTitle && (
                         <div className="inline-flex w-fit items-center gap-2 px-2.5 py-1 mt-0.5 border border-gray-200 rounded-md">
-                          <TypographyCaption className="text-darkGray font-semibold text-[14px] leading-[18px]">
+                          <TypographyCaption className="text-darkGray font-normal text-[14px] leading-[18px]">
                             {thread.lead.pipelineStage.stageTitle}
                           </TypographyCaption>
                         </div>

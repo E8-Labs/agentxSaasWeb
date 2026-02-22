@@ -49,7 +49,7 @@ const MessageComposerTabCN = ({
         flex items-center gap-2 px-3 h-8 text-sm font-medium rounded-lg
         transition-all duration-200
         ${isActive 
-          ? 'text-brand-primary bg-black/[0.05]' 
+          ? (label === 'Messenger' ? 'text-black bg-black/[0.05]' : 'text-brand-primary bg-black/[0.05]')
           : 'text-[#6c757d] hover:text-[#5C646B] hover:bg-gray-100'
         }
       `}

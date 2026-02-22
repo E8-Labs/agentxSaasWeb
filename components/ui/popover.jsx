@@ -3,6 +3,7 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import * as React from 'react'
 
+import { AgentationDialogContext } from '@/components/providers/agentation-dialog-provider'
 import { cn } from '@/lib/utils'
 
 /** True if target is inside Agentation toolbar, popup, or marker (prevents popover close when annotating) */
@@ -19,7 +20,12 @@ function isInsideContent(contentRef, target) {
   return contentRef?.current?.contains?.(target) === true
 }
 
-const Popover = PopoverPrimitive.Root
+/** Popover root – uses modal={false} when Agentation is active so focus can reach the annotation input */
+function Popover(props) {
+  const useModalFalse = React.useContext(AgentationDialogContext)
+  const modal = props.modal !== undefined ? props.modal : !useModalFalse
+  return <PopoverPrimitive.Root {...props} modal={modal} />
+}
 
 const PopoverTrigger = PopoverPrimitive.Trigger
 
@@ -57,7 +63,7 @@ const PopoverContent = React.forwardRef(
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          'z-50 w-72 rounded-2xl border border-[#eaeaea] bg-popover p-4 text-popover-foreground shadow-[0_8px_30px_rgba(0,0,0,0.12)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          'z-50 w-72 rounded-2xl border border-[#eaeaea] bg-popover p-4 text-popover-foreground shadow-[0_8px_30px_rgba(0,0,0,0.12)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 duration-200 ease-out',
           className,
         )}
         style={{

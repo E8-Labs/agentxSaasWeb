@@ -92,7 +92,7 @@ const DraftCards = ({
                 onClick={() => handleCardClick(draft)}
                 className={`
                   flex-shrink-0 max-w-[49%] rounded-xl p-3 cursor-pointer transition-all duration-200
-                  border-2
+                  border
                   ${isSelected
                     ? 'border-brand-primary bg-brand-primary/[0.08] shadow-md'
                     : 'border-gray-200 bg-white hover:border-brand-primary/70 hover:shadow-sm'

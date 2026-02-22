@@ -1302,7 +1302,7 @@ const MessageComposer = ({
 
   return (
     <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
-      <div className="w-full px-0.5 flex flex-col gap-1">
+      <div className="w-full px-3 py-3 flex flex-col gap-1">
         <div className="flex items-center justify-between border-b m-0 gap-1 py-1">
           <div className="flex items-center gap-2 pb-1 h-8">
             <MessageComposerTabCN
@@ -1737,7 +1737,7 @@ const MessageComposer = ({
                           <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         </button>
                         {phoneDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto animate-in slide-in-from-bottom-2 duration-200 ease-out">
                             {phoneNumbers.length === 0 ? (
                               <div className="p-3">
                                 <button
@@ -1826,7 +1826,7 @@ const MessageComposer = ({
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
                             {emailDropdownOpen && (
-                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60">
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 animate-in slide-in-from-bottom-2 duration-200 ease-out">
                                 <div className="max-h-44 overflow-y-auto">
                                   {emailAccounts.map((account) => (
                                     <div
@@ -2029,7 +2029,7 @@ const MessageComposer = ({
                               <div className="absolute z-50 right-0 mt-1 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-top-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px]">
                                 <div
                                   ref={subjectVarListRef}
-                                  className="relative flex flex-col py-0 max-h-60 overflow-auto"
+                                  className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
                                   onMouseLeave={() => setSubjectVarHoveredKey(null)}
                                 >
                                   {subjectVarPillStyle.height > 0 && (
@@ -2119,7 +2119,7 @@ const MessageComposer = ({
                                   <div className="absolute bottom-full left-0 mb-2 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px] z-50">
                                     <div
                                       ref={bodyVarListRef}
-                                      className="relative flex flex-col py-0 max-h-60 overflow-auto"
+                                      className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
                                       onMouseLeave={() => setBodyVarHoveredKey(null)}
                                     >
                                       {bodyVarPillStyle.height > 0 && (
@@ -2182,7 +2182,7 @@ const MessageComposer = ({
 
                             {/* Templates Dropdown */}
                             {showTemplatesDropdown && (
-                              <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-60 overflow-hidden z-50">
+                              <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
                                 {templatesLoading ? (
                                   <div className="p-4 text-center">
                                     <CircularProgress size={20} />
@@ -2194,7 +2194,7 @@ const MessageComposer = ({
                                 ) : (
                                   <div
                                     ref={templateListRef}
-                                    className="relative flex flex-col py-0 max-h-60 overflow-auto"
+                                    className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
                                     onMouseLeave={() => setTemplateHoveredKey(null)}
                                   >
                                     {templatePillStyle.height > 0 && (
@@ -2331,7 +2331,7 @@ const MessageComposer = ({
 
                           {/* Templates Dropdown */}
                           {showTemplatesDropdown && (
-                            <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-60 overflow-hidden z-50">
+                            <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
                               {templatesLoading ? (
                                 <div className="p-4 text-center">
                                   <CircularProgress size={20} />
@@ -2343,7 +2343,7 @@ const MessageComposer = ({
                               ) : (
                                 <div
                                   ref={templateListRef}
-                                  className="relative flex flex-col py-0 max-h-60 overflow-auto"
+                                  className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
                                   onMouseLeave={() => setTemplateHoveredKey(null)}
                                 >
                                   {templatePillStyle.height > 0 && (

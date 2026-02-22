@@ -52,9 +52,12 @@ const CallTranscriptCN = ({
   // }, [leadId])
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1">
       {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
-      <div className="flex flex-row items-center justify-between text-sm">
+      <div
+        className="flex flex-row items-center justify-between text-sm h-auto p-3 bg-white"
+        style={{ borderBottom: '1px solid #eaeaea' }}
+      >
         <div className="flex flex-row items-center gap-3">
           <TypographyBodyMedium className="text-foreground font-normal">
             {moment(item?.duration * 1000).format('mm:ss')}
@@ -65,7 +68,7 @@ const CallTranscriptCN = ({
               onPlayRecording?.(item?.recordingUrl, item.callId)
               console.log("after Recording URL");
             }}
-            className="flex items-center justify-center"
+            className="flex items-center justify-center hover:bg-black/[0.02] rounded transition-colors"
             style={{
               width: 35,
               height: 35,
@@ -84,7 +87,7 @@ const CallTranscriptCN = ({
         </div>
 
         {/* Top right icons: Sentiment, Temperature, Next Steps */}
-        <div className="flex flex-row items-center gap-3">
+        <div className="flex flex-row items-center gap-3" style={{ color: 'rgba(0,0,0,0.7)' }}>
           {callSummary?.prospectSentiment && (
             <Tooltip
               title={`Sentiment: ${callSummary.prospectSentiment}`}
@@ -159,20 +162,36 @@ const CallTranscriptCN = ({
                 </div>
               </PopoverTrigger>
               <PopoverContent 
-                className="p-3"
+                className="p-0 flex flex-col gap-1"
                 onMouseEnter={() => setNextStepsPopoverOpen(true)}
                 onMouseLeave={() => setNextStepsPopoverOpen(false)}
                 side="right"
-                align="start"
-                style={{ zIndex: 15000, width: '320px', maxWidth: '320px' }}
+                align="center"
+                style={{
+                  zIndex: 15000,
+                  width: '280px',
+                  animation: 'nextStepsPopoverEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                  boxShadow: '0 8px 40px rgba(0, 0, 0, 0.15)',
+                }}
               >
-                <div style={{ whiteSpace: 'pre-line' }}>
+                <style>{`
+                  @keyframes nextStepsPopoverEntry {
+                    from { transform: scale(0.95); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                  }
+                `}</style>
+                <div
+                  className="px-4 py-3 border-b"
+                  style={{ borderColor: '#eaeaea', whiteSpace: 'pre-line' }}
+                >
                   <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '14px' }}>
                     Next Steps:
                   </div>
-                  <div style={{ fontSize: '14px', marginBottom: '12px', color: '#333', wordBreak: 'break-word' }}>
+                  <div style={{ fontSize: '14px', color: '#333', wordBreak: 'break-word' }}>
                     {formatNextStepsForTooltip(callSummary.nextSteps)}
                   </div>
+                </div>
+                <div className="px-4 py-3">
                   <Button
                     onClick={() => {
                       setNextStepsPopoverOpen(false)
@@ -191,18 +210,18 @@ const CallTranscriptCN = ({
       </div>
 
       {/* Summary text */}
-      <div className="w-full text-sm">
+      <div className="w-full text-sm pt-2 px-3">
         <TypographyBodySemibold className="mb-2 text-muted-foreground">
           Summary
         </TypographyBodySemibold>
-        <TypographyBodyMedium className="text-foreground leading-normal">
+        <TypographyBody className="text-foreground leading-normal text-black/80 font-normal">
           {displayText}
-        </TypographyBodyMedium>
+        </TypographyBody>
       </div>
 
       {/* Bottom row: Call ID, Transcript icons (left), optional right content */}
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row items-center justify-between px-3">
+        <div className="flex flex-row items-center gap-4" style={{ color: 'rgba(0,0,0,0.7)' }}>
           {/* Call ID Icon */}
           <Tooltip
             title="Copy Call ID"
@@ -272,7 +291,7 @@ const CallTranscriptCN = ({
                 onClick={() => onReadTranscript?.(item)}
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
               >
-                <FileText size={18} color="hsl(var(--brand-primary))" />
+                <FileText size={18} color="rgba(0,0,0,0.7)" />
               </button>
             </Tooltip>
           )}

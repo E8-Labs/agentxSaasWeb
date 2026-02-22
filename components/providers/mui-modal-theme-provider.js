@@ -13,12 +13,28 @@ const agentationFriendlyModalTheme = createTheme({
       defaultProps: {
         disableEnforceFocus: true,
         disableAutoFocus: true,
+        BackdropProps: {
+          'data-agentation-backdrop': true,
+          'aria-label': 'Backdrop',
+        },
       },
     },
     MuiDrawer: {
       defaultProps: {
         disableEnforceFocus: true,
         disableAutoFocus: true,
+      },
+    },
+    MuiTooltip: {
+      defaultProps: {
+        placement: 'top',
+      },
+      styleOverrides: {
+        tooltip: {
+          borderRadius: 8,
+          border: '1px solid #eaeaea',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+        },
       },
     },
   },

@@ -31,7 +31,7 @@ const EmailBubble = ({
       {message.subject && (
         <div className="font-semibold mb-2 flex items-start">
           <span
-            className="font-normal cursor-pointer text-xs relative"
+            className="font-normal cursor-pointer text-[14px] relative"
             onMouseEnter={(e) => {
               e.stopPropagation()
               setOpenEmailDetailId(message.id)
@@ -114,7 +114,7 @@ const EmailBubble = ({
                 }
               }
             }}
-            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-xs text-black"
+            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-[14px] text-black"
             title={message.subject}
           >
             {message.subject}

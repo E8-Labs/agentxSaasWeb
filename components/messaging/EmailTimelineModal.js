@@ -595,7 +595,7 @@ const EmailTimelineModal = ({
       onClose={handleClose}
       PaperProps={{
         sx: {
-          width: '45%',
+          width: '36%',
           borderRadius: '20px',
           padding: '0px',
           boxShadow: 3,
@@ -613,9 +613,9 @@ const EmailTimelineModal = ({
         },
       }}
     >
-      <div className="flex flex-col w-full h-full py-1 px-4 rounded-xl">
+      <div className="flex flex-col w-full h-full rounded-xl">
         {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b">
+        <div className="flex items-center justify-between py-3 px-4 border-b">
           <div>
             <h2 className="text-xl font-semibold">{subject || 'Email Timeline'}</h2>
             {replyToMessage && (
@@ -627,8 +627,8 @@ const EmailTimelineModal = ({
           <CloseBtn onClick={handleClose} />
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
+        {/* Content - styled like main chat panel (ConversationView) */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-[#f9f9f9] text-[14px]">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -663,7 +663,7 @@ const EmailTimelineModal = ({
                     )}
                     <div className="flex flex-col w-full">
                       <div
-                        className={`flex items-start gap-3 w-full ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex items-start gap-3 w-full ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'} bg-transparent`}
                       >
                         {message.direction !== 'outbound' && (
                           <div className="relative flex-shrink-0">
@@ -673,18 +673,18 @@ const EmailTimelineModal = ({
 
                         <div className="flex flex-col max-w-[80%] min-w-[240px]">
                           <div
-                            className={`px-4 py-3 rounded-2xl ${message.direction === 'outbound' ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-800'
+                            className={`px-4 py-3 rounded-2xl ${message.direction === 'outbound' ? 'bg-brand-primary/10 text-black' : 'bg-gray-100 text-gray-800'
                               }`}
                           >
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <span className="font-semibold text-sm">{senderName}</span>
-                              <span className={`text-xs ${message.direction === 'outbound' ? 'text-white' : 'text-gray-600'}`}>
+                              <span className={`text-xs ${message.direction === 'outbound' ? 'text-black' : 'text-gray-600'}`}>
                                 {moment(message.createdAt).format('h:mm A')}
                               </span>
                             </div>
 
                             <div
-                              className={`text-sm whitespace-pre-wrap ${message.direction === 'outbound' ? 'text-white [&_a]:!text-white [&_a:hover]:!text-white/80' : 'text-gray-800'}`}
+                              className={`text-sm whitespace-pre-wrap ${message.direction === 'outbound' ? 'text-black [&_a]:!text-black [&_a:hover]:!text-black/80' : 'text-gray-800'}`}
                               dangerouslySetInnerHTML={{
                                 __html: linkifyText(message.content || ''),
                               }}
@@ -695,7 +695,7 @@ const EmailTimelineModal = ({
                                 {message.metadata.attachments.map((attachment, idx) => (
                                   <div
                                     key={idx}
-                                    className={`flex items-center gap-2 text-sm ${message.direction === 'outbound' ? 'text-white' : 'text-brand-primary'
+                                    className={`flex items-center gap-2 text-sm ${message.direction === 'outbound' ? 'text-black' : 'text-brand-primary'
                                       }`}
                                   >
                                     <Paperclip size={14} />
@@ -704,7 +704,7 @@ const EmailTimelineModal = ({
                                     </span>
                                     {attachment.size && (
                                       <span
-                                        className={`text-xs ${message.direction === 'outbound' ? 'text-white/70' : 'text-gray-500'
+                                        className={`text-xs ${message.direction === 'outbound' ? 'text-black/70' : 'text-gray-500'
                                           }`}
                                       >
                                         ({formatFileSize(attachment.size)})
@@ -733,7 +733,7 @@ const EmailTimelineModal = ({
 
         {/* Reply Composer */}
         {messages && messages.length > 0 && subject && leadId && (
-          <div className="border-t pt-2 mt-2 bg-white">
+          <div className="border-t pt-2 mt-2 bg-white px-4 py-3">
             <div className="space-y-2">
 
               {/* CC and BCC toggle buttons */}

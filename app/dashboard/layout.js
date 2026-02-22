@@ -119,7 +119,7 @@ export default function DashboardLayout({ children }) {
         >
           {/* Sidebar */}
           <div
-            className="h-screen w-[15%]"
+            className="h-screen w-[15%] animate-in slide-in-from-bottom-2 duration-200 ease-out"
             style={{
               borderRight: '1px solid #00000010',
               backgroundColor: 'white',
@@ -131,7 +131,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Main Content */}
-          <div className="w-[85%]" style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5', minHeight: '100vh' }}>
+          <div className="w-[85%] animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5', minHeight: '100vh' }}>
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />
