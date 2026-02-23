@@ -33,7 +33,13 @@ function getDisplayHtml(content) {
   return linkifyText(text)
 }
 
-const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
+const ATTACHMENT_ONLY_PLACEHOLDER = /^\[\d+ (voice message|image|video|file)s?\]$|^\[\d+ (voice messages|images|videos|files)\]$/
+function isAttachmentOnlyPlaceholder(content) {
+  if (!content || typeof content !== 'string') return false
+  return ATTACHMENT_ONLY_PLACEHOLDER.test(content.trim())
+}
+
+const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, getPlayableUrl }) => (
   <div className="flex flex-col">
     <div
       className={`px-4 py-2 ${isOutbound
@@ -54,9 +60,13 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
           : 'text-black'
           }`}
         style={isOutbound ? { color: 'white' } : {}}
-        dangerouslySetInnerHTML={{ __html: getDisplayHtml(message.content || '') }}
+        dangerouslySetInnerHTML={{
+          __html: isAttachmentOnlyPlaceholder(message.content)
+            ? ''
+            : getDisplayHtml(message.content || ''),
+        }}
       />
-      <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
+      <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
     </div>
     <div className="flex items-center justify-end gap-2 mt1 mr-1">
       <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>

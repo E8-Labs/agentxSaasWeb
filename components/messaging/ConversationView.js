@@ -105,28 +105,49 @@ const ConversationView = ({
 
   if (!selectedThread) return null
 
-  const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
-    const getApiBaseUrl = () => {
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        return 'http://localhost:8003/'
-      }
-      return (
-        process.env.NEXT_PUBLIC_BASE_API_URL ||
-        (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-          ? 'https://apimyagentx.com/agentx/'
-          : 'https://apimyagentx.com/agentxtest/')
-      )
+  const getApiBaseUrl = () => {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:8003/'
     }
+    return (
+      process.env.NEXT_PUBLIC_BASE_API_URL ||
+      (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+        ? 'https://apimyagentx.com/agentx/'
+        : 'https://apimyagentx.com/agentxtest/')
+    )
+  }
 
+  const getPlayableUrl = (attachment, message, index) => {
+    if (!attachment?.url || !message?.id) return Promise.resolve(attachment?.url || null)
+    if (!attachment.url.includes('lookaside.fbsbx.com')) {
+      return Promise.resolve(attachment.url)
+    }
+    const base = getApiBaseUrl()
+    const proxy = `${base}api/user/messaging/proxy-social-media?messageId=${message.id}&attachmentIndex=${index}`
+    return fetch(proxy, {
+      headers: { Authorization: `Bearer ${AuthToken()}` },
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load media')
+        return r.blob()
+      })
+      .then((blob) => URL.createObjectURL(blob))
+  }
+
+  const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
     if (isImage) {
       const allImages = message.metadata.attachments.filter(
         (att) =>
+          (att.type || '').toLowerCase() === 'image' ||
           att.mimeType?.startsWith('image/') ||
           att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
       )
 
       const currentIdx = allImages.findIndex(
-        (att) => att.attachmentId === enrichedAttachment.attachmentId || att.fileName === enrichedAttachment.fileName,
+        (att) =>
+          att.attachmentId === enrichedAttachment.attachmentId ||
+          att.fileName === enrichedAttachment.fileName ||
+          (att.url && att.url === enrichedAttachment.url),
       )
 
       const imagesWithData = allImages.map((img) => {
@@ -403,7 +424,7 @@ const ConversationView = ({
                               updateComposerFromMessage={updateComposerFromMessage}
                             />
                           ) : (
-                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
                           )}
                           {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (
                             <SuggestedLeadLinks
