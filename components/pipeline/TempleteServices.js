@@ -3,6 +3,7 @@ import axios from 'axios'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import { Scopes } from '../dashboard/myagentX/Scopes'
+import { PersistanceKeys } from '@/constants/Constants'
 
 export const getTempletes = async (type, userId = null) => {
   try {
@@ -137,6 +138,13 @@ export const createTemplete = async (data) => {
       },
     })
 
+    if (response?.data?.status === true && response.data?.data) {
+      const template = response.data.data
+      const id = template.id
+      if (id && typeof localStorage !== 'undefined') {
+        localStorage.setItem(`${PersistanceKeys.PipelineTemplateCachePrefix}${id}`, JSON.stringify(template))
+      }
+    }
     if (response) {
       return response
     }
@@ -203,6 +211,13 @@ export const updateTemplete = async (data, tempId) => {
       },
     })
 
+    if (response?.data?.status === true && response.data?.data) {
+      const template = response.data.data
+      const id = template.id || tempId
+      if (id && typeof localStorage !== 'undefined') {
+        localStorage.setItem(`${PersistanceKeys.PipelineTemplateCachePrefix}${id}`, JSON.stringify(template))
+      }
+    }
     if (response) {
       return response
     }
