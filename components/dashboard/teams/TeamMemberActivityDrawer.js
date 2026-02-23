@@ -75,7 +75,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [taskData, setTaskData] = useState(null)
 
 
-  const [activeTab, setActiveTab] = useState('tasks')
+  const [activeTab, setActiveTab] = useState('activity')
   const [tasks, setTasks] = useState([])
   const [tasksLoading, setTasksLoading] = useState(false)
   const [activities, setActivities] = useState([])
@@ -94,6 +94,10 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [showCustomDateModal, setShowCustomDateModal] = useState(false)
 
   const teamMemberUserId = teamMember?.invitedUserId || teamMember?.invitedUser?.id
+
+  useEffect(() => {
+    console.log('selectedLeadIdForModal details', selectedLeadIdForModal)
+  }, [selectedLeadIdForModal])
 
   const loadTasks = useCallback(async (statusOverride) => {
     if (!teamMemberUserId) return
@@ -229,19 +233,6 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
               <nav className="p-3 flex flex-col gap-1">
                 <button
                   type="button"
-                  onClick={() => setActiveTab('tasks')}
-                  className={cn(
-                    'flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium transition-colors',
-                    activeTab === 'tasks'
-                      ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  )}
-                >
-                  {/* <ListTodo className="h-4 w-4 shrink-0" /> */}
-                  Tasks
-                </button>
-                <button
-                  type="button"
                   onClick={() => setActiveTab('activity')}
                   className={cn(
                     'flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium transition-colors',
@@ -252,6 +243,19 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                 >
                   {/* <MessageSquare className="h-4 w-4 shrink-0" /> */}
                   Activity Log
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('tasks')}
+                  className={cn(
+                    'flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium transition-colors',
+                    activeTab === 'tasks'
+                      ? 'bg-brand-primary/10 text-brand-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                  )}
+                >
+                  {/* <ListTodo className="h-4 w-4 shrink-0" /> */}
+                  Tasks
                 </button>
               </nav>
             </>
@@ -551,6 +555,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           showDetailsModal={true}
           setShowDetailsModal={() => setSelectedLeadIdForModal(null)}
           hideDelete={true}
+          elevatedZIndex
         />
       )}
     </Drawer>
@@ -642,6 +647,7 @@ function ActivityTimeline({ activities, onLeadClick }) {
 
 function ActivityTimelineItem({ item, onLeadClick }) {
   const [showEmailDetails, setShowEmailDetails] = useState(false)
+  const [contentExpanded, setContentExpanded] = useState(false)
   const leadName = item.lead
     ? [item.lead.firstName, item.lead.lastName].filter(Boolean).join(' ') || item.lead.email || 'Lead'
     : 'Lead'
@@ -770,16 +776,30 @@ function ActivityTimelineItem({ item, onLeadClick }) {
               </div>
             )}
             {item.content && (
-              <div
-                className="prose prose-sm max-w-none break-words text-sm text-muted-foreground mt-1
-                  [&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug
-                  [&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc
-                  [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
-                  [&_li]:!my-[0.15em] [&_a]:!text-brand-primary [&_a:hover]:!underline"
-                dangerouslySetInnerHTML={{ __html: sanitizeHTMLForEmailBody(item.content) }}
-              />
+              <>
+                <div
+                  className={cn(
+                    'prose prose-sm max-w-none break-words text-sm text-muted-foreground mt-1',
+                    '[&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug',
+                    '[&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc',
+                    '[&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]',
+                    '[&_li]:!my-[0.15em] [&_a]:!text-brand-primary [&_a:hover]:!underline',
+                    !contentExpanded && hasLongContent && 'line-clamp-3 overflow-hidden'
+                  )}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHTMLForEmailBody(item.content) }}
+                />
+                {hasLongContent && (
+                  <button
+                    type="button"
+                    onClick={() => setContentExpanded((prev) => !prev)}
+                    className="text-sm text-brand-primary underline mt-1 inline-block cursor-pointer hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-1 rounded"
+                    aria-expanded={contentExpanded}
+                  >
+                    {contentExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+              </>
             )}
-            {hasLongContent && <span className="text-sm text-brand-primary underline mt-1 inline-block">Read more</span>}
           </>
         )}
         {item.type === 'sms' && (
@@ -798,8 +818,28 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                 leadName
               )}
             </TypographyBody>
-            {contentSnippet && <TypographyBody className="text-sm text-muted-foreground mt-1 line-clamp-3">{contentSnippet}</TypographyBody>}
-            {hasLongContent && <span className="text-sm text-brand-primary underline mt-1 inline-block">Read more</span>}
+            {item.content && (
+              <>
+                <TypographyBody
+                  className={cn(
+                    'text-sm text-muted-foreground mt-1',
+                    !contentExpanded && hasLongContent && 'line-clamp-3'
+                  )}
+                >
+                  {contentExpanded ? item.content : contentSnippet}
+                </TypographyBody>
+                {hasLongContent && (
+                  <button
+                    type="button"
+                    onClick={() => setContentExpanded((prev) => !prev)}
+                    className="text-sm text-brand-primary underline mt-1 inline-block cursor-pointer hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-1 rounded"
+                    aria-expanded={contentExpanded}
+                  >
+                    {contentExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+              </>
+            )}
           </>
         )}
       </div>

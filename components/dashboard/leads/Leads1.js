@@ -1404,10 +1404,10 @@ const Leads1 = () => {
                     <button
                       className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                       onClick={() => {
-                        setShowAddNewSheetModal(true)
+                        setShowNewContactDrawer(true)
                       }}
                     >
-                    <Plus className = "text-white"/>
+                      <Plus className="text-white" />
                       <span style={styles.headingStyle}>New Contact</span>
                     </button>
                   </div>
@@ -2396,28 +2396,38 @@ const Leads1 = () => {
         />
 
         {/* New Contact Drawer */}
-        <NewContactDrawer
-          open={showNewContactDrawer}
-          onClose={() => setShowNewContactDrawer(false)}
-          onSuccess={() => {
-            // // Refresh threads after contact creation
-            // if (onContactCreated) {
-            //   onContactCreated()
-            // }
-            setShowNewContactDrawer(false)
-          }}
-        // selectedUser={selectedUser}
-        />
+        {
+          showNewContactDrawer && (
+            <NewContactDrawer
+              open={showNewContactDrawer}
+              onClose={() => setShowNewContactDrawer(false)}
+              onSuccess={() => {
+                // // Refresh threads after contact creation
+                // if (onContactCreated) {
+                //   onContactCreated()
+                // }
+                setShowNewContactDrawer(false)
+                setAddNewLeadModal(false)
+              }}
+            // selectedUser={selectedUser}
+            />
+          )
+        }
         {/* Modal to add custom sheet When no leads are added */}
-        <CreateSmartlistModal
-          open={showAddNewSheetModal}
-          onClose={() => setShowAddNewSheetModal(false)}
-          onSuccess={(newSmartlist) => {
-            setUserLeads(newSmartlist)
-            setSetData(true)
-            setAddNewLeadModal(false)
-          }}
-        />
+        {
+          showAddNewSheetModal && (
+            <CreateSmartlistModal
+              open={showAddNewSheetModal}
+              onClose={() => setShowAddNewSheetModal(false)}
+              onSuccess={(newSmartlist) => {
+                setUserLeads(newSmartlist)
+                setAddNewLeadModal(false)
+                setShowAddNewSheetModal(false)
+                setSetData(true)
+              }}
+            />
+          )
+        }
       </>
       {/* )
       } */}

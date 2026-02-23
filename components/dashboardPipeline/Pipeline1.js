@@ -1157,8 +1157,11 @@ const Pipeline1 = () => {
   // Team assign: options per lead (same shape as LeadDetails teamOptions)
   const getTeamOptionsForLead = useCallback(
     (lead) => {
-      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      // const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...((myTeamList && myTeamList.length) ? myTeamList.slice(1) : [])]
       const teamsAssigned = lead?.teamsAssigned || []
+      // console.log("teamsAssigned are", teamsAssigned)
+      // console.log("allTeams are", allTeams)
       return allTeams.map((tm) => {
         const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
         const isSelected = teamsAssigned.some((assigned) => {
@@ -2619,11 +2622,7 @@ const Pipeline1 = () => {
                             aria-describedby={stageId}
                             variant="contained"
                             onClick={(evetn) => {
-                              if (
-                                stage.identifier === 'new_lead' ||
-                                stage.identifier === 'booked'
-                              ) {
-                                // //console.log;
+                              if ((stage.identifier === 'new_lead' || stage.identifier === 'booked' || (stage.identifier === 'account_created' || stage.identifier === 'on_trial' || stage.identifier === 'paying' || stage.identifier === 'cancelled'))) {
                                 setShowDelBtn(true)
                               } else {
                                 setShowDelBtn(false)
