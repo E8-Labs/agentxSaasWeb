@@ -62,7 +62,7 @@ function StandardHeader({
   const textColorClass = isBright ? 'text-white' : ''
 
   // Use containerClassName if provided, otherwise build classes dynamically
-  const containerClasses = containerClassName || `w-full p-4 ${showSeparator ? 'border-b' : ''} flex flex-row items-center justify-between h-[66px] ${textColorClass}`
+  const containerClasses = containerClassName || `w-full p-4 ${showSeparator ? 'border-b' : ''} flex flex-row items-center justify-between h-[66px] bg-white ${textColorClass}`
 
   const handleTaskButtonClick = () => {
     setTaskBoardOpen(true)

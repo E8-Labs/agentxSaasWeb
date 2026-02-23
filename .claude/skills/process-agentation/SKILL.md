@@ -96,3 +96,21 @@ When the user says **"modal cleanup"** (or "apply modal cleanup"), apply the Add
 When the user says **"animate modal"** (or "apply animate modal"), apply the Add Pipeline modal’s animation and backdrop to the modal in focus:
 - Backdrop: `backgroundColor: '#00000099'` (60% opacity), `timeout: 250`
 - Content entry: scale 0.95→1, opacity 0→1 over 0.25s with `cubic-bezier(0.34, 1.56, 0.64, 1)`
+
+## User-defined sidebar shortcut
+
+When the user says **"update sidebar"** (or "apply update sidebar"), apply the dashboard sidebar’s style and interaction to the sidebar in focus. Reference: `app/dashboard/layout.js` (sidebar container) and `components/dashboard/Navbar/ProfileNav.js` (sidebar content).
+
+**Sidebar container:**
+- `className="h-screen w-[250px] flex-shrink-0"`
+- `style={{ borderRight: '1px solid #00000010', backgroundColor: 'white' }}`
+
+**Sidebar content (nav area):**
+- Root: `text-[14px]`, full height column layout
+- Nav links container: `flex flex-col items-start gap-0.5 py-2 px-2`; `text-[15px] font-normal`; use a ref for the container and track hover index for the sliding pill
+- **Sliding pill (hover):** Absolutely positioned div that follows the hovered nav item; `backgroundColor: 'rgba(0, 0, 0, 0.02)'`, `borderRadius: 8`, `transition: 'top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease'`; update position in `useLayoutEffect` from the hovered item’s `getBoundingClientRect()` relative to the container
+- **Nav link item:** Row with `gap-[12px]`, `h-10`, `px-3`, `rounded-lg`, `transition-transform duration-150 ease-out active:scale-[0.98]`; selected: `bg-brand-primary/5`, icon/label `text-brand-primary`; unselected: `bg-transparent`, `text-black/80`
+- **Icons:** Prefer Lucide icons `size={18}` `strokeWidth={2}`; match icon set from ProfileNav (e.g. LayoutDashboard, MessageSquareDot, BookUser, etc.) where applicable
+- **Beta tag:** `className="beta-badge-ai-gradient text-xs font-medium text-white flex-shrink-0 rounded px-[6px] py-0.5"` (uses `.beta-badge-ai-gradient` from `app/globals.css`)
+- **Spacing:** Logo/header area `pl-6`, nav items `px-3`, bottom section `borderTop: '1px solid #00000010'`
+- **Font:** Nav labels `text-[15px] font-normal`; user/account area `text-[14px]`
