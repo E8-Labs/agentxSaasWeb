@@ -1322,15 +1322,17 @@ const MessageComposer = ({
                 setIsExpanded(true)
               }}
             />
-            <MessageComposerTabCN
-              icon={MessengerTabIcon}
-              label="FB/IG DM"
-              isActive={composerMode === 'facebook' || composerMode === 'instagram'}
-              onClick={() => {
-                setComposerMode(selectedThread?.threadType === 'instagram' ? 'instagram' : 'facebook')
-                setIsExpanded(true)
-              }}
-            />
+            {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
+              <MessageComposerTabCN
+                icon={MessengerTabIcon}
+                label="FB/IG DM"
+                isActive={composerMode === 'facebook' || composerMode === 'instagram'}
+                onClick={() => {
+                  setComposerMode(selectedThread?.threadType === 'instagram' ? 'instagram' : 'facebook')
+                  setIsExpanded(true)
+                }}
+              />
+            )}
           </div>
 
           <div className="flex items-center gap-2">
