@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import { Paperclip, Image as ImageIcon, Microphone, MapPin } from '@phosphor-icons/react'
+import React, { useEffect, useRef, useState } from 'react'
+import { Paperclip, Image as ImageIcon, Microphone, MapPin, Play, Pause } from '@phosphor-icons/react'
+
+function formatDuration(seconds) {
+  if (seconds == null || Number.isNaN(seconds)) return '0:00'
+  const m = Math.floor(seconds / 60)
+  const s = Math.floor(seconds % 60)
+  return `${m}:${s < 10 ? '0' : ''}${s}`
+}
 
 const isImageAttachment = (attachment) => {
   const t = (attachment.type || '').toLowerCase()
@@ -11,6 +18,7 @@ const isImageAttachment = (attachment) => {
 
 const isVideoAttachment = (attachment) => {
   const t = (attachment.type || '').toLowerCase()
+  if (t === 'audio') return false
   if (t === 'video' || t === 'reel' || t === 'ig_reel') return true
   if (attachment.mimeType?.startsWith('video/')) return true
   if (attachment.fileName?.match(/\.(mp4|webm|mov|ogv|avi)$/i)) return true
@@ -104,9 +112,14 @@ function SocialVideoPlayer({ attachment, message, idx, getPlayableUrl, displayNa
   )
 }
 
-function SocialAudioPlayer({ attachment, message, idx, getPlayableUrl, sizeLabel, textMuted, isOutbound }) {
+function SocialAudioPlayer({ attachment, message, idx, getPlayableUrl, textMuted, isOutbound }) {
+  const audioRef = useRef(null)
   const [playableUrl, setPlayableUrl] = useState(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
   const needsProxy = attachment?.url && attachment.url.includes('lookaside.fbsbx.com')
+
   useEffect(() => {
     if (!attachment?.url) {
       setPlayableUrl(null)
@@ -140,24 +153,97 @@ function SocialAudioPlayer({ attachment, message, idx, getPlayableUrl, sizeLabel
       } catch (_) {}
     }
   }, [playableUrl, needsProxy])
+
   const src = needsProxy ? playableUrl : attachment?.url
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
-        <Microphone size={18} className={isOutbound ? 'text-white/80' : 'text-gray-600'} />
-        <span className="text-xs font-medium">Voice message</span>
+
+  useEffect(() => {
+    const el = audioRef.current
+    if (!el || !src) return
+    const onTimeUpdate = () => setCurrentTime(el.currentTime)
+    const onDurationChange = () => setDuration(el.duration)
+    const onEnded = () => {
+      setIsPlaying(false)
+      setCurrentTime(0)
+    }
+    const onPlay = () => setIsPlaying(true)
+    const onPause = () => setIsPlaying(false)
+    el.addEventListener('timeupdate', onTimeUpdate)
+    el.addEventListener('durationchange', onDurationChange)
+    el.addEventListener('ended', onEnded)
+    el.addEventListener('play', onPlay)
+    el.addEventListener('pause', onPause)
+    if (el.duration && !Number.isNaN(el.duration)) setDuration(el.duration)
+    return () => {
+      el.removeEventListener('timeupdate', onTimeUpdate)
+      el.removeEventListener('durationchange', onDurationChange)
+      el.removeEventListener('ended', onEnded)
+      el.removeEventListener('play', onPlay)
+      el.removeEventListener('pause', onPause)
+    }
+  }, [src])
+
+  const togglePlay = () => {
+    const el = audioRef.current
+    if (!el) return
+    if (el.paused) el.play()
+    else el.pause()
+  }
+
+  const onSeek = (e) => {
+    const el = audioRef.current
+    if (!el || !duration) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const pct = Math.max(0, Math.min(1, x / rect.width))
+    el.currentTime = pct * duration
+    setCurrentTime(el.currentTime)
+  }
+
+  if (!src) {
+    return (
+      <div className="flex items-center gap-2 py-1">
+        <div className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center flex-shrink-0">
+          <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        </div>
+        <div className="flex-1 h-1.5 bg-black/10 rounded-full max-w-[120px]" />
+        <span className={`text-xs ${textMuted}`}>0:00</span>
       </div>
-      {src ? (
-        <audio
-          src={src}
-          controls
-          className="max-w-full h-9"
-          preload="metadata"
-        />
-      ) : (
-        <div className="text-sm text-gray-500 py-1">Loading…</div>
-      )}
-      {sizeLabel && <span className={`text-xs ${textMuted}`}>{sizeLabel}</span>}
+    )
+  }
+
+  const progress = duration > 0 ? currentTime / duration : 0
+  const iconColor = isOutbound ? 'text-white' : 'text-gray-700'
+
+  return (
+    <div className="flex items-center gap-2 min-w-0 max-w-[220px]">
+      <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
+      <button
+        type="button"
+        onClick={togglePlay}
+        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isOutbound ? 'bg-white/25 hover:bg-white/35' : 'bg-gray-200 hover:bg-gray-300'}`}
+        aria-label={isPlaying ? 'Pause' : 'Play'}
+      >
+        {isPlaying ? (
+          <Pause size={16} weight="fill" className={iconColor} />
+        ) : (
+          <Play size={16} weight="fill" className={iconColor} style={{ marginLeft: 2 }} />
+        )}
+      </button>
+      <button
+        type="button"
+        onClick={onSeek}
+        className="flex-1 min-w-0 flex items-center h-2 group"
+      >
+        <div className="w-full h-1 rounded-full bg-black/15 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-75 ${isOutbound ? 'bg-white' : 'bg-gray-600'}`}
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+      </button>
+      <span className={`flex-shrink-0 text-xs tabular-nums ${textMuted}`}>
+        {formatDuration(currentTime)} / {formatDuration(duration)}
+      </span>
     </div>
   )
 }
@@ -247,7 +333,6 @@ const AttachmentList = ({ message, isOutbound, onAttachmentClick, getImageUrl, g
               message={message}
               idx={idx}
               getPlayableUrl={getPlayableUrl}
-              sizeLabel={sizeLabel}
               textMuted={textMuted}
               isOutbound={isOutbound}
             />
