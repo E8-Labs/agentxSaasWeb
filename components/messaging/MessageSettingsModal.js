@@ -966,8 +966,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
                     <p className="text-sm text-gray-600">
                       {selectedProvider === 'google'
-                        ? 'Add Gemini API key to enable AI text+ email'
-                        : 'Add ChatGPT API key to enable AI text+ email'}
+                        ? 'Add Gemini API key to enable AI text + email + chat.'
+                        : 'Add ChatGPT API key to enable AI text + email + chat.'}
                     </p>
                     <Input
                       type={isEditingApiKey ? "password" : "text"}

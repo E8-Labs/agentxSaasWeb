@@ -60,6 +60,7 @@ import TagsInput from '../dashboard/leads/TagsInput'
 import LeadDetails from '../dashboard/leads/extras/LeadDetails'
 import CloseBtn from '../globalExtras/CloseBtn'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
+import PipelineFilterModal from '../common/PipelineFilterModal'
 import StandardHeader from '../common/StandardHeader'
 import { TypographyH3 } from '@/lib/typography'
 import {
@@ -2705,7 +2706,7 @@ const Pipeline1 = () => {
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
                                 <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                  Branding Color
+                                  Color
                                 </div>
                                 <div
                                   style={{
@@ -4700,109 +4701,14 @@ const Pipeline1 = () => {
             </Box>
           </Modal>
           {/* Filter Modal for Team Members */}
-          <Modal
+          <PipelineFilterModal
             open={showFilterModal}
             onClose={() => setShowFilterModal(false)}
-            closeAfterTransition
-            BackdropProps={{
-              timeout: 1000,
-              sx: {
-                backgroundColor: '#00000020',
-              },
-            }}
-          >
-            <Box
-              className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
-              sx={{
-                height: 'auto',
-                bgcolor: 'transparent',
-                p: 0,
-                mx: 'auto',
-                my: '50vh',
-                transform: 'translateY(-55%)',
-                borderRadius: '13px',
-                border: 'none',
-                outline: 'none',
-                scrollbarWidth: 'none',
-                overflow: 'hidden',
-              }}
-            >
-              <div className="flex flex-col w-full">
-                <div
-                  className="w-full rounded-[13px] overflow-hidden"
-                  style={{
-                    backgroundColor: '#ffffff',
-                    padding: 20,
-                    paddingInline: 30,
-                    borderRadius: '13px',
-                  }}
-                >
-                  <div className="flex flex-row items-center justify-between mb-4">
-                    <div style={{ fontWeight: '700', fontSize: 22 }}>
-                      Filter
-                    </div>
-                    <CloseBtn onClick={() => setShowFilterModal(false)} />
-                  </div>
-
-                  <div
-                    className="mt-4"
-                    style={{
-                      maxHeight: '400px',
-                      overflowY: 'auto',
-                      border: '1px solid #00000020',
-                      borderRadius: '13px',
-                      padding: '10px',
-                    }}
-                  >
-                    {filterTeamMembers.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        No team members available
-                      </div>
-                    ) : (
-                      filterTeamMembers.map((member) => (
-                        <div
-                          key={member.id}
-                          className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
-                          onClick={() => handleTeamMemberFilterToggle(member.id)}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedTeamMemberIds.includes(member.id)}
-                            onChange={() => handleTeamMemberFilterToggle(member.id)}
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                          />
-                          <div className="flex flex-col flex-1">
-                            <span className="font-medium text-gray-900">
-                              {member.name}
-                            </span>
-                            {member.email && (
-                              <span className="text-sm text-gray-500">
-                                {member.email}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  <div className="w-full mt-4">
-                    <button
-                      onClick={handleApplyFilter}
-                      className="bg-purple h-[50px] rounded-xl text-white w-full"
-                      style={{
-                        fontWeight: '600',
-                        fontSize: 16,
-                      }}
-                    >
-                      Apply Filter
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Box>
-          </Modal>
+            filterTeamMembers={filterTeamMembers}
+            selectedTeamMemberIds={selectedTeamMemberIds}
+            onToggleMember={handleTeamMemberFilterToggle}
+            onApply={handleApplyFilter}
+          />
           {/* Code for side view */}
           {importantCalls?.length > 0 && (
             <div

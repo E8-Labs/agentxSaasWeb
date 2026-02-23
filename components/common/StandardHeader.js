@@ -42,7 +42,8 @@ function StandardHeader({
   containerClassName = '',
   showSeparator = true,
   variant = 'dark',
-  selectedUser = null
+  selectedUser = null,
+  enablePermissionChecks = false
 }) {
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
@@ -202,6 +203,7 @@ function StandardHeader({
           threadId={selectedThread?.id || threadId || null}
           buttonRef={taskButtonRef}
           selectedUser={selectedUser}
+          enablePermissionChecks={enablePermissionChecks}
         />
       )}
     </>
