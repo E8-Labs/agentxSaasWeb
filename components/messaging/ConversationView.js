@@ -5,8 +5,10 @@ import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
 import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
 import PlatformIcon from './PlatformIcon'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import axios from 'axios'
@@ -439,6 +441,7 @@ const ConversationView = ({
                                   }}
                                   aria-label={message ? `${message?.agent?.name || message?.senderUser?.name}` : 'Agent'}
                                 >
+
                                   <div className="relative flex-shrink-0">
                                     {getAgentAvatar(message)}
                                     {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (

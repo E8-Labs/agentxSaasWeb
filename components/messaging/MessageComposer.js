@@ -143,6 +143,24 @@ const getCharCountFromHTML = (html) => {
   return stripHTML(html).length
 }
 
+// Normalize SMS body for RichTextEditor: accept plain text or HTML; return HTML for editor
+const smsBodyToEditorValue = (smsBody) => {
+  if (!smsBody || typeof smsBody !== 'string') return ''
+  const t = smsBody.trim()
+  if (!t) return ''
+  if (t.startsWith('<')) return smsBody
+  return '<p>' + (smsBody || '').replace(/\n/g, '</p><p>') + '</p>'
+}
+
+// Same for social (Messenger/Instagram) body
+const socialBodyToEditorValue = (body) => {
+  if (!body || typeof body !== 'string') return ''
+  const t = body.trim()
+  if (!t) return ''
+  if (t.startsWith('<')) return body
+  return '<p>' + (body || '').replace(/\n/g, '</p><p>') + '</p>'
+}
+
 
 
 
@@ -223,6 +241,7 @@ const MessageComposer = ({
   const [showDeleteEmailModal, setShowDeleteEmailModal] = useState(false)
   const [accountToDelete, setAccountToDelete] = useState(null)
   const [socialContent, setSocialContent] = useState('')
+  const socialRichTextEditorRef = useRef(null)
   const [sendingSocialMessage, setSendingSocialMessage] = useState(false)
   const [connectModalOpen, setConnectModalOpen] = useState(false)
   const [connectPlatform, setConnectPlatform] = useState('facebook')
@@ -1129,12 +1148,14 @@ const MessageComposer = ({
 
   const handleSendSocial = async (e) => {
     e?.preventDefault()
-    const text = (socialContent || '').trim()
+    const raw = (composerData.socialBody ?? socialContent ?? '').trim()
+    const text = stripHTML(raw).trim()
     if (!text || !selectedThread?.id || !onSendSocialMessage) return
     if (sendingSocialMessage) return
     setSendingSocialMessage(true)
     try {
       await onSendSocialMessage(selectedThread.id, text)
+      setComposerData((prev) => ({ ...prev, socialBody: '' }))
       setSocialContent('')
       toast.success('Message sent')
     } catch (err) {
@@ -1215,18 +1236,19 @@ const MessageComposer = ({
     }
   }
 
+  const socialBody = composerData.socialBody ?? ''
   if (showSocialComposer) {
     return (
       <div className="mx-4 mb-4 rounded-lg bg-white border border-gray-200 px-4 py-3">
         <form onSubmit={handleSendSocial} className="flex gap-2">
           <Input
-            value={socialContent}
-            onChange={(e) => setSocialContent(e.target.value)}
+            value={socialBody}
+            onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
             placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
             className="flex-1 min-w-0"
             disabled={sendingSocialMessage}
           />
-          <Button type="submit" disabled={!socialContent.trim() || sendingSocialMessage}>
+          <Button type="submit" disabled={!socialBody.trim() || sendingSocialMessage}>
             {sendingSocialMessage ? <CircularProgress size={18} color="inherit" sx={{ display: 'block' }} /> : 'Send'}
           </Button>
         </form>
@@ -1302,7 +1324,7 @@ const MessageComposer = ({
             />
             <MessageComposerTabCN
               icon={MessengerTabIcon}
-              label="Messenger"
+              label="FB/IG DM"
               isActive={composerMode === 'facebook' || composerMode === 'instagram'}
               onClick={() => {
                 setComposerMode(selectedThread?.threadType === 'instagram' ? 'instagram' : 'facebook')
@@ -1403,14 +1425,14 @@ const MessageComposer = ({
           sendableSocial ? (
             <div className="mt-2 flex items-center gap-2">
               <Input
-                value={socialContent}
-                onChange={(e) => setSocialContent(e.target.value)}
+                value={typeof socialBody === 'string' && socialBody.trim().startsWith('<') ? stripHTML(socialBody) : (socialBody ?? '')}
+                onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
                 onFocus={() => setIsExpanded(true)}
                 onClick={() => setIsExpanded(true)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
-                    if (socialContent?.trim() && !sendingSocialMessage) handleSendSocial(e)
+                    if ((composerData.socialBody ?? '').trim() && !sendingSocialMessage) handleSendSocial(e)
                   }
                 }}
                 placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
@@ -1419,7 +1441,7 @@ const MessageComposer = ({
               />
               <button
                 onClick={handleSendSocial}
-                disabled={!socialContent?.trim() || sendingSocialMessage}
+                disabled={!(composerData.socialBody ?? '').trim() || sendingSocialMessage}
                 className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 style={{ height: '42px' }}
               >
@@ -1431,7 +1453,7 @@ const MessageComposer = ({
             <Input
               value={
                 composerMode === 'sms'
-                  ? composerData.smsBody
+                  ? stripHTML(composerData.smsBody)
                   : composerMode === 'comment'
                     ? stripHTML(commentBody)
                     : stripHTML(composerData.emailBody)
@@ -1500,7 +1522,7 @@ const MessageComposer = ({
               willChange: isTransitioning ? 'height' : 'auto',
             }}
           >
-            {/* Messenger/Instagram expanded: same-style editor + send */}
+            {/* Messenger/Instagram expanded: RichTextEditor with formatting toolbar (no From/Subject/CC/BCC/Templates) */}
             {sendableSocial ? (
               <div className="mt-2">
                 <div className="mb-2">
@@ -1509,37 +1531,35 @@ const MessageComposer = ({
                   </label>
                 </div>
                 <div className="border border-brand-primary/20 rounded-lg bg-white">
-                  <textarea
-                    value={socialContent}
-                    onChange={(e) => setSocialContent(e.target.value)}
-                    placeholder={`Type your message...`}
-                    className="w-full min-h-[100px] p-3 rounded-lg resize-y border-0 focus:outline-none focus:ring-0 text-sm"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        if (socialContent?.trim() && !sendingSocialMessage) handleSendSocial(e)
-                      }
-                    }}
+                  <RichTextEditor
+                    ref={socialRichTextEditorRef}
+                    value={socialBodyToEditorValue(composerData.socialBody ?? '')}
+                    onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
+                    placeholder="Type your message..."
+                    availableVariables={[]}
+                    toolbarPosition="bottom"
+                    customToolbarElement={
+                      <div className="flex justify-end p-2 border-t border-gray-100">
+                        <button
+                          onClick={handleSendSocial}
+                          disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage}
+                          className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {sendingSocialMessage ? (
+                            <>
+                              <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
+                              <span className="text-sm">Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-sm">Send</span>
+                              <PaperPlaneTilt size={16} weight="fill" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    }
                   />
-                  <div className="flex justify-end p-2 border-t border-gray-100">
-                    <button
-                      onClick={handleSendSocial}
-                      disabled={!socialContent?.trim() || sendingSocialMessage}
-                      className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      {sendingSocialMessage ? (
-                        <>
-                          <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
-                          <span className="text-sm">Sending...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-sm">Send</span>
-                          <PaperPlaneTilt size={16} weight="fill" />
-                        </>
-                      )}
-                    </button>
-                  </div>
                 </div>
               </div>
             ) : composerMode === 'comment' ? (
@@ -2137,12 +2157,12 @@ const MessageComposer = ({
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 ">
-                            {/* Character count: texts only */}
+                            <div className="flex items-center gap-2 ">
+                            {/* Character count: SMS only (plain text length); email branch so this is for consistency if mode toggles */}
                             <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
 
                               {composerMode === 'sms' && (
-                                <span>{composerData.smsBody.length}/{SMS_CHAR_LIMIT} char</span>
+                                <span>{getCharCountFromHTML(composerData.smsBody)}/{SMS_CHAR_LIMIT} char</span>
                               )}
 
                             </div>
@@ -2177,17 +2197,56 @@ const MessageComposer = ({
                     </>
                   ) : (
                     <>
-                      <textarea
-                        value={composerData.smsBody}
-                        onChange={(e) => {
-                          if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                            setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
+                      {/* SMS/Text: same RichTextEditor as email with formatting toolbar and character limit */}
+                      <div className="relative">
+                        <RichTextEditor
+                          ref={richTextEditorRef}
+                          value={smsBodyToEditorValue(composerData.smsBody)}
+                          onChange={(html) => setComposerData((prev) => ({ ...prev, smsBody: html }))}
+                          placeholder="Type your message..."
+                          availableVariables={uniqueColumns}
+                          toolbarPosition="bottom"
+                          maxCharLimit={SMS_CHAR_LIMIT}
+                          customToolbarElement={
+                            uniqueColumns && uniqueColumns.length > 0 ? (
+                              <div className="relative" ref={variablesDropdownRef}>
+                                <button
+                                  type="button"
+                                  onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
+                                  className="px-3 py-2 w-32 border-gray-200 border-l-[0.5px] border-gray-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                  <span>Variables</span>
+                                  <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {variablesDropdownOpen && (
+                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] z-50">
+                                    {uniqueColumns.map((variable, index) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return (
+                                        <button
+                                          key={index}
+                                          type="button"
+                                          onClick={() => {
+                                            if (richTextEditorRef.current) {
+                                              richTextEditorRef.current.insertVariable(variable)
+                                            }
+                                            setVariablesDropdownOpen(false)
+                                          }}
+                                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
+                                        >
+                                          {displayText}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            ) : null
                           }
-                        }}
-                        placeholder="Type your message..."
-                        maxLength={SMS_CHAR_LIMIT}
-                        className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
-                      />
+                        />
+                      </div>
 
                       {/* Footer with Template, Character Count, and Send Button */}
                       <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-gray-200">
@@ -2228,19 +2287,18 @@ const MessageComposer = ({
                                     componentsProps={{
                                       tooltip: {
                                         sx: {
-                                          // pointerEvents: 'none',
-                                          backgroundColor: '#ffffff', // Ensure white background
-                                          color: '#333', // Dark text color
+                                          backgroundColor: '#ffffff',
+                                          color: '#333',
                                           fontSize: '16px',
                                           fontWeight: '500',
                                           padding: '10px 15px',
                                           borderRadius: '8px',
-                                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                                         },
                                       },
                                       arrow: {
                                         sx: {
-                                          color: '#ffffff', // Match tooltip background
+                                          color: '#ffffff',
                                         },
                                       },
                                     }}
@@ -2273,10 +2331,10 @@ const MessageComposer = ({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* Character Count and Credits (Center) */}
+                          {/* Character Count (plain text length for SMS) */}
                           <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
                             <span>
-                              {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
+                              {getCharCountFromHTML(composerData.smsBody)}/{SMS_CHAR_LIMIT} char
                             </span>
                           </div>
 
