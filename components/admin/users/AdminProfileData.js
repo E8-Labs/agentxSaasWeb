@@ -24,8 +24,9 @@ import AdminPhoneNumber from './AdminProfileData/AdminPhoneNumber'
 import AdminXbarServices from './AdminProfileData/AdminXbarServices'
 import AdminSendFeedback from './AdminSendFeedback'
 import { TypographyH1, TypographyH3 } from '@/lib/typography'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
-function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, handlePauseUser, handleClose }) {
+function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, handlePauseUser, handleClose, isAgencyView = false, embedded = false }) {
   let searchParams = useSearchParams()
   const router = useRouter()
 
@@ -147,6 +148,27 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
       icon: '/svgIcons/agentXIcon.svg',
       permissionKey: null, // No specific permission for this
     },
+    {
+      id: 8,
+      heading: 'Terms & Conditions',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available (terms/privacy are public)
+    },
+    {
+      id: 9,
+      heading: 'Privacy Policy',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available
+    },
+    {
+      id: 10,
+      heading: 'Cancellation & Refund',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available
+    },
   ]
 
   // Filter menu items based on permissions when viewing from agency as Invitee
@@ -202,6 +224,23 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
       }
     }
   }, [manuBar, tabSelected])
+
+  //manu click function
+  const handleTabSelect = async (item, index) => {
+    const { termsUrl, privacyUrl, cancellationUrl } = await getPolicyUrls(selectedUser || null);
+
+    if (item.id === 8) {
+      window.open(termsUrl, '_blank')
+      return
+    } else if (item.id === 9) {
+      window.open(privacyUrl, '_blank')
+      return
+    } else if (item.id === 10) {
+      window.open(cancellationUrl, '_blank')
+      return
+    }
+    setTabSelected(item.id)
+  }
 
   // Handle pause user
   const handlePause = async () => {
@@ -317,7 +356,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
     switch (tabSelected) {
       case 1:
-        return <AdminBasicInfo selectedUser={selectedUser} />
+        return <AdminBasicInfo selectedUser={selectedUser} isAgencyView={isAgencyView} />
       case 2:
         // return <AdminBilling selectedUser={selectedUser} from={from} />;
         return (
@@ -370,8 +409,8 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     // <Suspense>
     // </Suspense>
     <div
-      className="w-full flex flex-col items-center"
-      style={{ overflow: 'hidden', height: '100vh' }}
+      className={embedded ? 'w-full flex flex-col items-center min-h-0 flex-1' : 'w-full flex flex-col items-center'}
+      style={{ overflow: 'hidden', height: embedded ? '100%' : '100vh' }}
     >
       {/* Slider code<div
                 style={{
@@ -390,11 +429,10 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
           My Account
         </TypographyH3>
       </div>
-      <div className="w-12/12 h-full"></div>
-      <div className="w-full flex flex-row item-center pl-2 h-[100%]">
+      <div className="w-12/12 flex-1 min-h-0 flex flex-row items-center pl-2 w-full overflow-hidden">
         <div
-          className="w-4/12 items-center flex flex-col h-[90%] pr-2 overflow-auto"
-          style={{ scrollbarWidth: 'none' }}
+          className="w-4/12 h-full min-h-0 flex flex-col items-center pr-2 overflow-y-auto"
+          style={{ scrollbarWidth: 'thin' }}
         >
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">
@@ -405,7 +443,8 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
                   fontWeight: 'normal', // Optional: Adjust the font weight
                 }}
                 onClick={() => {
-                  setTabSelected(item.id)
+                  // setTabSelected(item.id)
+                  handleTabSelect(item, index)
                 }}
               >
                 <div
@@ -450,10 +489,8 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
         </div>
 
         <div
-          className="w-8/12 h-fu''"
+          className="w-8/12 flex-1 min-h-0 overflow-auto"
           style={{
-            overflow: 'auto',
-            height: '90%',
             borderLeftWidth: 1,
             borderBottomColor: '#00000010',
           }}

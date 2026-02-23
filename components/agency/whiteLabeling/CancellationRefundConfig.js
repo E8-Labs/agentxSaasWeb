@@ -9,6 +9,8 @@ import AgentSelectSnackMessage, {
 import { DEFAULT_CANCELLATION_REFUND_TEXT } from '@/constants/agencyTermsPrivacy'
 
 import LabelingHeader from './LabelingHeader'
+import Image from 'next/image'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 const CancellationRefundConfig = ({ selectedAgency }) => {
   const [cancellationRefundText, setCancellationRefundText] = useState('')
@@ -22,6 +24,11 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
   })
   const richTextEditorRef = useRef(null)
 
+  //opening cancellation in new tab
+  const getCancellationUrl = async () => {
+    const { cancellationUrl } = await getPolicyUrls();
+    window.open(cancellationUrl, '_blank')
+  }
   // Fetch cancellation & refund text on mount or when selectedAgency changes
   useEffect(() => {
     fetchCancellationRefundText()
@@ -133,7 +140,7 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
       const updateData = {
         cancellationText: cancellationRefundText,
       }
-      
+
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
         updateData.userId = selectedAgency.id
@@ -160,7 +167,7 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
       } else {
         throw new Error(
           response?.data?.message ||
-            'Failed to save cancellation & refund policy',
+          'Failed to save cancellation & refund policy',
         )
       }
     } catch (error) {
@@ -218,51 +225,69 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
         </div>
       ) : (
 
-        <> 
-      {/* Cancellation & Refund Editor Card */}
-      <div className="w-full flex flex-row justify-center pt-8">
-        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
-          <div className="self-stretch">
-            <div className="text-black text-base font-normal leading-normal mb-2">
-              Cancellation & Refund Policy Content
-            </div>
-            <RichTextEditor
-              ref={richTextEditorRef}
-              value={cancellationRefundText}
-              onChange={(html) => {
-                setCancellationRefundText(html)
-              }}
-              placeholder="Enter cancellation & refund policy text..."
-            />
-          </div>
+        <>
+          {/* Cancellation & Refund Editor Card */}
+          <div className="w-full flex flex-row justify-center pt-8">
+            <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
+              <div className="self-stretch">
+                <div className='mb-2 flex flex-row items-center justify-between'>
+                  <div className="text-black text-base font-normal leading-normal">
+                    Cancellation & Refund Policy Content
+                  </div>
+                  <button
+                    style={{
+                      pointerEvents: 'auto',
+                      zIndex: 10,
+                    }}
+                    onClick={() => {
+                      getCancellationUrl();
+                      return
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/arrowboxIcon.svg'}
+                      height={20}
+                      width={20}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <RichTextEditor
+                  ref={richTextEditorRef}
+                  value={cancellationRefundText}
+                  onChange={(html) => {
+                    setCancellationRefundText(html)
+                  }}
+                  placeholder="Enter cancellation & refund policy text..."
+                />
+              </div>
 
-          {/* Save Buttons */}
-          <div className="self-stretch inline-flex justify-between items-center mt-4">
-            {hasChanges() && (
-              <div
-                className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={handleReset}
-              >
-                <div className="text-slate-900 text-base font-normal leading-relaxed">
-                  Reset
+              {/* Save Buttons */}
+              <div className="self-stretch inline-flex justify-between items-center mt-4">
+                {hasChanges() && (
+                  <div
+                    className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={handleReset}
+                  >
+                    <div className="text-slate-900 text-base font-normal leading-relaxed">
+                      Reset
+                    </div>
+                  </div>
+                )}
+                <div
+                  className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${loading
+                    ? 'bg-brand-primary/60 cursor-not-allowed'
+                    : 'bg-brand-primary hover:bg-brand-primary/90'
+                    } ${!hasChanges() ? 'ml-auto' : ''}`}
+                  onClick={loading ? undefined : handleSave}
+                >
+                  <div className="text-white text-base font-normal leading-relaxed">
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </div>
                 </div>
               </div>
-            )}
-            <div
-              className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
-                loading
-                  ? 'bg-brand-primary/60 cursor-not-allowed'
-                  : 'bg-brand-primary hover:bg-brand-primary/90'
-              } ${!hasChanges() ? 'ml-auto' : ''}`}
-              onClick={loading ? undefined : handleSave}
-            >
-              <div className="text-white text-base font-normal leading-relaxed">
-                {loading ? 'Saving...' : 'Save Changes'}
-              </div>
             </div>
           </div>
-        </div>
-      </div>
         </>
       )}
     </div>

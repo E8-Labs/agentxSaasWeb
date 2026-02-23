@@ -119,6 +119,9 @@ const PipelineStages = ({
   ])
   const [action, setAction] = useState('')
 
+  // Tooltip content for hovered email/sms row: { rowKey, data, loading }
+  const [rowHoverTemplate, setRowHoverTemplate] = useState(null)
+
   //variable to show and hide the add stage btn
   const [showAddStageBtn, setShowAddStageBtn] = useState(false)
 
@@ -1242,6 +1245,8 @@ const PipelineStages = ({
                                       referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
                                     }
 
+                                    console.log('rowWithReferencePoint testing is', row)
+
                                     return (
                                       <div
                                         key={row.id}
@@ -1398,24 +1403,83 @@ const PipelineStages = ({
                                               ) : (
                                                 <div>, then{' '}</div>
                                               )}
-                                              <div
-                                                className="ml-2"
-                                                style={{ fontWeight: '600' }}
-                                              >
+                                                <div
+                                                  className="ml-2"
+                                                  style={{ fontWeight: '600' }}
+                                                >
                                                 <div className="flex flex-row items-cetner gap-2 p-2 rounded"
                                                   style={{
                                                     backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
                                                   }}
                                                 >
-                                                  <div className="text-brand-primary text-[12px]">
-                                                    {(row.communicationType &&
-                                                      row.communicationType !=
-                                                      'call') ||
-                                                      (row.action &&
-                                                        row.action != 'call')
-                                                      ? `Send ${actionLabel(row.communicationType)}`
-                                                      : `Make Call`}
-                                                  </div>
+                                                  {(row.communicationType === 'email' || row.communicationType === 'sms') && row.templateId ? (
+                                                    <Tooltip
+                                                      title={
+                                                        rowHoverTemplate?.rowKey === `${index}-${row.id}`
+                                                          ? rowHoverTemplate.loading
+                                                            ? 'Loading...'
+                                                            : (row.communicationType === 'email'
+                                                                ? (rowHoverTemplate.data?.subject ?? '')
+                                                                : (rowHoverTemplate.data?.content ?? ''))
+                                                          : ''
+                                                      }
+                                                      arrow
+                                                      componentsProps={{
+                                                        tooltip: {
+                                                          sx: {
+                                                            backgroundColor: 'hsl(var(--brand-primary))',
+                                                            color: '#fff',
+                                                            fontSize: '12px',
+                                                            maxWidth: 320,
+                                                            whiteSpace: 'pre-wrap',
+                                                            wordBreak: 'break-word',
+                                                          },
+                                                        },
+                                                        arrow: {
+                                                          sx: {
+                                                            color: 'hsl(var(--brand-primary))',
+                                                          },
+                                                        },
+                                                      }}
+                                                    >
+                                                      <div
+                                                        className="text-brand-primary text-[12px] cursor-default"
+                                                        onMouseEnter={async () => {
+                                                          const rowKey = `${index}-${row.id}`
+                                                          setRowHoverTemplate({ rowKey, loading: true })
+                                                          try {
+                                                            const data = await getTempleteDetails({ templateId: row.templateId })
+                                                            setRowHoverTemplate((prev) =>
+                                                              prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
+                                                            )
+                                                          } catch (err) {
+                                                            setRowHoverTemplate((prev) =>
+                                                              prev?.rowKey === rowKey ? { rowKey, data: null, loading: false } : prev
+                                                            )
+                                                          }
+                                                        }}
+                                                        onMouseLeave={() => setRowHoverTemplate(null)}
+                                                      >
+                                                        {(row.communicationType &&
+                                                          row.communicationType !=
+                                                          'call') ||
+                                                          (row.action &&
+                                                            row.action != 'call')
+                                                          ? `Send ${actionLabel(row.communicationType)}`
+                                                          : `Make Call`}
+                                                      </div>
+                                                    </Tooltip>
+                                                  ) : (
+                                                    <div className="text-brand-primary text-[12px]">
+                                                      {(row.communicationType &&
+                                                        row.communicationType !=
+                                                        'call') ||
+                                                        (row.action &&
+                                                          row.action != 'call')
+                                                        ? `Send ${actionLabel(row.communicationType)}`
+                                                        : `Make Call`}
+                                                    </div>
+                                                  )}
 
                                                   <button
                                                     onClick={(e) => {

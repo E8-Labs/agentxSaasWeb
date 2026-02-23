@@ -731,7 +731,8 @@ function NotficationsDrawer({ close }) {
   }
 
   return (
-    <div className='flex '>
+    <div className='flex ' //style={{ zIndex: 1304 }}
+    >
       {snackMessage && (
         <AgentSelectSnackMessage
           message={snackMessage}
@@ -776,6 +777,7 @@ function NotficationsDrawer({ close }) {
       <Drawer
         anchor="right"
         sx={{
+          zIndex: 1301, // Above AdminUsers SelectedUserDetails modal (1300) when drawer is open
           '& .MuiDrawer-paper': {
             width: '35%', // Drawer width
             boxSizing: 'border-box', // Ensure padding doesn't shrink content

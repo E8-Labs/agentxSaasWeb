@@ -61,6 +61,7 @@ import TagsInput from '../dashboard/leads/TagsInput'
 import LeadDetails from '../dashboard/leads/extras/LeadDetails'
 import CloseBtn from '../globalExtras/CloseBtn'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
+import PipelineFilterModal from '../common/PipelineFilterModal'
 import StandardHeader from '../common/StandardHeader'
 import { TypographyH3 } from '@/lib/typography'
 import {
@@ -4727,7 +4728,7 @@ const Pipeline1 = () => {
             </Box>
           </Modal>
           {/* Filter Modal for Team Members */}
-          <Modal
+          <PipelineFilterModal
             open={showFilterModal}
             onClose={() => setShowFilterModal(false)}
             closeAfterTransition
