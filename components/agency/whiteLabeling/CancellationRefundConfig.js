@@ -26,7 +26,7 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
 
   //opening cancellation in new tab
   const getCancellationUrl = async () => {
-    const { cancellationUrl } = await getPolicyUrls();
+    const { cancellationUrl } = await getPolicyUrls(null, true);
     window.open(cancellationUrl, '_blank')
   }
   // Fetch cancellation & refund text on mount or when selectedAgency changes
