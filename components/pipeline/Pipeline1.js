@@ -816,12 +816,12 @@ const Pipeline1 = ({
           className="h-[95svh] sm:h-[92svh] overflow-auto pb-24"
         >
           {/* header with title centered vertically */}
-          <div className="relative w-full flex-shrink-0" style={{ minHeight: showOrb ? '140px' : '100px' }}>
+          <div className="relative w-full flex-shrink-0" style={{ minHeight: '100px' }}> {/* showOrb ? '140px' : '100px' */}
             <Header />
             <div
               className="absolute left-1/2 md:text-4xl text-lg font-[700]"
               style={{
-                top: showOrb ? 'calc(50% + 45px)' : '50%',
+                top: '50%', //showOrb ? 'calc(50% + 45px)' : '50%',
                 transform: 'translate(-50%, -50%)',
                 zIndex: 50,
                 pointerEvents: 'none',
@@ -880,7 +880,7 @@ const Pipeline1 = ({
           >
 
             <div
-              className={`w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple ${showOrb ? 'mt-6' : 'mt-4'}`}
+              className={`w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4`}  //${showOrb ? 'mt-6' : 'mt-4'}
               style={{ scrollbarWidth: 'none', minHeight: 0 }}
             >
               {pipelinesDetails.length > 1 && (
