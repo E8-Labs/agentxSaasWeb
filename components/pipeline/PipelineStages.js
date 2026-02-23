@@ -1433,9 +1433,10 @@ const PipelineStages = ({
                                                         rowHoverTemplate?.rowKey === `${index}-${row.id}`
                                                           ? rowHoverTemplate.loading
                                                             ? 'Loading...'
-                                                            : (row.communicationType === 'email'
-                                                              ? (rowHoverTemplate.data?.subject ?? '')
-                                                              : (rowHoverTemplate.data?.content ?? ''))
+                                                            : String(rowHoverTemplate.data?.content ?? '')
+                                                              .replace(/<[^>]*>/g, '')
+                                                              .replace(/&nbsp;/g, ' ')
+                                                              .trim()
                                                           : ''
                                                       }
                                                       arrow
@@ -1461,9 +1462,21 @@ const PipelineStages = ({
                                                         className="text-brand-primary text-[12px] cursor-default"
                                                         onMouseEnter={async () => {
                                                           const rowKey = `${index}-${row.id}`
+                                                          const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${row.templateId}`
+                                                          try {
+                                                            const cached = localStorage.getItem(cacheKey)
+                                                            if (cached) {
+                                                              const data = JSON.parse(cached)
+                                                              setRowHoverTemplate({ rowKey, data, loading: false })
+                                                              return
+                                                            }
+                                                          } catch (_) { /* ignore invalid cache */ }
                                                           setRowHoverTemplate({ rowKey, loading: true })
                                                           try {
                                                             const data = await getTempleteDetails({ templateId: row.templateId })
+                                                            if (data) {
+                                                              localStorage.setItem(cacheKey, JSON.stringify(data))
+                                                            }
                                                             setRowHoverTemplate((prev) =>
                                                               prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
                                                             )

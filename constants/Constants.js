@@ -10,6 +10,7 @@ export const PersistanceKeys = {
   LocalStorageCampaignee: 'CampaigneeSaved',
   AgencyUUID: 'AgencyUUID',
   LocalStoragePipelines: 'LocalStoragePipelines',
+  PipelineTemplateCachePrefix: 'pipelineTemplateCache_',
   RegisterDetails: 'registerDetails',
   LocalStoredAgentsListMain: 'localAgentDetails',
   LocalStorageSubPlan: 'subPlan',
