@@ -1,4 +1,5 @@
-import { Paperclip, Image as ImageIcon, VideoCamera, Microphone, MapPin } from '@phosphor-icons/react'
+import React, { useEffect, useState } from 'react'
+import { Paperclip, Image as ImageIcon, Microphone, MapPin } from '@phosphor-icons/react'
 
 const isImageAttachment = (attachment) => {
   const t = (attachment.type || '').toLowerCase()
@@ -41,7 +42,127 @@ const getLocationUrl = (attachment) => {
   return null
 }
 
-const AttachmentList = ({ message, isOutbound, onAttachmentClick, getImageUrl }) => {
+function SocialVideoPlayer({ attachment, message, idx, getPlayableUrl, displayName, sizeLabel, textMuted }) {
+  const [playableUrl, setPlayableUrl] = useState(null)
+  const needsProxy = attachment?.url && attachment.url.includes('lookaside.fbsbx.com')
+  useEffect(() => {
+    if (!attachment?.url) {
+      setPlayableUrl(null)
+      return
+    }
+    if (!needsProxy) {
+      setPlayableUrl(attachment.url)
+      return
+    }
+    if (!getPlayableUrl || !message?.id) {
+      setPlayableUrl(attachment.url)
+      return
+    }
+    let revoked = false
+    getPlayableUrl(attachment, message, idx)
+      .then((url) => {
+        if (!revoked && url) setPlayableUrl(url)
+      })
+      .catch(() => {
+        if (!revoked) setPlayableUrl(attachment.url)
+      })
+    return () => {
+      revoked = true
+    }
+  }, [attachment?.url, message?.id, idx, needsProxy])
+  useEffect(() => {
+    if (!playableUrl || !needsProxy) return
+    return () => {
+      try {
+        URL.revokeObjectURL(playableUrl)
+      } catch (_) {}
+    }
+  }, [playableUrl, needsProxy])
+  const src = needsProxy ? playableUrl : attachment?.url
+  return (
+    <div className="flex flex-col gap-1 max-w-[320px]">
+      {src ? (
+        <video
+          src={src}
+          controls
+          playsInline
+          className="rounded-lg border border-black/10 w-full max-h-[240px] bg-black/5"
+          preload="metadata"
+        />
+      ) : (
+        <div className="rounded-lg border border-black/10 w-full max-h-[240px] bg-black/5 flex items-center justify-center text-sm text-gray-500 py-8">
+          Loading video…
+        </div>
+      )}
+      {(displayName || sizeLabel) && (
+        <div className={`text-xs ${textMuted}`}>
+          {displayName}
+          {sizeLabel && ` ${sizeLabel}`}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SocialAudioPlayer({ attachment, message, idx, getPlayableUrl, sizeLabel, textMuted, isOutbound }) {
+  const [playableUrl, setPlayableUrl] = useState(null)
+  const needsProxy = attachment?.url && attachment.url.includes('lookaside.fbsbx.com')
+  useEffect(() => {
+    if (!attachment?.url) {
+      setPlayableUrl(null)
+      return
+    }
+    if (!needsProxy) {
+      setPlayableUrl(attachment.url)
+      return
+    }
+    if (!getPlayableUrl || !message?.id) {
+      setPlayableUrl(attachment.url)
+      return
+    }
+    let revoked = false
+    getPlayableUrl(attachment, message, idx)
+      .then((url) => {
+        if (!revoked && url) setPlayableUrl(url)
+      })
+      .catch(() => {
+        if (!revoked) setPlayableUrl(attachment.url)
+      })
+    return () => {
+      revoked = true
+    }
+  }, [attachment?.url, message?.id, idx, needsProxy])
+  useEffect(() => {
+    if (!playableUrl || !needsProxy) return
+    return () => {
+      try {
+        URL.revokeObjectURL(playableUrl)
+      } catch (_) {}
+    }
+  }, [playableUrl, needsProxy])
+  const src = needsProxy ? playableUrl : attachment?.url
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <Microphone size={18} className={isOutbound ? 'text-white/80' : 'text-gray-600'} />
+        <span className="text-xs font-medium">Voice message</span>
+      </div>
+      {src ? (
+        <audio
+          src={src}
+          controls
+          className="max-w-full h-9"
+          preload="metadata"
+        />
+      ) : (
+        <div className="text-sm text-gray-500 py-1">Loading…</div>
+      )}
+      {sizeLabel && <span className={`text-xs ${textMuted}`}>{sizeLabel}</span>}
+    </div>
+  )
+}
+
+const AttachmentList = ({ message, isOutbound, onAttachmentClick, getImageUrl, getPlayableUrl }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
 
   return (
@@ -101,43 +222,35 @@ const AttachmentList = ({ message, isOutbound, onAttachmentClick, getImageUrl })
           )
         }
 
-        // Video: inline player
+        // Video: inline player (use proxy for Meta CDN URLs)
         if (isVideo && attachment.url) {
           return (
-            <div key={idx} className="flex flex-col gap-1 max-w-[320px]">
-              <video
-                src={attachment.url}
-                controls
-                playsInline
-                className="rounded-lg border border-black/10 w-full max-h-[240px] bg-black/5"
-                preload="metadata"
-              />
-              {(displayName !== `Attachment ${idx + 1}` || sizeLabel) && (
-                <div className={`text-xs ${textMuted}`}>
-                  {displayName}
-                  {sizeLabel && ` ${sizeLabel}`}
-                </div>
-              )}
-            </div>
+            <SocialVideoPlayer
+              key={idx}
+              attachment={attachment}
+              message={message}
+              idx={idx}
+              getPlayableUrl={getPlayableUrl}
+              displayName={displayName}
+              sizeLabel={sizeLabel}
+              textMuted={textMuted}
+            />
           )
         }
 
-        // Audio / voice message: inline player
+        // Audio / voice message: inline player (use proxy for Meta CDN URLs)
         if (isAudio && attachment.url) {
           return (
-            <div key={idx} className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <Microphone size={18} className={isOutbound ? 'text-white/80' : 'text-gray-600'} />
-                <span className="text-xs font-medium">Voice message</span>
-              </div>
-              <audio
-                src={attachment.url}
-                controls
-                className="max-w-full h-9"
-                preload="metadata"
-              />
-              {sizeLabel && <span className={`text-xs ${textMuted}`}>{sizeLabel}</span>}
-            </div>
+            <SocialAudioPlayer
+              key={idx}
+              attachment={attachment}
+              message={message}
+              idx={idx}
+              getPlayableUrl={getPlayableUrl}
+              sizeLabel={sizeLabel}
+              textMuted={textMuted}
+              isOutbound={isOutbound}
+            />
           )
         }
 
