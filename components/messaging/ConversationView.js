@@ -3,8 +3,12 @@ import moment from 'moment'
 import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscriptModal'
 import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
+import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
+
+import PlatformIcon from './PlatformIcon'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import axios from 'axios'
@@ -45,6 +49,8 @@ const ConversationView = ({
   shouldShowAiEmailAndTextRequestFeature = false,
   onShowUpgrade,
   onShowRequestFeature,
+  onLinkToLeadFromMessage,
+  linkingLeadId = null,
 }) => {
 
   //lead details
@@ -99,28 +105,49 @@ const ConversationView = ({
 
   if (!selectedThread) return null
 
-  const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
-    const getApiBaseUrl = () => {
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        return 'http://localhost:8003/'
-      }
-      return (
-        process.env.NEXT_PUBLIC_BASE_API_URL ||
-        (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-          ? 'https://apimyagentx.com/agentx/'
-          : 'https://apimyagentx.com/agentxtest/')
-      )
+  const getApiBaseUrl = () => {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:8003/'
     }
+    return (
+      process.env.NEXT_PUBLIC_BASE_API_URL ||
+      (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+        ? 'https://apimyagentx.com/agentx/'
+        : 'https://apimyagentx.com/agentxtest/')
+    )
+  }
 
+  const getPlayableUrl = (attachment, message, index) => {
+    if (!attachment?.url || !message?.id) return Promise.resolve(attachment?.url || null)
+    if (!attachment.url.includes('lookaside.fbsbx.com')) {
+      return Promise.resolve(attachment.url)
+    }
+    const base = getApiBaseUrl()
+    const proxy = `${base}api/user/messaging/proxy-social-media?messageId=${message.id}&attachmentIndex=${index}`
+    return fetch(proxy, {
+      headers: { Authorization: `Bearer ${AuthToken()}` },
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load media')
+        return r.blob()
+      })
+      .then((blob) => URL.createObjectURL(blob))
+  }
+
+  const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
     if (isImage) {
       const allImages = message.metadata.attachments.filter(
         (att) =>
+          (att.type || '').toLowerCase() === 'image' ||
           att.mimeType?.startsWith('image/') ||
           att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
       )
 
       const currentIdx = allImages.findIndex(
-        (att) => att.attachmentId === enrichedAttachment.attachmentId || att.fileName === enrichedAttachment.fileName,
+        (att) =>
+          att.attachmentId === enrichedAttachment.attachmentId ||
+          att.fileName === enrichedAttachment.fileName ||
+          (att.url && att.url === enrichedAttachment.url),
       )
 
       const imagesWithData = allImages.map((img) => {
@@ -370,6 +397,9 @@ const ConversationView = ({
                             <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                               {getLeadName(selectedThread)}
                             </div>
+                            {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                              <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                            )}
                           </div>
                         )}
 
@@ -394,7 +424,15 @@ const ConversationView = ({
                               updateComposerFromMessage={updateComposerFromMessage}
                             />
                           ) : (
-                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
+                          )}
+                          {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (
+                            <SuggestedLeadLinks
+                              suggestedLeads={message.metadata.suggestedLeads}
+                              threadId={selectedThread.id}
+                              onLink={onLinkToLeadFromMessage}
+                              linkingLeadId={linkingLeadId}
+                            />
                           )}
                           {isEmail && !isOutbound && onReplyClick && (
                             <div className="mt-1 flex justify-end">
@@ -424,7 +462,13 @@ const ConversationView = ({
                                   }}
                                   aria-label={message ? `${message?.agent?.name || message?.senderUser?.name}` : 'Agent'}
                                 >
-                                  {getAgentAvatar(message)}
+
+                                  <div className="relative flex-shrink-0">
+                                    {getAgentAvatar(message)}
+                                    {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                                      <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                                    )}
+                                  </div>
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>

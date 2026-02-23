@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Link2, Loader2 } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUserLocalData } from '@/components/constants/constants'
@@ -18,7 +19,25 @@ import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from 
 import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
+
+// Tab icon for consolidated Messenger/Instagram: uses fb_message_icon PNG (accepts size/style like Lucide)
+const MessengerTabIcon = ({ size = 20, style }) => (
+  <img
+    src="/svgIcons/fb_message_icon.png"
+    width={size}
+    height={size}
+    alt=""
+    className="object-contain flex-shrink-0"
+    style={style}
+  />
+)
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 
 
@@ -124,6 +143,24 @@ const getCharCountFromHTML = (html) => {
   return stripHTML(html).length
 }
 
+// Normalize SMS body for RichTextEditor: accept plain text or HTML; return HTML for editor
+const smsBodyToEditorValue = (smsBody) => {
+  if (!smsBody || typeof smsBody !== 'string') return ''
+  const t = smsBody.trim()
+  if (!t) return ''
+  if (t.startsWith('<')) return smsBody
+  return '<p>' + (smsBody || '').replace(/\n/g, '</p><p>') + '</p>'
+}
+
+// Same for social (Messenger/Instagram) body
+const socialBodyToEditorValue = (body) => {
+  if (!body || typeof body !== 'string') return ''
+  const t = body.trim()
+  if (!t) return ''
+  if (t.startsWith('<')) return body
+  return '<p>' + (body || '').replace(/\n/g, '</p><p>') + '</p>'
+}
+
 
 
 
@@ -167,6 +204,10 @@ const MessageComposer = ({
   handleFileChange,
   handleSendMessage,
   sendingMessage,
+  onSendSocialMessage,
+  hasFacebookConnection = false,
+  hasInstagramConnection = false,
+  onConnectionSuccess,
   onOpenAuthPopup,
   onCommentAdded,
 }) => {
@@ -199,6 +240,14 @@ const MessageComposer = ({
   const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
   const [showDeleteEmailModal, setShowDeleteEmailModal] = useState(false)
   const [accountToDelete, setAccountToDelete] = useState(null)
+  const [socialContent, setSocialContent] = useState('')
+  const socialRichTextEditorRef = useRef(null)
+  const [sendingSocialMessage, setSendingSocialMessage] = useState(false)
+  const [connectModalOpen, setConnectModalOpen] = useState(false)
+  const [connectPlatform, setConnectPlatform] = useState('facebook')
+  const [connectForm, setConnectForm] = useState({ externalId: '', accessToken: '', displayName: '' })
+  const [connectSubmitting, setConnectSubmitting] = useState(false)
+  const [connectingOAuth, setConnectingOAuth] = useState(false)
 
   // Variables state
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -277,6 +326,12 @@ const MessageComposer = ({
       setUserData(user)
     }
   }, [])
+
+  // When selecting a Messenger/Instagram thread, switch to the corresponding tab
+  useEffect(() => {
+    if (selectedThread?.threadType === 'messenger') setComposerMode('facebook')
+    else if (selectedThread?.threadType === 'instagram') setComposerMode('instagram')
+  }, [selectedThread?.id, selectedThread?.threadType])
 
   // Smooth height transition when switching tabs
   useEffect(() => {
@@ -1081,6 +1136,126 @@ const MessageComposer = ({
     }
   }
 
+  const isSocialThread = selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram'
+  const isFacebookMode = composerMode === 'facebook'
+  const isInstagramMode = composerMode === 'instagram'
+  // Thread is replyable via Messenger if it's a messenger thread or has receiverMessengerPsid (e.g. merged SMS thread)
+  const canReplyMessenger = (selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid) && hasFacebookConnection
+  const canReplyInstagram = (selectedThread?.threadType === 'instagram' || !!selectedThread?.receiverInstagramPsid) && hasInstagramConnection
+  const sendableSocial = (isFacebookMode && canReplyMessenger) || (isInstagramMode && canReplyInstagram)
+  const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
+  const showSocialComposer = false
+
+  const handleSendSocial = async (e) => {
+    e?.preventDefault()
+    const raw = (composerData.socialBody ?? socialContent ?? '').trim()
+    const text = stripHTML(raw).trim()
+    if (!text || !selectedThread?.id || !onSendSocialMessage) return
+    if (sendingSocialMessage) return
+    setSendingSocialMessage(true)
+    try {
+      await onSendSocialMessage(selectedThread.id, text)
+      setComposerData((prev) => ({ ...prev, socialBody: '' }))
+      setSocialContent('')
+      toast.success('Message sent')
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to send')
+    } finally {
+      setSendingSocialMessage(false)
+    }
+  }
+
+  const openConnectModal = (platform) => {
+    setConnectPlatform(platform)
+    setConnectForm({ externalId: '', accessToken: '', displayName: '' })
+    setConnectModalOpen(true)
+  }
+
+  const connectWithFacebookOAuth = async () => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please sign in to connect')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : ''
+    try {
+      setConnectingOAuth(true)
+      let url = Apis.socialFacebookAuthorize
+      const params = new URLSearchParams()
+      if (redirectUrl) params.set('redirectUrl', redirectUrl)
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      if (params.toString()) url += `?${params.toString()}`
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.data?.url) {
+        window.location.href = res.data.url
+      } else {
+        toast.error(res.data?.message || 'Could not start Facebook connect')
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Could not start Facebook connect')
+    } finally {
+      setConnectingOAuth(false)
+    }
+  }
+
+  const handleConnectSubmit = async (e) => {
+    e?.preventDefault()
+    const externalId = (connectForm.externalId || '').trim()
+    const accessToken = (connectForm.accessToken || '').trim()
+    if (!externalId || !accessToken) {
+      toast.error('Page/Account ID and Access Token are required')
+      return
+    }
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      let url = Apis.socialConnections
+      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      setConnectSubmitting(true)
+      await axios.post(url, {
+        platform: connectPlatform,
+        externalId,
+        accessToken,
+        displayName: (connectForm.displayName || '').trim() || undefined,
+      }, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      toast.success(connectPlatform === 'facebook' ? 'Facebook Page connected' : 'Instagram account connected')
+      setConnectModalOpen(false)
+      onConnectionSuccess?.()
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to connect')
+    } finally {
+      setConnectSubmitting(false)
+    }
+  }
+
+  const socialBody = composerData.socialBody ?? ''
+  if (showSocialComposer) {
+    return (
+      <div className="mx-4 mb-4 rounded-lg bg-white border border-gray-200 px-4 py-3">
+        <form onSubmit={handleSendSocial} className="flex gap-2">
+          <Input
+            value={socialBody}
+            onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
+            placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
+            className="flex-1 min-w-0"
+            disabled={sendingSocialMessage}
+          />
+          <Button type="submit" disabled={!socialBody.trim() || sendingSocialMessage}>
+            {sendingSocialMessage ? <CircularProgress size={18} color="inherit" sx={{ display: 'block' }} /> : 'Send'}
+          </Button>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-4 mb-0 rounded-lg bg-white">
       <div className="px-4 py-2">
@@ -1147,6 +1322,17 @@ const MessageComposer = ({
                 setIsExpanded(true)
               }}
             />
+            {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
+              <MessageComposerTabCN
+                icon={MessengerTabIcon}
+                label="FB/IG DM"
+                isActive={composerMode === 'facebook' || composerMode === 'instagram'}
+                onClick={() => {
+                  setComposerMode(selectedThread?.threadType === 'instagram' ? 'instagram' : 'facebook')
+                  setIsExpanded(true)
+                }}
+              />
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -1194,13 +1380,82 @@ const MessageComposer = ({
           </div>
         </div>
 
-        {!isExpanded ? (
+        {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
+          <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
+            {!hasFacebookConnection && (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Connect a Facebook Page to send Messenger messages.
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
+                    Connect with Facebook
+                  </Button>
+                  <span className="text-xs text-muted-foreground">or</span>
+                  <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('facebook')} disabled={connectingOAuth}>
+                    Connect manually
+                  </Button>
+                </div>
+              </div>
+            )}
+            {!hasInstagramConnection && (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Connect an Instagram account to send messages.
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
+                    Connect with Instagram
+                  </Button>
+                  <span className="text-xs text-muted-foreground">or</span>
+                  <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('instagram')} disabled={connectingOAuth}>
+                    Connect manually
+                  </Button>
+                </div>
+              </div>
+            )}
+            {hasFacebookConnection && hasInstagramConnection && (
+              <p className="text-sm text-muted-foreground">
+                Select a Messenger or Instagram conversation from the list to reply here.
+              </p>
+            )}
+          </div>
+        ) : !isExpanded ? (
           // Collapsed view - show text input with send button
-          (<div className="mt-2 flex items-center gap-2">
+          sendableSocial ? (
+            <div className="mt-2 flex items-center gap-2">
+              <Input
+                value={typeof socialBody === 'string' && socialBody.trim().startsWith('<') ? stripHTML(socialBody) : (socialBody ?? '')}
+                onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
+                onFocus={() => setIsExpanded(true)}
+                onClick={() => setIsExpanded(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    if ((composerData.socialBody ?? '').trim() && !sendingSocialMessage) handleSendSocial(e)
+                  }
+                }}
+                placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
+                className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                style={{ height: '42px' }}
+              />
+              <button
+                onClick={handleSendSocial}
+                disabled={!(composerData.socialBody ?? '').trim() || sendingSocialMessage}
+                className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                style={{ height: '42px' }}
+              >
+                {sendingSocialMessage ? <CircularProgress size={20} color="inherit" sx={{ display: 'block' }} /> : <PaperPlaneTilt size={20} weight="fill" />}
+              </button>
+            </div>
+          ) : (
+          <div className="mt-2 flex items-center gap-2">
             <Input
               value={
                 composerMode === 'sms'
-                  ? composerData.smsBody
+                  ? stripHTML(composerData.smsBody)
                   : composerMode === 'comment'
                     ? stripHTML(commentBody)
                     : stripHTML(composerData.emailBody)
@@ -1255,19 +1510,61 @@ const MessageComposer = ({
             >
               <PaperPlaneTilt size={20} weight="fill" />
             </button>
-          </div>)
+          </div>
+          )
         ) : (
           <div
             ref={composerContentRef}
             style={{
               height: contentHeight,
-              overflow: 'hidden',
+              maxHeight: '50vh',
+              overflowY: 'auto',
+              overflowX: 'hidden',
               transition: isTransitioning ? 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
               willChange: isTransitioning ? 'height' : 'auto',
             }}
           >
-            {/* Comment Tab */}
-            {composerMode === 'comment' ? (
+            {/* Messenger/Instagram expanded: RichTextEditor with formatting toolbar (no From/Subject/CC/BCC/Templates) */}
+            {sendableSocial ? (
+              <div className="mt-2">
+                <div className="mb-2">
+                  <label className="text-sm font-semibold text-foreground">
+                    {isMessengerReply ? 'Reply in Messenger' : 'Reply in Instagram'}
+                  </label>
+                </div>
+                <div className="border border-brand-primary/20 rounded-lg bg-white">
+                  <RichTextEditor
+                    ref={socialRichTextEditorRef}
+                    value={socialBodyToEditorValue(composerData.socialBody ?? '')}
+                    onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
+                    placeholder="Type your message..."
+                    availableVariables={[]}
+                    toolbarPosition="bottom"
+                    customToolbarElement={
+                      <div className="flex justify-end p-2 border-t border-gray-100">
+                        <button
+                          onClick={handleSendSocial}
+                          disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage}
+                          className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {sendingSocialMessage ? (
+                            <>
+                              <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
+                              <span className="text-sm">Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-sm">Send</span>
+                              <PaperPlaneTilt size={16} weight="fill" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    }
+                  />
+                </div>
+              </div>
+            ) : composerMode === 'comment' ? (
               <div className="mt-2">
                 <div className="mb-2">
                   <label className="text-sm font-semibold text-foreground">Comment</label>
@@ -1862,12 +2159,12 @@ const MessageComposer = ({
                               </div>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 ">
-                            {/* Character count: texts only */}
+                            <div className="flex items-center gap-2 ">
+                            {/* Character count: SMS only (plain text length); email branch so this is for consistency if mode toggles */}
                             <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
 
                               {composerMode === 'sms' && (
-                                <span>{composerData.smsBody.length}/{SMS_CHAR_LIMIT} char</span>
+                                <span>{getCharCountFromHTML(composerData.smsBody)}/{SMS_CHAR_LIMIT} char</span>
                               )}
 
                             </div>
@@ -1902,17 +2199,56 @@ const MessageComposer = ({
                     </>
                   ) : (
                     <>
-                      <textarea
-                        value={composerData.smsBody}
-                        onChange={(e) => {
-                          if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                            setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
+                      {/* SMS/Text: same RichTextEditor as email with formatting toolbar and character limit */}
+                      <div className="relative">
+                        <RichTextEditor
+                          ref={richTextEditorRef}
+                          value={smsBodyToEditorValue(composerData.smsBody)}
+                          onChange={(html) => setComposerData((prev) => ({ ...prev, smsBody: html }))}
+                          placeholder="Type your message..."
+                          availableVariables={uniqueColumns}
+                          toolbarPosition="bottom"
+                          maxCharLimit={SMS_CHAR_LIMIT}
+                          customToolbarElement={
+                            uniqueColumns && uniqueColumns.length > 0 ? (
+                              <div className="relative" ref={variablesDropdownRef}>
+                                <button
+                                  type="button"
+                                  onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
+                                  className="px-3 py-2 w-32 border-gray-200 border-l-[0.5px] border-gray-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                  <span>Variables</span>
+                                  <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {variablesDropdownOpen && (
+                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] z-50">
+                                    {uniqueColumns.map((variable, index) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return (
+                                        <button
+                                          key={index}
+                                          type="button"
+                                          onClick={() => {
+                                            if (richTextEditorRef.current) {
+                                              richTextEditorRef.current.insertVariable(variable)
+                                            }
+                                            setVariablesDropdownOpen(false)
+                                          }}
+                                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
+                                        >
+                                          {displayText}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            ) : null
                           }
-                        }}
-                        placeholder="Type your message..."
-                        maxLength={SMS_CHAR_LIMIT}
-                        className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
-                      />
+                        />
+                      </div>
 
                       {/* Footer with Template, Character Count, and Send Button */}
                       <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-gray-200">
@@ -1953,19 +2289,18 @@ const MessageComposer = ({
                                     componentsProps={{
                                       tooltip: {
                                         sx: {
-                                          // pointerEvents: 'none',
-                                          backgroundColor: '#ffffff', // Ensure white background
-                                          color: '#333', // Dark text color
+                                          backgroundColor: '#ffffff',
+                                          color: '#333',
                                           fontSize: '16px',
                                           fontWeight: '500',
                                           padding: '10px 15px',
                                           borderRadius: '8px',
-                                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                                         },
                                       },
                                       arrow: {
                                         sx: {
-                                          color: '#ffffff', // Match tooltip background
+                                          color: '#ffffff',
                                         },
                                       },
                                     }}
@@ -1998,10 +2333,10 @@ const MessageComposer = ({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* Character Count and Credits (Center) */}
+                          {/* Character Count (plain text length for SMS) */}
                           <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
                             <span>
-                              {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
+                              {getCharCountFromHTML(composerData.smsBody)}/{SMS_CHAR_LIMIT} char
                             </span>
                           </div>
 
@@ -2120,6 +2455,57 @@ const MessageComposer = ({
           </div>
         </Box>
       </Modal>
+
+      {/* Connect Facebook / Instagram modal */}
+      <Dialog open={connectModalOpen} onOpenChange={(open) => !connectSubmitting && setConnectModalOpen(open)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {connectPlatform === 'facebook' ? 'Connect Facebook Page' : 'Connect Instagram Account'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleConnectSubmit} className="space-y-4 mt-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {connectPlatform === 'facebook' ? 'Page ID' : 'Instagram Business Account ID'}
+              </label>
+              <Input
+                value={connectForm.externalId}
+                onChange={(e) => setConnectForm((f) => ({ ...f, externalId: e.target.value }))}
+                placeholder={connectPlatform === 'facebook' ? 'Page ID from Meta Developer Console' : 'IG Business Account ID'}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
+              <Input
+                type="password"
+                value={connectForm.accessToken}
+                onChange={(e) => setConnectForm((f) => ({ ...f, accessToken: e.target.value }))}
+                placeholder="Paste token from Meta Developer Console"
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Display name (optional)</label>
+              <Input
+                value={connectForm.displayName}
+                onChange={(e) => setConnectForm((f) => ({ ...f, displayName: e.target.value }))}
+                placeholder="e.g. Page name or @handle"
+                className="w-full"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setConnectModalOpen(false)} disabled={connectSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={connectSubmitting}>
+                {connectSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -64,7 +64,7 @@ import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetailsCN from './extras/LeadDetailsCN'
-import { Trash } from 'lucide-react'
+import { Check, Trash } from 'lucide-react'
 import LeadDetails from './extras/LeadDetails'
 import {
   DropdownMenu,
@@ -2663,41 +2663,54 @@ const Userleads = ({
                 open={showFilterModal}
                 closeAfterTransition
                 BackdropProps={{
+                  timeout: 250,
                   sx: {
-                    backgroundColor: '#00000020',
+                    backgroundColor: '#00000099',
                     maxHeight: '100%',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    // //backdropFilter: "blur(5px)",
                   },
                 }}
               >
                 <Box
-                  className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
+                  className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 w-auto min-w-0"
                   sx={{
                     ...styles.modalsStyle,
                     scrollbarWidth: 'none',
-                    backgroundColor: 'white',
+                    backgroundColor: 'transparent',
+                    '@keyframes addPipelineModalEntry': {
+                      from: { transform: 'scale(0.95) translateY(-55%)', opacity: 0 },
+                      to: { transform: 'scale(1) translateY(-55%)', opacity: 1 },
+                    },
+                    animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                   }}
                 >
-                  <div className="w-full flex flex-col items-center justify-start ">
-                    <div className="flex flex-row items-center justify-between w-full">
-                      <div>Filter</div>
+                  <div
+                    className="w-[500px] flex flex-col gap-3 p-0 pb-0 overflow-hidden max-h-[75svh] overflow-auto md:overflow-auto"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                      border: '1px solid #eaeaea',
+                      borderRadius: 12,
+                    }}
+                  >
+                  <div className="w-full flex flex-col items-center justify-start gap-0.5">
+                    <div className="flex flex-row items-center justify-between w-full p-4 border-b bg-white" style={{ borderColor: '#eaeaea' }}>
+                      <div className="text-[18px] font-semibold">Filter</div>
                       <CloseBtn
                         onClick={() => {
                           setShowFilterModal(false)
                         }}
                       />
                     </div>
-                    <div className="mt-2 w-full overflow-auto h-[85%]">
-                      <div className="flex flex-row items-start gap-4">
+                    <div className="mt-2 w-full overflow-y-auto px-4 pb-5 text-[14px] h-[400px] min-h-0">
+                      <div className="flex flex-row items-start gap-3">
                         <div className="w-1/2 h-full">
                           <div
-                            className="h-full"
+                            className="h-full text-[14px]"
                             style={{
                               fontWeight: '500',
-                              fontSize: 12,
-                              color: '#00000060',
+                              color: 'rgba(0,0,0,0.8)',
                               marginTop: 10,
                             }}
                           >
@@ -2707,7 +2720,7 @@ const Userleads = ({
                             <PopoverTrigger asChild>
                               <button
                                 style={{ border: '1px solid #00000020' }}
-                                className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
                               >
                                 <p>
                                   {selectedFromDate
@@ -2734,10 +2747,10 @@ const Userleads = ({
 
                         <div className="w-1/2 h-full">
                           <div
+                            className="text-[14px]"
                             style={{
                               fontWeight: '500',
-                              fontSize: 12,
-                              color: '#00000060',
+                              color: 'rgba(0,0,0,0.8)',
                               marginTop: 10,
                             }}
                           >
@@ -2747,7 +2760,7 @@ const Userleads = ({
                             <PopoverTrigger asChild>
                               <button
                                 style={{ border: '1px solid #00000020' }}
-                                className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
                               >
                                 <p>
                                   {selectedToDate
@@ -2773,20 +2786,18 @@ const Userleads = ({
                         </div>
                       </div>
 
-                      <div
-                        className="mt-6"
-                        style={{
-                          fontWeight: '500',
-                          fontSize: 14,
-                          color: '#00000060',
-                          marginTop: 10,
-                        }}
-                      >
-                        Select Pipeline
-                      </div>
-
-                      <div className="mt-2">
-                        <FormControl fullWidth>
+                      <div className="flex flex-col gap-2">
+                        <div
+                          className="mt-6 text-[14px]"
+                          style={{
+                            fontWeight: '500',
+                            color: 'rgba(0,0,0,0.8)',
+                            marginTop: 10,
+                          }}
+                        >
+                          Select Pipeline
+                        </div>
+                        <FormControl fullWidth className="mt-0">
                           <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
@@ -2821,26 +2832,33 @@ const Userleads = ({
                             MenuProps={{
                               PaperProps: {
                                 style: {
-                                  maxHeight: '30vh', // Limit dropdown height
-                                  overflow: 'auto', // Enable scrolling in dropdown
+                                  maxHeight: '30vh',
+                                  overflow: 'auto',
                                   scrollbarWidth: 'none',
-                                  // borderRadius: "10px"
+                                  borderRadius: 12,
+                                  border: '1px solid #eaeaea',
+                                  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
                                 },
                               },
                             }}
                           >
                             {pipelinesList.map((item, index) => {
+                              const isSelected = selectedPipeline === item.title
                               return (
-                                <MenuItem key={index} value={item.title}>
-                                  <button
-                                    onClick={() => {
-                                      //////console.log;
-                                      setSelectedStage([])
-                                      // getStagesList(item);
-                                    }}
-                                  >
-                                    {item.title}
-                                  </button>
+                                <MenuItem
+                                  key={index}
+                                  value={item.title}
+                                  disableRipple
+                                  sx={{ '&.Mui-focusVisible': { backgroundColor: 'transparent' } }}
+                                >
+                                  <div className="flex flex-row items-center justify-between w-full">
+                                    <span className={isSelected ? 'text-brand-primary' : ''}>
+                                      {item.title}
+                                    </span>
+                                    {isSelected && (
+                                      <Check className="text-brand-primary flex-shrink-0" size={16} />
+                                    )}
+                                  </div>
                                 </MenuItem>
                               )
                             })}
@@ -2849,11 +2867,10 @@ const Userleads = ({
                       </div>
 
                       <div
-                        className="mt-6"
+                        className="mt-6 text-[14px]"
                         style={{
                           fontWeight: '500',
-                          fontSize: 14,
-                          color: '#00000060',
+                          color: 'rgba(0,0,0,0.8)',
                           marginTop: 10,
                         }}
                       >
@@ -2882,23 +2899,23 @@ const Userleads = ({
                         <div className="text-xs text-muted-foreground mt-2">
                           Type to search tags, press Enter to add, or click suggestions
                         </div>*/}
-                        <div className="w-full flex flex-wrap gap-4">
+                        <div className="w-full flex flex-wrap gap-2 gap-y-2">
                           {uniqueTagsList?.length > 0 && uniqueTagsList?.map((item, index) => {
                             let found = filterTags?.includes(item)
                             return (
                               <div
                                 key={index}
-                                className="flex flex-row items-center mt-2 justify-start"
+                                className="flex flex-row items-center m-0 justify-start"
                                 style={{ fontSize: 15, fontWeight: '500' }}
                               >
                                 <button
                                   onClick={() => {
                                     handleFilterTagAdd(item)
                                   }}
-                                  className={`p-2 border border-[#00000020] ${found ? `bg-brand-primary` : 'bg-transparent'
-                                    } px-6
-                              ${found ? `text-white` : 'text-black'
-                                    } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found ? `bg-brand-primary` : 'bg-transparent'
+                                    }
+                              ${found ? `text-white` : 'text-black/80'
+                                    }`}
                                 >
                                   {item}
                                 </button>
@@ -2909,11 +2926,10 @@ const Userleads = ({
                       </div>
 
                       <div
-                        className="mt-6"
+                        className="mt-6 text-[14px]"
                         style={{
                           fontWeight: '500',
-                          fontSize: 14,
-                          color: '#00000060',
+                          color: 'rgba(0,0,0,0.8)',
                           marginTop: 10,
                         }}
                       >
@@ -2928,23 +2944,23 @@ const Userleads = ({
                           />
                         </div>
                       ) : (
-                        <div className="w-full flex flex-wrap gap-4">
+                        <div className="w-full flex flex-wrap gap-2 gap-y-2">
                           {stagesList?.map((item, index) => {
                             let found = isStageSelected(item)
                             return (
                               <div
                                 key={index}
-                                className="flex flex-row items-center mt-2 justify-start"
+                                className="flex flex-row items-center m-0 justify-start"
                                 style={{ fontSize: 15, fontWeight: '500' }}
                               >
                                 <button
                                   onClick={() => {
                                     handleSelectStage(item)
                                   }}
-                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
-                                    } px-6
-                              ${found >= 0 ? `text-white` : 'text-black'
-                                    } rounded-2xl`}
+                                className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
+                                  }
+                              ${found >= 0 ? `text-white` : 'text-black/80'
+                                    }`}
                                 >
                                   {item.stageTitle}
                                 </button>
@@ -2970,7 +2986,7 @@ const Userleads = ({
                       )}
                     </div>
 
-                    <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+                    <div className="flex flex-row items-center w-full justify-between m-0 p-4 h-auto bg-white">
                       <button
                         className="outline-none w-[105px]"
                         style={{ fontSize: 16.8, fontWeight: '600' }}
@@ -3003,6 +3019,7 @@ const Userleads = ({
                         </button>
                       )}
                     </div>
+                  </div>
                   </div>
                 </Box>
               </Modal>

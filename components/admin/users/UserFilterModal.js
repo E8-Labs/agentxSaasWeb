@@ -203,41 +203,55 @@ export function UserFilterModal({
       open={showFilterModal}
       closeAfterTransition
       BackdropProps={{
+        timeout: 250,
         sx: {
-          backgroundColor: '#00000020',
+          backgroundColor: '#00000099',
           maxHeight: '100%',
           justifyContent: 'center',
           alignItems: 'center',
-          // //backdropFilter: "blur(5px)",
         },
       }}
     >
       <Box
-        className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
+        className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 w-auto min-w-0"
         sx={{
           ...styles.modalsStyle,
           scrollbarWidth: 'none',
-          backgroundColor: 'white',
+          backgroundColor: 'transparent',
+          '@keyframes addPipelineModalEntry': {
+            from: { transform: 'scale(0.95) translateY(-55%)', opacity: 0 },
+            to: { transform: 'scale(1) translateY(-55%)', opacity: 1 },
+          },
+          animation: 'addPipelineModalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         }}
       >
-        <div className="w-full flex flex-col items-center justify-start ">
-          <div className="flex flex-row items-center justify-between w-full">
-            <div>Filter</div>
+        <div
+          className="w-[500px] flex flex-col gap-3 p-0 pb-0 overflow-hidden max-h-[75svh] overflow-auto md:overflow-auto"
+          style={{
+            backgroundColor: '#ffffff',
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            borderRadius: 12,
+          }}
+        >
+        <div className="w-full flex flex-col items-center justify-start gap-0.5">
+          <div className="flex flex-row items-center justify-between w-full p-4 border-b bg-white" style={{ borderColor: '#eaeaea' }}>
+            <div className="text-[18px] font-semibold">Filter</div>
             <CloseBtn
               onClick={() => {
                 onDismissCallback()
               }}
             />
           </div>
-          <div className="mt-2 w-full overflow-auto h-[85%] p-4">
-            <div className="w-full flex flex-row items-start gap-4">
+            <div className="mt-2 w-full overflow-y-auto px-4 pb-5 text-[14px] h-[400px] min-h-0">
+            <div className="w-full flex flex-row items-start gap-3">
               <div className="w-1/2 h-full">
                 <div
                   className="h-full"
                   style={{
                     fontWeight: '500',
-                    fontSize: 12,
-                    color: '#00000060',
+                    fontSize: 14,
+                    color: 'rgba(0,0,0,0.8)',
                     marginTop: 10,
                   }}
                 >
@@ -252,8 +266,8 @@ export function UserFilterModal({
                 <div
                   style={{
                     fontWeight: '500',
-                    fontSize: 12,
-                    color: '#00000060',
+                    fontSize: 14,
+                    color: 'rgba(0,0,0,0.8)',
                     marginTop: 10,
                   }}
                 >
@@ -266,12 +280,12 @@ export function UserFilterModal({
             </div>
 
             <div
-              style={{
-                fontWeight: '500',
-                fontSize: 12,
-                color: '#00000060',
-                marginTop: 10,
-              }}
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: 'rgba(0,0,0,0.8)',
+                  marginTop: 10,
+                }}
             >
               Leads
             </div>
@@ -290,12 +304,12 @@ export function UserFilterModal({
             />
 
             <div
-              style={{
-                fontWeight: '500',
-                fontSize: 12,
-                color: '#00000060',
-                marginTop: 10,
-              }}
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: 'rgba(0,0,0,0.8)',
+                  marginTop: 10,
+                }}
             >
               Teams
             </div>
@@ -312,12 +326,12 @@ export function UserFilterModal({
             />
 
             <div
-              style={{
-                fontWeight: '500',
-                fontSize: 12,
-                color: '#00000060',
-                marginTop: 10,
-              }}
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: 'rgba(0,0,0,0.8)',
+                  marginTop: 10,
+                }}
             >
               Total Spent
             </div>
@@ -336,12 +350,12 @@ export function UserFilterModal({
             />
 
             <div
-              style={{
-                fontWeight: '500',
-                fontSize: 12,
-                color: '#00000060',
-                marginTop: 10,
-              }}
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: 'rgba(0,0,0,0.8)',
+                  marginTop: 10,
+                }}
             >
               Mins Used
             </div>
@@ -360,12 +374,12 @@ export function UserFilterModal({
             />
 
             <div
-              style={{
-                fontWeight: '500',
-                fontSize: 12,
-                color: '#00000060',
-                marginTop: 10,
-              }}
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: 'rgba(0,0,0,0.8)',
+                  marginTop: 10,
+                }}
             >
               Balance
             </div>
@@ -384,12 +398,12 @@ export function UserFilterModal({
             />
 
             <div
-              style={{
-                fontWeight: '500',
-                fontSize: 12,
-                color: '#00000060',
-                marginTop: 10,
-              }}
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: 'rgba(0,0,0,0.8)',
+                  marginTop: 10,
+                }}
             >
               Agents
             </div>
@@ -407,14 +421,14 @@ export function UserFilterModal({
               }}
             />
 
-            <div className="flex flex-row items-start gap-4">
+            <div className="flex flex-row items-start gap-3">
               <div className="w-1/2 h-full">
                 <div
                   className="h-full"
                   style={{
                     fontWeight: '500',
-                    fontSize: 12,
-                    color: '#00000060',
+                    fontSize: 14,
+                    color: 'rgba(0,0,0,0.8)',
                     marginTop: 10,
                   }}
                 >
@@ -429,8 +443,8 @@ export function UserFilterModal({
                 <div
                   style={{
                     fontWeight: '500',
-                    fontSize: 12,
-                    color: '#00000060',
+                    fontSize: 14,
+                    color: 'rgba(0,0,0,0.8)',
                     marginTop: 10,
                   }}
                 >
@@ -443,12 +457,12 @@ export function UserFilterModal({
             </div>
 
             <div
-              style={{
-                fontWeight: '500',
-                fontSize: 12,
-                color: '#00000060',
-                marginTop: 10,
-              }}
+                style={{
+                  fontWeight: '500',
+                  fontSize: 14,
+                  color: 'rgba(0,0,0,0.8)',
+                  marginTop: 10,
+                }}
             >
               Closer
             </div>
@@ -494,7 +508,7 @@ export function UserFilterModal({
             </div>
           </div>
 
-          <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+          <div className="flex flex-row items-center w-full justify-between m-0 p-4 h-auto bg-white">
             <button
               className="outline-none w-[105px]"
               style={{ fontSize: 16.8, fontWeight: '600' }}
@@ -519,6 +533,7 @@ export function UserFilterModal({
               Apply Filter
             </button>
           </div>
+        </div>
         </div>
       </Box>
     </Modal>

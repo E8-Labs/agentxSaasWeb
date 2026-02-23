@@ -64,3 +64,5 @@ Use this skill to process UI feedback from annotations. The workflow:
 3. Claude will read the annotations from `AGENTATION_NOTES.md`
 4. Review and approve the suggested changes
 5. Annotations are cleared after processing
+
+Modals and popups are configured to allow focus to leave so you can type in the annotation field while a modal is open (MUI `disableEnforceFocus`, Radix `trapFocus={false}`). If a specific modal still traps focus, add a manual entry to `AGENTATION_NOTES.md` or describe the change in chat.

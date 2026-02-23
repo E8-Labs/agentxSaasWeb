@@ -10,7 +10,7 @@ const createOption = (label) => ({
   value: label,
 })
 
-const TagsInput = ({ setTags, tags }) => {
+const TagsInput = ({ setTags, tags, controlHeight }) => {
   const [inputValue, setInputValue] = useState('')
   const [value, setValue] = useState([])
 
@@ -72,9 +72,19 @@ const TagsInput = ({ setTags, tags }) => {
 
   //custom styles added
   const customStyles = {
+    ...(controlHeight != null && {
+      control: (styles, state) => ({
+        ...styles,
+        minHeight: controlHeight,
+        height: controlHeight,
+        borderRadius: 8,
+        borderColor: state.isFocused ? 'hsl(var(--brand-primary))' : styles.borderColor,
+        boxShadow: state.isFocused ? '0 0 0 1px hsl(var(--brand-primary))' : styles.boxShadow,
+      }),
+    }),
     multiValue: (styles) => ({
       ...styles,
-      backgroundColor: '#402fff20',
+      backgroundColor: 'rgba(0, 0, 0, 0.05)',
     }),
     multiValueLabel: (styles) => ({
       ...styles,
@@ -84,7 +94,7 @@ const TagsInput = ({ setTags, tags }) => {
       ...styles,
       color: 'black',
       ':hover': {
-        backgroundColor: 'darkred',
+        backgroundColor: 'rgba(0, 0, 0, 0.08)',
       },
     }),
   }

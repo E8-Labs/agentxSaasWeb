@@ -73,12 +73,12 @@ const ColorPicker = forwardRef(
           </div>
         ) : (
           <div
-            className="h-[50px] rounded-lg px-2"
+            className="h-[40px] rounded-lg px-2 overflow-hidden border border-[#00000020] focus-within:border-brand-primary focus-within:ring-1 focus-within:ring-brand-primary transition-colors"
             style={{
               display: 'flex',
               alignItems: 'center',
-              border: '1px solid #00000020',
               width: '',
+              borderRadius: 8,
             }}
           >
             <input
@@ -86,19 +86,19 @@ const ColorPicker = forwardRef(
               value={color}
               onChange={handleColorChange}
               className="outline-none focus:ring-0"
-              // style={{ marginRight: '10px', padding: '0', border: 'none', background: 'none', height: "30px", width: "36px", borderRadius: "5px" }}
               style={{
                 marginRight: '10px',
-                padding: '0',
-                border: 'none',
+                padding: 0,
+                border: '1px solid white',
                 background: 'none',
-                height: '30px',
-                width: '36px',
-                borderRadius: '5px',
-                appearance: 'none', // General appearance override
-                WebkitAppearance: 'none', // For Webkit-based browsers (Chrome, Safari, etc.)
-                MozAppearance: 'none', // For Firefox
-                overflow: 'hidden', // Ensures rounded corners work correctly
+                height: 24,
+                width: 24,
+                borderRadius: '50%',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+                overflow: 'hidden',
               }}
             />
             <input
@@ -110,6 +110,7 @@ const ColorPicker = forwardRef(
                 width: '100px',
                 textTransform: 'uppercase',
                 border: 'none',
+                fontSize: 14,
               }}
             />
           </div>

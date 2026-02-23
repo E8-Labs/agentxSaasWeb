@@ -109,7 +109,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
   return (
     <Badge
       variant="outline"
-      className="rounded-full border-border/50 px-2 py-2 bg-muted/50 hover:bg-muted flex items-center gap-1.5 group relative transition-colors shadow-sm"
+      className="rounded-[8px] w-auto border border-border/50 pl-1 pr-0.5 py-1 text-[14px] text-black/80 bg-black/[0.02] hover:bg-black/[0.02] flex items-center gap-0.5 group relative transition-colors min-w-0"
     >
       {/*<TypographyCaption className="font-medium text-foreground">{from === "dashboardPipeline" ? label.length > 10 ? label.slice(0, 10) + "..." : label : label}</TypographyCaption>*/}
 
@@ -123,7 +123,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
                 </TypographyCaption>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{label}</TooltipContent>
+            <TooltipContent className="bg-black text-white">{label}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ) : (
@@ -162,7 +162,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
               e.preventDefault()
             }}
             disabled={isLoading}
-            className="h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer opacity-0 group-hover:opacity-100"
+            className="h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
             aria-label={`Remove tag ${label}`}
             title="Remove tag from lead"
           >
@@ -241,7 +241,13 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
 
   return (
     <Sheet open={!!showDetailsModal} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="p-0 sm:max-w-xl">
+      <SheetContent
+        side="right"
+        className="p-0 sm:max-w-xl"
+        onInteractOutside={(e) => {
+          if (e.target.closest?.('[data-agentation]')) e.preventDefault()
+        }}
+      >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b px-6 py-4">
             <TypographyTitle className="font-semibold">More Info</TypographyTitle>

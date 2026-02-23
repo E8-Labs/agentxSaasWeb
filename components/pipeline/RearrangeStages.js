@@ -405,7 +405,7 @@ const RearrangeStages = ({
       fontWeight: '700',
     },
     inputStyle: {
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: '500',
     },
     dropdownMenu: {
@@ -465,19 +465,20 @@ const RearrangeStages = ({
             style={{
               height: '100%',
               overflowY: 'auto',
-              // borderRadius: "8px",
-              // padding: "10px",
               border: 'none',
-              scrollbarWidth: 'none',
-              marginTop: 20,
-              // backgroundColor: "red"
             }}
           >
             <div
+              className="flex flex-col gap-px"
               style={{
-                height: '60svh',
-                overflow: 'auto',
-                scrollbarWidth: 'none',
+                height: 'auto',
+                minHeight: 0,
+                paddingTop: 1,
+                paddingBottom: 12,
+                paddingLeft: 0,
+                paddingRight: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                borderRadius: 12,
               }}
             >
               {pipelineStages.map((item, index) => (
@@ -494,39 +495,49 @@ const RearrangeStages = ({
                       {...provided.dragHandleProps}
                       style={{
                         ...provided.draggableProps.style,
-                        // border: "1px solid red",
-                        borderRadius: '10px',
-                        // padding: "15px",
-                        marginBottom: '10px',
+                        borderRadius: 0,
+                        height: 'auto',
+                        margin: 0,
+                        width: '100%',
                         backgroundColor: '#fff',
-                        // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        paddingTop: 12,
+                        paddingBottom: 12,
+                        paddingLeft: 12,
+                        paddingRight: 12,
+                        borderBottom: '1px solid #eaeaea',
                       }}
-                      className="flex flex-row items-start overflow-auto"
+                      className="flex flex-row items-start gap-2 transition-transform active:scale-[0.98]"
                     >
-                      <div className="w-[5%]">
-                        <div className="outline-none mt-2">
-                          {index > 0 && (
-                            <Image
-                              src={'/assets/list.png'}
-                              height={6}
-                              width={16}
-                              alt="*"
-                            />
-                          )}
-                        </div>
+                      <div
+                        className="flex items-center justify-center flex-shrink-0"
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: '50%',
+                          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+                        }}
+                      >
+                        {index > 0 && (
+                          <Image
+                            src={'/assets/list.png'}
+                            height={6}
+                            width={16}
+                            alt="*"
+                          />
+                        )}
                       </div>
-                      <div className="border w-[95%] rounded-xl p-3 px-4">
+                      <div className="w-full rounded-xl py-0 px-4 h-auto flex-1 min-w-0 bg-black/[0.01]">
                         <div className="flex flex-row items-center justify-between">
-                          <div>
+                          <div className="flex flex-col gap-1">
                             <div style={styles.inputStyle}>
                               {item.stageTitle}
                             </div>
                             <div
-                              className="mt-3"
+                              className="mt-0"
                               style={{
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: '500',
-                                color: '#00000060',
+                                color: 'rgba(0, 0, 0, 0.7)',
                               }}
                             >
                               {item.description}

@@ -2,8 +2,8 @@ import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
+import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/lib/typography'
@@ -29,6 +29,7 @@ const ThreadsList = ({
   onSelectThread,
   onNewMessage,
   getLeadName,
+  getThreadDisplayName,
   getRecentMessageType,
   formatUnreadCount,
   onDeleteThread,
@@ -417,27 +418,23 @@ const ThreadsList = ({
                       <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
                         {getLeadName(thread)}
                       </div>
-                      {getRecentMessageType(thread) === 'email' ? (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/email message type icon.svg"
-                            width={10}
-                            height={10}
-                            alt="Email"
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/text type message icon.svg"
-                            width={10}
-                            height={10}
-                            alt="SMS"
-                            className="object-contain"
-                          />
-                        </div>
-                      )}
+                      {(() => {
+                        const sourceType = thread.threadType || getRecentMessageType(thread)
+                        if (sourceType === 'email' || sourceType === 'messenger' || sourceType === 'instagram' || sourceType === 'sms') {
+                          return <PlatformIcon type={sourceType} size={10} showInBadge />
+                        }
+                        return (
+                          <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                            <Image
+                              src="/messaging/text type message icon.svg"
+                              width={10}
+                              height={10}
+                              alt="SMS"
+                              className="object-contain"
+                            />
+                          </div>
+                        )
+                      })()}
                       {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
                         <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
                           <TypographyCaptionSemibold className="text-white">
@@ -450,7 +447,7 @@ const ThreadsList = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <TypographyBody className="font-semibold text-black truncate">
-                          {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
+                          {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Lead')}
                         </TypographyBody>
                         <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                           <TypographyCaption className="text-gray-500">
@@ -499,7 +496,14 @@ const ThreadsList = ({
                         {(() => {
                           const lastMessage = thread.messages?.[0]
                           if (!lastMessage) return 'No messages yet'
-                          const text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                          let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                          const trimmed = text.trim()
+                          if (/^\[\d+ .+\]$/.test(trimmed)) {
+                            if (/voice message/i.test(trimmed)) text = 'Voice message'
+                            else if (/image/i.test(trimmed)) text = 'Photo'
+                            else if (/video|reel/i.test(trimmed)) text = 'Video'
+                            else text = 'Attachment'
+                          }
                           const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
                           return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
                         })()}
