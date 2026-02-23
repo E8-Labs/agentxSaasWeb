@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Paperclip, Image as ImageIcon, Microphone, MapPin, Play, Pause } from '@phosphor-icons/react'
+import { Paperclip, Image as ImageIcon, Microphone, MapPin, Play, Pause, VideoCamera } from '@phosphor-icons/react'
 
 function formatDuration(seconds) {
   if (seconds == null || Number.isNaN(seconds)) return '0:00'
@@ -19,7 +19,7 @@ const isImageAttachment = (attachment) => {
 const isVideoAttachment = (attachment) => {
   const t = (attachment.type || '').toLowerCase()
   if (t === 'audio') return false
-  if (t === 'video' || t === 'reel' || t === 'ig_reel') return true
+  if (t === 'video' || t === 'reel' || t === 'ig_reel' || t === 'ephemeral') return true
   if (attachment.mimeType?.startsWith('video/')) return true
   if (attachment.fileName?.match(/\.(mp4|webm|mov|ogv|avi)$/i)) return true
   return false
@@ -52,9 +52,16 @@ const getLocationUrl = (attachment) => {
 
 function SocialVideoPlayer({ attachment, message, idx, getPlayableUrl, displayName, sizeLabel, textMuted }) {
   const [playableUrl, setPlayableUrl] = useState(null)
-  const needsProxy = attachment?.url && attachment.url.includes('lookaside.fbsbx.com')
+  const [loadError, setLoadError] = useState(false)
+  const hasUrl = attachment?.url
+  const needsProxy = hasUrl && attachment.url.includes('lookaside.fbsbx.com')
+
   useEffect(() => {
-    if (!attachment?.url) {
+    setLoadError(false)
+  }, [attachment?.url, message?.id, idx])
+
+  useEffect(() => {
+    if (!hasUrl) {
       setPlayableUrl(null)
       return
     }
@@ -86,7 +93,42 @@ function SocialVideoPlayer({ attachment, message, idx, getPlayableUrl, displayNa
       } catch (_) {}
     }
   }, [playableUrl, needsProxy])
+
   const src = needsProxy ? playableUrl : attachment?.url
+
+  if (!hasUrl) {
+    return (
+      <div className="flex flex-col gap-1 max-w-[320px]">
+        <div className="rounded-lg w-full max-h-[240px] flex flex-col items-center justify-center text-gray-500 py-8 px-4 min-h-[120px]">
+          <VideoCamera size={32} className="mb-2 opacity-70" />
+          <span className="text-sm">Video</span>
+          <span className="text-xs mt-1">Unavailable to play</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col gap-1 max-w-[320px]">
+        <div className="rounded-lg w-full max-h-[240px] flex flex-col items-center justify-center text-gray-500 py-8 px-4 min-h-[120px]">
+          <VideoCamera size={32} className="mb-2 opacity-70" />
+          <span className="text-sm">Video couldn’t load</span>
+          {src && (
+            <a
+              href={src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs mt-2 text-brand-primary hover:underline"
+            >
+              Open in new tab
+            </a>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1 max-w-[320px]">
       {src ? (
@@ -94,18 +136,13 @@ function SocialVideoPlayer({ attachment, message, idx, getPlayableUrl, displayNa
           src={src}
           controls
           playsInline
-          className="rounded-lg border border-black/10 w-full max-h-[240px] bg-black/5"
+          className="rounded-lg w-full max-h-[240px] object-contain"
           preload="metadata"
+          onError={() => setLoadError(true)}
         />
       ) : (
-        <div className="rounded-lg border border-black/10 w-full max-h-[240px] bg-black/5 flex items-center justify-center text-sm text-gray-500 py-8">
+        <div className="rounded-lg w-full max-h-[240px] flex items-center justify-center text-sm text-gray-500 py-8 min-h-[120px]">
           Loading video…
-        </div>
-      )}
-      {(displayName || sizeLabel) && (
-        <div className={`text-xs ${textMuted}`}>
-          {displayName}
-          {sizeLabel && ` ${sizeLabel}`}
         </div>
       )}
     </div>
@@ -308,8 +345,8 @@ const AttachmentList = ({ message, isOutbound, onAttachmentClick, getImageUrl, g
           )
         }
 
-        // Video: inline player (use proxy for Meta CDN URLs)
-        if (isVideo && attachment.url) {
+        // Video: inline player (use proxy for Meta CDN URLs; show placeholder if no URL)
+        if (isVideo) {
           return (
             <SocialVideoPlayer
               key={idx}
