@@ -2075,10 +2075,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
-          // Refresh messages and threads
+          // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send message')
@@ -2275,10 +2274,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
-          // Refresh messages and threads
+          // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send email')
@@ -3307,9 +3305,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                             }
                           }, 100)
                         }
-                        // Refresh threads to update last message/unread count
-                        fetchThreads(searchValue || "", appliedTeamMemberIds)
-
+                        // Do not refetch threads on every send/comment
                       }}
                       selectedUser={selectedUser}
                       searchLoading={searchLoading}
