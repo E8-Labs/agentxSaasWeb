@@ -4835,7 +4835,7 @@ const Pipeline1 = () => {
                 </div>
               </div>
             </Box>
-          </Modal>
+          </PipelineFilterModal>
           {/* Code for side view */}
           {importantCalls?.length > 0 && (
             <div
