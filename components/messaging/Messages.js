@@ -41,6 +41,17 @@ function plainTextToHtml(text) {
   return text.replace(/\n/g, '<br>')
 }
 
+/** Strip HTML to plain text (for SMS send). */
+function stripHTML(html) {
+  if (!html || typeof html !== 'string') return ''
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html.replace(/<p[^>]*>/gi, '\n').replace(/<\/p>/gi, '').replace(/<br\s*\/?>/gi, '\n')
+    return (tempDiv.textContent || tempDiv.innerText || '').replace(/\n{3,}/g, '\n\n').trim()
+  }
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
+}
+
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
   const THREADS_PAGE_SIZE = 50
@@ -62,6 +73,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     subject: '',
     smsBody: '',
     emailBody: '',
+    socialBody: '',
     cc: '',
     bcc: '',
     attachments: [],
@@ -907,6 +919,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         emailBody: plainTextToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
+    } else if (draft.messageType === 'messenger' || draft.messageType === 'instagram') {
+      setComposerData(prev => ({
+        ...prev,
+        socialBody: draft.content || '',
+      }))
+      setComposerMode(draft.messageType === 'instagram' ? 'instagram' : 'facebook')
     } else {
       setComposerData(prev => ({
         ...prev,
@@ -2129,8 +2147,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle send message
   const handleSendMessage = async () => {
-    // Get the appropriate message body based on mode
-    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+    // Get the appropriate message body (SMS: strip HTML to plain text; email: keep HTML)
+    const rawBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+    const messageBody = composerMode === 'sms' ? stripHTML(rawBody) : rawBody
 
     if (!selectedThread || !messageBody.trim()) return
     if (composerMode === 'email' && !composerData.to.trim()) return
