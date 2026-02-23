@@ -56,7 +56,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [existingApiKey, setExistingApiKey] = useState('') // Legacy: actual key when available (client-masked)
   const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('') // Server-provided masked key (*** + last 6 chars) for display/restore
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
-  const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' for AI integration
+  const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' | 'anthropic' for AI integration
 
   /** Normalize agentSettings from API: may be string (JSON) or object; always return object or null */
   const parseAgentSettings = (raw) => {
@@ -101,7 +101,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     if (!existingIntegration) return
 
     setExistingIntegrationId(existingIntegration.id)
-    const provider = existingIntegration.provider === 'google' ? 'google' : 'openai'
+    const provider = existingIntegration.provider === 'google' ? 'google' : existingIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
     setSelectedProvider(provider)
     const masked = existingIntegration.apiKeyMasked || ''
     const legacyRaw = existingIntegration.apiKey || ''
@@ -192,7 +192,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         // If there's an existing integration, show apiKeyMasked (last 6 chars from server) or placeholder
         if (data.aiIntegration?.id) {
           setExistingIntegrationId(data.aiIntegration.id)
-          const provider = data.aiIntegration.provider === 'google' ? 'google' : 'openai'
+          const provider = data.aiIntegration.provider === 'google' ? 'google' : data.aiIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
           setSelectedProvider(provider)
           const masked = data.aiIntegration.apiKeyMasked || ''
           const legacyRaw = data.aiIntegration.apiKey || ''
@@ -262,7 +262,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
           if (existingIntegration) {
             setExistingIntegrationId(existingIntegration.id)
-            const provider = existingIntegration.provider === 'google' ? 'google' : 'openai'
+            const provider = existingIntegration.provider === 'google' ? 'google' : existingIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
             setSelectedProvider(provider)
             const masked = existingIntegration.apiKeyMasked || ''
             const legacyRaw = existingIntegration.apiKey || ''
@@ -962,12 +962,25 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
                         <span className="text-sm text-gray-700 -ms-1">Gemini</span>
                       </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="aiProvider"
+                          value="anthropic"
+                          checked={selectedProvider === 'anthropic'}
+                          onChange={() => setSelectedProvider('anthropic')}
+                          className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
+                        />
+                        <span className="text-sm text-gray-700 -ms-1">Anthropic</span>
+                      </label>
                     </div>
 
                     <p className="text-sm text-gray-600">
                       {selectedProvider === 'google'
                         ? 'Add Gemini API key to enable AI text + email + chat.'
-                        : 'Add ChatGPT API key to enable AI text + email + chat.'}
+                        : selectedProvider === 'anthropic'
+                          ? 'Add Anthropic API key to enable AI text + email + chat.'
+                          : 'Add ChatGPT API key to enable AI text + email + chat.'}
                     </p>
                     <Input
                       type={isEditingApiKey ? "password" : "text"}
@@ -976,7 +989,9 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           ? 'Enter new API key to update'
                           : selectedProvider === 'google'
                             ? 'Enter your Gemini API key'
-                            : 'Enter your OpenAI API key'
+                            : selectedProvider === 'anthropic'
+                              ? 'Enter your Anthropic API key'
+                              : 'Enter your OpenAI API key'
                       }
                       value={apiKey}
                       onChange={(e) => {
