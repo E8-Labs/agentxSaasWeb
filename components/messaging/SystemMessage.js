@@ -445,7 +445,7 @@ const SystemMessage = ({
                           // Feature available and AI key present: full AI action dropdown
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button className="flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors [&_img]:hover:animate-pulse [&_svg]:text-black">
+                              <button className="flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-[color,transform] duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-black">
                                 <Image
                                   src="/otherAssets/starsIcon2.png"
                                   height={14}
@@ -456,7 +456,7 @@ const SystemMessage = ({
                                 <ChevronDown className="h-4 w-4 shrink-0" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom-2 duration-200 ease-out">
+                            <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom-2 duration-200 ease-out [&_svg]:text-black">
                               <DropdownMenuItem
                                 onClick={() => {
                                   setAiActionType('email')
@@ -500,7 +500,7 @@ const SystemMessage = ({
                           // Feature available but no AI key: show tooltip to add API key
                           <HoverCard openDelay={200} closeDelay={100}>
                             <HoverCardTrigger asChild>
-                              <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer [&_img]:hover:animate-pulse">
+                              <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-[color,transform] duration-150 active:scale-[0.98] cursor-pointer [&_img]:hover:animate-pulse [&_svg]:text-black">
                                 <Image
                                   src="/otherAssets/starsIcon2.png"
                                   height={14}
@@ -751,7 +751,7 @@ const SystemMessage = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="flex items-center justify-center my-4 cursor-default">
-            <div className="text-xs text-system-text text-center px-4">
+            <div className="text-sm text-system-text text-center px-4">
               <div dangerouslySetInnerHTML={{ __html: parseContent(message.content) }} />
             </div>
           </div>

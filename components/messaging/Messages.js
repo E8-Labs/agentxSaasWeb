@@ -1932,22 +1932,15 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (message.senderUser.thumb_profile_image) {
         return (
           <div
-            className="flex items-center justify-center"
-            style={{
-              width: '26px',
-              height: '26px',
-              borderRadius: '50%',
-              backgroundColor: 'white',
-              overflow: 'hidden',
-            }}
+            className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-white overflow-hidden flex-shrink-0"
           >
             <img
               src={message.senderUser.thumb_profile_image}
               alt={message.senderUser.name || 'Team Member'}
-              className="rounded-full"
+              className="w-full h-full object-cover rounded-full"
               style={{
-                width: '100%',
-                height: '100%',
+                width: '32px',
+                height: '32px',
                 objectFit: 'cover',
               }}
               onError={(e) => {
@@ -3247,7 +3240,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           <UnlockMessagesView />
         ) : (
           <div className={`w-full h-[100svh] flex flex-col bg-white`}>
-            <div className="h-[10svh]">
+            <div className="h-[65px]">
               <MessageHeader selectedThread={selectedThread} selectedUser={selectedUser} />
             </div>
             <div className="flex-1 flex flex-row">

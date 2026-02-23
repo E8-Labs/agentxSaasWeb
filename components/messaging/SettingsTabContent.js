@@ -154,7 +154,7 @@ export default function SettingsTabContent({
 
   return (
     <div className="space-y-3 px-1">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 p-3">
         <TypographyBody className="text-sm text-foreground">Disable auto replies</TypographyBody>
         <Switch
           checked={autoReplyDisabled}
@@ -163,7 +163,7 @@ export default function SettingsTabContent({
         />
       </div>
       {Number(pendingCallsCount) > 0 && (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 p-3 h-10 min-h-0">
           <div className="flex flex-col">
             <TypographyBody className="text-sm text-foreground">Disable cadence</TypographyBody>
             <TypographyCaption className="text-xs text-muted-foreground">

@@ -85,7 +85,7 @@ function StandardSubUserHeader({
           {showFilters && onFilterClick && (
             <button
               onClick={onFilterClick}
-              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center"
+              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center text-black/80"
               title="Filter"
             >
               {filterIcon || (

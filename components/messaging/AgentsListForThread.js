@@ -130,8 +130,8 @@ export default function AgentsListForThread({
   }
 
   return (
-    <div className="p-2 rounded-lg">
-    <div ref={listWrapRef} className="relative max-h-[220px] overflow-y-auto space-y-0.5" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
+    <div className="py-2 px-3 rounded-lg mr-3 flex-1 min-h-0 flex flex-col">
+    <div ref={listWrapRef} className="relative flex-1 min-h-0 overflow-y-auto space-y-0.5" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
       {pillVisible && (
         <div
           className="absolute left-1 right-1 rounded-lg bg-black/[0.02] transition-[top,height] duration-150 ease-out pointer-events-none"
@@ -142,14 +142,25 @@ export default function AgentsListForThread({
       <div data-sliding-pill-item>
       <button
         type="button"
-        className="h-10 w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
+        className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
         onClick={() => handleSelect(null)}
         disabled={saving}
       >
-        <div className="shrink-0 w-8 h-8 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-          <AgentXOrb width={29} height={29} />
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="relative shrink-0 w-[24px] h-[24px] rounded-full overflow-hidden bg-muted flex items-center justify-center">
+            <div
+              className="absolute left-0 right-0 flex items-center justify-center rounded-full overflow-hidden"
+              style={{ top: 6, filter: 'blur(10px)', transform: 'scale(0.9)', zIndex: 0 }}
+              aria-hidden
+            >
+              <AgentXOrb width={24} height={24} />
+            </div>
+            <div className="relative z-10 flex items-center justify-center w-full h-full">
+              <AgentXOrb width={24} height={24} />
+            </div>
+          </div>
+          <TypographyBody className={`text-sm truncate ${selectedAgentId == null ? 'text-brand-primary font-medium' : 'text-foreground'}`}>Sky</TypographyBody>
         </div>
-        <TypographyBody className={`text-sm flex-1 min-w-0 ${selectedAgentId == null ? 'text-brand-primary font-medium' : 'text-foreground'}`}>Sky</TypographyBody>
         <span className="relative flex h-6 w-6 items-center justify-center shrink-0">
           <Circle
             className={`h-6 w-6 stroke-current stroke-2 fill-none transition-colors ${
@@ -169,14 +180,25 @@ export default function AgentsListForThread({
           <div key={agent.id} data-sliding-pill-item>
           <button
             type="button"
-            className="h-10 w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
+            className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
             onClick={() => handleSelect(agent.id)}
             disabled={saving}
           >
-            <div className="shrink-0 w-8 h-8 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-              {getAgentsListImage(agent.raw, 29, 29)}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="relative shrink-0 w-[24px] h-[24px] rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                <div
+                  className="absolute left-0 right-0 flex items-center justify-center rounded-full overflow-hidden"
+                  style={{ top: 6, filter: 'blur(10px)', transform: 'scale(0.9)', zIndex: 0 }}
+                  aria-hidden
+                >
+                  {getAgentsListImage(agent.raw, 24, 24)}
+                </div>
+                <div className="relative z-10 flex items-center justify-center w-full h-full">
+                  {getAgentsListImage(agent.raw, 24, 24)}
+                </div>
+              </div>
+              <TypographyBody className={`text-sm truncate ${isSelected ? 'text-brand-primary font-medium' : 'text-foreground'}`}>{agent.name}</TypographyBody>
             </div>
-            <TypographyBody className={`text-sm truncate flex-1 min-w-0 ${isSelected ? 'text-brand-primary font-medium' : 'text-foreground'}`}>{agent.name}</TypographyBody>
             <span className="relative flex h-6 w-6 items-center justify-center shrink-0">
               <Circle
                 className={`h-6 w-6 stroke-current stroke-2 fill-none transition-colors ${

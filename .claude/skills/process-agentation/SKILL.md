@@ -108,3 +108,18 @@ When the user says **"filter button"** (or "apply filter button"), style the sel
 - Button: `mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center`
 
 When the user says **"filter icon"** (or "apply filter icon"), style the icon to match the filter icon inside that button (same size and style as the 20×20 SVG in the filter button).
+
+When the user says **"call summary update"** (or "apply call summary update"), apply the call summary card’s style, spacing, and interaction to the selected element or container. Use the same pattern as the rounded-[16px] call summary card in SystemMessage/CallTranscriptCN:
+- Container: `rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden`
+- Box shadow: `0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9`
+- Top bar: `p-3 bg-white` with `borderBottom: '1px solid #eaeaea'`
+- Action row (icon buttons): gap 4px, buttons 40×40px, padding 8px, borderRadius 4px, transparent bg, hover `#ededed`, `transition-colors duration-150 ease-out`; icons black at 80% opacity; row scaled to 95% (`transform: scale(0.95)`, `origin-left`)
+
+When the user says **"secondary button"** (or "apply secondary button"), style the selected button to match the AI Action button in the call summary card and add the same interaction:
+- Button: `flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-black`
+- Press animation: scale from 1 to 0.98 on active/press (`active:scale-[0.98]` with `transition-colors duration-150` or `transition-transform duration-150`)
+
+When the user says **"icon button"** (or "apply icon button"), style the selected button to match the Read Transcript / Copy Call ID icon buttons in the call summary card:
+- Button: `rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out`
+- Size: 40×40px, padding 8px, borderRadius 8px
+- Icon inside: black at 80% opacity (`[&_svg]:opacity-80` or `style={{ opacity: 0.8 }}` on the icon)

@@ -805,7 +805,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 </button>
                 <DialogTitle className="text-[18px] font-bold tracking-[-0.25px] flex-1">{activeSubModalConfig.label}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-2 p-4 overflow-y-auto max-h-[60svh]">
+              <div className="space-y-2 p-4 overflow-y-auto max-h-[60svh] w-full">
                 {activeSubModalConfig.question && (
                   <p className="text-[14px] text-gray-600 mt-1">{activeSubModalConfig.question}</p>
                 )}
@@ -920,15 +920,15 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             </div>
           )
         ) : (
-          <div className="max-h-[75svh] overflow-hidden p-[1px] gap-0.5 flex flex-col">
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center justify-between h-auto py-3 px-4 border-b border-[#eaeaea]">
-                <DialogTitle className="text-lg font-semibold">AI Message Settings</DialogTitle>
+          <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
+            <div className="flex flex-col gap-[2px]">
+              <div className="w-full flex items-center justify-between h-10 min-h-0 py-3 px-4 border-b border-[#eaeaea]">
+                <DialogTitle className="text-[18px] font-semibold">AI Message Settings</DialogTitle>
                 <DialogClose asChild>
                   <button
                     type="button"
                     aria-label="Close"
-                    className="h-8 w-8 rounded-lg bg-transparent hover:bg-white/5 flex items-center justify-center transition-colors active:scale-[0.98]"
+                    className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
                   >
                     <X className="h-[14px] w-[14px] opacity-80" strokeWidth={2} />
                   </button>
@@ -940,7 +940,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4">
+                <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px] font-['Inter']">
                   {/* API Key Section */}
                   <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-[#eaeaea]">
                     <label className="text-base font-normal text-gray-900">AI Provider</label>
@@ -1022,7 +1022,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
                   {/* Set Reply Delay + Save as Draft Section */}
                   <div className="flex flex-col gap-0.5 pb-4 border-b border-[#eaeaea]">
-                    <div className="flex items-center justify-between h-10">
+                    <div className="flex items-center justify-between h-10 min-h-0">
                       <div className="flex items-center gap-2">
                         <label className="text-sm font-normal text-gray-900">Set reply delay</label>
                           <TooltipProvider>
@@ -1070,7 +1070,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           </span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between h-10">
+                    <div className="flex items-center justify-between h-10 min-h-0">
                       <div className="flex items-center gap-2">
                         <label className="text-sm font-normal text-gray-900">Save as draft</label>
                         <TooltipProvider>
@@ -1122,7 +1122,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
                               <div className="text-sm text-black">{row.label}</div>
                               {selectedLabel && (
-                                <span className="inline-block w-fit mt-1 px-2 py-0.5 rounded-full text-sm font-normal border border-gray-200 text-gray-500">
+                                <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-full text-sm font-normal border border-gray-200 text-gray-500 truncate">
                                   {selectedLabel}
                                 </span>
                               )}
@@ -1150,13 +1150,13 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           <div className="text-sm text-black">Agent meter</div>
                           {settings.agentSettings?.agentMeterSettings && (
                             <div className="flex flex-wrap gap-1.5 mt-1">
-                              <span className="inline-block w-auto px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
                                 Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
                               </span>
-                              <span className="inline-block w-auto px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
                                 Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
                               </span>
-                              <span className="inline-block w-auto px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
                                 Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
                               </span>
                             </div>

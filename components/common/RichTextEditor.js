@@ -325,7 +325,7 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper {
             border: 1px solid #e5e7eb;
-            border-radius: 0.375rem;
+            border-radius: 8px;
             overflow: visible;
             margin-top: 0;
             position: relative;
@@ -359,6 +359,8 @@ const RichTextEditor = forwardRef(
             border-top: none !important;
             border-bottom: none !important;
             position: relative;
+            padding: 8px;
+            height: auto;
           }
 
           .quill-editor-wrapper {

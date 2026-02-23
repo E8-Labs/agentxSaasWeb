@@ -87,7 +87,7 @@ const CallTranscriptCN = ({
         </div>
 
         {/* Top right icons: Sentiment, Temperature, Next Steps */}
-        <div className="flex flex-row items-center gap-3" style={{ color: 'rgba(0,0,0,0.7)' }}>
+        <div className="flex flex-row items-center gap-3 text-black [&_svg]:text-black [&_svg]:text-current" style={{ color: '#000' }}>
           {callSummary?.prospectSentiment && (
             <Tooltip
               title={`Sentiment: ${callSummary.prospectSentiment}`}
@@ -221,7 +221,7 @@ const CallTranscriptCN = ({
 
       {/* Bottom row: Call ID, Transcript icons (left), optional right content */}
       <div className="flex flex-row items-center justify-between px-3">
-        <div className="flex flex-row items-center gap-4" style={{ color: 'rgba(0,0,0,0.7)' }}>
+        <div className="flex flex-row items-center gap-1 text-black [&_svg]:text-black [&_svg]:text-current [&_button_svg]:opacity-80 origin-left" style={{ color: '#000', gap: 4, transform: 'scale(0.95)' }}>
           {/* Call ID Icon */}
           <Tooltip
             title="Copy Call ID"
@@ -253,14 +253,17 @@ const CallTranscriptCN = ({
                 }
               }}
               disabled={!item.callId}
+              className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
               style={{
                 cursor: item.callId ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
                 opacity: item.callId ? 1 : 0.5,
+                padding: 8,
+                borderRadius: 8,
+                width: 40,
+                height: 40,
               }}
             >
-              <Copy size={18} color="hsl(var(--brand-primary))" />
+              <Copy size={18} color="#000" style={{ opacity: 0.8 }} />
             </button>
           </Tooltip>
 
@@ -289,9 +292,10 @@ const CallTranscriptCN = ({
             >
               <button
                 onClick={() => onReadTranscript?.(item)}
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
+                style={{ cursor: 'pointer', padding: 8, borderRadius: 8, width: 40, height: 40 }}
               >
-                <FileText size={18} color="rgba(0,0,0,0.7)" />
+                <FileText size={18} color="#000" style={{ opacity: 0.8 }} />
               </button>
             </Tooltip>
           )}

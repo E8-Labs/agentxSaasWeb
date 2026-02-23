@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -236,7 +236,7 @@ const ThreadsList = ({
   }
 
   return (
-    <div className={`w-[390px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
+    <div className={`w-[380px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
       <div className="w-full flex flex-row items-center justify-between mt-0 px-3 py-3">
 
         {/* Toggle Buttons - All / Unreplied */}
@@ -253,13 +253,13 @@ const ThreadsList = ({
           label="New"
           options={[
             {
-              label: 'New Contact',
+              label: 'Contact',
               value: 'contact',
               icon: UserPlus,
               onSelect: () => setShowNewContactDrawer(true),
             },
             {
-              label: 'New Text',
+              label: 'Text',
               icon: MessageSquareDot,
               value: 'message',
               upgradeTag: (smsCapability.showUpgrade || smsCapability.showRequestFeature) ? (
@@ -274,7 +274,7 @@ const ThreadsList = ({
               onSelect: () => onNewMessage && onNewMessage('sms'),
             },
             {
-              label: 'New Email',
+              label: 'Email',
               icon: Mail,
               value: 'email',
               upgradeTag: (emailCapability.showUpgrade || emailCapability.showRequestFeature) ? (
@@ -332,12 +332,22 @@ const ThreadsList = ({
             placeholder="Search"
             value={searchValue || ''}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
+            className="pl-10 pr-9 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border focus:border-primary focus:bg-white"
           />
           {searchLoading ? (
             <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={18} />
           ) : (
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          )}
+          {searchValue && (
+            <button
+              type="button"
+              onClick={() => onSearchChange?.('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded transition-colors hover:bg-black/5"
+              aria-label="Clear search"
+            >
+              <X size={18} className="text-black/60" />
+            </button>
           )}
         </div>
 
@@ -345,7 +355,8 @@ const ThreadsList = ({
           <button
             ref={filterButtonRef}
             onClick={() => onFilterToggle?.(!showFilterPopover)}
-            className="relative p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+            className="relative p-1 rounded hover:bg-black/5 transition-colors"
+            style={{ borderRadius: 4 }}
           >
             <Image src="/messaging/filterIcon.svg" width={24} height={24} alt="Filter" />
             {hasActiveFilters && (
@@ -407,7 +418,8 @@ const ThreadsList = ({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                className="p-1 rounded hover:bg-black/5 transition-colors"
+                style={{ borderRadius: 4 }}
                 onClick={() => {
                   onOpenMessageSettings()
                 }}
@@ -468,7 +480,7 @@ const ThreadsList = ({
                   )}
                   <div className="flex items-start gap-3 ">
                     <div className="relative flex-shrink-0">
-                      <div className="w-10 h-10 rounded-[1px] border border-white bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
+                      <div className="w-10 h-10 rounded-full border border-white bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
                         {getLeadName(thread)}
                       </div>
                       {(() => {
@@ -477,11 +489,11 @@ const ThreadsList = ({
                           return <PlatformIcon type={sourceType} size={10} showInBadge />
                         }
                         return (
-                          <div className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                          <div className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] w-[14px] h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                             <Image
                               src="/messaging/text type message icon.svg"
-                              width={10}
-                              height={10}
+                              width={8}
+                              height={8}
                               alt="SMS"
                               className="object-contain"
                             />

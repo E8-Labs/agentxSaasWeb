@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ChevronDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
  * chevronIcon: Optional custom icon component to replace the default ChevronDown
  * onChevronClick: Optional handler for when the chevron/icon is clicked (for split button behavior)
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null, triggerClassName }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null, triggerClassName, selectedValue }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
   const listWrapRef = useRef(null)
@@ -160,7 +160,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         <DropdownMenuContent
           align={align}
           className={cn(
-            'z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl p-2 data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit',
+            'z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl py-3 px-0 data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit',
             contentClassName
           )}
           onCloseAutoFocus={(e) => {
@@ -186,14 +186,18 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
             </>
           )}
           {options.length ? (
-            <div ref={listWrapRef} className="relative" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
+            <div ref={listWrapRef} className="relative flex flex-col gap-[2px]" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
               {pillVisible && (
                 <div
                   className="absolute left-1 right-1 rounded-lg bg-black/[0.02] transition-[top,height] duration-150 ease-out pointer-events-none"
                   style={{ top: pill.top, height: pill.height }}
                 />
               )}
-              {options.map((opt) => (
+              {options.map((opt) => {
+                const isSelected = selectedValue != null
+                  ? String(opt.value) === String(selectedValue)
+                  : opt.value === '__default__'
+                return (
               <div key={opt.value || opt.label} data-sliding-pill-item>
               <DropdownMenuItem
                 className="h-10 gap-2 whitespace-nowrap focus:bg-transparent hover:bg-transparent"
@@ -223,6 +227,9 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                       <span className="truncate">{opt.label}</span>
                     )}
                   </div>
+                  {isSelected && (
+                    <Check className="h-4 w-4 shrink-0 text-brand-primary" />
+                  )}
                   {opt.upgradeTag && (
                     <div
                       onClick={(e) => {
@@ -245,7 +252,8 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                 </div>
               </DropdownMenuItem>
               </div>
-            ))}
+            )
+              })}
             </div>
           ) : (
             <DropdownMenuItem disabled>No options</DropdownMenuItem>
