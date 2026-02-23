@@ -10,11 +10,10 @@ const nextConfig = {
   //   // Exact host when using a specific ngrok URL (replace with your current ngrok host if it changes):
   //   '855f-154-80-6-115.ngrok-free.app',
   // ],
-  // Proxy API to backend when using single ngrok (tunnel to frontend only)
+  // All /api/* requests are handled by Next.js: specific Route Handlers run first,
+  // then app/api/[...path]/route.ts proxies the rest to the backend.
   async rewrites() {
-    const backend =
-      process.env.NEXT_PUBLIC_BACKEND_ORIGIN || "http://localhost:8002";
-    return [{ source: "/api/:path*", destination: `${backend}/api/:path*` }];
+    return [];
   },
   images: {
     remotePatterns: [
