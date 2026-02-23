@@ -14,7 +14,10 @@ export default function SuggestedLeadLinks({ suggestedLeads, threadId, onLink, l
     <div className="mt-1 flex flex-wrap items-center gap-2">
       <span className="text-xs text-gray-500">Link conversation to:</span>
       {suggestedLeads.map((lead) => {
-        const name = [lead.firstName, lead.lastName].filter(Boolean).join(' ') || 'Unnamed'
+        const first = lead.firstName != null ? String(lead.firstName).trim() : ''
+        const last = lead.lastName != null ? String(lead.lastName).trim() : ''
+        const fullName = [first, last].filter(Boolean).join(' ')
+        const displayLabel = fullName || `Lead #${lead.id}`
         const isLinking = linkingLeadId === lead.id
         return (
           <button
@@ -28,7 +31,7 @@ export default function SuggestedLeadLinks({ suggestedLeads, threadId, onLink, l
             className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
             <Link2 className="h-3 w-3" />
-            {isLinking ? 'Linking…' : `Link to ${name}`}
+            {isLinking ? 'Linking…' : `Link to ${displayLabel}`}
           </button>
         )
       })}

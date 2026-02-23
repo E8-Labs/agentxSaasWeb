@@ -3414,6 +3414,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
                         onShowUpgrade={() => setShowUpgradePlanModal(true)}
                         onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
+                        onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
+                        linkingLeadId={linkingLeadId}
                       />
                       </div>
 
