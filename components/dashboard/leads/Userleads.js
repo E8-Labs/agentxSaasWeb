@@ -1480,7 +1480,7 @@ const Userleads = ({
                 />
               )}
               <div
-                className="h-[32px] w-[32px] rounded-[50%] bg-black cursor-pointer flex flex-row items-center justify-center text-white text-[14px] font-normal break-words overflow-hidden text-ellipsis uppercase"
+                className="h-[32px] w-[32px] min-h-[32px] min-w-[32px] flex-shrink-0 aspect-square rounded-[50%] bg-black cursor-pointer flex flex-row items-center justify-center text-white text-[14px] font-normal break-words overflow-hidden text-ellipsis uppercase"
                 onClick={() => {
                   setSelectedLeadsDetails(item) // Pass selected lead data
                   setNoteDetails(item.notes)
@@ -2016,8 +2016,8 @@ const Userleads = ({
           />
 
           <div className="w-[95%] max-w-[1300px] mx-auto bg-transparent m-0 p-0">
-            <div className="pt-0 bg-transparent">
-              <div className="flex flex-row items-center justify-between py-3 px-3 border-b h-auto" style={{ borderColor: '#eaeaea' }}>
+            <div className="pt-0 bg-transparent flex flex-col gap-0.5">
+              <div className="flex flex-row items-center justify-between py-3 px-3 border-b h-auto" style={{ borderBottom: '1px solid #eaeaea' }}>
                 <h2 className="text-[28px] font-medium tracking-[-1px] m-0">Lead Batch</h2>
                 <button
                   style={{
@@ -2356,7 +2356,7 @@ const Userleads = ({
               {/* Hide sheets list when searching across all sheets */}
               {!(searchLead && String(searchLead).trim()) && (
               <div
-                className="flex flex-row items-center mt-8 gap-2 text-[14px] font-normal border-b px-3"
+                className="flex flex-row items-center gap-2 text-[14px] font-normal border-b px-3"
                 style={{ ...styles.paragraph, borderColor: '#eaeaea' }}
               >
                 <div

@@ -172,7 +172,7 @@ const TagManagerCn = ({
           }}
           placeholder={tags.length > 0 ? 'Add tag...' : 'Add tags...'}
           disabled={addTagLoader}
-          className={`${from === "dashboardPipeline" ? "w-[100%] py-0.5" : "w-[7vw] py-2"} rounded-full border border-border/50 bg-background px-3 text-sm focus:outline-none focus:ring-0 focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors shadow-sm hover:border-border`}
+          className={`${from === "dashboardPipeline" ? "w-[100%] py-0.5" : "w-[5.6vw] py-2 h-8"} rounded-lg border border-transparent bg-background px-3 text-sm focus:outline-none focus:ring-0 focus:border focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors shadow-sm focus:border-primary`}
         />
         {showSuggestions && tagSuggestions.length > 0 && (
           <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-border bg-popover shadow-lg">

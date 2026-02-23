@@ -1950,10 +1950,9 @@ const LeadDetails = ({
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div
-                  className="flex  flex-col w-full"
+                  className="flex flex-col w-full p-0 font-sans gap-0.5"
                   style={{
-                    padding: showAsTab ? 5 : 20,
-                    paddingInline: showAsTab ? 15 : 30,
+                    padding: 0,
                   }}
                 >
                   {!renderInline || !showAsTab && (
@@ -1972,7 +1971,7 @@ const LeadDetails = ({
                   )}
                   <div>
                     <div className={`flex flex-row items-start justify-between ${showAsTab ? 'mt-0' : 'mt-4'} w-full`}>
-                      <div className="flex flex-col items-start  w-full">
+                      <div className="flex flex-col items-start w-full bg-transparent">
                         <div className="flex flex-row items-between justify-between w-full">
                           <div className="flex flex-row items-center gap-3">
 
@@ -1990,22 +1989,22 @@ const LeadDetails = ({
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <span className="inline-flex cursor-pointer">
-                                    <Avatar className="h-8 w-8 bg-red">
+                                    <Avatar className="h-12 w-12 bg-red">
                                       {selectedLeadsDetails?.avatar ? (
                                         <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
                                       ) : (
-                                        <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
+                                        <AvatarFallback className="text-[24px] font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
                                       )}
                                     </Avatar>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent side="top" className="bg-black text-white">
                                   Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                             <div className="flex min-w-0 flex-1 items-center gap-3">
-                              <p className="truncate text-lg font-semibold leading-none text-foreground">
+                              <p className="truncate text-lg font-semibold leading-none text-foreground capitalize">
                                 {/* max characters 15 combined */}
                                 {(() => {
                                   const firstName = selectedLeadsDetails?.firstName || ''
@@ -2136,7 +2135,7 @@ const LeadDetails = ({
                             </div>
                           </div>
                         </div>
-                        <div className="space-y-2 text-sm mt-2">
+                        <div className="flex flex-col gap-0.5 text-sm w-full px-4">
                           {/* Email with edit functionality */}
 
 
@@ -2166,10 +2165,10 @@ const LeadDetails = ({
                           )
                         ) : (  */}
 
-                          <div className="flex flex-col gap-2">
-                            <div className="flex flex-row items-center gap-2">
+                          <div className="flex flex-col gap-2 min-h-[40px] w-full">
+                            <div className="flex flex-row items-center gap-2 h-8">
                               <MailIcon className="h-4 w-4 text-muted-foreground" />
-                              <div className="flex flex-row items-center gap-2 flex-1">
+                              <div className="flex flex-row items-center gap-2 flex-1 h-8">
                                 <Input
                                   ref={emailInputRef}
                                   type="email"
@@ -2216,7 +2215,7 @@ const LeadDetails = ({
                           {/*)} */}
 
 
-                          <div>
+                          <div className="min-h-[40px] w-full">
                             {selectedLeadsDetails?.email && (
                               <div className="flex flex-row w-full justify-start">
                                 {selectedLeadsDetails?.emails
@@ -2225,7 +2224,7 @@ const LeadDetails = ({
                                     return (
                                       <div
                                         key={emailIndex}
-                                        className="flex flex-row items-center gap-2"
+                                        className="flex flex-row items-center gap-2 h-8"
                                       >
                                         <div
                                           className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
@@ -2279,7 +2278,7 @@ const LeadDetails = ({
                               selectedLeadsDetails?.pipeline ||
                               '-'}
                           </InfoRow>
-                          {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
+                          {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2 h-8">
                             <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
                             {
                               selectedLeadsDetails?.booking?.duration && (
@@ -2290,7 +2289,7 @@ const LeadDetails = ({
                           {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>
                             <Link href={selectedLeadsDetails?.meetingLocation} target="_blank">{selectedLeadsDetails?.meetingLocation}</Link>
                           </InfoRow>}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 h-8">
                             <TagIcon className="h-4 w-4 text-muted-foreground" />
                             <TagManagerCn
                               tags={selectedLeadsDetails?.tags || []}
@@ -2311,7 +2310,7 @@ const LeadDetails = ({
                               onLeadDetailsUpdated={handleLeadDetailsUpdated}
                             />
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 h-8">
 
                             {
 
@@ -2512,11 +2511,11 @@ const LeadDetails = ({
                     anchorEl={anchorEl}
                     onClose={handleClosePopup}
                     anchorOrigin={{
-                      vertical: 'bottom',
+                      vertical: 'top',
                       horizontal: 'left',
                     }}
                     transformOrigin={{
-                      vertical: 'top',
+                      vertical: 'bottom',
                       horizontal: 'left',
                     }}
                     disablePortal={false}
@@ -2527,6 +2526,8 @@ const LeadDetails = ({
                         borderRadius: '10px',
                         minWidth: '120px',
                         zIndex: 9999,
+                        backgroundColor: '#000000',
+                        color: '#ffffff',
                       },
                     }}
                   >
@@ -2537,7 +2538,7 @@ const LeadDetails = ({
                       }}
                     >
                       <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                        <div className="">
+                        <div className="flex-shrink-0 min-h-[32px] min-w-[32px]">
                           {myTeamAdmin?.thumb_profile_image ? (
                             <Image
                               className="rounded-full"
@@ -2551,7 +2552,7 @@ const LeadDetails = ({
                             />
                           ) : (
                             <div
-                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                              className="h-[32px] w-[32px] flex-shrink-0 min-h-[32px] min-w-[32px] aspect-square bg-black rounded-full flex flex-row items-center justify-center text-white"
                             // onClick={() => handleToggleClick(item.id)}
                             >
                               {myTeamAdmin?.name?.slice(0, 1)}
@@ -2592,7 +2593,7 @@ const LeadDetails = ({
                                   />
                                 ) : (
                                   <div
-                                    className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                    className="h-[32px] w-[32px] flex-shrink-0 min-h-[32px] min-w-[32px] aspect-square bg-black rounded-full flex flex-row items-center justify-center text-white"
                                   // onClick={() =>
                                   //   handleToggleClick(item.id)
                                   // }

@@ -4,10 +4,10 @@ import {
   BadgeCheck,
   Calendar,
   ChevronDown,
+  Contact,
   CreditCard,
   FileText,
-  History,
-  IdCard,
+  Gauge,
   Mail,
   MapPin,
   MoreHorizontal,
@@ -20,7 +20,6 @@ import {
   Tag,
   WalletCards,
   X,
-  Zap,
   Trash2,
 } from 'lucide-react'
 import { useMemo } from 'react'
@@ -83,7 +82,7 @@ const sampleLead = {
 }
 
 export const InfoRow = ({ icon, children }) => (
-  <div className="flex items-center gap-2">
+  <div className="flex items-center gap-2 h-8">
     <span className="text-muted-foreground">{icon}</span>
     <TypographyBodyMedium>{children}</TypographyBodyMedium>
   </div>
@@ -219,10 +218,10 @@ const CopyIcon = () => (
 )
 
 const leadTabs = [
-  { id: 'insights', label: 'Insights', icon: <Zap className="h-5 w-5" /> },
-  { id: 'kyc', label: 'KYC', icon: <IdCard className="h-5 w-5" /> },
-  { id: 'activity', label: 'Activity', icon: <History className="h-5 w-5" /> },
-  { id: 'notes', label: 'Notes', icon: <FileText className="h-5 w-5" /> },
+  { id: 'insights', label: 'Insights', icon: <Sparkles className="h-[18px] w-[18px]" /> },
+  { id: 'kyc', label: 'KYC', icon: <Contact className="h-[18px] w-[18px]" /> },
+  { id: 'activity', label: 'Activity', icon: <Gauge className="h-[18px] w-[18px]" /> },
+  { id: 'notes', label: 'Notes', icon: <FileText className="h-[18px] w-[18px]" /> },
 ]
 
 const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
@@ -366,12 +365,12 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
 
               <div className="mt-6">
                 <Tabs defaultValue="insights" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 rounded-none border-b bg-transparent">
+                  <TabsList className="grid w-full grid-cols-4 gap-2 rounded-none border-b border-border/40 bg-transparent p-0 h-auto">
                     {leadTabs.map((tab) => (
                       <TabsTrigger
                         key={tab.id}
                         value={tab.id}
-                        className="flex flex-col items-center gap-2 rounded-none border-b-2 border-transparent px-3 py-3 data-[state=active]:border-brand-primary data-[state=active]:text-brand-primary"
+                        className="flex flex-row items-center justify-center gap-2 h-10 rounded-none border-b-2 border-transparent px-3 py-2 data-[state=active]:border-brand-primary data-[state=active]:text-brand-primary data-[state=active]:bg-transparent text-foreground hover:bg-muted/50 outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                       >
                         {tab.icon}
                         <TypographyCaption className="font-medium">{tab.label}</TypographyCaption>

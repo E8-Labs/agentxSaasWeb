@@ -1,5 +1,6 @@
 import { get } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
+import { Globe } from 'lucide-react'
 import React, { useState } from 'react'
 import {
   TypographyBody,
@@ -31,7 +32,7 @@ function Perplexity({ selectedLeadsDetails }) {
 
   // console.log('profiles', profiles)
 
-  const getIcon = (item) => {
+  const getIconPath = (item) => {
     if (item.icon) {
       if (item.icon === 'instagram') {
         return '/svgIcons/instagram.svg'
@@ -39,35 +40,41 @@ function Perplexity({ selectedLeadsDetails }) {
         return '/svgIcons/youtube.svg'
       } else if (item.icon === 'linkedin') {
         return '/svgIcons/linkedin.svg'
-      } else {
-        return '/svgIcons/globe.svg'
       }
-    } else {
-      return '/svgIcons/globe.svg'
     }
+    return null // use Globe for default
+  }
+
+  const renderProfileIcon = (item) => {
+    const iconPath = getIconPath(item)
+    if (iconPath) {
+      return (
+        <Image
+          src={iconPath}
+          height={16}
+          width={16}
+          alt="*"
+        />
+      )
+    }
+    return <Globe className="h-4 w-4 flex-shrink-0" />
   }
 
   const getProfileView = (item, index) => {
     if (item.name) {
       return (
         <div className="w-full flex flex-col h-[100px] px-2 py-2 bg-[#FAFAFA] rounded">
-          <div className="flex flex-row items-center gap-2 mb-1">
-            <Image
-              src={getIcon(item)}
-              height={24}
-              width={24}
-              alt="*"
-              // style={{ borderRadius: "50%" }}
-            />
-            <TypographyBodyMedium className="text-muted-foreground">
+          <div className="flex flex-row items-center gap-2 mb-1 min-w-0">
+            {renderProfileIcon(item)}
+            <TypographyBodyMedium className="text-muted-foreground truncate">
               {item.name}
             </TypographyBodyMedium>
           </div>
 
           <TypographyBodyMedium
-            className="h-[50px] overflow-auto text-left"
+            className="h-[50px] overflow-hidden text-left truncate max-w-full"
           >
-            {item.description.length > 12
+            {item.description?.length > 12
               ? `${item.description.slice(0, 12)}..`
               : item.description}
           </TypographyBodyMedium>
@@ -77,20 +84,14 @@ function Perplexity({ selectedLeadsDetails }) {
       return (
         <div>
           <div className="w-full flex flex-col h-[100px] px-2 py-2 bg-[#FAFAFA] rounded">
-            <div className="flex flex-row items-center gap-2 mb-1">
-              <Image
-                src={getIcon(item)}
-                height={24}
-                width={24}
-                alt="*"
-                // style={{ borderRadius: "50%" }}
-              />
-              <TypographyBodyMedium className="text-muted-foreground">
+            <div className="flex flex-row items-center gap-2 mb-1 min-w-0">
+              {renderProfileIcon(item)}
+              <TypographyBodyMedium className="text-muted-foreground truncate">
                 {getSourceName(item.url)}
               </TypographyBodyMedium>
             </div>
 
-            <TypographyBodyMedium className="h-[50px] overflow-auto text-left">
+            <TypographyBodyMedium className="h-[50px] overflow-hidden text-left truncate max-w-full text-[14px]">
               {item.url}
             </TypographyBodyMedium>
           </div>
@@ -138,7 +139,7 @@ function Perplexity({ selectedLeadsDetails }) {
 
   return (
     <div
-      className="w-full flex flex-col items-center mt-3 gap-3 h-[42vh]"
+      className="w-full flex flex-col items-center py-3 gap-3 h-[42vh]"
       style={{
         overflow: 'auto',
         scrollbarWidth: 'none',
@@ -177,7 +178,7 @@ function Perplexity({ selectedLeadsDetails }) {
         </div>
       </div>
       <div className="w-full flex flex-row items-start gap-2">
-        <div className="grid grid-cols-3 gap-3 w-[80%] h-auto overflow-y-auto">
+        <div className="grid grid-cols-3 gap-3 w-full h-auto overflow-y-auto">
           {profiles?.length > 0
             ? profiles.slice(0, 6).map((item, index) => (
                 <button
