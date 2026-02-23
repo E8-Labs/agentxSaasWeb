@@ -33,7 +33,7 @@ function getDisplayHtml(content) {
   return linkifyText(text)
 }
 
-const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
+const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl }) => (
   <div className="flex flex-col">
     <div
       className={`px-4 py-2 ${isOutbound
@@ -56,7 +56,7 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
         style={isOutbound ? { color: 'white' } : {}}
         dangerouslySetInnerHTML={{ __html: getDisplayHtml(message.content || '') }}
       />
-      <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
+      <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} getImageUrl={getImageUrl} />
     </div>
     <div className="flex items-center justify-end gap-2 mt1 mr-1">
       <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>

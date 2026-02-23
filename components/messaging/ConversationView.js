@@ -119,12 +119,16 @@ const ConversationView = ({
     if (isImage) {
       const allImages = message.metadata.attachments.filter(
         (att) =>
+          (att.type || '').toLowerCase() === 'image' ||
           att.mimeType?.startsWith('image/') ||
           att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
       )
 
       const currentIdx = allImages.findIndex(
-        (att) => att.attachmentId === enrichedAttachment.attachmentId || att.fileName === enrichedAttachment.fileName,
+        (att) =>
+          att.attachmentId === enrichedAttachment.attachmentId ||
+          att.fileName === enrichedAttachment.fileName ||
+          (att.url && att.url === enrichedAttachment.url),
       )
 
       const imagesWithData = allImages.map((img) => {
@@ -401,7 +405,7 @@ const ConversationView = ({
                               updateComposerFromMessage={updateComposerFromMessage}
                             />
                           ) : (
-                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} getImageUrl={getImageUrl} />
                           )}
                           {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (
                             <SuggestedLeadLinks
