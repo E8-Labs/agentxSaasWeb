@@ -2090,8 +2090,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
       }, 100)
     }
-    fetchThreads(searchValue || '', appliedTeamMemberIds)
-  }, [selectedUser?.id, searchValue, appliedTeamMemberIds])
+    // Do not refetch threads — only the current conversation was updated
+  }, [selectedUser?.id])
 
   const fetchSocialConnections = useCallback(async () => {
     try {
