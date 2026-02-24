@@ -132,6 +132,18 @@ input[type="date"]::-moz-datetime-edit-year-field {
   }
 
 
+  /* MUI Menu paper: entry animation (slide in from bottom, 200ms ease-out) */
+  @keyframes mui-menu-entry {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Ensure no black backgrounds on any fixed elements at top */
   [class*="fixed"][class*="top-0"] {
     background-color: transparent !important;

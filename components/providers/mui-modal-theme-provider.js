@@ -37,6 +37,35 @@ const agentationFriendlyModalTheme = createTheme({
         },
       },
     },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          border: '1px solid #eaeaea',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+          borderRadius: 12,
+          animation: 'mui-menu-entry 0.2s ease-out forwards',
+        },
+        list: {
+          fontSize: 14,
+          gap: '2px',
+        },
+      },
+    },
+    MuiMenuItem: {
+      defaultProps: {
+        disableRipple: true,
+      },
+      styleOverrides: {
+        root: {
+          fontSize: 14,
+          fontStyle: 'normal',
+          backgroundColor: 'transparent',
+          '&:hover': {
+            backgroundColor: 'transparent',
+          },
+        },
+      },
+    },
   },
 })
 

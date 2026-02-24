@@ -22,7 +22,7 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
 
     return (
         <>
-            <div className="w-full p-4 border-b flex flex-row items-center justify-between h-[66px]">
+            <div className="w-full p-4 border-b flex flex-row items-center justify-between h-[65px]" style={{ borderBottom: '1px solid #eaeaea' }}>
                 <TypographyH3>Messages</TypographyH3>
                 <div className='flex flex-row items-center justify-end gap-2'>
                     <button

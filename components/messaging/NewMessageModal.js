@@ -29,6 +29,49 @@ import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, delet
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
 
+/** Sliding pill background for MUI Select Menu: follows hovered menu item, 2% black, 8px radius. */
+const SlidingPillMenuList = React.forwardRef((props, ref) => {
+  const [pill, setPill] = useState({ top: 0, height: 0, visible: false })
+  const handleMouseMove = (e) => {
+    const item = e.target?.closest?.('.MuiMenuItem-root')
+    if (item && ref?.current) {
+      const r = item.getBoundingClientRect()
+      const listRect = ref.current.getBoundingClientRect()
+      setPill({
+        top: r.top - listRect.top + ref.current.scrollTop,
+        height: r.height,
+        visible: true,
+      })
+    }
+  }
+  const handleMouseLeave = () => setPill((v) => ({ ...v, visible: false }))
+  return (
+    <div
+      style={{ position: 'relative' }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {pill.visible && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 4,
+            right: 4,
+            top: pill.top,
+            height: pill.height,
+            borderRadius: 8,
+            backgroundColor: 'rgba(0,0,0,0.02)',
+            pointerEvents: 'none',
+            transition: 'top 0.15s ease-out, height 0.15s ease-out',
+          }}
+        />
+      )}
+      <ul ref={ref} {...props} />
+    </div>
+  )
+})
+SlidingPillMenuList.displayName = 'SlidingPillMenuList'
+
 // Helper function to strip HTML tags and convert to plain text while preserving line breaks
 const stripHTML = (html) => {
   if (!html) return ''
@@ -1772,27 +1815,27 @@ const NewMessageModal = ({
             transform: 'translate(-50%, -50%)',
             width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
             bgcolor: 'background.paper',
-            borderRadius: 2,
+            borderRadius: '16px',
             boxShadow: 24,
             zIndex: 1501, // Higher than backdrop (1500) to appear on top
             p: 0,
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'visible',
+            overflow: 'hidden',
             zIndex: 1501,
           }}
         >
           {/* Header */}
-          <div className="w-full p-4 border-b flex flex-row items-center justify-between h-[66px]">
+          <div className="w-full p-4 border-b flex flex-row items-center justify-between h-[65px]" style={{ borderBottom: '1px solid #eaeaea' }}>
             <h2 className="text-xl font-semibold">{isPipelineMode && isEditing ? 'Update Message ' : 'New Message'}</h2>
             <CloseBtn onClick={onClose} />
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
+          <div className="flex-1 overflow-y-auto overflow-x-visible w-full px-3 py-3 flex flex-col gap-1" style={{ position: 'relative' }}>
             {/* Mode Tabs */}
-            <div className="flex items-center justify-between pb-4">
+            <div className="flex items-center justify-between border-b m-0 gap-1 py-1">
               <ToggleGroupCN
                 options={[
                   { label: 'Text', value: 'sms', icon: MessageSquareDot },
@@ -1857,8 +1900,7 @@ const NewMessageModal = ({
                                 ref={phoneAnchorRef}
                                 type="button"
                                 onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
-                                className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                                style={{ height: '42px', borderColor: '#E2E8F0', borderWidth: '1px' }}
+                                className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white text-left flex items-center justify-between"
                               >
                                 <div className="flex items-center gap-2 flex-1">
                                   <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
@@ -1997,8 +2039,7 @@ const NewMessageModal = ({
                                     ref={emailAnchorRef}
                                     type="button"
                                     onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                                    className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                                    style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
+                                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white text-left flex items-center justify-between"
                                   >
                                     <div className="flex items-center gap-2 flex-1">
                                       <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
@@ -2417,8 +2458,7 @@ const NewMessageModal = ({
                         <div className="space-y-2">
                           {/* Subject Field */}
                           <div
-                            className="flex items-center border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden group/subject-field"
-                            style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                            className="flex items-center border border-brand-primary/20 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden group/subject-field"
                             id="subject-field-group"
                           >
                             {/* Subject Input Section */}
@@ -2470,6 +2510,7 @@ const NewMessageModal = ({
                                       },
                                     },
                                     MenuListProps: {
+                                      component: SlidingPillMenuList,
                                       style: {
                                         zIndex: 1800,
                                       },
@@ -2496,14 +2537,15 @@ const NewMessageModal = ({
                                   sx={{
                                     fontSize: '0.875rem',
                                     height: '42px',
-                                    // ... existing styles ...
+                                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
                                       height: '42px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
-                                    // Keep icon aligned when closed and when open
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
@@ -2566,7 +2608,7 @@ const NewMessageModal = ({
                     )}
 
                     {/* Message Body */}
-                    <div>
+                    <div className={selectedMode === 'email' ? 'border border-brand-primary/20 rounded-lg bg-white overflow-hidden' : ''}>
 
                       {selectedMode === 'email' ? (
                         <RichTextEditor
@@ -2699,6 +2741,7 @@ const NewMessageModal = ({
                                       },
                                     },
                                     MenuListProps: {
+                                      component: SlidingPillMenuList,
                                       style: {
                                         zIndex: 1800,
                                       },
@@ -2725,14 +2768,15 @@ const NewMessageModal = ({
                                   sx={{
                                     fontSize: '0.875rem',
                                     height: '42px',
-                                    // ... existing styles ...
+                                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
                                       height: '42px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
-                                    // Keep icon aligned when closed and when open
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
@@ -2804,8 +2848,7 @@ const NewMessageModal = ({
                             }}
                             placeholder="Type your message here"
                             maxLength={SMS_CHAR_LIMIT}
-                            className="w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px] pr-24"
-                            style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                            className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary min-h-[120px] pr-24"
                           />
                           {/* Variables dropdown for SMS */}
                           {uniqueColumns && uniqueColumns.length > 0 && (
@@ -2852,6 +2895,7 @@ const NewMessageModal = ({
                                       },
                                     },
                                     MenuListProps: {
+                                      component: SlidingPillMenuList,
                                       style: {
                                         zIndex: 1800,
                                       },
@@ -2878,14 +2922,15 @@ const NewMessageModal = ({
                                   sx={{
                                     fontSize: '0.875rem',
                                     height: '42px',
-                                    // ... existing styles ...
+                                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
                                       height: '42px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
-                                    // Keep icon aligned when closed and when open
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
