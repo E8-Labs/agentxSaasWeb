@@ -49,9 +49,8 @@ export function TranscriptBubble({
     <div className={`flex ${isBot ? 'justify-start' : 'justify-end'} mb-2`}>
       <div>
         <div
-          className={`max-w-xs px-4 py-2 shadow text-sm ${bubbleClasses} ${
-            isBot ? 'text-black' : 'text-white'
-          }`}
+          className={`max-w-xs px-4 py-2 shadow text-sm ${bubbleClasses} ${isBot ? 'text-black' : 'text-white'
+            }`}
           style={{
             backgroundColor: isBot ? '#F6F7F9' : 'hsl(var(--brand-primary))',
           }}
@@ -84,61 +83,63 @@ export function TranscriptBubble({
                     <ThumbDownOutlined fontSize="small" />
                   )}
                 </button>
-              </>
-            )}
-            <button
-              ref={commentBtnRef}
-              className="text-gray-500 hover:text-black border-none outline-none"
-              onClick={() => onCommentClick(index, msgId, commentBtnRef)}
-            >
-              {comment ? (
-                <div className="flex flex-row items-center gap-2">
-                  {/* <ChatBubble fontSize="small" sx={{ color: "#7902DF" }} /> */}
-                  <i>
-                    <div
-                      className="text-brand-primary"
-                      style={{
-                        fontSize: '13px',
-                        fontWeight: '500',
-                      }}
-                    >
-                      {comment?.slice(0, 1).toUpperCase()}
-                      {comment?.slice(1, 20)}
-                      {comment?.length > 5 && '... '}
-                      {comment?.length > 5 && (
-                        <button
-                          className="text-brand-primary cursor-pointer outline-noe border-none text-bold"
-                          onClick={() => {
-                            setReadMoreModal(comment)
+                <button
+                  ref={commentBtnRef}
+                  className="text-gray-500 hover:text-black border-none outline-none"
+                  onClick={() => onCommentClick(index, msgId, commentBtnRef)}
+                >
+                  {comment ? (
+                    <div className="flex flex-row items-center gap-2">
+                      {/* <ChatBubble fontSize="small" sx={{ color: "#7902DF" }} /> */}
+                      <i>
+                        <div
+                          className="text-brand-primary"
+                          style={{
+                            fontSize: '13px',
+                            fontWeight: '500',
                           }}
                         >
-                          Read more
-                        </button>
-                      )}
+                          {comment?.slice(0, 1).toUpperCase()}
+                          {comment?.slice(1, 20)}
+                          {comment?.length > 5 && '... '}
+                          {comment?.length > 5 && (
+                            <button
+                              className="text-brand-primary cursor-pointer outline-noe border-none text-bold"
+                              onClick={() => {
+                                setReadMoreModal(comment)
+                              }}
+                            >
+                              Read more
+                            </button>
+                          )}
 
-                      {/* Modal for full msg */}
-                      <Modal
-                        open={readMoreModal}
-                        onClose={() => {
-                          setReadMoreModal(null)
-                        }}
-                      >
-                        {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-                        <Box className="bg-white rounded-xl p-6 w-[30vw] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col overflow-y-auto">
-                          <div className="text-brand-primary text-large font-bold">
-                            {readMoreModal?.slice(0, 1).toUpperCase()}
-                            {readMoreModal?.slice(1)}
-                          </div>
-                        </Box>
-                      </Modal>
+                          {/* Modal for full msg */}
+                          <Modal
+                            open={readMoreModal}
+                            onClose={() => {
+                              setReadMoreModal(null)
+                            }}
+                          >
+                            {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
+                            <Box className="bg-white rounded-xl p-6 w-[30vw] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col overflow-y-auto">
+                              <div className="text-brand-primary text-large font-bold">
+                                {readMoreModal?.slice(0, 1).toUpperCase()}
+                                {readMoreModal?.slice(1)}
+                              </div>
+                            </Box>
+                          </Modal>
+                        </div>
+                      </i>
                     </div>
-                  </i>
-                </div>
-              ) : (
-                // <ChatBubbleOutlineOutlined fontSize="small" />
-                (<div></div>)
-              )}
-            </button>
+                  ) : (
+                    // <ChatBubbleOutlineOutlined fontSize="small" />
+                    (<div></div>)
+                  )}
+                </button>
+              </>
+
+            )}
+
           </div>
         )}
       </div>
