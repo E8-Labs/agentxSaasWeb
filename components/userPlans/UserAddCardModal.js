@@ -561,11 +561,14 @@ const UserAddCard = ({
   }
 
   // Order summary with promo applied. Use API estimatedDiscount when present (prorates yearly correctly).
-  const orderSummary = (() => {
+  const getOrderSummary = (reduxUser) => {
+    // console.log("reduxUser pssed in prdersummary is n", reduxUser)
     if (!selectedPlan) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
     const hasTrial = selectedPlan?.hasTrial === true
     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-    if (hasTrial && isFirstTimeSubscription) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
+    if (reduxUser?.userRole !== 'AgencySubAccount') {
+      if (hasTrial && isFirstTimeSubscription) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
+    }
     const billingMonths = GetMonthCountFronBillingCycle(
       selectedPlan?.billingCycle || selectedPlan?.duration,
     )
@@ -594,7 +597,9 @@ const UserAddCard = ({
       return { originalTotal, discountAmount: originalTotal - finalTotal, finalTotal }
     }
     return { originalTotal, discountAmount: 0, finalTotal: originalTotal }
-  })()
+  }
+  const orderSummary = getOrderSummary();
+  const orderSummaryAgencySubAccount = getOrderSummary(reduxUser)
 
   return (
     <div style={{ width: '100%' }}>
@@ -1289,7 +1294,7 @@ const UserAddCard = ({
                     className=""
                     style={{ fontWeight: '600', fontSize: 15 }}
                   >
-                    ${formatFractional2(orderSummary.finalTotal)}
+                    ${formatFractional2(orderSummaryAgencySubAccount.finalTotal)}
                   </div>
                 </div>
 
