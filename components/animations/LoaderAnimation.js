@@ -132,6 +132,7 @@ const LoaderAnimation = ({
           !hostname.includes('127.0.0.1') &&
           !hostname.includes('assignx.ai') &&
           !hostname.includes('app.assignx.ai') &&
+          !hostname.includes('app.promptsavvy.ai') &&
           !hostname.includes('dev.assignx.ai')
         
         if (isCustomDomain) {
@@ -229,7 +230,7 @@ const LoaderAnimation = ({
                       }
                       loop
                       autoplay
-                    />
+                    />hh
                   </div>
                 ) : (
                   <div

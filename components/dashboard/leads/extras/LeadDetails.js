@@ -902,6 +902,7 @@ const LeadDetails = ({
       // //console.log;
 
       const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
+      console.log("ApiPath is", ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -911,7 +912,7 @@ const LeadDetails = ({
       })
 
       if (response) {
-        // console.log("lead details are", response.data.data)
+        console.log("lead details are api data ", response.data.data)
         let dynamicColumns = []
         dynamicColumns = [
           ...response?.data?.columns,
@@ -1623,6 +1624,11 @@ const LeadDetails = ({
   // Send email API function
   const sendEmailToLead = async (emailData) => {
     try {
+      console.log("Lead email is", selectedLeadsDetails)
+      if(!selectedLeadsDetails.email || selectedLeadsDetails.email === '' || selectedLeadsDetails.email === null || selectedLeadsDetails.email === undefined){
+        showSnackbar('Lead does not have a valid email address', SnackbarTypes.Error)
+        return
+      }
       setSendEmailLoader(true)
 
       const localData = localStorage.getItem('User')
@@ -1660,6 +1666,9 @@ const LeadDetails = ({
 
       if (response.data.status === true) {
         showSnackbar('Email sent successfully!', SnackbarTypes.Success)
+        setTimeout(() => {
+          getLeadDetails(selectedLeadsDetails?.id)
+        }, 300)
         setShowMessageModal(false)
       } else {
         showSnackbar(response.data.message || 'Failed to send email', SnackbarTypes.Error)
@@ -1705,6 +1714,9 @@ const LeadDetails = ({
 
       if (response.data.status === true) {
         showSnackbar('Text sent successfully!', SnackbarTypes.Success)
+        setTimeout(() => {
+          getLeadDetails(selectedLeadsDetails?.id)
+        }, 300)
         setShowMessageModal(false)
       } else {
         showSnackbar(response.data.message || 'Failed to send SMS', SnackbarTypes.Error)
