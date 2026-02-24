@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { Circle } from 'lucide-react'
+import { Check } from 'lucide-react'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
@@ -130,7 +130,7 @@ export default function AgentsListForThread({
   }
 
   return (
-    <div className="py-2 px-3 rounded-lg mr-3 flex-1 min-h-0 flex flex-col">
+    <div className="py-2 px-3 rounded-lg m-0 flex-1 min-h-0 flex flex-col">
     <div ref={listWrapRef} className="relative flex-1 min-h-0 overflow-y-auto space-y-0.5" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
       {pillVisible && (
         <div
@@ -139,10 +139,11 @@ export default function AgentsListForThread({
         />
       )}
       {/* First option: Sky (default for normal chats, same as AI Chat) */}
-      <div data-sliding-pill-item>
+      <div data-sliding-pill-item className="w-full">
       <button
         type="button"
         className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
+        style={selectedAgentId == null ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : undefined}
         onClick={() => handleSelect(null)}
         disabled={saving}
       >
@@ -161,26 +162,20 @@ export default function AgentsListForThread({
           </div>
           <TypographyBody className={`text-sm truncate ${selectedAgentId == null ? 'text-brand-primary font-medium' : 'text-foreground'}`}>Sky</TypographyBody>
         </div>
-        <span className="relative flex h-6 w-6 items-center justify-center shrink-0">
-          <Circle
-            className={`h-6 w-6 stroke-current stroke-2 fill-none transition-colors ${
-              selectedAgentId == null ? 'text-brand-primary' : 'text-muted-foreground'
-            }`}
-          />
-          {selectedAgentId == null && (
-            <Circle className="absolute h-3.5 w-3.5 fill-current text-brand-primary" />
-          )}
-        </span>
+        {selectedAgentId == null && (
+          <Check className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
+        )}
       </button>
       </div>
 
       {flatAgents.map((agent) => {
         const isSelected = selectedAgentId != null && Number(selectedAgentId) === Number(agent.id)
         return (
-          <div key={agent.id} data-sliding-pill-item>
+          <div key={agent.id} data-sliding-pill-item className="w-full">
           <button
             type="button"
             className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
+            style={isSelected ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : undefined}
             onClick={() => handleSelect(agent.id)}
             disabled={saving}
           >
@@ -199,16 +194,9 @@ export default function AgentsListForThread({
               </div>
               <TypographyBody className={`text-sm truncate ${isSelected ? 'text-brand-primary font-medium' : 'text-foreground'}`}>{agent.name}</TypographyBody>
             </div>
-            <span className="relative flex h-6 w-6 items-center justify-center shrink-0">
-              <Circle
-                className={`h-6 w-6 stroke-current stroke-2 fill-none transition-colors ${
-                  isSelected ? 'text-brand-primary' : 'text-muted-foreground'
-                }`}
-              />
-              {isSelected && (
-                <Circle className="absolute h-3.5 w-3.5 fill-current text-brand-primary" />
-              )}
-            </span>
+            {isSelected && (
+              <Check className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
+            )}
           </button>
           </div>
         )

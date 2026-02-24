@@ -97,18 +97,21 @@ export default function ThreadOptionsDropdown({
         side="bottom"
         className="z-[2000] w-[280px] min-h-[400px] border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl p-0 gap-3 max-h-[80vh] overflow-hidden flex flex-col animate-in slide-in-from-bottom-2 duration-200 ease-out data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit"
       >
-        <Tabs defaultValue="teams" className="flex flex-col flex-1 min-h-0 gap-0.5 max-h-[600px]">
-          <div className="py-2 px-3 h-auto">
+        <Tabs defaultValue="teams" className="flex flex-col flex-1 min-h-0 gap-1 max-h-[450px]">
+          <div
+            className="px-3 h-auto"
+            style={{ paddingTop: 12, paddingBottom: 12, borderBottom: '1px solid #eaeaea' }}
+          >
             <TabsList className="flex w-full shrink-0 h-9 items-center justify-between rounded-lg bg-muted p-1 text-muted-foreground text-[14px] font-['Inter'] gap-2 [&_svg]:size-4">
-            <TabsTrigger value="teams" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden">
+            <TabsTrigger value="teams" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden active:scale-[0.98] transition-transform duration-150">
               <Users className="h-4 w-4" />
               Teams
             </TabsTrigger>
-            <TabsTrigger value="agents" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden">
+            <TabsTrigger value="agents" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden active:scale-[0.98] transition-transform duration-150">
               <Bot className="h-4 w-4" />
               Agents
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden">
+            <TabsTrigger value="settings" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden active:scale-[0.98] transition-transform duration-150">
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>

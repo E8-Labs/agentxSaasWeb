@@ -1934,7 +1934,7 @@ const LeadDetails = ({
           })
         }}
       />
-      <div className="flex flex-col w-full h-full  py-2 px-1 rounded-xl">
+      <div className="flex flex-col w-full h-full py-0 px-1 rounded-xl gap-2">
         <div className="w-full flex flex-col items-center h-full">
 
           <div className="w-full">
@@ -1948,7 +1948,7 @@ const LeadDetails = ({
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div
-                  className="flex flex-col w-full px-0 rounded-[12px]"
+                  className="flex flex-col w-full gap-0.5 px-0 rounded-[12px]"
                   style={{
                     paddingTop: 2,
                     paddingBottom: 2,
@@ -1968,10 +1968,11 @@ const LeadDetails = ({
                       </button>
                     </div>
                   )}
-                  <div>
-                    <div className="flex flex-row items-start justify-between mt-4  w-full">
+                  <div className="px-0">
+                    <div className="py-0 gap-1 flex flex-col">
+                      <div className="flex flex-row items-start justify-between mt-4 w-full">
                       <div className="flex flex-col items-start  w-full">
-                        <div className="flex flex-row items-between justify-between w-full px-4 h-10 max-h-none">
+                        <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
                           <div className="flex flex-row items-center gap-3">
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
@@ -2353,6 +2354,7 @@ const LeadDetails = ({
 
 
                     </div>
+                    </div>
 
                   </div>
 
@@ -2601,7 +2603,7 @@ const LeadDetails = ({
 
                   {/* </div> */}
 
-                  <div className="w-full mt-12" style={{ paddingInline: 0 }}>
+                  <div className="w-full" style={{ paddingInline: 0 }}>
                     <TabsCN
                       tabs={[
                         {
@@ -2638,8 +2640,9 @@ const LeadDetails = ({
                     />
                   </div>
                   <div
-                    className="w-full mb-2"
+                    className="w-full mb-2 hidden"
                     style={{ height: '1px', backgroundColor: '#15151510' }}
+                    aria-hidden
                   />
 
                   <div style={{ paddingInline: 0 }}>

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-import { Circle } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { TypographyBody } from '@/components/dashboard/leads/extras/TypographyCN'
 
 /**
@@ -54,19 +54,10 @@ export default function TeamsTabContent({ teamOptions = [], onToggle }) {
           <div key={team.id} data-sliding-pill-item>
           <button
             type="button"
-            className="h-10 w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
+            className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
+            style={isSelected ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : undefined}
             onClick={() => handleTeamClick(team)}
           >
-            <span className="relative flex h-6 w-6 items-center justify-center shrink-0">
-              <Circle
-                className={`h-6 w-6 stroke-current stroke-2 fill-none ${
-                  isSelected ? 'text-brand-primary' : 'text-muted-foreground'
-                }`}
-              />
-              {isSelected && (
-                <Circle className="absolute h-3.5 w-3.5 fill-current text-brand-primary" />
-              )}
-            </span>
             <div className="flex items-center gap-2 flex-1 min-w-0">
               {team.avatar ? (
                 <img
@@ -79,8 +70,11 @@ export default function TeamsTabContent({ teamOptions = [], onToggle }) {
                   {team.label?.[0]?.toUpperCase() || '?'}
                 </div>
               )}
-              <TypographyBody className="text-black truncate">{team.label}</TypographyBody>
+              <TypographyBody className={`text-sm truncate ${isSelected ? 'text-brand-primary font-medium' : 'text-black'}`}>{team.label}</TypographyBody>
             </div>
+            {isSelected && (
+              <Check className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
+            )}
           </button>
           </div>
         )

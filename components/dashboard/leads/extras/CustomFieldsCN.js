@@ -172,7 +172,7 @@ const CustomFieldsCN = ({
   }
 
   return (
-    <div className="flex flex-col gap-2 mt-3 px-4">
+    <div className="flex flex-col gap-2 mt-0 px-4 py-3 bg-black/[0.02]">
       <div className="flex flex-row items-center justify-between w-full">
         <Button
           variant="ghost"
@@ -197,7 +197,7 @@ const CustomFieldsCN = ({
       </div>
 
       {showCustomVariables && (
-        <div className="flex flex-col gap-2 mt-2">
+        <div className="flex flex-col gap-2 mt-0">
           {customFields.map((column, index) => {
             return (
               <div

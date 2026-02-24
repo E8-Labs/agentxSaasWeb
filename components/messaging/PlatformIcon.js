@@ -14,7 +14,7 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
   else if (type === 'sms') sizePx = Math.round(sizePx * 1.5 * 1.6)
   if (showInBadge && badgeSize === 'sm') sizePx = Math.min(sizePx, 8)
   const isRoundedColored = type === 'messenger' || type === 'instagram'
-  const badgeSizeClass = badgeSize === 'sm' ? 'w-4 h-4' : 'w-6 h-6'
+  const badgeSizeClass = badgeSize === 'sm' ? 'w-4 h-4' : 'w-[19.44px] h-[19.44px]' // 10% smaller than previous (21.6px)
   const badgeTranslate = showInBadge ? 'translate-y-[calc(50%-8px)]' : 'translate-y-1/2'
   const badgeClass =
     showInBadge && isRoundedColored
