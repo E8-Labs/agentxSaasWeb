@@ -167,9 +167,9 @@ const PipelineStages = ({
   //open task modal
   const [openTaskModal, setOpenTaskModal] = useState(false)
 
-  useEffect(() => {
-    console.log("isEditing key is is", isEditing)
-  }, [isEditing])
+  // useEffect(() => {
+  //   console.log("targetUser key is is", targetUser)
+  // }, [targetUser])
 
   useEffect(() => {
     const getTargetUser = () => {
@@ -203,7 +203,7 @@ const PipelineStages = ({
     },
     {
       value: 'create_task',
-      label: 'Create Task',
+      label: 'Task',
       icon: "/agencyIcons/plusIcon.png",
       focusedIcon: "/agencyIcons/plusIcon.png",
     },
@@ -2321,7 +2321,7 @@ const PipelineStages = ({
                   // leadId={leadId}
                   // leadName={leadName}
                   // callId={item.id}
-                  selectedUser={targetUser?.subAccountData}
+                  selectedUser={targetUser?.subAccountData?.id ? targetUser?.subAccountData : targetUser}
                 />
               )
             }
