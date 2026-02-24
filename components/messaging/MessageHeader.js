@@ -22,19 +22,19 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
 
     return (
         <>
-            <div className='w-full p-4 border-b flex flex-row items-center justify-between'>
+            <div className="w-full p-4 border-b flex flex-row items-center justify-between h-[65px]" style={{ borderBottom: '1px solid #eaeaea' }}>
                 <TypographyH3>Messages</TypographyH3>
                 <div className='flex flex-row items-center justify-end gap-2'>
                     <button
                         ref={taskButtonRef}
                         onClick={() => setTaskBoardOpen(true)}
-                        className="mb-1 hover:opacity-70 transition-opacity relative"
+                        className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center [&_img]:opacity-80 [&_img]:brightness-0"
                     >
                         <Image
                             src='/messaging/checkList.svg'
                             alt='Tasks'
-                            width={22}
-                            height={22}
+                            width={20}
+                            height={20}
                         />
                         {/* Status indicator dots */}
                         {(hasActiveTasks || hasPastDueTasks) && (

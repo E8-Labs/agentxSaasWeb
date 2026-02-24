@@ -1595,7 +1595,14 @@ const ProfileNav = () => {
                               fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
                             }}
                           >
-                            {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
+                            {item.name} {item.isBeta && (
+                              <span
+                                className="inline-block px-1.5 py-1 text-xs rounded-md text-brand-primary"
+                                style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+                              >
+                                (Beta)
+                              </span>
+                            )}
                           </div>
                         </div>
                       </Link>

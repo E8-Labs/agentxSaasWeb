@@ -131,16 +131,17 @@ input[type="date"]::-moz-datetime-edit-year-field {
     min-height: 100vh;
   }
 
-  /* Ensure all layout wrappers have white background */
-  .flex.flex-col.w-full:not(.sms-note-container):not(.pipeline-stage-scroll) {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-  }
 
-  /* Prevent any black space at top - ensure body and html are white */
-  html, body {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
+  /* MUI Menu paper: entry animation (slide in from bottom, 200ms ease-out) */
+  @keyframes mui-menu-entry {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* Ensure no black backgrounds on any fixed elements at top */

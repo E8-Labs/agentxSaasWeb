@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react'
 import axios from 'axios'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info, ChevronRight, ArrowLeft } from 'lucide-react'
+import { Info, ChevronRight, ArrowLeft, X } from 'lucide-react'
 import { toast } from '@/utils/toast'
 import Apis from '@/components/apis/Apis'
 import {
@@ -659,8 +659,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-md px-0"
-        overlayClassName="bg-black/40"
+        className="w-[500px] max-w-[500px] p-0 gap-0.5 data-[state=open]:animate-modal-entry shadow-md"
+        overlayClassName="bg-black/60 duration-[250ms]"
         hideCloseButton={isSubScreen}
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
@@ -670,28 +670,28 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         {isSubScreen ? (
           isAgentMeterScreen ? (
             <div className="max-h-[80svh] overflow-hidden">
-              <DialogHeader className="flex flex-row items-center gap-3 pb-2 px-4">
+              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-[#eaeaea]">
                 <button
                   type="button"
                   onClick={() => setSubModalKey(null)}
-                  className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 transition-colors -ml-1"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.02] transition-colors -ml-1"
                   aria-label="Back"
                 >
                   <ArrowLeft className="w-5 h-5 text-gray-700" />
                 </button>
                 <DialogTitle className="text-xl font-bold flex-1">Agent Meter</DialogTitle>
               </DialogHeader>
-              <div className="space-y-6 py-4 px-4 overflow-y-auto max-h-[60svh]">
+              <div className="flex flex-col gap-2 py-4 px-4 overflow-y-auto max-h-[60svh]">
                 {(() => {
                   const bubbleStyle = (leftPct) => ({ left: `${leftPct}%`, transform: 'translateX(-50%)', top: -44 })
                   return (
                     <>
-                      <div>
-                        <TypographyH4Semibold>Sales Drive</TypographyH4Semibold>
+                      <div className="flex flex-col gap-2 py-2">
+                        <TypographyH4Semibold className="!font-medium">Sales Drive</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-0">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
                             <div ref={salesDriveTrackRef} className="relative flex-1 min-w-0 overflow-visible">
@@ -711,19 +711,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 }}
                               />
                             </div>
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
                         </div>
 
                       </div>
-                      <div>
-                        <TypographyH4Semibold className=" mt-1">Persuasiveness</TypographyH4Semibold>
+                      <div className="flex flex-col gap-2 py-2">
+                        <TypographyH4Semibold className="mt-1 !font-medium">Persuasiveness</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
                             <div ref={persuasivenessTrackRef} className="relative flex-1 min-w-0 overflow-visible">
@@ -743,19 +743,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 }}
                               />
                             </div>
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
                         </div>
 
                       </div>
-                      <div>
-                        <TypographyH4Semibold className="mt-1">Client Handling</TypographyH4Semibold>
+                      <div className="flex flex-col gap-2 py-2">
+                        <TypographyH4Semibold className="mt-1 !font-medium">Client Handling</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
                             <div ref={clientHandlingTrackRef} className="relative flex-1 min-w-0 overflow-visible">
@@ -775,7 +775,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 }}
                               />
                             </div>
-                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
@@ -785,43 +785,42 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   )
                 })()}
               </div>
-              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t pt-4 mt-2 px-4">
+              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t p-4">
                 <Button variant="outline" onClick={() => setSubModalKey(null)} disabled={savingSubModal}>Cancel</Button>
-                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} style={{ backgroundColor: 'hsl(var(--brand-primary))' }} className="text-white hover:opacity-90">
+                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} style={{ backgroundColor: 'hsl(var(--brand-primary))' }} className="h-8 rounded-lg text-sm text-white hover:opacity-90 transition-transform duration-150 ease-out active:scale-[0.98]">
                   {savingSubModal ? 'Saving...' : 'Save'}
                 </Button>
               </DialogFooter>
             </div>
           ) : (
             <div className="max-h-[80svh] overflow-hidden">
-              <DialogHeader className="flex flex-row items-center gap-3 pb-2 px-4">
+              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-[#eaeaea]">
                 <button
                   type="button"
                   onClick={() => setSubModalKey(null)}
-                  className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 transition-colors -ml-1"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.02] transition-colors -ml-1"
                   aria-label="Back"
                 >
                   <ArrowLeft className="w-5 h-5 text-gray-700" />
                 </button>
-                <DialogTitle className="text-xl font-bold flex-1">{activeSubModalConfig.label}</DialogTitle>
+                <DialogTitle className="text-[18px] font-bold tracking-[-0.25px] flex-1">{activeSubModalConfig.label}</DialogTitle>
               </DialogHeader>
-              <p className="text-sm text-gray-600 mt-1 px-4">{activeSubModalConfig.question}</p>
-              <div
-                // className="space-y-2 py-4 overflow-y-auto flex-1 min-h-0 px-4"
-                className="space-y-2 py-4 pl-4 pr-2 overflow-y-auto max-h-[60svh]"
-              >
+              <div className="space-y-2 p-4 overflow-y-auto max-h-[60svh] w-full">
+                {activeSubModalConfig.question && (
+                  <p className="text-[14px] text-gray-600 mt-1">{activeSubModalConfig.question}</p>
+                )}
                 {activeSubModalConfig.options.map((opt) => {
                   const isOptSelected = subModalSelectedValue === opt.value
                   return (
                     <label
                       key={opt.value}
-                      className={`flex items-start gap-3 p-3 rounded-lg border-[1px] cursor-pointer transition-colors ${isOptSelected ? '' : 'border-gray-[#1515151A10] hover:bg-gray-50 hover:border-[#1515151A10]'
+                      className={`flex items-start gap-3 p-3 rounded-lg border-[1px] cursor-pointer transition-transform duration-150 ease-out active:scale-[0.98] ${isOptSelected ? '' : 'border-gray-[#1515151A10] hover:bg-gray-50 hover:border-[#1515151A10]'
                         }`}
                       style={
                         isOptSelected
                           ? {
                             borderColor: 'hsl(var(--brand-primary))',
-                            backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                            backgroundColor: 'hsl(var(--brand-primary) / 0.08)',
                           }
                           : undefined
                       }
@@ -865,7 +864,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           )}
                         </span>
                       </span>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex flex-col gap-2">
                         <span
                           className="text-sm font-medium"
                           style={isOptSelected ? { color: 'hsl(var(--brand-primary))' } : undefined}
@@ -873,17 +872,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           {opt.label}
                         </span>
                         {opt.bestFor && (
-                          <p className="text-xs text-gray-500 mt-0.5">Best for: {opt.bestFor}</p>
+                          <p className="text-[14px] text-black/80 mt-0.5">Best for: {opt.bestFor}</p>
                         )}
                         {opt.example && (
-                          <p className="text-xs text-gray-600 mt-3">Ex: {opt.example}</p>
+                          <p className="text-[14px] text-gray-600">Ex: {opt.example}</p>
                         )}
                       </div>
                     </label>
                   )
                 })}
               </div>
-              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t pt-4 mt-2 px-4">
+              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t p-4">
                 <Button
                   variant="outline-none"
                   onClick={() => setSubModalKey(null)}
@@ -921,24 +920,32 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             </div>
           )
         ) : (
-          <div className='max-h-[75svh] overflow-hidden px-4'>
-
-            <div>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">AI Message Settings</DialogTitle>
-              </DialogHeader>
+          <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
+            <div className="flex flex-col gap-[2px]">
+              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-[#eaeaea]">
+                <DialogTitle className="text-[18px] font-semibold">AI Message Settings</DialogTitle>
+                <DialogClose asChild>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
+                  >
+                    <X className="h-[14px] w-[14px] opacity-80" strokeWidth={2} />
+                  </button>
+                </DialogClose>
+              </div>
 
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-6 py-4 max-h-[60svh] overflow-y-auto">
+                <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px] font-['Inter']">
                   {/* API Key Section */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-900">AI Provider</label>
+                  <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-[#eaeaea]">
+                    <label className="text-base font-normal text-gray-900">AI Provider</label>
                     <div className="flex gap-4">
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label className="flex items-center gap-2 cursor-pointer py-2">
                         <input
                           type="radio"
                           name="aiProvider"
@@ -950,7 +957,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         <OpenAiLogoIcon size={19} className="text-brand-primary" />
                         <span className="text-sm text-gray-700 -ms-1">OpenAI</span>
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label className="flex items-center gap-2 cursor-pointer py-2">
                         <input
                           type="radio"
                           name="aiProvider"
@@ -1019,19 +1026,18 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           }
                         }
                       }}
-                      className={cn('h-10')}
+                      className={cn('h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary')}
                     />
-                    {apiKeyError && (
-                      <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
-                    )}
-                  </div>
+                      {apiKeyError && (
+                        <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                      )}
+                    </div>
 
-                  {/* Set Reply Delay Section */}
-                  {(
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <label className="text-sm font-semibold text-gray-900">Set reply delay</label>
+                  {/* Set Reply Delay + Save as Draft Section */}
+                  <div className="flex flex-col gap-0.5 pb-4 border-b border-[#eaeaea]">
+                    <div className="flex items-center justify-between h-10 min-h-0">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-normal text-gray-900">Set reply delay</label>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -1052,14 +1058,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                        </div>
-                        <Switch
-                          checked={settings.replyDelayEnabled}
-                          onCheckedChange={handleReplyDelayToggle}
-                          className="data-[state=checked]:bg-brand-primary"
-                        />
                       </div>
-                      {settings.replyDelayEnabled && (
+                      <Switch
+                        checked={settings.replyDelayEnabled}
+                        onCheckedChange={handleReplyDelayToggle}
+                        className="data-[state=checked]:bg-brand-primary"
+                      />
+                    </div>
+                    {settings.replyDelayEnabled && (
                         <div className="relative">
                           <Input
                             type="number"
@@ -1075,16 +1081,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           >
                             sec
                           </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Save as Draft Section */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between h-10 min-h-0">
                       <div className="flex items-center gap-2">
-                        <label className="text-sm font-semibold text-gray-900">Save as draft</label>
+                        <label className="text-sm font-normal text-gray-900">Save as draft</label>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1106,18 +1107,18 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                      <Switch
-                        checked={settings.saveAsDraftEnabled}
-                        onCheckedChange={handleSaveAsDraftToggle}
-                        className="data-[state=checked]:bg-brand-primary"
-                      />
+                        <Switch
+                          checked={settings.saveAsDraftEnabled}
+                          onCheckedChange={handleSaveAsDraftToggle}
+                          className="data-[state=checked]:bg-brand-primary"
+                        />
                     </div>
                   </div>
 
                   {/* Communication Settings */}
-                  <div className="space-y-2">
-                    <h3 className="text-sm text-[#666666]">Communication Settings</h3>
-                    <div className="space-y-0 rounded-lg overflow-hidden">
+                  <div className="flex flex-col gap-3 w-full py-3">
+                    <h3 className="text-base font-normal text-black">Communication Settings</h3>
+                    <div className="flex flex-col gap-3 rounded-lg overflow-hidden">
                       {communicationRowsConfig.map((row) => {
                         const value = settings[row.settingsKey]
                         const selectedLabel = getLabelForValue(row.options, value)
@@ -1129,12 +1130,12 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                               setSubModalKey(row.key)
                               setSubModalSelectedValue(settings[row.settingsKey] ?? null)
                             }}
-                            className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left transition-colors bg-white hover:bg-gray-50 rounded-lg border-2 border-transparent focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400"
+                            className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-colors bg-white hover:bg-black/[0.02] rounded-lg border border-[#eaeaea] focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400 active:scale-[0.98]"
                           >
-                            <div className="min-w-0 flex-1">
-                              <div className="text-sm font-regular text-gray-900">{row.label}</div>
+                            <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
+                              <div className="text-sm text-black">{row.label}</div>
                               {selectedLabel && (
-                                <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                                <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-full text-sm font-normal border border-gray-200 text-gray-500 truncate">
                                   {selectedLabel}
                                 </span>
                               )}
@@ -1156,19 +1157,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           }
                           setSubModalKey('agentMeter')
                         }}
-                        className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left transition-colors bg-white hover:bg-gray-50 rounded-lg border-2 border-transparent focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400"
+                        className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-colors bg-white hover:bg-black/[0.02] rounded-lg border border-[#eaeaea] focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400 active:scale-[0.98]"
                       >
-                        <div className="min-w-0 flex-1">
-                          <div className="text-sm font-regular text-gray-900">Agent meter</div>
+                        <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
+                          <div className="text-sm text-black">Agent meter</div>
                           {settings.agentSettings?.agentMeterSettings && (
                             <div className="flex flex-wrap gap-1.5 mt-1">
-                              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
                                 Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
                               </span>
-                              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
                                 Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
                               </span>
-                              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
                                 Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
                               </span>
                             </div>
@@ -1182,20 +1183,23 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               )}
             </div>
 
-            <DialogFooter className="gap-2">
+            <DialogFooter className="gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between">
               <Button
                 variant="outline"
                 onClick={onClose}
                 disabled={saving}
-                className="bg-white hover:bg-gray-50"
+                className="h-10 rounded-lg px-4 py-2 bg-[#EAEAEA] border-0 shadow-sm hover:bg-[#e0e0e0] active:scale-[0.98] transition-transform"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={saving || loading}
-                className="hover:opacity-90 text-white"
-                style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
+                className="h-10 rounded-lg px-4 py-2 hover:opacity-90 text-white active:scale-[0.98] transition-transform"
+                style={{
+                  backgroundColor: 'hsl(var(--brand-primary))',
+                  boxShadow: '0 2px 8px hsl(var(--brand-primary) / 0.22)',
+                }}
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>

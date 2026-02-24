@@ -26,7 +26,7 @@ import SettingsTabContent from './SettingsTabContent'
  * - onThreadUpdated: (updatedThread) when thread is updated (e.g. selectedAgentId)
  */
 export default function ThreadOptionsDropdown({
-  label = 'Team',
+  label = 'Assign',
   selectedThread,
   teamOptions = [],
   leadSettings = null,
@@ -51,7 +51,7 @@ export default function ThreadOptionsDropdown({
         <button
           className={`flex items-center ${
             withoutBorder ? '' : 'shadow-sm border px-4 py-2 border-muted/70 rounded-xl '
-          } bg-white text-base font-semibold focus:outline-none`}
+          } bg-white text-sm font-semibold focus:outline-none`}
         >
           {selectedTeams.length > 0 ? (
             <div className="flex items-center -space-x-2">
@@ -93,28 +93,34 @@ export default function ThreadOptionsDropdown({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        align="start"
-        className="z-[2000] w-72 border border-muted/70 bg-white text-foreground shadow-lg p-2 max-h-[360px] overflow-hidden flex flex-col"
+        align="end"
+        side="bottom"
+        className="z-[2000] w-[280px] min-h-[400px] border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl p-0 gap-3 max-h-[80vh] overflow-hidden flex flex-col animate-in slide-in-from-bottom-2 duration-200 ease-out data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit"
       >
-        <Tabs defaultValue="teams" className="flex flex-col flex-1 min-h-0">
-          <TabsList className="grid w-full grid-cols-3 shrink-0">
-            <TabsTrigger value="teams" className="text-xs gap-1">
-              <Users className="h-3.5 w-3.5" />
+        <Tabs defaultValue="teams" className="flex flex-col flex-1 min-h-0 gap-1 max-h-[450px]">
+          <div
+            className="px-3 h-auto"
+            style={{ paddingTop: 12, paddingBottom: 12, borderBottom: '1px solid #eaeaea' }}
+          >
+            <TabsList className="flex w-full shrink-0 h-9 items-center justify-between rounded-lg bg-muted p-1 text-muted-foreground text-[14px] font-['Inter'] gap-2 [&_svg]:size-4">
+            <TabsTrigger value="teams" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden active:scale-[0.98] transition-transform duration-150">
+              <Users className="h-4 w-4" />
               Teams
             </TabsTrigger>
-            <TabsTrigger value="agents" className="text-xs gap-1">
-              <Bot className="h-3.5 w-3.5" />
+            <TabsTrigger value="agents" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden active:scale-[0.98] transition-transform duration-150">
+              <Bot className="h-4 w-4" />
               Agents
             </TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs gap-1">
-              <Settings className="h-3.5 w-3.5" />
+            <TabsTrigger value="settings" className="flex-1 min-w-0 text-[14px] gap-1 [&_svg]:hidden active:scale-[0.98] transition-transform duration-150">
+              <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
-          </TabsList>
-          <TabsContent value="teams" className="flex-1 mt-2 min-h-0 overflow-auto">
+            </TabsList>
+          </div>
+          <TabsContent value="teams" className="flex-1 min-h-0 overflow-auto">
             <TeamsTabContent teamOptions={teamOptions} onToggle={onToggle} />
           </TabsContent>
-          <TabsContent value="agents" className="flex-1 mt-2 min-h-0 overflow-auto">
+          <TabsContent value="agents" className="flex-1 min-h-0 overflow-auto">
             {threadId ? (
               <AgentsListForThread
                 selectedUser={selectedUser}
@@ -128,7 +134,7 @@ export default function ThreadOptionsDropdown({
               </div>
             )}
           </TabsContent>
-          <TabsContent value="settings" className="flex-1 mt-2 min-h-0 overflow-auto">
+          <TabsContent value="settings" className="flex-1 min-h-0 overflow-auto">
             <SettingsTabContent
               leadId={leadId}
               leadSettings={leadSettings}

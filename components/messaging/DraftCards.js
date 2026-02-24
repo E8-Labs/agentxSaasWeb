@@ -68,7 +68,7 @@ const DraftCards = ({
   }
 
   return (
-    <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto">
+    <div className="px-4 pt-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto">
       {/* Loading state */}
       {loading && (
         <div className="flex items-center justify-center py-4">
@@ -79,7 +79,7 @@ const DraftCards = ({
 
       {/* Draft cards - horizontal scrolling */}
       {!loading && drafts.length > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {drafts.map((draft) => {
             const isSelected = selectedDraftId === draft.id
             const isExpanded = expandedDraftId === draft.id
@@ -91,16 +91,16 @@ const DraftCards = ({
                 key={draft.id}
                 onClick={() => handleCardClick(draft)}
                 className={`
-                  flex-shrink-0 max-w-[49%] rounded-lg p-3 cursor-pointer transition-all duration-200
-                  border-2
+                  flex-shrink-0 max-w-[49%] rounded-xl p-3 cursor-pointer transition-all duration-200
+                  border
                   ${isSelected
-                    ? 'border-brand-primary bg-brand-primary/10 shadow-md'
+                    ? 'border-brand-primary bg-brand-primary/[0.08] shadow-md'
                     : 'border-gray-200 bg-white hover:border-brand-primary/70 hover:shadow-sm'
                   }
                 `}
               >
                 {/* Header with title and discard button */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {getMessageIcon(draft.messageType)}
                     <span className="text-sm font-semibold text-brand-primary">
@@ -118,13 +118,13 @@ const DraftCards = ({
 
                 {/* Email subject (if applicable) */}
                 {draft.messageType === 'email' && draft.subject && (
-                  <div className="text-xs text-gray-500 mb-2 truncate">
+                  <div className="text-sm text-gray-500 truncate">
                     <span className="font-medium">Subject:</span> {draft.subject}
                   </div>
                 )}
 
                 {/* Draft content */}
-                <div className="text-sm text-gray-700 leading-relaxed">
+                <div className="text-sm text-gray-700 leading-relaxed m-0">
                   {isExpanded ? content : truncateContent(content)}
                   {needsReadMore && (
                     <button

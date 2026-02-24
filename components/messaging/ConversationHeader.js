@@ -691,7 +691,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     })
                 }}
             />
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+        <div className="px-6 py-4 h-[65px] border-b border-gray-200 flex items-center justify-between bg-white">
             <div className="flex flex-row items-center gap-2">
             <div 
                 className="relative flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
@@ -701,7 +701,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     }
                 }}
             >
-            <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
+            <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
                             {getLeadName(selectedThread)}
             </div>
             {(selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram' || selectedThread?.threadType === 'email' || selectedThread?.threadType === 'sms') && (
@@ -709,7 +709,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             )}
           </div>
                 <TypographyBody 
-                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    className="text-[18px] font-medium capitalize cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => {
                         if (selectedThread?.leadId && !isDummySocialThread) {
                             setShowLeadDetailsModal(true)
@@ -745,8 +745,8 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     )}
                 </div>
 
-                {/* Stage and Team Assignment Controls */}
-                <div className="flex flex-row items-center gap-3">
+                {/* Stage and Team Assignment Controls — pill: h-40px, px-8px, rounded-full, white, shadow */}
+                <div className="flex flex-row items-center gap-1 px-2 h-10 w-auto bg-white rounded-[8px]">
                     
 
                     {/* Link to lead (only when dummy thread has no lead name yet) */}
@@ -771,7 +771,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                 <ThreadOptionsDropdown
                                     selectedUser={selectedUser}
                                     key={`thread-opts-${selectedThread.leadId}-${selectedThread?.id}-${assignmentRefreshKey}-${teamsAssignedKey}`}
-                                    label="Team"
+                                    label="Assign"
                                     selectedThread={{
                                         id: selectedThread.id,
                                         leadId: selectedThread.leadId,

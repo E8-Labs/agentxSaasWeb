@@ -8,7 +8,7 @@ const ButtonGroup = React.forwardRef(
     return (
       <div
         ref={ref}
-        className={cn('inline-flex rounded-md border border-gray-200 bg-white shadow-sm', className)}
+        className={cn('inline-flex rounded-md bg-white shadow-sm', className)}
         role="group"
         {...props}
       />

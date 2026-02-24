@@ -43,10 +43,10 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
   <div className="flex flex-col">
     <div
       className={`px-4 py-2 ${isOutbound
-        ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+        ? 'text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
         }`}
-      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary))' } : {}}
+      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : {}}
     >
       <div
         className={`prose prose-sm max-w-none break-words
@@ -55,11 +55,7 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
           [&_ol]:!my-[0.2em] [&_ol]:!pl-[1.15em]
           [&_li]:!my-[0.08em]
           [&_a]:text-brand-primary [&_a]:underline hover:[&_a]:opacity-80
-          ${isOutbound
-          ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
-          : 'text-black'
-          }`}
-        style={isOutbound ? { color: 'white' } : {}}
+          text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a]:!text-brand-primary [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black`}
         dangerouslySetInnerHTML={{
           __html: isAttachmentOnlyPlaceholder(message.content)
             ? ''
@@ -69,7 +65,7 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
     </div>
     <div className="flex items-center justify-end gap-2 mt1 mr-1">
-      <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
+      <span className={`text-[12px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
     </div>
   </div>
 )

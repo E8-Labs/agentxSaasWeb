@@ -7,6 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 import TaskForm from '@/components/messaging/TaskForm'
 import { createTask } from '@/components/onboarding/services/apisServices/TaskService'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
@@ -121,21 +123,28 @@ const CreateTaskFromNextStepsModal = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          'sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col p-0',
+          'sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col p-0 gap-1',
           elevatedZIndex && 'z-[6001]'
         )}
         overlayClassName={elevatedZIndex ? 'z-[6000]' : undefined}
+        hideCloseButton
       >
-        <DialogHeader className="px-6 pt-6 pb-4">
+        <DialogHeader
+          className="flex flex-row items-center justify-between py-3 px-4 border-b h-auto"
+          style={{ borderColor: '#eaeaea' }}
+        >
           <DialogTitle>
             <TypographyH3>New Task</TypographyH3>
           </DialogTitle>
+          <DialogPrimitive.Close asChild>
+            <CloseBtn aria-label="Close" onClick={onClose} />
+          </DialogPrimitive.Close>
         </DialogHeader>
 
-        {/* Divider between title and input fields */}
-        <div className="border-b border-gray-200 mx-6" />
+        {/* Divider between title and input fields - hidden per annotation */}
+        <div className="border-b border-gray-200 mx-6 hidden" aria-hidden />
 
-        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-2">
+        <div className="flex-1 overflow-y-auto px-4 py-3">
           <TaskForm
             teamMembers={teamMembers}
             onSubmit={handleCreateTask}
@@ -156,7 +165,7 @@ const CreateTaskFromNextStepsModal = ({
         </div>
 
         {/* Action Buttons - Fixed at bottom */}
-        <div className="px-6 pt-4 pb-1 border-t border-gray-200 flex-shrink-0 flex justify-end gap-2">
+        <div className="py-3 px-4 border-t border-gray-200 flex-shrink-0 flex justify-between gap-2 h-auto">
           <button
             type="button"
             onClick={onClose}
