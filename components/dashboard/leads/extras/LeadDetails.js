@@ -1625,7 +1625,7 @@ const LeadDetails = ({
   const sendEmailToLead = async (emailData) => {
     try {
       console.log("Lead email is", selectedLeadsDetails)
-      if(!selectedLeadsDetails.email || selectedLeadsDetails.email === '' || selectedLeadsDetails.email === null || selectedLeadsDetails.email === undefined){
+      if (!selectedLeadsDetails.email || selectedLeadsDetails.email === '' || selectedLeadsDetails.email === null || selectedLeadsDetails.email === undefined) {
         showSnackbar('Lead does not have a valid email address', SnackbarTypes.Error)
         return
       }
@@ -1968,7 +1968,7 @@ const LeadDetails = ({
                     paddingBottom: 2,
                   }}
                 >
-                  {!renderInline && (
+                  {!showAsTab && !renderInline && (
                     <div className="w-full flex flex-row items-center justify-between p-3 h-auto border-b" style={{ borderColor: '#eaeaea' }}>
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
@@ -1985,143 +1985,143 @@ const LeadDetails = ({
                   <div className="px-0">
                     <div className="py-0 gap-1 flex flex-col">
                       <div className="flex flex-row items-start justify-between mt-4 w-full">
-                      <div className="flex flex-col items-start  w-full">
-                        <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
-                          <div className="flex flex-row items-center gap-3">
+                        <div className="flex flex-col items-start  w-full">
+                          <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
+                            <div className="flex flex-row items-center gap-3">
 
-                            {/* only show when showAsTab is true */}
-                            {showAsTab && (
-                              <button
-                              onClick={() => {
-                                setShowDetailsModal(false)
-                              }}
-                              >
-                                <ArrowLeftIcon size={20} />
-                              </button>
-                            )}
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="inline-flex cursor-pointer size-[38px]">
-                                    <Avatar className="h-[38px] w-[38px] bg-red">
-                                      {selectedLeadsDetails?.avatar ? (
-                                        <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
-                                      ) : (
-                                        <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
-                                      )}
-                                    </Avatar>
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent side="top">
-                                  Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                              <p className="truncate text-lg font-semibold leading-none text-foreground">
-                                {/* max characters 15 combined */}
-                                {(() => {
-                                  const firstName = selectedLeadsDetails?.firstName || ''
-                                  const lastName = selectedLeadsDetails?.lastName || ''
-                                  const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
-                                  if (fullName.length > 10) {
-                                    return fullName.slice(0, 10) + '...'
-                                  }
-                                  return fullName
-                                })()}
-                              </p>
-                              {/* Send actions: Text | Email | Call (ShadCN button group) */}
-                              <>
-                                <SendActionsButtonGroup
-                                  onSelect={handleSendAction}
-                                  emailCapability={emailCapability}
-                                  dialerCapability={dialerCapability}
-                                  smsCapability={smsCapability}
-                                />
-                                {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
-                                  <UpgradeTagWithModal
-                                    reduxUser={effectiveUser}
-                                    setReduxUser={setReduxUser}
-                                    requestFeature={dialerCapability.showRequestFeature}
-                                    externalTrigger={triggerUpgradeModal > 0}
-                                    onModalClose={handleUpgradeModalClose}
-                                    hideTag={true}
-                                    selectedUser={memoizedSelectedUserForUpgrade}
-                                  />
-                                )}
-                                {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
-                                  <UpgradeTagWithModal
-                                    reduxUser={effectiveUser}
-                                    setReduxUser={setReduxUser}
-                                    requestFeature={emailCapability.showRequestFeature}
-                                    externalTrigger={triggerEmailUpgradeModal > 0}
-                                    onModalClose={handleEmailUpgradeModalClose}
-                                    hideTag={true}
-                                    selectedUser={memoizedSelectedUserForUpgrade}
-                                    featureTitle="Enable Emails"
-                                  />
-                                )}
-                                {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
-                                  <UpgradeTagWithModal
-                                    reduxUser={effectiveUser}
-                                    setReduxUser={setReduxUser}
-                                    requestFeature={smsCapability.showRequestFeature}
-                                    externalTrigger={triggerSMSUpgradeModal > 0}
-                                    onModalClose={handleSMSUpgradeModalClose}
-                                    hideTag={true}
-                                    selectedUser={memoizedSelectedUserForUpgrade}
-                                  />
-                                )}
-                              </>
-                            </div>
-
-
-
-
-
-                            {/* Scoring Progress */}
-                            {selectedLeadsDetails?.scoringDetails &&
-                              selectedLeadsDetails?.scoringDetails?.questions
-                                ?.length > 0 && (
-                                <ScoringProgress
-                                  value={
-                                    selectedLeadsDetails?.scoringDetails
-                                      ?.totalScore
-                                  }
-                                  maxValue={10}
-                                  questions={
-                                    selectedLeadsDetails?.scoringDetails
-                                      ?.questions
-                                  }
-                                  showTooltip={true}
-                                  tooltipTitle="Results"
-                                />
+                              {/* only show when showAsTab is true */}
+                              {showAsTab && (
+                                <button
+                                  onClick={() => {
+                                    setShowDetailsModal(false)
+                                  }}
+                                >
+                                  <ArrowLeftIcon size={20} />
+                                </button>
                               )}
-
-                            {selectedLeadsDetails?.isOnDncList && (
-                              <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
-                                DNC
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-flex cursor-pointer size-[38px]">
+                                      <Avatar className="h-[38px] w-[38px] bg-red">
+                                        {selectedLeadsDetails?.avatar ? (
+                                          <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
+                                        ) : (
+                                          <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
+                                        )}
+                                      </Avatar>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">
+                                    Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <div className="flex min-w-0 flex-1 items-center gap-3">
+                                <p className="truncate text-lg font-semibold leading-none text-foreground">
+                                  {/* max characters 15 combined */}
+                                  {(() => {
+                                    const firstName = selectedLeadsDetails?.firstName || ''
+                                    const lastName = selectedLeadsDetails?.lastName || ''
+                                    const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
+                                    if (fullName.length > 10) {
+                                      return fullName.slice(0, 10) + '...'
+                                    }
+                                    return fullName
+                                  })()}
+                                </p>
+                                {/* Send actions: Text | Email | Call (ShadCN button group) */}
+                                <>
+                                  <SendActionsButtonGroup
+                                    onSelect={handleSendAction}
+                                    emailCapability={emailCapability}
+                                    dialerCapability={dialerCapability}
+                                    smsCapability={smsCapability}
+                                  />
+                                  {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
+                                    <UpgradeTagWithModal
+                                      reduxUser={effectiveUser}
+                                      setReduxUser={setReduxUser}
+                                      requestFeature={dialerCapability.showRequestFeature}
+                                      externalTrigger={triggerUpgradeModal > 0}
+                                      onModalClose={handleUpgradeModalClose}
+                                      hideTag={true}
+                                      selectedUser={memoizedSelectedUserForUpgrade}
+                                    />
+                                  )}
+                                  {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+                                    <UpgradeTagWithModal
+                                      reduxUser={effectiveUser}
+                                      setReduxUser={setReduxUser}
+                                      requestFeature={emailCapability.showRequestFeature}
+                                      externalTrigger={triggerEmailUpgradeModal > 0}
+                                      onModalClose={handleEmailUpgradeModalClose}
+                                      hideTag={true}
+                                      selectedUser={memoizedSelectedUserForUpgrade}
+                                      featureTitle="Enable Emails"
+                                    />
+                                  )}
+                                  {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+                                    <UpgradeTagWithModal
+                                      reduxUser={effectiveUser}
+                                      setReduxUser={setReduxUser}
+                                      requestFeature={smsCapability.showRequestFeature}
+                                      externalTrigger={triggerSMSUpgradeModal > 0}
+                                      onModalClose={handleSMSUpgradeModalClose}
+                                      hideTag={true}
+                                      selectedUser={memoizedSelectedUserForUpgrade}
+                                    />
+                                  )}
+                                </>
                               </div>
-                            )}
-                          </div>
-                          {/* Stage Select Dropdown */}
-                          <div className="flex flex-col align-self-end gap-[5px] ">
-                            <div className="flex flex-row items-center gap-2">
-                              {/* <Image
+
+
+
+
+
+                              {/* Scoring Progress */}
+                              {selectedLeadsDetails?.scoringDetails &&
+                                selectedLeadsDetails?.scoringDetails?.questions
+                                  ?.length > 0 && (
+                                  <ScoringProgress
+                                    value={
+                                      selectedLeadsDetails?.scoringDetails
+                                        ?.totalScore
+                                    }
+                                    maxValue={10}
+                                    questions={
+                                      selectedLeadsDetails?.scoringDetails
+                                        ?.questions
+                                    }
+                                    showTooltip={true}
+                                    tooltipTitle="Results"
+                                  />
+                                )}
+
+                              {selectedLeadsDetails?.isOnDncList && (
+                                <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
+                                  DNC
+                                </div>
+                              )}
+                            </div>
+                            {/* Stage Select Dropdown */}
+                            <div className="flex flex-col align-self-end gap-[5px] ">
+                              <div className="flex flex-row items-center gap-2">
+                                {/* <Image
                               src={"/assets/arrow.png"}
                               height={16}
                               width={16}
                               alt="man"
                             /> */}
-                              <div
-                                className="text-end flex flex-row items-center gap-1"
-                                style={styles.paragraph}
-                              >
-                                {stagesListLoader ? (
-                                  <CircularProgress size={25} />
-                                ) : (
-                                  <>
-                                    {/* <div
+                                <div
+                                  className="text-end flex flex-row items-center gap-1"
+                                  style={styles.paragraph}
+                                >
+                                  {stagesListLoader ? (
+                                    <CircularProgress size={25} />
+                                  ) : (
+                                    <>
+                                      {/* <div
                                   className="h-[10px] w-[10px] rounded-full"
                                   style={{
                                     backgroundColor:
@@ -2130,31 +2130,31 @@ const LeadDetails = ({
                                   }}
                                 ></div> */}
 
-                                    {updateLeadLoader ? (
-                                      <CircularProgress size={20} />
-                                    ) : (
+                                      {updateLeadLoader ? (
+                                        <CircularProgress size={20} />
+                                      ) : (
 
-                                      <SelectStageDropdown
-                                        selectedStage={selectedStage}
-                                        handleStageChange={handleStageChange}
-                                        stagesList={stagesList}
-                                        updateLeadStage={updateLeadStage}
-                                        chevronIcon={ChevronDown}
-                                        textSize="14px"
-                                      />
-                                    )}
-                                  </>
-                                )}
+                                        <SelectStageDropdown
+                                          selectedStage={selectedStage}
+                                          handleStageChange={handleStageChange}
+                                          stagesList={stagesList}
+                                          updateLeadStage={updateLeadStage}
+                                          chevronIcon={ChevronDown}
+                                          textSize="14px"
+                                        />
+                                      )}
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="w-full space-y-1 text-sm m-0 px-4 text-[14px] font-normal [&>*]:min-h-10 [&>*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
-                          {/* Email with edit functionality */}
+                          <div className="w-full space-y-1 text-sm m-0 px-4 text-[14px] font-normal [&>*]:min-h-6 [&>*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            {/* Email with edit functionality */}
 
 
-                          {/* Email with edit functionality - Updated Version */}
-                          {/* {!isEditingEmail ? (
+                            {/* Email with edit functionality - Updated Version */}
+                            {/* {!isEditingEmail ? (
                           (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
                               <MailIcon className="h-4 w-4 text-muted-foreground" />
@@ -2179,57 +2179,56 @@ const LeadDetails = ({
                           )
                         ) : (  */}
 
-                          <div className="flex flex-col gap-2 m-0 text-[14px] [&_*]:text-[14px]">
-                            <div className="flex flex-row items-center gap-2 m-0">
-                              <Mail className="h-4 w-4 text-muted-foreground" size={16} />
-                              <div className="flex flex-row items-center gap-2 flex-1">
-                                <Input
-                                  ref={emailInputRef}
-                                  type="email"
-                                  value={editedEmail || selectedLeadsDetails?.email}
-                                  onChange={(e) => {
-                                    setEditedEmail(e.target.value)
-                                    setIsEditingEmail(true)
+                            <div className="flex flex-col gap-2 m-0 text-[14px] [&_*]:text-[14px]">
+                              <div className="flex flex-row items-center gap-2 m-0">
+                                <Mail className="h-4 w-4 text-muted-foreground" size={16} />
+                                <div className="flex flex-row items-center gap-2 flex-1">
+                                  <Input
+                                    ref={emailInputRef}
+                                    type="email"
+                                    value={editedEmail || selectedLeadsDetails?.email}
+                                    onChange={(e) => {
+                                      setEditedEmail(e.target.value)
+                                      setIsEditingEmail(true)
 
-                                  }}
-                                  placeholder="Enter email address"
-                                  className="flex-1 max-w-[200px] text-sm h-8 border-0 rounded-md p-2 shadow-none focus:border focus:border-primary focus:ring-0"
-                                  disabled={updateEmailLoader}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      updateLeadEmail()
-                                    } else if (e.key === 'Escape') {
-                                      handleCancelEditEmail()
-                                    }
-                                  }}
-                                />
-                                <div className="flex items-center gap-1">
-                                  {updateEmailLoader ? (
-                                    <CircularProgress size={16} />
-                                  ) : (
-                                    <>
-                                      {isEditingEmail && (
+                                    }}
+                                    placeholder="Enter email address"
+                                    className="flex-1 max-w-[200px] text-sm h-8 border-0 rounded-md p-2 shadow-none focus:border focus:border-primary focus:ring-0"
+                                    disabled={updateEmailLoader}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        updateLeadEmail()
+                                      } else if (e.key === 'Escape') {
+                                        handleCancelEditEmail()
+                                      }
+                                    }}
+                                  />
+                                  <div className="flex items-center gap-1">
+                                    {updateEmailLoader ? (
+                                      <CircularProgress size={16} />
+                                    ) : (
+                                      <>
+                                        {isEditingEmail && (
 
-                                        <MuiTooltip title="Save" placement="top">
-                                          <button
-                                            onClick={updateLeadEmail}
-                                            disabled={!editedEmail?.trim()}
-                                            className="p-1 text-brand-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                                          >
-                                            <span className="text-sm font-semibold">Save</span>
-                                          </button>
-                                        </MuiTooltip>
-                                      )}
-                                    </>
-                                  )}
+                                          <MuiTooltip title="Save" placement="top">
+                                            <button
+                                              onClick={updateLeadEmail}
+                                              disabled={!editedEmail?.trim()}
+                                              className="p-1 text-brand-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                              <span className="text-sm font-semibold">Save</span>
+                                            </button>
+                                          </MuiTooltip>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                          {/*)} */}
+                            {/*)} */}
 
 
-                          <div>
                             {selectedLeadsDetails?.email && (
                               <div className="flex flex-row w-full justify-start">
                                 {selectedLeadsDetails?.emails
@@ -2275,110 +2274,109 @@ const LeadDetails = ({
                                   })}
                               </div>
                             )}
-                          </div>
 
 
-                          {selectedLeadsDetails?.phone && (
-                            <InfoRow icon={<PhoneIcon className="h-4 w-4" size={16} />}>
-                              {selectedLeadsDetails.phone.startsWith('+')
-                                ? selectedLeadsDetails.phone
-                                : `+${selectedLeadsDetails.phone}`}
+                            {selectedLeadsDetails?.phone && (
+                              <InfoRow icon={<PhoneIcon className="h-4 w-4" size={16} />}>
+                                {selectedLeadsDetails.phone.startsWith('+')
+                                  ? selectedLeadsDetails.phone
+                                  : `+${selectedLeadsDetails.phone}`}
+                              </InfoRow>
+                            )}
+                            {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>{selectedLeadsDetails?.address}</InfoRow>}
+                            <InfoRow icon={<WorkflowIcon className="h-4 w-4" size={16} />}>
+                              {selectedLeadsDetails?.pipeline?.title ||
+                                selectedLeadsDetails?.pipeline?.name ||
+                                selectedLeadsDetails?.pipeline ||
+                                '-'}
                             </InfoRow>
-                          )}
-                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>{selectedLeadsDetails?.address}</InfoRow>}
-                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" size={16} />}>
-                            {selectedLeadsDetails?.pipeline?.title ||
-                              selectedLeadsDetails?.pipeline?.name ||
-                              selectedLeadsDetails?.pipeline ||
-                              '-'}
-                          </InfoRow>
-                          {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
-                            <InfoRow icon={<CalendarIcon className="h-4 w-4" size={16} />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
-                            {
-                              selectedLeadsDetails?.booking?.duration && (
-                                <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
-                              )
-                            }
-                          </div>}
-                          {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>
-                            <Link href={selectedLeadsDetails?.meetingLocation} target="_blank" className="block min-w-0 max-w-full truncate">{selectedLeadsDetails?.meetingLocation}</Link>
-                          </InfoRow>}
-                          <div className="flex items-center gap-2">
-                            <TagIcon className="h-4 w-4 text-muted-foreground" size={16} />
-                            <TagManagerCn
-                              tags={selectedLeadsDetails?.tags || []}
-                              tagInputRef={tagInputRef}
-                              tagInputValue={tagInputValue}
-                              onInputChange={handleTagInputChange}
-                              onInputKeyDown={handleTagInputKeyDown}
-                              showSuggestions={showTagSuggestions}
-                              setShowSuggestions={setShowTagSuggestions}
-                              tagSuggestions={tagSuggestions}
-                              onSuggestionClick={handleTagSuggestionClick}
-                              addTagLoader={addTagLoader}
-                              onRemoveTag={handleDelTag}
-                              delTagLoader={DelTagLoader}
-                              onRefreshSuggestions={getUniqueTags}
-                              selectedUser={selectedUser}
-                              showSnackbar={showSnackbar}
-                              onLeadDetailsUpdated={handleLeadDetailsUpdated}
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
+                            {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
+                              <InfoRow icon={<CalendarIcon className="h-4 w-4" size={16} />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
+                              {
+                                selectedLeadsDetails?.booking?.duration && (
+                                  <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
+                                )
+                              }
+                            </div>}
+                            {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>
+                              <Link href={selectedLeadsDetails?.meetingLocation} target="_blank" className="block min-w-0 max-w-full truncate">{selectedLeadsDetails?.meetingLocation}</Link>
+                            </InfoRow>}
+                            <div className="flex items-center gap-2">
+                              <TagIcon className="h-4 w-4 text-muted-foreground" size={16} />
+                              <TagManagerCn
+                                tags={selectedLeadsDetails?.tags || []}
+                                tagInputRef={tagInputRef}
+                                tagInputValue={tagInputValue}
+                                onInputChange={handleTagInputChange}
+                                onInputKeyDown={handleTagInputKeyDown}
+                                showSuggestions={showTagSuggestions}
+                                setShowSuggestions={setShowTagSuggestions}
+                                tagSuggestions={tagSuggestions}
+                                onSuggestionClick={handleTagSuggestionClick}
+                                addTagLoader={addTagLoader}
+                                onRemoveTag={handleDelTag}
+                                delTagLoader={DelTagLoader}
+                                onRefreshSuggestions={getUniqueTags}
+                                selectedUser={selectedUser}
+                                showSnackbar={showSnackbar}
+                                onLeadDetailsUpdated={handleLeadDetailsUpdated}
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
 
-                            {
+                              {
 
-                              globalLoader ? (
-                                <CircularProgress size={20} />
-                              ) : (
+                                globalLoader ? (
+                                  <CircularProgress size={20} />
+                                ) : (
 
-                                <TeamAssignDropdownCn
-                                  withoutBorder={true}
-                                  label="Assign"
-                                  teamOptions={teamOptions}
-                                  onToggle={(teamId, team, shouldAssign) => {
-                                    console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
-                                      teamId,
-                                      team,
-                                      shouldAssign,
-                                      teamLabel: team?.label,
-                                      teamRaw: team?.raw
-                                    });
+                                  <TeamAssignDropdownCn
+                                    withoutBorder={true}
+                                    label="Assign"
+                                    teamOptions={teamOptions}
+                                    onToggle={(teamId, team, shouldAssign) => {
+                                      console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
+                                        teamId,
+                                        team,
+                                        shouldAssign,
+                                        teamLabel: team?.label,
+                                        teamRaw: team?.raw
+                                      });
 
-                                    if (shouldAssign) {
-                                      // If team.raw is available, use it directly
-                                      if (team?.raw) {
-                                        handleAssignLeadToTeammember(team.raw);
-                                      } else {
-                                        // Otherwise find the team in our list
-                                        const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
-                                        const teamToAssign = allTeams.find(t => {
-                                          const tId = t.invitedUserId || t.invitedUser?.id || t.id;
-                                          return String(tId) === String(teamId);
-                                        });
-
-                                        if (teamToAssign) {
-                                          handleAssignLeadToTeammember(teamToAssign);
+                                      if (shouldAssign) {
+                                        // If team.raw is available, use it directly
+                                        if (team?.raw) {
+                                          handleAssignLeadToTeammember(team.raw);
                                         } else {
-                                          console.error('❌ Could not find team member with ID:', teamId);
-                                        }
-                                      }
-                                    } else {
-                                      handleUnassignLeadFromTeammember(teamId);
-                                    }
-                                  }}
+                                          // Otherwise find the team in our list
+                                          const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+                                          const teamToAssign = allTeams.find(t => {
+                                            const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+                                            return String(tId) === String(teamId);
+                                          });
 
-                                />
-                              )}
+                                          if (teamToAssign) {
+                                            handleAssignLeadToTeammember(teamToAssign);
+                                          } else {
+                                            console.error('❌ Could not find team member with ID:', teamId);
+                                          }
+                                        }
+                                      } else {
+                                        handleUnassignLeadFromTeammember(teamId);
+                                      }
+                                    }}
+
+                                  />
+                                )}
+                            </div>
                           </div>
+
+
+
                         </div>
 
 
-
                       </div>
-
-
-                    </div>
                     </div>
 
                   </div>
