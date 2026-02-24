@@ -662,6 +662,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
       // if (!data) {
       //   setInitialLoader(true);
       // }
+      setInitialLoader(true);
       const localData = localStorage.getItem('User')
       let AuthToken = null
       if (localData) {
@@ -2530,8 +2531,8 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
 
 
       {initialLoader ? (
-        <div className="w-full flex flex-row justify-center mt-12">
-          <CircularProgress size={35} />
+        <div className="w-screen">
+          <PipelineLoading />
         </div>
       ) : (
         <>
@@ -4328,7 +4329,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                 maxHeight: '90svh',
               }}
             >
-              <div className="flex flex-row justify-between h-[10%] w-full">
+              <div className="flex flex-row justify-between h-[10svh] w-full">
                 <div style={{ fontWeight: '600', fontSize: 22 }}>
                   Rearrange Stages
                 </div>
@@ -4342,7 +4343,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
               </div>
 
               <div
-                className="w-full h-[80%] overflow-auto"
+                className="w-full h-[67svh] overflow-auto"
                 style={{ scrollbarWidth: 'none' }}
               >
                 <RearrangeStages
@@ -4371,7 +4372,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                 />
               </div>
 
-              <div className="w-full h-[10%]">
+              <div className="w-full h-[10svh]">
                 {reorderStageLoader ? (
                   <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
                     <CircularProgress size={25} />
