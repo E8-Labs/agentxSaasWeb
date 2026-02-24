@@ -47,7 +47,7 @@ const ActivityTile = ({
   const isExpandDisabled =
     item?.callOutcome === 'Email Failed' || item?.callOutcome === 'Text Failed' || outcome === 'Ongoing' || item?.status !== "completed" || item?.status !== "success" || item?.status === 'failed'
   const shouldShowChevron =
-    item.callOutcome !== 'No Answer' && !isExpandDisabled
+    item.callOutcome !== 'No Answer' && isExpandDisabled
 
   return (
     <div className="mt-4">
@@ -69,7 +69,7 @@ const ActivityTile = ({
               size="sm"
               className="gap-2 rounded-full bg-muted"
               // disabled={isExpandDisabled}
-              onClick={() => !isExpandDisabled && onToggleExpand(item)}
+              onClick={() => isExpandDisabled && onToggleExpand(item)}
             >
               <div
                 className="h-2.5 w-2.5 rounded-full"

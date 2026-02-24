@@ -971,7 +971,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           onChange={() => setSelectedProvider('anthropic')}
                           className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
                         />
-                        <span className="text-sm text-gray-700 -ms-1">Anthropic</span>
+                        <span className="text-sm text-gray-700 -ms-1">Claude</span>
                       </label>
                     </div>
 

@@ -34,7 +34,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
   // #region agent log
   useEffect(() => {
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminProfileData.js:25',message:'AdminProfileData props',data:{agencyUser,from,hasHandleClose:!!handleClose,hasHandleDel:!!handleDel,hasHandlePauseUser:!!handlePauseUser,selectedUserId:selectedUser?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'AdminProfileData.js:25', message: 'AdminProfileData props', data: { agencyUser, from, hasHandleClose: !!handleClose, hasHandleDel: !!handleDel, hasHandlePauseUser: !!handlePauseUser, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'L' }) }).catch(() => { });
   }, [agencyUser, from, handleClose, handleDel, handlePauseUser, selectedUser?.id])
   // #endregion
 
@@ -103,7 +103,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     }
     // Default title
   }
-  
+
 
   let allMenuItems = [
     {
@@ -195,7 +195,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
       return true // Default to showing if permission check is unclear
     })
-  }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission,xbarTitle])
+  }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission, xbarTitle])
 
 
   // Fetch user details
@@ -259,7 +259,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
             'Content-Type': 'application/json',
           },
         })
-        
+
         if (response) {
           if (response.data.status === true) {
             if (selectedUser) {
@@ -304,7 +304,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
             'Content-Type': 'application/json',
           },
         })
-        
+
         if (response.data) {
           if (response.data.status === true) {
             setDelLoader(false)
@@ -401,7 +401,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
   // #region agent log
   useEffect(() => {
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminProfileData.js:322',message:'AdminProfileData render',data:{agencyUser,from,hasHandleClose:!!handleClose,hasHandleDel:!!handleDel,hasHandlePauseUser:!!handlePauseUser,selectedUserId:selectedUser?.id,willShowButtons:agencyUser},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'M'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'AdminProfileData.js:322', message: 'AdminProfileData render', data: { agencyUser, from, hasHandleClose: !!handleClose, hasHandleDel: !!handleDel, hasHandlePauseUser: !!handlePauseUser, selectedUserId: selectedUser?.id, willShowButtons: agencyUser }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'M' }) }).catch(() => { });
   }, [])
   // #endregion
 
@@ -409,8 +409,11 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     // <Suspense>
     // </Suspense>
     <div
-      className={embedded ? 'w-full flex flex-col items-center min-h-0 flex-1' : 'w-full flex flex-col items-center'}
-      style={{ overflow: 'hidden', height: embedded ? '100%' : '100vh' }}
+      className={embedded ? 'w-full flex flex-col items-center h-[100vh]' : 'w-full flex flex-col items-center h-[100vh]'}
+      style={{
+        overflow: 'hidden',
+        // height: embedded ? '100%' : ''
+      }}
     >
       {/* Slider code<div
                 style={{
@@ -429,10 +432,14 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
           My Account
         </TypographyH3>
       </div>
-      <div className="w-12/12 flex-1 min-h-0 flex flex-row items-center pl-2 w-full overflow-hidden">
+      <div className="w-12/12 h-[calc(100vh-4rem)] flex flex-row items-stretch pl-2 w-full overflow-hidden">
         <div
-          className="w-4/12 h-full min-h-0 flex flex-col items-center pr-2 overflow-y-auto"
-          style={{ scrollbarWidth: 'thin' }}
+          className="w-4/12 h-[calc(100vh-4rem)] flex flex-col items-center pr-2 overflow-y-auto"
+          style={{
+            borderRightWidth: 1,
+            borderBottomColor: '#00000010',
+            scrollbarWidth: 'thin',
+          }}
         >
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">
@@ -489,11 +496,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
         </div>
 
         <div
-          className="w-8/12 flex-1 min-h-0 overflow-auto"
-          style={{
-            borderLeftWidth: 1,
-            borderBottomColor: '#00000010',
-          }}
+          className="w-8/12 h-[calc(100vh-4rem)] overflow-auto"
         >
           {renderComponent()}
         </div>
