@@ -230,7 +230,7 @@ const LoaderAnimation = ({
                       }
                       loop
                       autoplay
-                    />
+                    />lotie
                   </div>
                 ) : (
                   <div
@@ -248,7 +248,7 @@ const LoaderAnimation = ({
                         width: '152px',
                         resize: 'contain',
                       }}
-                    />
+                    />orb
                   </div>
                 )}
               </div>
@@ -257,7 +257,7 @@ const LoaderAnimation = ({
                 className="text-center mt-8"
                 style={{ fontWeight: '600', fontSize: 16 }}
               >
-                {title}
+                {title}tt
               </div>
 
               {/* <div className='text-center mt-6 pb-8' style={{ fontWeight: "400", fontSize: 15 }}>
