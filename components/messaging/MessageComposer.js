@@ -327,11 +327,13 @@ const MessageComposer = ({
     }
   }, [])
 
-  // When selecting a Messenger/Instagram thread, switch to the corresponding tab
+  // When selecting a Messenger/Instagram thread (or linked lead with social PSID), switch to the corresponding tab
   useEffect(() => {
-    if (selectedThread?.threadType === 'messenger') setComposerMode('facebook')
-    else if (selectedThread?.threadType === 'instagram') setComposerMode('instagram')
-  }, [selectedThread?.id, selectedThread?.threadType])
+    const isInstagram = selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid
+    const isMessenger = selectedThread?.threadType === 'messenger' || !!selectedThread?.lead?.messengerPsid
+    if (isInstagram) setComposerMode('instagram')
+    else if (isMessenger) setComposerMode('facebook')
+  }, [selectedThread?.id, selectedThread?.threadType, selectedThread?.lead?.instagramPsid, selectedThread?.lead?.messengerPsid])
 
   // Smooth height transition when switching tabs
   useEffect(() => {
@@ -1142,7 +1144,13 @@ const MessageComposer = ({
   // Thread is replyable via Messenger if it's a messenger thread or has receiverMessengerPsid (e.g. merged SMS thread)
   const canReplyMessenger = (selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid) && hasFacebookConnection
   const canReplyInstagram = (selectedThread?.threadType === 'instagram' || !!selectedThread?.receiverInstagramPsid) && hasInstagramConnection
-  const sendableSocial = (isFacebookMode && canReplyMessenger) || (isInstagramMode && canReplyInstagram)
+  // When thread is linked to a lead (has leadId), enable FB/IG if thread is social or lead has that channel's PSID (backend has PSID on thread)
+  const linkedSocialSendable =
+    !!selectedThread?.leadId &&
+    ((isFacebookMode && (selectedThread?.threadType === 'messenger' || !!selectedThread?.lead?.messengerPsid) && hasFacebookConnection) ||
+      (isInstagramMode && (selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid) && hasInstagramConnection))
+  const sendableSocial =
+    (isFacebookMode && canReplyMessenger) || (isInstagramMode && canReplyInstagram) || linkedSocialSendable
   const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
   const showSocialComposer = false
 
@@ -1328,7 +1336,9 @@ const MessageComposer = ({
                 label="FB/IG DM"
                 isActive={composerMode === 'facebook' || composerMode === 'instagram'}
                 onClick={() => {
-                  setComposerMode(selectedThread?.threadType === 'instagram' ? 'instagram' : 'facebook')
+                  // Prefer Instagram when thread or linked lead has Instagram PSID (so input enables for linked IG conversations)
+                  const useInstagram = selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid
+                  setComposerMode(useInstagram ? 'instagram' : 'facebook')
                   setIsExpanded(true)
                 }}
               />
