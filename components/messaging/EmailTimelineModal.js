@@ -53,7 +53,7 @@ const linkifyText = (text) => {
   const linked = escaped.replace(urlRegex, (match) => {
     const hasProtocol = match.startsWith('http://') || match.startsWith('https://')
     const href = hasProtocol ? match : `https://${match}`
-    return `<a href="${href}" class="underline text-brand-primary hover:text-brand-primary/80" target="_blank" rel="noopener noreferrer">${match}</a>`
+    return `<a href="${href}" class="underline text-brand-primary hover:text-brand-primary/80 truncate block max-w-full" target="_blank" rel="noopener noreferrer" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${match}</a>`
   })
 
   // Preserve newlines

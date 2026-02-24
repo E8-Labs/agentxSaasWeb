@@ -1948,14 +1948,11 @@ const LeadDetails = ({
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div
-                  className="flex  flex-col w-full"
-                  style={{
-                    padding: 20,
-                    paddingInline: 30,
-                  }}
+                  className="flex flex-col w-full"
+                  style={{ padding: 2 }}
                 >
                   {!renderInline && (
-                    <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
+                    <div className="w-full flex flex-row items-center justify-between pb-4 border-b px-4 py-3 h-auto">
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
                       </div>
@@ -1971,13 +1968,13 @@ const LeadDetails = ({
                   <div>
                     <div className="flex flex-row items-start justify-between mt-4  w-full">
                       <div className="flex flex-col items-start  w-full">
-                        <div className="flex flex-row items-between justify-between w-full">
+                        <div className="flex flex-row items-between justify-between w-full px-4 h-10 max-h-none">
                           <div className="flex flex-row items-center gap-3">
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="inline-flex cursor-pointer">
-                                    <Avatar className="h-8 w-8 bg-red">
+                                  <span className="inline-flex cursor-pointer size-[38px]">
+                                    <Avatar className="h-[38px] w-[38px] bg-red">
                                       {selectedLeadsDetails?.avatar ? (
                                         <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
                                       ) : (
@@ -1986,7 +1983,7 @@ const LeadDetails = ({
                                     </Avatar>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent side="top">
                                   Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
                                 </TooltipContent>
                               </Tooltip>
@@ -2123,7 +2120,7 @@ const LeadDetails = ({
                             </div>
                           </div>
                         </div>
-                        <div className="space-y-2 text-sm mt-2">
+                        <div className="w-full space-y-1 text-sm m-0 px-4 text-[14px] font-normal [&>*]:min-h-10 [&>*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {/* Email with edit functionality */}
 
 
@@ -2136,7 +2133,7 @@ const LeadDetails = ({
                                 {selectedLeadsDetails?.email ? (
                                   <div className="flex items-center gap-2">
                                     <span>{selectedLeadsDetails.email}</span>
-                                    <MuiTooltip title="Edit email">
+                                    <MuiTooltip title="Edit email" placement="top">
                                       <button
                                         onClick={handleEditEmailClick}
                                         className="text-muted-foreground hover:text-foreground transition-colors"
@@ -2153,9 +2150,9 @@ const LeadDetails = ({
                           )
                         ) : (  */}
 
-                          <div className="flex flex-col gap-2">
-                            <div className="flex flex-row items-center gap-2">
-                              <MailIcon className="h-4 w-4 text-muted-foreground" />
+                          <div className="flex flex-col gap-2 m-0 text-[14px] [&_*]:text-[14px]">
+                            <div className="flex flex-row items-center gap-2 m-0">
+                              <Mail className="h-4 w-4 text-muted-foreground" size={16} />
                               <div className="flex flex-row items-center gap-2 flex-1">
                                 <Input
                                   ref={emailInputRef}
@@ -2167,7 +2164,7 @@ const LeadDetails = ({
 
                                   }}
                                   placeholder="Enter email address"
-                                  className="flex-1 max-w-[200px] text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
+                                  className="flex-1 max-w-[200px] text-sm h-8 border-0 rounded-md p-2 shadow-none focus:border focus:border-primary focus:ring-0"
                                   disabled={updateEmailLoader}
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
@@ -2184,7 +2181,7 @@ const LeadDetails = ({
                                     <>
                                       {isEditingEmail && (
 
-                                        <MuiTooltip title="Save">
+                                        <MuiTooltip title="Save" placement="top">
                                           <button
                                             onClick={updateLeadEmail}
                                             disabled={!editedEmail?.trim()}
@@ -2253,32 +2250,32 @@ const LeadDetails = ({
 
 
                           {selectedLeadsDetails?.phone && (
-                            <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>
+                            <InfoRow icon={<PhoneIcon className="h-4 w-4" size={16} />}>
                               {selectedLeadsDetails.phone.startsWith('+')
                                 ? selectedLeadsDetails.phone
                                 : `+${selectedLeadsDetails.phone}`}
                             </InfoRow>
                           )}
-                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
-                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
+                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>{selectedLeadsDetails?.address}</InfoRow>}
+                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" size={16} />}>
                             {selectedLeadsDetails?.pipeline?.title ||
                               selectedLeadsDetails?.pipeline?.name ||
                               selectedLeadsDetails?.pipeline ||
                               '-'}
                           </InfoRow>
                           {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
-                            <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
+                            <InfoRow icon={<CalendarIcon className="h-4 w-4" size={16} />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
                             {
                               selectedLeadsDetails?.booking?.duration && (
                                 <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
                               )
                             }
                           </div>}
-                          {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>
-                            <Link href={selectedLeadsDetails?.meetingLocation} target="_blank">{selectedLeadsDetails?.meetingLocation}</Link>
+                          {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>
+                            <Link href={selectedLeadsDetails?.meetingLocation} target="_blank" className="block min-w-0 max-w-full truncate">{selectedLeadsDetails?.meetingLocation}</Link>
                           </InfoRow>}
                           <div className="flex items-center gap-2">
-                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                            <TagIcon className="h-4 w-4 text-muted-foreground" size={16} />
                             <TagManagerCn
                               tags={selectedLeadsDetails?.tags || []}
                               tagInputRef={tagInputRef}

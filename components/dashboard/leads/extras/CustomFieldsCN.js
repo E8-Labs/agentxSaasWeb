@@ -9,7 +9,6 @@ import { GetFormattedDateString } from '@/utilities/utility'
 import {
   TypographyBody,
   TypographyCaption,
-  TypographyBodySemibold,
 } from '@/lib/typography'
 import { Tooltip } from '@mui/material'
 
@@ -173,15 +172,15 @@ const CustomFieldsCN = ({
   }
 
   return (
-    <div className="flex flex-col gap-2 mt-3">
+    <div className="flex flex-col gap-2 mt-3 px-4">
       <div className="flex flex-row items-center justify-between w-full">
         <Button
           variant="ghost"
-          className="justify-start p-0 h-auto gap-2"
+          className="justify-start p-0 h-10 gap-2"
           onClick={onToggleCustomVariables}
         >
           <FileText className="h-4 w-4" />
-          <TypographyBodySemibold>Custom fields</TypographyBodySemibold>
+          <TypographyBody className="font-normal">Custom fields</TypographyBody>
           {showCustomVariables ? (
             <ChevronUp className="h-4 w-4" />
           ) : (

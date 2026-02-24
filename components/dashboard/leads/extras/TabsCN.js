@@ -76,7 +76,7 @@ const TabsCN = ({ tabs, value, onValueChange, className }) => {
 
   return (
     <Tabs value={value} onValueChange={onValueChange} className={cn('w-full', className)}>
-      <TabsList className="w-full flex flex-row items-center justify-between bg-transparent p-0 h-auto rounded-none border-b border-border/40">
+      <TabsList className="w-full flex flex-row items-center justify-between gap-2 bg-transparent p-0 h-auto rounded-none border-b border-border/40 [&>*]:flex-1">
         {tabs.map((tab) => {
           const isActive = value === tab.id
           
