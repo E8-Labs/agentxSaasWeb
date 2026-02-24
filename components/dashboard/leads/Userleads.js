@@ -1980,7 +1980,7 @@ const Userleads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center" style={{ backgroundColor: '#f9f9f9', fontFamily: 'Inter, sans-serif' }}>
+    <div className="w-full flex flex-col items-center bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
         (<div className="w-screen">
           <LeadLoading />
