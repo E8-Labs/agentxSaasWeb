@@ -243,7 +243,9 @@ function UpgradePlanContent({
   showSnackMsg = null,
   selectedUser,
   hasRedeemedTrial: hasRedeemedTrialProp,
+  elevatedZIndex = false,
 }) {
+  const modalZIndex = elevatedZIndex ? 5020 : 3000
   const stripeReact = useStripe()
   const elements = useElements()
   // For subaccount: show Due today $0 when plan has trial and user has not redeemed trial
@@ -1685,13 +1687,14 @@ function UpgradePlanContent({
       onClose={() => handleClose(false)}
       closeAfterTransition
       sx={{
-        zIndex: 3000, // Higher than dropdown menu (z-[2000])
+        zIndex: modalZIndex,
       }}
       BackdropProps={{
         timeout: 100,
         sx: {
           backgroundColor: '#00000020',
           backdropFilter: 'blur(15px)',
+          zIndex: modalZIndex,
         },
         onClick: (e) => {
           // Close modal when clicking backdrop
@@ -1703,7 +1706,7 @@ function UpgradePlanContent({
     >
       <Box
         className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
-        sx={styles.paymentModal}
+        sx={{ ...styles.paymentModal, zIndex: modalZIndex + 1 }}
       >
         <div className="flex flex-col justify-center w-full h-full">
           <AgentSelectSnackMessage
@@ -2573,6 +2576,7 @@ function UpgradePlan({
   from = 'User',
   selectedUser,
   hasRedeemedTrial,
+  elevatedZIndex = false,
   // setShowSnackMsg = null
 }) {
   // Get parent component name for debugging (without props)
@@ -2628,6 +2632,7 @@ function UpgradePlan({
         showSnackMsg={showSnackMsg}
         selectedUser={selectedUser}
         hasRedeemedTrial={hasRedeemedTrial}
+        elevatedZIndex={elevatedZIndex}
       />
     </Elements>
   )

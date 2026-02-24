@@ -32,7 +32,9 @@ function AuthSelectionPopup({
   showEmailTempPopup,
   setSelectedGoogleAccount,
   selectedUser,
+  elevatedZIndex = false,
 }) {
+  const modalZIndex = elevatedZIndex ? 5020 : 1600
   // Get userId from URL query params as fallback (for agency managing subaccount)
   const getUserIdFromUrl = () => {
     if (typeof window === 'undefined') return null
@@ -200,11 +202,11 @@ function AuthSelectionPopup({
         open={open} 
         onClose={onClose}
         sx={{
-          zIndex: 1600, // Higher than NewMessageModal (1500) to appear on top
+          zIndex: modalZIndex,
         }}
         BackdropProps={{
           sx: {
-            zIndex: 1600, // Match Modal z-index
+            zIndex: modalZIndex,
           },
         }}
       >
@@ -213,7 +215,7 @@ function AuthSelectionPopup({
           sx={{ 
             ...styles.modalsStyle,
             position: 'relative',
-            zIndex: 1601, // Higher than backdrop (1600) to appear on top
+            zIndex: modalZIndex + 1,
           }}
         >
           <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
@@ -397,11 +399,11 @@ function AuthSelectionPopup({
         open={showGmailConfirmationPopup}
         onClose={() => setShowGmailConfirmationPopup(false)}
         sx={{
-          zIndex: 1700, // Higher than AuthSelectionPopup (1600) to appear on top
+          zIndex: modalZIndex + 100,
         }}
         BackdropProps={{
           sx: {
-            zIndex: 1700, // Match Modal z-index
+            zIndex: modalZIndex + 100,
           },
         }}
       >
@@ -409,7 +411,7 @@ function AuthSelectionPopup({
           className="w-full h-full py-4 flex items-center justify-center"
           sx={{
             position: 'relative',
-            zIndex: 1701, // Higher than backdrop (1700) to appear on top
+            zIndex: modalZIndex + 101,
           }}
         >
           <div className="flex flex-col w-3/12  items-center px-4 py-6 bg-white max-h-[70vh] rounded-2xl">

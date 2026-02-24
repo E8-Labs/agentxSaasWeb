@@ -29,6 +29,7 @@ const TagManagerCn = ({
   selectedUser,
   showSnackbar,
   onLeadDetailsUpdated,
+  elevatedZIndex = false,
 }) => {
   const [showTagsPopover, setShowTagsPopover] = useState(false)
   const [deletePermanentLoader, setDeletePermanentLoader] = useState(null)
@@ -140,7 +141,7 @@ const TagManagerCn = ({
               </button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-auto min-w-[200px] max-w-[320px] p-4 shadow-lg border-border/50 !z-[1450]"
+              className={elevatedZIndex ? 'w-auto min-w-[200px] max-w-[320px] p-4 shadow-lg border-border/50 !z-[5020]' : 'w-auto min-w-[200px] max-w-[320px] p-4 shadow-lg border-border/50 !z-[1450]'}
               align="start"
               side="bottom"
               sideOffset={8}
