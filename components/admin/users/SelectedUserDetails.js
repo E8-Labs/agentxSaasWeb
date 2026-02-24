@@ -36,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import moment from 'moment/moment'
 
 function SelectedUserDetails({
   isAgencyView = false,
@@ -134,7 +135,8 @@ function SelectedUserDetails({
   ]
 
   const checkTrialDays = (userData) => {
-    if (userData?.isTrial) {
+    // console.log("userData in checkTrialDays is", userData);
+    if (userData?.planStatus?.isTrial) {
       // nextChargeDate is the trial END date (when the trial expires)
       const trialEnd = moment(userData?.nextChargeDate || new Date());
       const today = moment().startOf('day'); // Start of day for accurate day counting
