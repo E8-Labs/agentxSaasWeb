@@ -2695,6 +2695,7 @@ const LeadDetails = ({
                         noteDetails={noteDetails}
                         selectedLeadsDetails={selectedLeadsDetails}
                         onNotesUpdated={handleNotesUpdated}
+                        elevatedZIndex={elevatedZIndex}
                       />
                     )}
 
@@ -2720,7 +2721,7 @@ const LeadDetails = ({
                       />
                     )}
                   </div>
-                  {showNotesDetails && (
+                  {showNotesDetails?.length > 0 && (
                     <div
                       style={{
                         position: 'absolute',
