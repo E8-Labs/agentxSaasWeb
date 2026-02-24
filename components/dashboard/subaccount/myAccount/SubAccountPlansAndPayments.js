@@ -1504,6 +1504,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
             open={showUpgradeModal}
             selectedUser={selectedUser}
             allPlans={plans}
+            hasRedeemedTrial={userLocalData?.hasRedeemedTrial}
             handleClose={async (upgradeResult) => {
               setShowUpgradeModal(false)
 
