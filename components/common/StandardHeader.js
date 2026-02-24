@@ -42,7 +42,8 @@ function StandardHeader({
   containerClassName = '',
   showSeparator = true,
   variant = 'dark',
-  selectedUser = null
+  selectedUser = null,
+  enablePermissionChecks = false
 }) {
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
@@ -62,7 +63,7 @@ function StandardHeader({
   const textColorClass = isBright ? 'text-white' : ''
 
   // Use containerClassName if provided, otherwise build classes dynamically
-  const containerClasses = containerClassName || `w-full p-4 ${showSeparator ? 'border-b' : ''} flex flex-row items-center justify-between h-[66px] bg-white ${textColorClass}`
+  const containerClasses = containerClassName || `w-full p-4 ${showSeparator ? 'border-b' : ''} flex flex-row items-center justify-between h-[65px] ${textColorClass}`
 
   const handleTaskButtonClick = () => {
     setTaskBoardOpen(true)
@@ -74,7 +75,7 @@ function StandardHeader({
 
   return (
     <>
-      <div className={containerClasses}>
+      <div className={containerClasses} style={showSeparator ? { borderBottom: '1px solid #eaeaea' } : undefined}>
         {/* Left: Title Section - matches MessageHeader exactly */}
         {titleContent || (typeof title === 'string' ? <TypographyH3 className={textColorClass}>{title}</TypographyH3> : title)}
 
@@ -84,13 +85,13 @@ function StandardHeader({
           {showFilters && onFilterClick && (
             <button
               onClick={onFilterClick}
-              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center"
+              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center text-black/80"
               title="Filter"
             >
               {filterIcon || (
                 <svg
-                  width="20"
-                  height="20"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -203,6 +204,7 @@ function StandardHeader({
           threadId={selectedThread?.id || threadId || null}
           buttonRef={taskButtonRef}
           selectedUser={selectedUser}
+          enablePermissionChecks={enablePermissionChecks}
         />
       )}
     </>

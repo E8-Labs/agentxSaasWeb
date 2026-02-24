@@ -1,22 +1,22 @@
 'use client'
 
-import { createContext, useContext } from 'react'
+import { createContext } from 'react'
 
 /**
- * When Agentation toolbar is active, dialogs should not trap focus so the
- * annotation field can receive focus (see process-agentation skill).
- * This context provides trapFocus: false for Radix DialogContent.
+ * When true, Radix Dialog uses modal={false} so focus can escape to the
+ * Agentation toolbar, allowing users to type annotation comments while a modal is open.
+ * Only enabled in development when NEXT_PUBLIC_DESIGN_FRIENDLY_DEBUG is set.
  */
-const AgentationDialogContext = createContext({ trapFocus: false })
+export const AgentationDialogContext = createContext(false)
 
 export function AgentationDialogProvider({ children }) {
+  const useModalFalse =
+    process.env.NODE_ENV === 'development' &&
+    process.env.NEXT_PUBLIC_DESIGN_FRIENDLY_DEBUG === 'true'
+
   return (
-    <AgentationDialogContext.Provider value={{ trapFocus: false }}>
+    <AgentationDialogContext.Provider value={useModalFalse}>
       {children}
     </AgentationDialogContext.Provider>
   )
-}
-
-export function useAgentationDialog() {
-  return useContext(AgentationDialogContext)
 }

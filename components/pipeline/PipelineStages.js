@@ -43,7 +43,8 @@ import {
   updateTemplete,
   getTempleteDetails,
 } from './TempleteServices'
-import { MessageSquareDot } from 'lucide-react'
+import { MessageSquareDot, PlusIcon } from 'lucide-react'
+import CreateTaskFromNextStepsModal from '../dashboard/leads/extras/CreateTaskFromNextStepsModal'
 
 const PipelineStages = ({
   stages,
@@ -119,6 +120,9 @@ const PipelineStages = ({
   ])
   const [action, setAction] = useState('')
 
+  // Tooltip content for hovered email/sms row: { rowKey, data, loading }
+  const [rowHoverTemplate, setRowHoverTemplate] = useState(null)
+
   //variable to show and hide the add stage btn
   const [showAddStageBtn, setShowAddStageBtn] = useState(false)
 
@@ -160,6 +164,9 @@ const PipelineStages = ({
 
   const [targetUser, setTargetUser] = useState(null)
 
+  //open task modal
+  const [openTaskModal, setOpenTaskModal] = useState(false)
+
   useEffect(() => {
     console.log("isEditing key is is", isEditing)
   }, [isEditing])
@@ -193,6 +200,12 @@ const PipelineStages = ({
       label: 'Text',
       icon: MessageSquareDot,
       focusedIcon: MessageSquareDot, // same icon, hover uses brand color
+    },
+    {
+      value: 'create_task',
+      label: 'Create Task',
+      icon: "/agencyIcons/plusIcon.png",
+      focusedIcon: "/agencyIcons/plusIcon.png",
     },
   ]
 
@@ -345,6 +358,11 @@ const PipelineStages = ({
         // User needs to complete A2P to text
         return
       }
+    } else if (value === 'create_task') {
+      // Close add menu first to avoid focus-trap conflict with the task modal (prevents FocusTrap.js errors and hang)
+      closeAddMenu(stageIndex)
+      setOpenTaskModal(true)
+      return
     }
 
     if (value != 'call') {
@@ -1242,6 +1260,8 @@ const PipelineStages = ({
                                       referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
                                     }
 
+                                    console.log('rowWithReferencePoint testing is', row)
+
                                     return (
                                       <div
                                         key={row.id}
@@ -1407,15 +1427,87 @@ const PipelineStages = ({
                                                     backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
                                                   }}
                                                 >
-                                                  <div className="text-brand-primary text-[12px]">
-                                                    {(row.communicationType &&
-                                                      row.communicationType !=
-                                                      'call') ||
-                                                      (row.action &&
-                                                        row.action != 'call')
-                                                      ? `Send ${actionLabel(row.communicationType)}`
-                                                      : `Make Call`}
-                                                  </div>
+                                                  {(row.communicationType === 'email' || row.communicationType === 'sms') && row.templateId ? (
+                                                    <Tooltip
+                                                      title={
+                                                        rowHoverTemplate?.rowKey === `${index}-${row.id}`
+                                                          ? rowHoverTemplate.loading
+                                                            ? 'Loading...'
+                                                            : String(rowHoverTemplate.data?.content ?? '')
+                                                              .replace(/<[^>]*>/g, '')
+                                                              .replace(/&nbsp;/g, ' ')
+                                                              .trim()
+                                                          : ''
+                                                      }
+                                                      arrow
+                                                      componentsProps={{
+                                                        tooltip: {
+                                                          sx: {
+                                                            backgroundColor: 'hsl(var(--brand-primary))',
+                                                            color: '#fff',
+                                                            fontSize: '12px',
+                                                            maxWidth: 320,
+                                                            whiteSpace: 'pre-wrap',
+                                                            wordBreak: 'break-word',
+                                                          },
+                                                        },
+                                                        arrow: {
+                                                          sx: {
+                                                            color: 'hsl(var(--brand-primary))',
+                                                          },
+                                                        },
+                                                      }}
+                                                    >
+                                                      <div
+                                                        className="text-brand-primary text-[12px] cursor-default"
+                                                        onMouseEnter={async () => {
+                                                          const rowKey = `${index}-${row.id}`
+                                                          const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${row.templateId}`
+                                                          try {
+                                                            const cached = localStorage.getItem(cacheKey)
+                                                            if (cached) {
+                                                              const data = JSON.parse(cached)
+                                                              setRowHoverTemplate({ rowKey, data, loading: false })
+                                                              return
+                                                            }
+                                                          } catch (_) { /* ignore invalid cache */ }
+                                                          setRowHoverTemplate({ rowKey, loading: true })
+                                                          try {
+                                                            const data = await getTempleteDetails({ templateId: row.templateId })
+                                                            if (data) {
+                                                              localStorage.setItem(cacheKey, JSON.stringify(data))
+                                                            }
+                                                            setRowHoverTemplate((prev) =>
+                                                              prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
+                                                            )
+                                                          } catch (err) {
+                                                            setRowHoverTemplate((prev) =>
+                                                              prev?.rowKey === rowKey ? { rowKey, data: null, loading: false } : prev
+                                                            )
+                                                          }
+                                                        }}
+                                                        onMouseLeave={() => setRowHoverTemplate(null)}
+                                                      >
+                                                        {(row.communicationType &&
+                                                          row.communicationType !=
+                                                          'call') ||
+                                                          (row.action &&
+                                                            row.action != 'call')
+                                                          ? `Send ${actionLabel(row.communicationType)}`
+                                                          : `Make Call`}
+                                                      </div>
+                                                    </Tooltip>
+                                                  ) : (
+                                                    <div className="text-brand-primary text-[12px]">
+                                                      {(row.communicationType &&
+                                                        row.communicationType !=
+                                                        'call') ||
+                                                        (row.action &&
+                                                          row.action != 'call')
+                                                        ? `Send ${actionLabel(row.communicationType)}`
+                                                        : `Make Call`}
+                                                    </div>
+                                                  )}
 
                                                   <button
                                                     onClick={(e) => {
@@ -1545,7 +1637,7 @@ const PipelineStages = ({
                                                 {/* default icon - Text uses MessageSquareDot from lucide-react */}
                                                 {a.value === 'sms' ? (
                                                   <MessageSquareDot
-                                                    size={20}
+                                                    size={a.value === 'create_task' ? 16 : 20}
                                                     className="action-icon"
                                                     style={{ display: 'block', flexShrink: 0 }}
                                                   />
@@ -1558,8 +1650,8 @@ const PipelineStages = ({
                                                 ) : (
                                                   <Image
                                                     src={a.icon}
-                                                    height={20}
-                                                    width={20}
+                                                    height={a.value === 'create_task' ? 16 : 20}
+                                                    width={a.value === 'create_task' ? 16 : 20}
                                                     alt="*"
                                                     className="action-icon"
                                                     style={{ display: 'block' }}
@@ -1574,15 +1666,16 @@ const PipelineStages = ({
                                                   />
                                                 ) : typeof a.focusedIcon === 'function' ? (
                                                   <a.focusedIcon
-                                                    size={20}
+                                                    // size={20}
+                                                    size={a.value === 'create_task' ? 16 : 20}
                                                     className="action-icon-hover"
                                                     style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
                                                   />
                                                 ) : (
                                                   <Image
                                                     src={a.focusedIcon}
-                                                    height={20}
-                                                    width={20}
+                                                    height={a.value === 'create_task' ? 16 : 20}
+                                                    width={a.value === 'create_task' ? 16 : 20}
                                                     alt="*"
                                                     className="action-icon-hover"
                                                     style={{ display: 'none' }}
@@ -2215,6 +2308,20 @@ const PipelineStages = ({
                     closeAddMenu(selectedIndex)
                   }}
                   isFromAdminOrAgency={isFromAdminOrAgency}
+                />
+              )
+            }
+
+            {
+              openTaskModal && (
+                <CreateTaskFromNextStepsModal
+                  open={openTaskModal}
+                  onClose={() => setOpenTaskModal(false)}
+                  // nextSteps={callSummary.nextSteps}
+                  // leadId={leadId}
+                  // leadName={leadName}
+                  // callId={item.id}
+                  selectedUser={targetUser?.subAccountData}
                 />
               )
             }

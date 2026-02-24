@@ -545,7 +545,7 @@ const AssignLead = ({
         if (response.data.status === true) {
           handleCloseAssignLeadModal({
             status: false,
-            showSnack: 'Lead assigned',
+            showSnack: 'Campaign created',
             disSelectLeads: true,
           })
           setLastStepModal(false)

@@ -9,6 +9,8 @@ import AgentSelectSnackMessage, {
 import { DEFAULT_PRIVACY_POLICY_TEXT } from '@/constants/agencyTermsPrivacy'
 
 import LabelingHeader from './LabelingHeader'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import Image from 'next/image'
 
 const PrivacyConfig = ({ selectedAgency }) => {
   const [privacyText, setPrivacyText] = useState('')
@@ -21,6 +23,12 @@ const PrivacyConfig = ({ selectedAgency }) => {
     isVisible: false,
   })
   const richTextEditorRef = useRef(null)
+
+  //opening privacy in new tab
+  const getPrivacyUrl = async () => {
+    const { privacyUrl } = await getPolicyUrls(null, true);
+    window.open(privacyUrl, '_blank')
+  }
 
   // Fetch privacy text on mount or when selectedAgency changes
   useEffect(() => {
@@ -219,8 +227,27 @@ const PrivacyConfig = ({ selectedAgency }) => {
           <div className="w-full flex flex-row justify-center pt-8">
             <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
               <div className="self-stretch">
-                <div className="text-black text-base font-normal leading-normal mb-2">
-                  Privacy Policy Content
+                <div className='mb-2 flex flex-row items-center justify-between'>
+                  <div className="text-black text-base font-normal leading-normal mb-2">
+                    Privacy Policy Content
+                  </div>
+                  <button
+                    style={{
+                      pointerEvents: 'auto',
+                      zIndex: 10,
+                    }}
+                    onClick={() => {
+                      getPrivacyUrl();
+                      return
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/arrowboxIcon.svg'}
+                      height={20}
+                      width={20}
+                      alt="*"
+                    />
+                  </button>
                 </div>
                 <RichTextEditor
                   ref={richTextEditorRef}
@@ -246,8 +273,8 @@ const PrivacyConfig = ({ selectedAgency }) => {
                 )}
                 <div
                   className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${loading
-                      ? 'bg-brand-primary/60 cursor-not-allowed'
-                      : 'bg-brand-primary hover:bg-brand-primary/90'
+                    ? 'bg-brand-primary/60 cursor-not-allowed'
+                    : 'bg-brand-primary hover:bg-brand-primary/90'
                     } ${!hasChanges() ? 'ml-auto' : ''}`}
                   onClick={loading ? undefined : handleSave}
                 >

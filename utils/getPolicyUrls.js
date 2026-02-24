@@ -18,7 +18,7 @@ import {
  * 
  * @returns {Object} Object containing termsUrl, privacyUrl, and cancellationUrl
  */
-export const getPolicyUrls =async (selectedUser) => {
+export const getPolicyUrls = async (selectedUser = null, showAgencyUrls = false) => {
   // Default URLs for normal users
   const defaultUrls = {
     termsUrl: termsAndConditionUrl,
@@ -47,19 +47,14 @@ export const getPolicyUrls =async (selectedUser) => {
     let userRole = null
     if (selectedUser) {
 
-      user = await AdminGetProfileDetails(selectedUser.id)
+      user = await AdminGetProfileDetails(selectedUser?.id)
     } else {
       user = JSON.parse(userData)?.user || JSON.parse(userData)
     }
     userRole = user?.userRole
 
-    // For Agency users, return static agency URLs (NOT agencyBranding)
-    if (userRole === 'Agency') {
-      return agencyUrls
-    }
-
     // For Subaccounts, use agencyBranding URLs from their parent agency
-    if (userRole === 'AgencySubAccount') {
+    if (userRole === 'AgencySubAccount' || showAgencyUrls) {
       // Get agencyBranding from multiple possible locations
       const agencyBranding =
         user?.agencyBranding ||
@@ -81,6 +76,11 @@ export const getPolicyUrls =async (selectedUser) => {
             agencyBranding.cancellationUrl || defaultUrls.cancellationUrl,
         }
       }
+    }
+
+    // For Agency users, return static agency URLs (NOT agencyBranding)
+    if (userRole === 'Agency') {
+      return agencyUrls
     }
   } catch (error) {
     console.error('Error getting policy URLs:', error)

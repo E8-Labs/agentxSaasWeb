@@ -372,8 +372,8 @@ const AiChatModal = ({
     const defaultOpt = {
       label: (
         <span className="flex items-center gap-2">
-          <AgentXOrb width={20} height={20} />
-          <span>Sky</span>
+          <AgentXOrb width={24} height={24} />
+          <span className="text-[14px]">Sky</span>
         </span>
       ),
       value: '__default__',
@@ -385,8 +385,8 @@ const AiChatModal = ({
     const agentOpts = flatAgentsList.map((agent) => ({
       label: (
         <span className="flex items-center gap-2">
-          {getAgentAvatarForDropdown(agent, 20)}
-          <span className="truncate">{agent.name}</span>
+          {getAgentAvatarForDropdown(agent, 24)}
+          <span className="truncate text-[14px]">{agent.name}</span>
         </span>
       ),
       value: agent.id,
@@ -409,11 +409,11 @@ const AiChatModal = ({
     if (sel) {
       return (
         <span className={cn('shrink-0 mr-2', className)}>
-          {getAgentAvatarForDropdown(sel, 24)}
+          {getAgentAvatarForDropdown(sel, 29)}
         </span>
       )
     }
-    return <AgentXOrb width={24} height={24} className={cn('shrink-0 mr-2', className)} />
+    return <AgentXOrb width={29} height={29} className={cn('shrink-0 mr-2', className)} />
   }
 
   const handleSend = async () => {
@@ -569,7 +569,7 @@ const AiChatModal = ({
       onClose={handleClose}
       PaperProps={{
         sx: {
-          width: '40%',
+          width: '32%',
           borderRadius: '20px',
           padding: '0px',
           boxShadow: 3,
@@ -583,26 +583,33 @@ const AiChatModal = ({
       BackdropProps={{
         timeout: 100,
         sx: {
-          backgroundColor: '#00000020',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
         },
       }}
     >
-      <div className="flex flex-col w-full h-full py-1 px-4 rounded-xl">
+      <div
+        className="flex flex-col w-full h-full gap-0.5 p-0 rounded-xl animate-in slide-in-from-bottom-2 duration-200 ease-out"
+        style={{
+          border: '1px solid #eaeaea',
+          boxShadow: '0 8px 40px rgba(0, 0, 0, 0.2)',
+          borderRadius: 12,
+        }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <div className="flex items-center gap-3">
             <Image
               src="/otherAssets/starsIcon2.png"
               height={20}
               width={20}
               alt="AI"
             />
-            <h2 className="text-xl font-semibold">AI Chat</h2>
+            <h2 className="text-[18px] font-semibold">AI Chat</h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Agent dropdown: same style as stage dropdown (DropdownCn) */}
             {agentsLoading ? (
-              <div className="flex items-center rounded-md border border-muted/90 bg-white shadow-sm h-[36px] px-4 min-w-[140px]">
+              <div className="flex items-center rounded-[8px] border border-muted/90 bg-white shadow-sm h-[36px] px-4 min-w-[140px]">
                 <CircularProgress size={20} />
                 <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
               </div>
@@ -613,14 +620,21 @@ const AiChatModal = ({
                 options={agentDropdownOptions}
                 align="end"
                 chevronIcon={ChevronDown}
+                triggerClassName="rounded-[8px] text-[14px]"
+                selectedValue={selectedAgentId}
               />
             )}
-            <CloseBtn onClick={handleClose} />
+            <CloseBtn
+              onClick={handleClose}
+              iconSize={16}
+              className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out !h-10 !w-10 !min-w-10 !min-h-10"
+              style={{ padding: 8, borderRadius: 8, transform: 'scale(0.8)' }}
+            />
           </div>
         </div>
 
         {/* Messages area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4 space-y-4 bg-[#f9f9f9] text-[14px]">
           {/* Call summary as first message */}
           {callData && (
             <div className="flex flex-col items-center mb-6">
@@ -639,13 +653,13 @@ const AiChatModal = ({
 
               {/* Called by label */}
               {callerName ? (
-                <div className="text-xs text-system-text text-center px-4 mb-2">
+                <div className="text-sm text-system-text text-center px-4 mb-2">
                   Called by{' '}
                   <strong className="font-semibold">{callerName}</strong> on{' '}
                   {callDate}
                 </div>
               ) : (
-                <div className="text-xs text-system-text text-center px-4 mb-2">
+                <div className="text-sm text-system-text text-center px-4 mb-2">
                   <strong className="font-semibold">This lead</strong> was
                   called on {callDate}
                 </div>
@@ -653,7 +667,13 @@ const AiChatModal = ({
 
               {/* Call summary card (no AI actions) */}
               <div className="w-full max-w-2xl px-4">
-                <div className="rounded-xl border border-border bg-background px-4 pb-2 shadow-sm">
+                <div
+                  className="rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden"
+                  style={{
+                    boxShadow:
+                      '0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9',
+                  }}
+                >
                   <CallTranscriptCN
                     item={callData}
                     onPlayRecording={onPlayRecording}
@@ -710,9 +730,10 @@ const AiChatModal = ({
                     {/* Message bubble */}
                     <div
                       className={`max-w-[75%] min-w-[100px] min-w-0 overflow-hidden break-words px-4 py-2.5 text-sm leading-relaxed ${isUser
-                        ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+                        ? 'text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
                         : 'bg-gray-100 text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
                         }`}
+                      style={isUser ? { backgroundColor: 'hsl(var(--brand-primary) / 0.1)' } : undefined}
                     >
                       {isUser ? (
                         msg.content
@@ -792,7 +813,7 @@ const AiChatModal = ({
         </div>
 
         {/* Input area - same formatting toolbar as MessageComposer (Bold, Underline, Lists, Paperclip, Send) */}
-        <div className="border-t border-border pt-3 pb-3">
+        <div className="border-t border-border pt-3 pb-[12px] px-4">
           <div
             className={`relative border border-brand-primary/20 rounded-lg bg-white transition-opacity ${aiKeyError || isLoading ? 'pointer-events-none opacity-60' : ''
               }`}

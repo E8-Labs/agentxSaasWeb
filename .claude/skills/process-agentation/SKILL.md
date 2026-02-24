@@ -97,20 +97,36 @@ When the user says **"animate modal"** (or "apply animate modal"), apply the Add
 - Backdrop: `backgroundColor: '#00000099'` (60% opacity), `timeout: 250`
 - Content entry: scale 0.95→1, opacity 0→1 over 0.25s with `cubic-bezier(0.34, 1.56, 0.64, 1)`
 
-## User-defined sidebar shortcut
+When the user says **"entry animation"** (or "apply entry animation"), apply the same entry animation as the ThreadsList filter popover (w-[230px] dropdown) to the element in focus. This includes sliding into final position, easing, and transition:
+- Tailwind: `animate-in slide-in-from-bottom-2 duration-200 ease-out` (add or merge into the element's className)
+- Effect: element slides in from the bottom into its final position with a 200ms ease-out transition
 
-When the user says **"update sidebar"** (or "apply update sidebar"), apply the dashboard sidebar’s style and interaction to the sidebar in focus. Reference: `app/dashboard/layout.js` (sidebar container) and `components/dashboard/Navbar/ProfileNav.js` (sidebar content).
+When the user says **"page header"** (or "apply page header"), style the selected element with the same sizing and style as the Messages page header bar:
+- Container: `w-full p-4 border-b flex flex-row items-center justify-between h-[66px]`
 
-**Sidebar container:**
-- `className="h-screen w-[250px] flex-shrink-0"`
-- `style={{ borderRight: '1px solid #00000010', backgroundColor: 'white' }}`
+When the user says **"filter button"** (or "apply filter button"), style the selected button to match the filter button in the page header:
+- Button: `mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center`
 
-**Sidebar content (nav area):**
-- Root: `text-[14px]`, full height column layout
-- Nav links container: `flex flex-col items-start gap-0.5 py-2 px-2`; `text-[15px] font-normal`; use a ref for the container and track hover index for the sliding pill
-- **Sliding pill (hover):** Absolutely positioned div that follows the hovered nav item; `backgroundColor: 'rgba(0, 0, 0, 0.02)'`, `borderRadius: 8`, `transition: 'top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease'`; update position in `useLayoutEffect` from the hovered item’s `getBoundingClientRect()` relative to the container
-- **Nav link item:** Row with `gap-[12px]`, `h-10`, `px-3`, `rounded-lg`, `transition-transform duration-150 ease-out active:scale-[0.98]`; selected: `bg-brand-primary/5`, icon/label `text-brand-primary`; unselected: `bg-transparent`, `text-black/80`
-- **Icons:** Prefer Lucide icons `size={18}` `strokeWidth={2}`; match icon set from ProfileNav (e.g. LayoutDashboard, MessageSquareDot, BookUser, etc.) where applicable
-- **Beta tag:** `className="beta-badge-ai-gradient text-xs font-medium text-white flex-shrink-0 rounded px-[6px] py-0.5"` (uses `.beta-badge-ai-gradient` from `app/globals.css`)
-- **Spacing:** Logo/header area `pl-6`, nav items `px-3`, bottom section `borderTop: '1px solid #00000010'`
-- **Font:** Nav labels `text-[15px] font-normal`; user/account area `text-[14px]`
+When the user says **"filter icon"** (or "apply filter icon"), style the icon to match the filter icon inside that button (same size and style as the 20×20 SVG in the filter button).
+
+When the user says **"call summary update"** (or "apply call summary update"), apply the call summary card’s style, spacing, and interaction to the selected element or container. Use the same pattern as the rounded-[16px] call summary card in SystemMessage/CallTranscriptCN:
+- Container: `rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden`
+- Box shadow: `0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9`
+- Top bar: `p-3 bg-white` with `borderBottom: '1px solid #eaeaea'`
+- Action row (icon buttons): gap 4px, buttons 40×40px, padding 8px, borderRadius 4px, transparent bg, hover `#ededed`, `transition-colors duration-150 ease-out`; icons black at 80% opacity; row scaled to 95% (`transform: scale(0.95)`, `origin-left`)
+
+When the user says **"secondary button"** (or "apply secondary button"), style the selected button to match the AI Action button in the call summary card and add the same interaction:
+- Button: `flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-black`
+- Press animation: scale from 1 to 0.98 on active/press (`active:scale-[0.98]` with `transition-colors duration-150` or `transition-transform duration-150`)
+
+When the user says **"icon button"** (or "apply icon button"), style the selected button to match the Read Transcript / Copy Call ID icon buttons in the call summary card:
+- Button: `rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out`
+- Size: 40×40px, padding 8px, borderRadius 8px
+- Icon inside: black at 80% opacity (`[&_svg]:opacity-80` or `style={{ opacity: 0.8 }}` on the icon)
+
+When the user says **"compose email"** (or "apply compose email"), apply the styling and interaction of the Messages compose form (MessageComposer) to the selected element and its relevant children. Do not change any functionality—only UI (classes, inline styles, layout). Match:
+- Container: `w-full px-3 py-3 flex flex-col gap-1`
+- Tab/header row: `flex items-center justify-between border-b m-0 gap-1 py-1`; tab buttons with `gap-2 pb-1 h-8`
+- Text inputs: `h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary`
+- Body/editor wrapper: `border border-brand-primary/20 rounded-lg bg-white`
+- Buttons: use same rounded-lg, height, and focus/active patterns as in the composer (e.g. Send button)

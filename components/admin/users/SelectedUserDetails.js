@@ -36,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import moment from 'moment/moment'
 
 function SelectedUserDetails({
   isAgencyView = false,
@@ -160,6 +161,25 @@ function SelectedUserDetails({
       paramValue: 'team',
     },
   ]
+
+  const checkTrialDays = (userData) => {
+    // console.log("userData in checkTrialDays is", userData);
+    if (userData?.planStatus?.isTrial) {
+      // nextChargeDate is the trial END date (when the trial expires)
+      const trialEnd = moment(userData?.nextChargeDate || new Date());
+      const today = moment().startOf('day'); // Start of day for accurate day counting
+      const trialEndStartOfDay = trialEnd.startOf('day');
+
+      // Calculate days remaining: trialEnd - today
+      // This gives positive number when trial hasn't ended yet
+      let daysLeft = trialEndStartOfDay.diff(today, "days");
+
+      // Ensure daysLeft is never negative (trial already ended)
+      daysLeft = Math.max(daysLeft, 0);
+
+      return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
+    }
+  };
 
   useEffect(() => {
     console.log("selectedUser in SelectedUserDetails is", selectedUser);
@@ -1049,6 +1069,9 @@ function SelectedUserDetails({
                           return name.length > 10 ? `${name.slice(0, 7)}...` : name;
                         })()}
                       </div>
+                      <div className="text-xs font-medium text-brand-primary">
+                        {checkTrialDays(selectedUser) ? `${checkTrialDays(selectedUser)}` : ""}
+                      </div>
                     </div>
                     <div
                       className="truncate w-[120px]"
@@ -1067,12 +1090,12 @@ function SelectedUserDetails({
             </div>
 
             <div
-              className={`flex flex-col items-center justify-start pt-2 px-4 h-[95vh] overflow-auto w-10/12`}
+              className={`flex flex-col items-center justify-start pt-2 px-4 h-[100vh] overflow-auto w-10/12`}
             >
               <div
-                className={`flex flex-col h-full ${selectedManu?.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu?.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                className={`flex flex-col h-full ${(selectedManu?.name == 'Leads' || selectedManu?.name == 'Account') ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[100vh]' : 'h-[76vh]'} ${(selectedManu?.name == 'Leads' || selectedManu?.name == 'Account') ? 'overflow-hidden' : 'overflow-auto'} w-full`}
                 id={selectedManu?.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
-                style={selectedManu?.name == 'Leads' ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '85vh' : '76vh' } : {}}
+                style={(selectedManu?.name == 'Leads' || selectedManu?.name == 'Account') ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '100vh' : '100vh' } : {}}
               >
                 {/* Check permission before rendering content when permission checks enabled */}
                 {enablePermissionChecks && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission ? (
@@ -1097,7 +1120,7 @@ function SelectedUserDetails({
                     enablePermissionChecks={enablePermissionChecks}
                   />
                 ) : selectedManu.name == 'Pipeline' ? (
-                  <AdminPipeline1 selectedUser={selectedUser} />
+                  <AdminPipeline1 selectedUser={selectedUser} enablePermissionChecks={enablePermissionChecks} />
                 ) : selectedManu.name == 'Agents' ? (
                   <AdminAgentX
                     selectedUser={user && user}
@@ -1121,6 +1144,8 @@ function SelectedUserDetails({
                     handleDel={handleDel}
                     handlePauseUser={handlePauseUser}
                     handleClose={handleClose}
+                    isAgencyView={isAgencyView}
+                    embedded
                   />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
                   <Messages selectedUser={selectedUser} agencyUser={enablePermissionChecks} from={from} />

@@ -24,8 +24,9 @@ import AdminPhoneNumber from './AdminProfileData/AdminPhoneNumber'
 import AdminXbarServices from './AdminProfileData/AdminXbarServices'
 import AdminSendFeedback from './AdminSendFeedback'
 import { TypographyH1, TypographyH3 } from '@/lib/typography'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
-function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, handlePauseUser, handleClose }) {
+function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, handlePauseUser, handleClose, isAgencyView = false, embedded = false }) {
   let searchParams = useSearchParams()
   const router = useRouter()
 
@@ -33,7 +34,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
   // #region agent log
   useEffect(() => {
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminProfileData.js:25',message:'AdminProfileData props',data:{agencyUser,from,hasHandleClose:!!handleClose,hasHandleDel:!!handleDel,hasHandlePauseUser:!!handlePauseUser,selectedUserId:selectedUser?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'AdminProfileData.js:25', message: 'AdminProfileData props', data: { agencyUser, from, hasHandleClose: !!handleClose, hasHandleDel: !!handleDel, hasHandlePauseUser: !!handlePauseUser, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'L' }) }).catch(() => { });
   }, [agencyUser, from, handleClose, handleDel, handlePauseUser, selectedUser?.id])
   // #endregion
 
@@ -102,7 +103,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     }
     // Default title
   }
-  
+
 
   let allMenuItems = [
     {
@@ -147,6 +148,27 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
       icon: '/svgIcons/agentXIcon.svg',
       permissionKey: null, // No specific permission for this
     },
+    {
+      id: 8,
+      heading: 'Terms & Conditions',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available (terms/privacy are public)
+    },
+    {
+      id: 9,
+      heading: 'Privacy Policy',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available
+    },
+    {
+      id: 10,
+      heading: 'Cancellation & Refund',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available
+    },
   ]
 
   // Filter menu items based on permissions when viewing from agency as Invitee
@@ -173,7 +195,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
       return true // Default to showing if permission check is unclear
     })
-  }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission,xbarTitle])
+  }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission, xbarTitle])
 
 
   // Fetch user details
@@ -203,6 +225,23 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     }
   }, [manuBar, tabSelected])
 
+  //manu click function
+  const handleTabSelect = async (item, index) => {
+    const { termsUrl, privacyUrl, cancellationUrl } = await getPolicyUrls(selectedUser || null);
+
+    if (item.id === 8) {
+      window.open(termsUrl, '_blank')
+      return
+    } else if (item.id === 9) {
+      window.open(privacyUrl, '_blank')
+      return
+    } else if (item.id === 10) {
+      window.open(cancellationUrl, '_blank')
+      return
+    }
+    setTabSelected(item.id)
+  }
+
   // Handle pause user
   const handlePause = async () => {
     setPauseLoader(true)
@@ -220,7 +259,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
             'Content-Type': 'application/json',
           },
         })
-        
+
         if (response) {
           if (response.data.status === true) {
             if (selectedUser) {
@@ -265,7 +304,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
             'Content-Type': 'application/json',
           },
         })
-        
+
         if (response.data) {
           if (response.data.status === true) {
             setDelLoader(false)
@@ -317,7 +356,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
     switch (tabSelected) {
       case 1:
-        return <AdminBasicInfo selectedUser={selectedUser} />
+        return <AdminBasicInfo selectedUser={selectedUser} isAgencyView={isAgencyView} />
       case 2:
         // return <AdminBilling selectedUser={selectedUser} from={from} />;
         return (
@@ -362,7 +401,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
   // #region agent log
   useEffect(() => {
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminProfileData.js:322',message:'AdminProfileData render',data:{agencyUser,from,hasHandleClose:!!handleClose,hasHandleDel:!!handleDel,hasHandlePauseUser:!!handlePauseUser,selectedUserId:selectedUser?.id,willShowButtons:agencyUser},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'M'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'AdminProfileData.js:322', message: 'AdminProfileData render', data: { agencyUser, from, hasHandleClose: !!handleClose, hasHandleDel: !!handleDel, hasHandlePauseUser: !!handlePauseUser, selectedUserId: selectedUser?.id, willShowButtons: agencyUser }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'M' }) }).catch(() => { });
   }, [])
   // #endregion
 
@@ -370,8 +409,11 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     // <Suspense>
     // </Suspense>
     <div
-      className="w-full flex flex-col items-center"
-      style={{ overflow: 'hidden', height: '100vh' }}
+      className={embedded ? 'w-full flex flex-col items-center h-[100vh]' : 'w-full flex flex-col items-center h-[100vh]'}
+      style={{
+        overflow: 'hidden',
+        // height: embedded ? '100%' : ''
+      }}
     >
       {/* Slider code<div
                 style={{
@@ -390,11 +432,14 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
           My Account
         </TypographyH3>
       </div>
-      <div className="w-12/12 h-full"></div>
-      <div className="w-full flex flex-row item-center pl-2 h-[100%]">
+      <div className="w-12/12 h-[calc(100vh-4rem)] flex flex-row items-stretch pl-2 w-full overflow-hidden">
         <div
-          className="w-4/12 items-center flex flex-col h-[90%] pr-2 overflow-auto"
-          style={{ scrollbarWidth: 'none' }}
+          className="w-4/12 h-[calc(100vh-4rem)] flex flex-col items-center pr-2 overflow-y-auto"
+          style={{
+            borderRightWidth: 1,
+            borderBottomColor: '#00000010',
+            scrollbarWidth: 'thin',
+          }}
         >
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">
@@ -405,7 +450,8 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
                   fontWeight: 'normal', // Optional: Adjust the font weight
                 }}
                 onClick={() => {
-                  setTabSelected(item.id)
+                  // setTabSelected(item.id)
+                  handleTabSelect(item, index)
                 }}
               >
                 <div
@@ -450,13 +496,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
         </div>
 
         <div
-          className="w-8/12 h-fu''"
-          style={{
-            overflow: 'auto',
-            height: '90%',
-            borderLeftWidth: 1,
-            borderBottomColor: '#00000010',
-          }}
+          className="w-8/12 h-[calc(100vh-4rem)] overflow-auto"
         >
           {renderComponent()}
         </div>
