@@ -72,6 +72,8 @@ const LoaderAnimation = ({
   loaderModal,
   isOpen,
   title = 'Your agent is building..',
+  /** When true, renders full-screen (e.g. post-signup on /onboarding) with no modal card. */
+  fullScreen = false,
 }) => {
   const [isSubaccount, setIsSubaccount] = useState(false)
 
@@ -186,16 +188,79 @@ const LoaderAnimation = ({
     },
   }
 
+  const isVisible = loaderModal || isOpen
+
+  const orbContent = (
+    <>
+      {isSubaccount && subaccountLoaderAnimation ? (
+        <div
+          className="w-[160px] h-[160px] rounded-full"
+          style={{
+            boxShadow:
+              '0 0 0 10px hsl(var(--brand-primary) / 0.08), 0 24px 70px -24px hsl(var(--brand-primary) / 0.55)',
+          }}
+        >
+          <Lottie
+            animationData={
+              brandedSubaccountLoaderAnimation || subaccountLoaderAnimation
+            }
+            loop
+            autoplay
+          />
+        </div>
+      ) : (
+        <div
+          className="rounded-full"
+          style={{
+            boxShadow:
+              '0 0 0 10px hsl(var(--brand-primary) / 0.08), 0 24px 70px -24px hsl(var(--brand-primary) / 0.55)',
+          }}
+        >
+          <AgentXOrb
+            width={152}
+            height={142}
+            style={{
+              height: '142px',
+              width: '152px',
+              resize: 'contain',
+            }}
+          />
+        </div>
+      )}
+    </>
+  )
+
+  if (fullScreen && isVisible) {
+    return (
+      <div
+        className="flex flex-col w-full h-[100svh] items-center justify-center bg-white"
+        role="status"
+        aria-live="polite"
+        aria-label={title}
+      >
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-row items-center justify-center">
+            {orbContent}
+          </div>
+          <div
+            className="text-center mt-8"
+            style={{ fontWeight: '600', fontSize: 16 }}
+          >
+            {title}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       <Modal
-        open={loaderModal || isOpen}
-        // onClose={() => loaderModal(false)}
+        open={isVisible}
         closeAfterTransition
         BackdropProps={{
           sx: {
             backgroundColor: '#00000020',
-            // //backdropFilter: "blur(5px)",
           },
         }}
       >
@@ -213,44 +278,7 @@ const LoaderAnimation = ({
               }}
             >
               <div className="flex flex-row items-start mt-12 justify-center">
-                {/* <CircularProgress size={200} thickness={1} /> */}
-                {isSubaccount && subaccountLoaderAnimation ? (
-                  <div
-                    className="w-[160px] h-[160px] rounded-full"
-                    style={{
-                      // brand glow behind lottie
-                      boxShadow:
-                        '0 0 0 10px hsl(var(--brand-primary) / 0.08), 0 24px 70px -24px hsl(var(--brand-primary) / 0.55)',
-                    }}
-                  >
-                    <Lottie
-                      animationData={
-                        brandedSubaccountLoaderAnimation ||
-                        subaccountLoaderAnimation
-                      }
-                      loop
-                      autoplay
-                    />hh
-                  </div>
-                ) : (
-                  <div
-                    className="rounded-full"
-                    style={{
-                      boxShadow:
-                        '0 0 0 10px hsl(var(--brand-primary) / 0.08), 0 24px 70px -24px hsl(var(--brand-primary) / 0.55)',
-                    }}
-                  >
-                    <AgentXOrb
-                      width={152}
-                      height={142}
-                      style={{
-                        height: '142px',
-                        width: '152px',
-                        resize: 'contain',
-                      }}
-                    />
-                  </div>
-                )}
+                {orbContent}
               </div>
 
               <div
@@ -259,13 +287,6 @@ const LoaderAnimation = ({
               >
                 {title}
               </div>
-
-              {/* <div className='text-center mt-6 pb-8' style={{ fontWeight: "400", fontSize: 15 }}>
-                                Loading ...
-                            </div> */}
-
-              {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
           </div>
         </Box>
