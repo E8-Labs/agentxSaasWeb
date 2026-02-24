@@ -27,6 +27,7 @@ import SplitButtonCN from '@/components/ui/SplitButtonCN'
 import { TypographyCaption } from '@/lib/typography'
 import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
 
 // Helper function to strip HTML tags and convert to plain text while preserving line breaks
@@ -2029,7 +2030,9 @@ const NewMessageModal = ({
                                     }}
                                   >
                                     <div className="overflow-y-auto flex-1 min-h-0" style={{ maxHeight: 240 }}>
-                                      {emailAccounts.map((account) => (
+                                      {emailAccounts.map((account) => {
+                                        const gmailError = getGmailWatchErrorInfo(account)
+                                        return (
                                         <div key={account.id} className="group relative w-full">
                                           <button
                                             type="button"
@@ -2065,8 +2068,14 @@ const NewMessageModal = ({
                                               </div>
                                             </div>
                                           </button>
+                                          {gmailError && (
+                                            <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100" title={gmailError.actionHint}>
+                                              {gmailError.shortLabel} — {gmailError.actionLabel}
+                                            </div>
+                                          )}
                                         </div>
-                                      ))}
+                                        )
+                                      })}
                                     </div>
                                     <div className="border-t border-gray-200 p-2 flex-shrink-0">
                                       <button

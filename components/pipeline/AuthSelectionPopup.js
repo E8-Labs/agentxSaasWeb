@@ -22,6 +22,7 @@ import {
 import MailgunEmailRequest from '../messaging/MailgunEmailRequest'
 import { generateOAuthState } from '@/utils/oauthState'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 
 function AuthSelectionPopup({
   open,
@@ -276,23 +277,26 @@ function AuthSelectionPopup({
                   {accountLoader ? (
                     <CircularProgress size={20} />
                   ) : gmailAccounts?.length > 0 ? (
-                    gmailAccounts?.map((item, index) => (
+                    gmailAccounts?.map((item, index) => {
+                      const gmailError = getGmailWatchErrorInfo(item)
+                      return (
                       <MenuItem
                         key={index}
                         // className="hover:bg-[#402FFF10]"
                         value={item}
                       >
-                        <div className="flex w-full flex-row items-center justify-between">
-                          <div className="flex flex-row items-center gap-2 max-w-[80%]">
-                            <div className="text-[15] font-[500]">
-                              {item.displayName}
+                        <div className="flex w-full flex-col gap-1">
+                          <div className="flex w-full flex-row items-center justify-between">
+                            <div className="flex flex-row items-center gap-2 max-w-[80%]">
+                              <div className="text-[15] font-[500]">
+                                {item.displayName}
+                              </div>
+                              <div className="text-[13] font-[500]  text-[#00000070]">
+                                {`(${item.email})`}
+                              </div>
                             </div>
-                            <div className="text-[13] font-[500]  text-[#00000070]">
-                              {`(${item.email})`}
-                            </div>
-                          </div>
 
-                          {delLoader?.id === item.id ? (
+                            {delLoader?.id === item.id ? (
                             <CircularProgress size={20} />
                           ) : (
                             <button
@@ -311,9 +315,16 @@ function AuthSelectionPopup({
                               />
                             </button>
                           )}
+                          </div>
+                          {gmailError && (
+                            <div className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 mt-0.5" title={gmailError.actionHint}>
+                              {gmailError.shortLabel} — {gmailError.actionLabel}
+                            </div>
+                          )}
                         </div>
                       </MenuItem>
-                    ))
+                    );
+                    })
                   ) : (
                     <div className="ml-2">No account found</div>
                   )}

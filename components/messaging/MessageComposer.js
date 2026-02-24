@@ -16,6 +16,7 @@ import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
@@ -1789,7 +1790,9 @@ const MessageComposer = ({
                             {emailDropdownOpen && (
                               <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60">
                                 <div className="max-h-44 overflow-y-auto">
-                                  {emailAccounts.map((account) => (
+                                  {emailAccounts.map((account) => {
+                                    const gmailError = getGmailWatchErrorInfo(account)
+                                    return (
                                     <div
                                       key={account.id}
                                       className="group relative w-full"
@@ -1828,8 +1831,14 @@ const MessageComposer = ({
                                           </div>
                                         </div>
                                       </button>
+                                      {gmailError && (
+                                        <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100" title={gmailError.actionHint}>
+                                          {gmailError.shortLabel} — {gmailError.actionLabel}
+                                        </div>
+                                      )}
                                     </div>
-                                  ))}
+                                    )
+                                  })}
                                 </div>
                                 <div className="border-t border-gray-200 p-2">
                                   <button
