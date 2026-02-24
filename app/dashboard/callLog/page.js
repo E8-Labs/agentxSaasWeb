@@ -54,7 +54,7 @@ function Page() {
           </div>
         }
       >
-        <div className="w-full flex flex-col items-center overflow-hidden">
+        <div className="w-full flex flex-col items-center overflow-hidden bg-white">
           <StandardHeader
             title="Activity"
             showTasks={true}
