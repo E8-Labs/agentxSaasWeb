@@ -2,7 +2,7 @@ import { Box, CircularProgress, Modal } from '@mui/material'
 import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import AdminLeads from '@/components/admin/users/AdminLeads'
@@ -36,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import moment from 'moment/moment'
 
 function SelectedUserDetails({
   isAgencyView = false,
@@ -58,6 +59,34 @@ function SelectedUserDetails({
   const [selectedManu, setSelectedManu] = useState(null)
   const [permissionContextAvailable, setPermissionContextAvailable] = useState(false)
   const [initialTabSet, setInitialTabSet] = useState(false)
+
+  // Sliding pill for nav links hover (update sidebar spec)
+  const [hoveredNavIndex, setHoveredNavIndex] = useState(null)
+  const [navPillStyle, setNavPillStyle] = useState(/** @type {{ top: number; left: number; width: number; height: number } | null} */ (null))
+  const navLinksContainerRef = useRef(/** @type {HTMLDivElement | null} */ (null))
+  const navLinkItemRefs = useRef(/** @type {(HTMLDivElement | null)[]} */ ([]))
+
+  // Update sliding pill position when hovered nav index changes
+  useLayoutEffect(() => {
+    if (hoveredNavIndex === null) {
+      setNavPillStyle(null)
+      return
+    }
+    const container = navLinksContainerRef.current
+    const itemEl = navLinkItemRefs.current[hoveredNavIndex]
+    if (container && itemEl) {
+      const cr = container.getBoundingClientRect()
+      const ir = itemEl.getBoundingClientRect()
+      setNavPillStyle({
+        top: ir.top - cr.top,
+        left: ir.left - cr.left,
+        width: ir.width,
+        height: ir.height,
+      })
+    } else {
+      setNavPillStyle(null)
+    }
+  }, [hoveredNavIndex])
 
   // Get the tab from URL parameter
   const tabParam = searchParams.get('tab')
@@ -132,6 +161,25 @@ function SelectedUserDetails({
       paramValue: 'team',
     },
   ]
+
+  const checkTrialDays = (userData) => {
+    // console.log("userData in checkTrialDays is", userData);
+    if (userData?.planStatus?.isTrial) {
+      // nextChargeDate is the trial END date (when the trial expires)
+      const trialEnd = moment(userData?.nextChargeDate || new Date());
+      const today = moment().startOf('day'); // Start of day for accurate day counting
+      const trialEndStartOfDay = trialEnd.startOf('day');
+
+      // Calculate days remaining: trialEnd - today
+      // This gives positive number when trial hasn't ended yet
+      let daysLeft = trialEndStartOfDay.diff(today, "days");
+
+      // Ensure daysLeft is never negative (trial already ended)
+      daysLeft = Math.max(daysLeft, 0);
+
+      return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
+    }
+  };
 
   useEffect(() => {
     console.log("selectedUser in SelectedUserDetails is", selectedUser);
@@ -851,15 +899,21 @@ function SelectedUserDetails({
               </div>
             </div>
           )}
-          <div className="flex flex-row items-start w-full  ">
-            <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
+          <div className="flex flex-row items-start w-full">
+            <div
+              className={`flex flex-shrink-0 flex-col items-start justify-start w-[250px] h-[100svh] p-px gap-1 text-[14px] ${!enablePermissionChecks && '-mt-10'}`}
+              style={{
+                borderRight: '1px solid #00000010',
+                backgroundColor: 'white',
+              }}
+            >
 
               {agencyUser ? (
-                <div className="flex flex-row items-center justify-start w-full  pb-1 flex-shrink-0 mt-4">
+                <div className="flex flex-row items-center justify-start w-full h-[65px] flex-shrink-0 p-3">
                   <AppLogo height={29} width={122} />
                 </div>
               ) : (
-                <div className={`flex mt-4 flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
+                <div className={`flex flex-row gap-2 items-center justify-start w-full h-[65px] flex-shrink-0 p-3`}>
                   <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
                     {selectedUser.name[0]}
                   </div>
@@ -898,52 +952,77 @@ function SelectedUserDetails({
                 </div>
               )}
 
-              {/* Menu Items - Only show accessible items */}
-              <div className='flex flex-col items-start justify-center gap-3 w-full pt-10'>
-                {accessibleMenuItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleManuClick(item)}
-                    className={`flex flex-row items-center gap-3 p-2 items-center 
-                      ${selectedManu?.id == item.id && 'border-b-[2px] border-brand-primary'}`}
-                  >
-                    {selectedManu?.id == item.id ? (
-                      <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                          maskImage: `url(${item.selectedImage})`,
-                          maskSize: 'contain',
-                          maskRepeat: 'no-repeat',
-                          maskPosition: 'center',
-                          WebkitMaskImage: `url(${item.selectedImage})`,
-                          WebkitMaskSize: 'contain',
-                          WebkitMaskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center',
-                        }}
-                      />
-                    ) : (
-                      <Image
-                        src={item.unSelectedImage}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
-
+              {/* Menu Items - Only show accessible items (update sidebar: sliding pill + nav item styles); flex-1 min-h-0 so account block stays at bottom */}
+              <div
+                ref={navLinksContainerRef}
+                className={`w-full flex flex-col items-start gap-0.5 p-2 text-[15px] font-normal relative flex-1 min-h-0 ${enablePermissionChecks ? 'overflow-y-auto max-h-[85vh]' : ''}`}
+                onMouseLeave={() => setHoveredNavIndex(null)}
+              >
+                {navPillStyle && (
+                  <div
+                    aria-hidden
+                    className="pointer-events-none rounded-lg"
+                    style={{
+                      position: 'absolute',
+                      top: navPillStyle.top,
+                      left: navPillStyle.left,
+                      width: navPillStyle.width,
+                      height: navPillStyle.height,
+                      backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                      borderRadius: 8,
+                      zIndex: 0,
+                      transition: 'top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease',
+                    }}
+                  />
+                )}
+                {accessibleMenuItems.map((item, index) => {
+                  const isSelected = selectedManu?.id === item.id
+                  return (
                     <div
-                      style={{
-                        fontSize: 16,
-                        fontWeight: 500,
-                        color: selectedManu?.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
-                        whiteSpace: 'nowrap',
-                      }}
+                      key={item.id}
+                      className="w-full"
+                      ref={(el) => { navLinkItemRefs.current[index] = el }}
+                      onMouseEnter={() => setHoveredNavIndex(index)}
+                      style={{ position: 'relative', zIndex: 1 }}
                     >
-                      {item.name}
+                      <button
+                        type="button"
+                        onClick={() => handleManuClick(item)}
+                        className={`w-full min-w-0 flex flex-row gap-[12px] items-center h-10 px-3 rounded-lg transition-transform duration-150 ease-out active:scale-[0.98] m-0.5 ${isSelected ? 'bg-brand-primary/5' : 'bg-transparent'}`}
+                      >
+                        {isSelected ? (
+                          <div
+                            className="text-brand-primary"
+                            style={{
+                              width: 18,
+                              height: 18,
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                              maskImage: `url(${item.selectedImage})`,
+                              maskSize: 'contain',
+                              maskRepeat: 'no-repeat',
+                              maskPosition: 'center',
+                              WebkitMaskImage: `url(${item.selectedImage})`,
+                              WebkitMaskSize: 'contain',
+                              WebkitMaskRepeat: 'no-repeat',
+                              WebkitMaskPosition: 'center',
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            src={item.unSelectedImage}
+                            height={18}
+                            width={18}
+                            alt=""
+                            className="opacity-80"
+                          />
+                        )}
+                        <span className={`flex-1 min-w-0 text-left truncate ${isSelected ? 'text-brand-primary' : 'text-black/80'}`}>
+                          {item.name}
+                        </span>
+                      </button>
                     </div>
-                  </button>
-                ))}
+                  )
+                })}
               </div>
 
               {(from === "admin" || from === "subaccount" || enablePermissionChecks) && (
@@ -952,13 +1031,12 @@ function SelectedUserDetails({
                     console.log('clicked')
                     handleManuClick(accountMenu)
                   }}
-                  className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer"
+                  className="w-full flex flex-row items-start gap-3 py-2 px-2 truncate outline-none text-start no-underline hover:no-underline cursor-pointer text-[14px] flex-shrink-0 border-t border-[#00000010]"
                   style={{
                     textOverflow: "ellipsis",
                     textDecoration: "none",
-                    position: "absolute",
-                    bottom: 8,
-                  }}>
+                  }}
+                >
                   {user?.thumb_profile_image ? (
                     <img
                       src={user?.thumb_profile_image}
@@ -991,6 +1069,9 @@ function SelectedUserDetails({
                           return name.length > 10 ? `${name.slice(0, 7)}...` : name;
                         })()}
                       </div>
+                      <div className="text-xs font-medium text-brand-primary">
+                        {checkTrialDays(selectedUser) ? `${checkTrialDays(selectedUser)}` : ""}
+                      </div>
                     </div>
                     <div
                       className="truncate w-[120px]"
@@ -1014,7 +1095,7 @@ function SelectedUserDetails({
               <div
                 className={`flex flex-col h-full ${(selectedManu?.name == 'Leads' || selectedManu?.name == 'Account') ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[100vh]' : 'h-[76vh]'} ${(selectedManu?.name == 'Leads' || selectedManu?.name == 'Account') ? 'overflow-hidden' : 'overflow-auto'} w-full`}
                 id={selectedManu?.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
-                style={(selectedManu?.name == 'Leads' || selectedManu?.name == 'Account') ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '100vh' : '76vh' } : {}}
+                style={(selectedManu?.name == 'Leads' || selectedManu?.name == 'Account') ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '100vh' : '100vh' } : {}}
               >
                 {/* Check permission before rendering content when permission checks enabled */}
                 {enablePermissionChecks && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission ? (

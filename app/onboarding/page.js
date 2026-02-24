@@ -326,7 +326,7 @@ const Page = ({ params }) => {
       <div>
         <ShootingStarLoading
           open={showredirectPopup}
-          showLogo= {screenWidth > 640 ? true : false}
+          showLogo= {screenWidth > 640 ? false : false}
         />
       </div>
     )

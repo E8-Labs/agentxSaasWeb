@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -54,6 +54,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import { hexToHsl, calculateIconFilter } from "@/utilities/colorUtils";
 import { renderBrandedIcon } from "@/utilities/iconMasking";
+import { Unplug, MessageCircleMore, ChartBarBig, LayoutDashboard, Users, HardDriveDownload } from "lucide-react";
 
 const stripePromise = getStripe();
 
@@ -148,6 +149,12 @@ const ProfileNav = () => {
   const permissionContext = usePermission()
   const [permissionsLoaded, setPermissionsLoaded] = useState(false)
   const [menuPermissions, setMenuPermissions] = useState({})
+
+  // Sliding pill for nav links hover
+  const [hoveredNavIndex, setHoveredNavIndex] = useState(null)
+  const [navPillStyle, setNavPillStyle] = useState(/** @type {{ top: number; left: number; width: number; height: number } | null} */ (null))
+  const navLinksContainerRef = useRef(/** @type {HTMLDivElement | null} */ (null))
+  const navLinkItemRefs = useRef(/** @type {(HTMLDivElement | null)[]} */ ([]))
 
   // Custom domain detection and branding application
   useEffect(() => {
@@ -746,6 +753,15 @@ const ProfileNav = () => {
   }, [reduxUser?.userRole, isInvitee, permissionPrefix])
 
   // Memoize links to prevent unnecessary re-renders
+  const LUCIDE_NAV_ICONS = useMemo(() => ({
+    "layout-dashboard": LayoutDashboard,
+    "message-circle-more": MessageCircleMore,
+    "chart-bar-big": ChartBarBig,
+    "hard-drive-download": HardDriveDownload,
+    unplug: Unplug,
+    users: Users,
+  }), []);
+
   const links = useMemo(() => [
     {
       id: 1,
@@ -753,6 +769,7 @@ const ProfileNav = () => {
       href: "/dashboard",
       selected: "/svgIcons/selectdDashboardIcon.svg",
       uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+      lucideIconName: "layout-dashboard",
       permissionKey: permissionPrefix ? `${permissionPrefix}.dashboard.view` : null,
     },
     {
@@ -761,6 +778,7 @@ const ProfileNav = () => {
       href: "/dashboard/myAgentX",
       selected: "/svgIcons/selectedAgentXIcon.svg",
       uneselected: "/svgIcons/agentXIcon.svg",
+      lucideIconName: "brain-cog",
       permissionKey: permissionPrefix ? `${permissionPrefix}.agents.view` : null,
     },
     {
@@ -769,6 +787,7 @@ const ProfileNav = () => {
       href: "/dashboard/leads",
       selected: "/svgIcons/selectedLeadsIcon.svg",
       uneselected: "/svgIcons/unSelectedLeadsIcon.svg",
+      lucideIconName: "book-user",
       permissionKey: permissionPrefix ? `${permissionPrefix}.leads.manage` : null,
     },
     {
@@ -786,6 +805,7 @@ const ProfileNav = () => {
       href: "/dashboard/messages",
       selected: "/messaging/icons_chat_menu.svg",
       uneselected: "/messaging/icons_chat_menu.svg",
+      lucideIconName: "message-circle-more",
       permissionKey: permissionPrefix ? `${permissionPrefix}.messages.manage` : null,
     },
     {
@@ -794,6 +814,7 @@ const ProfileNav = () => {
       href: "/dashboard/callLog",
       selected: "/otherAssets/selectedActivityLog.png",
       uneselected: "/otherAssets/activityLog.png",
+      lucideIconName: "hard-drive-download",
       permissionKey: permissionPrefix ? `${permissionPrefix}.activity.view` : null,
     },
     {
@@ -802,6 +823,7 @@ const ProfileNav = () => {
       href: "/dashboard/integration",
       selected: "/svgIcons/selectedIntegration.svg",
       uneselected: "/svgIcons/unSelectedIntegrationIcon.svg",
+      lucideIconName: "unplug",
       permissionKey: permissionPrefix ? `${permissionPrefix}.integrations.manage` : null,
     },
     {
@@ -810,6 +832,7 @@ const ProfileNav = () => {
       href: "/dashboard/team",
       selected: "/svgIcons/selectedTeam.svg",
       uneselected: "/svgIcons/unSelectedTeamIcon.svg",
+      lucideIconName: "users",
       permissionKey: permissionPrefix ? `${permissionPrefix}.teams.manage` : null,
     },
     // {
@@ -912,6 +935,28 @@ const ProfileNav = () => {
       setPermissionsLoaded(true)
     })
   }, [isInvitee, permissionContext, links])
+
+  // Update sliding pill position when hovered nav index changes
+  useLayoutEffect(() => {
+    if (hoveredNavIndex === null) {
+      setNavPillStyle(null)
+      return
+    }
+    const container = navLinksContainerRef.current
+    const itemEl = navLinkItemRefs.current[hoveredNavIndex]
+    if (container && itemEl) {
+      const cr = container.getBoundingClientRect()
+      const ir = itemEl.getBoundingClientRect()
+      setNavPillStyle({
+        top: ir.top - cr.top,
+        left: ir.left - cr.left,
+        width: ir.width,
+        height: ir.height,
+      })
+    } else {
+      setNavPillStyle(null)
+    }
+  }, [hoveredNavIndex])
 
   const adminLinks = [
     {
@@ -1485,11 +1530,10 @@ const ProfileNav = () => {
         videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
         showLoader={updateProfileLoader}
       />
-      <div className="w-full flex flex-col items-center justify-between h-screen">
+      <div className="w-full flex flex-col items-center justify-between h-screen text-[14px]">
         <div
-          className="w-full pt-5 flex flex-col items-center"
+          className="w-full flex flex-col items-center h-full"
           style={{
-            // height: "90vh",
             overflow: "auto",
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -1505,7 +1549,7 @@ const ProfileNav = () => {
               </div>
             ) : (
               /* AppLogo handles logo display based on hostname */
-              (<div className="w-full flex justify-start pl-6">
+              (<div className="w-full flex justify-start items-center pl-6 h-[65px]">
                 <AppLogo
                   height={reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee" ? 40 : 33}
                   width={140}
@@ -1517,14 +1561,35 @@ const ProfileNav = () => {
             )}
           </div>
 
-          <div className="w-full mt-8 flex flex-col items-center gap-3">
+          <div
+            ref={navLinksContainerRef}
+            className="w-full flex flex-col items-start gap-0.5 py-2 px-2 bg-transparent relative text-[15px] font-normal"
+            onMouseLeave={() => setHoveredNavIndex(null)}
+          >
+            {navPillStyle && (
+              <div
+                aria-hidden
+                className="pointer-events-none rounded-lg"
+                style={{
+                  position: 'absolute',
+                  top: navPillStyle.top,
+                  left: navPillStyle.left,
+                  width: navPillStyle.width,
+                  height: navPillStyle.height,
+                  backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                  borderRadius: 8,
+                  zIndex: 0,
+                  transition: 'top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease',
+                }}
+              />
+            )}
             {!permissionsLoaded && isInvitee ? (
               // Show loading state while checking permissions
               <div className="w-full flex flex-col items-center justify-center py-8">
                 <CircularProgress size={24} />
               </div>
             ) : (
-              showLinks().map((item) => {
+              showLinks().map((item, index) => {
                 // Component to check permission for nav link
                 // hasAccess is passed from parent to avoid individual loading states
                 function PermissionNavLink({ item, hasAccess }) {
@@ -1543,59 +1608,66 @@ const ProfileNav = () => {
 
                 // Component to render a nav link
                 function NavLinkItem({ item }) {
+                  const isSelected = pathname === item.href;
+                  const LucideIcon = item.lucideIconName && LUCIDE_NAV_ICONS[item.lucideIconName];
                   return (
-                    <div className="w-full flex flex-col gap-3 pl-6">
+                    <div className="w-full m-0 flex flex-col gap-3 items-start py-0 px-0.5">
                       <Link
                         href={item.href}
-                        className="cursor-pointer no-underline hover:no-underline"
+                        className="block w-full h-10 cursor-pointer no-underline hover:no-underline m-0.5"
                       >
                         <div
-                          className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                          style={{}}
+                          className={`w-full min-w-0 flex flex-row gap-[12px] items-center h-full px-3 rounded-lg transition-transform duration-150 ease-out active:scale-[0.98] ${isSelected ? 'bg-brand-primary/5' : 'bg-transparent'}`}
+                          style={{ width: '100%' }}
                         >
-                          <div
-                            className={
-                              pathname === item.href
-                                ? "icon-brand-primary"
-                                : "icon-black"
-                            }
-                            style={
-                              pathname === item.href
-                                ? {
-                                  '--icon-mask-image': `url(${pathname === item.href
-                                      ? item.selected
-                                      : item.uneselected
-                                    })`,
-                                }
-                                : {}
-                            }
-                          >
-                            <Image
-                              src={
-                                pathname === item.href
-                                  ? item.selected
-                                  : item.uneselected
-                              }
-                              height={24}
-                              width={24}
-                              alt="icon"
+                          {LucideIcon ? (
+                            <span
+                              className={isSelected ? "text-brand-primary" : "text-black/80"}
                               style={
-                                pathname !== item.href && isCustomDomain && agencyBranding
-                                  ? { filter: 'var(--icon-filter, none)' }
+                                isSelected && isCustomDomain && agencyBranding
+                                  ? { color: 'hsl(var(--brand-primary))' }
+                                  : undefined
+                              }
+                            >
+                              <LucideIcon size={18} strokeWidth={2} />
+                            </span>
+                          ) : (
+                            <div
+                              className={
+                                isSelected ? "icon-brand-primary" : "icon-black"
+                              }
+                              style={
+                                isSelected
+                                  ? {
+                                      '--icon-mask-image': `url(${item.selected})`,
+                                    }
                                   : {}
                               }
-                            />
-                          </div>
+                            >
+                              <Image
+                                src={isSelected ? item.selected : item.uneselected}
+                                height={18}
+                                width={18}
+                                alt="icon"
+                                style={
+                                  !isSelected && isCustomDomain && agencyBranding
+                                    ? { filter: 'var(--icon-filter, none)' }
+                                    : {}
+                                }
+                              />
+                            </div>
+                          )}
                           <div
-                            className={
-                              pathname === item.href ? "text-brand-primary" : "text-black"
-                            }
-                            style={{
-                              fontSize: 15,
-                              fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                            }}
+                            className={`flex-1 min-w-0 flex flex-row items-center justify-between gap-2 text-[15px] font-normal ${isSelected ? "text-brand-primary" : "text-black/80"}`}
                           >
-                            {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
+                            <span className="truncate">{item.name}</span>
+                            {item.isBeta && (
+                              <span
+                                className="beta-badge-ai-gradient text-xs font-medium text-white flex-shrink-0 rounded px-[6px] py-0.5"
+                              >
+                                Beta
+                              </span>
+                            )}
                           </div>
                         </div>
                       </Link>
@@ -1603,18 +1675,19 @@ const ProfileNav = () => {
                   )
                 }
 
-                // For non-Invitee users, show all links
-                if (!isInvitee) {
-                  return <NavLinkItem key={item.id} item={item} />
-                }
-                
-                // For Invitee users, use pre-checked permissions
+                const content = !isInvitee
+                  ? <NavLinkItem item={item} />
+                  : <PermissionNavLink item={item} hasAccess={menuPermissions[item.id] || false} />
                 return (
-                  <PermissionNavLink
+                  <div
                     key={item.id}
-                    item={item}
-                    hasAccess={menuPermissions[item.id] || false}
-                  />
+                    className="w-full"
+                    ref={(el) => { navLinkItemRefs.current[index] = el }}
+                    onMouseEnter={() => setHoveredNavIndex(index)}
+                    style={{ position: 'relative', zIndex: 1 }}
+                  >
+                    {content}
+                  </div>
                 )
               })
             )}
@@ -1639,7 +1712,7 @@ const ProfileNav = () => {
           >
             <Link
               href={"/dashboard/myAccount"}
-              className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative no-underline hover:no-underline" //border border-[#00000015] rounded-[10px]
+              className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative no-underline hover:no-underline text-[14px]"
               style={{
                 textOverflow: "ellipsis",
                 textDecoration: "none",
@@ -1667,10 +1740,8 @@ const ProfileNav = () => {
                   <div
                     className="truncate"
                     style={{
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: "500",
-                      color: "",
-                      // width: "100px",
                       color: "black",
                     }}
                   >
@@ -1687,7 +1758,7 @@ const ProfileNav = () => {
                 <div
                   className="truncate w-[120px]"
                   style={{
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: "500",
                     color: "#15151560",
                     textOverflow: "ellipsis",

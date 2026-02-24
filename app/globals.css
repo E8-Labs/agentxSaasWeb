@@ -131,10 +131,22 @@ input[type="date"]::-moz-datetime-edit-year-field {
     min-height: 100vh;
   }
 
-  /* Ensure all layout wrappers have white background */
-  .flex.flex-col.w-full:not(.sms-note-container):not(.pipeline-stage-scroll) {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
+  /* Beta badge: AI-style gradient with animated light (sidebar) */
+  .beta-badge-ai-gradient {
+    background: linear-gradient(
+      110deg,
+      hsl(var(--brand-primary)),
+      hsl(var(--brand-primary) / 0.92),
+      hsl(var(--brand-primary)),
+      hsl(var(--brand-primary) / 0.78)
+    );
+    background-size: 200% 100%;
+    animation: beta-badge-shimmer 2.8s ease-in-out infinite;
+    box-shadow: 0 2px 10px hsl(var(--brand-primary) / 0.4);
+  }
+  @keyframes beta-badge-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 
   /* Prevent any black space at top - ensure body and html are white */

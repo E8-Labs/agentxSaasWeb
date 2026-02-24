@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TagPill } from './LeadDetailsCN'
@@ -33,6 +33,20 @@ const TagManagerCn = ({
   const [showTagsPopover, setShowTagsPopover] = useState(false)
   const [deletePermanentLoader, setDeletePermanentLoader] = useState(null)
   const displayedTags = useMemo(() => tags.slice(0, maxDisplayedTags), [tags])
+
+  // Dynamic width: grow when text present; revert to 80px when empty (on blur)
+  useEffect(() => {
+    const el = tagInputRef?.current
+    if (!el || from === 'dashboardPipeline') return
+    const value = (tagInputValue ?? '').trim()
+    if (value === '') {
+      el.style.width = '80px'
+      el.style.minWidth = '80px'
+    } else {
+      el.style.minWidth = '80px'
+      el.style.width = `${Math.max(80, el.scrollWidth + 2)}px`
+    }
+  }, [tagInputValue, from, tagInputRef])
   const remainingCount = Math.max(0, tags.length - maxDisplayedTags)
 
   const handleRemoveTag = (tag) => {
@@ -172,7 +186,7 @@ const TagManagerCn = ({
           }}
           placeholder={tags.length > 0 ? 'Add tag...' : 'Add tags...'}
           disabled={addTagLoader}
-          className={`${from === "dashboardPipeline" ? "w-[100%] py-0.5" : "w-[7vw] py-2"} rounded-full border border-border/50 bg-background px-3 text-sm focus:outline-none focus:ring-0 focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors shadow-sm hover:border-border`}
+          className={`${from === "dashboardPipeline" ? "w-[100%] py-0.5" : "min-w-[80px] py-2"} rounded-lg border-2 border-transparent bg-background px-3 text-sm shadow-none focus:outline-none focus:ring-0 focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors`}
         />
         {showSuggestions && tagSuggestions.length > 0 && (
           <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-border bg-popover shadow-lg">

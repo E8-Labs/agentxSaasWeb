@@ -259,9 +259,9 @@ const TeamAssignDropdownCn = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1 max-h-[300px] overflow-y-auto"
+        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg p-0 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto"
       >
-        <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
+        <DropdownMenuLabel className="p-3 text-sm font-semibold text-muted-foreground border-b border-[#eaeaea]">
           Team
         </DropdownMenuLabel>
         {teamOptions.length > 0 ? (
@@ -271,14 +271,14 @@ const TeamAssignDropdownCn = ({
             return (
               <DropdownMenuItem
                 key={team.id}
-                className="gap-2 px-2 justify-end pl-8 text-brand-primary hover:text-brand-primary cursor-pointer text-[14px]"
+                className="h-10 gap-2 px-2 justify-end pr-8 text-brand-primary cursor-pointer text-[14px] focus:bg-transparent hover:bg-transparent"
                 onSelect={(e) => {
                   e.preventDefault()
                   handleTeamClick(team)
                 }}
               >
-                {/* Radio button indicator */}
-                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                {/* Radio button indicator - right aligned */}
+                <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
                   <Circle
                     className={`h-3.5 w-3.5 stroke-current stroke-2 fill-none ${isSelected ? 'text-brand-primary' : 'text-muted-foreground'
                       }`}

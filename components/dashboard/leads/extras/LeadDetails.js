@@ -902,6 +902,7 @@ const LeadDetails = ({
       // //console.log;
 
       const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
+      console.log("ApiPath is", ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -911,7 +912,7 @@ const LeadDetails = ({
       })
 
       if (response) {
-        // console.log("lead details are", response.data.data)
+        console.log("lead details are api data ", response.data.data)
         let dynamicColumns = []
         dynamicColumns = [
           ...response?.data?.columns,
@@ -1623,6 +1624,11 @@ const LeadDetails = ({
   // Send email API function
   const sendEmailToLead = async (emailData) => {
     try {
+      console.log("Lead email is", selectedLeadsDetails)
+      if(!selectedLeadsDetails.email || selectedLeadsDetails.email === '' || selectedLeadsDetails.email === null || selectedLeadsDetails.email === undefined){
+        showSnackbar('Lead does not have a valid email address', SnackbarTypes.Error)
+        return
+      }
       setSendEmailLoader(true)
 
       const localData = localStorage.getItem('User')
@@ -1660,6 +1666,9 @@ const LeadDetails = ({
 
       if (response.data.status === true) {
         showSnackbar('Email sent successfully!', SnackbarTypes.Success)
+        setTimeout(() => {
+          getLeadDetails(selectedLeadsDetails?.id)
+        }, 300)
         setShowMessageModal(false)
       } else {
         showSnackbar(response.data.message || 'Failed to send email', SnackbarTypes.Error)
@@ -1705,6 +1714,9 @@ const LeadDetails = ({
 
       if (response.data.status === true) {
         showSnackbar('Text sent successfully!', SnackbarTypes.Success)
+        setTimeout(() => {
+          getLeadDetails(selectedLeadsDetails?.id)
+        }, 300)
         setShowMessageModal(false)
       } else {
         showSnackbar(response.data.message || 'Failed to send SMS', SnackbarTypes.Error)
@@ -1936,7 +1948,7 @@ const LeadDetails = ({
           })
         }}
       />
-      <div className="flex flex-col w-full h-full  py-2 px-1 rounded-xl">
+      <div className="flex flex-col w-full h-full py-0 px-1 rounded-xl gap-2">
         <div className="w-full flex flex-col items-center h-full">
 
           <div className="w-full">
@@ -1946,18 +1958,18 @@ const LeadDetails = ({
               </div>
             ) : (
               <div
-                className="h-[95vh] overflow-auto w-full"
+                className="h-[95vh] overflow-auto w-full animate-in slide-in-from-bottom-2 duration-200 ease-out"
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div
-                  className="flex  flex-col w-full"
+                  className="flex flex-col w-full gap-0.5 px-0 rounded-[12px]"
                   style={{
-                    padding: showAsTab ? 5 : 20,
-                    paddingInline: showAsTab ? 15 : 30,
+                    paddingTop: 2,
+                    paddingBottom: 2,
                   }}
                 >
-                  {!renderInline || !showAsTab && (
-                    <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
+                  {!renderInline && (
+                    <div className="w-full flex flex-row items-center justify-between p-3 h-auto border-b" style={{ borderColor: '#eaeaea' }}>
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
                       </div>
@@ -1970,10 +1982,11 @@ const LeadDetails = ({
                       </button>
                     </div>
                   )}
-                  <div>
-                    <div className={`flex flex-row items-start justify-between ${showAsTab ? 'mt-0' : 'mt-4'} w-full`}>
+                  <div className="px-0">
+                    <div className="py-0 gap-1 flex flex-col">
+                      <div className="flex flex-row items-start justify-between mt-4 w-full">
                       <div className="flex flex-col items-start  w-full">
-                        <div className="flex flex-row items-between justify-between w-full">
+                        <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
                           <div className="flex flex-row items-center gap-3">
 
                             {/* only show when showAsTab is true */}
@@ -1989,8 +2002,8 @@ const LeadDetails = ({
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="inline-flex cursor-pointer">
-                                    <Avatar className="h-8 w-8 bg-red">
+                                  <span className="inline-flex cursor-pointer size-[38px]">
+                                    <Avatar className="h-[38px] w-[38px] bg-red">
                                       {selectedLeadsDetails?.avatar ? (
                                         <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
                                       ) : (
@@ -1999,7 +2012,7 @@ const LeadDetails = ({
                                     </Avatar>
                                   </span>
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent side="top">
                                   Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
                                 </TooltipContent>
                               </Tooltip>
@@ -2136,7 +2149,7 @@ const LeadDetails = ({
                             </div>
                           </div>
                         </div>
-                        <div className="space-y-2 text-sm mt-2">
+                        <div className="w-full space-y-1 text-sm m-0 px-4 text-[14px] font-normal [&>*]:min-h-10 [&>*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {/* Email with edit functionality */}
 
 
@@ -2149,7 +2162,7 @@ const LeadDetails = ({
                                 {selectedLeadsDetails?.email ? (
                                   <div className="flex items-center gap-2">
                                     <span>{selectedLeadsDetails.email}</span>
-                                    <MuiTooltip title="Edit email">
+                                    <MuiTooltip title="Edit email" placement="top">
                                       <button
                                         onClick={handleEditEmailClick}
                                         className="text-muted-foreground hover:text-foreground transition-colors"
@@ -2166,9 +2179,9 @@ const LeadDetails = ({
                           )
                         ) : (  */}
 
-                          <div className="flex flex-col gap-2">
-                            <div className="flex flex-row items-center gap-2">
-                              <MailIcon className="h-4 w-4 text-muted-foreground" />
+                          <div className="flex flex-col gap-2 m-0 text-[14px] [&_*]:text-[14px]">
+                            <div className="flex flex-row items-center gap-2 m-0">
+                              <Mail className="h-4 w-4 text-muted-foreground" size={16} />
                               <div className="flex flex-row items-center gap-2 flex-1">
                                 <Input
                                   ref={emailInputRef}
@@ -2180,7 +2193,7 @@ const LeadDetails = ({
 
                                   }}
                                   placeholder="Enter email address"
-                                  className="flex-1 max-w-[200px] text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
+                                  className="flex-1 max-w-[200px] text-sm h-8 border-0 rounded-md p-2 shadow-none focus:border focus:border-primary focus:ring-0"
                                   disabled={updateEmailLoader}
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
@@ -2197,7 +2210,7 @@ const LeadDetails = ({
                                     <>
                                       {isEditingEmail && (
 
-                                        <MuiTooltip title="Save">
+                                        <MuiTooltip title="Save" placement="top">
                                           <button
                                             onClick={updateLeadEmail}
                                             disabled={!editedEmail?.trim()}
@@ -2266,32 +2279,32 @@ const LeadDetails = ({
 
 
                           {selectedLeadsDetails?.phone && (
-                            <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>
+                            <InfoRow icon={<PhoneIcon className="h-4 w-4" size={16} />}>
                               {selectedLeadsDetails.phone.startsWith('+')
                                 ? selectedLeadsDetails.phone
                                 : `+${selectedLeadsDetails.phone}`}
                             </InfoRow>
                           )}
-                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
-                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
+                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>{selectedLeadsDetails?.address}</InfoRow>}
+                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" size={16} />}>
                             {selectedLeadsDetails?.pipeline?.title ||
                               selectedLeadsDetails?.pipeline?.name ||
                               selectedLeadsDetails?.pipeline ||
                               '-'}
                           </InfoRow>
                           {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
-                            <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
+                            <InfoRow icon={<CalendarIcon className="h-4 w-4" size={16} />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
                             {
                               selectedLeadsDetails?.booking?.duration && (
                                 <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
                               )
                             }
                           </div>}
-                          {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>
-                            <Link href={selectedLeadsDetails?.meetingLocation} target="_blank">{selectedLeadsDetails?.meetingLocation}</Link>
+                          {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" size={16} />}>
+                            <Link href={selectedLeadsDetails?.meetingLocation} target="_blank" className="block min-w-0 max-w-full truncate">{selectedLeadsDetails?.meetingLocation}</Link>
                           </InfoRow>}
                           <div className="flex items-center gap-2">
-                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                            <TagIcon className="h-4 w-4 text-muted-foreground" size={16} />
                             <TagManagerCn
                               tags={selectedLeadsDetails?.tags || []}
                               tagInputRef={tagInputRef}
@@ -2365,6 +2378,7 @@ const LeadDetails = ({
                       </div>
 
 
+                    </div>
                     </div>
 
                   </div>
@@ -2614,7 +2628,7 @@ const LeadDetails = ({
 
                   {/* </div> */}
 
-                  <div className="w-full mt-12" style={{ paddingInline: 0 }}>
+                  <div className="w-full" style={{ paddingInline: 0 }}>
                     <TabsCN
                       tabs={[
                         {
@@ -2651,8 +2665,9 @@ const LeadDetails = ({
                     />
                   </div>
                   <div
-                    className="w-full mb-2"
+                    className="w-full mb-2 hidden"
                     style={{ height: '1px', backgroundColor: '#15151510' }}
+                    aria-hidden
                   />
 
                   <div style={{ paddingInline: 0 }}>

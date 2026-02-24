@@ -62,7 +62,7 @@ module.exports = {
           100: '#F3F4F6',
           800: '#1F2937',
         },
-        'thread-selected': '#F9F9F9',
+        'thread-selected': 'hsl(var(--brand-primary) / 0.02)',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -125,6 +125,25 @@ module.exports = {
       },
       boxShadow: {
         custom: '0px 4px 31.5px rgba(121, 2, 223, 0.04)',
+      },
+      keyframes: {
+        modalEntry: {
+          from: { transform: 'scale(0.95) translate(-50%, -50%)', opacity: '0' },
+          to: { transform: 'scale(1) translate(-50%, -50%)', opacity: '1' },
+        },
+        dropdownCnEnter: {
+          from: { transform: 'translateY(30px) scale(0.98)', opacity: '0' },
+          to: { transform: 'translateY(0) scale(1)', opacity: '1' },
+        },
+        dropdownCnExit: {
+          from: { transform: 'translateY(0) scale(1)', opacity: '1' },
+          to: { transform: 'translateY(30px) scale(0.98)', opacity: '0' },
+        },
+      },
+      animation: {
+        'modal-entry': 'modalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'dropdown-cn-enter': 'dropdownCnEnter 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'dropdown-cn-exit': 'dropdownCnExit 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
       },
     },
   },
