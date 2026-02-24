@@ -236,7 +236,7 @@ const ThreadsList = ({
   }
 
   return (
-    <div className={`w-[380px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
+    <div className={`w-[400px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
       <div className="w-full flex flex-row items-center justify-between mt-0 px-3 py-3">
 
         {/* Toggle Buttons - All / Unreplied */}

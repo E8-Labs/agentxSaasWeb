@@ -123,3 +123,10 @@ When the user says **"icon button"** (or "apply icon button"), style the selecte
 - Button: `rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out`
 - Size: 40×40px, padding 8px, borderRadius 8px
 - Icon inside: black at 80% opacity (`[&_svg]:opacity-80` or `style={{ opacity: 0.8 }}` on the icon)
+
+When the user says **"compose email"** (or "apply compose email"), apply the styling and interaction of the Messages compose form (MessageComposer) to the selected element and its relevant children. Do not change any functionality—only UI (classes, inline styles, layout). Match:
+- Container: `w-full px-3 py-3 flex flex-col gap-1`
+- Tab/header row: `flex items-center justify-between border-b m-0 gap-1 py-1`; tab buttons with `gap-2 pb-1 h-8`
+- Text inputs: `h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary`
+- Body/editor wrapper: `border border-brand-primary/20 rounded-lg bg-white`
+- Buttons: use same rounded-lg, height, and focus/active patterns as in the composer (e.g. Send button)

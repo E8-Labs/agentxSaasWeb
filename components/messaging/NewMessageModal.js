@@ -1784,7 +1784,7 @@ const NewMessageModal = ({
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="w-full p-4 border-b flex flex-row items-center justify-between h-[66px]">
             <h2 className="text-xl font-semibold">{isPipelineMode && isEditing ? 'Update Message ' : 'New Message'}</h2>
             <CloseBtn onClick={onClose} />
           </div>

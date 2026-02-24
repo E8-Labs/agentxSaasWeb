@@ -547,17 +547,17 @@ const SystemMessage = ({
                           placeholder="Send a follow up message to lead"
                           value={aiActionInput}
                           onChange={(e) => setAiActionInput(e.target.value)}
-                          className="min-h-[80px] resize-none text-sm"
+                          className="min-h-[80px] resize-none text-sm focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary"
                           disabled={followUpSubmitting}
                         />
-                        <div className="flex items-center justify-end gap-2 m-0 pt-2">
+                        <div className="flex items-center justify-end gap-[8px] m-0 pt-2">
                           <button
                             onClick={() => {
                               setAiActionType(null)
                               setAiActionInput('')
                             }}
                             disabled={followUpSubmitting}
-                            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-60"
+                            className="h-10 px-3 py-0 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-60 flex items-center justify-center"
                           >
                             Cancel
                           </button>
@@ -607,7 +607,7 @@ const SystemMessage = ({
                                 setFollowUpSubmitting(false)
                               }
                             }}
-                            className="px-4 py-1.5 text-xs font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="h-10 px-3 py-0 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
                           >
                             {followUpSubmitting ? 'Generating...' : 'Submit'}
                           </button>
