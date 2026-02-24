@@ -1177,7 +1177,7 @@ const CreateAgent1 = ({
         className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
         style={{
           scrollbarWidth: 'none',
-          backgroundColor: useTransparentBackground ? 'transparent' : '#ffffff',
+          // backgroundColor: useTransparentBackground ? 'transparent' : '#ffffff',
         }}
       >
         <AgentSelectSnackMessage
