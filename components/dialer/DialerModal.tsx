@@ -2614,7 +2614,7 @@ function DialerModal({
 
     return (
       <div
-        className="fixed z-[1402] bg-white rounded-lg shadow-lg border border-gray-200"
+        className="fixed z-[5100] bg-white rounded-lg shadow-lg border border-gray-200"
         style={{
           right: `${position.right}px`,
           top: `${position.y}px`,
@@ -2709,7 +2709,7 @@ function DialerModal({
   return (
     <div
       ref={modalRef}
-      className="fixed z-[1401] bg-white animate-in slide-in-from-bottom-2 duration-200 ease-out"
+      className="fixed z-[5100] bg-white animate-in slide-in-from-bottom-2 duration-200 ease-out"
       style={{
         right: `${modalDimensions.right}px`,
         top: `${modalDimensions.y}px`,
@@ -3606,6 +3606,8 @@ function DialerModal({
                         open={showUpgradeModal !== null}
                         onClose={() => setShowUpgradeModal(null)}
                         className="flex items-center justify-center p-4"
+                        sx={{ zIndex: 5200 }}
+                        BackdropProps={{ sx: { zIndex: 5200 } }}
                       >
                         <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 max-h-[90vh] overflow-auto">
                           <UpgardView

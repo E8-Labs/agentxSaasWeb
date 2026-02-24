@@ -162,7 +162,10 @@ const NewMessageModal = ({
   isLeadMode = false,
   isBookingStage = false,
   isFromAdminOrAgency = null,
+  elevatedZIndex = false, // When true, modal and overlays use z-index above TeamMemberActivityDrawer (5000)
 }) => {
+  const modalZIndex = elevatedZIndex ? 15020 : 1500
+  console.log("modalZIndex in newmessage modal is", modalZIndex);
   const [selectedMode, setSelectedMode] = useState(mode)
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [searchQuery, setSearchQuery] = useState('')
@@ -1798,12 +1801,17 @@ const NewMessageModal = ({
         onClose={onClose}
         aria-labelledby="new-message-modal"
         aria-describedby="new-message-description"
+        slotProps={{
+          root: {
+            style: { zIndex: modalZIndex },
+          },
+        }}
         sx={{
-          zIndex: 1500, // Higher than LeadDetails Drawer (1400) to appear on top
+          zIndex: modalZIndex,
         }}
         BackdropProps={{
           sx: {
-            zIndex: 1500, // Match Modal z-index
+            zIndex: modalZIndex,
           },
         }}
       >
@@ -1817,13 +1825,12 @@ const NewMessageModal = ({
             bgcolor: 'background.paper',
             borderRadius: '16px',
             boxShadow: 24,
-            zIndex: 1501, // Higher than backdrop (1500) to appear on top
+            zIndex: modalZIndex + 1,
             p: 0,
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            zIndex: 1501,
           }}
         >
           {/* Header */}
@@ -1920,10 +1927,10 @@ const NewMessageModal = ({
                                 transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                 slotProps={{
                                   root: {
-                                    style: { zIndex: 9999 },
+                                    style: { zIndex: modalZIndex + 100 },
                                   },
                                 }}
-                                sx={{ zIndex: 9999 }}
+                                sx={{ zIndex: modalZIndex + 100 }}
                                 disableScrollLock
                                 PaperProps={{
                                   style: {
@@ -1935,7 +1942,7 @@ const NewMessageModal = ({
                                     overflow: 'hidden',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    zIndex: 9999,
+                                    zIndex: modalZIndex + 100,
                                   },
                                 }}
                               >
@@ -2064,10 +2071,10 @@ const NewMessageModal = ({
                                     transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                     slotProps={{
                                       root: {
-                                        style: { zIndex: 9999 },
+                                        style: { zIndex: modalZIndex + 100 },
                                       },
                                     }}
-                                    sx={{ zIndex: 9999 }}
+                                    sx={{ zIndex: modalZIndex + 100 }}
                                     disableScrollLock
                                     PaperProps={{
                                       style: {
@@ -2079,7 +2086,7 @@ const NewMessageModal = ({
                                         overflow: 'hidden',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        zIndex: 9999,
+                                        zIndex: modalZIndex + 100,
                                       },
                                     }}
                                   >
@@ -3167,6 +3174,7 @@ const NewMessageModal = ({
             })
           }
         }}
+        elevatedZIndex={elevatedZIndex}
       // selectedUser={getSelectedUser()}
       />
 
