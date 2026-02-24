@@ -31,7 +31,6 @@ import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import MessageSettingsModal from './MessageSettingsModal'
-import DraftCards from './DraftCards'
 import AiChatModal from './AiChatModal'
 
 /** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
@@ -3479,17 +3478,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
                         onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
                         linkingLeadId={linkingLeadId}
-                      />
-                      </div>
-
-                      {/* AI-Generated Draft Responses */}
-                      <DraftCards
                         drafts={drafts}
-                        loading={draftsLoading}
+                        draftsLoading={draftsLoading}
                         onSelectDraft={handleSelectDraft}
                         onDiscardDraft={handleDiscardDraft}
                         selectedDraftId={selectedDraft?.id}
                       />
+                      </div>
                     </div>
 
                     {/* Composer - fixed at bottom with max height so long emails scroll inside */}
