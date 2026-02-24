@@ -83,59 +83,63 @@ export function TranscriptBubble({
                     <ThumbDownOutlined fontSize="small" />
                   )}
                 </button>
-                <button
-                  ref={commentBtnRef}
-                  className="text-gray-500 hover:text-black border-none outline-none"
-                  onClick={() => onCommentClick(index, msgId, commentBtnRef)}
-                >
-                  {comment ? (
-                    <div className="flex flex-row items-center gap-2">
-                      {/* <ChatBubble fontSize="small" sx={{ color: "#7902DF" }} /> */}
-                      <i>
-                        <div
-                          className="text-brand-primary"
-                          style={{
-                            fontSize: '13px',
-                            fontWeight: '500',
-                          }}
-                        >
-                          {comment?.slice(0, 1).toUpperCase()}
-                          {comment?.slice(1, 20)}
-                          {comment?.length > 5 && '... '}
-                          {comment?.length > 5 && (
-                            <button
-                              className="text-brand-primary cursor-pointer outline-noe border-none text-bold"
-                              onClick={() => {
-                                setReadMoreModal(comment)
+                {
+                  liked !== null && (
+                    <button
+                      ref={commentBtnRef}
+                      className="text-gray-500 hover:text-black border-none outline-none"
+                      onClick={() => onCommentClick(index, msgId, commentBtnRef)}
+                    >
+                      {comment ? (
+                        <div className="flex flex-row items-center gap-2">
+                          {/* <ChatBubble fontSize="small" sx={{ color: "#7902DF" }} /> */}
+                          <i>
+                            <div
+                              className="text-brand-primary"
+                              style={{
+                                fontSize: '13px',
+                                fontWeight: '500',
                               }}
                             >
-                              Read more
-                            </button>
-                          )}
+                              {comment?.slice(0, 1).toUpperCase()}
+                              {comment?.slice(1, 20)}
+                              {comment?.length > 5 && '... '}
+                              {comment?.length > 5 && (
+                                <button
+                                  className="text-brand-primary cursor-pointer outline-noe border-none text-bold"
+                                  onClick={() => {
+                                    setReadMoreModal(comment)
+                                  }}
+                                >
+                                  Read more
+                                </button>
+                              )}
 
-                          {/* Modal for full msg */}
-                          <Modal
-                            open={readMoreModal}
-                            onClose={() => {
-                              setReadMoreModal(null)
-                            }}
-                          >
-                            {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-                            <Box className="bg-white rounded-xl p-6 w-[30vw] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col overflow-y-auto">
-                              <div className="text-brand-primary text-large font-bold">
-                                {readMoreModal?.slice(0, 1).toUpperCase()}
-                                {readMoreModal?.slice(1)}
-                              </div>
-                            </Box>
-                          </Modal>
+                              {/* Modal for full msg */}
+                              <Modal
+                                open={readMoreModal}
+                                onClose={() => {
+                                  setReadMoreModal(null)
+                                }}
+                              >
+                                {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
+                                <Box className="bg-white rounded-xl p-6 w-[30vw] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col overflow-y-auto">
+                                  <div className="text-brand-primary text-large font-bold">
+                                    {readMoreModal?.slice(0, 1).toUpperCase()}
+                                    {readMoreModal?.slice(1)}
+                                  </div>
+                                </Box>
+                              </Modal>
+                            </div>
+                          </i>
                         </div>
-                      </i>
-                    </div>
-                  ) : (
-                    // <ChatBubbleOutlineOutlined fontSize="small" />
-                    (<div></div>)
-                  )}
-                </button>
+                      ) : (
+                        // <ChatBubbleOutlineOutlined fontSize="small" />
+                        (<div></div>)
+                      )}
+                    </button>
+                  )
+                }
               </>
 
             )}
@@ -160,12 +164,45 @@ export function TranscriptViewer({ callId }) {
 
   const showLikeDislike = callDetails?.callOrigin !== 'dialer'
 
-  const handleCommentClick = (index, msgId, buttonRef, isLike) => {
+  const submitFeedback = async (commentValue, messageId, likeValue, indexToUpdate) => {
+    const Token = AuthToken()
+    const ApiPath = Apis.addComment
+    const formData = new FormData()
+    formData.append('comment', commentValue ?? '')
+    formData.append('messageId', messageId)
+    formData.append('like', likeValue !== null && likeValue !== undefined ? likeValue : '')
+    const response = await axios.post(ApiPath, formData, {
+      headers: { Authorization: 'Bearer ' + Token },
+    })
+    if (response?.data?.status === true && indexToUpdate !== null) {
+      const updatedMessages = [...messages]
+      updatedMessages[indexToUpdate] = {
+        ...updatedMessages[indexToUpdate],
+        comment: response.data.data.comment || '',
+        liked: response.data.data.liked,
+      }
+      setMessages(updatedMessages)
+    }
+    return response
+  }
+
+  const handleCommentClick = async (index, msgId, buttonRef, isLike) => {
     const currentMessage = messages[index]
 
     if (buttonRef && buttonRef.current) {
       if (isLike !== undefined) {
         const newLikeValue = currentMessage?.liked === isLike ? null : isLike
+        if (newLikeValue === null) {
+          // Removing like/dislike: call API directly, no modal
+          setAddCommentLoader(true)
+          try {
+            await submitFeedback('', msgId, '', index)
+            if (activeIndex === index) setActiveIndex(null)
+          } finally {
+            setAddCommentLoader(false)
+          }
+          return
+        }
         setMsgIsLike(newLikeValue)
       } else {
         setMsgIsLike(currentMessage?.liked)
@@ -316,43 +353,17 @@ export function TranscriptViewer({ callId }) {
       console.error('Error fetching call transcript:', error)
     }
   }
-  //api to add comment and/or like/dislike
   const handleAddComment = async () => {
     try {
       setAddCommentLoader(true)
-      const Token = AuthToken()
-      const ApiPath = Apis.addComment
-      const formData = new FormData()
-      formData.append('comment', comment || '') // Allow empty comment
-      formData.append('messageId', commentMsgId)
-      // Send like/dislike value - FormData will convert boolean to string
-      // Backend handles: req.body.like || null, so empty string becomes null
-      formData.append('like', msgIsLike !== null && msgIsLike !== undefined ? msgIsLike : '')
-
-      const response = await axios.post(ApiPath, formData, {
-        headers: {
-          Authorization: 'Bearer ' + Token,
-        },
-      })
-
-      if (response) {
-        setAddCommentLoader(false)
-        if (response.data.status === true) {
-          if (activeIndex !== null) {
-            const updatedMessages = [...messages]
-            updatedMessages[activeIndex] = {
-              ...updatedMessages[activeIndex],
-              comment: response.data.data.comment || '',
-              liked: response.data.data.liked,
-            }
-            setMessages(updatedMessages)
-            handleCloseCommentModal()
-          }
-        }
+      const response = await submitFeedback(comment, commentMsgId, msgIsLike, activeIndex)
+      if (response?.data?.status === true) {
+        handleCloseCommentModal()
       }
     } catch (error) {
-      setAddCommentLoader(false)
       console.error('Error of add comment api is', error)
+    } finally {
+      setAddCommentLoader(false)
     }
   }
 
