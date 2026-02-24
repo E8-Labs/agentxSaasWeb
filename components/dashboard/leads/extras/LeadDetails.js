@@ -139,8 +139,8 @@ const LeadDetails = ({
   elevatedZIndex = false, // When true, drawer z-index is raised (e.g. when opened from TeamMemberActivityDrawer)
   showAsTab = false,
 }) => {
-  // //console.log;
-  // //console.log;
+  // When opened from TeamMemberActivityDrawer (z 5000), overlays must sit above it; elsewhere keep existing stacking.
+  const overlayZIndex = elevatedZIndex ? 5020 : 9999
 
   const emailInputRef = useRef(null)
   const notesTabRef = useRef(null)
@@ -2133,7 +2133,6 @@ const LeadDetails = ({
                                       {updateLeadLoader ? (
                                         <CircularProgress size={20} />
                                       ) : (
-
                                         <SelectStageDropdown
                                           selectedStage={selectedStage}
                                           handleStageChange={handleStageChange}
@@ -2141,6 +2140,7 @@ const LeadDetails = ({
                                           updateLeadStage={updateLeadStage}
                                           chevronIcon={ChevronDown}
                                           textSize="14px"
+                                          contentClassName={elevatedZIndex ? '!z-[5020]' : undefined}
                                         />
                                       )}
                                     </>
@@ -2320,6 +2320,7 @@ const LeadDetails = ({
                                 selectedUser={selectedUser}
                                 showSnackbar={showSnackbar}
                                 onLeadDetailsUpdated={handleLeadDetailsUpdated}
+                                elevatedZIndex={elevatedZIndex}
                               />
                             </div>
                             <div className="flex items-center gap-2">
@@ -2365,7 +2366,7 @@ const LeadDetails = ({
                                         handleUnassignLeadFromTeammember(teamId);
                                       }
                                     }}
-
+                                    contentClassName={elevatedZIndex ? '!z-[5020] w-64 border border-muted/70 bg-white text-foreground shadow-lg p-0 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto' : undefined}
                                   />
                                 )}
                             </div>
@@ -2435,6 +2436,7 @@ const LeadDetails = ({
                     setSelectedGoogleAccount={(account) => {
                       setSelectedGoogleAccount(account)
                     }}
+                    elevatedZIndex={elevatedZIndex}
                   />
 
                   {/* Modal for All Emails */}
@@ -2446,26 +2448,26 @@ const LeadDetails = ({
                       timeout: 1000,
                       sx: {
                         backgroundColor: '#00000020',
-                        zIndex: 9999,
+                        zIndex: overlayZIndex,
                         // //backdropFilter: "blur(20px)",
                       },
                     }}
                     slotProps={{
                       root: {
                         style: {
-                          zIndex: 9999,
+                          zIndex: overlayZIndex,
                         },
                       },
                     }}
                     sx={{
-                      zIndex: 9999,
+                      zIndex: overlayZIndex,
                     }}
                   >
                     <Box
                       className="lg:w-5/12 sm:w-full w-8/12"
                       sx={{
                         ...styles.modalsStyle,
-                        zIndex: 9999, // Higher than backdrop (1500) to appear on top
+                        zIndex: overlayZIndex,
                         position: 'relative',
                       }}
                     >
@@ -2532,13 +2534,14 @@ const LeadDetails = ({
                       horizontal: 'left',
                     }}
                     disablePortal={false}
+                    sx={{ zIndex: overlayZIndex }}
                     PaperProps={{
                       elevation: 0,
                       style: {
                         boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                         borderRadius: '10px',
                         minWidth: '120px',
-                        zIndex: 9999,
+                        zIndex: overlayZIndex,
                       },
                     }}
                   >
@@ -2815,18 +2818,18 @@ const LeadDetails = ({
             slotProps={{
               root: {
                 style: {
-                  zIndex: 9999,
+                  zIndex: overlayZIndex,
                 },
               },
             }}
             sx={{
-              zIndex: 9999, // Higher than drawer modal (1400) to appear on top
+              zIndex: overlayZIndex,
             }}
             BackdropProps={{
               timeout: 1000,
               sx: {
                 backgroundColor: '#00000020',
-                zIndex: 9999, // Match Modal z-index
+                zIndex: overlayZIndex,
                 // //backdropFilter: "blur(5px)",
               },
             }}
@@ -2835,7 +2838,7 @@ const LeadDetails = ({
               className="lg:w-4/12 sm:w-4/12 w-6/12"
               sx={{
                 ...styles.modalsStyle,
-                zIndex: 9999, // Higher than backdrop (1500) to appear on top
+                zIndex: overlayZIndex,
                 position: 'relative',
               }}
             >
@@ -2893,13 +2896,16 @@ const LeadDetails = ({
           open={showNoAudioPlay}
           onClose={() => setShowNoAudioPlay(false)}
           closeAfterTransition
+          slotProps={{ root: { style: { zIndex: overlayZIndex } } }}
+          sx={{ zIndex: overlayZIndex }}
           BackdropProps={{
             sx: {
               backgroundColor: '#00000020',
+              zIndex: overlayZIndex,
             },
           }}
         >
-          <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+          <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={{ ...styles.modalsStyle, zIndex: overlayZIndex }}>
             <div className="flex flex-row justify-center w-full">
               <div
                 className="w-full flex flex-col items-center"
@@ -2935,17 +2941,17 @@ const LeadDetails = ({
           slotProps={{
             root: {
               style: {
-                zIndex: 9999,
+                zIndex: overlayZIndex,
               },
             },
           }}
           sx={{
-            zIndex: 9999,
+            zIndex: overlayZIndex,
           }}
           BackdropProps={{
             sx: {
               backgroundColor: '#00000020',
-              zIndex: 9999,
+              zIndex: overlayZIndex,
             },
           }}
         >
@@ -2953,7 +2959,7 @@ const LeadDetails = ({
             className="lg:w-3/12 sm:w-5/12 w-3/12"
             sx={{
               ...styles.modalsStyle,
-              zIndex: 9999,
+              zIndex: overlayZIndex,
               position: 'relative',
             }}
           >
@@ -3018,11 +3024,57 @@ const LeadDetails = ({
     )
   }
 
-  //if trying to show as tab, then render with only main content
+  //if trying to show as tab, then render with only main content + modals (so NewMessageModal/UpgradePlan work when opened from TeamMemberActivityDrawer)
   if (showAsTab) {
     return (
       <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
         {mainContent}
+        {/* Unified Message Modal - must be in showAsTab branch so it mounts when opening from TeamMemberActivityDrawer */}
+        {showMessageModal && (
+          <NewMessageModal
+            open={showMessageModal}
+            onClose={() => setShowMessageModal(false)}
+            onSend={async (data) => {
+              if (data.mode === 'sms') {
+                await sendSMSToLead(data)
+              } else if (data.mode === 'email') {
+                await sendEmailToLead(data)
+              }
+            }}
+            mode={messageModalMode}
+            selectedUser={selectedUser}
+            setReduxUser={setReduxUser}
+            isLeadMode={true}
+            elevatedZIndex={elevatedZIndex}
+          />
+        )}
+        {/* Upgrade Plan Modal - same as Drawer branch so upgrade flows work from tab */}
+        <Elements stripe={stripePromise}>
+          <UpgradePlan
+            selectedPlan={selectedPlan}
+            setSelectedPlan={() => { }}
+            open={showUpgradeModal}
+            handleClose={async (upgradeResult) => {
+              setShowUpgradeModal(false)
+              if (upgradeResult) {
+                const getData = async () => {
+                  let user = selectedUser?.id
+                    ? await AdminGetProfileDetails(selectedUser.id)
+                    : await getProfileDetails()
+                  if (user) {
+                    setUserLocalData(selectedUser?.id ? user : user.data.data)
+                  }
+                }
+                await getData()
+              }
+            }}
+            plan={selectedPlan}
+            currentFullPlan={currentFullPlan}
+            selectedUser={memoizedSelectedUserForUpgrade}
+            from={effectiveUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+            elevatedZIndex={elevatedZIndex}
+          />
+        </Elements>
       </div>
     )
   }
@@ -3078,14 +3130,17 @@ const LeadDetails = ({
         open={showNoAudioPlay}
         onClose={() => setShowNoAudioPlay(false)}
         closeAfterTransition
+        slotProps={{ root: { style: { zIndex: overlayZIndex } } }}
+        sx={{ zIndex: overlayZIndex }}
         BackdropProps={{
           sx: {
             backgroundColor: '#00000020',
+            zIndex: overlayZIndex,
             // //backdropFilter: "blur(5px)",
           },
         }}
       >
-        <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+        <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={{ ...styles.modalsStyle, zIndex: overlayZIndex }}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="w-full flex flex-col items-center"
@@ -3123,17 +3178,17 @@ const LeadDetails = ({
         slotProps={{
           root: {
             style: {
-              zIndex: 9999,
+              zIndex: overlayZIndex,
             },
           },
         }}
         sx={{
-          zIndex: 9999, // Higher than Drawer (1400) to appear on top
+          zIndex: overlayZIndex,
         }}
         BackdropProps={{
           sx: {
             backgroundColor: '#00000020',
-            zIndex: 9999, // Match Modal z-index
+            zIndex: overlayZIndex,
           },
         }}
       >
@@ -3141,7 +3196,7 @@ const LeadDetails = ({
           className="lg:w-3/12 sm:w-5/12 w-3/12"
           sx={{
             ...styles.modalsStyle,
-            zIndex: 9999, // Higher than Modal backdrop (1600) to appear on top
+            zIndex: overlayZIndex,
             position: 'relative',
           }}
         >
@@ -3222,6 +3277,7 @@ const LeadDetails = ({
             selectedUser={selectedUser}
             setReduxUser={setReduxUser}
             isLeadMode={true}
+            elevatedZIndex={elevatedZIndex}
           />
         )
       }
@@ -3254,6 +3310,7 @@ const LeadDetails = ({
           currentFullPlan={currentFullPlan}
           selectedUser={memoizedSelectedUserForUpgrade}
           from={effectiveUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+          elevatedZIndex={elevatedZIndex}
         />
       </Elements>
     </div>

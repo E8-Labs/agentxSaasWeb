@@ -23,7 +23,7 @@ const getAuthToken = () => {
  * @param {Object} params - Query parameters (userId, leadId, threadId, callId, status, assignedTo, dueDateFilter, priority)
  * @returns {Promise<Object>} Response with tasks and counts
  */
-export const getTasks = async (params = {}) => {
+export const getTasks = async (params = {}, selectedUser = null) => {
   try {
     console.log("Trigering gettask list api")
     const AuthToken = getAuthToken()
@@ -41,7 +41,9 @@ export const getTasks = async (params = {}) => {
     if (params.dueDateFilter) queryParams.append('dueDateFilter', params.dueDateFilter)
     if (params.priority) queryParams.append('priority', params.priority)
     if (params.type) queryParams.append('type', params.type)
-
+    if (selectedUser) {
+      queryParams.append('userId', selectedUser.id)
+    }
     const url = `${Apis.getTasks}${queryParams.toString() ? '?' + queryParams.toString() : ''}`
     console.log("url for gettasks list is", url)
 

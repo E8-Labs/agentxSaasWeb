@@ -90,3 +90,36 @@ export function formatFractional2(price, maxDecimalPlaces = 2) {
   // For decimal numbers, always show exactly 2 decimal places
   return num.toFixed(2)
 }
+
+
+
+
+/**
+ * Format a price with up to 2 decimals. Whole numbers (e.g. 30, 30.00) are
+ * shown without decimals; others use exactly 2 decimal places.
+ * Uses rounding to avoid floating-point precision issues.
+ */
+export function formatFractional2Stable(price, maxDecimalPlaces = 2) {
+  if (price == null || price === undefined || price === '') {
+    return '0'
+  }
+
+  const num = Number(price)
+  if (Number.isNaN(num)) {
+    return '0'
+  }
+
+  const rounded = Math.round(num * 100) / 100
+  const isWholeNumber = Number.isInteger(rounded)
+
+  if (isWholeNumber) {
+    return rounded.toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })
+  }
+
+  return num.toFixed(2)
+}
+
+

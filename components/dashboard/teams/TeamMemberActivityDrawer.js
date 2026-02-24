@@ -40,7 +40,7 @@ const getAuthToken = () => {
   return null
 }
 
-async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limit = 50, offset = 0) {
+async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, selectedUser, limit = 50, offset = 0) {
   const token = getAuthToken()
   if (!token) throw new Error('Not authenticated')
   const params = new URLSearchParams({ teamMemberUserId: String(teamMemberUserId), range: range || 'all', limit: String(limit), offset: String(offset) })
@@ -48,7 +48,12 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limi
     params.append('from', from)
     params.append('to', to)
   }
-  const res = await axios.get(`${Apis.getTeamMemberActivities}?${params.toString()}`, {
+  if (selectedUser) {
+    params.append('userId', selectedUser.id)
+  }
+  const ApiPath = `${Apis.getTeamMemberActivities}?${params.toString()}`
+  console.log("ApiPath for get user activity is", ApiPath);
+  const res = await axios.get(ApiPath, {
     headers: { Authorization: `Bearer ${token}` },
   })
   return res.data
@@ -67,7 +72,7 @@ const STATUS_OPTIONS = [
   { value: 'done', label: 'Done' },
 ]
 
-export default function TeamMemberActivityDrawer({ open, onClose, teamMember, admin }) {
+export default function TeamMemberActivityDrawer({ open, onClose, teamMember, admin, selectedUser }) {
 
 
   //code for create task modal
@@ -106,7 +111,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     try {
       const params = { assignedTo: teamMemberUserId }
       if (effectiveStatus) params.status = effectiveStatus
-      const res = await getTasks(params)
+      const res = await getTasks(params, selectedUser)
       const list = Array.isArray(res?.data) ? res.data : res?.data?.tasks ?? res?.tasks ?? []
       setTasks(list)
       const c = res?.counts ?? res?.data?.counts ?? {}
@@ -137,7 +142,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     const toStr = range === 'custom' && customToDate ? format(customToDate, 'yyyy-MM-dd') : undefined
     setActivitiesLoading(true)
     try {
-      const res = await fetchTeamMemberActivities(teamMemberUserId, range, fromStr, toStr)
+      const res = await fetchTeamMemberActivities(teamMemberUserId, range, fromStr, toStr, selectedUser)
       const data = res?.data
       setActivities(data?.activities ?? [])
       setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
@@ -534,6 +539,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           {activeTab === "lead_details" && selectedLeadIdForModal != null && (
             <div>
               <LeadDetails
+                selectedUser={selectedUser}
                 selectedLead={selectedLeadIdForModal}
                 showDetailsModal={true}
                 setShowDetailsModal={() => {

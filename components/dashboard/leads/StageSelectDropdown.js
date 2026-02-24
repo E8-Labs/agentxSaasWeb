@@ -13,6 +13,7 @@ const SelectStageDropdown = ({
   chevronIcon = ChevronDown,
   pipelineTitle = null,
   textSize = null,
+  contentClassName = null,
 }) => {
   const options = useMemo(
     () =>
@@ -90,6 +91,7 @@ const SelectStageDropdown = ({
       onChevronClick={(opt) => handleStageChange?.(opt)}
       title={pipelineTitle}
       textSize={textSize}
+      contentClassName={contentClassName}
     />
   )
 }

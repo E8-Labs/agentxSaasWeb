@@ -20,7 +20,7 @@ import {
 import AddMonthlyPlan from './AddMonthlyPlan'
 import AddMonthlyPlanAnimation from './AddMonthlyPlanAnimation'
 import AddXBarPlan from './AddXBarPlan'
-import { formatFractional2 } from './AgencyUtilities'
+import { formatFractional2, formatFractional2Stable } from './AgencyUtilities'
 import { AuthToken } from './AuthDetails'
 import ConfigureSideUI from './ConfigureSideUI'
 import EditPlanWarning from './EditPlanWarning'
@@ -970,7 +970,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                               }}
                             >
                               <div style={styles.text2}>
-                                ${formatFractional2(item.discountedPrice) || 0}
+                                ${formatFractional2Stable(item.discountedPrice) || 0}
                               </div>
                             </div>
                             <div
