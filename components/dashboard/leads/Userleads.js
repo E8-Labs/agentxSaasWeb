@@ -2015,41 +2015,8 @@ const Userleads = ({
             showTasks={true}
           />
 
-          <div className="w-[95%] max-w-[1300px] mx-auto bg-transparent m-0 p-0">
+          <div className="w-[88%] max-w-[1500px] mx-auto bg-transparent m-0 p-0">
             <div className="pt-0 bg-transparent flex flex-col gap-0.5">
-              <div className="flex flex-row items-center justify-between py-3 px-3 border-b h-auto" style={{ borderBottom: '1px solid #eaeaea' }}>
-                <h2 className="text-[28px] font-medium tracking-[-1px] m-0">Lead Batch</h2>
-                <button
-                  style={{
-                    backgroundColor:
-                      selectedLeadsList.length > 0 || selectedAll
-                        ? 'hsl(var(--brand-primary))'
-                        : '',
-                    color:
-                      selectedLeadsList.length > 0 || selectedAll
-                        ? 'white'
-                        : '#000000',
-                    boxShadow:
-                      selectedLeadsList.length > 0 || selectedAll
-                        ? '0 4px 24px hsl(var(--brand-primary) / 0.15)'
-                        : 'none',
-                  }}
-                  className="flex flex-row items-center gap-2 h-[40px] w-auto px-3 rounded-lg bg-[#33333315] justify-center"
-                  onClick={() => {
-                    if (userLocalDetails?.plan) {
-                      setAssignLeadModal(true)
-                    } else {
-                      setSnackMessage('Add payment method to continue')
-                      setShowSnackMessage(true)
-                      setMessageType(SnackbarTypes.Warning)
-                    }
-                  }}
-                  disabled={!(selectedLeadsList.length > 0 || selectedAll)}
-                >
-                  <Phone size={16} strokeWidth={2} />
-                  <span className="text-[15px] font-normal">Start Campaign</span>
-                </button>
-              </div>
               {(hasExportPermission || selectedLeadsList.length > 0 || selectedAll) && (
               <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
                 <div className="flex flex-row items-center gap-6">
@@ -2135,8 +2102,8 @@ const Userleads = ({
                 </div>
               </div>
               )}
-              <div className="flex flex-row items-center justify-between w-full px-3 py-3 h-auto">
-                <div className="flex flex-row items-center gap-2 overflow-none flex-shrink-0 w-[70%]">
+              <div className="flex flex-row items-center justify-between w-full min-w-0 overflow-hidden px-3 py-3 h-auto border-0" style={{ border: 'none' }}>
+                <div className="flex flex-row items-center gap-2 min-w-0 flex-1 overflow-hidden">
                   <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
                     <input
                       style={{ ...styles.paragraph, fontWeight: 400 }}
@@ -2255,7 +2222,7 @@ const Userleads = ({
                   </div>
                 </div>
 
-                <div className="flex flex-row items-center justify-end gap-2 w-[30%] text-[14px] font-normal">
+                <div className="flex flex-row items-center justify-end gap-2 w-auto flex-shrink-0 text-[14px] font-normal">
                   {hasExportPermission && (
                     exportLoading ? (
                       <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -2278,71 +2245,41 @@ const Userleads = ({
                       </button>
                     )
                   )}
+                  <button
+                    style={{
+                      fontWeight: 400,
+                      fontSize: 14,
+                      backgroundColor:
+                        selectedLeadsList.length > 0 || selectedAll
+                          ? 'hsl(var(--brand-primary))'
+                          : '#f7f7f7',
+                      color:
+                        selectedLeadsList.length > 0 || selectedAll
+                          ? 'white'
+                          : undefined,
+                      borderRadius: 8,
+                      boxShadow:
+                        selectedLeadsList.length > 0 || selectedAll
+                          ? '0 4px 24px hsl(var(--brand-primary) / 0.15)'
+                          : 'none',
+                    }}
+                    className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0"
+                    onClick={() => {
+                      if (userLocalDetails?.plan) {
+                        setAssignLeadModal(true)
+                      } else {
+                        setSnackMessage('Add payment method to continue')
+                        setShowSnackMessage(true)
+                        setMessageType(SnackbarTypes.Warning)
+                      }
+                    }}
+                    disabled={!(selectedLeadsList.length > 0 || selectedAll)}
+                  >
+                    <Phone size={18} strokeWidth={2} className="flex-shrink-0" aria-hidden />
+                    <span className="text-[14px]">Start Campaign</span>
+                  </button>
 
-                  {selectedLeadsList.length >= 0 && (
-                    <div>
-                      {selectedAll ? (
-                        <div>
-                          <div className="flex flex-row items-center gap-2">
-                            <button
-                              className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
-                              onClick={() => {
-                                setSelectedLeadsList([])
-                                setSelectedAll(false)
-                              }}
-                            >
-                              <Image
-                                src={'/assets/whiteTick.png'}
-                                height={10}
-                                width={10}
-                                alt="*"
-                              />
-                            </button>
-                            <div
-                              style={{
-                                fontSize: '15',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              Select All
-                            </div>
-
-                            <div
-                              className="text-brand-primary"
-                              style={{
-                                fontSize: '15',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {/* {LeadsList.length} */}
-                              {getLeadSelectedCount()}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row items-center gap-2">
-                          <button
-                            className="h-[20px] w-[20px] rounded outline-none"
-                            style={{
-                              border: '3px solid #00000070',
-                            }}
-                            onClick={() => {
-                              //if select all then in the selectedLeads, we include the leads that are excluded
-                              //if selected all is false then in selected Leads we include the included leads
-                              setSelectedLeadsList([]) // setToggleClick(FilterLeads.map((item) => item.id));
-                              //LeadsList.map((item) => item.id)
-                              setSelectedAll(true)
-                            }}
-                          ></button>
-                          <div style={{ fontSize: '15', fontWeight: '600' }}>
-                            Select All
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Select All checkbox moved to Name column header in table */}
 
                   {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
                                         <span>
@@ -2506,9 +2443,13 @@ const Userleads = ({
                   })}
                 </div>
                 <button
-                  className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
-                  style={styles.paragraph}
-                  // onClick={() => { setShowAddNewSheetModal(true) }}
+                  className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 flex-shrink-0 whitespace-nowrap"
+                  style={{
+                    fontWeight: 400,
+                    fontSize: 14,
+                    backgroundColor: '#f7f7f7',
+                    borderRadius: 8,
+                  }}
                   onClick={() => {
                     if (uploading) {
                       setSnackMessage(
@@ -2528,8 +2469,8 @@ const Userleads = ({
                     }
                   }}
                 >
-                  <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
-                  <span>New Leads</span>
+                  <Plus size={18} color="hsl(var(--brand-primary))" weight="bold" className="flex-shrink-0" aria-hidden />
+                  <span className="text-[14px]">New Leads</span>
                 </button>
               </div>
               )}
@@ -2580,6 +2521,7 @@ const Userleads = ({
                         <tr style={{ fontWeight: '500' }}>
                           {leadColumns.map((column, index) => {
                             const isMoreColumn = column.title === 'More'
+                            const isNameColumn = column.title === 'Name'
                             const columnWidth = isMoreColumn ? '200px' : '150px'
                             return (
                               <th
@@ -2595,8 +2537,37 @@ const Userleads = ({
                                   maxWidth: columnWidth,
                                 }}
                               >
-                                {(column.title.charAt(0).toUpperCase() +
-                                  column.title.slice(1)).toUpperCase()}
+                                {isNameColumn ? (
+                                  <div className="flex flex-row items-center gap-3">
+                                    {selectedAll ? (
+                                      <button
+                                        className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center flex-shrink-0"
+                                        onClick={() => {
+                                          setSelectedLeadsList([])
+                                          setSelectedAll(false)
+                                        }}
+                                      >
+                                        <Image
+                                          src={'/assets/whiteTick.png'}
+                                          height={10}
+                                          width={10}
+                                          alt="Deselect all"
+                                        />
+                                      </button>
+                                    ) : (
+                                      <Checkbox
+                                        className="h-4 w-4 flex-shrink-0 border-2 border-muted"
+                                        onClick={() => {
+                                          setSelectedLeadsList([])
+                                          setSelectedAll(true)
+                                        }}
+                                      />
+                                    )}
+                                    <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
+                                  </div>
+                                ) : (
+                                  (column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()
+                                )}
                               </th>
                             )
                           })}
