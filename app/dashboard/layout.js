@@ -115,7 +115,7 @@ export default function DashboardLayout({ children }) {
           className={`flex flex-row w-full ${
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
-          style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5' }}
+          style={{ backgroundColor: '#ffffff', background: '#ffffff' }}
         >
           {/* Sidebar */}
           <div
@@ -131,7 +131,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 min-w-0" style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5', minHeight: '100vh' }}>
+          <div className="flex-1 min-w-0 bg-white" style={{ backgroundColor: '#ffffff', background: '#ffffff', minHeight: '100vh' }}>
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />
