@@ -63,6 +63,7 @@ import {
   Pencil,
   Check,
   X as XIcon,
+  ArrowLeftIcon,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -136,6 +137,7 @@ const LeadDetails = ({
   selectedUser = null, // Optional prop for admin/agency view
   onTagDeleted,
   elevatedZIndex = false, // When true, drawer z-index is raised (e.g. when opened from TeamMemberActivityDrawer)
+  showAsTab = false,
 }) => {
   // //console.log;
   // //console.log;
@@ -1974,6 +1976,17 @@ const LeadDetails = ({
                       <div className="flex flex-col items-start  w-full">
                         <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
                           <div className="flex flex-row items-center gap-3">
+
+                            {/* only show when showAsTab is true */}
+                            {showAsTab && (
+                              <button
+                              onClick={() => {
+                                setShowDetailsModal(false)
+                              }}
+                              >
+                                <ArrowLeftIcon size={20} />
+                              </button>
+                            )}
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -2995,7 +3008,14 @@ const LeadDetails = ({
     )
   }
 
-
+  //if trying to show as tab, then render with only main content
+  if (showAsTab) {
+    return (
+      <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
+        {mainContent}
+      </div>
+    )
+  }
 
   // Otherwise, render with Drawer (original behavior).
   // Wrapper is zero-size so it does not affect layout when used inside Messages (ConversationHeader);

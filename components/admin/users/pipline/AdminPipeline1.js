@@ -73,10 +73,11 @@ import UpgradeModal from '@/constants/UpgradeModal'
 import PipelineLoading from '@/components/dashboardPipeline/PipelineLoading'
 import ConfigurePopup from '@/components/dashboardPipeline/ConfigurePopup'
 import { TypographyH3 } from '@/lib/typography'
+import PipelineFilterModal from '@/components/common/PipelineFilterModal'
 import StandardHeader from '@/components/common/StandardHeader'
 import { Check } from 'lucide-react'
 
-const AdminPipeline1 = ({ selectedUser }) => {
+const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   const bottomRef = useRef()
   const colorPickerRef = useRef()
   let searchParams = useSearchParams()
@@ -970,7 +971,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
   // Team assign: options per lead (same shape as LeadDetails teamOptions)
   const getTeamOptionsForLead = useCallback(
     (lead) => {
-      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      // const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeamList || [])]
+      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...((myTeamList && myTeamList.length) ? myTeamList.slice(1) : [])]
       const teamsAssigned = lead?.teamsAssigned || []
       return allTeams.map((tm) => {
         const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
@@ -2086,6 +2088,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
       } else if (search) {
         ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&search=${search}`
       }
+      if (selectedUser?.id) {
+        ApiPath += (ApiPath.includes('?') ? '&' : '?') + 'userId=' + selectedUser.id
+      }
+      if (appliedTeamMemberIds?.length > 0) {
+        ApiPath += (ApiPath.includes('?') ? '&' : '?') + 'teamMemberIds=' + appliedTeamMemberIds.join(',')
+      }
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Auth,
@@ -2112,10 +2120,102 @@ const AdminPipeline1 = ({ selectedUser }) => {
     } catch (error) { }
   }
 
-  // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
-  const handleOpenFilterModal = () => {
+  // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds and fetch team members for selectedUser
+  const handleOpenFilterModal = async () => {
     setSelectedTeamMemberIds([...appliedTeamMemberIds])
     setShowFilterModal(true)
+    if (selectedUser?.id) {
+      try {
+        const response = await getTeamsList(selectedUser.id)
+        if (response) {
+          const filterMembers = []
+          if (response.admin) {
+            filterMembers.push({
+              id: response.admin.id,
+              name: response.admin.name,
+              email: response.admin.email,
+            })
+          }
+          if (response.data && response.data.length > 0) {
+            for (const t of response.data) {
+              if (t.status === 'Accepted' && t.invitedUser) {
+                filterMembers.push({
+                  id: t.invitedUser.id,
+                  name: t.invitedUser.name,
+                  email: t.invitedUser.email,
+                })
+              }
+            }
+          }
+          setFilterTeamMembers(filterMembers)
+        }
+      } catch (err) {
+        // no-op
+      }
+    }
+  }
+
+  const handleTeamMemberFilterToggle = (memberId) => {
+    setSelectedTeamMemberIds((prev) =>
+      prev.includes(memberId) ? prev.filter((id) => id !== memberId) : [...prev, memberId]
+    )
+  }
+
+  const getPipelineDetails = async (pipeline, teamMemberIdsOverride = null) => {
+    try {
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+      let ApiPath = Apis.getPipelineById + '?pipelineId=' + pipeline.id
+      if (selectedUser?.id) {
+        ApiPath += '&userId=' + selectedUser.id
+      }
+      const teamMemberIdsToUse = teamMemberIdsOverride !== null ? teamMemberIdsOverride : appliedTeamMemberIds
+      if (teamMemberIdsToUse && teamMemberIdsToUse.length > 0) {
+        ApiPath += '&teamMemberIds=' + teamMemberIdsToUse.join(',')
+      }
+      setPipelineDetailLoader(true)
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      setPipelineDetailLoader(false)
+      if (response?.data?.data) {
+        const pipelineDetails = response.data.data
+        const updatedPipelines = PipeLines?.map((p) =>
+          p.id === pipeline.id ? { ...p, ...pipelineDetails } : p
+        )
+        setPipeLines(updatedPipelines || [])
+        setLeadsCountInStage(pipelineDetails.leadsCountInStage)
+        setReservedLeadsCountInStage(pipelineDetails.leadsCountInStage)
+        setSelectedPipeline(pipelineDetails)
+        setStagesList(pipelineDetails.stages)
+        setLeadsList(pipelineDetails.leads || [])
+        setReservedLeads(pipelineDetails.leads || [])
+        if (updatedPipelines?.length) {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoragePipelines,
+            JSON.stringify(updatedPipelines),
+          )
+        }
+      }
+    } catch (error) {
+      setPipelineDetailLoader(false)
+    }
+  }
+
+  const handleApplyFilter = async () => {
+    const newAppliedIds = [...selectedTeamMemberIds]
+    setAppliedTeamMemberIds(newAppliedIds)
+    setShowFilterModal(false)
+    if (SelectedPipeline) {
+      await getPipelineDetails(SelectedPipeline, newAppliedIds)
+    }
   }
 
   function handldSearch(e) {
@@ -2185,8 +2285,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
   }
 
   return (
-    <div className="w-full flex flex-col items-start h-screen mt-[11vh]">
-      {/* Slider code */}
+    <div className="w-full flex flex-col items-start h-screen">
+      {/* Slider code mt-[11vh] */}
       <div
         style={{
           position: 'absolute',
@@ -2208,178 +2308,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
         hide={() => setSnackMessage(null)}
         message={snackMessage?.message}
       />
-      {/*<div
-        className="w-full flex flex-row justify-center"
-      >
-        <div className="w-full">
-          <div className="flex flex-row items-center justify-between px-4 mb-4">
-            <div className="flex flex-row items-center gap-2">
-              <TypographyH3>
-                {SelectedPipeline?.title}
-              </TypographyH3>
-              <div>
-                {PipeLines.length > 1 && (
-                  <button
-                    className="outline-none"
-                    aria-describedby={OtherPipelineId}
-                    variant="contained"
-                    onClick={handleShowOtherPipeline}
-                  >
-                    <CaretDown size={22} weight="bold" />
-                  </button>
-                )}
-                <Menu
-                  id={OtherPipelineId}
-                  anchorEl={otherPipelinePopoverAnchorel}
-                  open={openOtherPipelines}
-                  onClose={handleCloseOtherPipeline}
-                  MenuListProps={{
-                    'aria-labelledby': OtherPipelineId,
-                  }}
-                >
-                  {PipeLines.map((item, index) => (
-                    <MenuItem
-                      key={index}
-                      onClick={() => {
-                        handleSelectOtherPipeline(item, index)
-                        handleCloseOtherPipeline() // Close menu after selection
-                      }}
-                    >
-                      {item.title}
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </div>
-              <button
-                aria-describedby={id}
-                variant="contained"
-                onClick={handleShowPipelinePopover}
-                className="outline-none"
-              >
-                <DotsThree size={27} weight="bold" />
-              </button>
-              <Popover
-                id={id}
-                open={open}
-                anchorEl={pipelinePopoverAnchorel}
-                onClose={handlePipelineClosePopover}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-              >
-                <div className="p-3">
-                  <button
-                    className="flex flex-row items-center gap-4"
-                    onClick={() => {
-                      setCreatePipeline(true)
-                    }}
-                  >
-                    <Plus size={17} weight="bold" />{' '}
-                    <span style={{ fontWeight: '500', fontSize: 15 }}>
-                      New Pipeline
-                    </span>
-                  </button>
-                  {SelectedPipeline?.pipelineType !== 'agency_use' && (
-                    <>
-                      <div className="w-full flex flex-row mt-4">
-                        <button
-                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                          style={styles.paragraph}
-                          onClick={() => {
-                            setShowRenamePipelinePopup(true)
-                            setRenamePipeline(SelectedPipeline.title)
-                            // //console.log;
-                          }}
-                        >
-                          <Image
-                            src={'/assets/editPen.png'}
-                            height={15}
-                            width={15}
-                            alt="*"
-                          />
-                          Rename
-                        </button>
-                      </div>
-                      <div className="w-full flex flex-row mt-4">
-                        <button
-                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                          style={styles.paragraph}
-                          onClick={() => {
-                            setAddNewStageModal(true)
-                          }}
-                        >
-                          <Image
-                            src={'/svgIcons/arrowBlack.svg'}
-                            height={18}
-                            width={15}
-                            alt="*"
-                          />
-                          Add Stage
-                        </button>
-                      </div>
-                      <div className="w-full flex flex-row mt-4">
-                        <button
-                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                          style={styles.paragraph}
-                          onClick={() => {
-                            setShowStagesPopup(true)
-                          }}
-                        >
-                          <Image
-                            src={'/assets/list.png'}
-                            height={18}
-                            width={15}
-                            alt="*"
-                          />
-                          Rearrange Stage
-                        </button>
-                      </div>
-                    </>
-                  )}
-
-                  <button
-                    className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
-                    style={styles.paragraph}
-                    onClick={() => {
-                      setShowDeletePiplinePopup(true)
-                    }}
-                  >
-                    <Image
-                      src={'/assets/delIcon.png'}
-                      height={18}
-                      width={18}
-                      alt="*"
-                    />
-                    Delete
-                  </button>
-                </div>
-              </Popover>
-            </div>
-            <div className="flex fex-row items-center gap-6">
-              <div
-                className="flex flex-row items-center justify-between w-[25vw] border h-[50px] px-4 gap-8 rounded-full"
-                // style={{ borderRadius: "50px" }}
-              >
-                <input
-                  style={{ MozOutline: 'none' }}
-                  onChange={handldSearch}
-                  className="outline-none bg-transparent w-full mx-2 border-none focus:outline-none focus:ring-0 rounded-full"
-                  placeholder="Search by name, phone email"
-                />
-                <button className="outline-none">
-                  <Image
-                    src={'/assets/searchIcon.png'}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>*/}
 
       <StandardHeader
         titleContent={
@@ -2493,62 +2421,64 @@ const AdminPipeline1 = ({ selectedUser }) => {
                     </div>
                   </div>
                 </button>
-                {SelectedPipeline?.pipelineType !== 'agency_use' && (
-                  <>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setShowRenamePipelinePopup(true)
-                          setRenamePipeline(SelectedPipeline.title)
-                        }}
-                      >
-                        <Image
-                          src={'/assets/editPen.png'}
-                          height={15}
-                          width={15}
-                          alt="*"
-                        />
-                        Rename
-                      </button>
-                    </div>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setAddNewStageModal(true)
-                        }}
-                      >
-                        <Image
-                          src={'/svgIcons/arrowBlack.svg'}
-                          height={18}
-                          width={15}
-                          alt="*"
-                        />
-                        Add Stage
-                      </button>
-                    </div>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setShowStagesPopup(true)
-                        }}
-                      >
-                        <Image
-                          src={'/assets/list.png'}
-                          height={18}
-                          width={15}
-                          alt="*"
-                        />
-                        Rearrange Stage
-                      </button>
-                    </div>
-                  </>
-                )}
+                {/*SelectedPipeline?.pipelineType !== 'agency_use' && (
+                  
+                )*/}
+
+                <>
+                  <div className="w-full flex flex-row mt-4">
+                    <button
+                      className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                      style={styles.paragraph}
+                      onClick={() => {
+                        setShowRenamePipelinePopup(true)
+                        setRenamePipeline(SelectedPipeline.title)
+                      }}
+                    >
+                      <Image
+                        src={'/assets/editPen.png'}
+                        height={15}
+                        width={15}
+                        alt="*"
+                      />
+                      Rename
+                    </button>
+                  </div>
+                  <div className="w-full flex flex-row mt-4">
+                    <button
+                      className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                      style={styles.paragraph}
+                      onClick={() => {
+                        setAddNewStageModal(true)
+                      }}
+                    >
+                      <Image
+                        src={'/svgIcons/arrowBlack.svg'}
+                        height={18}
+                        width={15}
+                        alt="*"
+                      />
+                      Add Stage
+                    </button>
+                  </div>
+                  <div className="w-full flex flex-row mt-4">
+                    <button
+                      className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                      style={styles.paragraph}
+                      onClick={() => {
+                        setShowStagesPopup(true)
+                      }}
+                    >
+                      <Image
+                        src={'/assets/list.png'}
+                        height={18}
+                        width={15}
+                        alt="*"
+                      />
+                      Rearrange Stage
+                    </button>
+                  </div>
+                </>
 
                 <button
                   className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
@@ -2595,6 +2525,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         }
         selectedUser={selectedUser}
+        enablePermissionChecks={enablePermissionChecks}
       />
 
 
@@ -2609,7 +2540,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           ) : (
             <div className="flex flex-col items-center w-full">
               <div
-                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-4
+                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[90vh] mt-4
             scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             "
               >
@@ -2764,7 +2695,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
                                 <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                  Branding Color
+                                  Color
                                 </div>
                                 <div
                                   style={{
@@ -3305,6 +3236,16 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
+      {/* Filter Modal for Team Members */}
+      <PipelineFilterModal
+        open={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        filterTeamMembers={filterTeamMembers}
+        selectedTeamMemberIds={selectedTeamMemberIds}
+        onToggleMember={handleTeamMemberFilterToggle}
+        onApply={handleApplyFilter}
+        selectedUser={selectedUser}
+      />
       {/* Code for add stage modal */}
       <Modal
         open={addNewStageModal}

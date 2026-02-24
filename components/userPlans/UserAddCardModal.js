@@ -567,7 +567,7 @@ const UserAddCard = ({
     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
     if (hasTrial && isFirstTimeSubscription) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
     const billingMonths = GetMonthCountFronBillingCycle(
-      selectedPlan?.billingCycle || selectedPlan?.duration,
+      selectedPlan?.billingCycle || selectedPlan?.duration,  //reduxUser?.userRole !== 'AgencySubAccount' && 
     )
     const monthlyPrice =
       selectedPlan?.discountPrice ||
@@ -836,7 +836,9 @@ const UserAddCard = ({
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
-                    ${formatFractional2(orderSummary.finalTotal)}
+                    {/*${formatFractional2(orderSummary.finalTotal)}
+                    ${formatFractional2(reduxUser?.userRole === 'AgencySubAccount' ? (selectedPlan?.originalPrice * GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration)) : orderSummary.finalTotal || 0)}*/}
+                    ${formatFractional2(selectedPlan?.originalPrice * GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration))}
                   </div>
                 </div>
 

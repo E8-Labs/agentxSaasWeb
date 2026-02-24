@@ -41,6 +41,17 @@ function plainTextToHtml(text) {
   return text.replace(/\n/g, '<br>')
 }
 
+/** Strip HTML to plain text (for SMS send). */
+function stripHTML(html) {
+  if (!html || typeof html !== 'string') return ''
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html.replace(/<p[^>]*>/gi, '\n').replace(/<\/p>/gi, '').replace(/<br\s*\/?>/gi, '\n')
+    return (tempDiv.textContent || tempDiv.innerText || '').replace(/\n{3,}/g, '\n\n').trim()
+  }
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
+}
+
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
   const THREADS_PAGE_SIZE = 50
@@ -62,6 +73,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     subject: '',
     smsBody: '',
     emailBody: '',
+    socialBody: '',
     cc: '',
     bcc: '',
     attachments: [],
@@ -94,6 +106,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const selectedPhoneNumberRef = useRef(null)
   const selectedEmailAccountRef = useRef(null)
   const saveDefaultSendingTimeoutRef = useRef(null)
+  // Refs for current lists so we can apply stored defaults when selectedUser (lead) changes without refetching lists
+  const phoneNumbersRef = useRef([])
+  const emailAccountsRef = useRef([])
   const [userData, setUserData] = useState(null)
   const [sendingMessage, setSendingMessage] = useState(false)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -567,6 +582,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         }
 
         if (response.data?.status && Array.isArray(response.data?.data)) {
+          console.log('threads response.data.data', response.data.data)
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
             const dateB = new Date(b.lastMessageAt || b.createdAt)
@@ -916,6 +932,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         emailBody: plainTextToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
+    } else if (draft.messageType === 'messenger' || draft.messageType === 'instagram') {
+      setComposerData(prev => ({
+        ...prev,
+        socialBody: draft.content || '',
+      }))
+      setComposerMode(draft.messageType === 'instagram' ? 'instagram' : 'facebook')
     } else {
       setComposerData(prev => ({
         ...prev,
@@ -2131,8 +2153,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle send message
   const handleSendMessage = async () => {
-    // Get the appropriate message body based on mode
-    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+    // Get the appropriate message body (SMS: strip HTML to plain text; email: keep HTML)
+    const rawBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+    const messageBody = composerMode === 'sms' ? stripHTML(rawBody) : rawBody
 
     if (!selectedThread || !messageBody.trim()) return
     if (composerMode === 'email' && !composerData.to.trim()) return
@@ -2215,10 +2238,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
-          // Refresh messages and threads
+          // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send message')
@@ -2415,10 +2437,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
-          // Refresh messages and threads
+          // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send email')
@@ -2432,7 +2453,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }
 
-  // Fetch full message settings (for default From number/email); returns { defaultSendingPhoneNumberId, defaultSendingEmailAccountId } or null
+  // Fetch full message settings (for default From number/email). Uses forLeadId when selectedUser is set so we get stored defaults for that lead/contact.
   const fetchMessageSettingsDefaults = useCallback(async () => {
     try {
       const localData = localStorage.getItem('User')
@@ -2440,7 +2461,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
       let url = `${Apis.BasePath}api/mail/settings`
-      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      const params = new URLSearchParams()
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      if (selectedUser?.id) params.set('forLeadId', String(selectedUser.id))
+      if (params.toString()) url += `?${params.toString()}`
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
@@ -2457,7 +2481,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [selectedUser?.id])
 
-  // Persist default From number/email to message settings (debounced)
+  // Persist default From number/email to message settings (debounced). When selectedUser (lead) is set, store under that lead id so we prefer it when opening this conversation again.
   const saveDefaultSendingToSettings = useCallback((phoneId, emailId) => {
     if (saveDefaultSendingTimeoutRef.current) clearTimeout(saveDefaultSendingTimeoutRef.current)
     saveDefaultSendingTimeoutRef.current = setTimeout(async () => {
@@ -2469,10 +2493,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const token = userData.token
         let url = `${Apis.BasePath}api/mail/settings`
         if (selectedUser?.id) url += `?userId=${selectedUser.id}`
-        await axios.put(url, {
+        const body = {
           defaultSendingPhoneNumberId: phoneId != null && phoneId !== '' ? Number(phoneId) : null,
           defaultSendingEmailAccountId: emailId != null && emailId !== '' ? Number(emailId) : null,
-        }, {
+        }
+        if (selectedUser?.id) body.defaultSendingForUserId = selectedUser.id
+        await axios.put(url, body, {
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         })
       } catch (err) {
@@ -2501,6 +2527,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   useEffect(() => {
     selectedEmailAccountRef.current = selectedEmailAccount
   }, [selectedEmailAccount])
+  useEffect(() => {
+    phoneNumbersRef.current = phoneNumbers
+  }, [phoneNumbers])
+  useEffect(() => {
+    emailAccountsRef.current = emailAccounts
+  }, [emailAccounts])
 
   // Fetch phone numbers
   const fetchPhoneNumbers = useCallback(async () => {
@@ -2911,49 +2943,95 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       lastSelectedEmailAccountRef.current = selectedEmailAccount
     }
 
-    // When switching to email, restore the last selected account or use last used from thread
+    // When switching to email: load settings for this lead first (so stored default is available), then restore selection
     if (prevMode !== 'email' && composerMode === 'email') {
-      // Fetch accounts and restore selection
-      // Only fetch if accounts are empty, otherwise just restore selection
-      if (emailAccounts.length === 0) {
-        fetchEmailAccounts(true, true) // preserveSelection=true, restoreLastUsed=true
-      } else {
-        // Accounts already loaded, just restore selection
-        if (lastSelectedEmailAccountRef.current) {
-          const accountExists = emailAccounts.some(
-            acc => acc.id.toString() === lastSelectedEmailAccountRef.current
-          )
-          if (accountExists) {
-            setSelectedEmailAccount(lastSelectedEmailAccountRef.current)
-          } else {
-            // Try to restore from thread's last used email
-            const lastUsedAccountId = getLastEmailAccountFromThread()
-            if (lastUsedAccountId) {
-              const accountExists = emailAccounts.some(
-                acc => acc.id.toString() === lastUsedAccountId
-              )
-              if (accountExists) {
-                setSelectedEmailAccount(lastUsedAccountId)
-              }
-            }
-          }
+      prevComposerModeRef.current = composerMode
+      let cancelled = false
+      const run = async () => {
+        // Ensure settings for this lead are loaded before applying selection (avoids showing first account due to delay)
+        if (selectedUser?.id) {
+          await fetchMessageSettingsDefaults()
+          if (cancelled) return
+        }
+        if (emailAccounts.length === 0) {
+          // Use preserveSelection=false, restoreLastUsed=true so stored default (ref) is tried first, then last used, then first
+          fetchEmailAccounts(false, true)
         } else {
-          // No last selected, try to restore from thread's last used email
-          const lastUsedAccountId = getLastEmailAccountFromThread()
-          if (lastUsedAccountId) {
-            const accountExists = emailAccounts.some(
-              acc => acc.id.toString() === lastUsedAccountId
+          // Accounts already loaded: apply selection in priority order (stored default > last selected > last used in thread > first)
+          const list = emailAccounts
+          const defaultId = defaultSendingEmailAccountIdRef.current
+          const defaultInList = defaultId != null && list.some((acc) => acc.id === defaultId || acc.id === Number(defaultId))
+          if (defaultInList) {
+            const value = String(defaultId)
+            selectedEmailAccountRef.current = value
+            setSelectedEmailAccount(value)
+            return
+          }
+          if (lastSelectedEmailAccountRef.current) {
+            const accountExists = list.some(
+              acc => acc.id.toString() === lastSelectedEmailAccountRef.current
             )
             if (accountExists) {
-              setSelectedEmailAccount(lastUsedAccountId)
+              setSelectedEmailAccount(lastSelectedEmailAccountRef.current)
+              return
             }
           }
+          const lastUsedAccountId = getLastEmailAccountFromThread()
+          if (lastUsedAccountId && list.some((acc) => acc.id.toString() === lastUsedAccountId)) {
+            setSelectedEmailAccount(lastUsedAccountId)
+            return
+          }
+          const value = list[0].id?.toString() ?? String(list[0].id)
+          selectedEmailAccountRef.current = value
+          setSelectedEmailAccount(value)
         }
       }
+      run()
+      return () => { cancelled = true }
+    } else {
+      prevComposerModeRef.current = composerMode
     }
+  }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread, selectedUser?.id, fetchMessageSettingsDefaults])
 
-    prevComposerModeRef.current = composerMode
-  }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread])
+  // When selectedUser (lead) changes: refetch stored defaults for that lead and re-apply From selection (stored default > last used in thread > first)
+  useEffect(() => {
+    if (!selectedUser?.id) return
+    let cancelled = false
+    const run = async () => {
+      await fetchMessageSettingsDefaults()
+      if (cancelled) return
+      const phones = phoneNumbersRef.current
+      const emails = emailAccountsRef.current
+      if (phones.length > 0) {
+        const defaultId = defaultSendingPhoneNumberIdRef.current
+        const inList = defaultId != null && phones.some((p) => p.id === defaultId || p.id === Number(defaultId))
+        const value = inList ? String(defaultId) : (phones[0].id?.toString() ?? String(phones[0].id))
+        selectedPhoneNumberRef.current = value
+        setSelectedPhoneNumber(value)
+      }
+      if (emails.length > 0 && !isSelectingDraftRef.current) {
+        const defaultId = defaultSendingEmailAccountIdRef.current
+        const inList = defaultId != null && emails.some((acc) => acc.id === defaultId || acc.id === Number(defaultId))
+        if (inList) {
+          const value = String(defaultId)
+          selectedEmailAccountRef.current = value
+          setSelectedEmailAccount(value)
+          return
+        }
+        const lastUsedAccountId = getLastEmailAccountFromThread()
+        if (lastUsedAccountId && emails.some((acc) => acc.id.toString() === lastUsedAccountId)) {
+          selectedEmailAccountRef.current = lastUsedAccountId
+          setSelectedEmailAccount(lastUsedAccountId)
+          return
+        }
+        const value = emails[0].id?.toString() ?? String(emails[0].id)
+        selectedEmailAccountRef.current = value
+        setSelectedEmailAccount(value)
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [selectedUser?.id, fetchMessageSettingsDefaults, getLastEmailAccountFromThread])
 
   // Initial load: fetch message settings (for default From), then phone numbers and email accounts
   useEffect(() => {
@@ -3399,6 +3477,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
                         onShowUpgrade={() => setShowUpgradePlanModal(true)}
                         onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
+                        onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
+                        linkingLeadId={linkingLeadId}
                       />
                       </div>
 
@@ -3468,9 +3548,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                             }
                           }, 100)
                         }
-                        // Refresh threads to update last message/unread count
-                        fetchThreads(searchValue || "", appliedTeamMemberIds)
-
+                        // Do not refetch threads on every send/comment
                       }}
                       selectedUser={selectedUser}
                       searchLoading={searchLoading}

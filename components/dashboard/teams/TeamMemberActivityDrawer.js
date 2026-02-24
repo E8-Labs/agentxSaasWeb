@@ -517,21 +517,48 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                   ) : activities.length === 0 ? (
                     <TypographyBody className="text-muted-foreground italic py-8">No activities in this range</TypographyBody>
                   ) : (
-                    <ActivityTimeline activities={activities} onLeadClick={setSelectedLeadIdForModal} />
+                    <ActivityTimeline
+                      activities={activities}
+                      onLeadClick={(lead_ID) => {
+                        setSelectedLeadIdForModal(lead_ID)
+                        console.log("lead_ID", lead_ID)
+                        setActiveTab("lead_details")
+                      }}
+                    />
                   )}
                 </div>
               </ScrollArea>
             </>
           )}
 
-          <div className="w-full flex flex-row justify-end pb-4 pe-4">
-            <Button
-              className="bg-brand-primary text-white hover:bg-brand-primary/90"
-              onClick={() => setTaskModalOpen(true)}
-            >
-              + New Task
-            </Button>
-          </div>
+          {activeTab === "lead_details" && selectedLeadIdForModal != null && (
+            <div>
+              <LeadDetails
+                selectedLead={selectedLeadIdForModal}
+                showDetailsModal={true}
+                setShowDetailsModal={() => {
+                  setSelectedLeadIdForModal(null)
+                  setActiveTab("activity")
+                }}
+                hideDelete={true}
+                elevatedZIndex
+                showAsTab
+              />
+            </div>
+          )}
+
+          {
+            activeTab !== "lead_details" && (
+              <div className="w-full flex flex-row justify-end pb-4 pe-4">
+                <Button
+                  className="bg-brand-primary text-white hover:bg-brand-primary/90"
+                  onClick={() => setTaskModalOpen(true)}
+                >
+                  + New Task
+                </Button>
+              </div>
+            )
+          }
           {
             taskModalOpen && (
               <CreateTaskFromNextStepsModal
@@ -549,15 +576,6 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
         </div>
       </div>
-      {selectedLeadIdForModal != null && (
-        <LeadDetails
-          selectedLead={selectedLeadIdForModal}
-          showDetailsModal={true}
-          setShowDetailsModal={() => setSelectedLeadIdForModal(null)}
-          hideDelete={true}
-          elevatedZIndex
-        />
-      )}
     </Drawer>
   )
 }

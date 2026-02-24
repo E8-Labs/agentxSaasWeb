@@ -14,7 +14,7 @@ import { getAreaOfFocusTitle } from '@/utilities/getAreaOfFocusTitle'
 
 import AdminGetProfileDetails from '../../AdminGetProfileDetails'
 
-function AdminBasicInfo({ selectedUser }) {
+function AdminBasicInfo({ selectedUser, isAgencyView = false }) {
   const router = useRouter()
   const [focusedName, setFocusedName] = useState(false)
   const [focusedFarm, setFocusedFarm] = useState(false)
@@ -714,7 +714,7 @@ function AdminBasicInfo({ selectedUser }) {
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen"
       style={{
-        paddingBottom: '50px',
+        paddingBottom: isAgencyView ? '170px' : '50px',
 
         overflow: 'auto',
         scrollbarWidth: 'none',

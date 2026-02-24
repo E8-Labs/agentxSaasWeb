@@ -246,10 +246,10 @@ const TeamAssignDropdownCn = ({
               )}
             </div>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <TypographyBodySemibold>{label}</TypographyBodySemibold>
-            </>
+            </div>
           )}
           {withoutBorder ? null : (
             <span className="mx-3 h-6 w-px bg-muted/80" />

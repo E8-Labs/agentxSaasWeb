@@ -10,6 +10,7 @@ export const PersistanceKeys = {
   LocalStorageCampaignee: 'CampaigneeSaved',
   AgencyUUID: 'AgencyUUID',
   LocalStoragePipelines: 'LocalStoragePipelines',
+  PipelineTemplateCachePrefix: 'pipelineTemplateCache_',
   RegisterDetails: 'registerDetails',
   LocalStoredAgentsListMain: 'localAgentDetails',
   LocalStorageSubPlan: 'subPlan',
@@ -225,7 +226,7 @@ export const models = [
     responseTime: '800 ms',
   },
   {
-    name: 'Gemini 2.5 Flash Lite',
+    name: 'Gemini 2.5 Flash',
     provider: 'google',
     value: 'gemini-2.5-flash-lite',
     icon: '/svgIcons/geminiIcon.svg',

@@ -561,7 +561,14 @@ const ThreadsList = ({
                         {(() => {
                           const lastMessage = thread.messages?.[0]
                           if (!lastMessage) return 'No messages yet'
-                          const text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                          let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                          const trimmed = text.trim()
+                          if (/^\[\d+ .+\]$/.test(trimmed)) {
+                            if (/voice message/i.test(trimmed)) text = 'Voice message'
+                            else if (/image/i.test(trimmed)) text = 'Photo'
+                            else if (/video|reel/i.test(trimmed)) text = 'Video'
+                            else text = 'Attachment'
+                          }
                           const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
                           return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
                         })()}

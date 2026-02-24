@@ -51,12 +51,13 @@ const EmailSmsTranscriptCN = ({ item }) => {
   return (
     <div className="flex flex-col items-start gap-2 text-sm">
       {item.sentSubject && (
-        <div className="flex flex-row items-center gap-1">
-          <TypographyBodySemibold className="text-muted-foreground">
+        <div className="flex flex-row items-center gap-1 w-full min-w-0 mb-2">
+          <TypographyBodySemibold className="text-muted-foreground shrink-0">
             Subject:
           </TypographyBodySemibold>
-          <TypographyBodyMedium className="text-foreground">{item.sentSubject}</TypographyBodyMedium>
-         
+          <TypographyBodyMedium className="text-foreground min-w-0 flex-1 truncate">
+            {item.sentSubject}
+          </TypographyBodyMedium>
         </div>
       )}
       {item.sentContent && (
