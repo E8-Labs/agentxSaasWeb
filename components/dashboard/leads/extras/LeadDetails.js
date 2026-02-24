@@ -1944,15 +1944,18 @@ const LeadDetails = ({
               </div>
             ) : (
               <div
-                className="h-[95vh] overflow-auto w-full"
+                className="h-[95vh] overflow-auto w-full animate-in slide-in-from-bottom-2 duration-200 ease-out"
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div
-                  className="flex flex-col w-full"
-                  style={{ padding: 2 }}
+                  className="flex flex-col w-full px-0 rounded-[12px]"
+                  style={{
+                    paddingTop: 2,
+                    paddingBottom: 2,
+                  }}
                 >
                   {!renderInline && (
-                    <div className="w-full flex flex-row items-center justify-between pb-4 border-b px-4 py-3 h-auto">
+                    <div className="w-full flex flex-row items-center justify-between p-3 h-auto border-b" style={{ borderColor: '#eaeaea' }}>
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
                       </div>
