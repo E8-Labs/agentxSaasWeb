@@ -2124,8 +2124,19 @@ const NewMessageModal = ({
                                             </div>
                                           </button>
                                           {gmailError && (
-                                            <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100" title={gmailError.actionHint}>
-                                              {gmailError.shortLabel} — {gmailError.actionLabel}
+                                            <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
+                                              <span>{gmailError.shortLabel} —</span>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  setShowAuthSelectionPopup(true)
+                                                  setEmailDropdownOpen(false)
+                                                }}
+                                                className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
+                                              >
+                                                Reconnect
+                                              </button>
                                             </div>
                                           )}
                                         </div>

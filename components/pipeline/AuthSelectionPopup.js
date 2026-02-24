@@ -317,8 +317,18 @@ function AuthSelectionPopup({
                           )}
                           </div>
                           {gmailError && (
-                            <div className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 mt-0.5" title={gmailError.actionHint}>
-                              {gmailError.shortLabel} — {gmailError.actionLabel}
+                            <div className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 mt-0.5 flex items-center gap-1 flex-wrap" title={gmailError.actionHint}>
+                              <span>{gmailError.shortLabel} —</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleGmailConfirmationPopupOpen()
+                                }}
+                                className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
+                              >
+                                Reconnect
+                              </button>
                             </div>
                           )}
                         </div>
