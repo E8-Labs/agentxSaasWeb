@@ -16,6 +16,8 @@ import AgentSelectSnackMessage, {
 import { UpdateCadenceConfirmationPopup } from './UpdateCadenceConfirmationPopup'
 import { useUser } from '@/hooks/redux-hooks'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import { Tooltip } from '@mui/material'
+import { getTempleteDetails } from '@/components/pipeline/TempleteServices'
 
 const PipelineAndStage = ({
   selectedAgent,
@@ -36,6 +38,9 @@ const PipelineAndStage = ({
     { id: 2, title: 's2', description: 'Testing the stage2' },
     { id: 3, title: 's3', description: 'Testing the stage3' },
   ])
+
+  // Tooltip content for hovered email/sms row: { rowKey, data, loading }
+  const [rowHoverTemplate, setRowHoverTemplate] = useState(null)
 
   const [agentCadence, setAgentCadence] = useState([])
 
@@ -146,7 +151,7 @@ const PipelineAndStage = ({
       const ApiPath = Apis.getAgentCadence
 
       // //console.log;
-      for(let [key, value] of formData.entries()) {
+      for (let [key, value] of formData.entries()) {
         console.log("Key is", key, "and value is", value);
       }
       // console.log("Api path for agent cadence data is", ApiPath);
@@ -181,10 +186,13 @@ const PipelineAndStage = ({
 
   //booking time status text
   const decideTextToShowForBookingTimeStatus = (cadence) => {
+    console.log("cadence is", cadence)
     if (cadence.referencePoint === "after_booking") {
       return "after booking"
     } else if (cadence.referencePoint === "before_meeting") {
       return "before meeting"
+    } else {
+      return ""
     }
   }
 
@@ -538,7 +546,93 @@ const PipelineAndStage = ({
                                 </div>
                               </div>
                               <div>
-                                {decideTextToShowForBookingTimeStatus(item)}, {decideTextToShowForCadenceType(item)}
+                                {/*decideTextToShowForBookingTimeStatus(item)}, {decideTextToShowForCadenceType(item)*/}
+                                {(item.communicationType === 'email' || item.communicationType === 'sms') && item.templateId ? (
+                                  <Tooltip
+                                    title={(() => {
+                                      const rowKey = `${item.id}`
+                                      const isActive = rowHoverTemplate?.rowKey === rowKey
+                                      if (!isActive) return ''
+                                      if (rowHoverTemplate.loading) return 'Loading...'
+                                      console.log("rowHoverTemplate is", rowHoverTemplate)
+                                      const raw = rowHoverTemplate.data?.content ?? rowHoverTemplate.data?.body ?? rowHoverTemplate.data?.templateContent ?? ''
+                                      const text = String(raw)
+                                        .replace(/<[^>]*>/g, '')
+                                        .replace(/&nbsp;/g, ' ')
+                                        .trim()
+                                      return text || 'No content'
+                                    })()}
+                                    arrow
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          backgroundColor: 'hsl(var(--brand-primary))',
+                                          color: '#fff',
+                                          fontSize: '12px',
+                                          maxWidth: 320,
+                                          whiteSpace: 'pre-wrap',
+                                          wordBreak: 'break-word',
+                                        },
+                                      },
+                                      arrow: {
+                                        sx: {
+                                          color: 'hsl(var(--brand-primary))',
+                                        },
+                                      },
+                                    }}
+                                  >
+                                    <div
+                                      className="text-brand-primary text-[12px] cursor-pointer"
+                                      onMouseEnter={async () => {
+                                        const rowKey = `${item.id}`
+                                        const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${item.templateId}`
+                                        setRowHoverTemplate({ rowKey, loading: true })
+                                        try {
+                                          const cached = localStorage.getItem(cacheKey)
+                                          if (cached) {
+                                            const data = JSON.parse(cached)
+                                            setRowHoverTemplate({ rowKey, data, loading: false })
+                                            return
+                                          }
+                                        } catch (_) { /* ignore invalid cache */ }
+                                        console.log("template id is", item.templateId)
+                                        try {
+                                          const data = await getTempleteDetails({ templateId: item.templateId })
+                                          console.log("template data is", data)
+                                          if (data) {
+                                            localStorage.setItem(cacheKey, JSON.stringify(data))
+                                          }
+                                          setRowHoverTemplate((prev) =>
+                                            prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
+                                          )
+                                        } catch (err) {
+                                          setRowHoverTemplate((prev) =>
+                                            prev?.rowKey === rowKey ? { rowKey, data: null, loading: false } : prev
+                                          )
+                                        }
+                                      }}
+                                      onMouseLeave={() => setRowHoverTemplate(null)}
+                                    >
+                                      {(item.communicationType &&
+                                        item.communicationType !=
+                                        'call') ||
+                                        (item.action &&
+                                          item.action != 'call')
+                                        ? `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`
+                                        : `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`}
+                                    </div>
+                                  </Tooltip>
+                                ) : (
+                                  <div className="text-brand-primary text-[12px]">
+                                    {(item.communicationType &&
+                                      item.communicationType !=
+                                      'call') ||
+                                      (item.action &&
+                                        item.action != 'call')
+                                      ? `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`
+                                      : `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
