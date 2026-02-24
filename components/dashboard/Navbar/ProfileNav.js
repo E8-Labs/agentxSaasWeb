@@ -54,7 +54,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import { hexToHsl, calculateIconFilter } from "@/utilities/colorUtils";
 import { renderBrandedIcon } from "@/utilities/iconMasking";
-import { MessageSquareDot, MonitorDot, Users, BookUser, LayoutDashboard, CircleGauge, Cable, BrainCog } from "lucide-react";
+import { Unplug, MessageCircleMore, ChartBarBig, LayoutDashboard, Users, HardDriveDownload } from "lucide-react";
 
 const stripePromise = getStripe();
 
@@ -754,14 +754,12 @@ const ProfileNav = () => {
 
   // Memoize links to prevent unnecessary re-renders
   const LUCIDE_NAV_ICONS = useMemo(() => ({
-    "monitor-dot": MonitorDot,
     "layout-dashboard": LayoutDashboard,
-    "message-square-dot": MessageSquareDot,
+    "message-circle-more": MessageCircleMore,
+    "chart-bar-big": ChartBarBig,
+    "hard-drive-download": HardDriveDownload,
+    unplug: Unplug,
     users: Users,
-    "book-user": BookUser,
-    "circle-gauge": CircleGauge,
-    cable: Cable,
-    "brain-cog": BrainCog,
   }), []);
 
   const links = useMemo(() => [
@@ -807,7 +805,7 @@ const ProfileNav = () => {
       href: "/dashboard/messages",
       selected: "/messaging/icons_chat_menu.svg",
       uneselected: "/messaging/icons_chat_menu.svg",
-      lucideIconName: "message-square-dot",
+      lucideIconName: "message-circle-more",
       permissionKey: permissionPrefix ? `${permissionPrefix}.messages.manage` : null,
     },
     {
@@ -816,7 +814,7 @@ const ProfileNav = () => {
       href: "/dashboard/callLog",
       selected: "/otherAssets/selectedActivityLog.png",
       uneselected: "/otherAssets/activityLog.png",
-      lucideIconName: "circle-gauge",
+      lucideIconName: "hard-drive-download",
       permissionKey: permissionPrefix ? `${permissionPrefix}.activity.view` : null,
     },
     {
@@ -825,7 +823,7 @@ const ProfileNav = () => {
       href: "/dashboard/integration",
       selected: "/svgIcons/selectedIntegration.svg",
       uneselected: "/svgIcons/unSelectedIntegrationIcon.svg",
-      lucideIconName: "cable",
+      lucideIconName: "unplug",
       permissionKey: permissionPrefix ? `${permissionPrefix}.integrations.manage` : null,
     },
     {
@@ -1624,9 +1622,7 @@ const ProfileNav = () => {
                         >
                           {LucideIcon ? (
                             <span
-                              className={
-                                isSelected ? "text-brand-primary" : "text-black/80"
-                              }
+                              className={isSelected ? "text-brand-primary" : "text-black/80"}
                               style={
                                 isSelected && isCustomDomain && agencyBranding
                                   ? { color: 'hsl(var(--brand-primary))' }
