@@ -922,7 +922,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         ) : (
           <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
             <div className="flex flex-col gap-[2px]">
-              <div className="w-full flex items-center justify-between h-10 min-h-0 py-3 px-4 border-b border-[#eaeaea]">
+              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-[#eaeaea]">
                 <DialogTitle className="text-[18px] font-semibold">AI Message Settings</DialogTitle>
                 <DialogClose asChild>
                   <button
@@ -1032,7 +1032,6 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
                       )}
                     </div>
-                  </div>
 
                   {/* Set Reply Delay + Save as Draft Section */}
                   <div className="flex flex-col gap-0.5 pb-4 border-b border-[#eaeaea]">

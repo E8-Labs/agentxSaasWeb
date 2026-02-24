@@ -55,11 +55,7 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
           [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
           [&_li]:!my-[0.15em]
           [&_a]:text-brand-primary [&_a]:underline hover:[&_a]:opacity-80
-          ${isOutbound
-          ? 'text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a]:!text-brand-primary [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black'
-          : 'text-black'
-          }`}
-        style={isOutbound ? { color: 'white' } : {}}
+          text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a]:!text-brand-primary [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black`}
         dangerouslySetInnerHTML={{
           __html: isAttachmentOnlyPlaceholder(message.content)
             ? ''

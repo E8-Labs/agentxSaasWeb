@@ -542,7 +542,7 @@ const SystemMessage = ({
                     />
 
                     {aiActionType && (
-                      <div ref={aiActionRef} className="border-t border-border pt-3 mt-0">
+                      <div ref={aiActionRef} className="border-t border-border py-3 px-4 mt-0">
                         <Textarea
                           placeholder="Send a follow up message to lead"
                           value={aiActionInput}
@@ -550,7 +550,7 @@ const SystemMessage = ({
                           className="min-h-[80px] resize-none text-sm"
                           disabled={followUpSubmitting}
                         />
-                        <div className="flex items-center justify-end gap-2 m-0">
+                        <div className="flex items-center justify-end gap-2 m-0 pt-2">
                           <button
                             onClick={() => {
                               setAiActionType(null)
