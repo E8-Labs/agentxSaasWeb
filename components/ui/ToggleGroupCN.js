@@ -16,11 +16,12 @@ import { TypographyBody } from '@/lib/typography'
  * @param {string} props.height - Optional height class (e.g., 'p-1', 'p-2', 'p-1.5')
  * @param {string} props.roundedness - Optional roundedness class (e.g., 'rounded-lg', 'rounded-xl', 'rounded-md')
  */
-const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2', roundedness = 'rounded-full' }) => {
+const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-1', roundedness = 'rounded-lg' }) => {
   return (
     <div
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.05)',
+        boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.06)',
       }}
       className={cn(height, "flex flex-row items-center justify-center gap-2", roundedness, className)}
     >
@@ -34,17 +35,16 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
             key={option.value}
             onClick={() => onChange(option.value)}
             className={cn(
-              "px-2 py-1 transition-colors",
-              isSelected ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
-              isSelected ? 'rounded-lg' : 'rounded-none',
-              isSelected && 'shadow-[0_2px_4px_rgba(0,0,0,0.06)]'
+              "w-auto px-3 py-1 transition-colors active:scale-[0.98] rounded-md",
+              isSelected ? 'bg-white text-brand-primary shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-[#eaeaea]' : 'bg-transparent text-black',
             )}
+            style={isSelected ? { borderWidth: '0.5px' } : undefined}
           >
-            <TypographyBody className="flex items-center gap-2">
+            <TypographyBody className={cn("flex items-center gap-2 text-[14px] font-normal", isSelected ? 'text-brand-primary' : 'text-black')}>
               {Icon && (
                 <Icon 
-                  size={18} 
-                  className={isSelected ? 'text-brand-primary' : 'text-black'} 
+                  size={20} 
+                  className={isSelected ? 'text-brand-primary' : 'text-black/80'} 
                 />
               )}
               <span>{option.label}</span>
@@ -53,7 +53,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2
                   style={{
                     backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
                   }}
-                  className={`${isSelected ? 'text-brand-primary' : 'text-black'} font-bold px-1 rounded-full`}
+                  className={cn("font-bold px-1 rounded-full text-[12px]", isSelected ? 'text-brand-primary' : 'text-black/80')}
                 >
                   {option.count}
                 </span>

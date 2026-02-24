@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Link2, Loader2 } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2 } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
@@ -32,6 +32,7 @@ const MessengerTabIcon = ({ size = 20, style }) => (
   />
 )
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { cn } from '@/lib/utils'
 import {
   Dialog,
   DialogContent,
@@ -262,6 +263,18 @@ const MessageComposer = ({
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
   const templatesDropdownRef = useRef(null)
   const [templatesFetched, setTemplatesFetched] = useState(false) // Track if templates have been fetched for current mode
+  const [templateHoveredKey, setTemplateHoveredKey] = useState(null)
+  const [templatePillStyle, setTemplatePillStyle] = useState({ top: 0, height: 0 })
+  const templateListRef = useRef(null)
+  const templateOptionRefs = useRef(Object.create(null))
+  const [subjectVarHoveredKey, setSubjectVarHoveredKey] = useState(null)
+  const [subjectVarPillStyle, setSubjectVarPillStyle] = useState({ top: 0, height: 0 })
+  const subjectVarListRef = useRef(null)
+  const subjectVarOptionRefs = useRef(Object.create(null))
+  const [bodyVarHoveredKey, setBodyVarHoveredKey] = useState(null)
+  const [bodyVarPillStyle, setBodyVarPillStyle] = useState({ top: 0, height: 0 })
+  const bodyVarListRef = useRef(null)
+  const bodyVarOptionRefs = useRef(Object.create(null))
 
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
@@ -279,9 +292,16 @@ const MessageComposer = ({
 
   }, [composerMode])
 
-  // Close dropdowns when clicking outside
+  // Close dropdowns when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (
+        event.target?.closest?.('[data-feedback-toolbar]') ||
+        event.target?.closest?.('[data-annotation-popup]') ||
+        event.target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
       if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target)) {
         setPhoneDropdownOpen(false)
       }
@@ -524,6 +544,52 @@ const MessageComposer = ({
       fetchTemplates()
     }
   }, [showTemplatesDropdown, templatesFetched, templatesLoading, fetchTemplates])
+
+  // Update sliding pill position when hovered template row changes
+  useEffect(() => {
+    if (templateHoveredKey == null || !templateListRef.current) {
+      setTemplatePillStyle({ top: 0, height: 0 })
+      return
+    }
+    const el = templateOptionRefs.current[templateHoveredKey]
+    const list = templateListRef.current
+    if (!el || !list) return
+    const listRect = list.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    const top = elRect.top - listRect.top + list.scrollTop
+    const height = elRect.height
+    setTemplatePillStyle({ top, height })
+  }, [templateHoveredKey])
+
+  useEffect(() => {
+    if (subjectVarHoveredKey == null || !subjectVarListRef.current) {
+      setSubjectVarPillStyle({ top: 0, height: 0 })
+      return
+    }
+    const el = subjectVarOptionRefs.current[subjectVarHoveredKey]
+    const list = subjectVarListRef.current
+    if (!el || !list) return
+    const listRect = list.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    const top = elRect.top - listRect.top + list.scrollTop
+    const height = elRect.height
+    setSubjectVarPillStyle({ top, height })
+  }, [subjectVarHoveredKey])
+
+  useEffect(() => {
+    if (bodyVarHoveredKey == null || !bodyVarListRef.current) {
+      setBodyVarPillStyle({ top: 0, height: 0 })
+      return
+    }
+    const el = bodyVarOptionRefs.current[bodyVarHoveredKey]
+    const list = bodyVarListRef.current
+    if (!el || !list) return
+    const listRect = list.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    const top = elRect.top - listRect.top + list.scrollTop
+    const height = elRect.height
+    setBodyVarPillStyle({ top, height })
+  }, [bodyVarHoveredKey])
 
   // Handle template selection
   const handleTemplateSelect = async (template) => {
@@ -1265,10 +1331,10 @@ const MessageComposer = ({
   }
 
   return (
-    <div className="mx-4 mb-0 rounded-lg bg-white">
-      <div className="px-4 py-2">
-        <div className="flex items-center justify-between border-b mb-2">
-          <div className="flex items-center gap-2 pb-1">
+    <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+      <div className="w-full px-3 py-3 flex flex-col gap-1">
+        <div className="flex items-center justify-between border-b m-0 gap-1 py-1">
+          <div className="flex items-center gap-2 pb-1 h-8">
             <MessageComposerTabCN
               icon={MessageSquareDot}
               label="Text"
@@ -1525,9 +1591,11 @@ const MessageComposer = ({
         ) : (
           <div
             ref={composerContentRef}
+            className="flex flex-col gap-1 transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
             style={{
               height: contentHeight,
               maxHeight: '50vh',
+              overflow: 'hidden',
               overflowY: 'auto',
               overflowX: 'hidden',
               transition: isTransitioning ? 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
@@ -1683,7 +1751,7 @@ const MessageComposer = ({
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-2 mb-2 px-1">
+                <div className="flex items-center gap-2 m-0 px-1">
                   <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
                     <label className="text-sm text-[#737373] font-medium whitespace-nowrap">From:</label>
                     {composerMode === 'sms' ? (
@@ -1701,7 +1769,7 @@ const MessageComposer = ({
                           <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         </button>
                         {phoneDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto animate-in slide-in-from-bottom-2 duration-200 ease-out">
                             {phoneNumbers.length === 0 ? (
                               <div className="p-3">
                                 <button
@@ -1718,20 +1786,23 @@ const MessageComposer = ({
                               </div>
                             ) : (
                               <>
-                                {phoneNumbers.map((phone) => (
-                                  <button
-                                    key={phone.id}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedPhoneNumber(phone.id.toString())
-                                      setPhoneDropdownOpen(false)
-                                    }}
-                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                      }`}
-                                  >
-                                    {phone.phone}
-                                  </button>
-                                ))}
+                                {phoneNumbers.map((phone) => {
+                                  const isSelected = selectedPhoneNumber === phone.id.toString()
+                                  return (
+                                    <button
+                                      key={phone.id}
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedPhoneNumber(phone.id.toString())
+                                        setPhoneDropdownOpen(false)
+                                      }}
+                                      className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center justify-between ${isSelected ? 'bg-transparent text-brand-primary' : 'text-gray-700 hover:bg-gray-100'}`}
+                                    >
+                                      <span>{phone.phone}</span>
+                                      {isSelected && <Check size={16} className="text-brand-primary flex-shrink-0" />}
+                                    </button>
+                                  )
+                                })}
                                 <div className="border-t border-gray-200 p-2">
                                   <button
                                     onClick={() => {
@@ -1787,7 +1858,7 @@ const MessageComposer = ({
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
                             {emailDropdownOpen && (
-                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60">
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 animate-in slide-in-from-bottom-2 duration-200 ease-out">
                                 <div className="max-h-44 overflow-y-auto">
                                   {emailAccounts.map((account) => (
                                     <div
@@ -1860,7 +1931,7 @@ const MessageComposer = ({
                   <>
                     {/* CC and BCC fields - shown when toggled - Tag-based design on same line */}
                     {(showCC || showBCC) && (
-                      <div className="flex items-start gap-4 mb-2 px-1">
+                      <div className="flex items-start gap-4 m-0 px-1">
                         {showCC && (
                           <div className="flex items-start gap-2 flex-1 w-full">
                             <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
@@ -1956,8 +2027,8 @@ const MessageComposer = ({
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2 mb-2 px-1">
-                      <div className="flex border-[0.5px] border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary items-center flex-1 bg-white">
+                    <div className="flex items-center gap-2 m-0 px-1">
+                      <div className={cn("flex rounded-lg focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary items-center flex-1 bg-white", subjectVariablesDropdownOpen ? "border-0" : "border-[0.5px] border-gray-200")}>
                         <div className="flex items-center gap-2 flex-1 px-3">
                           <label className="text-sm text-[#737373] font-medium whitespace-nowrap">Subject:</label>
                           <input
@@ -1978,34 +2049,52 @@ const MessageComposer = ({
                             <button
                               type="button"
                               onClick={() => setSubjectVariablesDropdownOpen(!subjectVariablesDropdownOpen)}
-                              className="px-3 w-32 flex items-center justify-between text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              className={cn(
+                              "px-3 py-2 w-32 flex items-center justify-between text-sm text-gray-700 transition-colors rounded-[12px]",
+                              subjectVariablesDropdownOpen ? "bg-black/[0.02] border-0" : "hover:bg-gray-50"
+                            )}
                             >
                               <span>Variables</span>
                               <CaretDown size={16} className="text-gray-400" />
                             </button>
                             {subjectVariablesDropdownOpen && (
-                              <div className="absolute z-50 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px]">
-                                {uniqueColumns.map((variable, index) => {
-                                  const displayText = variable.startsWith('{') && variable.endsWith('}')
-                                    ? variable
-                                    : `{${variable}}`
-                                  return (
-                                    <button
-                                      key={index}
-                                      type="button"
-                                      onClick={() => {
-                                        const variableText = variable.startsWith('{') && variable.endsWith('}')
-                                          ? variable
-                                          : `{${variable}}`
-                                        setComposerData((prev) => ({ ...prev, subject: (prev.subject || '') + variableText }))
-                                        setSubjectVariablesDropdownOpen(false)
-                                      }}
-                                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
-                                    >
-                                      {displayText}
-                                    </button>
-                                  )
-                                })}
+                              <div className="absolute z-50 right-0 mt-1 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-top-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px]">
+                                <div
+                                  ref={subjectVarListRef}
+                                  className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                  onMouseLeave={() => setSubjectVarHoveredKey(null)}
+                                >
+                                  {subjectVarPillStyle.height > 0 && (
+                                    <div
+                                      className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                                      style={{ top: subjectVarPillStyle.top, height: subjectVarPillStyle.height }}
+                                      aria-hidden
+                                    />
+                                  )}
+                                  {uniqueColumns.map((variable, index) => {
+                                    const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                      ? variable
+                                      : `{${variable}}`
+                                    return (
+                                      <button
+                                        key={index}
+                                        ref={(el) => { if (el) subjectVarOptionRefs.current[index] = el }}
+                                        onMouseEnter={() => setSubjectVarHoveredKey(index)}
+                                        type="button"
+                                        onClick={() => {
+                                          const variableText = variable.startsWith('{') && variable.endsWith('}')
+                                            ? variable
+                                            : `{${variable}}`
+                                          setComposerData((prev) => ({ ...prev, subject: (prev.subject || '') + variableText }))
+                                          setSubjectVariablesDropdownOpen(false)
+                                        }}
+                                        className="w-full px-2 py-2 text-left text-sm transition-colors text-gray-700 relative z-[1]"
+                                      >
+                                        {displayText}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -2016,7 +2105,7 @@ const MessageComposer = ({
                 )}
 
                 {/* Message Body and Send Button */}
-                <div className="mb-2 px-1">
+                <div className="m-0 px-1">
                   {composerMode === 'email' ? (
                     <>
                       {composerData.attachments.length > 0 && (
@@ -2043,39 +2132,58 @@ const MessageComposer = ({
                           placeholder="Type your message..."
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
+                          toolbarDropdownOpen={variablesDropdownOpen}
                           customToolbarElement={
                             uniqueColumns && uniqueColumns.length > 0 ? (
                               <div className="relative" ref={variablesDropdownRef}>
                                 <button
                                   type="button"
                                   onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
-                                  className="px-3 py-2 w-32 border-gray-200 border-l-[0.5px] border-gray-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                  className={cn(
+                                  "px-3 py-2 w-32 border-l-[0.5px] flex items-center justify-between gap-2 text-sm text-gray-700 transition-colors rounded-[12px]",
+                                  variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-gray-200 border-gray-200 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary"
+                                )}
                                 >
                                   <span>Variables</span>
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {variablesDropdownOpen && (
-                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] z-50">
-                                    {uniqueColumns.map((variable, index) => {
-                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
-                                        ? variable
-                                        : `{${variable}}`
-                                      return (
-                                        <button
-                                          key={index}
-                                          type="button"
-                                          onClick={() => {
-                                            if (richTextEditorRef.current) {
-                                              richTextEditorRef.current.insertVariable(variable)
-                                            }
-                                            setVariablesDropdownOpen(false)
-                                          }}
-                                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
-                                        >
-                                          {displayText}
-                                        </button>
-                                      )
-                                    })}
+                                  <div className="absolute bottom-full left-0 mb-2 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px] z-50">
+                                    <div
+                                      ref={bodyVarListRef}
+                                      className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                      onMouseLeave={() => setBodyVarHoveredKey(null)}
+                                    >
+                                      {bodyVarPillStyle.height > 0 && (
+                                        <div
+                                          className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                                          style={{ top: bodyVarPillStyle.top, height: bodyVarPillStyle.height }}
+                                          aria-hidden
+                                        />
+                                      )}
+                                      {uniqueColumns.map((variable, index) => {
+                                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                          ? variable
+                                          : `{${variable}}`
+                                        return (
+                                          <button
+                                            key={index}
+                                            ref={(el) => { if (el) bodyVarOptionRefs.current[index] = el }}
+                                            onMouseEnter={() => setBodyVarHoveredKey(index)}
+                                            type="button"
+                                            onClick={() => {
+                                              if (richTextEditorRef.current) {
+                                                richTextEditorRef.current.insertVariable(variable)
+                                              }
+                                              setVariablesDropdownOpen(false)
+                                            }}
+                                            className="w-full px-2 py-2 text-left text-sm transition-colors text-gray-700 relative z-[1]"
+                                          >
+                                            {displayText}
+                                          </button>
+                                        )
+                                      })}
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -2087,7 +2195,7 @@ const MessageComposer = ({
 
                       {/* Footer with Template, Character Count, and Send Button */}
                       {(composerMode === 'email' || composerMode === 'sms') && (
-                        <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-gray-200">
+                        <div className="flex items-center justify-between gap-3 mt-0 pt-0 border-gray-200">
                           {/* My Templates Button with Dropdown */}
                           <div className="relative" ref={templatesDropdownRef}>
                             <button
@@ -2097,7 +2205,7 @@ const MessageComposer = ({
                                 }
                                 setShowTemplatesDropdown(!showTemplatesDropdown)
                               }}
-                              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-black/[0.02] rounded-[12px] transition-colors"
                             >
                               {renderBrandedIcon("/messaging/templateIcon.svg", 18, 18)}
                               <span>Templates</span>
@@ -2106,7 +2214,7 @@ const MessageComposer = ({
 
                             {/* Templates Dropdown */}
                             {showTemplatesDropdown && (
-                              <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+                              <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
                                 {templatesLoading ? (
                                   <div className="p-4 text-center">
                                     <CircularProgress size={20} />
@@ -2116,55 +2224,69 @@ const MessageComposer = ({
                                     No templates found
                                   </div>
                                 ) : (
-                                  templates.map((template) => (
-                                    <Tooltip
-                                      key={template.id || template.templateId}
-                                      title={template.subject}
-                                      arrow
-                                      placement="right"
-                                      componentsProps={{
-                                        tooltip: {
-                                          sx: {
-                                            // pointerEvents: 'none',
-                                            backgroundColor: '#ffffff', // Ensure white background
-                                            color: '#333', // Dark text color
-                                            fontSize: '16px',
-                                            fontWeight: '500',
-                                            padding: '10px 15px',
-                                            borderRadius: '8px',
-                                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                                          },
-                                        },
-                                        arrow: {
-                                          sx: {
-                                            color: '#ffffff', // Match tooltip background
-                                          },
-                                        },
-                                      }}
-                                    >
-                                      <button
-                                        key={template.id || template.templateId}
-                                        onClick={() => handleTemplateSelect(template)}
-                                        className="w-full flex flex-row items-center justify-between px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
-                                      >
-                                        <div className="font-medium text-gray-900 truncate">
-                                          {template.templateName || 'Untitled Template'}
-                                        </div>
-                                        {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
-                                          <CircularProgress size={16} />
-                                        ) : (
+                                  <div
+                                    ref={templateListRef}
+                                    className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                    onMouseLeave={() => setTemplateHoveredKey(null)}
+                                  >
+                                    {templatePillStyle.height > 0 && (
+                                      <div
+                                        className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                                        style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
+                                        aria-hidden
+                                      />
+                                    )}
+                                    {templates.map((template, idx) => {
+                                      const key = template.id || template.templateId || idx
+                                      return (
+                                        <Tooltip
+                                          key={key}
+                                          title={template.subject}
+                                          arrow
+                                          placement="right"
+                                          componentsProps={{
+                                            tooltip: {
+                                              sx: {
+                                                backgroundColor: '#ffffff',
+                                                color: '#333',
+                                                fontSize: '16px',
+                                                fontWeight: '500',
+                                                padding: '10px 15px',
+                                                borderRadius: '8px',
+                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                              },
+                                            },
+                                            arrow: {
+                                              sx: { color: '#ffffff' },
+                                            },
+                                          }}
+                                        >
                                           <button
-                                            type="button"
-                                            onClick={(e) => handleDeleteTemplate(template, e)}
-                                            className="flex-shrink-0 p-1 rounded transition-colors"
-                                            title="Delete template"
+                                            ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
+                                            onMouseEnter={() => setTemplateHoveredKey(key)}
+                                            onClick={() => handleTemplateSelect(template)}
+                                            className="group w-full flex flex-row items-center justify-between px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
                                           >
-                                            <Trash2 size={16} className="text-brand-primary" />
+                                            <div className="font-medium text-gray-900 truncate">
+                                              {template.templateName || 'Untitled Template'}
+                                            </div>
+                                            {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                                              <CircularProgress size={16} />
+                                            ) : (
+                                              <button
+                                                type="button"
+                                                onClick={(e) => handleDeleteTemplate(template, e)}
+                                                className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                                                title="Delete template"
+                                              >
+                                                <Trash2 size={16} className="text-black/80" />
+                                              </button>
+                                            )}
                                           </button>
-                                        )}
-                                      </button>
-                                    </Tooltip>
-                                  ))
+                                        </Tooltip>
+                                      )
+                                    })}
+                                  </div>
                                 )}
                               </div>
                             )}
@@ -2261,7 +2383,7 @@ const MessageComposer = ({
                       </div>
 
                       {/* Footer with Template, Character Count, and Send Button */}
-                      <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-gray-200">
+                      <div className="flex items-center justify-between gap-3 mt-0 pt-0 border-gray-200">
                         {/* My Templates Button with Dropdown */}
                         <div className="relative" ref={templatesDropdownRef}>
                           <button
@@ -2271,7 +2393,7 @@ const MessageComposer = ({
                               }
                               setShowTemplatesDropdown(!showTemplatesDropdown)
                             }}
-                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-black/[0.02] rounded-[12px] transition-colors"
                           >
                             {renderBrandedIcon("/messaging/templateIcon.svg", 18, 18)}
                             <span>Templates</span>
@@ -2280,7 +2402,7 @@ const MessageComposer = ({
 
                           {/* Templates Dropdown */}
                           {showTemplatesDropdown && (
-                            <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+                            <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
                               {templatesLoading ? (
                                 <div className="p-4 text-center">
                                   <CircularProgress size={20} />
@@ -2290,54 +2412,69 @@ const MessageComposer = ({
                                   No templates found
                                 </div>
                               ) : (
-                                templates.map((template) => (
-                                  <Tooltip
-                                    key={template.id || template.templateId}
-                                    title={template.content}
-                                    arrow
-                                    placement="right"
-                                    componentsProps={{
-                                      tooltip: {
-                                        sx: {
-                                          backgroundColor: '#ffffff',
-                                          color: '#333',
-                                          fontSize: '16px',
-                                          fontWeight: '500',
-                                          padding: '10px 15px',
-                                          borderRadius: '8px',
-                                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                        },
-                                      },
-                                      arrow: {
-                                        sx: {
-                                          color: '#ffffff',
-                                        },
-                                      },
-                                    }}
-                                  >
-                                    <button
-                                      key={template.id || template.templateId}
-                                      onClick={() => handleTemplateSelect(template)}
-                                      className="flex items-center justify-between gap-2  w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
-                                    >
-                                      <div className="font-medium text-gray-900 truncate">
-                                        {template.templateName || 'Untitled Template'}
-                                      </div>
-                                      {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
-                                        <CircularProgress size={16} />
-                                      ) : (
+                                <div
+                                  ref={templateListRef}
+                                  className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                  onMouseLeave={() => setTemplateHoveredKey(null)}
+                                >
+                                  {templatePillStyle.height > 0 && (
+                                    <div
+                                      className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                                      style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
+                                      aria-hidden
+                                    />
+                                  )}
+                                  {templates.map((template, idx) => {
+                                    const key = template.id || template.templateId || idx
+                                    return (
+                                      <Tooltip
+                                        key={key}
+                                        title={template.content}
+                                        arrow
+                                        placement="right"
+                                        componentsProps={{
+                                          tooltip: {
+                                            sx: {
+                                              backgroundColor: '#ffffff',
+                                              color: '#333',
+                                              fontSize: '16px',
+                                              fontWeight: '500',
+                                              padding: '10px 15px',
+                                              borderRadius: '8px',
+                                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                            },
+                                          },
+                                          arrow: {
+                                            sx: { color: '#ffffff' },
+                                          },
+                                        }}
+                                      >
                                         <button
-                                          type="button"
-                                          onClick={(e) => handleDeleteTemplate(template, e)}
-                                          className="flex-shrink-0 p-1 rounded transition-colors"
-                                          title="Delete template"
+                                          ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
+                                          onMouseEnter={() => setTemplateHoveredKey(key)}
+                                          onClick={() => handleTemplateSelect(template)}
+                                          className="group flex items-center justify-between gap-2 w-full px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
                                         >
-                                          <Trash2 size={16} className="text-brand-primary" />
+                                          <div className="font-medium text-gray-900 truncate">
+                                            {template.templateName || 'Untitled Template'}
+                                          </div>
+                                          {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                                            <CircularProgress size={16} />
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => handleDeleteTemplate(template, e)}
+                                              className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                                              title="Delete template"
+                                            >
+                                              <Trash2 size={16} className="text-black/80" />
+                                            </button>
+                                          )}
                                         </button>
-                                      )}
-                                    </button>
-                                  </Tooltip>
-                                ))
+                                      </Tooltip>
+                                    )
+                                  })}
+                                </div>
                               )}
                             </div>
                           )}

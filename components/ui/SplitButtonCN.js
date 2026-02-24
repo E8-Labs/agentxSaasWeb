@@ -18,20 +18,20 @@ const SplitButtonCN = ({ buttons = [], className }) => {
   if (buttons.length === 0) return null
 
   return (
-    <ButtonGroup className={className}>
+    <ButtonGroup className={cn('gap-1 rounded-lg', className)}>
       {buttons.map((button, index) => (
         <Button
           key={index}
           variant="outline"
           onClick={button.onClick}
           className={cn(
-            "rounded-none border-0 border-r border-gray-200 last:border-r-0 first:rounded-l-md last:rounded-r-md h-7",
+            "h-8 min-w-[2rem] px-3 p-0 flex items-center justify-center border-0 border-r border-gray-200 last:border-r-0 rounded-none first:rounded-l-lg last:rounded-r-lg",
             button.isSelected 
-              ? "bg-brand-primary text-white hover:bg-brand-primary/90 hover:text-white border-brand-primary" 
-              : "bg-white hover:bg-gray-50"
+              ? "bg-black/5 text-brand-primary hover:bg-black/10 border-transparent" 
+              : "bg-transparent hover:bg-black/[0.02]"
           )}
         >
-          <TypographyCaption className={button.isSelected ? 'text-white' : 'text-gray-700'}>
+          <TypographyCaption className={cn('text-[14px]', button.isSelected ? 'text-brand-primary' : 'text-gray-700')}>
             {button.label}
           </TypographyCaption>
         </Button>

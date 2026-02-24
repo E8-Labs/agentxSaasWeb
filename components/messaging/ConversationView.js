@@ -239,7 +239,7 @@ const ConversationView = ({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-white"
+      className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-[#f9f9f9] text-[14px]"
       style={{ scrollBehavior: 'auto', paddingRight: '1.5rem' }}
     >
       {/* Loader for older messages at top */}
@@ -336,7 +336,7 @@ const ConversationView = ({
                   {showDateSeparator && (
                     <div className="flex items-center justify-center my-6">
                       <div className="border-t border-gray-200 flex-1"></div>
-                      <span className="px-4 text-xs text-gray-400">
+                      <span className="px-4 text-sm text-gray-400">
                         {moment(message.createdAt).format('MMMM DD, YYYY')}
                       </span>
                       <div className="border-t border-gray-200 flex-1"></div>
@@ -367,16 +367,9 @@ const ConversationView = ({
                     <div
                       data-message-id={message.id}
                       className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
-                      style={
-                        isReply && depth > 0
-                          ? {
-                            [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px`,
-                          }
-                          : {}
-                      }
                     >
                       {isReply && parentMessage && (
-                        <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
+                        <div className={`text-[14px] mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
                           <div className={`${isOutbound ? 'max-w-[75%] min-w-[220px] text-left' : ''}`}>
                             <span className="italic">
                               Replying to:{' '}
@@ -394,7 +387,7 @@ const ConversationView = ({
                       >
                         {!isOutbound && (
                           <div className="relative flex-shrink-0">
-                            <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
+                            <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                               {getLeadName(selectedThread)}
                             </div>
                             {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
@@ -405,24 +398,40 @@ const ConversationView = ({
 
                         <div className="flex flex-col max-w-[75%] min-w-[220px]">
                           {isEmail ? (
-                            <EmailBubble
-                              message={message}
-                              isOutbound={isOutbound}
-                              sanitizeHTML={sanitizeHTML}
-                              sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
-                              openEmailDetailId={openEmailDetailId}
-                              setOpenEmailDetailId={setOpenEmailDetailId}
-                              getEmailDetails={getEmailDetails}
-                              selectedThread={selectedThread}
-                              onOpenEmailTimeline={onOpenEmailTimeline}
-                              setShowEmailTimeline={setShowEmailTimeline}
-                              setEmailTimelineLeadId={setEmailTimelineLeadId}
-                              setEmailTimelineSubject={setEmailTimelineSubject}
-                              onAttachmentClick={handleAttachmentClick}
-                              onReplyClick={onReplyClick}
-                              isLastMessage={isLastMessage}
-                              updateComposerFromMessage={updateComposerFromMessage}
-                            />
+                            <div className="flex flex-row items-center justify-between gap-2 w-full">
+                              <div className="min-w-0 flex-1">
+                                <EmailBubble
+                                  message={message}
+                                  isOutbound={isOutbound}
+                                  sanitizeHTML={sanitizeHTML}
+                                  sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
+                                  openEmailDetailId={openEmailDetailId}
+                                  setOpenEmailDetailId={setOpenEmailDetailId}
+                                  getEmailDetails={getEmailDetails}
+                                  selectedThread={selectedThread}
+                                  onOpenEmailTimeline={onOpenEmailTimeline}
+                                  setShowEmailTimeline={setShowEmailTimeline}
+                                  setEmailTimelineLeadId={setEmailTimelineLeadId}
+                                  setEmailTimelineSubject={setEmailTimelineSubject}
+                                  onAttachmentClick={handleAttachmentClick}
+                                  onReplyClick={onReplyClick}
+                                  isLastMessage={isLastMessage}
+                                  updateComposerFromMessage={updateComposerFromMessage}
+                                />
+                              </div>
+                              {!isOutbound && onReplyClick && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onReplyClick(message)
+                                  }}
+                                  type="button"
+                                  className="flex-shrink-0 text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
+                                >
+                                  Reply
+                                </button>
+                              )}
+                            </div>
                           ) : (
                             <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
                           )}
@@ -438,20 +447,6 @@ const ConversationView = ({
                               onLink={onLinkToLeadFromMessage}
                               linkingLeadId={linkingLeadId}
                             />
-                          )}
-                          {isEmail && !isOutbound && onReplyClick && (
-                            <div className="mt-1 flex justify-end">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onReplyClick(message)
-                                }}
-                                type="button"
-                                className="text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
-                              >
-                                Reply
-                              </button>
-                            </div>
                           )}
                         </div>
 

@@ -97,7 +97,7 @@ const SystemMessage = ({
     // Fallback: check senderUser directly
     if (message.senderUser?.thumb_profile_image) {
       return (
-        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
           <img
             src={message.senderUser.thumb_profile_image}
             alt={message.senderUser.name || 'Team Member'}
@@ -109,7 +109,7 @@ const SystemMessage = ({
               if (parent) {
                 const name = message.senderUser?.name || message.senderUser?.email || 'T'
                 const letter = name.charAt(0).toUpperCase()
-                parent.className = 'w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0'
+                parent.className = 'w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0'
                 parent.textContent = letter
               }
             }}
@@ -122,7 +122,7 @@ const SystemMessage = ({
     const senderName = message.senderUser?.name || message.senderUser?.email || 'T'
     const avatarLetter = senderName.charAt(0).toUpperCase()
     return (
-      <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
         {avatarLetter}
       </div>
     )
@@ -369,19 +369,25 @@ const SystemMessage = ({
 
                 {
                   callerName === null ?
-                    (<div className="text-xs text-system-text text-center px-4 mb-2">
+                    (<div className="text-sm text-system-text text-center px-4 mb-2">
                       <strong className="font-semibold">This lead</strong> was called on {callDate}
                     </div>) :
                     (
 
-                      <div className="text-xs text-system-text text-center px-4 mb-2">
+                      <div className="text-sm text-system-text text-center px-4 mb-2">
                         Called by <strong className="font-semibold">{callerName}</strong> on {callDate}
                       </div>
                     )
                 }
 
-                <div className="w-full max-w-2xl px-4">
-                  <div className={`rounded-xl border border-border bg-background px-4 ${aiActionType ? 'pb-4' : 'pb-2'} shadow-sm`}>
+                <div className="w-full max-w-2xl px-4 py-4">
+                  <div
+                    className="rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden"
+                    style={{
+                      boxShadow:
+                        '0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9',
+                    }}
+                  >
                     <CallTranscriptCN
                       leadId={selectedLead}
                       leadName={leadName}
@@ -439,7 +445,7 @@ const SystemMessage = ({
                           // Feature available and AI key present: full AI action dropdown
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors">
+                              <button className="flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-[color,transform] duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-black">
                                 <Image
                                   src="/otherAssets/starsIcon2.png"
                                   height={14}
@@ -447,16 +453,16 @@ const SystemMessage = ({
                                   alt="AI"
                                 />
                                 <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
-                                <ChevronDown className="h-3 w-3" />
+                                <ChevronDown className="h-4 w-4 shrink-0" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="min-w-[140px]">
+                            <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom-2 duration-200 ease-out [&_svg]:text-black">
                               <DropdownMenuItem
                                 onClick={() => {
                                   setAiActionType('email')
                                   setAiActionInput('')
                                 }}
-                                className="flex items-center gap-2 cursor-pointer"
+                                className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
                               >
                                 <Mail className="h-4 w-4" />
                                 <span>Email</span>
@@ -466,7 +472,7 @@ const SystemMessage = ({
                                   setAiActionType('text')
                                   setAiActionInput('')
                                 }}
-                                className="flex items-center gap-2 cursor-pointer"
+                                className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
                               >
                                 <MessageSquareDot />
                                 <span>Text</span>
@@ -483,7 +489,7 @@ const SystemMessage = ({
                                     })
                                   }
                                 }}
-                                className="flex items-center gap-2 cursor-pointer"
+                                className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
                               >
                                 <MessagesSquare className="h-4 w-4" />
                                 <span>Chat</span>
@@ -494,7 +500,7 @@ const SystemMessage = ({
                           // Feature available but no AI key: show tooltip to add API key
                           <HoverCard openDelay={200} closeDelay={100}>
                             <HoverCardTrigger asChild>
-                              <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
+                              <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-[color,transform] duration-150 active:scale-[0.98] cursor-pointer [&_img]:hover:animate-pulse [&_svg]:text-black">
                                 <Image
                                   src="/otherAssets/starsIcon2.png"
                                   height={14}
@@ -502,7 +508,7 @@ const SystemMessage = ({
                                   alt="AI"
                                 />
                                 <span>{aiActionType ? AI_ACTION_LABELS[aiActionType] : 'AI Action'}</span>
-                                <ChevronDown className="h-3 w-3" />
+                                <ChevronDown className="h-4 w-4 shrink-0" />
                               </button>
                             </HoverCardTrigger>
                             <HoverCardContent align="end" className="w-auto">
@@ -526,33 +532,32 @@ const SystemMessage = ({
                             </HoverCardContent>
                           </HoverCard>
                         ) : (
-                          // Loading (hasAiKey null) or no feature: disabled AI action
-                          <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground opacity-70 cursor-default" disabled>
+                          <button className="flex items-center gap-1 h-8 rounded-lg bg-muted px-3 text-sm font-medium text-foreground opacity-70 cursor-default" disabled>
                             <Image src="/otherAssets/starsIcon2.png" height={14} width={14} alt="AI" />
                             <span>AI Action</span>
-                            <ChevronDown className="h-3 w-3" />
+                            <ChevronDown className="h-4 w-4 shrink-0" />
                           </button>
                         )
                       }
                     />
 
                     {aiActionType && (
-                      <div ref={aiActionRef} className="mt-3 border-t border-border pt-3">
+                      <div ref={aiActionRef} className="border-t border-border py-3 px-4 mt-0">
                         <Textarea
                           placeholder="Send a follow up message to lead"
                           value={aiActionInput}
                           onChange={(e) => setAiActionInput(e.target.value)}
-                          className="min-h-[80px] resize-none text-sm"
+                          className="min-h-[80px] resize-none text-sm focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary"
                           disabled={followUpSubmitting}
                         />
-                        <div className="flex items-center justify-end gap-2 mt-2">
+                        <div className="flex items-center justify-end gap-[8px] m-0 pt-2">
                           <button
                             onClick={() => {
                               setAiActionType(null)
                               setAiActionInput('')
                             }}
                             disabled={followUpSubmitting}
-                            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-60"
+                            className="h-10 px-3 py-0 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-60 flex items-center justify-center"
                           >
                             Cancel
                           </button>
@@ -602,7 +607,7 @@ const SystemMessage = ({
                                 setFollowUpSubmitting(false)
                               }
                             }}
-                            className="px-4 py-1.5 text-xs font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="h-10 px-3 py-0 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
                           >
                             {followUpSubmitting ? 'Generating...' : 'Submit'}
                           </button>
@@ -656,6 +661,8 @@ const SystemMessage = ({
                 }}
               >
                 <button
+                  type="button"
+                  aria-label="Open recording in new tab"
                   className="mb-3"
                   style={{ fontWeight: '600', fontSize: 15 }}
                   onClick={() => {
@@ -669,7 +676,8 @@ const SystemMessage = ({
                     src={'/otherAssets/share.png'}
                     height={20}
                     width={20}
-                    alt="*"
+                    alt=""
+                    aria-hidden
                   />
                 </button>
 
@@ -681,6 +689,8 @@ const SystemMessage = ({
                 />
 
                 <button
+                  type="button"
+                  aria-label="Close"
                   className="w-full h-[50px] rounded-lg bg-brand-primary text-white mt-4"
                   style={{ fontWeight: '600', fontSize: 15 }}
                   onClick={() => {
@@ -704,16 +714,16 @@ const SystemMessage = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex flex-col w-full items-end pe-2 mb-3 cursor-default">
-              <div className="flex items-start gap-3 w-full justify-end">
+              <div className="flex items-start gap-3 w-full justify-end bg-transparent">
                 <div className="flex flex-col max-w-[75%] min-w-[220px]">
                   <div className="px-4 py-2 bg-gray-100 text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl">
                     <div
-                      className="prose prose-sm max-w-none break-words text-xs text-black"
+                      className="prose prose-sm max-w-none break-words text-[14px] text-black"
                       dangerouslySetInnerHTML={{ __html: parseContent(message.content) }}
                     />
                   </div>
                   <div className="mt-1 mr-1 flex items-center justify-end gap-3">
-                    <span className="text-[10px] text-[#00000060]">
+                    <span className="text-[12px] text-[#00000060]">
                       {moment(message.createdAt).format('h:mm A')}
                     </span>
                   </div>
@@ -741,7 +751,7 @@ const SystemMessage = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="flex items-center justify-center my-4 cursor-default">
-            <div className="text-xs text-system-text text-center px-4">
+            <div className="text-sm text-system-text text-center px-4">
               <div dangerouslySetInnerHTML={{ __html: parseContent(message.content) }} />
             </div>
           </div>
