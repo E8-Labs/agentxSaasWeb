@@ -426,7 +426,12 @@ const ConversationView = ({
                           ) : (
                             <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
                           )}
-                          {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (
+                          {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (() => {
+                            const isDummyLead = selectedThread.lead?.source === 'messenger_dummy' || selectedThread.lead?.source === 'instagram_dummy'
+                            const notYetLinked = !selectedThread.leadId || isDummyLead
+                            const notDismissed = !selectedThread.metadata?.suggestedLeadLinksDismissed
+                            return notYetLinked && notDismissed
+                          })() && (
                             <SuggestedLeadLinks
                               suggestedLeads={message.metadata.suggestedLeads}
                               threadId={selectedThread.id}
