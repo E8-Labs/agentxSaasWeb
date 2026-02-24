@@ -59,12 +59,27 @@ const UserAddCard = ({
   addCardFailure,
   addCardSuccess,
   addCardErrtxt,
+  hasRedeemedTrial: hasRedeemedTrialProp,
 }) => {
   const stripeReact = useStripe()
   const elements = useElements()
   ////console.log
   ////console.log
   const { user: reduxUser, setUser: setReduxUser } = useUser()
+  // For subaccount: show Due today $0 when plan has trial and user has not redeemed trial (from profile or prop when managing another user)
+  const hasRedeemedTrial =
+    hasRedeemedTrialProp === true ||
+    reduxUser?.hasRedeemedTrial === true ||
+    (typeof window !== 'undefined' &&
+      (() => {
+        try {
+          const u = localStorage.getItem('User')
+          if (!u) return false
+          return JSON.parse(u)?.user?.hasRedeemedTrial === true
+        } catch {
+          return false
+        }
+      })())
   const [inviteCode, setInviteCode] = useState('')
   // referral code validation states
   const [referralStatus, setReferralStatus] = useState('idle') // idle | loading | valid | invalid
@@ -523,15 +538,8 @@ const UserAddCard = ({
 
 
   const calculateTotalPrice = (selectedPlan) => {
-
-    // Check if plan has trial and user is subscribing for the first time
     const hasTrial = selectedPlan?.hasTrial === true
-    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-    // If plan has trial and user has no previous plan, show $0
-    if (hasTrial && isFirstTimeSubscription) {
-      return '$0'
-    }
+    if (hasTrial && !hasRedeemedTrial) return '$0'
 
     const billingMonths = GetMonthCountFronBillingCycle(
       selectedPlan?.billingCycle || selectedPlan?.duration,
@@ -560,12 +568,9 @@ const UserAddCard = ({
     return `$${formatFractional2(finalTotal)}`
   }
 
-  // Order summary with promo applied. Use API estimatedDiscount when present (prorates yearly correctly).
+  // Order summary: finalTotal = amount billed monthly/quarterly (after trial); dueToday = 0 when trial, else finalTotal
   const orderSummary = (() => {
-    if (!selectedPlan) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
-    const hasTrial = selectedPlan?.hasTrial === true
-    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-    if (hasTrial && isFirstTimeSubscription) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
+    if (!selectedPlan) return { originalTotal: 0, discountAmount: 0, finalTotal: 0, dueToday: 0 }
     const billingMonths = GetMonthCountFronBillingCycle(
       selectedPlan?.billingCycle || selectedPlan?.duration,
     )
@@ -575,25 +580,31 @@ const UserAddCard = ({
       selectedPlan?.originalPrice ||
       0
     const originalTotal = billingMonths * monthlyPrice
+    let finalTotal = originalTotal
+    let discountAmount = 0
     if (referralStatus === 'valid' && referralCodeDetails?.discountValue != null) {
-      // Prefer API's estimatedDiscount (correct for yearly: e.g. 3 months off = pay 9 months)
       const est = referralCodeDetails?.estimatedDiscount
       const apiFinal = est?.finalPrice != null ? Number(est.finalPrice) : NaN
       if (est != null && !Number.isNaN(apiFinal)) {
-        return {
-          originalTotal: Number(est.originalPrice) || originalTotal,
-          discountAmount: Number(est.discountAmount) || 0,
-          finalTotal: apiFinal,
-        }
+        finalTotal = apiFinal
+        discountAmount = Number(est.discountAmount) || 0
+      } else {
+        finalTotal = calculateDiscountedPrice(
+          referralCodeDetails.discountValue,
+          referralCodeDetails.discountType,
+          originalTotal,
+        )
+        discountAmount = originalTotal - finalTotal
       }
-      const finalTotal = calculateDiscountedPrice(
-        referralCodeDetails.discountValue,
-        referralCodeDetails.discountType,
-        originalTotal,
-      )
-      return { originalTotal, discountAmount: originalTotal - finalTotal, finalTotal }
     }
-    return { originalTotal, discountAmount: 0, finalTotal: originalTotal }
+    const hasTrial = selectedPlan?.hasTrial === true
+    const dueToday = hasTrial && !hasRedeemedTrial ? 0 : finalTotal
+    return {
+      originalTotal,
+      discountAmount,
+      finalTotal,
+      dueToday,
+    }
   })()
 
   return (
@@ -843,12 +854,12 @@ const UserAddCard = ({
                 {/* Divider */}
                 <div className="my-4 h-[1px] w-full bg-[#00000035]"></div>
 
-                {/* Total */}
+                {/* Total / Due Today - $0 when trial, else full amount */}
                 <div className="flex flex-row items-start justify-between w-full">
                   <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
                   <div className="flex flex-col items-end">
                     <div style={{ fontWeight: '600', fontSize: 22 }}>
-                      ${formatFractional2(orderSummary.finalTotal)}
+                      ${formatFractional2(orderSummary.dueToday)}
                     </div>
                     <div
                       style={{
@@ -1324,7 +1335,7 @@ const UserAddCard = ({
                   <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
                   <div className="flex flex-col items-end">
                     <div style={{ fontWeight: '600', fontSize: 22 }}>
-                      ${formatFractional2(orderSummary.finalTotal)}
+                      ${formatFractional2(orderSummary.dueToday)}
                     </div>
                     <div
                       style={{
