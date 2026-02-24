@@ -798,10 +798,10 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                 <div
                   className={cn(
                     'prose prose-sm max-w-none break-words text-sm text-muted-foreground mt-1',
-                    '[&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug',
-                    '[&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc',
-                    '[&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]',
-                    '[&_li]:!my-[0.15em] [&_a]:!text-brand-primary [&_a:hover]:!underline',
+                    '[&_p]:!mt-0 [&_p]:!mb-[0.2em] [&_p]:!leading-snug',
+                    '[&_ul]:!my-[0.2em] [&_ul]:!pl-[1.15em] [&_ul]:!list-disc',
+                    '[&_ol]:!my-[0.2em] [&_ol]:!pl-[1.15em]',
+                    '[&_li]:!my-[0.08em] [&_a]:!text-brand-primary [&_a:hover]:!underline',
                     !contentExpanded && hasLongContent && 'line-clamp-3 overflow-hidden'
                   )}
                   dangerouslySetInnerHTML={{ __html: sanitizeHTMLForEmailBody(item.content) }}

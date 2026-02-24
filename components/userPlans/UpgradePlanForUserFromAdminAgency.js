@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import { getPlanChangeDirection } from '@/utils/planComparison'
 
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -1331,29 +1332,17 @@ function UpgradePlanContent({
       return 'Subscribe'
     }
 
+    // Subaccount plans: compare billing → price → plan id only (no name-based tier)
+    const direction = getPlanChangeDirection(
+      currentUserPlan,
+      currentSelectedPlan,
+      { skipTierFromName: true },
+    )
+    if (direction === 'upgrade') return 'Upgrade'
+    if (direction === 'downgrade') return 'Downgrade'
+    if (direction === 'same') return isCurrentPlan ? 'Cancel Subscription' : 'Upgrade'
 
-
-    // Fallback: Compare prices directly from currentUserPlan and currentSelectedPlan
-    // Try multiple possible price fields
-    const currentPrice =
-      currentUserPlan?.price ||
-      currentUserPlan?.discountPrice ||
-      currentUserPlan?.discountedPrice ||
-      0
-    const selectedPrice =
-      currentSelectedPlan?.discountPrice ||
-      currentSelectedPlan?.discountedPrice ||
-      currentSelectedPlan?.price ||
-      currentSelectedPlan?.originalPrice ||
-      0
-
-    if (selectedPrice > currentPrice && selectedPrice > 0) {
-      return 'Upgrade'
-    } else if (selectedPrice < currentPrice && selectedPrice > 0) {
-      return 'Downgrade'
-    }
-
-    return 'Upgrade'
+    return 'Subscribe'
   }
 
   const comparePlans = (currentPlan, targetPlan) => {

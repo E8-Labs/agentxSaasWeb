@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import { getPlanChangeDirection } from '@/utils/planComparison'
 
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -1277,42 +1278,22 @@ function UpgradePlanContent({
       return 'Subscribe'
     }
 
-    // Use planToCompare (which is currentFullPlan when selectedUser is provided, otherwise currentUserPlan)
-    const comparison = comparePlans(planToCompare, currentSelectedPlan)
-    console.log("Comparison check btn is", comparison)
-
-    if (currentSelectedPlan?.discountPrice === 0) {
-      return 'Downgrade'
-    }
+    const isSubAccount =
+      from === 'SubAccount' ||
+      selectedUser?.userRole === 'AgencySubAccount' ||
+      UserLocalData?.userRole === 'AgencySubAccount'
+    const comparison = getPlanChangeDirection(planToCompare, currentSelectedPlan, {
+      ...(isSubAccount ? { skipTierFromName: true } : {}),
+    })
 
     if (comparison === 'upgrade') {
       return 'Upgrade'
-    } else if (comparison === 'downgrade') {
-      return 'Downgrade'
-    } else if (comparison === 'same' && !isCurrentPlan) {
-      return 'Upgrade'
-    } else if (comparison === 'same' && isCurrentPlan) {
-      return 'Cancel Subscription'
     }
-
-    // Fallback: Compare prices directly from planToCompare and currentSelectedPlan
-    // Try multiple possible price fields
-    const currentPrice =
-      planToCompare?.price ||
-      planToCompare?.discountPrice ||
-      planToCompare?.discountedPrice ||
-      0
-    const selectedPrice =
-      currentSelectedPlan?.discountPrice ||
-      currentSelectedPlan?.discountedPrice ||
-      currentSelectedPlan?.price ||
-      currentSelectedPlan?.originalPrice ||
-      0
-
-    if (selectedPrice > currentPrice && selectedPrice > 0) {
-      return 'Upgrade'
-    } else if (selectedPrice < currentPrice && selectedPrice > 0) {
+    if (comparison === 'downgrade') {
       return 'Downgrade'
+    }
+    if (comparison === 'same') {
+      return isCurrentPlan ? 'Cancel Subscription' : 'Upgrade'
     }
 
     return 'Subscribe'
@@ -1641,16 +1622,19 @@ function UpgradePlanContent({
   }
 
   const getButtonConfig = () => {
-    // Compare plans based on price
-    const planComparison = comparePlans(currentFullPlan, selectedPlan)
-
-    // If still loading (currentFullPlan not ready), don't show any button
-    if (planComparison === null) {
-      return null // Will hide the button section while loading
-    }
+    if (!currentFullPlan || !selectedPlan) return null
+    const UserLocalData = getUserLocalData()
+    const isSubAccount =
+      from === 'SubAccount' ||
+      selectedUser?.userRole === 'AgencySubAccount' ||
+      UserLocalData?.userRole === 'AgencySubAccount'
+    const direction = getPlanChangeDirection(currentFullPlan, selectedPlan, {
+      ...(isSubAccount ? { skipTierFromName: true } : {}),
+    })
+    if (direction === 'same') return null
 
     // If it's an upgrade, show Upgrade button
-    if (planComparison === 'upgrade') {
+    if (direction === 'upgrade') {
       return {
         text: 'Upgrade',
         action: () => handleSubscribePlan(),

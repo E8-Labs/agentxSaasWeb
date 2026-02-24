@@ -50,10 +50,10 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
     >
       <div
         className={`prose prose-sm max-w-none break-words
-          [&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug
-          [&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc
-          [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
-          [&_li]:!my-[0.15em]
+          [&_p]:!mt-0 [&_p]:!mb-[0.2em] [&_p]:!leading-snug
+          [&_ul]:!my-[0.2em] [&_ul]:!pl-[1.15em] [&_ul]:!list-disc
+          [&_ol]:!my-[0.2em] [&_ol]:!pl-[1.15em]
+          [&_li]:!my-[0.08em]
           [&_a]:text-brand-primary [&_a]:underline hover:[&_a]:opacity-80
           ${isOutbound
           ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
