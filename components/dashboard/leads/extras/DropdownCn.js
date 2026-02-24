@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ChevronDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,9 +20,25 @@ import { cn } from '@/lib/utils'
  * chevronIcon: Optional custom icon component to replace the default ChevronDown
  * onChevronClick: Optional handler for when the chevron/icon is clicked (for split button behavior)
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null, triggerClassName, selectedValue }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
+  const listWrapRef = useRef(null)
+  const [pill, setPill] = useState({ top: 0, height: 0 })
+  const [pillVisible, setPillVisible] = useState(false)
+
+  const handleListMouseMove = (e) => {
+    const wrap = listWrapRef.current
+    if (!wrap) return
+    const item = e.target?.closest?.('[data-sliding-pill-item]')
+    if (item) {
+      const r = item.getBoundingClientRect()
+      const wrapRect = wrap.getBoundingClientRect()
+      setPill({ top: r.top - wrapRect.top + wrap.scrollTop, height: r.height })
+      setPillVisible(true)
+    }
+  }
+  const handleListMouseLeave = () => setPillVisible(false)
 
   const handleSelect = (opt) => {
     onSelect?.(opt)
@@ -69,8 +85,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                 <button
                   // className={cn("flex items-center px-4 py-[1px] text-base font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors h-[36px]", backgroundClassName)}
                   className={cn(
-                    "flex items-center px-4 py-[1px] font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors h-[36px]",
-                    textSize ? "" : "text-base",
+                    "flex items-center px-4 py-[1px] font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors h-[36px] text-[14px]",
                     backgroundClassName
                   )}
                   onMouseDown={(e) => {
@@ -81,7 +96,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                     // Prevent event from bubbling up to modal close handler
                     e.stopPropagation()
                   }}
-                  style={{fontSize: textSize ? textSize : ''}}
+                  style={textSize ? { fontSize: textSize } : undefined}
                 >
                   {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
@@ -115,7 +130,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           ) : (
             <DropdownMenuTrigger asChild>
               <button
-                className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName)}
+                className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName, triggerClassName)}
                 style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
                   // Prevent event from bubbling up to modal close handler
@@ -126,7 +141,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                   e.stopPropagation()
                 }}
               >
-                <div className="flex items-center px-3 py-[1px] text-base font-regular">
+                <div className={cn("flex items-center px-3 py-[1px] font-regular", triggerClassName ? 'text-sm' : 'text-base')}>
                   {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
                 </div>
@@ -145,7 +160,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         <DropdownMenuContent
           align={align}
           className={cn(
-            'z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-muted/70 bg-white text-foreground shadow-lg',
+            'z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl py-3 px-0 data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit',
             contentClassName
           )}
           onCloseAutoFocus={(e) => {
@@ -171,10 +186,21 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
             </>
           )}
           {options.length ? (
-            options.map((opt) => (
+            <div ref={listWrapRef} className="relative flex flex-col gap-[2px]" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
+              {pillVisible && (
+                <div
+                  className="absolute left-1 right-1 rounded-lg bg-black/[0.02] transition-[top,height] duration-150 ease-out pointer-events-none"
+                  style={{ top: pill.top, height: pill.height }}
+                />
+              )}
+              {options.map((opt) => {
+                const isSelected = selectedValue != null
+                  ? String(opt.value) === String(selectedValue)
+                  : opt.value === '__default__'
+                return (
+              <div key={opt.value || opt.label} data-sliding-pill-item>
               <DropdownMenuItem
-                key={opt.value || opt.label}
-                className="gap-2 whitespace-nowrap"
+                className="h-10 gap-2 whitespace-nowrap focus:bg-transparent hover:bg-transparent"
                 onSelect={(e) => {
                   // Close dropdown immediately for all selections
                   setOpen(false)
@@ -201,6 +227,9 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                       <span className="truncate">{opt.label}</span>
                     )}
                   </div>
+                  {isSelected && (
+                    <Check className="h-4 w-4 shrink-0 text-brand-primary" />
+                  )}
                   {opt.upgradeTag && (
                     <div
                       onClick={(e) => {
@@ -222,7 +251,10 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                   )}
                 </div>
               </DropdownMenuItem>
-            ))
+              </div>
+            )
+              })}
+            </div>
           ) : (
             <DropdownMenuItem disabled>No options</DropdownMenuItem>
           )}

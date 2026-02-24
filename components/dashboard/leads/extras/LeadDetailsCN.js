@@ -82,9 +82,9 @@ const sampleLead = {
 }
 
 export const InfoRow = ({ icon, children }) => (
-  <div className="flex items-center gap-2 h-8">
-    <span className="text-muted-foreground">{icon}</span>
-    <TypographyBodyMedium>{children}</TypographyBodyMedium>
+  <div className="flex items-center gap-2 min-w-0 m-0">
+    <span className="text-muted-foreground shrink-0">{icon}</span>
+    <TypographyBodyMedium className="min-w-0 truncate">{children}</TypographyBodyMedium>
   </div>
 )
 

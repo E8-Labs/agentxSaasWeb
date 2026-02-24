@@ -115,11 +115,11 @@ export default function DashboardLayout({ children }) {
           className={`flex flex-row w-full ${
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
-          style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5' }}
+          style={{ backgroundColor: '#ffffff', background: '#ffffff' }}
         >
           {/* Sidebar */}
           <div
-            className="h-screen w-[15%]"
+            className="h-screen w-[250px] flex-shrink-0"
             style={{
               borderRight: '1px solid #00000010',
               backgroundColor: 'white',
@@ -131,7 +131,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Main Content */}
-          <div className="w-[85%]" style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5', minHeight: '100vh' }}>
+          <div className="flex-1 min-w-0 bg-white" style={{ backgroundColor: '#ffffff', background: '#ffffff', minHeight: '100vh' }}>
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />

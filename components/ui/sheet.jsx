@@ -6,8 +6,14 @@ import { X } from 'lucide-react'
 import { cva } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
+import { AgentationDialogContext } from '@/components/providers/agentation-dialog-provider'
 
-const Sheet = DialogPrimitive.Root
+/** Sheet root – uses modal={false} when Agentation is active so focus can reach the annotation input */
+function Sheet(props) {
+  const useModalFalse = React.useContext(AgentationDialogContext)
+  const modal = props.modal !== undefined ? props.modal : !useModalFalse
+  return <DialogPrimitive.Root {...props} modal={modal} />
+}
 
 const SheetTrigger = DialogPrimitive.Trigger
 
@@ -17,6 +23,8 @@ const SheetPortal = DialogPrimitive.Portal
 
 const SheetOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
+    data-agentation-backdrop
+    aria-label="Backdrop"
     className={cn(
       'fixed inset-0 z-[50] bg-black/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       className,
@@ -46,8 +54,54 @@ const sheetVariants = cva(
   },
 )
 
+/** True if target is inside Agentation toolbar, popup, or marker (prevents modal close when annotating) */
+function isAgentationTarget(target) {
+  return (
+    target?.closest?.('[data-feedback-toolbar]') != null ||
+    target?.closest?.('[data-annotation-popup]') != null ||
+    target?.closest?.('[data-annotation-marker]') != null ||
+    target?.closest?.('[data-agentation-fallback-overlay]') != null
+  )
+}
+
+/** True if target is inside the sheet content */
+function isInsideContent(contentRef, target) {
+  return contentRef?.current?.contains?.(target) === true
+}
+
 const SheetContent = React.forwardRef(
-  ({ side = 'right', className, overlayClassName, children, ...props }, ref) => {
+  ({ side = 'right', className, overlayClassName, children, onInteractOutside, onPointerDownOutside, onFocusOutside, ...props }, ref) => {
+    const contentRef = React.useRef(null)
+    const useModalFalse = React.useContext(AgentationDialogContext)
+    const setRef = React.useCallback(
+      (el) => {
+        contentRef.current = el
+        if (typeof ref === 'function') ref(el)
+        else if (ref) ref.current = el
+      },
+      [ref],
+    )
+    const handlePointerDownOutside = React.useCallback(
+      (e) => {
+        if (isAgentationTarget(e.target) || isInsideContent(contentRef, e.target)) e.preventDefault()
+        onPointerDownOutside?.(e)
+      },
+      [onPointerDownOutside],
+    )
+    const handleInteractOutside = React.useCallback(
+      (e) => {
+        if (isAgentationTarget(e.target) || isInsideContent(contentRef, e.target)) e.preventDefault()
+        onInteractOutside?.(e)
+      },
+      [onInteractOutside],
+    )
+    const handleFocusOutside = React.useCallback(
+      (e) => {
+        if (isAgentationTarget(e.target) || isInsideContent(contentRef, e.target)) e.preventDefault()
+        onFocusOutside?.(e)
+      },
+      [onFocusOutside],
+    )
     // Extract z-index from className if present (e.g., z-[1400] or !z-[1400])
     const zIndexMatch = className?.match(/(?:!)?z-\[(\d+)\]/)
     const customZIndex = zIndexMatch ? zIndexMatch[1] : null
@@ -56,11 +110,27 @@ const SheetContent = React.forwardRef(
     return (
       <SheetPortal>
         <SheetOverlay className={cn(overlayZIndex, overlayClassName)} />
+        {useModalFalse && (
+          <div
+            data-agentation-fallback-overlay
+            data-agentation-backdrop
+            aria-label="Backdrop"
+            className={cn(
+              'fixed inset-0 z-[50] bg-black/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+              overlayZIndex,
+              overlayClassName
+            )}
+            aria-hidden
+          />
+        )}
         <DialogPrimitive.Content
-          ref={ref}
+          ref={setRef}
           className={cn(sheetVariants({ side }), className)}
-          {...props}
           trapFocus={false}
+          onInteractOutside={handleInteractOutside}
+          onPointerDownOutside={handlePointerDownOutside}
+          onFocusOutside={handleFocusOutside}
+          {...props}
         >
           {children}
           <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">

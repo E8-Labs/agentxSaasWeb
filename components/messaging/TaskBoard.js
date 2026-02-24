@@ -18,7 +18,7 @@ import DelConfirmationPopup from '../onboarding/extras/DelConfirmationPopup'
 import { Box, CircularProgress, Modal } from '@mui/material'
 import CloseBtn from '../globalExtras/CloseBtn'
 
-const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = null, buttonRef = null, selectedUser = null }) => {
+const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = null, buttonRef = null, selectedUser = null, enablePermissionChecks = false }) => {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('todo')
@@ -57,46 +57,47 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     console.log("thread id passed in task board is", threadId)
   }, [leadId])
 
-  // Calculate position relative to button
+  // Calculate position: viewport-right when selectedUser (admin), else relative to button
   useEffect(() => {
-    if (open && buttonRef?.current) {
-      const updatePosition = () => {
+    if (!open) return
+
+    const updatePosition = () => {
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+      const taskBoardHeight = selectedUser ? Math.round(viewportHeight * 0.75) : 771 // 75svh approx when selectedUser, else Figma
+
+      let right
+      let top
+
+      if (selectedUser) {
+        // Admin/selected-user view: align to viewport right with same padding as normal user view
+        right = 20
+        top = 20
+      } else if (buttonRef?.current) {
         const buttonRect = buttonRef.current.getBoundingClientRect()
-        const viewportWidth = window.innerWidth
-        const viewportHeight = window.innerHeight
-        const taskBoardWidth = 552 // From Figma
-        const taskBoardHeight = 771 // From Figma
-
-        // Position to the right of the button, aligned to top
-        let right = viewportWidth - buttonRect.right - 20 // 20px offset from button
-        let top = buttonRect.top
-
-        // Ensure it doesn't go off screen
-        if (right < 20) {
-          right = 20
-        }
-        if (top + taskBoardHeight > viewportHeight) {
-          top = viewportHeight - taskBoardHeight - 20
-        }
-        if (top < 20) {
-          top = 20
-        }
-
-        setPosition({ top, right })
+        right = viewportWidth - buttonRect.right - 20
+        top = buttonRect.top
+      } else {
+        return
       }
 
-      updatePosition()
+      // Ensure it doesn't go off screen
+      if (right < 20) right = 20
+      if (top + taskBoardHeight > viewportHeight) top = viewportHeight - taskBoardHeight - 20
+      if (top < 20) top = 20
 
-      // Update on scroll/resize
-      window.addEventListener('scroll', updatePosition, true)
-      window.addEventListener('resize', updatePosition)
-
-      return () => {
-        window.removeEventListener('scroll', updatePosition, true)
-        window.removeEventListener('resize', updatePosition)
-      }
+      setPosition({ top, right })
     }
-  }, [open, buttonRef])
+
+    updatePosition()
+    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('resize', updatePosition)
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [open, buttonRef, selectedUser])
 
   // Fetch tasks
   const fetchTasks = useCallback(async () => {
@@ -410,6 +411,15 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         return
       }
 
+      // Don't close when clicking Agentation toolbar (allows annotating while task board is open)
+      if (
+        target?.closest?.('[data-feedback-toolbar]') ||
+        target?.closest?.('[data-annotation-popup]') ||
+        target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
+
       // If clicking outside task board, check if any dropdowns are open
       // If dropdowns are open, don't close modal (let dropdown handle its own closing)
       const hasOpenDropdown = document.querySelector('[data-radix-dropdown-menu-content][data-state="open"]') ||
@@ -452,7 +462,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         className="fixed bg-white rounded-xl shadow-[0px_8px_24.4px_0px_rgba(0,0,0,0.10)] z-[101] flex flex-col overflow-hidden"
         style={{
           width: '35vw',
-          height: selectedUser ? '75svh' : '95vh',
+          height: selectedUser ? '80svh' : '95vh',
           top: `${position.top}px`,
           right: `${position.right}px`,
           animation: 'slideInFromButton 0.3s ease-out',

@@ -41,6 +41,17 @@ function plainTextToHtml(text) {
   return text.replace(/\n/g, '<br>')
 }
 
+/** Strip HTML to plain text (for SMS send). */
+function stripHTML(html) {
+  if (!html || typeof html !== 'string') return ''
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html.replace(/<p[^>]*>/gi, '\n').replace(/<\/p>/gi, '').replace(/<br\s*\/?>/gi, '\n')
+    return (tempDiv.textContent || tempDiv.innerText || '').replace(/\n{3,}/g, '\n\n').trim()
+  }
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
+}
+
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
   const THREADS_PAGE_SIZE = 50
@@ -62,6 +73,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     subject: '',
     smsBody: '',
     emailBody: '',
+    socialBody: '',
     cc: '',
     bcc: '',
     attachments: [],
@@ -94,6 +106,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const selectedPhoneNumberRef = useRef(null)
   const selectedEmailAccountRef = useRef(null)
   const saveDefaultSendingTimeoutRef = useRef(null)
+  // Refs for current lists so we can apply stored defaults when selectedUser (lead) changes without refetching lists
+  const phoneNumbersRef = useRef([])
+  const emailAccountsRef = useRef([])
   const [userData, setUserData] = useState(null)
   const [sendingMessage, setSendingMessage] = useState(false)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -206,10 +221,19 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const shouldShowAllowAiEmailAndTextUpgrade = reduxUser?.planCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
   const shouldShowAiEmailAndTextRequestFeature = reduxUser?.planCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
 
-  // Close email detail popover when clicking outside
+  // Close email detail popover when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
     if (!openEmailDetailId) return
-    const handleClickOutside = () => setOpenEmailDetailId(null)
+    const handleClickOutside = (event) => {
+      if (
+        event.target?.closest?.('[data-feedback-toolbar]') ||
+        event.target?.closest?.('[data-annotation-popup]') ||
+        event.target?.closest?.('[data-annotation-marker]')
+      ) {
+        return
+      }
+      setOpenEmailDetailId(null)
+    }
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
   }, [openEmailDetailId])
@@ -558,6 +582,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         }
 
         if (response.data?.status && Array.isArray(response.data?.data)) {
+          console.log('threads response.data.data', response.data.data)
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
             const dateB = new Date(b.lastMessageAt || b.createdAt)
@@ -907,6 +932,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         emailBody: plainTextToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
+    } else if (draft.messageType === 'messenger' || draft.messageType === 'instagram') {
+      setComposerData(prev => ({
+        ...prev,
+        socialBody: draft.content || '',
+      }))
+      setComposerMode(draft.messageType === 'instagram' ? 'instagram' : 'facebook')
     } else {
       setComposerData(prev => ({
         ...prev,
@@ -1923,22 +1954,15 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (message.senderUser.thumb_profile_image) {
         return (
           <div
-            className="flex items-center justify-center"
-            style={{
-              width: '26px',
-              height: '26px',
-              borderRadius: '50%',
-              backgroundColor: 'white',
-              overflow: 'hidden',
-            }}
+            className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-white overflow-hidden flex-shrink-0"
           >
             <img
               src={message.senderUser.thumb_profile_image}
               alt={message.senderUser.name || 'Team Member'}
-              className="rounded-full"
+              className="w-full h-full object-cover rounded-full"
               style={{
-                width: '100%',
-                height: '100%',
+                width: '32px',
+                height: '32px',
                 objectFit: 'cover',
               }}
               onError={(e) => {
@@ -1954,7 +1978,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
       const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
           {teamMemberLetter}
         </div>
       )
@@ -1965,7 +1989,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (message.agent.thumb_profile_image) {
         const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
         return (
-          <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+          <div className="w-[32px] h-[32px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
             <img
               src={message.agent.thumb_profile_image}
               alt={message.agent.name || 'Agent'}
@@ -1974,7 +1998,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 e.target.style.display = 'none'
                 const parent = e.target.parentElement
                 if (parent) {
-                  parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                  parent.className = 'w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
                   parent.textContent = agentLetter
                 }
               }}
@@ -1991,8 +2015,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             <Image
               src={selectedVoice.img}
               alt="Agent"
-              width={26}
-              height={26}
+              width={32}
+              height={32}
               className="rounded-full"
               style={{ objectFit: 'cover' }}
             />
@@ -2002,7 +2026,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       // Agent exists but no image: show agent initial
       const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
           {agentLetter}
         </div>
       )
@@ -2012,7 +2036,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     if (userData?.user?.thumb_profile_image) {
       const userLetter = (userData.user.name || userData.user.firstName || 'U').charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+        <div className="w-[32px] h-[32px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
           <img
             src={userData.user.thumb_profile_image}
             alt={userData.user.name || 'User'}
@@ -2021,7 +2045,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               e.target.style.display = 'none'
               const parent = e.target.parentElement
               if (parent) {
-                parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                parent.className = 'w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
                 parent.textContent = userLetter
               }
             }}
@@ -2035,7 +2059,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const userName = userData.user.name || userData.user.firstName || 'U'
       const userLetter = userName.charAt(0).toUpperCase()
       return (
-        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
           {userLetter}
         </div>
       )
@@ -2043,8 +2067,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
     // Priority 5: Orb fallback when no agent and no user image
     return (
-      <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-        <AgentXOrb width={26} height={26} />
+      <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <AgentXOrb width={32} height={32} />
       </div>
     )
   }
@@ -2068,8 +2092,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
       }, 100)
     }
-    fetchThreads(searchValue || '', appliedTeamMemberIds)
-  }, [selectedUser?.id, searchValue, appliedTeamMemberIds])
+    // Do not refetch threads — only the current conversation was updated
+  }, [selectedUser?.id])
 
   const fetchSocialConnections = useCallback(async () => {
     try {
@@ -2129,8 +2153,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle send message
   const handleSendMessage = async () => {
-    // Get the appropriate message body based on mode
-    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+    // Get the appropriate message body (SMS: strip HTML to plain text; email: keep HTML)
+    const rawBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+    const messageBody = composerMode === 'sms' ? stripHTML(rawBody) : rawBody
 
     if (!selectedThread || !messageBody.trim()) return
     if (composerMode === 'email' && !composerData.to.trim()) return
@@ -2213,10 +2238,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
-          // Refresh messages and threads
+          // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send message')
@@ -2413,10 +2437,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
-          // Refresh messages and threads
+          // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send email')
@@ -2430,7 +2453,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }
 
-  // Fetch full message settings (for default From number/email); returns { defaultSendingPhoneNumberId, defaultSendingEmailAccountId } or null
+  // Fetch full message settings (for default From number/email). Uses forLeadId when selectedUser is set so we get stored defaults for that lead/contact.
   const fetchMessageSettingsDefaults = useCallback(async () => {
     try {
       const localData = localStorage.getItem('User')
@@ -2438,7 +2461,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
       let url = `${Apis.BasePath}api/mail/settings`
-      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      const params = new URLSearchParams()
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      if (selectedUser?.id) params.set('forLeadId', String(selectedUser.id))
+      if (params.toString()) url += `?${params.toString()}`
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
@@ -2455,7 +2481,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [selectedUser?.id])
 
-  // Persist default From number/email to message settings (debounced)
+  // Persist default From number/email to message settings (debounced). When selectedUser (lead) is set, store under that lead id so we prefer it when opening this conversation again.
   const saveDefaultSendingToSettings = useCallback((phoneId, emailId) => {
     if (saveDefaultSendingTimeoutRef.current) clearTimeout(saveDefaultSendingTimeoutRef.current)
     saveDefaultSendingTimeoutRef.current = setTimeout(async () => {
@@ -2467,10 +2493,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const token = userData.token
         let url = `${Apis.BasePath}api/mail/settings`
         if (selectedUser?.id) url += `?userId=${selectedUser.id}`
-        await axios.put(url, {
+        const body = {
           defaultSendingPhoneNumberId: phoneId != null && phoneId !== '' ? Number(phoneId) : null,
           defaultSendingEmailAccountId: emailId != null && emailId !== '' ? Number(emailId) : null,
-        }, {
+        }
+        if (selectedUser?.id) body.defaultSendingForUserId = selectedUser.id
+        await axios.put(url, body, {
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         })
       } catch (err) {
@@ -2499,6 +2527,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   useEffect(() => {
     selectedEmailAccountRef.current = selectedEmailAccount
   }, [selectedEmailAccount])
+  useEffect(() => {
+    phoneNumbersRef.current = phoneNumbers
+  }, [phoneNumbers])
+  useEffect(() => {
+    emailAccountsRef.current = emailAccounts
+  }, [emailAccounts])
 
   // Fetch phone numbers
   const fetchPhoneNumbers = useCallback(async () => {
@@ -2909,49 +2943,95 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       lastSelectedEmailAccountRef.current = selectedEmailAccount
     }
 
-    // When switching to email, restore the last selected account or use last used from thread
+    // When switching to email: load settings for this lead first (so stored default is available), then restore selection
     if (prevMode !== 'email' && composerMode === 'email') {
-      // Fetch accounts and restore selection
-      // Only fetch if accounts are empty, otherwise just restore selection
-      if (emailAccounts.length === 0) {
-        fetchEmailAccounts(true, true) // preserveSelection=true, restoreLastUsed=true
-      } else {
-        // Accounts already loaded, just restore selection
-        if (lastSelectedEmailAccountRef.current) {
-          const accountExists = emailAccounts.some(
-            acc => acc.id.toString() === lastSelectedEmailAccountRef.current
-          )
-          if (accountExists) {
-            setSelectedEmailAccount(lastSelectedEmailAccountRef.current)
-          } else {
-            // Try to restore from thread's last used email
-            const lastUsedAccountId = getLastEmailAccountFromThread()
-            if (lastUsedAccountId) {
-              const accountExists = emailAccounts.some(
-                acc => acc.id.toString() === lastUsedAccountId
-              )
-              if (accountExists) {
-                setSelectedEmailAccount(lastUsedAccountId)
-              }
-            }
-          }
+      prevComposerModeRef.current = composerMode
+      let cancelled = false
+      const run = async () => {
+        // Ensure settings for this lead are loaded before applying selection (avoids showing first account due to delay)
+        if (selectedUser?.id) {
+          await fetchMessageSettingsDefaults()
+          if (cancelled) return
+        }
+        if (emailAccounts.length === 0) {
+          // Use preserveSelection=false, restoreLastUsed=true so stored default (ref) is tried first, then last used, then first
+          fetchEmailAccounts(false, true)
         } else {
-          // No last selected, try to restore from thread's last used email
-          const lastUsedAccountId = getLastEmailAccountFromThread()
-          if (lastUsedAccountId) {
-            const accountExists = emailAccounts.some(
-              acc => acc.id.toString() === lastUsedAccountId
+          // Accounts already loaded: apply selection in priority order (stored default > last selected > last used in thread > first)
+          const list = emailAccounts
+          const defaultId = defaultSendingEmailAccountIdRef.current
+          const defaultInList = defaultId != null && list.some((acc) => acc.id === defaultId || acc.id === Number(defaultId))
+          if (defaultInList) {
+            const value = String(defaultId)
+            selectedEmailAccountRef.current = value
+            setSelectedEmailAccount(value)
+            return
+          }
+          if (lastSelectedEmailAccountRef.current) {
+            const accountExists = list.some(
+              acc => acc.id.toString() === lastSelectedEmailAccountRef.current
             )
             if (accountExists) {
-              setSelectedEmailAccount(lastUsedAccountId)
+              setSelectedEmailAccount(lastSelectedEmailAccountRef.current)
+              return
             }
           }
+          const lastUsedAccountId = getLastEmailAccountFromThread()
+          if (lastUsedAccountId && list.some((acc) => acc.id.toString() === lastUsedAccountId)) {
+            setSelectedEmailAccount(lastUsedAccountId)
+            return
+          }
+          const value = list[0].id?.toString() ?? String(list[0].id)
+          selectedEmailAccountRef.current = value
+          setSelectedEmailAccount(value)
         }
       }
+      run()
+      return () => { cancelled = true }
+    } else {
+      prevComposerModeRef.current = composerMode
     }
+  }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread, selectedUser?.id, fetchMessageSettingsDefaults])
 
-    prevComposerModeRef.current = composerMode
-  }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread])
+  // When selectedUser (lead) changes: refetch stored defaults for that lead and re-apply From selection (stored default > last used in thread > first)
+  useEffect(() => {
+    if (!selectedUser?.id) return
+    let cancelled = false
+    const run = async () => {
+      await fetchMessageSettingsDefaults()
+      if (cancelled) return
+      const phones = phoneNumbersRef.current
+      const emails = emailAccountsRef.current
+      if (phones.length > 0) {
+        const defaultId = defaultSendingPhoneNumberIdRef.current
+        const inList = defaultId != null && phones.some((p) => p.id === defaultId || p.id === Number(defaultId))
+        const value = inList ? String(defaultId) : (phones[0].id?.toString() ?? String(phones[0].id))
+        selectedPhoneNumberRef.current = value
+        setSelectedPhoneNumber(value)
+      }
+      if (emails.length > 0 && !isSelectingDraftRef.current) {
+        const defaultId = defaultSendingEmailAccountIdRef.current
+        const inList = defaultId != null && emails.some((acc) => acc.id === defaultId || acc.id === Number(defaultId))
+        if (inList) {
+          const value = String(defaultId)
+          selectedEmailAccountRef.current = value
+          setSelectedEmailAccount(value)
+          return
+        }
+        const lastUsedAccountId = getLastEmailAccountFromThread()
+        if (lastUsedAccountId && emails.some((acc) => acc.id.toString() === lastUsedAccountId)) {
+          selectedEmailAccountRef.current = lastUsedAccountId
+          setSelectedEmailAccount(lastUsedAccountId)
+          return
+        }
+        const value = emails[0].id?.toString() ?? String(emails[0].id)
+        selectedEmailAccountRef.current = value
+        setSelectedEmailAccount(value)
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [selectedUser?.id, fetchMessageSettingsDefaults, getLastEmailAccountFromThread])
 
   // Initial load: fetch message settings (for default From), then phone numbers and email accounts
   useEffect(() => {
@@ -3238,7 +3318,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           <UnlockMessagesView />
         ) : (
           <div className={`w-full h-[100svh] flex flex-col bg-white`}>
-            <div className="h-[10svh]">
+            <div className="h-[65px]">
               <MessageHeader selectedThread={selectedThread} selectedUser={selectedUser} />
             </div>
             <div className="flex-1 flex flex-row">
@@ -3324,7 +3404,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               })()}
 
               {/* Right Side - Messages View (relative so LeadDetails wrapper doesn't affect layout) */}
-              <div className={`relative flex-1 flex flex-col min-w-0 ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'}`}>
+              <div className={`relative flex-1 flex flex-col gap-2 min-w-0 ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
                 {selectedThread ? (
                   <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                     {/* Messages Header */}
@@ -3397,6 +3477,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
                         onShowUpgrade={() => setShowUpgradePlanModal(true)}
                         onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
+                        onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
+                        linkingLeadId={linkingLeadId}
                       />
                       </div>
 
@@ -3466,9 +3548,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                             }
                           }, 100)
                         }
-                        // Refresh threads to update last message/unread count
-                        fetchThreads(searchValue || "", appliedTeamMemberIds)
-
+                        // Do not refetch threads on every send/comment
                       }}
                       selectedUser={selectedUser}
                       searchLoading={searchLoading}

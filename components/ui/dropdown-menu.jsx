@@ -4,9 +4,29 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { Check, ChevronRight, Circle } from 'lucide-react'
 import * as React from 'react'
 
+import { AgentationDialogContext } from '@/components/providers/agentation-dialog-provider'
 import { cn } from '@/lib/utils'
 
-const DropdownMenu = DropdownMenuPrimitive.Root
+/** True if target is inside Agentation toolbar, popup, or marker (prevents dropdown close when annotating) */
+function isAgentationTarget(target) {
+  return (
+    target?.closest?.('[data-feedback-toolbar]') != null ||
+    target?.closest?.('[data-annotation-popup]') != null ||
+    target?.closest?.('[data-annotation-marker]') != null
+  )
+}
+
+/** True if target is inside the content */
+function isInsideContent(contentRef, target) {
+  return contentRef?.current?.contains?.(target) === true
+}
+
+/** DropdownMenu root – uses modal={false} when Agentation is active so focus can reach the annotation input */
+function DropdownMenu(props) {
+  const useModalFalse = React.useContext(AgentationDialogContext)
+  const modal = props.modal !== undefined ? props.modal : !useModalFalse
+  return <DropdownMenuPrimitive.Root {...props} modal={modal} />
+}
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
 
@@ -37,36 +57,81 @@ const DropdownMenuSubTrigger = React.forwardRef(
 DropdownMenuSubTrigger.displayName =
   DropdownMenuPrimitive.SubTrigger.displayName
 
+function createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutside) {
+  return {
+    onPointerDownOutside: (e) => {
+      if (isAgentationTarget(e.target) || isInsideContent(contentRef, e.target)) e.preventDefault()
+      onPointerDownOutside?.(e)
+    },
+    onInteractOutside: (e) => {
+      if (isAgentationTarget(e.target) || isInsideContent(contentRef, e.target)) e.preventDefault()
+      onInteractOutside?.(e)
+    },
+  }
+}
+
 const DropdownMenuSubContent = React.forwardRef(
-  ({ className, ...props }, ref) => (
-    <DropdownMenuPrimitive.SubContent
-      ref={ref}
-      className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-        className,
-      )}
-      {...props}
-    />
-  ),
+  ({ className, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
+    const contentRef = React.useRef(null)
+    const setRef = React.useCallback(
+      (el) => {
+        contentRef.current = el
+        if (typeof ref === 'function') ref(el)
+        else if (ref) ref.current = el
+      },
+      [ref],
+    )
+    const handlers = React.useMemo(
+      () => createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutside),
+      [onInteractOutside, onPointerDownOutside],
+    )
+    return (
+      <DropdownMenuPrimitive.SubContent
+        ref={setRef}
+        className={cn(
+          'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          className,
+        )}
+        {...handlers}
+        {...props}
+      />
+    )
+  },
 )
 DropdownMenuSubContent.displayName =
   DropdownMenuPrimitive.SubContent.displayName
 
 const DropdownMenuContent = React.forwardRef(
-  ({ className, sideOffset = 4, ...props }, ref) => (
+  ({ className, sideOffset = 4, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
+    const contentRef = React.useRef(null)
+    const setRef = React.useCallback(
+      (el) => {
+        contentRef.current = el
+        if (typeof ref === 'function') ref(el)
+        else if (ref) ref.current = el
+      },
+      [ref],
+    )
+    const handlers = React.useMemo(
+      () => createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutside),
+      [onInteractOutside, onPointerDownOutside],
+    )
+    return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
-        ref={ref}
+        ref={setRef}
         sideOffset={sideOffset}
         className={cn(
           'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           className,
         )}
+        {...handlers}
         {...props}
       />
     </DropdownMenuPrimitive.Portal>
-  ),
+    )
+  },
 )
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
 

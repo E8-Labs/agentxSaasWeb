@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import { getPlanChangeDirection } from '@/utils/planComparison'
 
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -282,6 +283,7 @@ function UpgradePlanContent({
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [isAddingCard, setIsAddingCard] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
+  const [hasRedeemedTrial, setHasRedeemedTrial] = useState(false)
   const [cards, setCards] = useState([])
   const [selectedCard, setSelectedCard] = useState(cards[0])
 
@@ -650,6 +652,7 @@ function UpgradePlanContent({
         console.log("User data at checking user plan", user.plan)
         if (user) {
           setCurrentUserPlan(user.plan)
+          setHasRedeemedTrial(user.hasRedeemedTrial === true)
           return
         }
       } catch (error) {
@@ -661,9 +664,9 @@ function UpgradePlanContent({
     const localData = localStorage.getItem('User')
     if (localData) {
       const userData = JSON.parse(localData)
-      // console.log("User data at checking user plan from local storage", userData.user)
       const plan = userData.user?.plan
       setCurrentUserPlan(plan)
+      setHasRedeemedTrial(userData.user?.hasRedeemedTrial === true)
       return
     }
     return null
@@ -1331,29 +1334,17 @@ function UpgradePlanContent({
       return 'Subscribe'
     }
 
+    // Subaccount plans: compare billing → price → plan id only (no name-based tier)
+    const direction = getPlanChangeDirection(
+      currentUserPlan,
+      currentSelectedPlan,
+      { skipTierFromName: true },
+    )
+    if (direction === 'upgrade') return 'Upgrade'
+    if (direction === 'downgrade') return 'Downgrade'
+    if (direction === 'same') return isCurrentPlan ? 'Cancel Subscription' : 'Upgrade'
 
-
-    // Fallback: Compare prices directly from currentUserPlan and currentSelectedPlan
-    // Try multiple possible price fields
-    const currentPrice =
-      currentUserPlan?.price ||
-      currentUserPlan?.discountPrice ||
-      currentUserPlan?.discountedPrice ||
-      0
-    const selectedPrice =
-      currentSelectedPlan?.discountPrice ||
-      currentSelectedPlan?.discountedPrice ||
-      currentSelectedPlan?.price ||
-      currentSelectedPlan?.originalPrice ||
-      0
-
-    if (selectedPrice > currentPrice && selectedPrice > 0) {
-      return 'Upgrade'
-    } else if (selectedPrice < currentPrice && selectedPrice > 0) {
-      return 'Downgrade'
-    }
-
-    return 'Upgrade'
+    return 'Subscribe'
   }
 
   const comparePlans = (currentPlan, targetPlan) => {
@@ -1635,7 +1626,7 @@ function UpgradePlanContent({
 
                 {/* Content Section */}
                 <div
-                  className="w-full flex flex-col items-start flex-1 min-h-0 overflow-y-auto"
+                  className="w-full flex flex-col items-start flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
                   style={{
                     scrollbarWidth: 'none',
                   }}
@@ -1643,9 +1634,10 @@ function UpgradePlanContent({
                   <div className="text-lg font-semibold">Select Plan</div>
 
                   <div
-                    className="w-full flex flex-row gap-3 mt-3"
+                    className="w-full min-w-0 flex flex-row gap-3 mt-3 overflow-x-auto overflow-y-hidden"
                     style={{
                       scrollbarWidth: 'none',
+                      WebkitOverflowScrolling: 'touch',
                     }}
                   >
                     {loading ? (
@@ -1848,67 +1840,8 @@ function UpgradePlanContent({
                           </div>
                         </div>
 
-                        {/* Calculate discount if promo code is applied */}
+                        {/* Total Billed = actual recurring amount; Due Today (below) = $0 when trial */}
                         {(() => {
-                          // Check if plan has trial and user is subscribing for the first time
-                          const hasTrial = currentSelectedPlan?.hasTrial === true
-                          const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                          // If plan has trial and user has no previous plan, show $0 for all pricing
-                          if (hasTrial && isFirstTimeSubscription) {
-                            return (
-                              <>
-                                <div className="flex flex-row items-start justify-between w-full mt-6">
-                                  <div>
-                                    <div
-                                      className="capitalize"
-                                      style={{ fontWeight: '600', fontSize: 15 }}
-                                    >
-                                      {` Total Billed ${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration}`}
-                                    </div>
-                                    <div
-                                      className=""
-                                      style={{
-                                        fontWeight: '400',
-                                        fontSize: 13,
-                                        marginTop: '',
-                                      }}
-                                    >
-                                      Next Charge Date{' '}
-                                      {moment(getNextChargeDate(currentSelectedPlan)).format('MMMM DD, YYYY')}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className=""
-                                    style={{ fontWeight: '600', fontSize: 15 }}
-                                  >
-                                    {/*`$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`*/}
-                                    {(() => {
-                                      // Check if plan has trial and user is subscribing for the first time
-                                      // console.log("finally current user plan is", currentUserPlan?.planId)
-                                      const hasTrial = currentSelectedPlan?.hasTrial === true
-                                      const isFirstTimeSubscription = !currentUserPlan || !currentUserPlan?.planId
-
-                                      // If plan has trial and user has no previous plan, show $0
-                                      if (hasTrial && isFirstTimeSubscription) {
-                                        return '$0'
-                                      }
-
-                                      return `$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`
-                                    })()}
-                                  </div>
-                                </div>
-                              </>
-                            )
-                          }
-
-                          const discountCalculation = promoCodeDetails
-                            ? calculateDiscountedPrice(
-                              currentSelectedPlan,
-                              promoCodeDetails,
-                            )
-                            : null
-
                           const billingMonths = GetMonthCountFronBillingCycle(
                             currentSelectedPlan?.billingCycle ||
                             currentSelectedPlan?.duration,
@@ -1919,6 +1852,13 @@ function UpgradePlanContent({
                             currentSelectedPlan?.originalPrice ||
                             0
                           const originalTotal = billingMonths * monthlyPrice
+                          const discountCalculation = promoCodeDetails
+                            ? calculateDiscountedPrice(
+                              currentSelectedPlan,
+                              promoCodeDetails,
+                            )
+                            : null
+
                           const finalTotal = discountCalculation
                             ? discountCalculation.finalPrice
                             : originalTotal
@@ -2018,21 +1958,9 @@ function UpgradePlanContent({
                                   className=""
                                   style={{ fontWeight: '600', fontSize: 15 }}
                                 >
-                                  {(() => {
-                                    // Check if plan has trial and user is subscribing for the first time
-                                    // console.log("finally current user plan is", currentUserPlan?.planId)
-                                    const hasTrial = currentSelectedPlan?.hasTrial === true
-                                    const isFirstTimeSubscription = !currentUserPlan || !currentUserPlan?.planId
-
-                                    // If plan has trial and user has no previous plan, show $0
-                                    if (hasTrial && isFirstTimeSubscription) {
-                                      return '$0'
-                                    }
-
-                                    return discountCalculation
-                                      ? `$${formatFractional2(finalTotal)}`
-                                      : `$${formatFractional2(originalTotal)}`
-                                  })()}
+                                  {discountCalculation
+                                    ? `$${formatFractional2(finalTotal)}`
+                                    : `$${formatFractional2(originalTotal)}`}
                                 </div>
                               </div>
 
@@ -2135,12 +2063,7 @@ function UpgradePlanContent({
 
                         // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = currentSelectedPlan?.hasTrial === true
-                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription);
-                        // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
-                        if (hasTrial && isFirstTimeSubscription) {
-                          return '$0'
-                        }
+                        if (hasTrial && !hasRedeemedTrial) return '$0'
 
                         const discountCalculation = promoCodeDetails
                           ? calculateDiscountedPrice(

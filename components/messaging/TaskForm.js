@@ -316,7 +316,7 @@ const TaskForm = ({
 
   return (
     <div className={`${hideBorder ? '' : 'border'} rounded-lg ${hideBorder ? 'p-0' : 'p-4'} bg-white ${hideBorder ? '' : 'shadow-sm'}`}>
-      <form onSubmit={handleSubmit} className={hideBorder ? 'pt-0' : ''} id="task-form">
+      <form onSubmit={handleSubmit} className={cn(hideBorder ? 'pt-0' : '', 'text-[14px]')} id="task-form">
         {/* Title with Pin and Priority */}
         <div className="flex items-center justify-between">
           <div
@@ -424,6 +424,7 @@ const TaskForm = ({
               onSelect={(option) => setPriority(option.value)}
               backgroundClassName="text-foreground"
               className="border-0 shadow-none h-[36px]"
+              triggerClassName="hover:bg-black/[0.02]"
               contentClassName={elevatedZIndex ? 'z-[6100]' : undefined}
             />
           </div>
@@ -435,7 +436,7 @@ const TaskForm = ({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description here..."
-            className="border-0 p-0 min-h-[60px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="border-0 p-0 min-h-[60px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
             style={{ fontSize: '14px', lineHeight: '2' }}
             rows={3}
             required={isValidForm}
@@ -519,7 +520,7 @@ const TaskForm = ({
                 // }
               }}
             >
-              <div className="p-3 space-y-3">
+              <div className="p-3 space-y-3 animate-in slide-in-from-bottom-2 duration-200 ease-out">
                 {/* Quick select buttons */}
                 <div className="flex gap-2">
                   <Button

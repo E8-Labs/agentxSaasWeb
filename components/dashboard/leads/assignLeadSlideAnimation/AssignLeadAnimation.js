@@ -263,7 +263,7 @@ export default function AssignLeadAnimation({
 
         handleClose({
           status: false,
-          showSnack: 'Lead assigned',
+          showSnack: 'Campaign created',
           disSelectLeads: true,
         })
         resetValues()

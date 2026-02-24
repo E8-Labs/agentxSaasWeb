@@ -2,11 +2,16 @@
 
 // //console.log;
 
-let BasePath =
+const rawBase =
   process.env.NEXT_PUBLIC_BASE_API_URL ||
   (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
+// Ensure base URL ends with / so paths like BasePath + "api/..." resolve correctly
+const BasePath =
+  rawBase && String(rawBase).trim()
+    ? String(rawBase).trim().replace(/\/+$/, '') + '/'
+    : rawBase
 
 const Apis = {
   BasePath: BasePath,

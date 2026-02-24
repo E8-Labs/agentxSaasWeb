@@ -577,6 +577,12 @@ function Page() {
 
   const [openGptManu, setOpenGptManu] = useState('')
   const [selectedGptManu, setSelectedGptManu] = useState(models[0])
+  const getModelIcon = (model) =>
+    model?.value === 'gpt-4.1-mini' &&
+      (reduxUser?.agencyBranding?.supportWidgetLogoUrl)
+      ? (reduxUser?.agencyBranding?.supportWidgetLogoUrl)
+      : model?.icon
+    // console.log("Value of reduxUser is", reduxUser)
 
   // Agency custom name for the AssignX (gpt-4.1-mini) model; subaccounts see this via agency branding
   const assignxModelDisplayName =
@@ -3377,9 +3383,9 @@ function Page() {
           )
         }
         // console.log("New list is", newList);
-        if(search){
+        if (search) {
           setMainAgentsList(agents)
-        }else{
+        } else {
           setMainAgentsList(newList)
         }
       }
@@ -4810,7 +4816,7 @@ function Page() {
                               }}
                             >
                               <Avatar
-                                src={selectedGptManu?.icon}
+                                src={getModelIcon(selectedGptManu)}
                                 sx={{ width: 24, height: 24, marginRight: 1 }}
                               />
                               {getModelDisplayName(selectedGptManu)}
@@ -4835,62 +4841,68 @@ function Page() {
                                 },
                               }}
                             >
-                              {models.map((model, index) => (
-                                <MenuItem
-                                  key={index}
-                                  onClick={() => handleGptManuSelect(model)}
-                                  disabled={model.disabled}
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    gap: '10px',
-                                    padding: '8px 12px',
-                                    borderRadius: '8px',
-                                    transition: 'background 0.2s',
-                                    '&:hover': {
-                                      backgroundColor: model.disabled
-                                        ? 'inherit'
-                                        : '#F5F5F5',
-                                    },
-                                    opacity: model.disabled ? 0.6 : 1,
-                                  }}
-                                >
-                                  <div
-                                    style={{
+                              {models.map((model, index) => {
+                                const iconSrc =
+                                  model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
+                                    ? reduxUser.agencyBranding.supportWidgetLogoUrl
+                                    : model.icon
+                                return (
+                                  <MenuItem
+                                    key={index}
+                                    onClick={() => handleGptManuSelect(model)}
+                                    disabled={model.disabled}
+                                    sx={{
                                       display: 'flex',
                                       alignItems: 'center',
+                                      justifyContent: 'space-between',
                                       gap: '10px',
+                                      padding: '8px 12px',
+                                      borderRadius: '8px',
+                                      transition: 'background 0.2s',
+                                      '&:hover': {
+                                        backgroundColor: model.disabled
+                                          ? 'inherit'
+                                          : '#F5F5F5',
+                                      },
+                                      opacity: model.disabled ? 0.6 : 1,
                                     }}
                                   >
-                                    <Avatar
-                                      src={model.icon}
-                                      sx={{ width: 24, height: 24 }}
-                                    />
-                                    <span
+                                    <div
                                       style={{
-                                        fontSize: '14px',
-                                        fontWeight: '500',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
                                       }}
                                     >
-                                      {getModelDisplayName(model)}
-                                    </span>
-                                  </div>
-                                  <div
-                                    style={{
-                                      backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                      color: 'hsl(var(--brand-primary))',
-                                      padding: '4px 8px',
-                                      borderRadius: '12px',
-                                      fontSize: '12px',
-                                      fontWeight: '600',
-                                      minWidth: 'fit-content',
-                                    }}
-                                  >
-                                    {model.responseTime}
-                                  </div>
-                                </MenuItem>
-                              ))}
+                                      <Avatar
+                                        src={iconSrc}
+                                        sx={{ width: 24, height: 24 }}
+                                      />
+                                      <span
+                                        style={{
+                                          fontSize: '14px',
+                                          fontWeight: '500',
+                                        }}
+                                      >
+                                        {getModelDisplayName(model)}
+                                      </span>
+                                    </div>
+                                    <div
+                                      style={{
+                                        backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                        color: 'hsl(var(--brand-primary))',
+                                        padding: '4px 8px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        minWidth: 'fit-content',
+                                      }}
+                                    >
+                                      {model.responseTime}
+                                    </div>
+                                  </MenuItem>
+                                )
+                              })}
                             </Menu>
                           </div>
                         )}

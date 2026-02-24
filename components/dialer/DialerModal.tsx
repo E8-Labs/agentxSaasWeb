@@ -2709,7 +2709,7 @@ function DialerModal({
   return (
     <div
       ref={modalRef}
-      className="fixed z-[1401] bg-white"
+      className="fixed z-[1401] bg-white animate-in slide-in-from-bottom-2 duration-200 ease-out"
       style={{
         right: `${modalDimensions.right}px`,
         top: `${modalDimensions.y}px`,
@@ -2717,11 +2717,11 @@ function DialerModal({
         maxWidth: `${modalDimensions.width}px`,
         width: `${modalDimensions.width}px`,
         transition: isDragging ? 'none' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), right 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.1s ease',
-        boxShadow: "none", //'0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
         minHeight: '500px',
         maxHeight: '80vh',
-        borderRadius: '16px',
-        border: "1px solid #e0e0e0",
+        borderRadius: '12px',
+        border: '1px solid #eaeaea',
         overflow: 'hidden',
         pointerEvents: 'auto',
         cursor: isDragging ? 'grabbing' : 'default',
@@ -3141,7 +3141,7 @@ function DialerModal({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' || callStatus === 'incoming-ringing' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
+          <div className="flex-1 overflow-y-auto p-4" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' || callStatus === 'incoming-ringing' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
             {checkingDialerNumber || initializing ? (
               <div className="text-center py-8">
                 <div className="text-sm text-gray-500">Connecting...</div>
@@ -3716,13 +3716,12 @@ function DialerModal({
             >
               <Button
                 onClick={handleCall}
-                className="w-full rounded-lg"
+                className="w-full h-10 px-3 rounded-lg"
                 disabled={!device || !deviceRegistered || initializing || !phoneNumber}
                 style={{
                   backgroundColor: 'hsl(var(--brand-primary))',
                   color: 'white',
                   fontWeight: 600,
-                  height: '56px',
                   fontSize: '16px',
                 }}
               >

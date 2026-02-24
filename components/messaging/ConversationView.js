@@ -5,8 +5,10 @@ import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
 import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
 import PlatformIcon from './PlatformIcon'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import axios from 'axios'
@@ -103,28 +105,49 @@ const ConversationView = ({
 
   if (!selectedThread) return null
 
-  const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
-    const getApiBaseUrl = () => {
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        return 'http://localhost:8003/'
-      }
-      return (
-        process.env.NEXT_PUBLIC_BASE_API_URL ||
-        (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-          ? 'https://apimyagentx.com/agentx/'
-          : 'https://apimyagentx.com/agentxtest/')
-      )
+  const getApiBaseUrl = () => {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:8003/'
     }
+    return (
+      process.env.NEXT_PUBLIC_BASE_API_URL ||
+      (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+        ? 'https://apimyagentx.com/agentx/'
+        : 'https://apimyagentx.com/agentxtest/')
+    )
+  }
 
+  const getPlayableUrl = (attachment, message, index) => {
+    if (!attachment?.url || !message?.id) return Promise.resolve(attachment?.url || null)
+    if (!attachment.url.includes('lookaside.fbsbx.com')) {
+      return Promise.resolve(attachment.url)
+    }
+    const base = getApiBaseUrl()
+    const proxy = `${base}api/user/messaging/proxy-social-media?messageId=${message.id}&attachmentIndex=${index}`
+    return fetch(proxy, {
+      headers: { Authorization: `Bearer ${AuthToken()}` },
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to load media')
+        return r.blob()
+      })
+      .then((blob) => URL.createObjectURL(blob))
+  }
+
+  const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
     if (isImage) {
       const allImages = message.metadata.attachments.filter(
         (att) =>
+          (att.type || '').toLowerCase() === 'image' ||
           att.mimeType?.startsWith('image/') ||
           att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i),
       )
 
       const currentIdx = allImages.findIndex(
-        (att) => att.attachmentId === enrichedAttachment.attachmentId || att.fileName === enrichedAttachment.fileName,
+        (att) =>
+          att.attachmentId === enrichedAttachment.attachmentId ||
+          att.fileName === enrichedAttachment.fileName ||
+          (att.url && att.url === enrichedAttachment.url),
       )
 
       const imagesWithData = allImages.map((img) => {
@@ -216,7 +239,7 @@ const ConversationView = ({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-white"
+      className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-[#f9f9f9] text-[14px]"
       style={{ scrollBehavior: 'auto', paddingRight: '1.5rem' }}
     >
       {/* Loader for older messages at top */}
@@ -313,7 +336,7 @@ const ConversationView = ({
                   {showDateSeparator && (
                     <div className="flex items-center justify-center my-6">
                       <div className="border-t border-gray-200 flex-1"></div>
-                      <span className="px-4 text-xs text-gray-400">
+                      <span className="px-4 text-sm text-gray-400">
                         {moment(message.createdAt).format('MMMM DD, YYYY')}
                       </span>
                       <div className="border-t border-gray-200 flex-1"></div>
@@ -344,16 +367,9 @@ const ConversationView = ({
                     <div
                       data-message-id={message.id}
                       className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
-                      style={
-                        isReply && depth > 0
-                          ? {
-                            [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px`,
-                          }
-                          : {}
-                      }
                     >
                       {isReply && parentMessage && (
-                        <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
+                        <div className={`text-[14px] mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
                           <div className={`${isOutbound ? 'max-w-[75%] min-w-[220px] text-left' : ''}`}>
                             <span className="italic">
                               Replying to:{' '}
@@ -371,7 +387,7 @@ const ConversationView = ({
                       >
                         {!isOutbound && (
                           <div className="relative flex-shrink-0">
-                            <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
+                            <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                               {getLeadName(selectedThread)}
                             </div>
                             {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
@@ -382,48 +398,55 @@ const ConversationView = ({
 
                         <div className="flex flex-col max-w-[75%] min-w-[220px]">
                           {isEmail ? (
-                            <EmailBubble
-                              message={message}
-                              isOutbound={isOutbound}
-                              sanitizeHTML={sanitizeHTML}
-                              sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
-                              openEmailDetailId={openEmailDetailId}
-                              setOpenEmailDetailId={setOpenEmailDetailId}
-                              getEmailDetails={getEmailDetails}
-                              selectedThread={selectedThread}
-                              onOpenEmailTimeline={onOpenEmailTimeline}
-                              setShowEmailTimeline={setShowEmailTimeline}
-                              setEmailTimelineLeadId={setEmailTimelineLeadId}
-                              setEmailTimelineSubject={setEmailTimelineSubject}
-                              onAttachmentClick={handleAttachmentClick}
-                              onReplyClick={onReplyClick}
-                              isLastMessage={isLastMessage}
-                              updateComposerFromMessage={updateComposerFromMessage}
-                            />
+                            <div className="flex flex-row items-center justify-between gap-2 w-full">
+                              <div className="min-w-0 flex-1">
+                                <EmailBubble
+                                  message={message}
+                                  isOutbound={isOutbound}
+                                  sanitizeHTML={sanitizeHTML}
+                                  sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
+                                  openEmailDetailId={openEmailDetailId}
+                                  setOpenEmailDetailId={setOpenEmailDetailId}
+                                  getEmailDetails={getEmailDetails}
+                                  selectedThread={selectedThread}
+                                  onOpenEmailTimeline={onOpenEmailTimeline}
+                                  setShowEmailTimeline={setShowEmailTimeline}
+                                  setEmailTimelineLeadId={setEmailTimelineLeadId}
+                                  setEmailTimelineSubject={setEmailTimelineSubject}
+                                  onAttachmentClick={handleAttachmentClick}
+                                  onReplyClick={onReplyClick}
+                                  isLastMessage={isLastMessage}
+                                  updateComposerFromMessage={updateComposerFromMessage}
+                                />
+                              </div>
+                              {!isOutbound && onReplyClick && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onReplyClick(message)
+                                  }}
+                                  type="button"
+                                  className="flex-shrink-0 text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
+                                >
+                                  Reply
+                                </button>
+                              )}
+                            </div>
                           ) : (
-                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
                           )}
-                          {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (
+                          {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (() => {
+                            const isDummyLead = selectedThread.lead?.source === 'messenger_dummy' || selectedThread.lead?.source === 'instagram_dummy'
+                            const notYetLinked = !selectedThread.leadId || isDummyLead
+                            const notDismissed = !selectedThread.metadata?.suggestedLeadLinksDismissed
+                            return notYetLinked && notDismissed
+                          })() && (
                             <SuggestedLeadLinks
                               suggestedLeads={message.metadata.suggestedLeads}
                               threadId={selectedThread.id}
                               onLink={onLinkToLeadFromMessage}
                               linkingLeadId={linkingLeadId}
                             />
-                          )}
-                          {isEmail && !isOutbound && onReplyClick && (
-                            <div className="mt-1 flex justify-end">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onReplyClick(message)
-                                }}
-                                type="button"
-                                className="text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
-                              >
-                                Reply
-                              </button>
-                            </div>
                           )}
                         </div>
 
@@ -439,6 +462,7 @@ const ConversationView = ({
                                   }}
                                   aria-label={message ? `${message?.agent?.name || message?.senderUser?.name}` : 'Agent'}
                                 >
+
                                   <div className="relative flex-shrink-0">
                                     {getAgentAvatar(message)}
                                     {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
