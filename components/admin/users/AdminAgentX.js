@@ -466,6 +466,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setAudio(ad) // Play the audio
   }
 
+  const getModelIcon = (model) =>
+    model?.value === 'gpt-4.1-mini' &&
+      (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
+      ? (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
+      : model?.icon
+    // console.log("Value of reduxUser is", reduxUser)
+
   // Restore agent drawer state when component mounts and agents are loaded (only for admin/agency users)
   useEffect(() => {
     if (!isAdminOrAgency() || !agentData || agentData.length === 0) return
@@ -3153,9 +3160,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           <div className="flex flex-row items-center gap-3">
             <TypographyH3
               className="cursor-pointer"
-              // onClick={() => {
-              //   router.push('/createagent')
-              // }}
+            // onClick={() => {
+            //   router.push('/createagent')
+            // }}
             >
               Agents
             </TypographyH3>
@@ -3772,7 +3779,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         }}
                       >
                         <Avatar
-                          src={selectedGptManu?.icon}
+                          src={getModelIcon(selectedGptManu)}
                           sx={{ width: 24, height: 24, marginRight: 1 }}
                         />
                         {getModelDisplayName(selectedGptManu)}
@@ -3797,47 +3804,53 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           },
                         }}
                       >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              padding: '8px 12px',
-                              borderRadius: '8px',
-                              transition: 'background 0.2s',
-                              '&:hover': {
-                                backgroundColor: model.disabled
-                                  ? 'inherit'
-                                  : '#F5F5F5',
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <Avatar
-                              src={model.icon}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            {getModelDisplayName(model)}
-
-                            <div
-                              style={{
-                                backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                color: 'hsl(var(--brand-primary))',
-                                padding: '4px 8px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                minWidth: 'fit-content',
+                        {models.map((model, index) => {
+                          const iconSrc =
+                            model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
+                              ? reduxUser.agencyBranding.supportWidgetLogoUrl
+                              : model.icon
+                          return (
+                            <MenuItem
+                              key={index}
+                              onClick={() => handleGptManuSelect(model)}
+                              disabled={model.disabled}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                transition: 'background 0.2s',
+                                '&:hover': {
+                                  backgroundColor: model.disabled
+                                    ? 'inherit'
+                                    : '#F5F5F5',
+                                },
+                                opacity: model.disabled ? 0.6 : 1,
                               }}
                             >
-                              {model.responseTime}
-                            </div>
-                          </MenuItem>
-                        ))}
+                              <Avatar
+                                src={iconSrc}
+                                sx={{ width: 24, height: 24 }}
+                              />
+                              {getModelDisplayName(model)}
+
+                              <div
+                                style={{
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                  color: 'hsl(var(--brand-primary))',
+                                  padding: '4px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  minWidth: 'fit-content',
+                                }}
+                              >
+                                {model.responseTime}
+                              </div>
+                            </MenuItem>
+                          )
+                        })}
                       </Menu>
                     </div>
                   )}
