@@ -230,7 +230,7 @@ const LoaderAnimation = ({
                       }
                       loop
                       autoplay
-                    />hh
+                    />
                   </div>
                 ) : (
                   <div
