@@ -964,7 +964,7 @@ function AgencyPlans({
                               item?.features?.map((feature) => (
                                 <div
                                   key={feature.text}
-                                  className="flex flex-row items-start gap-3 mb-3 w-full"
+                                  className="flex flex-row items-center gap-3 mb-3 w-full"
                                 >
                                   <Checkbox
                                     checked={true}
