@@ -551,13 +551,13 @@ const LoanOfficeSugnUpMobile = ({
       <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[82svh]">
           {/* header */}
-          <div className="h-[10%]">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[90%] mt-4">
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
+              className="w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
             >
               Your Contact Information

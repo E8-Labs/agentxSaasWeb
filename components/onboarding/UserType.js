@@ -286,13 +286,13 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       >
         <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header84svh */}
-          <div className="h-[10%]">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[100%]">
+          <div className="flex flex-col items-center px-4 w-full h-[100%] mt-4">
             <div
-              className="mt-4 w-11/12 md:text-4xl text-lg font-[600]"
+              className="w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
             >
               Which AI Agent will you build?
