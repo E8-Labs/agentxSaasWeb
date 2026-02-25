@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { sanitizeAndLinkifyHTML } from '@/utilities/textUtils'
+import { sanitizeAndLinkifyHTML, simpleMarkdownToHtml } from '@/utilities/textUtils'
 import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
 import AttachmentList from './AttachmentList'
 
@@ -136,13 +136,12 @@ const EmailBubble = ({
         dangerouslySetInnerHTML={{
           __html: (() => {
             const raw = message.content || ''
-            const content = stripQuotedReplyFromContent(raw)
-            // Use formatting-preserving sanitizer when available (keeps bold, lists, links)
+            const stripped = stripQuotedReplyFromContent(raw)
+            const withMarkdown = simpleMarkdownToHtml(stripped)
             if (sanitizeHTMLForEmailBody) {
-              return sanitizeHTMLForEmailBody(content)
+              return sanitizeHTMLForEmailBody(withMarkdown)
             }
-            // Fallback: plain text linkify and line breaks
-            return sanitizeAndLinkifyHTML(content, sanitizeHTML)
+            return sanitizeAndLinkifyHTML(withMarkdown, sanitizeHTML)
           })(),
         }}
       />

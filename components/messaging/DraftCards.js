@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import { X, MessageSquare, Mail, Loader2 } from 'lucide-react'
+import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
+import { simpleMarkdownToHtml, sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
 
 /**
  * DraftCards component - displays AI-generated draft responses as horizontal scrolling cards
@@ -48,10 +50,19 @@ const DraftCards = ({
     return plainText.substring(0, maxLength) + '...'
   }
 
-  // Get full content (plain text)
-  const getFullContent = (content) => {
+  // Formatted HTML for display (markdown + HTML applied, sanitized)
+  const getFormattedHtml = (content) => {
     if (!content) return ''
-    return content.replace(/<[^>]*>/g, '').trim()
+    const stripped = stripQuotedReplyFromContent(content)
+    const withMarkdown = simpleMarkdownToHtml(stripped)
+    return sanitizeHTMLForEmailBody(withMarkdown)
+  }
+
+  // Plain text length for "Read more" threshold
+  const getPlainLength = (content) => {
+    if (!content) return 0
+    const plain = content.replace(/<[^>]*>/g, '').trim()
+    return plain.length
   }
 
   const handleCardClick = (draft) => {
@@ -88,8 +99,8 @@ const DraftCards = ({
           {drafts.map((draft) => {
             const isSelected = selectedDraftId === draft.id
             const isExpanded = expandedDraftId === draft.id
-            const content = getFullContent(draft.content)
-            const needsReadMore = content.length > 120
+            const formattedHtml = getFormattedHtml(draft.content)
+            const needsReadMore = getPlainLength(draft.content) > 120
 
             return (
               <div
@@ -128,13 +139,17 @@ const DraftCards = ({
                   </div>
                 )}
 
-                {/* Draft content */}
-                <div className="text-sm text-gray-700 leading-relaxed m-0">
-                  {isExpanded ? content : truncateContent(content)}
+                {/* Draft content - HTML + markdown formatted */}
+                <div className="text-sm text-gray-700 leading-relaxed m-0 prose prose-sm max-w-none [&_a]:text-brand-primary [&_a]:underline [&_strong]:font-bold">
+                  <div
+                    className={!isExpanded && needsReadMore ? 'overflow-hidden' : ''}
+                    style={!isExpanded && needsReadMore ? { maxHeight: '4.5em' } : undefined}
+                    dangerouslySetInnerHTML={{ __html: formattedHtml }}
+                  />
                   {needsReadMore && (
                     <button
                       onClick={(e) => handleReadMore(e, draft.id)}
-                      className="ml-1 text-brand-primary font-medium hover:underline"
+                      className="mt-1 text-brand-primary font-medium hover:underline text-sm"
                     >
                       {isExpanded ? 'Show Less' : 'Read More'}
                     </button>
