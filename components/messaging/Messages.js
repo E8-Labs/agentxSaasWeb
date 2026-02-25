@@ -32,6 +32,7 @@ import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import MessageSettingsModal from './MessageSettingsModal'
 import AiChatModal from './AiChatModal'
+import { messageMarkdownToHtml } from './messageMarkdown'
 
 /** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
 function plainTextToHtml(text) {
@@ -2352,7 +2353,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const formData = new FormData()
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
-        formData.append('body', messageBody)
+        formData.append('body', messageMarkdownToHtml(messageBody))
 
         // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
