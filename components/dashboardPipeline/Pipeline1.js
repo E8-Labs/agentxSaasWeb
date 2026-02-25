@@ -2610,8 +2610,11 @@ const Pipeline1 = () => {
                     {StagesList?.map((stage, index) => (
                       <div
                         key={index}
-                        style={{ width: '350px' }}
-                        className="flex flex-col items-start h-full min-h-full gap-3 bg-[#00000005] rounded-xl p-4"
+                        style={{
+                         width: '350px',
+                         backgroundColor: stage.defaultColor //bg-[#00000005]
+                         }}
+                        className={`flex flex-col items-start h-full min-h-full gap-3 rounded-xl p-4`}
                       >
                         {/* Display the stage */}
                         <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">

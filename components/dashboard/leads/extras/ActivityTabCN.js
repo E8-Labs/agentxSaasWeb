@@ -66,7 +66,7 @@ const ActivityTabCN = ({
   }
 
   return (
-    <div>
+    <div className='ps-4'>
       {callActivity.map((item) => renderActivityTile(item))}
     </div>
   )

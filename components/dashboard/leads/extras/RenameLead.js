@@ -2,22 +2,26 @@ import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
+
 const RenameLead = ({
   showRenameLeadPopup,
   handleClose,
-  leadNamePassed,
+  firstNamePassed = '',
+  lastNamePassed = '',
   renameLeadLoader,
   handleRenameLead,
   overlayZIndex = 9999, // elevated (e.g. 5020) when opened from drawer; normal pages use 9999
 }) => {
-  //input
-  const [renameLead, setRenameLead] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
 
   useEffect(() => {
-    if (leadNamePassed) {
-      setRenameLead(leadNamePassed)
-    }
-  }, [leadNamePassed])
+    setFirstName((firstNamePassed ?? '').trim())
+    setLastName((lastNamePassed ?? '').trim())
+  }, [firstNamePassed, lastNamePassed])
 
   //styles list
   const styles = {
@@ -101,28 +105,39 @@ const RenameLead = ({
               </div>
             </div>
 
-            <div>
-              <div
-                className="mt-4"
-                style={{ fontWeight: '600', fontSize: 12, paddingBottom: 5 }}
-              >
-                Lead Name
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="rename-first-name" className="font-semibold text-sm">
+                  First name
+                </Label>
+                <Input
+                  id="rename-first-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Enter first name"
+                  className={cn(
+                    'h-12 rounded-lg border-2 border-input bg-transparent outline-none',
+                    'focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0',
+                    'focus:border-brand-primary focus-visible:border-brand-primary'
+                  )}
+                />
               </div>
-              <input
-                value={renameLead || ''}
-                // value = {showRenameLeadPopup?.name}
-                onChange={(e) => {
-                  setRenameLead(e.target.value)
-                }}
-                placeholder={
-                  'Enter lead title'
-                  // selectedRenameLead?.name
-                  //   ? selectedRenameLead.name
-                  //   : "Enter lead title"
-                }
-                className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                style={{ border: '1px solid #00000020' }}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="rename-last-name" className="font-semibold text-sm">
+                  Last name
+                </Label>
+                <Input
+                  id="rename-last-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Enter last name"
+                  className={cn(
+                    'h-12 rounded-lg border-2 border-input bg-transparent outline-none',
+                    'focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0',
+                    'focus:border-brand-primary focus-visible:border-brand-primary'
+                  )}
+                />
+              </div>
             </div>
           </div>
 
@@ -132,15 +147,13 @@ const RenameLead = ({
             </div>
           ) : (
             <button
-              className="mt-4 outline-none bg-brand-primary text-white"
-              style={{
-                height: '50px',
-                borderRadius: '10px',
-                width: '100%',
-                fontWeight: 600,
-                fontSize: '20',
-              }}
-              onClick={() => handleRenameLead(renameLead)}
+              className={cn(
+                'mt-4 outline-none w-full h-[50px] rounded-[10px] font-semibold text-base',
+                'bg-brand-primary text-white',
+                'focus:ring-2 focus:ring-brand-primary/50 focus:ring-offset-2',
+                'hover:opacity-90 transition-opacity'
+              )}
+              onClick={() => handleRenameLead(firstName.trim(), lastName.trim())}
             >
               Update
             </button>

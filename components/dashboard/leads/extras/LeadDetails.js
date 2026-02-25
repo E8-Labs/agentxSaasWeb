@@ -264,7 +264,6 @@ const LeadDetails = ({
   //rename lead name props
   const [showRenameLeadPopup, setShowRenameLeadPopup] = useState(false)
   const [renameLeadLoader, setRenameLeadLoader] = useState(false)
-  const [renameLead, setRenameLead] = useState('')
 
   useEffect(() => { }, [showSnackMsg])
 
@@ -740,11 +739,12 @@ const LeadDetails = ({
     setShowCustomVariables(false)
   }
 
-  //function to update LeadName (optional newName when called from RenameLead modal)
-  const updateLeadName = async (newName) => {
-    const nameToUse = (newName ?? renameLead)?.trim()
-    if (!nameToUse) {
-      showSnackbar('Please enter a valid lead name', SnackbarTypes.Error)
+  //function to update LeadName (firstName, lastName from RenameLead modal)
+  const updateLeadName = async (firstName, lastName) => {
+    const first = (firstName ?? '').trim()
+    const last = (lastName ?? '').trim()
+    if (!first && !last) {
+      showSnackbar('Please enter a valid first or last name', SnackbarTypes.Error)
       return
     }
 
@@ -769,7 +769,8 @@ const LeadDetails = ({
         body: JSON.stringify({
           smartListId: selectedLeadsDetails.sheetId,
           phoneNumber: selectedLeadsDetails.phone,
-          name: nameToUse,
+          firstName: first,
+          lastName: last,
           leadId: selectedLeadsDetails.id,
         }),
       })
@@ -779,7 +780,8 @@ const LeadDetails = ({
       if (response.ok && data.status === true) {
         setSelectedLeadsDetails((prev) => ({
           ...prev,
-          firstName: nameToUse,
+          firstName: first,
+          lastName: last,
         }))
         setShowRenameLeadPopup(false)
         showSnackbar('Lead name updated successfully', SnackbarTypes.Success)
@@ -1994,8 +1996,6 @@ const LeadDetails = ({
   }, [myTeamAdmin, myTeam, selectedLeadsDetails?.teamsAssigned])
 
 
-  const leadFullNameForRename = `${selectedLeadsDetails?.firstName || ''}${selectedLeadsDetails?.lastName ? ' ' + selectedLeadsDetails.lastName : ''}`.trim()
-
   const mainContent = (
     <>
       <AgentSelectSnackMessage
@@ -2015,9 +2015,10 @@ const LeadDetails = ({
           <RenameLead
             showRenameLeadPopup={showRenameLeadPopup}
             handleClose={() => setShowRenameLeadPopup(false)}
-            leadNamePassed={leadFullNameForRename}
+            firstNamePassed={selectedLeadsDetails?.firstName ?? ''}
+            lastNamePassed={selectedLeadsDetails?.lastName ?? ''}
             renameLeadLoader={renameLeadLoader}
-            handleRenameLead={(newName) => updateLeadName(newName)}
+            handleRenameLead={(firstName, lastName) => updateLeadName(firstName, lastName)}
             overlayZIndex={overlayZIndex}
           />
         )
@@ -2096,7 +2097,7 @@ const LeadDetails = ({
                                   // role="button"
                                   // tabIndex={0}
                                   className="truncate text-lg font-semibold leading-none text-foreground cursor-pointer hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
-                                  // onClick={() => setShowRenameLeadPopup(true)}
+                                  onClick={() => setShowRenameLeadPopup(true)}
                                   // onKeyDown={(e) => {
                                   //   if (e.key === 'Enter' || e.key === ' ') {
                                   //     e.preventDefault()
