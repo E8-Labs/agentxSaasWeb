@@ -31,7 +31,7 @@ import moment from 'moment'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fromJSON } from 'postcss'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import {
   Popover as ShadPopover,
@@ -164,6 +164,26 @@ const Userleads = ({
 
   const requestVersion = useRef(0)
   const isFilteringRef = useRef(false) // Track if filtering is in progress
+  const headerTableScrollRef = useRef(null)
+  const scrollableDivRef = useRef(null)
+  const tableScrollSyncingRef = useRef(false)
+
+  const syncTableScrollHeaderToBody = useCallback(() => {
+    if (tableScrollSyncingRef.current) return
+    tableScrollSyncingRef.current = true
+    const headerEl = headerTableScrollRef.current
+    const bodyEl = scrollableDivRef.current
+    if (headerEl && bodyEl) bodyEl.scrollLeft = headerEl.scrollLeft
+    requestAnimationFrame(() => { tableScrollSyncingRef.current = false })
+  }, [])
+  const syncTableScrollBodyToHeader = useCallback(() => {
+    if (tableScrollSyncingRef.current) return
+    tableScrollSyncingRef.current = true
+    const headerEl = headerTableScrollRef.current
+    const bodyEl = scrollableDivRef.current
+    if (headerEl && bodyEl) headerEl.scrollLeft = bodyEl.scrollLeft
+    requestAnimationFrame(() => { tableScrollSyncingRef.current = false })
+  }, [])
 
   const [filtersSelected, setFiltersSelected] = useState([])
 
@@ -1980,7 +2000,7 @@ const Userleads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="w-full flex flex-col items-center bg-white h-auto max-h-screen overflow-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
         (<div className="w-screen">
           <LeadLoading />
@@ -1993,11 +2013,12 @@ const Userleads = ({
             message={snackMessage}
             type={messageType}
           />
-          <StandardHeader
-            titleContent={
-              <div className="flex flex-row items-center gap-2">
-                <TypographyH3>Leads</TypographyH3>
-                {reduxUser?.currentUsage?.maxLeads &&
+          <div className="sticky top-0 z-20 flex-shrink-0 bg-white w-full" style={{ borderBottom: '1px solid #eaeaea' }}>
+            <StandardHeader
+              titleContent={
+                <div className="flex flex-row items-center gap-2">
+                  <TypographyH3>Leads</TypographyH3>
+                  {reduxUser?.currentUsage?.maxLeads &&
                   reduxUser?.planCapabilities?.maxLeads < 10000000 &&
                   reduxUser?.plan?.planId != null && (
                     <div
@@ -2010,13 +2031,14 @@ const Userleads = ({
                       {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads) || 0} used`}
                     </div>
                   )}
-              </div>
-            }
-            showTasks={true}
-          />
+                </div>
+              }
+              showTasks={true}
+            />
+          </div>
 
-          <div className="w-[88%] max-w-[1500px] mx-auto bg-transparent m-0 p-0">
-            <div className="pt-0 bg-transparent flex flex-col gap-0.5">
+          <div className="w-[88%] max-w-[1500px] mx-auto bg-transparent m-0 p-0 h-auto">
+            <div className="pt-0 bg-transparent flex flex-col gap-0.5 h-auto">
               {(hasExportPermission || selectedLeadsList.length > 0 || selectedAll) && (
               <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
                 <div className="flex flex-row items-center gap-6">
@@ -2102,6 +2124,7 @@ const Userleads = ({
                 </div>
               </div>
               )}
+              <div className="sticky top-[65px] z-10 flex flex-col flex-shrink-0 bg-white w-full animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ gap: 2 }}>
               <div className="flex flex-row items-center justify-between w-full min-w-0 overflow-hidden px-3 py-3 h-auto border-0" style={{ border: 'none' }}>
                 <div className="flex flex-row items-center gap-2 min-w-0 flex-1 overflow-hidden">
                   <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
@@ -2297,7 +2320,7 @@ const Userleads = ({
                 style={{ ...styles.paragraph, borderColor: '#eaeaea' }}
               >
                 <div
-                  className="flex flex-row items-center gap-2 w-full min-h-[40px]"
+                  className="flex flex-row items-center w-full min-h-[40px]"
                   style={{
                     ...styles.paragraph,
                     overflowY: 'hidden',
@@ -2305,6 +2328,7 @@ const Userleads = ({
                     msOverflowStyle: 'none',
                     fontSize: 14,
                     fontWeight: 400,
+                    gap: 2,
                   }}
                 >
                   <style jsx>
@@ -2318,7 +2342,7 @@ const Userleads = ({
                     return (
                       <div
                         key={index}
-                        className="flex flex-row items-center gap-3 px-3 h-[40px] hover:bg-black/[0.02] rounded-none transition-colors"
+                        className="group flex flex-row items-center gap-3 px-2 h-[40px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98]"
                         style={{
                           borderBottom:
                             SelectedSheetId === item.id
@@ -2374,7 +2398,7 @@ const Userleads = ({
                         >
                           <DropdownMenuTrigger asChild>
                             <button
-                              className="outline-none"
+                              className={`outline-none transition-opacity duration-150 ${dropdownOpen[item.id] ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                               onClick={() => {
                                 handleShowPopup(item)
                               }}
@@ -2475,9 +2499,87 @@ const Userleads = ({
               </div>
               )}
 
+              {LeadsList.length > 0 && (
+              <div
+                ref={headerTableScrollRef}
+                onScroll={syncTableScrollHeaderToBody}
+                className="overflow-x-auto overflow-y-hidden w-full"
+                style={{ scrollbarWidth: 'thin' }}
+              >
+              <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
+                <colgroup>
+                  {leadColumns.map((col, i) => (
+                    <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
+                  ))}
+                </colgroup>
+                <thead>
+                  <tr style={{ fontWeight: '500' }}>
+                    {leadColumns.map((column, index) => {
+                      const isMoreColumn = column.title === 'More'
+                      const isNameColumn = column.title === 'Name'
+                      const columnWidth = isMoreColumn ? '100px' : isNameColumn ? '254px' : '150px'
+                      return (
+                        <th
+                          key={index}
+                          className={`border-none px-4 py-2 text-left uppercase text-[14px] font-normal ${isMoreColumn ? 'sticky right-0 bg-white' : ''}`}
+                          style={{
+                            color: 'rgba(0,0,0,0.6)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            zIndex: isMoreColumn ? 1 : 'auto',
+                            width: columnWidth,
+                            minWidth: columnWidth,
+                            maxWidth: columnWidth,
+                          }}
+                        >
+                          {isNameColumn ? (
+                            <div className="flex flex-row items-center gap-3">
+                              {selectedAll ? (
+                                <button
+                                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center flex-shrink-0"
+                                  onClick={() => {
+                                    setSelectedLeadsList([])
+                                    setSelectedAll(false)
+                                  }}
+                                >
+                                  <Image
+                                    src={'/assets/whiteTick.png'}
+                                    height={10}
+                                    width={10}
+                                    alt="Deselect all"
+                                  />
+                                </button>
+                              ) : (
+                                <Checkbox
+                                  className="h-4 w-4 flex-shrink-0 border-2 border-muted"
+                                  onClick={() => {
+                                    setSelectedLeadsList([])
+                                    setSelectedAll(true)
+                                  }}
+                                />
+                              )}
+                              <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
+                            </div>
+                          ) : (
+                            (column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()
+                          )}
+                        </th>
+                      )
+                    })}
+                  </tr>
+                </thead>
+              </table>
+              </div>
+              )}
+
+              </div>
+
               {LeadsList.length > 0 ? (
                 <div
-                  className="h-[70svh] overflow-auto pb-[100px] mt-6 bg-transparent"
+                  ref={scrollableDivRef}
+                  onScroll={syncTableScrollBodyToHeader}
+                  className="flex-1 min-h-0 overflow-auto pb-[100px] mt-6 bg-transparent"
                   id="scrollableDiv1"
                   style={{ scrollbarWidth: 'none', backgroundColor: 'transparent' }}
                 >
@@ -2516,63 +2618,12 @@ const Userleads = ({
                     }
                     style={{ overflow: 'unset' }}
                   >
-                    <table className="table-auto w-full border-collapse border border-none">
-                      <thead>
-                        <tr style={{ fontWeight: '500' }}>
-                          {leadColumns.map((column, index) => {
-                            const isMoreColumn = column.title === 'More'
-                            const isNameColumn = column.title === 'Name'
-                            const columnWidth = isMoreColumn ? '200px' : '150px'
-                            return (
-                              <th
-                                key={index}
-                                className={`border-none px-4 py-2 text-left uppercase text-[14px] font-normal ${isMoreColumn ? 'sticky right-0 bg-white' : ''
-                                  }`}
-                                style={{
-                                  color: 'rgba(0,0,0,0.6)',
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  zIndex: isMoreColumn ? 1 : 'auto',
-                                  maxWidth: columnWidth,
-                                }}
-                              >
-                                {isNameColumn ? (
-                                  <div className="flex flex-row items-center gap-3">
-                                    {selectedAll ? (
-                                      <button
-                                        className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center flex-shrink-0"
-                                        onClick={() => {
-                                          setSelectedLeadsList([])
-                                          setSelectedAll(false)
-                                        }}
-                                      >
-                                        <Image
-                                          src={'/assets/whiteTick.png'}
-                                          height={10}
-                                          width={10}
-                                          alt="Deselect all"
-                                        />
-                                      </button>
-                                    ) : (
-                                      <Checkbox
-                                        className="h-4 w-4 flex-shrink-0 border-2 border-muted"
-                                        onClick={() => {
-                                          setSelectedLeadsList([])
-                                          setSelectedAll(true)
-                                        }}
-                                      />
-                                    )}
-                                    <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
-                                  </div>
-                                ) : (
-                                  (column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()
-                                )}
-                              </th>
-                            )
-                          })}
-                        </tr>
-                      </thead>
+                    <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
+                      <colgroup>
+                        {leadColumns.map((col, i) => (
+                          <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
+                        ))}
+                      </colgroup>
                       <tbody>
                         {FilterLeads.map((item, index) => (
                           <tr
@@ -2588,7 +2639,7 @@ const Userleads = ({
                               <td
                                 key={colIndex}
                                 className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === 'More'
-                                  ? 'sticky right-0 bg-transparent'
+                                  ? 'sticky right-0 bg-white'
                                   : ''
                                   }`}
                                 style={{
