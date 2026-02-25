@@ -10,6 +10,9 @@ import { getUserLocalData } from '@/components/constants/constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import IntroVideoModal from '../createagent/IntroVideoModal'
+import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
   const [step, setStep] = useState(1) // 1: Enter domain/API key, 2: DNS records, 3: Verify
@@ -19,7 +22,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
   const [dnsRecords, setDnsRecords] = useState([])
   const [mailgunIntegrationId, setMailgunIntegrationId] = useState(null)
   const [verificationStatus, setVerificationStatus] = useState('pending')
-
+  const [introVideoModal, setIntroVideoModal] = useState(false)
   // Reset form state when modal opens
   useEffect(() => {
     if (open) {
@@ -132,11 +135,6 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
     toast.success('Copied to clipboard')
   }
 
-  const handleLearnMore = () => {
-    // Open Mailgun documentation in a new tab
-    window.open('https://apimyagentx.com/agentx/uploads/howtos/howtos_Mailgun_Integration_Agency_AgentX_155_2026.mp4', '_blank', 'noopener,noreferrer')
-  }
-
   if (!open) return null
 
   const modalContent = (
@@ -181,13 +179,30 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleLearnMore}
+                  onClick={() => setIntroVideoModal(true)}
                   className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                   style={{ pointerEvents: 'auto' }}
                 >
                   <Play size={16} className="fill-blue-600" />
                   <span>Learn how to connect your Mailgun</span>
                 </Button>
+                {
+                  introVideoModal && (
+                    <IntroVideoModal
+                      open={introVideoModal}
+                      onClose={() => setIntroVideoModal(false)}
+                      zIndex={10000001}
+                      videoTitle={
+                        // getTutorialByType(HowToVideoTypes.MailgunIntegrationAgency)?.title ||
+                        'Learn how to connect your Mailgun'
+                      }
+                      videoUrl={
+                        // getVideoUrlByType(HowToVideoTypes.MailgunIntegrationAgency) ||
+                        HowtoVideos.MailgunIntegrationAgency
+                      }
+                    />
+                  )
+                }
               </div>
               <div style={{ pointerEvents: 'auto' }}>
                 <Label htmlFor="domain">Domain</Label>

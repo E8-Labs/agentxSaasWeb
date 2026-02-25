@@ -91,6 +91,7 @@ export const HowtoVideos = {
   ConnectBankAgency: process.env.NEXT_PUBLIC_REACT_APP_ConnectBankAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Connect_Bank_Stripe_Agency_AgentX_155_2025_Reupload',
   SettingGlobalNumber: process.env.NEXT_PUBLIC_REACT_APP_SettingGlobalNumber || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Setting_Global_Number_Agency_AgentX_155_2025_Reupload',
   TwilioIntegrationAgency: process.env.NEXT_PUBLIC_REACT_APP_TwilioIntegrationAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Twilio_Integration_Agency_AgentX_155_2025_Reupload',
+  MailgunIntegrationAgency: process.env.NEXT_PUBLIC_REACT_APP_MailgunIntegrationAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Mailgun_Integration_Agency_AgentX_155_2026.mp4',
 }
 
 export const HowToVideoTypes = {
@@ -111,6 +112,7 @@ export const HowToVideoTypes = {
   ConnectBankAgency: 'ConnectBankAgency',
   SettingGlobalNumber: 'SettingGlobalNumber',
   TwilioIntegrationAgency: 'TwilioIntegrationAgency',
+  MailgunIntegrationAgency: 'MailgunIntegrationAgency',
 }
 
 export const Constants = {
