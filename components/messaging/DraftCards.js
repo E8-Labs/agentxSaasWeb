@@ -95,7 +95,7 @@ const DraftCards = ({
         </div>
       )}
 
-      {/* Draft cards - horizontal scrolling */}
+      {/* Draft cards - horizontal scrolling; single draft is full width */}
       {!loading && drafts.length > 0 && (
         <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {drafts.map((draft) => {
@@ -103,14 +103,16 @@ const DraftCards = ({
             const isExpanded = expandedDraftId === draft.id
             const formattedHtml = getFormattedHtml(draft.content)
             const needsReadMore = getPlainLength(draft.content) > 120
+            const isSingleDraft = drafts.length === 1
 
             return (
               <div
                 key={draft.id}
                 onClick={() => handleCardClick(draft)}
                 className={`
-                  flex-shrink-0 max-w-[49%] rounded-xl p-3 cursor-pointer transition-all duration-200
+                  rounded-xl p-3 cursor-pointer transition-all duration-200
                   border
+                  ${isSingleDraft ? 'w-full min-w-full' : 'flex-shrink-0 max-w-[49%]'}
                   ${isSelected
                     ? 'border-brand-primary bg-brand-primary/[0.08] shadow-md'
                     : 'border-gray-200 bg-white hover:border-brand-primary/70 hover:shadow-sm'

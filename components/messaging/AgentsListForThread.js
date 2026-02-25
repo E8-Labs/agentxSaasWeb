@@ -9,8 +9,32 @@ import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { TypographyBody } from '@/components/dashboard/leads/extras/TypographyCN'
 import { toast } from '@/utils/toast'
 
+const AGENTS_LIST_CACHE_KEY = 'messaging_agents_list'
+
+function getCachedAgents() {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(AGENTS_LIST_CACHE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function setCachedAgents(list) {
+  if (typeof window === 'undefined' || !Array.isArray(list)) return
+  try {
+    localStorage.setItem(AGENTS_LIST_CACHE_KEY, JSON.stringify(list))
+  } catch (e) {
+    console.warn('AgentsListForThread: failed to cache agents', e)
+  }
+}
+
 /**
  * Fetches agents via GET Apis.getAgents, shows list with getAgentsListImage.
+ * Loads from localStorage first (if any), then refreshes from API and updates cache.
  * On select: PATCH thread with selectedAgentId, then call onSelectionSaved(updatedThread).
  */
 export default function AgentsListForThread({
@@ -19,8 +43,8 @@ export default function AgentsListForThread({
   threadId,
   onSelectionSaved,
 }) {
-  const [agentsList, setAgentsList] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [agentsList, setAgentsList] = useState(() => getCachedAgents() ?? [])
+  const [loading, setLoading] = useState(!getCachedAgents())
   const [saving, setSaving] = useState(false)
   const listWrapRef = React.useRef(null)
   const [pill, setPill] = React.useState({ top: 0, height: 0 })
@@ -47,7 +71,9 @@ export default function AgentsListForThread({
       return
     }
 
-    setLoading(true)
+    const hasCache = getCachedAgents()?.length > 0
+    if (!hasCache) setLoading(true)
+
     fetch(`${Apis.getAgents}?pagination=false`, {
       method: 'GET',
       headers: {
@@ -57,12 +83,13 @@ export default function AgentsListForThread({
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data?.data) setAgentsList(Array.isArray(data.data) ? data.data : [])
-        else setAgentsList([])
+        const list = data?.data && Array.isArray(data.data) ? data.data : []
+        setAgentsList(list)
+        setCachedAgents(list)
       })
       .catch((err) => {
         console.error('Error fetching agents for thread:', err)
-        setAgentsList([])
+        if (!hasCache) setAgentsList([])
       })
       .finally(() => setLoading(false))
   }, [threadId])

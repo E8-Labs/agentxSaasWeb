@@ -835,6 +835,15 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 {activeSubModalConfig.question && (
                   <p className="text-[14px] text-gray-600 mt-1">{activeSubModalConfig.question}</p>
                 )}
+                {subModalSelectedValue != null && (
+                  <button
+                    type="button"
+                    onClick={() => setSubModalSelectedValue(null)}
+                    className="text-sm text-gray-500 hover:text-brand-primary hover:underline mb-2"
+                  >
+                    Clear selection (save as none)
+                  </button>
+                )}
                 {activeSubModalConfig.options.map((opt) => {
                   const isOptSelected = subModalSelectedValue === opt.value
                   return (
@@ -929,7 +938,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       subModalSelectedValue
                     )
                   }
-                  disabled={savingSubModal || !subModalSelectedValue}
+                  disabled={savingSubModal}
                   className="hover:opacity-90 text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-auto"
                   style={{
                     backgroundColor: 'hsl(var(--brand-primary))',
