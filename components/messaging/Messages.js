@@ -1059,16 +1059,21 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       return
     }
 
-    // Get the last message
-    const lastMessage = messages[messages.length - 1]
+    // Ignore system messages (e.g. "Scheduled a meeting...") when deciding which message drafts belong to
+    const lastChronological = messages[messages.length - 1]
+    const lastNonSystemMessage = [...messages].reverse().find((m) => m.messageType !== 'system') ?? null
 
-    // Only show drafts if the last message is inbound (from the lead)
-    if (lastMessage && lastMessage.direction === 'inbound') {
-      setLastInboundMessageId(lastMessage.id)
-      // Fetch drafts for this specific inbound message
-      fetchDrafts(selectedThread.id, lastMessage.id)
+    // When the last message is system (e.g. after scheduling), still show drafts for the last inbound (e.g. confirmation draft)
+    const lastInboundMessage = [...messages].reverse().find((m) => m.messageType !== 'system' && m.direction === 'inbound') ?? null
+
+    if (lastNonSystemMessage?.direction === 'inbound') {
+      setLastInboundMessageId(lastNonSystemMessage.id)
+      fetchDrafts(selectedThread.id, lastNonSystemMessage.id)
+    } else if (lastChronological?.messageType === 'system' && lastInboundMessage) {
+      // Last message is system (e.g. meeting scheduled); show drafts for the most recent inbound so confirmation draft appears
+      setLastInboundMessageId(lastInboundMessage.id)
+      fetchDrafts(selectedThread.id, lastInboundMessage.id)
     } else {
-      // Last message is outbound, clear drafts
       setDrafts([])
       setLastInboundMessageId(null)
       setSelectedDraft(null)
