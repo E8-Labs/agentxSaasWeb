@@ -1208,7 +1208,7 @@ const CreateAgent1 = ({
           />
 
           {/* header */}
-          <div className="h-[12%]">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
           </div>
           {/* Video */}
@@ -1242,12 +1242,12 @@ const CreateAgent1 = ({
           </div>
           <div className="flex flex-col items-center px-4 w-full flex-1 min-h-0">
             <button
-              className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
+              className="w-11/12 md:text-4xl text-lg font-[700] mt-4"
               style={{
                 textAlign: 'center',
                 // Move title up when orb is hidden (same logic as Header component)
                 // Orb is hidden when: custom domain OR (subaccount with logo) OR (agency creating for subaccount)
-                marginTop: (isCustomDomain || (isSubaccount && hasAgencyLogo) || isAgencyCreatingForSubaccount) ? '-40px' : undefined,
+                // marginTop: (isCustomDomain || (isSubaccount && hasAgencyLogo) || isAgencyCreatingForSubaccount) ? '-40px' : undefined,
               }}
               // onClick={handleContinue}
             >

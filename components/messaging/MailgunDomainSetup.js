@@ -134,7 +134,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
 
   const handleLearnMore = () => {
     // Open Mailgun documentation in a new tab
-    // window.open('https://documentation.mailgun.com/en/latest/user_manual.html#adding-sending-domains', '_blank', 'noopener,noreferrer')
+    window.open('https://apimyagentx.com/agentx/uploads/howtos/howtos_Mailgun_Integration_Agency_AgentX_155_2026.mp4', '_blank', 'noopener,noreferrer')
   }
 
   if (!open) return null

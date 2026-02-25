@@ -631,9 +631,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
 
           {/* header */}
-          <Header />
+          <div className="absolute top-0 left-0 right-0">
+            <Header />
+          </div>
           {/* Body */}
-          <div className="flex flex-col items-center w-full relative h-[88%] overflow-y-auto" style={{ overflowX: 'visible' }}>
+          <div className="flex flex-col items-center w-full relative h-[100%] mt-6 overflow-y-auto" style={{ overflowX: 'visible' }}>
             <div className="w-full flex flex-col gap-8 items-center px-4">
               <div className="w-11/12 md:text-4xl text-xl font-[700] text-center">
                 {`Let's talk digits`}

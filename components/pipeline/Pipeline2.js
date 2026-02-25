@@ -901,19 +901,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       <div className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
         <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header with title centered vertically */}
-          <div className="relative w-full flex-shrink-0 mb-6">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
-            <div
-              className="absolute left-1/2 md:text-4xl text-lg font-[700]"
-              style={{
-                top: showOrb ? 'calc(50% + 45px)' : '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 50,
-                pointerEvents: 'none',
-              }}
-            >
-              Create a Script
-            </div>
           </div>
           {/* Body */}
           {/* Code for side video */}
@@ -962,7 +951,18 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 HowtoVideos.script
               }
             />
-            <div className="mt-8 w-7/12 gap-4 flex flex-col">
+            <div className="w-7/12 gap-4 flex flex-col mt-4">
+              <div
+                className="md:text-4xl text-lg font-[700] w-full text-center"
+                style={{
+                  // top: showOrb ? 'calc(50% + 45px)' : '50%',
+                  // transform: 'translate(-50%, -50%)',
+                  zIndex: 50,
+                  // pointerEvents: 'none',
+                }}
+              >
+                Create a Script
+              </div>
               <div className="bg-[#00000012] p-4">
                 <div
                   style={styles.inputStyle}
