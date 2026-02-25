@@ -419,9 +419,11 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper .ql-editor {
             min-height: 120px;
+            max-height: 150px;
             font-size: 14px;
-            ${editorHeight ? `height: var(--editor-height); max-height: var(--editor-height);` : 'max-height: 400px;'}
+            ${editorHeight ? `min-height: var(--editor-height); max-height: var(--editor-height);` : ''}
             overflow-y: auto;
+            overflow-x: hidden;
           }
           .quill-editor-wrapper .ql-editor p {
             font-size: 14px;
