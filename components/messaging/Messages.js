@@ -56,6 +56,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
   const THREADS_PAGE_SIZE = 50
   const [threads, setThreads] = useState([])
+  const [allThreadsCount, setAllThreadsCount] = useState(null)
   const [threadsOffset, setThreadsOffset] = useState(0)
   const [hasMoreThreads, setHasMoreThreads] = useState(true)
   const [loadingMoreThreads, setLoadingMoreThreads] = useState(false)
@@ -580,9 +581,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (requestId !== threadsRequestIdRef.current) {
           return
         }
-
+        setAllThreadsCount(response?.data?.allThreadCount || 0)
         if (response.data?.status && Array.isArray(response.data?.data)) {
-          console.log('threads response.data.data', response.data.data)
+          console.log('threads response.data.data', response)
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
             const dateB = new Date(b.lastMessageAt || b.createdAt)
@@ -3345,7 +3346,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 }
 
                 // Calculate counts
-                const allCount = threads.length
+                const allCount = allThreadsCount || threads.length
                 const unrepliedCount = threads.filter(isUnrepliedThread).length
 
                 // Filter threads based on filterType
