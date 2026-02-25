@@ -13,6 +13,7 @@ const DraftCards = ({
   onSelectDraft,
   onDiscardDraft,
   selectedDraftId = null,
+  inlineInChat = false,
 }) => {
   const [expandedDraftId, setExpandedDraftId] = useState(null)
 
@@ -67,8 +68,12 @@ const DraftCards = ({
     setExpandedDraftId(expandedDraftId === draftId ? null : draftId)
   }
 
+  const wrapperClass = inlineInChat
+    ? 'px-4 pt-3 border-t border-gray-100 bg-gray-50/50'
+    : 'px-4 pt-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto'
+
   return (
-    <div className="px-4 pt-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto">
+    <div className={wrapperClass}>
       {/* Loading state */}
       {loading && (
         <div className="flex items-center justify-center py-4">
