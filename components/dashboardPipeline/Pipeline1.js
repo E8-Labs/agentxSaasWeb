@@ -214,7 +214,14 @@ const Pipeline1 = () => {
   const [showDeletePipelinePopup, setShowDeletePiplinePopup] = useState(false)
 
   //nedd help popup
-  const [needHelp, setNeedHelp] = useState(false)
+  const [needHelp, setNeedHelp] = useState(false);
+
+  // hex to rgba with alpha
+  const hexToRgba = (hex, alpha) => {
+    const [r, g, b] = hex.replace(/^#/, '').match(/.{2}/g).map(x => parseInt(x, 16));
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+  // use: backgroundColor: hexToRgba(stage.defaultColor, 0.02)
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value
@@ -2438,24 +2445,24 @@ const Pipeline1 = () => {
                         ))}
                       </div>
                       <button
-                      className={`flex flex-row items-center px-4 py-2 w-full text-purple outline-none ${PipeLines.length > 1 && !pipelineDetailLoader ? 'mt-1' : 'mt-0'}`}
-                      style={styles.paragraph14}
-                      onClick={() => {
-                        if (
-                          user?.planCapabilities.maxPipelines >
-                          user?.currentUsage.maxPipelines
-                        ) {
-                          setCreatePipeline(true)
-                        } else {
-                          setShowUpgradeModal(true)
-                        }
-                      }}
-                    >
-                      {/*<Plus size={17} weight="bold" />{' '}*/}
-                      <span style={{ fontWeight: '500', fontSize: 14 }}>
-                        New Pipeline
-                      </span>
-                    </button>
+                        className={`flex flex-row items-center px-4 py-2 w-full text-purple outline-none ${PipeLines.length > 1 && !pipelineDetailLoader ? 'mt-1' : 'mt-0'}`}
+                        style={styles.paragraph14}
+                        onClick={() => {
+                          if (
+                            user?.planCapabilities.maxPipelines >
+                            user?.currentUsage.maxPipelines
+                          ) {
+                            setCreatePipeline(true)
+                          } else {
+                            setShowUpgradeModal(true)
+                          }
+                        }}
+                      >
+                        {/*<Plus size={17} weight="bold" />{' '}*/}
+                        <span style={{ fontWeight: '500', fontSize: 14 }}>
+                          New Pipeline
+                        </span>
+                      </button>
                     </div>
                   </Menu>
                 </div>
@@ -2611,9 +2618,9 @@ const Pipeline1 = () => {
                       <div
                         key={index}
                         style={{
-                         width: '350px',
-                         backgroundColor: stage.defaultColor //bg-[#00000005]
-                         }}
+                          width: '350px',
+                          backgroundColor: `${stage.defaultColor}05` //bg-[#00000005]
+                        }}
                         className={`flex flex-col items-start h-full min-h-full gap-3 rounded-xl p-4`}
                       >
                         {/* Display the stage */}
@@ -2638,8 +2645,8 @@ const Pipeline1 = () => {
                             </span>
                             <div
                               // className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full bg-white flex items-center justify-center text-black w-6 h-6 min-w-6 min-h-6 shrink-0 px-1"
-                              style={{ ...styles.paragraph, fontSize: 14 }}
+                              className="rounded-full flex items-center justify-center text-black w-6 h-6 min-w-6 min-h-6 shrink-0 px-1"
+                              style={{ ...styles.paragraph, fontSize: 14, backgroundColor: "#00000005",  }}
                             >
                               {/* {leadCounts[stage.id] ? (
                             <div>{leadCounts[stage.id]}</div>
@@ -3126,23 +3133,23 @@ const Pipeline1 = () => {
                                           )}
                                       </div>
                                       {SelectedPipeline?.pipelineType === 'agency_use' && lead?.lead?.agencyUseInfo?.planPrice != null && (
-                                      <div className="flex flex-row items-center justify-between w-full mt-2 h-auto min-h-[2px]">
-                                        <div className="flex flex-col gap-1">
-                                          {/* Display plan price for agency_use pipeline leads */}
-                                          <div
-                                            className="rounded-full flex flex-row items-center justify-center"
-                                            style={{
-                                              fontWeight: "400",
-                                              height: "28px",
-                                              width: "70px",
-                                              backgroundColor: "#00000005",
-                                              fontSize: "14px",
-                                            }}
-                                          >
-                                            ${lead.lead.agencyUseInfo.planPrice}
+                                        <div className="flex flex-row items-center justify-between w-full mt-2 h-auto min-h-[2px]">
+                                          <div className="flex flex-col gap-1">
+                                            {/* Display plan price for agency_use pipeline leads */}
+                                            <div
+                                              className="rounded-full flex flex-row items-center justify-center"
+                                              style={{
+                                                fontWeight: "400",
+                                                height: "28px",
+                                                width: "70px",
+                                                backgroundColor: "#00000005",
+                                                fontSize: "14px",
+                                              }}
+                                            >
+                                              ${lead.lead.agencyUseInfo.planPrice}
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
                                       )}
 
                                       {lead?.lead?.booking?.date && (
@@ -3202,40 +3209,40 @@ const Pipeline1 = () => {
                                           from={"dashboardPipeline"}
                                         />
                                         <div className="ml-auto flex-shrink-0">
-                                        {assignLoaderLeadId === lead.lead.id ? (
-                                          <CircularProgress size={20} />
-                                        ) : (
-                                          <TeamAssignDropdownCn
-                                            withoutBorder={true}
-                                            label=""
-                                            teamOptions={getTeamOptionsForLead(lead.lead)}
-                                            onToggle={(teamId, team, shouldAssign) => {
-                                              if (shouldAssign) {
-                                                if (team?.raw) {
-                                                  handleAssignLeadToTeammember(team.raw, lead.lead)
-                                                } else {
-                                                  const allTeams = [
-                                                    ...(myTeamAdmin ? [myTeamAdmin] : []),
-                                                    ...(myTeamList || []),
-                                                  ]
-                                                  const teamToAssign = allTeams.find((t) => {
-                                                    const tId =
-                                                      t.invitedUserId || t.invitedUser?.id || t.id
-                                                    return String(tId) === String(teamId)
-                                                  })
-                                                  if (teamToAssign) {
-                                                    handleAssignLeadToTeammember(
-                                                      teamToAssign,
-                                                      lead.lead
-                                                    )
+                                          {assignLoaderLeadId === lead.lead.id ? (
+                                            <CircularProgress size={20} />
+                                          ) : (
+                                            <TeamAssignDropdownCn
+                                              withoutBorder={true}
+                                              label=""
+                                              teamOptions={getTeamOptionsForLead(lead.lead)}
+                                              onToggle={(teamId, team, shouldAssign) => {
+                                                if (shouldAssign) {
+                                                  if (team?.raw) {
+                                                    handleAssignLeadToTeammember(team.raw, lead.lead)
+                                                  } else {
+                                                    const allTeams = [
+                                                      ...(myTeamAdmin ? [myTeamAdmin] : []),
+                                                      ...(myTeamList || []),
+                                                    ]
+                                                    const teamToAssign = allTeams.find((t) => {
+                                                      const tId =
+                                                        t.invitedUserId || t.invitedUser?.id || t.id
+                                                      return String(tId) === String(teamId)
+                                                    })
+                                                    if (teamToAssign) {
+                                                      handleAssignLeadToTeammember(
+                                                        teamToAssign,
+                                                        lead.lead
+                                                      )
+                                                    }
                                                   }
+                                                } else {
+                                                  handleUnassignLeadFromTeammember(teamId, lead.lead)
                                                 }
-                                              } else {
-                                                handleUnassignLeadFromTeammember(teamId, lead.lead)
-                                              }
-                                            }}
-                                          />
-                                        )}
+                                              }}
+                                            />
+                                          )}
                                         </div>
                                       </div>
 
@@ -3318,7 +3325,7 @@ const Pipeline1 = () => {
                     borderRadius: 12,
                   }}
                 >
-              <div className="flex flex-row justify-between h-auto py-3 px-4 w-full border-b" style={{ borderColor: '#eaeaea', borderWidth: '1px' }}>
+                  <div className="flex flex-row justify-between h-auto py-3 px-4 w-full border-b" style={{ borderColor: '#eaeaea', borderWidth: '1px' }}>
                     <div className="text-lg font-semibold" style={{ fontSize: 18, fontWeight: 600 }}>
                       Delete Pipeline
                     </div>
@@ -3419,70 +3426,144 @@ const Pipeline1 = () => {
                   </div>
 
                   <div className="h-auto overflow-auto pb-6" style={{ paddingBottom: 24 }}>
-                  <div className="max-h-[60vh] overflow-auto px-4 py-3 flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
-                    <div className="flex flex-col gap-2">
-                      <div
-                        style={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                          color: 'rgba(0, 0, 0, 0.8)',
-                          paddingBottom: 0,
-                        }}
-                      >
-                        Stage Title*
-                      </div>
-                      <input
-                        value={newStageTitle}
-                        onChange={(e) => {
-                          setNewStageTitle(e.target.value)
-                        }}
-                        placeholder="Enter stage title"
-                        className="outline-none bg-transparent w-full border border-black/[0.12] focus:outline-none focus:ring-0 rounded-lg h-[40px] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
-                        style={{ fontSize: 14 }}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <div
-                        style={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                          color: 'rgba(0, 0, 0, 0.8)',
-                          paddingBottom: 0,
-                        }}
-                      >
-                        color
-                      </div>
-                      <ColorPicker setStageColor={setStageColor} />
-                    </div>
-                  </div>
-
-                  <div className="text-brand-primary mt-4 h-[40px] flex items-center px-4">
-                    <button
-                      onClick={() => {
-                        setShowAdvanceSettings(!showAdvanceSettings)
-                      }}
-                      className="outline-none flex flex-row items-center gap-2 w-full h-[40px]"
-                    >
-                      <div style={{ fontWeight: '600', fontSize: 15 }}>
-                        Advanced Settings
-                      </div>
-                      {showAdvanceSettings ? (
-                        <CaretUp size={15} weight="bold" />
-                      ) : (
-                        <CaretDown size={15} weight="bold" />
-                      )}
-                    </button>
-                  </div>
-
-                  {showAdvanceSettings && (
-                    <div
-                      className="overflow-visible px-4 flex flex-col gap-3"
-                      style={{ height: 'auto', maxHeight: 'none' }}
-                    >
+                    <div className="max-h-[60vh] overflow-auto px-4 py-3 flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
                       <div className="flex flex-col gap-2">
+                        <div
+                          style={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                            color: 'rgba(0, 0, 0, 0.8)',
+                            paddingBottom: 0,
+                          }}
+                        >
+                          Stage Title*
+                        </div>
+                        <input
+                          value={newStageTitle}
+                          onChange={(e) => {
+                            setNewStageTitle(e.target.value)
+                          }}
+                          placeholder="Enter stage title"
+                          className="outline-none bg-transparent w-full border border-black/[0.12] focus:outline-none focus:ring-0 rounded-lg h-[40px] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
+                          style={{ fontSize: 14 }}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div
+                          style={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                            color: 'rgba(0, 0, 0, 0.8)',
+                            paddingBottom: 0,
+                          }}
+                        >
+                          color
+                        </div>
+                        <ColorPicker setStageColor={setStageColor} />
+                      </div>
+                    </div>
+
+                    <div className="text-brand-primary mt-4 h-[40px] flex items-center px-4">
+                      <button
+                        onClick={() => {
+                          setShowAdvanceSettings(!showAdvanceSettings)
+                        }}
+                        className="outline-none flex flex-row items-center gap-2 w-full h-[40px]"
+                      >
+                        <div style={{ fontWeight: '600', fontSize: 15 }}>
+                          Advanced Settings
+                        </div>
+                        {showAdvanceSettings ? (
+                          <CaretUp size={15} weight="bold" />
+                        ) : (
+                          <CaretDown size={15} weight="bold" />
+                        )}
+                      </button>
+                    </div>
+
+                    {showAdvanceSettings && (
+                      <div
+                        className="overflow-visible px-4 flex flex-col gap-3"
+                        style={{ height: 'auto', maxHeight: 'none' }}
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-row items-center gap-2">
+                            <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
+                              Action
+                            </p>
+                            {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                            <Image
+                              src="/svgIcons/infoIcon.svg"
+                              height={20}
+                              width={20}
+                              alt="*"
+                              style={{ filter: 'brightness(0)', opacity: 0.6 }}
+                              aria-owns={open ? 'mouse-over-popover' : undefined}
+                              aria-haspopup="true"
+                              onMouseEnter={handlePopoverOpen}
+                              onMouseLeave={handlePopoverClose}
+                            />
+                          </div>
+
+                          <Popover
+                            id="mouse-over-popover"
+                            sx={{
+                              pointerEvents: 'none',
+                            }}
+                            open={openaction}
+                            anchorEl={actionInfoEl}
+                            anchorOrigin={{
+                              vertical: 'top',
+                              horizontal: 'center',
+                            }}
+                            transformOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'left',
+                            }}
+                            PaperProps={{
+                              elevation: 0,
+                              style: styles.mediumElevation,
+                            }}
+                            onClose={handlePopoverClose}
+                            disableRestoreFocus
+                          >
+                            <div className="p-2">
+                              <div className="flex flex-row items-center gap-1">
+                                <Image
+                                  src={'/svgIcons/infoIcon.svg'}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                  style={{ filter: 'brightness(0)' }}
+                                />
+                                <p style={{ fontWeight: '500', fontSize: 12 }}>
+                                  Tip: Tell your AI when to move the leads to this
+                                  stage.
+                                </p>
+                              </div>
+                            </div>
+                          </Popover>
+                          <textarea
+                            className="min-h-[50px] px-2 outline-none focus:ring-0 w-full rounded-lg border border-black/[0.12] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
+                            placeholder="Ex: Does the human express interest getting a CMA "
+                            style={{
+                              fontWeight: '500',
+                              fontSize: 14,
+                              color: 'rgba(0, 0, 0, 0.8)',
+                              resize: 'vertical',
+                              maxHeight: '200px',
+                            }}
+                            value={action}
+                            onChange={(e) => {
+                              setAction(e.target.value)
+                            }}
+                            rows={2}
+                          />
+                        </div>
+
                         <div className="flex flex-row items-center gap-2">
                           <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
-                            Action
+                            Sample Answers
                           </p>
                           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
                           <Image
@@ -3491,127 +3572,53 @@ const Pipeline1 = () => {
                             width={20}
                             alt="*"
                             style={{ filter: 'brightness(0)', opacity: 0.6 }}
-                            aria-owns={open ? 'mouse-over-popover' : undefined}
+                            aria-owns={open ? 'mouse-over-popover2' : undefined}
                             aria-haspopup="true"
-                            onMouseEnter={handlePopoverOpen}
-                            onMouseLeave={handlePopoverClose}
+                            onMouseEnter={(event) => {
+                              setShowSampleTip(true)
+                              setAssigntoActionInfoEl(event.currentTarget)
+                            }}
+                            onMouseLeave={() => {
+                              handlePopoverClose()
+                              setShowSampleTip(false)
+                            }}
                           />
                         </div>
 
-                        <Popover
-                          id="mouse-over-popover"
-                          sx={{
-                            pointerEvents: 'none',
-                          }}
-                          open={openaction}
-                          anchorEl={actionInfoEl}
-                          anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center',
-                          }}
-                          transformOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                          }}
-                          PaperProps={{
-                            elevation: 0,
-                            style: styles.mediumElevation,
-                          }}
-                          onClose={handlePopoverClose}
-                          disableRestoreFocus
+                        <div
+                          className="max-h-[30vh] overflow-auto flex flex-col gap-3"
+                          style={{ scrollbarWidth: 'none' }}
                         >
-                          <div className="p-2">
-                            <div className="flex flex-row items-center gap-1">
-                              <Image
-                                src={'/svgIcons/infoIcon.svg'}
-                                height={24}
-                                width={24}
-                                alt="*"
-                                style={{ filter: 'brightness(0)' }}
+                          {inputs.map((input, index) => (
+                            <div
+                              key={input.id}
+                              className="w-full flex flex-row items-center gap-3"
+                            >
+                              <input
+                                className="border border-black/[0.12] rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[40px] w-[95%] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
+                                style={{
+                                  fontWeight: '500',
+                                  fontSize: 14,
+                                  color: 'rgba(0, 0, 0, 0.8)',
+                                }}
+                                placeholder={input.placeholder}
+                                // placeholder={`
+                                //     ${index === 0 ? "Sure, i would be interested in knowing what my home is worth" :
+                                //         index === 1 ? "Yeah, how much is my home worth today?" :
+                                //         `Add sample answer ${index + 1}`
+                                //     }`}
+                                value={input.value}
+                                onChange={(e) =>
+                                  handleInputChange(input.id, e.target.value)
+                                }
                               />
-                              <p style={{ fontWeight: '500', fontSize: 12 }}>
-                                Tip: Tell your AI when to move the leads to this
-                                stage.
-                              </p>
-                            </div>
-                          </div>
-                        </Popover>
-                        <textarea
-                          className="min-h-[50px] px-2 outline-none focus:ring-0 w-full rounded-lg border border-black/[0.12] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
-                          placeholder="Ex: Does the human express interest getting a CMA "
-                          style={{
-                            fontWeight: '500',
-                            fontSize: 14,
-                            color: 'rgba(0, 0, 0, 0.8)',
-                            resize: 'vertical',
-                            maxHeight: '200px',
-                          }}
-                          value={action}
-                          onChange={(e) => {
-                            setAction(e.target.value)
-                          }}
-                          rows={2}
-                        />
-                      </div>
-
-                      <div className="flex flex-row items-center gap-2">
-                        <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
-                          Sample Answers
-                        </p>
-                        {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                        <Image
-                          src="/svgIcons/infoIcon.svg"
-                          height={20}
-                          width={20}
-                          alt="*"
-                          style={{ filter: 'brightness(0)', opacity: 0.6 }}
-                          aria-owns={open ? 'mouse-over-popover2' : undefined}
-                          aria-haspopup="true"
-                          onMouseEnter={(event) => {
-                            setShowSampleTip(true)
-                            setAssigntoActionInfoEl(event.currentTarget)
-                          }}
-                          onMouseLeave={() => {
-                            handlePopoverClose()
-                            setShowSampleTip(false)
-                          }}
-                        />
-                      </div>
-
-                      <div
-                        className="max-h-[30vh] overflow-auto flex flex-col gap-3"
-                        style={{ scrollbarWidth: 'none' }}
-                      >
-                        {inputs.map((input, index) => (
-                          <div
-                            key={input.id}
-                            className="w-full flex flex-row items-center gap-3"
-                          >
-                            <input
-                              className="border border-black/[0.12] rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[40px] w-[95%] focus:shadow-[inset_0_0_0_1.5px_hsl(var(--brand-primary))]"
-                              style={{
-                                fontWeight: '500',
-                                fontSize: 14,
-                                color: 'rgba(0, 0, 0, 0.8)',
-                              }}
-                              placeholder={input.placeholder}
-                              // placeholder={`
-                              //     ${index === 0 ? "Sure, i would be interested in knowing what my home is worth" :
-                              //         index === 1 ? "Yeah, how much is my home worth today?" :
-                              //         `Add sample answer ${index + 1}`
-                              //     }`}
-                              value={input.value}
-                              onChange={(e) =>
-                                handleInputChange(input.id, e.target.value)
-                              }
-                            />
-                            {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
+                              {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
                                                         <Image src={"/assets/blackBgCross.png"} height={20} width={20} alt='*' />
                                                     </button> */}
-                          </div>
-                        ))}
-                      </div>
-                      {/* <div style={{ height: "50px" }}>
+                            </div>
+                          ))}
+                        </div>
+                        {/* <div style={{ height: "50px" }}>
                                             {
                                                 inputs.length < 3 && (
                                                     <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
@@ -3624,123 +3631,123 @@ const Pipeline1 = () => {
                                             }
                                         </div> */}
 
-                      {/*!isEditingStage && (
+                        {/*!isEditingStage && (
                       )*/}
-                      <>
-                        <div className="flex flex-col gap-2">
-                          <div className="flex flex-row items-center gap-2">
-                            <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
-                              Assign to
-                            </p>
-                            {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                            <Image
-                              src="/svgIcons/infoIcon.svg"
-                              height={20}
-                              width={20}
-                              alt="*"
-                              style={{ filter: 'brightness(0)', opacity: 0.6 }}
-                              aria-owns={open ? 'mouse-over-popover2' : undefined}
-                              aria-haspopup="true"
-                              onMouseEnter={(event) => {
-                                setAssigntoActionInfoEl(event.currentTarget)
-                              }}
-                              onMouseLeave={handlePopoverClose}
-                            />
-                          </div>
-
-                          <Popover
-                            id="mouse-over-popover2"
-                          sx={{
-                            pointerEvents: 'none',
-                          }}
-                          open={openAssigneAction}
-                          anchorEl={assigntoActionInfoEl}
-                          anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center',
-                          }}
-                          transformOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                          }}
-                          PaperProps={{
-                            elevation: 0,
-                            style: styles.mediumElevation,
-                          }}
-                          onClose={handlePopoverClose}
-                          disableRestoreFocus
-                        >
-                          <div className="p-2">
-                            <div className="flex flex-row items-center gap-1">
-                              <Image
-                                src={'/svgIcons/infoIcon.svg'}
-                                height={24}
-                                width={24}
-                                alt="*"
-                                style={{ filter: 'brightness(0)' }}
-                              />
-                              <p style={{ fontWeight: '500', fontSize: 12 }}>
-                                {showSampleTip
-                                  ? 'What are possible answers leads will give to this question?'
-                                  : 'Notify a team member when leads move here.'}
+                        <>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-row items-center gap-2">
+                              <p style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
+                                Assign to
                               </p>
+                              {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                              <Image
+                                src="/svgIcons/infoIcon.svg"
+                                height={20}
+                                width={20}
+                                alt="*"
+                                style={{ filter: 'brightness(0)', opacity: 0.6 }}
+                                aria-owns={open ? 'mouse-over-popover2' : undefined}
+                                aria-haspopup="true"
+                                onMouseEnter={(event) => {
+                                  setAssigntoActionInfoEl(event.currentTarget)
+                                }}
+                                onMouseLeave={handlePopoverClose}
+                              />
                             </div>
-                          </div>
-                          </Popover>
 
-                          <FormControl fullWidth className="mt-0 hidden">
-                            <Select
-                              id="demo-simple-select"
-                              value={assignToMember || ''} // Default to empty string when no value is selected
-                              onChange={handleAssignTeamMember}
-                              displayEmpty // Enables placeholder
-                              renderValue={(selected) => {
-                                if (!selected) {
-                                  return (
-                                    <div style={{ color: '#aaa' }}>
-                                      Select team member
-                                    </div>
-                                  ) // Placeholder style
-                                }
-                                return selected
-                              }}
+                            <Popover
+                              id="mouse-over-popover2"
                               sx={{
-                                border: '1px solid #00000020',
-                                borderRadius: '8px',
-                                minHeight: 40,
-                                height: 40,
-                                '&:hover': {
-                                  border: '1px solid #00000020',
-                                },
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                  border: 'none',
-                                },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                  border: 'none',
-                                },
-                                '&.MuiSelect-select': {
-                                  py: 0,
-                                },
+                                pointerEvents: 'none',
                               }}
-                              MenuProps={{
-                                MenuListProps: {
-                                  sx: {
-                                    paddingLeft: 8,
-                                    paddingRight: 8,
-                                  },
-                                },
-                                PaperProps: {
-                                  style: {
-                                    ...styles.mediumElevation,
-                                    maxHeight: '30vh',
-                                    overflow: 'auto',
-                                    scrollbarWidth: 'none',
-                                  },
-                                },
-                                transitionDuration: 0,
+                              open={openAssigneAction}
+                              anchorEl={assigntoActionInfoEl}
+                              anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'center',
                               }}
+                              transformOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                              }}
+                              PaperProps={{
+                                elevation: 0,
+                                style: styles.mediumElevation,
+                              }}
+                              onClose={handlePopoverClose}
+                              disableRestoreFocus
                             >
-                              {/* <MenuItem value={myTeamAdmin?.name}>
+                              <div className="p-2">
+                                <div className="flex flex-row items-center gap-1">
+                                  <Image
+                                    src={'/svgIcons/infoIcon.svg'}
+                                    height={24}
+                                    width={24}
+                                    alt="*"
+                                    style={{ filter: 'brightness(0)' }}
+                                  />
+                                  <p style={{ fontWeight: '500', fontSize: 12 }}>
+                                    {showSampleTip
+                                      ? 'What are possible answers leads will give to this question?'
+                                      : 'Notify a team member when leads move here.'}
+                                  </p>
+                                </div>
+                              </div>
+                            </Popover>
+
+                            <FormControl fullWidth className="mt-0 hidden">
+                              <Select
+                                id="demo-simple-select"
+                                value={assignToMember || ''} // Default to empty string when no value is selected
+                                onChange={handleAssignTeamMember}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <div style={{ color: '#aaa' }}>
+                                        Select team member
+                                      </div>
+                                    ) // Placeholder style
+                                  }
+                                  return selected
+                                }}
+                                sx={{
+                                  border: '1px solid #00000020',
+                                  borderRadius: '8px',
+                                  minHeight: 40,
+                                  height: 40,
+                                  '&:hover': {
+                                    border: '1px solid #00000020',
+                                  },
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none',
+                                  },
+                                  '&.MuiSelect-select': {
+                                    py: 0,
+                                  },
+                                }}
+                                MenuProps={{
+                                  MenuListProps: {
+                                    sx: {
+                                      paddingLeft: 8,
+                                      paddingRight: 8,
+                                    },
+                                  },
+                                  PaperProps: {
+                                    style: {
+                                      ...styles.mediumElevation,
+                                      maxHeight: '30vh',
+                                      overflow: 'auto',
+                                      scrollbarWidth: 'none',
+                                    },
+                                  },
+                                  transitionDuration: 0,
+                                }}
+                              >
+                                {/* <MenuItem value={myTeamAdmin?.name}>
                           <div className="w-full flex flex-row items-center gap-2">
                             <div>{myTeamAdmin.name}</div>
                             <div className="bg-purple text-white text-sm px-2 rounded-full">
@@ -3749,118 +3756,118 @@ const Pipeline1 = () => {
                           </div>
                         </MenuItem> */}
 
-                              {myTeamList.map((item, index) => {
-                                const name = item?.invitedUser?.name
-                                const isSelected = name === assignToMember
-                                return (
-                                  <MenuItem
-                                    disableRipple
-                                    className={`flex flex-row items-center gap-2 text-[14px] ${isSelected ? 'text-brand-primary' : ''}`}
-                                    sx={{ fontSize: 14 }}
-                                    key={index}
-                                    value={name}
-                                  >
-                                    {getAgentsListImage(
-                                      item?.invitedUser,
-                                      24,
-                                      24,
-                                    )}
-                                    <span className={isSelected ? 'text-brand-primary' : ''}>
-                                      {item.invitedUser?.name}
-                                    </span>
-                                    {item.id === -1 && (
-                                      <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
-                                        Admin
-                                      </div>
-                                    )}
-                                    {isSelected && (
-                                      <Check
-                                        size={16}
-                                        className="ml-auto flex-shrink-0 text-brand-primary"
-                                        style={{ color: 'hsl(var(--brand-primary))' }}
-                                      />
-                                    )}
-                                  </MenuItem>
-                                )
-                              })}
-                            </Select>
-                          </FormControl>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                          <p
-                            style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}
-                          >
-                            Tags
-                          </p>
-                          <div
-                            className="h-[40px] min-h-[40px] p-2 rounded-lg items-center gap-2"
-                            style={{ border: '0px solid #00000030' }}
-                          >
-                            <TagsInput setTags={setTagsValue} tags={tagsValue} controlHeight={40} />
+                                {myTeamList.map((item, index) => {
+                                  const name = item?.invitedUser?.name
+                                  const isSelected = name === assignToMember
+                                  return (
+                                    <MenuItem
+                                      disableRipple
+                                      className={`flex flex-row items-center gap-2 text-[14px] ${isSelected ? 'text-brand-primary' : ''}`}
+                                      sx={{ fontSize: 14 }}
+                                      key={index}
+                                      value={name}
+                                    >
+                                      {getAgentsListImage(
+                                        item?.invitedUser,
+                                        24,
+                                        24,
+                                      )}
+                                      <span className={isSelected ? 'text-brand-primary' : ''}>
+                                        {item.invitedUser?.name}
+                                      </span>
+                                      {item.id === -1 && (
+                                        <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
+                                          Admin
+                                        </div>
+                                      )}
+                                      {isSelected && (
+                                        <Check
+                                          size={16}
+                                          className="ml-auto flex-shrink-0 text-brand-primary"
+                                          style={{ color: 'hsl(var(--brand-primary))' }}
+                                        />
+                                      )}
+                                    </MenuItem>
+                                  )
+                                })}
+                              </Select>
+                            </FormControl>
                           </div>
-                        </div>
-                      </>
-                    </div>
-                  )}
+
+                          <div className="flex flex-col gap-2">
+                            <p
+                              style={{ fontWeight: 400, fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}
+                            >
+                              Tags
+                            </p>
+                            <div
+                              className="h-[40px] min-h-[40px] p-2 rounded-lg items-center gap-2"
+                              style={{ border: '0px solid #00000030' }}
+                            >
+                              <TagsInput setTags={setTagsValue} tags={tagsValue} controlHeight={40} />
+                            </div>
+                          </div>
+                        </>
+                      </div>
+                    )}
 
                   </div>
 
-                <div className="w-full h-auto py-4 px-4">
-                  {
-                    //inputs.filter(input => input.value.trim()).length === 3 &&
-                    canProceed() ? (
-                      <div className="m-0">
-                        {addStageLoader ? (
-                          <div className="flex flex-row items-center justify-center w-full m-0">
-                            <CircularProgress size={25} />
-                          </div>
-                        ) : (
-                          <button
-                            className="outline-none w-full transition-transform active:scale-[0.98]"
-                            style={{
-                              backgroundColor: 'hsl(var(--brand-primary))',
-                              color: 'white',
-                              height: 40,
-                              minHeight: 40,
-                              borderRadius: 8,
-                              width: '100%',
-                              fontWeight: 600,
-                              fontSize: 14,
-                              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.12)',
-                            }}
-                            onClick={
-                              isEditingStage
-                                ? handleUpdateCustomStage
-                                : handleAddCustomStage
-                            }
-                          >
-                            {isEditingStage ? 'Apply' : 'Add Stage'}
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <button
-                        disabled={true}
-                        className="outline-none w-full"
-                        style={{
-                          backgroundColor: '#00000020',
-                          color: 'black',
-                          height: 40,
-                          minHeight: 40,
-                          borderRadius: 8,
-                          width: '100%',
-                          fontWeight: 600,
-                          fontSize: 14,
-                        }}
-                      >
-                        Add
-                      </button>
-                    )
-                  }
+                  <div className="w-full h-auto py-4 px-4">
+                    {
+                      //inputs.filter(input => input.value.trim()).length === 3 &&
+                      canProceed() ? (
+                        <div className="m-0">
+                          {addStageLoader ? (
+                            <div className="flex flex-row items-center justify-center w-full m-0">
+                              <CircularProgress size={25} />
+                            </div>
+                          ) : (
+                            <button
+                              className="outline-none w-full transition-transform active:scale-[0.98]"
+                              style={{
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                color: 'white',
+                                height: 40,
+                                minHeight: 40,
+                                borderRadius: 8,
+                                width: '100%',
+                                fontWeight: 600,
+                                fontSize: 14,
+                                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.12)',
+                              }}
+                              onClick={
+                                isEditingStage
+                                  ? handleUpdateCustomStage
+                                  : handleAddCustomStage
+                              }
+                            >
+                              {isEditingStage ? 'Apply' : 'Add Stage'}
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          disabled={true}
+                          className="outline-none w-full"
+                          style={{
+                            backgroundColor: '#00000020',
+                            color: 'black',
+                            height: 40,
+                            minHeight: 40,
+                            borderRadius: 8,
+                            width: '100%',
+                            fontWeight: 600,
+                            fontSize: 14,
+                          }}
+                        >
+                          Add
+                        </button>
+                      )
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
             </Box>
           </Modal>
           {/* Modal to Rename the Stage */}
@@ -4019,190 +4026,190 @@ const Pipeline1 = () => {
                   </div>
 
                   <div className="max-h-[60vh] overflow-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
-                {(() => {
-                  // Check actual lead count instead of relying on cached hasLeads
-                  // This handles the case where a lead was deleted but hasLeads wasn't updated
-                  const actualLeadCount = LeadsList?.filter(
-                    (lead) => lead.lead?.stage === selectedStage?.id
-                  ).length
-                  // Prioritize actual count - if we have LeadsList data, use actual count only
-                  // Only fall back to cached hasLeads if LeadsList is empty (not loaded yet)
-                  const stageHasLeads = LeadsList.length > 0
-                    ? actualLeadCount > 0
-                    : (selectedStage?.hasLeads || false)
-                  return stageHasLeads
-                })() ? (
-                  <div>
-                    <div
-                      className="max-h-[60vh] overflow-auto"
-                      style={{ scrollbarWidth: 'none' }}
-                    >
-                      <div
-                        className="mt-6"
-                        style={{
-                          fontWeight: '500',
-                          fontSize: 15,
-                        }}
-                      >
-                        This stage has leads associated with it. Move this lead
-                        to another stage before deleting.
-                      </div>
-
-                      <div
-                        className="mt-6"
-                        style={{
-                          fontWeight: '700',
-                          fontSize: 15,
-                        }}
-                      >
-                        Move to
-                      </div>
-
-                      <FormControl fullWidth>
-                        <Select
-                          id="demo-simple-select"
-                          value={assignNextStage || ''} // Default to empty string when no value is selected
-                          onChange={handleChangeNextStage}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return (
-                                <div style={{ color: '#aaa' }}>
-                                  Select Stage
-                                </div>
-                              ) // Placeholder style
-                            }
-                            return selected
-                          }}
-                          sx={{
-                            border: '1px solid #00000020', // Default border
-                            '&:hover': {
-                              border: '1px solid #00000020', // Same border on hover
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove the default outline
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove outline on focus
-                            },
-                            '&.MuiSelect-select': {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: '30vh', // Limit dropdown height
-                                overflow: 'auto', // Enable scrolling in dropdown
-                                scrollbarWidth: 'none',
-                              },
-                            },
-                          }}
+                    {(() => {
+                      // Check actual lead count instead of relying on cached hasLeads
+                      // This handles the case where a lead was deleted but hasLeads wasn't updated
+                      const actualLeadCount = LeadsList?.filter(
+                        (lead) => lead.lead?.stage === selectedStage?.id
+                      ).length
+                      // Prioritize actual count - if we have LeadsList data, use actual count only
+                      // Only fall back to cached hasLeads if LeadsList is empty (not loaded yet)
+                      const stageHasLeads = LeadsList.length > 0
+                        ? actualLeadCount > 0
+                        : (selectedStage?.hasLeads || false)
+                      return stageHasLeads
+                    })() ? (
+                      <div>
+                        <div
+                          className="max-h-[60vh] overflow-auto"
+                          style={{ scrollbarWidth: 'none' }}
                         >
-                          {StagesList?.map((stage, index) => {
-                            return (
-                              <MenuItem
-                                key={index}
-                                value={stage.stageTitle}
-                                disabled={stage.id === selectedStage?.id}
-                              >
-                                {stage.stageTitle}
-                              </MenuItem>
-                            )
-                          })}
-                        </Select>
-                      </FormControl>
-                    </div>
+                          <div
+                            className="mt-6"
+                            style={{
+                              fontWeight: '500',
+                              fontSize: 15,
+                            }}
+                          >
+                            This stage has leads associated with it. Move this lead
+                            to another stage before deleting.
+                          </div>
 
-                    {delStageLoader2 ? (
-                      <div className="flex flex-row iems-center justify-center w-full mt-10">
-                        <CircularProgress size={25} />
+                          <div
+                            className="mt-6"
+                            style={{
+                              fontWeight: '700',
+                              fontSize: 15,
+                            }}
+                          >
+                            Move to
+                          </div>
+
+                          <FormControl fullWidth>
+                            <Select
+                              id="demo-simple-select"
+                              value={assignNextStage || ''} // Default to empty string when no value is selected
+                              onChange={handleChangeNextStage}
+                              displayEmpty // Enables placeholder
+                              renderValue={(selected) => {
+                                if (!selected) {
+                                  return (
+                                    <div style={{ color: '#aaa' }}>
+                                      Select Stage
+                                    </div>
+                                  ) // Placeholder style
+                                }
+                                return selected
+                              }}
+                              sx={{
+                                border: '1px solid #00000020', // Default border
+                                '&:hover': {
+                                  border: '1px solid #00000020', // Same border on hover
+                                },
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none', // Remove the default outline
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none', // Remove outline on focus
+                                },
+                                '&.MuiSelect-select': {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: '30vh', // Limit dropdown height
+                                    overflow: 'auto', // Enable scrolling in dropdown
+                                    scrollbarWidth: 'none',
+                                  },
+                                },
+                              }}
+                            >
+                              {StagesList?.map((stage, index) => {
+                                return (
+                                  <MenuItem
+                                    key={index}
+                                    value={stage.stageTitle}
+                                    disabled={stage.id === selectedStage?.id}
+                                  >
+                                    {stage.stageTitle}
+                                  </MenuItem>
+                                )
+                              })}
+                            </Select>
+                          </FormControl>
+                        </div>
+
+                        {delStageLoader2 ? (
+                          <div className="flex flex-row iems-center justify-center w-full mt-10">
+                            <CircularProgress size={25} />
+                          </div>
+                        ) : (
+                          <button
+                            // className="mt-10 outline-none bg-purple"
+                            className="mt-10 bg-brand-primary text-white hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+                            disabled={!assignNextStage}
+                            style={{
+                              // color: 'white',
+                              height: '50px',
+                              borderRadius: '10px',
+                              width: '100%',
+                              // backgroundColor: !assignNextStage && '#00000020',
+                              // color: !assignNextStage ? '#000000' : '#fff',
+                              fontWeight: 600,
+                              fontSize: '20',
+                            }}
+                            onClick={(e) => {
+                              handleDeleteStage('del2')
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+
+                        {delStageLoader ? (
+                          <div className="flex flex-row iems-center justify-center w-full mt-4">
+                            <CircularProgress size={25} />
+                          </div>
+                        ) : (
+                          <div className="flex flex-row iems-center justify-center w-full">
+                            <button
+                              className="mt-2 outline-none"
+                              style={{
+                                color: '#00000080',
+                                fontWeight: '500',
+                                fontSize: 15,
+                                borderBottom: '1px solid #00000080',
+                              }}
+                              onClick={(e) => {
+                                handleDeleteStage('del')
+                              }}
+                            >
+                              Delete and remove leads from pipeline
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <button
-                        // className="mt-10 outline-none bg-purple"
-                        className="mt-10 bg-brand-primary text-white hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-                        disabled={!assignNextStage}
-                        style={{
-                          // color: 'white',
-                          height: '50px',
-                          borderRadius: '10px',
-                          width: '100%',
-                          // backgroundColor: !assignNextStage && '#00000020',
-                          // color: !assignNextStage ? '#000000' : '#fff',
-                          fontWeight: 600,
-                          fontSize: '20',
-                        }}
-                        onClick={(e) => {
-                          handleDeleteStage('del2')
-                        }}
-                      >
-                        Delete
-                      </button>
-                    )}
-
-                    {delStageLoader ? (
-                      <div className="flex flex-row iems-center justify-center w-full mt-4">
-                        <CircularProgress size={25} />
-                      </div>
-                    ) : (
-                      <div className="flex flex-row iems-center justify-center w-full">
-                        <button
-                          className="mt-2 outline-none"
+                      <div>
+                        <div
+                          className="mt-6"
                           style={{
-                            color: '#00000080',
                             fontWeight: '500',
                             fontSize: 15,
-                            borderBottom: '1px solid #00000080',
-                          }}
-                          onClick={(e) => {
-                            handleDeleteStage('del')
                           }}
                         >
-                          Delete and remove leads from pipeline
-                        </button>
+                          Confirm you want to delete this stage.This action is
+                          irreversible.
+                        </div>
+                        <div className="flex flex-row items-center w-full mt-8">
+                          <div
+                            className="w-1/2 text-center"
+                            onClick={() => {
+                              setShowDelStageModal(false)
+                              handleCloseStagePopover()
+                            }}
+                          >
+                            Cancel
+                          </div>
+                          {delStageLoader ? (
+                            <div className="flex flex-row iems-center justify-center w-1/2">
+                              <CircularProgress size={25} />
+                            </div>
+                          ) : (
+                            <button
+                              className="bg-red text-white w-1/2 h-[44px] rounded-[10px]"
+                              onClick={(e) => {
+                                handleDeleteStage('del')
+                              }}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
-                  </div>
-                ) : (
-                  <div>
-                    <div
-                      className="mt-6"
-                      style={{
-                        fontWeight: '500',
-                        fontSize: 15,
-                      }}
-                    >
-                      Confirm you want to delete this stage.This action is
-                      irreversible.
-                    </div>
-                    <div className="flex flex-row items-center w-full mt-8">
-                      <div
-                        className="w-1/2 text-center"
-                        onClick={() => {
-                          setShowDelStageModal(false)
-                          handleCloseStagePopover()
-                        }}
-                      >
-                        Cancel
-                      </div>
-                      {delStageLoader ? (
-                        <div className="flex flex-row iems-center justify-center w-1/2">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <button
-                          className="bg-red text-white w-1/2 h-[44px] rounded-[10px]"
-                          onClick={(e) => {
-                            handleDeleteStage('del')
-                          }}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
                   </div>
                 </div>
               </div>
@@ -4390,7 +4397,7 @@ const Pipeline1 = () => {
                                     </button>
                                 </div> */}
 
-                    </div>
+                  </div>
                   <div className="py-4 px-4 w-full">
                     {addPipelineLoader ? (
                       <div className="w-full flex flex-row justify-center">
