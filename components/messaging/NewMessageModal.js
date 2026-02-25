@@ -27,6 +27,7 @@ import SplitButtonCN from '@/components/ui/SplitButtonCN'
 import { TypographyCaption } from '@/lib/typography'
 import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
 
 /** Sliding pill background for MUI Select Menu: follows hovered menu item, 2% black, 8px radius. */
@@ -162,7 +163,10 @@ const NewMessageModal = ({
   isLeadMode = false,
   isBookingStage = false,
   isFromAdminOrAgency = null,
+  elevatedZIndex = false, // When true, modal and overlays use z-index above TeamMemberActivityDrawer (5000)
 }) => {
+  const modalZIndex = elevatedZIndex ? 15020 : 1500
+  console.log("modalZIndex in newmessage modal is", modalZIndex);
   const [selectedMode, setSelectedMode] = useState(mode)
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [searchQuery, setSearchQuery] = useState('')
@@ -1798,12 +1802,17 @@ const NewMessageModal = ({
         onClose={onClose}
         aria-labelledby="new-message-modal"
         aria-describedby="new-message-description"
+        slotProps={{
+          root: {
+            style: { zIndex: modalZIndex },
+          },
+        }}
         sx={{
-          zIndex: 1500, // Higher than LeadDetails Drawer (1400) to appear on top
+          zIndex: modalZIndex,
         }}
         BackdropProps={{
           sx: {
-            zIndex: 1500, // Match Modal z-index
+            zIndex: modalZIndex,
           },
         }}
       >
@@ -1817,13 +1826,12 @@ const NewMessageModal = ({
             bgcolor: 'background.paper',
             borderRadius: '16px',
             boxShadow: 24,
-            zIndex: 1501, // Higher than backdrop (1500) to appear on top
+            zIndex: modalZIndex + 1,
             p: 0,
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            zIndex: 1501,
           }}
         >
           {/* Header */}
@@ -1920,10 +1928,10 @@ const NewMessageModal = ({
                                 transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                 slotProps={{
                                   root: {
-                                    style: { zIndex: 9999 },
+                                    style: { zIndex: modalZIndex + 100 },
                                   },
                                 }}
-                                sx={{ zIndex: 9999 }}
+                                sx={{ zIndex: modalZIndex + 100 }}
                                 disableScrollLock
                                 PaperProps={{
                                   style: {
@@ -1935,7 +1943,7 @@ const NewMessageModal = ({
                                     overflow: 'hidden',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    zIndex: 9999,
+                                    zIndex: modalZIndex + 100,
                                   },
                                 }}
                               >
@@ -2064,10 +2072,10 @@ const NewMessageModal = ({
                                     transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                     slotProps={{
                                       root: {
-                                        style: { zIndex: 9999 },
+                                        style: { zIndex: modalZIndex + 100 },
                                       },
                                     }}
-                                    sx={{ zIndex: 9999 }}
+                                    sx={{ zIndex: modalZIndex + 100 }}
                                     disableScrollLock
                                     PaperProps={{
                                       style: {
@@ -2079,12 +2087,14 @@ const NewMessageModal = ({
                                         overflow: 'hidden',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        zIndex: 9999,
+                                        zIndex: modalZIndex + 100,
                                       },
                                     }}
                                   >
                                     <div className="overflow-y-auto flex-1 min-h-0" style={{ maxHeight: 240 }}>
-                                      {emailAccounts.map((account) => (
+                                      {emailAccounts.map((account) => {
+                                        const gmailError = getGmailWatchErrorInfo(account)
+                                        return (
                                         <div key={account.id} className="group relative w-full">
                                           <button
                                             type="button"
@@ -2120,8 +2130,25 @@ const NewMessageModal = ({
                                               </div>
                                             </div>
                                           </button>
+                                          {gmailError && (
+                                            <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
+                                              <span>{gmailError.shortLabel} —</span>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  setShowAuthSelectionPopup(true)
+                                                  setEmailDropdownOpen(false)
+                                                }}
+                                                className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
+                                              >
+                                                Reconnect
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
-                                      ))}
+                                        )
+                                      })}
                                     </div>
                                     <div className="border-t border-gray-200 p-2 flex-shrink-0">
                                       <button
@@ -3167,6 +3194,7 @@ const NewMessageModal = ({
             })
           }
         }}
+        elevatedZIndex={elevatedZIndex}
       // selectedUser={getSelectedUser()}
       />
 

@@ -16,6 +16,7 @@ import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
@@ -1860,7 +1861,9 @@ const MessageComposer = ({
                             {emailDropdownOpen && (
                               <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 animate-in slide-in-from-bottom-2 duration-200 ease-out">
                                 <div className="max-h-44 overflow-y-auto">
-                                  {emailAccounts.map((account) => (
+                                  {emailAccounts.map((account) => {
+                                    const gmailError = getGmailWatchErrorInfo(account)
+                                    return (
                                     <div
                                       key={account.id}
                                       className="group relative w-full"
@@ -1899,8 +1902,25 @@ const MessageComposer = ({
                                           </div>
                                         </div>
                                       </button>
+                                      {gmailError && (
+                                        <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
+                                          <span>{gmailError.shortLabel}</span>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              if (onOpenAuthPopup) onOpenAuthPopup()
+                                              setEmailDropdownOpen(false)
+                                            }}
+                                            className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
+                                          >
+                                            Reconnect
+                                          </button>
+                                        </div>
+                                      )}
                                     </div>
-                                  ))}
+                                    )
+                                  })}
                                 </div>
                                 <div className="border-t border-gray-200 p-2">
                                   <button
@@ -2151,7 +2171,7 @@ const MessageComposer = ({
                                   <div className="absolute bottom-full left-0 mb-2 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px] z-50">
                                     <div
                                       ref={bodyVarListRef}
-                                      className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                      className="relative flex flex-col py-0"
                                       onMouseLeave={() => setBodyVarHoveredKey(null)}
                                     >
                                       {bodyVarPillStyle.height > 0 && (
@@ -2353,7 +2373,7 @@ const MessageComposer = ({
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {variablesDropdownOpen && (
-                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] z-50">
+                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[200px] z-50">
                                     {uniqueColumns.map((variable, index) => {
                                       const displayText = variable.startsWith('{') && variable.endsWith('}')
                                         ? variable

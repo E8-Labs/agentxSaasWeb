@@ -7,6 +7,7 @@ import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
 
 import PlatformIcon from './PlatformIcon'
+import DraftCards from './DraftCards'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { AuthToken } from '../agency/plan/AuthDetails'
@@ -51,6 +52,11 @@ const ConversationView = ({
   onShowRequestFeature,
   onLinkToLeadFromMessage,
   linkingLeadId = null,
+  drafts = [],
+  draftsLoading = false,
+  onSelectDraft,
+  onDiscardDraft,
+  selectedDraftId = null,
 }) => {
 
   //lead details
@@ -239,7 +245,7 @@ const ConversationView = ({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-[#f9f9f9] text-[14px]"
+      className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-white text-[14px]"
       style={{ scrollBehavior: 'auto', paddingRight: '1.5rem' }}
     >
       {/* Loader for older messages at top */}
@@ -441,13 +447,13 @@ const ConversationView = ({
                             const notDismissed = !selectedThread.metadata?.suggestedLeadLinksDismissed
                             return notYetLinked && notDismissed
                           })() && (
-                            <SuggestedLeadLinks
-                              suggestedLeads={message.metadata.suggestedLeads}
-                              threadId={selectedThread.id}
-                              onLink={onLinkToLeadFromMessage}
-                              linkingLeadId={linkingLeadId}
-                            />
-                          )}
+                              <SuggestedLeadLinks
+                                suggestedLeads={message.metadata.suggestedLeads}
+                                threadId={selectedThread.id}
+                                onLink={onLinkToLeadFromMessage}
+                                linkingLeadId={linkingLeadId}
+                              />
+                            )}
                         </div>
 
                         {isOutbound && (
@@ -484,6 +490,19 @@ const ConversationView = ({
               );
             });
           })()}
+          {/* Drafts at end of chat (scroll with messages) */}
+          {(drafts?.length > 0 || draftsLoading) && (
+            <div className="mt-4">
+              <DraftCards
+                drafts={drafts}
+                loading={draftsLoading}
+                onSelectDraft={onSelectDraft}
+                onDiscardDraft={onDiscardDraft}
+                selectedDraftId={selectedDraftId}
+                inlineInChat
+              />
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </>
       )}

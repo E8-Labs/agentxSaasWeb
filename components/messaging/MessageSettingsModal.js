@@ -930,7 +930,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                     aria-label="Close"
                     className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
                   >
-                    <X className="h-[14px] w-[14px] opacity-80" strokeWidth={2} />
+                    
                   </button>
                 </DialogClose>
               </div>
@@ -970,6 +970,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         <span className="text-sm text-gray-700 -ms-1">Gemini</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
+                        <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
                         <input
                           type="radio"
                           name="aiProvider"
@@ -1028,36 +1029,36 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       }}
                       className={cn('h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary')}
                     />
-                      {apiKeyError && (
-                        <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
-                      )}
-                    </div>
+                    {apiKeyError && (
+                      <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                    )}
+                  </div>
 
                   {/* Set Reply Delay + Save as Draft Section */}
                   <div className="flex flex-col gap-0.5 pb-4 border-b border-[#eaeaea]">
                     <div className="flex items-center justify-between h-10 min-h-0">
                       <div className="flex items-center gap-2">
                         <label className="text-sm font-normal text-gray-900">Set reply delay</label>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                  <Info size={16} />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                align="start"
-                                sideOffset={8}
-                                className="max-w-xs bg-black text-white z-[1500]"
-                                collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
-                              >
-                                <p className="text-xs">
-                                  This allows your AI to reply back to emails and text after a certain time. By default, this is set to 30 seconds.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <Info size={16} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              align="start"
+                              sideOffset={8}
+                              className="max-w-xs bg-black text-white z-[1500]"
+                              collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                            >
+                              <p className="text-xs">
+                                This allows your AI to reply back to emails and text after a certain time. By default, this is set to 30 seconds.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                       <Switch
                         checked={settings.replyDelayEnabled}
@@ -1066,21 +1067,21 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       />
                     </div>
                     {settings.replyDelayEnabled && (
-                        <div className="relative">
-                          <Input
-                            type="number"
-                            placeholder="Set delay time (in seconds)"
-                            value={settings.replyDelaySeconds || ''}
-                            onChange={(e) => handleDelaySecondsChange(e.target.value)}
-                            min={0}
-                            className={cn('h-10 pr-10')}
-                          />
-                          <span
-                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
-                            aria-hidden
-                          >
-                            sec
-                          </span>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          placeholder="Set delay time (in seconds)"
+                          value={settings.replyDelaySeconds || ''}
+                          onChange={(e) => handleDelaySecondsChange(e.target.value)}
+                          min={0}
+                          className={cn('h-10 pr-10')}
+                        />
+                        <span
+                          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+                          aria-hidden
+                        >
+                          sec
+                        </span>
                       </div>
                     )}
                     <div className="flex items-center justify-between h-10 min-h-0">
@@ -1107,11 +1108,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                        <Switch
-                          checked={settings.saveAsDraftEnabled}
-                          onCheckedChange={handleSaveAsDraftToggle}
-                          className="data-[state=checked]:bg-brand-primary"
-                        />
+                      <Switch
+                        checked={settings.saveAsDraftEnabled}
+                        onCheckedChange={handleSaveAsDraftToggle}
+                        className="data-[state=checked]:bg-brand-primary"
+                      />
                     </div>
                   </div>
 

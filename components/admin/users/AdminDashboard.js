@@ -24,7 +24,7 @@ import { Constants, PersistanceKeys } from '@/constants/Constants'
 import { secondsToMinsConverter } from '@/utilities/utility'
 import StandardHeader from '@/components/common/StandardHeader'
 
-const AdminDashboard = ({ selectedUser, agencyUser }) => {
+const AdminDashboard = ({ selectedUser, agencyUser, enablePermissionChecks = false }) => {
   const router = useRouter()
 
   //variable stores screenWidth
@@ -328,7 +328,7 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
           >
             <StandardHeader title="" showTasks={true} showSeparator={false} variant="light" selectedUser={selectedUser} />
           </div>
-          <div className="flex flex-col mt-12 items-center w-full h-[90%]">
+          <div className="flex flex-col items-center w-full h-[90%] overflow-y-auto">
             {
               agencyUser && (
                 <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
@@ -561,7 +561,7 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
                         </div>
                       </div>
                     </div>
-                    <div className="w-full py-8 overflow-none">
+                    <div className={`w-full py-8 overflow-y-auto ${!enablePermissionChecks ? 'max-h-[50svh]' : ''}`}>
                       {/* Metrics Section */}
                       <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                         {/* Card: Conversations > 10 Sec */}

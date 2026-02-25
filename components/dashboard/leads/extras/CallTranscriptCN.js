@@ -17,8 +17,8 @@ import {
   TypographyBodySemibold,
   TypographyBodyMedium,
 } from '@/lib/typography'
+import { getSentimentEmoji } from '@/utils/sentimentToEmoji'
 import {
-  getSentimentIcon,
   getTemperatureIconForActivity,
   formatNextStepsForTooltip,
 } from './activityUtils'
@@ -33,7 +33,9 @@ const CallTranscriptCN = ({
   leadName = null,
   selectedUser = null,
   bottomRightContent = null,
+  tooltipZIndex,
 }) => {
+  const popperZIndexProps = tooltipZIndex != null ? { PopperProps: { style: { zIndex: tooltipZIndex } } } : {}
   const callSummary = item.callSummary
   const summaryText = callSummary?.callSummary || null
   const hasSummary = summaryText && summaryText.trim()
@@ -88,7 +90,7 @@ const CallTranscriptCN = ({
 
         {/* Top right icons: Sentiment, Temperature, Next Steps */}
         <div className="flex flex-row items-center gap-3 text-black [&_svg]:text-black [&_svg]:text-current" style={{ color: '#000' }}>
-          {callSummary?.prospectSentiment && (
+          {callSummary?.prospectSentiment && getSentimentEmoji(callSummary.prospectSentiment) && (
             <Tooltip
               title={`Sentiment: ${callSummary.prospectSentiment}`}
               arrow
@@ -113,8 +115,12 @@ const CallTranscriptCN = ({
             >
               <div
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                role="img"
+                aria-label={`Sentiment: ${callSummary.prospectSentiment}`}
               >
-                {getSentimentIcon(callSummary.prospectSentiment)}
+                <span className="text-lg leading-none">
+                  {getSentimentEmoji(callSummary.prospectSentiment)}
+                </span>
               </div>
             </Tooltip>
           )}
@@ -226,6 +232,7 @@ const CallTranscriptCN = ({
           <Tooltip
             title="Copy Call ID"
             arrow
+            {...popperZIndexProps}
             componentsProps={{
               tooltip: {
                 sx: {
@@ -272,6 +279,7 @@ const CallTranscriptCN = ({
             <Tooltip
               title="Read Transcript"
               arrow
+              {...popperZIndexProps}
               componentsProps={{
                 tooltip: {
                   sx: {

@@ -31,7 +31,6 @@ import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import MessageSettingsModal from './MessageSettingsModal'
-import DraftCards from './DraftCards'
 import AiChatModal from './AiChatModal'
 
 /** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
@@ -56,6 +55,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
   const THREADS_PAGE_SIZE = 50
   const [threads, setThreads] = useState([])
+  const [allThreadsCount, setAllThreadsCount] = useState(null)
   const [threadsOffset, setThreadsOffset] = useState(0)
   const [hasMoreThreads, setHasMoreThreads] = useState(true)
   const [loadingMoreThreads, setLoadingMoreThreads] = useState(false)
@@ -580,9 +580,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (requestId !== threadsRequestIdRef.current) {
           return
         }
-
+        setAllThreadsCount(response?.data?.allThreadCount || 0)
         if (response.data?.status && Array.isArray(response.data?.data)) {
-          console.log('threads response.data.data', response.data.data)
+          console.log('threads response.data.data', response)
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
             const dateB = new Date(b.lastMessageAt || b.createdAt)
@@ -1032,6 +1032,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     setDrafts(sorted)
     setCallSummaryDraftsMessageId(parentMessageId || null)
     setSelectedDraft(null)
+    // After response is generated, scroll conversation to bottom so user sees the draft cards
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      }
+    }, 150)
   }, [selectedUser])
 
   // Update latest message ID ref when messages change
@@ -1060,16 +1066,21 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       return
     }
 
-    // Get the last message
-    const lastMessage = messages[messages.length - 1]
+    // Ignore system messages (e.g. "Scheduled a meeting...") when deciding which message drafts belong to
+    const lastChronological = messages[messages.length - 1]
+    const lastNonSystemMessage = [...messages].reverse().find((m) => m.messageType !== 'system') ?? null
 
-    // Only show drafts if the last message is inbound (from the lead)
-    if (lastMessage && lastMessage.direction === 'inbound') {
-      setLastInboundMessageId(lastMessage.id)
-      // Fetch drafts for this specific inbound message
-      fetchDrafts(selectedThread.id, lastMessage.id)
+    // When the last message is system (e.g. after scheduling), still show drafts for the last inbound (e.g. confirmation draft)
+    const lastInboundMessage = [...messages].reverse().find((m) => m.messageType !== 'system' && m.direction === 'inbound') ?? null
+
+    if (lastNonSystemMessage?.direction === 'inbound') {
+      setLastInboundMessageId(lastNonSystemMessage.id)
+      fetchDrafts(selectedThread.id, lastNonSystemMessage.id)
+    } else if (lastChronological?.messageType === 'system' && lastInboundMessage) {
+      // Last message is system (e.g. meeting scheduled); show drafts for the most recent inbound so confirmation draft appears
+      setLastInboundMessageId(lastInboundMessage.id)
+      fetchDrafts(selectedThread.id, lastInboundMessage.id)
     } else {
-      // Last message is outbound, clear drafts
       setDrafts([])
       setLastInboundMessageId(null)
       setSelectedDraft(null)
@@ -1521,13 +1532,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Get display name for thread (full name, not just initial)
   const getThreadDisplayName = (thread) => {
-    
+
     // Try lead name first
     if (thread.lead?.firstName) {
       const lastName = thread.lead?.lastName ? ` ${thread.lead.lastName}` : ''
       return `${thread.lead.firstName}${lastName}`
     }
-    
+
     // Fallback to email or phone if lead is null
     if (thread.receiverEmail) {
       return thread.receiverEmail
@@ -3345,7 +3356,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 }
 
                 // Calculate counts
-                const allCount = threads.length
+                const allCount = allThreadsCount || threads.length
                 const unrepliedCount = threads.filter(isUnrepliedThread).length
 
                 // Filter threads based on filterType
@@ -3442,117 +3453,113 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     <div className="flex-1 min-h-0 flex flex-col">
                       <div className="flex-1 min-h-0 min-w-0 flex flex-col">
                         <ConversationView
-                        selectedThread={selectedThread}
-                        messages={messages}
-                        messagesLoading={messagesLoading}
-                        loadingOlderMessages={loadingOlderMessages}
-                        messagesContainerRef={messagesContainerRef}
-                        messagesEndRef={messagesEndRef}
-                        messagesTopRef={messagesTopRef}
-                        sanitizeHTML={sanitizeHTML}
-                        sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
-                        getLeadName={getLeadName}
-                        getAgentAvatar={getAgentAvatar}
-                        getImageUrl={getImageUrl}
-                        setImageAttachments={setImageAttachments}
-                        setCurrentImageIndex={setCurrentImageIndex}
-                        setImageModalOpen={setImageModalOpen}
-                        setSnackbar={setSnackbar}
-                        SnackbarTypes={SnackbarTypes}
-                        openEmailDetailId={openEmailDetailId}
-                        setOpenEmailDetailId={setOpenEmailDetailId}
-                        getEmailDetails={getEmailDetails}
-                        setShowEmailTimeline={setShowEmailTimeline}
-                        setEmailTimelineLeadId={setEmailTimelineLeadId}
-                        setEmailTimelineSubject={setEmailTimelineSubject}
-                        onReplyClick={handleReplyClick}
-                        onOpenEmailTimeline={handleOpenEmailTimeline}
-                        updateComposerFromMessage={updateComposerFromMessage}
-                        onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
-                        onOpenAiChat={setAiChatContext}
-                        onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
-                        hasAiKey={messageSettingsHasAiKey}
-                        allowAIEmailAndText={allowAIEmailAndText}
-                        shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
-                        shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
-                        onShowUpgrade={() => setShowUpgradePlanModal(true)}
-                        onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
-                        onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
-                        linkingLeadId={linkingLeadId}
-                      />
+                          selectedThread={selectedThread}
+                          messages={messages}
+                          messagesLoading={messagesLoading}
+                          loadingOlderMessages={loadingOlderMessages}
+                          messagesContainerRef={messagesContainerRef}
+                          messagesEndRef={messagesEndRef}
+                          messagesTopRef={messagesTopRef}
+                          sanitizeHTML={sanitizeHTML}
+                          sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
+                          getLeadName={getLeadName}
+                          getAgentAvatar={getAgentAvatar}
+                          getImageUrl={getImageUrl}
+                          setImageAttachments={setImageAttachments}
+                          setCurrentImageIndex={setCurrentImageIndex}
+                          setImageModalOpen={setImageModalOpen}
+                          setSnackbar={setSnackbar}
+                          SnackbarTypes={SnackbarTypes}
+                          openEmailDetailId={openEmailDetailId}
+                          setOpenEmailDetailId={setOpenEmailDetailId}
+                          getEmailDetails={getEmailDetails}
+                          setShowEmailTimeline={setShowEmailTimeline}
+                          setEmailTimelineLeadId={setEmailTimelineLeadId}
+                          setEmailTimelineSubject={setEmailTimelineSubject}
+                          onReplyClick={handleReplyClick}
+                          onOpenEmailTimeline={handleOpenEmailTimeline}
+                          updateComposerFromMessage={updateComposerFromMessage}
+                          onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
+                          onOpenAiChat={setAiChatContext}
+                          onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
+                          hasAiKey={messageSettingsHasAiKey}
+                          allowAIEmailAndText={allowAIEmailAndText}
+                          shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
+                          shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                          onShowUpgrade={() => setShowUpgradePlanModal(true)}
+                          onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
+                          onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
+                          linkingLeadId={linkingLeadId}
+                          drafts={drafts}
+                          draftsLoading={draftsLoading}
+                          onSelectDraft={handleSelectDraft}
+                          onDiscardDraft={handleDiscardDraft}
+                          selectedDraftId={selectedDraft?.id}
+                        />
                       </div>
-
-                      {/* AI-Generated Draft Responses */}
-                      <DraftCards
-                        drafts={drafts}
-                        loading={draftsLoading}
-                        onSelectDraft={handleSelectDraft}
-                        onDiscardDraft={handleDiscardDraft}
-                        selectedDraftId={selectedDraft?.id}
-                      />
                     </div>
 
                     {/* Composer - fixed at bottom with max height so long emails scroll inside */}
                     <div className="flex-shrink-0 max-h-[50vh] overflow-hidden">
                       <MessageComposer
-                      from={from}
-                      composerMode={composerMode}
-                      setComposerMode={setComposerMode}
-                      selectedThread={selectedThread}
-                      composerData={composerData}
-                      setComposerData={setComposerData}
-                      fetchPhoneNumbers={fetchPhoneNumbers}
-                      fetchEmailAccounts={fetchEmailAccounts}
-                      showCC={showCC}
-                      setShowCC={setShowCC}
-                      showBCC={showBCC}
-                      setShowBCC={setShowBCC}
-                      ccEmails={ccEmails}
-                      ccInput={ccInput}
-                      handleCcInputChange={handleCcInputChange}
-                      handleCcInputKeyDown={handleCcInputKeyDown}
-                      handleCcInputPaste={handleCcInputPaste}
-                      handleCcInputBlur={handleCcInputBlur}
-                      removeCcEmail={removeCcEmail}
-                      bccEmails={bccEmails}
-                      bccInput={bccInput}
-                      handleBccInputChange={handleBccInputChange}
-                      handleBccInputKeyDown={handleBccInputKeyDown}
-                      handleBccInputPaste={handleBccInputPaste}
-                      handleBccInputBlur={handleBccInputBlur}
-                      removeBccEmail={removeBccEmail}
-                      phoneNumbers={phoneNumbers}
-                      selectedPhoneNumber={selectedPhoneNumber}
-                      setSelectedPhoneNumber={handlePhoneNumberChange}
-                      emailAccounts={emailAccounts}
-                      selectedEmailAccount={selectedEmailAccount}
-                      setSelectedEmailAccount={handleEmailAccountChange}
-                      removeAttachment={removeAttachment}
-                      richTextEditorRef={richTextEditorRef}
-                      SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
-                      handleFileChange={handleFileChange}
-                      handleSendMessage={handleSendMessage}
-                      sendingMessage={sendingMessage}
-                      onSendSocialMessage={handleSendSocialMessage}
-                      hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
-                      hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
-                      onConnectionSuccess={fetchSocialConnections}
-                      onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-                      onCommentAdded={(newMessage) => {
-                        // If new message is provided, add it to messages and refresh
-                        if (newMessage) {
-                          setMessages((prev) => [...prev, newMessage])
-                          setTimeout(() => {
-                            if (messagesEndRef.current) {
-                              messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
-                            }
-                          }, 100)
-                        }
-                        // Do not refetch threads on every send/comment
-                      }}
-                      selectedUser={selectedUser}
-                      searchLoading={searchLoading}
-                    />
+                        from={from}
+                        composerMode={composerMode}
+                        setComposerMode={setComposerMode}
+                        selectedThread={selectedThread}
+                        composerData={composerData}
+                        setComposerData={setComposerData}
+                        fetchPhoneNumbers={fetchPhoneNumbers}
+                        fetchEmailAccounts={fetchEmailAccounts}
+                        showCC={showCC}
+                        setShowCC={setShowCC}
+                        showBCC={showBCC}
+                        setShowBCC={setShowBCC}
+                        ccEmails={ccEmails}
+                        ccInput={ccInput}
+                        handleCcInputChange={handleCcInputChange}
+                        handleCcInputKeyDown={handleCcInputKeyDown}
+                        handleCcInputPaste={handleCcInputPaste}
+                        handleCcInputBlur={handleCcInputBlur}
+                        removeCcEmail={removeCcEmail}
+                        bccEmails={bccEmails}
+                        bccInput={bccInput}
+                        handleBccInputChange={handleBccInputChange}
+                        handleBccInputKeyDown={handleBccInputKeyDown}
+                        handleBccInputPaste={handleBccInputPaste}
+                        handleBccInputBlur={handleBccInputBlur}
+                        removeBccEmail={removeBccEmail}
+                        phoneNumbers={phoneNumbers}
+                        selectedPhoneNumber={selectedPhoneNumber}
+                        setSelectedPhoneNumber={handlePhoneNumberChange}
+                        emailAccounts={emailAccounts}
+                        selectedEmailAccount={selectedEmailAccount}
+                        setSelectedEmailAccount={handleEmailAccountChange}
+                        removeAttachment={removeAttachment}
+                        richTextEditorRef={richTextEditorRef}
+                        SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
+                        handleFileChange={handleFileChange}
+                        handleSendMessage={handleSendMessage}
+                        sendingMessage={sendingMessage}
+                        onSendSocialMessage={handleSendSocialMessage}
+                        hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
+                        hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
+                        onConnectionSuccess={fetchSocialConnections}
+                        onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                        onCommentAdded={(newMessage) => {
+                          // If new message is provided, add it to messages and refresh
+                          if (newMessage) {
+                            setMessages((prev) => [...prev, newMessage])
+                            setTimeout(() => {
+                              if (messagesEndRef.current) {
+                                messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+                              }
+                            }, 100)
+                          }
+                          // Do not refetch threads on every send/comment
+                        }}
+                        selectedUser={selectedUser}
+                        searchLoading={searchLoading}
+                      />
                     </div>
                   </div>
                 ) : (

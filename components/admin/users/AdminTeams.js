@@ -1229,6 +1229,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
             }}
             teamMember={activityDrawerTeamMember}
             admin={myTeam?.[0]?.invitedUser || myTeam?.[0]?.invitingUser}
+            selectedUser={selectedUser}
           />
         )
       }

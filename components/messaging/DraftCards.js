@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import { X, MessageSquare, Mail, Loader2 } from 'lucide-react'
 
+import { plainTextWithBoldToHTML } from '@/utilities/textUtils'
+
 /**
  * DraftCards component - displays AI-generated draft responses as horizontal scrolling cards
  * When user selects a draft, it populates the composer body field
@@ -13,6 +15,7 @@ const DraftCards = ({
   onSelectDraft,
   onDiscardDraft,
   selectedDraftId = null,
+  inlineInChat = false,
 }) => {
   const [expandedDraftId, setExpandedDraftId] = useState(null)
 
@@ -67,8 +70,12 @@ const DraftCards = ({
     setExpandedDraftId(expandedDraftId === draftId ? null : draftId)
   }
 
+  const wrapperClass = inlineInChat
+    ? 'px-4 pt-3 border-t border-gray-100 bg-gray-50/50'
+    : 'px-4 pt-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto'
+
   return (
-    <div className="px-4 pt-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto">
+    <div className={wrapperClass}>
       {/* Loading state */}
       {loading && (
         <div className="flex items-center justify-center py-4">
@@ -123,9 +130,13 @@ const DraftCards = ({
                   </div>
                 )}
 
-                {/* Draft content */}
-                <div className="text-sm text-gray-700 leading-relaxed m-0">
-                  {isExpanded ? content : truncateContent(content)}
+                {/* Draft content - render **bold** as actual bold like EmailBubble */}
+                <div className="text-sm text-gray-700 leading-relaxed m-0 [&_strong]:font-semibold [&_strong]:text-gray-800">
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: plainTextWithBoldToHTML(isExpanded ? content : truncateContent(content)),
+                    }}
+                  />
                   {needsReadMore && (
                     <button
                       onClick={(e) => handleReadMore(e, draft.id)}

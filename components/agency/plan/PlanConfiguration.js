@@ -166,7 +166,7 @@ export default function PlanConfiguration({
       stateKey: 'allowTextMessages',
     },
     {
-      label: 'Allow AI Emails and Texts',
+      label: 'AI Emails and Texts',
       tooltip:
         'Allow AI actions for email and text from call transcripts and messaging (e.g. AI-drafted follow-ups).',
       stateKey: 'allowAIEmailAndText',

@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { sanitizeAndLinkifyHTML } from '@/utilities/textUtils'
+import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
 import AttachmentList from './AttachmentList'
 
 const EmailBubble = ({
@@ -134,7 +135,8 @@ const EmailBubble = ({
         style={isOutbound ? { color: 'black' } : {}}
         dangerouslySetInnerHTML={{
           __html: (() => {
-            const content = message.content || ''
+            const raw = message.content || ''
+            const content = stripQuotedReplyFromContent(raw)
             // Use formatting-preserving sanitizer when available (keeps bold, lists, links)
             if (sanitizeHTMLForEmailBody) {
               return sanitizeHTMLForEmailBody(content)
