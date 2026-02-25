@@ -102,10 +102,25 @@ import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
+import { isPlanActive } from '@/components/userPlans/UserPlanServices'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
   const { user: reduxUser, setUser: setReduxUser } = useUser()
+
+  const {
+    canCreateAgent,
+    allowVoicemail,
+    allowToolsAndActions,
+    allowKnowledgeBases,
+    allowLiveCallTransfer,
+    isFeatureAllowed,
+    getUpgradeMessage,
+    isFreePlan,
+    currentAgents,
+    maxAgents,
+  } = usePlanCapabilities(selectedUser)
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
@@ -471,7 +486,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
       ? (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
       : model?.icon
-    // console.log("Value of reduxUser is", reduxUser)
+  // console.log("Value of reduxUser is", reduxUser)
 
   // Restore agent drawer state when component mounts and agents are loaded (only for admin/agency users)
   useEffect(() => {
@@ -724,6 +739,90 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       console.error('Error occurred in duplicate agent API:', errorMessage)
       setShowErrorSnack(`Error: ${errorMessage}`)
       setIsVisibleSnack2(true)
+    }
+  }
+
+  const shouldDuplicateAgent = async () => {
+    if (!selectedUser?.id) {
+      setShowErrorSnack('User not selected')
+      setIsVisibleSnack2(true)
+      setShowDuplicateConfirmationPopup(false)
+      return
+    }
+
+    // Fetch fresh user details so we check limits against current data (selectedUser may be stale)
+    const freshUser = await AdminGetProfileDetails(selectedUser.id)
+    if (!freshUser) {
+      setShowErrorSnack('Could not load user details')
+      setIsVisibleSnack2(true)
+      setShowDuplicateConfirmationPopup(false)
+      return
+    }
+
+    if (!isPlanActive(freshUser?.plan)) {
+      setShowErrorSnack(
+        "This user's plan is paused. Activate to duplicate agents",
+      )
+      setIsVisibleSnack2(true)
+      setShowDuplicateConfirmationPopup(false)
+      return
+    }
+
+    const planCapabilities = freshUser?.planCapabilities
+    const currentUsage = freshUser?.currentUsage
+    const plan = freshUser?.plan
+    const maxAgentsLimit = planCapabilities?.maxAgents ?? 0
+    const currentAgentsCount = currentUsage?.maxAgents ?? 0
+
+    const isFreePlanUser =
+      !plan || plan?.price === 0 || plan?.type?.toLowerCase?.()?.includes('free')
+    const canCreate =
+      currentAgentsCount < maxAgentsLimit &&
+      !(isFreePlanUser && currentAgentsCount >= 1)
+
+    if (planCapabilities) {
+      if (!canCreate) {
+        if (isFreePlanUser && currentAgentsCount >= 1) {
+          setShowUpgradeModal(true)
+          setTitle('Unlock your Web Agent')
+          setSubTitle(
+            'Bring your AI agent to your website allowing them to engage with leads and customers',
+          )
+          setShowDuplicateConfirmationPopup(false)
+          return
+        }
+        if (currentAgentsCount >= maxAgentsLimit) {
+          setShowMoreAgentsPopup(true)
+          setMoreAgentsPopupType('duplicate')
+          return
+        }
+      }
+      handleDuplicate()
+      return
+    }
+
+    // Fallback when planCapabilities not present (use same shape as API: top-level)
+    const user = freshUser
+    if (user?.planCapabilities) {
+      if (user?.plan === null || user?.plan?.price === 0) {
+        if (
+          (user?.currentUsage?.maxAgents ?? 0) >=
+          (user?.planCapabilities?.maxAgents ?? 0)
+        ) {
+          setShowUpgradePlanModal(true)
+          setMoreAgentsPopupType('duplicate')
+          return
+        }
+      }
+      if (
+        (user?.currentUsage?.maxAgents ?? 0) >=
+        (user?.planCapabilities?.maxAgents ?? 0)
+      ) {
+        setShowUpgradePlanModal(true)
+        setMoreAgentsPopupType('duplicate')
+        return
+      }
+      handleDuplicate()
     }
   }
 
@@ -3752,7 +3851,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <DuplicateConfirmationPopup
                     open={showDuplicateConfirmationPopup}
                     handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                    handleDuplicate={handleDuplicate}
+                    handleDuplicate={shouldDuplicateAgent}
                   />
                   {/* GPT Button */}
 
