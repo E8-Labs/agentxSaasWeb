@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import { messageMarkdownToHtml } from './messageMarkdown'
 
 // Helper function to check if HTML body has actual text content
 const hasTextContent = (html) => {
@@ -381,7 +382,7 @@ const EmailTimelineModal = ({
       const formData = new FormData()
       formData.append('leadId', leadId)
       formData.append('subject', emailSubject)
-      formData.append('body', replyBody)
+      formData.append('body', messageMarkdownToHtml(replyBody))
       formData.append('emailAccountId', selectedEmailAccount)
 
       // Add CC and BCC if they exist

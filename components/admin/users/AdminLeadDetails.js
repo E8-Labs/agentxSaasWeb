@@ -58,6 +58,7 @@ import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString, FormatBookingDateTime } from '@/utilities/utility'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import { messageMarkdownToHtml } from '@/components/messaging/messageMarkdown'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import ConfirmPerplexityModal from '@/components/dashboard/leads/extras/CofirmPerplexityModal'
@@ -840,7 +841,7 @@ const AdminLeadDetails = ({
 
       formData.append('leadId', selectedLeadsDetails?.id)
       formData.append('subject', emailData.subject || '')
-      formData.append('content', emailData.content || '')
+      formData.append('content', messageMarkdownToHtml(emailData.content || ''))
       formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []))
       formData.append(
         'emailAccountId',

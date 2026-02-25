@@ -3,6 +3,7 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { simpleMarkdownToHtml } from '@/utilities/textUtils'
 
 /**
  * Shared markdown components for message bubbles (EmailBubble, MessageBubble).
@@ -57,4 +58,15 @@ export function MessageMarkdown({ content, className = '' }) {
       </ReactMarkdown>
     </span>
   )
+}
+
+/**
+ * Convert markdown to HTML string for sending in emails.
+ * Matches MessageMarkdown display: **bold**, [text](url) links, and newlines as <br>.
+ * Use before appending body to send-email API so recipients see formatted email.
+ */
+export function messageMarkdownToHtml(text) {
+  if (!text || typeof text !== 'string') return text
+  const withMarkdown = simpleMarkdownToHtml(text)
+  return withMarkdown.replace(/\n/g, '<br>')
 }

@@ -79,6 +79,7 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import NewMessageModal from '@/components/messaging/NewMessageModal'
+import { messageMarkdownToHtml } from '@/components/messaging/messageMarkdown'
 import {
   getA2PNumbers,
   getGmailAccounts,
@@ -1642,7 +1643,7 @@ const LeadDetails = ({
       // Add required fields
       formData.append('leadId', selectedLeadsDetails?.id)
       formData.append('subject', emailData.subject || '')
-      formData.append('content', emailData.content || '')
+      formData.append('content', messageMarkdownToHtml(emailData.content || ''))
       formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []))
       formData.append('bccEmails', JSON.stringify(emailData.bccEmails || []))
       formData.append(
