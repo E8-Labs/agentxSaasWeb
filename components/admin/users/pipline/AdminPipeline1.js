@@ -76,6 +76,7 @@ import { TypographyH3 } from '@/lib/typography'
 import PipelineFilterModal from '@/components/common/PipelineFilterModal'
 import StandardHeader from '@/components/common/StandardHeader'
 import { Check } from 'lucide-react'
+import { isColorDark } from '@/components/dashboardPipeline/PipelineUtilities'
 
 const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   const bottomRef = useRef()
@@ -2552,8 +2553,8 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                     {StagesList?.map((stage, index) => (
                       <div
                         key={index}
-                        style={{ width: '300px' }}
-                        className="flex flex-col items-start h-full gap-8 bg-[#00000005] rounded-xl p-4"
+                        style={{ width: '300px', backgroundColor: `${stage.defaultColor}05` }}
+                        className="flex flex-col items-start h-full gap-8 rounded-xl p-4"
                       >
                         {/* Display the stage */}
                         <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">
@@ -2577,8 +2578,8 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                             </span>
                             <div
                               // className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full bg-white flex items-center justify-center text-black min-w-8 min-h-8 w-8 h-8 shrink-0 px-1"
-                              style={{ ...styles.paragraph, fontSize: 14 }}
+                              className="rounded-full flex items-center justify-center min-w-8 min-h-8 w-8 h-8 shrink-0 px-1"
+                              style={{ ...styles.paragraph, fontSize: 14, backgroundColor: stage?.defaultColor, color: isColorDark(stage?.defaultColor) ? "white" : "black" }}
                             >
                               {/* {leadCounts[stage.id] ? (
                             <div>{leadCounts[stage.id]}</div>
