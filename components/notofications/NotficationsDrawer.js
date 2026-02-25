@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { MessageSquare, MessageCircle, AtSign, Mail, MessageSquareDot } from 'lucide-react'
+import { MessageSquare, MessageCircle, AtSign, Mail, MessageSquareDot, PhoneCall } from 'lucide-react'
 
 import { NotificationTypes } from '@/constants/NotificationTypes'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -22,6 +22,7 @@ import AgentSelectSnackMessage, {
 import LeadDetails from '../dashboard/leads/extras/LeadDetails'
 import CloseBtn from '../globalExtras/CloseBtn'
 import { useUser } from '@/hooks/redux-hooks'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 function NotficationsDrawer({ close }) {
   const router = useRouter()
@@ -306,7 +307,7 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.PaymentFailed) {
       return renderBrandedIcon('/svgIcons/urgentNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.CallsMadeByAgent) {
-      return renderBrandedIcon('/svgIcons/aiNotIcon.svg', 40, 40)
+      return <PhoneCall size={22} color={getBrandPrimaryHex()} /> //renderBrandedIcon('/svgIcons/aiNotIcon.svg', 40, 40)
     } else if (item.type === NotificationTypes.LeadCalledBack) {
       return (
         <div

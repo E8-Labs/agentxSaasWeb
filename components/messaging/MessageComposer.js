@@ -2171,7 +2171,7 @@ const MessageComposer = ({
                                   <div className="absolute bottom-full left-0 mb-2 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px] z-50">
                                     <div
                                       ref={bodyVarListRef}
-                                      className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                      className="relative flex flex-col py-0"
                                       onMouseLeave={() => setBodyVarHoveredKey(null)}
                                     >
                                       {bodyVarPillStyle.height > 0 && (
@@ -2373,7 +2373,7 @@ const MessageComposer = ({
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {variablesDropdownOpen && (
-                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] z-50">
+                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[200px] z-50">
                                     {uniqueColumns.map((variable, index) => {
                                       const displayText = variable.startsWith('{') && variable.endsWith('}')
                                         ? variable

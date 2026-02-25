@@ -120,6 +120,7 @@ import Link from 'next/link'
 // import ActionsTab from '../../myagentX/ActionsTab'
 // import ActionsGroupBtnCN from './ActionsGroupBtnCN'
 import SendActionsButtonGroup from './SendActionsButtonGroup'
+import RenameLead from './RenameLead'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -259,6 +260,11 @@ const LeadDetails = ({
     message: '',
     isVisible: false,
   })
+
+  //rename lead name props
+  const [showRenameLeadPopup, setShowRenameLeadPopup] = useState(false)
+  const [renameLeadLoader, setRenameLeadLoader] = useState(false)
+  const [renameLead, setRenameLead] = useState('')
 
   useEffect(() => { }, [showSnackMsg])
 
@@ -732,6 +738,60 @@ const LeadDetails = ({
   const handleTabChange = (tab) => {
     setActiveTab(tab)
     setShowCustomVariables(false)
+  }
+
+  //function to update LeadName (optional newName when called from RenameLead modal)
+  const updateLeadName = async (newName) => {
+    const nameToUse = (newName ?? renameLead)?.trim()
+    if (!nameToUse) {
+      showSnackbar('Please enter a valid lead name', SnackbarTypes.Error)
+      return
+    }
+
+    try {
+      setRenameLeadLoader(true)
+
+      const localDetails = localStorage.getItem('User')
+      if (!localDetails) {
+        showSnackbar('Please log in again', SnackbarTypes.Error)
+        return
+      }
+
+      const Data = JSON.parse(localDetails)
+      const AuthToken = Data.token
+
+      const response = await fetch('/api/leads/update', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${AuthToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          smartListId: selectedLeadsDetails.sheetId,
+          phoneNumber: selectedLeadsDetails.phone,
+          name: nameToUse,
+          leadId: selectedLeadsDetails.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.status === true) {
+        setSelectedLeadsDetails((prev) => ({
+          ...prev,
+          firstName: nameToUse,
+        }))
+        setShowRenameLeadPopup(false)
+        showSnackbar('Lead name updated successfully', SnackbarTypes.Success)
+      } else {
+        showSnackbar(data.message || 'Failed to update lead name', SnackbarTypes.Error)
+      }
+    } catch (error) {
+      console.error('Error updating lead name:', error)
+      showSnackbar('Failed to update lead name. Please try again.', SnackbarTypes.Error)
+    } finally {
+      setRenameLeadLoader(false)
+    }
   }
 
   // Function to update lead email
@@ -1934,6 +1994,8 @@ const LeadDetails = ({
   }, [myTeamAdmin, myTeam, selectedLeadsDetails?.teamsAssigned])
 
 
+  const leadFullNameForRename = `${selectedLeadsDetails?.firstName || ''}${selectedLeadsDetails?.lastName ? ' ' + selectedLeadsDetails.lastName : ''}`.trim()
+
   const mainContent = (
     <>
       <AgentSelectSnackMessage
@@ -1948,6 +2010,18 @@ const LeadDetails = ({
           })
         }}
       />
+      {
+        showRenameLeadPopup && (
+          <RenameLead
+            showRenameLeadPopup={showRenameLeadPopup}
+            handleClose={() => setShowRenameLeadPopup(false)}
+            leadNamePassed={leadFullNameForRename}
+            renameLeadLoader={renameLeadLoader}
+            handleRenameLead={(newName) => updateLeadName(newName)}
+            overlayZIndex={overlayZIndex}
+          />
+        )
+      }
       <div className="flex flex-col w-full h-full py-0 px-1 rounded-xl gap-2">
         <div className="w-full flex flex-col items-center h-full">
 
@@ -2003,7 +2077,7 @@ const LeadDetails = ({
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <span className="inline-flex cursor-pointer size-[38px]">
-                                      <Avatar className="h-[38px] w-[38px] bg-red">
+                                      <Avatar className="h-[38px] w-[38px]">
                                         {selectedLeadsDetails?.avatar ? (
                                           <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
                                         ) : (
@@ -2018,7 +2092,19 @@ const LeadDetails = ({
                                 </Tooltip>
                               </TooltipProvider>
                               <div className="flex min-w-0 flex-1 items-center gap-3">
-                                <p className="truncate text-lg font-semibold leading-none text-foreground">
+                                <p
+                                  // role="button"
+                                  // tabIndex={0}
+                                  className="truncate text-lg font-semibold leading-none text-foreground cursor-pointer hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+                                  // onClick={() => setShowRenameLeadPopup(true)}
+                                  // onKeyDown={(e) => {
+                                  //   if (e.key === 'Enter' || e.key === ' ') {
+                                  //     e.preventDefault()
+                                  //     setShowRenameLeadPopup(true)
+                                  //   }
+                                  // }}
+                                  // title="Click to rename lead"
+                                >
                                   {/* max characters 15 combined */}
                                   {(() => {
                                     const firstName = selectedLeadsDetails?.firstName || ''
@@ -2884,6 +2970,7 @@ const LeadDetails = ({
           </Modal>
         </div>
       </div>
+
     </>
   )
 
