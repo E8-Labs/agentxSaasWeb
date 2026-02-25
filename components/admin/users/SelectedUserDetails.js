@@ -784,7 +784,7 @@ function SelectedUserDetails({
   }
 
   return (
-    <div className={`w-full flex flex-col ${isAgencyView ? 'h-[85svh]' : 'h-[100svh]'} items-center justify-center overflow-y-auto`}>
+    <div className={`w-full flex flex-col ${isAgencyView ? 'h-[90svh]' : 'h-[100svh]'} items-center justify-center overflow-y-auto`}>
       <AgentSelectSnackMessage
         isVisible={showSnackMessage != null && showSnackMessage !== ''}
         hide={() => {
@@ -899,9 +899,9 @@ function SelectedUserDetails({
               </div>
             </div>
           )}
-          <div className="flex flex-row items-start w-full">
+          <div className="flex flex-row items-start w-full h-full" style={{backgroundColor: ''}}>
             <div
-              className={`flex flex-shrink-0 flex-col items-start justify-start w-[250px] h-[100svh] p-px gap-1 text-[14px] ${!enablePermissionChecks && '-mt-10'}`}
+              className={`flex flex-shrink-0 flex-col items-start justify-start w-[250px] p-px gap-1 text-[14px] ${!enablePermissionChecks ? "h-[100%]" : "h-[100svh]"} ${!enablePermissionChecks && '-mt-10'}`}
               style={{
                 borderRight: '1px solid #00000010',
                 backgroundColor: 'white',
@@ -1131,7 +1131,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Activity' ? (
                   <AdminCallLogs selectedUser={selectedUser} />
                 ) : selectedManu.name == 'Dashboard' ? (
-                  <AdminDashboard selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
+                  <AdminDashboard selectedUser={selectedUser} agencyUser={enablePermissionChecks} enablePermissionChecks={enablePermissionChecks} />
                 ) : selectedManu.name == 'Integration' ? (
                   <AdminIntegration selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : selectedManu.name == 'Team' ? (

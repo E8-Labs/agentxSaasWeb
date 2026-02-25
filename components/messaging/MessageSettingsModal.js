@@ -930,7 +930,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                     aria-label="Close"
                     className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
                   >
-                    <X className="h-[14px] w-[14px] opacity-80" strokeWidth={2} />
+                    
                   </button>
                 </DialogClose>
               </div>

@@ -35,6 +35,31 @@ export function sanitizeHTMLForEmailBody(html) {
 }
 
 /**
+ * Converts plain text with **bold** markdown to HTML with <strong> tags.
+ * Escapes HTML and sanitizes output. Safe for dangerouslySetInnerHTML.
+ * @param {string} text - Plain text possibly containing **bold** segments
+ * @returns {string} HTML string with bold rendered as <strong>
+ */
+export function plainTextWithBoldToHTML(text) {
+  if (!text || typeof text !== 'string') return ''
+  const escapeHtml = (str) =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+  let out = escapeHtml(text)
+  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  out = out.replace(/\n/g, '<br />')
+  return DOMPurify.sanitize(out, {
+    ALLOWED_TAGS: ['strong', 'em', 'br'],
+    ALLOWED_ATTR: [],
+    KEEP_CONTENT: true,
+  })
+}
+
+/**
  * Converts HTML content to plain text
  * @param {string} html - HTML string to convert
  * @returns {string} Plain text version of the HTML

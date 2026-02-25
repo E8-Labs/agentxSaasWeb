@@ -33,7 +33,9 @@ const CallTranscriptCN = ({
   leadName = null,
   selectedUser = null,
   bottomRightContent = null,
+  tooltipZIndex,
 }) => {
+  const popperZIndexProps = tooltipZIndex != null ? { PopperProps: { style: { zIndex: tooltipZIndex } } } : {}
   const callSummary = item.callSummary
   const summaryText = callSummary?.callSummary || null
   const hasSummary = summaryText && summaryText.trim()
@@ -230,6 +232,7 @@ const CallTranscriptCN = ({
           <Tooltip
             title="Copy Call ID"
             arrow
+            {...popperZIndexProps}
             componentsProps={{
               tooltip: {
                 sx: {
@@ -276,6 +279,7 @@ const CallTranscriptCN = ({
             <Tooltip
               title="Read Transcript"
               arrow
+              {...popperZIndexProps}
               componentsProps={{
                 tooltip: {
                   sx: {

@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import { X, MessageSquare, Mail, Loader2 } from 'lucide-react'
 
+import { plainTextWithBoldToHTML } from '@/utilities/textUtils'
+
 /**
  * DraftCards component - displays AI-generated draft responses as horizontal scrolling cards
  * When user selects a draft, it populates the composer body field
@@ -128,9 +130,13 @@ const DraftCards = ({
                   </div>
                 )}
 
-                {/* Draft content */}
-                <div className="text-sm text-gray-700 leading-relaxed m-0">
-                  {isExpanded ? content : truncateContent(content)}
+                {/* Draft content - render **bold** as actual bold like EmailBubble */}
+                <div className="text-sm text-gray-700 leading-relaxed m-0 [&_strong]:font-semibold [&_strong]:text-gray-800">
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: plainTextWithBoldToHTML(isExpanded ? content : truncateContent(content)),
+                    }}
+                  />
                   {needsReadMore && (
                     <button
                       onClick={(e) => handleReadMore(e, draft.id)}

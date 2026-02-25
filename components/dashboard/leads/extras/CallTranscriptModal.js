@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
 import { TypographyH3 } from '@/lib/typography'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
 
 /**
  * Unified Call Transcript Modal Component
@@ -18,36 +19,20 @@ import { ScrollArea } from '@/components/ui/scroll-area'
  * @param {boolean} open - Whether the modal is open
  * @param {function} onClose - Callback when modal should close (receives boolean)
  * @param {string|number} callId - The call ID to display transcript for
+ * @param {object} callData - Call data for the transcript
+ * @param {boolean} elevatedZIndex - When true (e.g. opened from TeamMemberActivityDrawer), overlay and content use higher z-index so modal appears in front
  */
-const CallTranscriptModal = ({ open, onClose, callId, callData }) => {
+const CallTranscriptModal = ({ open, onClose, callId, callData, elevatedZIndex = false }) => {
   if (!callId || !callData) return null
-
-  // Override z-index for overlay and content to appear above LeadDetails Drawer
-  useEffect(() => {
-    console.log("Call data is", callData);
-    if (open && typeof window !== 'undefined') {
-      const timer = setTimeout(() => {
-        const overlays = document.querySelectorAll('[data-radix-dialog-overlay]')
-        const contents = document.querySelectorAll('[data-radix-dialog-content]')
-
-        if (overlays.length > 0) {
-          const lastOverlay = overlays[overlays.length - 1]
-          lastOverlay.style.zIndex = '15000'
-        }
-        if (contents.length > 0) {
-          const lastContent = contents[contents.length - 1]
-          lastContent.style.zIndex = '15001'
-        }
-      }, 0)
-
-      return () => clearTimeout(timer)
-    }
-  }, [open])
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-2xl w-[90%] sm:w-[80%] lg:w-[50%] max-h-[90vh] p-0"
+        className={cn(
+          'max-w-2xl w-[90%] sm:w-[80%] lg:w-[50%] max-h-[90vh] p-0',
+          elevatedZIndex && '!z-[5021]',
+        )}
+        overlayClassName={elevatedZIndex ? '!z-[5020]' : undefined}
         onInteractOutside={(e) => {
           e.preventDefault()
           onClose?.(false)
