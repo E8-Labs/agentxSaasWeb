@@ -50,7 +50,7 @@ import { getPlanChangeDirection } from '@/utils/planComparison'
 
 const stripePromise = getStripe()
 
-function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
+function SubAccountPlansAndPayments({ hideBtns, selectedUser, agencyView, isAgencyView }) {
   //stroes user cards list
   const [cards, setCards] = useState([])
 
@@ -935,7 +935,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
   return (
     <div
-      className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
+      className={`w-full flex flex-col items-start px-8 py-2 ${isAgencyView ? 'h-[calc(100svh-25svh)]' : 'h-[calc(100vh-4rem)]'} overflow-y-auto`}
       style={{
         paddingBottom: '50px',
         scrollbarWidth: 'none', // For Firefox
