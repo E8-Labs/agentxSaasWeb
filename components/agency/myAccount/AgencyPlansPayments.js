@@ -1542,7 +1542,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                               ?.map((feature, featureIndex) => (
                                 <div
                                   key={featureIndex}
-                                  className="flex flex-row items-start gap-1"
+                                  className="flex flex-row items-center gap-1"
                                 >
                                   <Checkbox
                                     checked={true}
