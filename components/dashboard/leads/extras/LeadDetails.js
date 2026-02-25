@@ -2048,6 +2048,7 @@ const LeadDetails = ({
                                       onModalClose={handleUpgradeModalClose}
                                       hideTag={true}
                                       selectedUser={memoizedSelectedUserForUpgrade}
+                                      featureTitle="Enable Dialer"
                                     />
                                   )}
                                   {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (

@@ -35,6 +35,8 @@ const UnlockPremiunFeatures = ({
         if (!Data?.allowLiveCallTransfer) {
           setFeatureTitleValue('LiveTransfer')
         }
+      } else if (title === 'Enable Dialer') {
+        setFeatureTitleValue('Dialer')
       } else if (title === 'Unlock Actions') {
         if (!Data?.allowToolsAndActions) {
           setFeatureTitleValue('ToolsAndActions')
@@ -103,8 +105,12 @@ const UnlockPremiunFeatures = ({
       setRequestLoader(true)
       const Token = AuthToken()
       const ApiPath = Apis.requestFeatureFromAgency
+      // Map display title to backend feature key (e.g. "Enable Dialer" -> "Dialer")
+      const featureKey =
+        featureTitleValue ||
+        (title === 'Enable Dialer' ? 'Dialer' : title)
       const ApiData = {
-        featureTitle: featureTitleValue || title,
+        featureTitle: featureKey,
       }
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
