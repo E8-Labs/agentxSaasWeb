@@ -19,6 +19,7 @@ const ActivityTabCN = ({
   leadId = null,
   leadName = null,
   selectedUser = null,
+  tooltipZIndex,
 }) => {
   if (callActivity?.length < 1) {
     return (
@@ -60,6 +61,7 @@ const ActivityTabCN = ({
           leadId={leadId}
           leadName={leadName}
           selectedUser={selectedUser}
+          tooltipZIndex={tooltipZIndex}
         />
       )
     }

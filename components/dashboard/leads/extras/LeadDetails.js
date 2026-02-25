@@ -2805,6 +2805,7 @@ const LeadDetails = ({
                         leadId={selectedLeadsDetails?.id}
                         leadName={selectedLeadsDetails?.firstName || selectedLeadsDetails?.name}
                         selectedUser={selectedUser}
+                        tooltipZIndex={elevatedZIndex ? 5010 : undefined}
                       />
                     )}
                   </div>
@@ -2895,6 +2896,7 @@ const LeadDetails = ({
             }}
             callId={isExpanded?.id || isExpanded?.callId || ''}
             callData={isExpanded}
+            elevatedZIndex={elevatedZIndex}
           />
           {/* delete lead modal */}
 

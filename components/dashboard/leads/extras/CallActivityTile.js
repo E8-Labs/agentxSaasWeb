@@ -17,6 +17,7 @@ const CallActivityTile = ({
   leadId = null,
   leadName = null,
   selectedUser = null,
+  tooltipZIndex,
 }) => {
   // Handle voicemail case
   if (item.status === 'voicemail' || item.callOutcome === 'Voicemail') {
@@ -64,6 +65,7 @@ const CallActivityTile = ({
         leadId={leadId}
         leadName={leadName}
         selectedUser={selectedUser}
+        tooltipZIndex={tooltipZIndex}
       />
     </ActivityTile>
   )
