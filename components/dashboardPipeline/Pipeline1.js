@@ -217,11 +217,24 @@ const Pipeline1 = () => {
   const [needHelp, setNeedHelp] = useState(false);
 
   // hex to rgba with alpha
-  const hexToRgba = (hex, alpha) => {
-    const [r, g, b] = hex.replace(/^#/, '').match(/.{2}/g).map(x => parseInt(x, 16));
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
-  // use: backgroundColor: hexToRgba(stage.defaultColor, 0.02)
+  const isColorDark = (hexOrRgb) => {
+    if (!hexOrRgb) return false;
+    let r, g, b;
+    const hex = hexOrRgb.replace(/^#/, '');
+    if (hex.length === 6 || hex.length === 8) {
+      r = parseInt(hex.slice(0, 2), 16);
+      g = parseInt(hex.slice(2, 4), 16);
+      b = parseInt(hex.slice(4, 6), 16);
+    } else if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    } else {
+      return false;
+    }
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance < 0.5;
+  }
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value
@@ -2646,7 +2659,7 @@ const Pipeline1 = () => {
                             <div
                               // className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
                               className="rounded-full flex items-center justify-center text-black w-6 h-6 min-w-6 min-h-6 shrink-0 px-1"
-                              style={{ ...styles.paragraph, fontSize: 14, backgroundColor: "#00000005",  }}
+                              style={{ ...styles.paragraph, fontSize: 14, backgroundColor: stage?.defaultColor, color: isColorDark(stage?.defaultColor) ? "white" : "black" }}
                             >
                               {/* {leadCounts[stage.id] ? (
                             <div>{leadCounts[stage.id]}</div>
