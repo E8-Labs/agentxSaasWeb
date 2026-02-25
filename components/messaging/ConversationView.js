@@ -7,6 +7,7 @@ import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
 
 import PlatformIcon from './PlatformIcon'
+import DraftCards from './DraftCards'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 import { AuthToken } from '../agency/plan/AuthDetails'
@@ -51,6 +52,11 @@ const ConversationView = ({
   onShowRequestFeature,
   onLinkToLeadFromMessage,
   linkingLeadId = null,
+  drafts = [],
+  draftsLoading = false,
+  onSelectDraft,
+  onDiscardDraft,
+  selectedDraftId = null,
 }) => {
 
   //lead details
@@ -484,6 +490,19 @@ const ConversationView = ({
               );
             });
           })()}
+          {/* Drafts at end of chat (scroll with messages) */}
+          {(drafts?.length > 0 || draftsLoading) && (
+            <div className="mt-4">
+              <DraftCards
+                drafts={drafts}
+                loading={draftsLoading}
+                onSelectDraft={onSelectDraft}
+                onDiscardDraft={onDiscardDraft}
+                selectedDraftId={selectedDraftId}
+                inlineInChat
+              />
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </>
       )}
