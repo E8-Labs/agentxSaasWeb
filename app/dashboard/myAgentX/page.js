@@ -2633,6 +2633,14 @@ function Page() {
         if (voiceData?.idleMessage !== undefined) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
+        if (voiceData?.additionalSettings !== undefined) {
+          formData.append(
+            'additionalSettings',
+            typeof voiceData.additionalSettings === 'string'
+              ? voiceData.additionalSettings
+              : JSON.stringify(voiceData.additionalSettings),
+          )
+        }
 
         // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
@@ -2653,7 +2661,7 @@ function Page() {
           //   response.data.data
           // );
           // //console.log;
-          if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage) {
+          if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage || voiceData?.additionalSettings) {
             setShowSuccessSnack("Advanced Settings Updated");
           } else {
             setShowSuccessSnack(
@@ -6314,6 +6322,15 @@ function Page() {
                         setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                         kycsData={kycsData}
                         uniqueColumns={uniqueColumns}
+                        onSaveVoicemailAdvancedSettings={(voicemailDetection) => {
+                          const existing = showDrawerSelectedAgent?.additionalSettings || {}
+                          updateSubAgent({
+                            additionalSettings: {
+                              ...existing,
+                              voicemailDetection,
+                            },
+                          })
+                        }}
                       />
                     </div>
                   )
