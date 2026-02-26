@@ -718,6 +718,29 @@ const Creator = ({ agentId, name }) => {
   async function startCall(overrides = null) {
     if (vapi) {
       try {
+        // Check if account can start web/embed call (paused/cancelled/deleted block)
+        try {
+          const checkRes = await axios.get(`${Apis.canStartWebCall}/${agentId}`)
+          if (!checkRes.data?.allowed) {
+            setLoading(false)
+            setOpen(false)
+            setSnackbarMessage(checkRes.data?.message || 'This action is not available for this account.')
+            setSnackbarSeverity('error')
+            setSnackbarOpen(true)
+            return
+          }
+        } catch (checkErr) {
+          if (checkErr.response?.status === 403) {
+            setLoading(false)
+            setOpen(false)
+            setSnackbarMessage(checkErr.response?.data?.message || 'This action is not available for this account.')
+            setSnackbarSeverity('error')
+            setSnackbarOpen(true)
+            return
+          }
+          throw checkErr
+        }
+
         // Request microphone permission before starting VAPI call
         // This prevents timeout issues when users take time to grant permission
         setloadingMessage('Requesting microphone permission...')
@@ -792,6 +815,12 @@ const Creator = ({ agentId, name }) => {
           })
           .catch((err) => {
             console.error('Failed to register web call with lead:', err)
+            if (err.response?.status === 403) {
+              setSnackbarMessage(err.response?.data?.message || 'This action is not available for this account.')
+              setSnackbarSeverity('error')
+              setSnackbarOpen(true)
+              vapi?.stop()
+            }
           })
           .finally(() => {
             pendingLeadIdRef.current = null
