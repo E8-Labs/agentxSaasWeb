@@ -2974,9 +2974,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         if (voiceData?.idleMessage !== undefined) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
+        if (selectedUser) {
+          formData.append('userId', selectedUser?.id)
+        }
 
-        for (let [key, value] of formData.entries()) { }
-
+        for (let [key, value] of formData.entries()) {
+          // console.log("key in formData", key, "value in formData", value)
+        }
+        // return
         const response = await axios.post(ApiPath, formData, {
           headers: {
             Authorization: 'Bearer ' + AuthToken,
