@@ -277,6 +277,13 @@ const MessageComposer = ({
   const bodyVarListRef = useRef(null)
   const bodyVarOptionRefs = useRef(Object.create(null))
 
+  // Email attachment dropdown (same pattern as NewMessageModal)
+  const attachmentDropdownRef = useRef(null)
+  const attachmentDropdownTimeoutRef = useRef(null)
+  const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false)
+  const emailAttachmentInputRef = useRef(null)
+  const smsAttachmentInputRef = useRef(null)
+
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
   const canSendSMS = planCapabilities?.allowTextMessages === true
@@ -2126,23 +2133,23 @@ const MessageComposer = ({
 
                 {/* Message Body and Send Button */}
                 <div className="m-0 px-1">
+                  {(composerMode === 'email' || composerMode === 'sms') && composerData.attachments?.length > 0 ? (
+                    <div className="mb-1 flex flex-col gap-1">
+                      {composerData.attachments.map((file, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                          <Paperclip size={14} className="text-gray-500" />
+                          <span className="flex-1 truncate">{file.name}</span>
+                          <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
+                          <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
                   {composerMode === 'email' ? (
                     <>
-                      {composerData.attachments.length > 0 && (
-                        <div className="mb-1 flex flex-col gap-1">
-                          {composerData.attachments.map((file, idx) => (
-                            <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
-                              <Paperclip size={14} className="text-gray-500" />
-                              <span className="flex-1 truncate">{file.name}</span>
-                              <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
-                              <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
                       {/* Relative container for RichTextEditor and overlapping buttons */}
                       <div className="relative">
                         <RichTextEditor
@@ -2153,6 +2160,108 @@ const MessageComposer = ({
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
                           toolbarDropdownOpen={variablesDropdownOpen}
+                          attachmentButton={
+                            <div
+                              className="relative"
+                              ref={attachmentDropdownRef}
+                              onMouseEnter={() => {
+                                if (attachmentDropdownTimeoutRef.current) {
+                                  clearTimeout(attachmentDropdownTimeoutRef.current)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }
+                                if (composerData.attachments?.length > 0) {
+                                  setShowAttachmentDropdown(true)
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                  setShowAttachmentDropdown(false)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }, 300)
+                              }}
+                            >
+                              <>
+                                <button
+                                  type="button"
+                                  className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative cursor-pointer"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    emailAttachmentInputRef.current?.click()
+                                  }}
+                                  title="Add attachment"
+                                >
+                                  <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                                  {composerData.attachments?.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                                      {composerData.attachments.length}
+                                    </span>
+                                  )}
+                                </button>
+                                <input
+                                  ref={emailAttachmentInputRef}
+                                  id="message-composer-email-attachment-input"
+                                  type="file"
+                                  accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                  multiple
+                                  className="hidden"
+                                  onChange={handleFileChange}
+                                />
+                              </>
+                              {showAttachmentDropdown && composerData.attachments?.length > 0 && (
+                                <div
+                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-[2000]"
+                                  onMouseEnter={() => {
+                                    if (attachmentDropdownTimeoutRef.current) {
+                                      clearTimeout(attachmentDropdownTimeoutRef.current)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }
+                                    setShowAttachmentDropdown(true)
+                                  }}
+                                  onMouseLeave={() => {
+                                    attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                      setShowAttachmentDropdown(false)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }, 300)
+                                  }}
+                                >
+                                  <div className="p-2">
+                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                                      Attachments ({composerData.attachments.length})
+                                    </div>
+                                    <div className="space-y-1">
+                                      {composerData.attachments.map((file, index) => (
+                                        <div
+                                          key={index}
+                                          className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50 rounded transition-colors group"
+                                        >
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-sm text-gray-900 truncate">
+                                              {file.name || file.originalName || `File ${index + 1}`}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                              {file.size ? `${(file.size / 1024).toFixed(2)} KB` : ''}
+                                            </div>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              removeAttachment(index)
+                                            }}
+                                            className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                            aria-label="Remove attachment"
+                                          >
+                                            <X size={16} />
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          }
                           customToolbarElement={
                             uniqueColumns && uniqueColumns.length > 0 ? (
                               <div className="relative" ref={variablesDropdownRef}>
@@ -2351,7 +2460,7 @@ const MessageComposer = ({
                     </>
                   ) : (
                     <>
-                      {/* SMS/Text: same RichTextEditor as email with formatting toolbar and character limit */}
+                      {/* SMS/Text: same RichTextEditor as email with formatting toolbar, attachment, and character limit */}
                       <div className="relative">
                         <RichTextEditor
                           ref={richTextEditorRef}
@@ -2361,6 +2470,108 @@ const MessageComposer = ({
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
                           maxCharLimit={SMS_CHAR_LIMIT}
+                          attachmentButton={
+                            <div
+                              className="relative"
+                              ref={attachmentDropdownRef}
+                              onMouseEnter={() => {
+                                if (attachmentDropdownTimeoutRef.current) {
+                                  clearTimeout(attachmentDropdownTimeoutRef.current)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }
+                                if (composerData.attachments?.length > 0) {
+                                  setShowAttachmentDropdown(true)
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                  setShowAttachmentDropdown(false)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }, 300)
+                              }}
+                            >
+                              <>
+                                <button
+                                  type="button"
+                                  className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative cursor-pointer"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    smsAttachmentInputRef.current?.click()
+                                  }}
+                                  title="Add attachment"
+                                >
+                                  <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                                  {composerData.attachments?.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                                      {composerData.attachments.length}
+                                    </span>
+                                  )}
+                                </button>
+                                <input
+                                  ref={smsAttachmentInputRef}
+                                  id="message-composer-sms-attachment-input"
+                                  type="file"
+                                  accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                  multiple
+                                  className="hidden"
+                                  onChange={handleFileChange}
+                                />
+                              </>
+                              {showAttachmentDropdown && composerData.attachments?.length > 0 && (
+                                <div
+                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-[2000]"
+                                  onMouseEnter={() => {
+                                    if (attachmentDropdownTimeoutRef.current) {
+                                      clearTimeout(attachmentDropdownTimeoutRef.current)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }
+                                    setShowAttachmentDropdown(true)
+                                  }}
+                                  onMouseLeave={() => {
+                                    attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                      setShowAttachmentDropdown(false)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }, 300)
+                                  }}
+                                >
+                                  <div className="p-2">
+                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                                      Attachments ({composerData.attachments.length})
+                                    </div>
+                                    <div className="space-y-1">
+                                      {composerData.attachments.map((file, index) => (
+                                        <div
+                                          key={index}
+                                          className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50 rounded transition-colors group"
+                                        >
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-sm text-gray-900 truncate">
+                                              {file.name || file.originalName || `File ${index + 1}`}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                              {file.size ? `${(file.size / 1024).toFixed(2)} KB` : ''}
+                                            </div>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              removeAttachment(index)
+                                            }}
+                                            className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                            aria-label="Remove attachment"
+                                          >
+                                            <X size={16} />
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          }
                           customToolbarElement={
                             uniqueColumns && uniqueColumns.length > 0 ? (
                               <div className="relative" ref={variablesDropdownRef}>

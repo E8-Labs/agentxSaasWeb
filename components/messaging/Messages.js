@@ -132,6 +132,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
   // Single AI Chat drawer: only one instance in the app, opened from a call summary in SystemMessage
   const [aiChatContext, setAiChatContext] = useState(null)
+  // When user selects Email/Text from AI actions inside the chat drawer, we close the drawer and open that follow-up on the matching SystemMessage
+  const [followUpAfterDrawerClose, setFollowUpAfterDrawerClose] = useState(null)
 
   // Draft state for AI-generated responses
   const [drafts, setDrafts] = useState([])
@@ -3521,6 +3523,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           onSelectDraft={handleSelectDraft}
                           onDiscardDraft={handleDiscardDraft}
                           selectedDraftId={selectedDraft?.id}
+                          followUpAfterDrawerClose={followUpAfterDrawerClose}
+                          onClearFollowUpAfterDrawer={() => setFollowUpAfterDrawerClose(null)}
                         />
                       </div>
                     </div>
@@ -3814,6 +3818,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 onPlayRecording={aiChatContext?.onPlayRecording ?? (() => { })}
                 onCopyCallId={aiChatContext?.onCopyCallId ?? (() => { })}
                 onReadTranscript={aiChatContext?.onReadTranscript ?? (() => { })}
+                onCloseDrawerAndOpenFollowUp={({ messageId, type }) => {
+                  setFollowUpAfterDrawerClose({ messageId, type })
+                  setAiChatContext(null)
+                }}
               />
 
             </div>
