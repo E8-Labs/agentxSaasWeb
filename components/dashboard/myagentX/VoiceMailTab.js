@@ -24,9 +24,9 @@ import EditVoicemailModal from './EditVoicemailModal'
 import NoVoicemailView from './NoVoicemailView'
 
 const VOICEMAIL_ADVANCED_DEFAULTS = {
-  startAtSeconds: 5,
+  startAtSeconds: 0.1,
   frequencySeconds: 5,
-  maxRetries: 3,
+  maxRetries: 6,
   beepMaxAwaitSeconds: 4,
 }
 
@@ -536,7 +536,7 @@ function VoiceMailTab({
                     }
                     min={0}
                     max={20}
-                    step={0.5}
+                    step={0.1}
                     className="w-full"
                   />
                 </div>
