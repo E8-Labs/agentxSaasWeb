@@ -352,6 +352,18 @@ const handleUserSettings = async (from) => {
             },
           })
         }
+        // When only the script widget title is updated, sync to Redux so the "Use [Title]" button updates
+        if (from?.endsWith('UpdateTitle') && editTitleIndex === 5 && user) {
+          const savedScriptWidgetTitle = mergedSettingsData.scriptWidgetTitle ?? showEditModalTitle ?? 'Script Builder'
+          setScriptWidgetTitle(savedScriptWidgetTitle)
+          setUser({
+            ...user,
+            userSettings: {
+              ...(user.userSettings || {}),
+              scriptWidgetTitle: savedScriptWidgetTitle,
+            },
+          })
+        }
         
         setShowSnackMessage('Link updated successfully')
         setShowSnackType(SnackbarTypes.Success)
@@ -899,174 +911,6 @@ const handleUserSettings = async (from) => {
                         }
                       >
                         {isInValidUrlSuportWebCalendar ? 'Invalid' : 'Save'}
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-
-            <div className="border-b">
-              <div className="border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4">
-                <div className="flex flex-row items-center justify-between w-full">
-                  <div className="flex flex-row items-center gap-2">
-                    <div style={styles.subHeading}>
-                      {settingsData?.scriptWidgetTitle}
-                    </div>
-                    <Tooltip
-                      title="This allows you to offer script widget to your users."
-                      arrow
-                      componentsProps={{
-                        tooltip: {
-                          sx: {
-                            backgroundColor: '#ffffff', // Ensure white background
-                            color: '#333', // Dark text color
-                            fontSize: '16px',
-                            fontWeight: '500',
-                            padding: '10px 15px',
-                            borderRadius: '8px',
-                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                          },
-                        },
-                        arrow: {
-                          sx: {
-                            color: '#ffffff', // Match tooltip background
-                          },
-                        },
-                      }}
-                    >
-                      <Image
-                        src={'/otherAssets/infoLightDark.png'}
-                        height={16}
-                        width={16}
-                        alt="*"
-                      />
-                    </Tooltip>
-                    <button
-                      onClick={() => {
-                        setEditTitleIndex(5)
-                        setShowEditModal(true)
-                        setShowEditModalTitle(scriptWidgetTitle)
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                          WebkitMaskImage: 'url(/assets/editPen.png)',
-                          maskImage: 'url(/assets/editPen.png)',
-                          WebkitMaskSize: 'contain',
-                          maskSize: 'contain',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center',
-                          maskPosition: 'center',
-                        }}
-                      />
-                    </button>
-                  </div>
-                  <div className="flex flex-row items-center gap-2">
-                    {delScriptWidgetLoader ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <Switch
-                        checked={allowScriptWidget}
-                        onChange={(e) => {
-                          const checked = e.target.checked
-                          setAllowScriptWidget(checked)
-                          if (!checked) {
-                            handleUserSettings('scriptWidgetDel')
-                          } else {
-                            setAddScriptWidget(true)
-                          }
-                        }}
-                        sx={{
-                          '& .MuiSwitch-switchBase.Mui-checked': {
-                            color: 'white',
-                          },
-                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                            {
-                              backgroundColor: 'hsl(var(--brand-primary))',
-                            },
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-                {settingsData?.scriptWidgetUrl && !addScriptWidget && (
-                  <div className="flex flex-row items-center justify-between w-full mt-2">
-                    <div style={styles.subHeading}>
-                      URL: {settingsData?.scriptWidgetUrl || ''}
-                    </div>
-                    <button
-                      className="flex flex-row items-center gap-2"
-                      onClick={() => {
-                        setAddScriptWidget(true)
-                      }}
-                    >
-                      <div
-                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
-                        style={{ fontSize: '16px', fontWeight: '400' }}
-                      >
-                        Edit
-                      </div>
-                      <div
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                          WebkitMaskImage: 'url(/assets/editPen.png)',
-                          maskImage: 'url(/assets/editPen.png)',
-                          WebkitMaskSize: 'contain',
-                          maskSize: 'contain',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center',
-                          maskPosition: 'center',
-                        }}
-                      />
-                    </button>
-                  </div>
-                )}
-                {(addScriptWidget || (allowScriptWidget && !settingsData?.scriptWidgetUrl)) && (
-                  <div className="flex flex-row items-center justify-center gap-2 mt-2">
-                    <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
-                      <input
-                        style={styles.inputs}
-                        type="text"
-                        className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                        placeholder="Enter Script Builder URL"
-                        value={scriptWidget}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          const validUrl = isValidUrl(value)
-                          setScriptWidget(value)
-                          setTimeout(() => {
-                            if (value && !validUrl) {
-                              setIsInValidUrlScriptWidget(true)
-                            } else {
-                              setIsInValidUrlScriptWidget(false)
-                            }
-                          }, 1000)
-                        }}
-                      />
-                    </div>
-                    {addScriptWidgetLoader ? (
-                      <div className="flex flex-row items-center justify-center w-[10%]">
-                        <CircularProgress size={30} />
-                      </div>
-                    ) : (
-                      <button
-                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlScriptWidget || !scriptWidget ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
-                        style={{ fontSize: '15px', fontWeight: '500' }}
-                        onClick={() => {
-                          handleUserSettings('scriptWidget')
-                        }}
-                        disabled={isInValidUrlScriptWidget || !scriptWidget}
-                      >
-                        {isInValidUrlScriptWidget ? 'Invalid' : 'Save'}
                       </button>
                     )}
                   </div>
@@ -1805,6 +1649,173 @@ const handleUserSettings = async (from) => {
                     // setShowEditModal(false);
                   }}
                 />
+              </div>
+            </div>
+
+            <div className="border-b">
+              <div className="border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4">
+                <div className="flex flex-row items-center justify-between w-full">
+                  <div className="flex flex-row items-center gap-2">
+                    <div style={styles.subHeading}>
+                      {settingsData?.scriptWidgetTitle}
+                    </div>
+                    <Tooltip
+                      title="This allows you to offer script widget to your users."
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '16px',
+                            fontWeight: '500',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <Image
+                        src={'/otherAssets/infoLightDark.png'}
+                        height={16}
+                        width={16}
+                        alt="*"
+                      />
+                    </Tooltip>
+                    <button
+                      onClick={() => {
+                        setEditTitleIndex(5)
+                        setShowEditModal(true)
+                        setShowEditModalTitle(scriptWidgetTitle)
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    {delScriptWidgetLoader ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <Switch
+                        checked={allowScriptWidget}
+                        onChange={(e) => {
+                          const checked = e.target.checked
+                          setAllowScriptWidget(checked)
+                          if (!checked) {
+                            handleUserSettings('scriptWidgetDel')
+                          } else {
+                            setAddScriptWidget(true)
+                          }
+                        }}
+                        sx={{
+                          '& .MuiSwitch-switchBase.Mui-checked': {
+                            color: 'white',
+                          },
+                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                            {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                            },
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+                {settingsData?.scriptWidgetUrl && !addScriptWidget && (
+                  <div className="flex flex-row items-center justify-between w-full mt-2">
+                    <div style={styles.subHeading}>
+                      URL: {settingsData?.scriptWidgetUrl || ''}
+                    </div>
+                    <button
+                      className="flex flex-row items-center gap-2"
+                      onClick={() => {
+                        setAddScriptWidget(true)
+                      }}
+                    >
+                      <div
+                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
+                        style={{ fontSize: '16px', fontWeight: '400' }}
+                      >
+                        Edit
+                      </div>
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
+                      />
+                    </button>
+                  </div>
+                )}
+                {(addScriptWidget || (allowScriptWidget && !settingsData?.scriptWidgetUrl)) && (
+                  <div className="flex flex-row items-center justify-center gap-2 mt-2">
+                    <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                      <input
+                        style={styles.inputs}
+                        type="text"
+                        className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                        placeholder="Enter Script Builder URL"
+                        value={scriptWidget}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          const validUrl = isValidUrl(value)
+                          setScriptWidget(value)
+                          setTimeout(() => {
+                            if (value && !validUrl) {
+                              setIsInValidUrlScriptWidget(true)
+                            } else {
+                              setIsInValidUrlScriptWidget(false)
+                            }
+                          }, 1000)
+                        }}
+                      />
+                    </div>
+                    {addScriptWidgetLoader ? (
+                      <div className="flex flex-row items-center justify-center w-[10%]">
+                        <CircularProgress size={30} />
+                      </div>
+                    ) : (
+                      <button
+                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlScriptWidget || !scriptWidget ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
+                        style={{ fontSize: '15px', fontWeight: '500' }}
+                        onClick={() => {
+                          handleUserSettings('scriptWidget')
+                        }}
+                        disabled={isInValidUrlScriptWidget || !scriptWidget}
+                      >
+                        {isInValidUrlScriptWidget ? 'Invalid' : 'Save'}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
