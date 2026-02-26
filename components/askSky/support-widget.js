@@ -379,6 +379,29 @@ export function SupportWidget({
     }
 
     if (vapi) {
+      // Check if account can start web/embed call (paused/cancelled/deleted block)
+      try {
+        const checkRes = await axios.get(`${Apis.canStartWebCall}/${assistantId}`)
+        if (!checkRes.data?.allowed) {
+          setOpen(false)
+          setLoading(false)
+          setSnackbarMessage(checkRes.data?.message || 'This action is not available for this account.')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+          return
+        }
+      } catch (checkErr) {
+        if (checkErr.response?.status === 403) {
+          setOpen(false)
+          setLoading(false)
+          setSnackbarMessage(checkErr.response?.data?.message || 'This action is not available for this account.')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+          return
+        }
+        throw checkErr
+      }
+
       // Use overrides passed as parameter (from form submission) or get default profile data
       let assistantOverrides
 
@@ -425,6 +448,12 @@ export function SupportWidget({
           })
           .catch((err) => {
             console.error('Failed to register embed call with lead:', err)
+            if (err.response?.status === 403) {
+              setSnackbarMessage(err.response?.data?.message || 'This action is not available for this account.')
+              setSnackbarSeverity('error')
+              setSnackbarOpen(true)
+              vapi?.stop()
+            }
           })
           .finally(() => {
             pendingLeadIdRef.current = null
