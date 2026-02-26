@@ -371,57 +371,39 @@ const LastStep = ({
             borderRadius: '13px',
           }}
         >
-          <div className="flex flex-row justify-between">
-            <button
-              className="flex flex-row items-center justify-center gap-2 bg-[#15151515] h-[34px] w-[92px] rounded-2xl pe-2"
-              onClick={handleMoveBack}
-            >
-              <CaretLeft size={20} weight="bold" />
-              <span style={styles.title}>Back</span>
-            </button>
-            <button
-              onClick={() => {
-                handleMoveBack()
-              }}
-            >
-              <Image src={'/assets/cross.png'} height={14} width={14} alt="*" />
-            </button>
-          </div>
-
-          <div className="flex flex-row items-center justify-between mt-6">
-            <div
-              style={{
-                fontWeight: '700',
-                fontSize: 24,
-              }}
-            >
-              One last thing
-            </div>
+          <div className="flex flex-row items-center justify-between w-full">
             <div className="flex flex-col items-start">
+              <div
+                style={{
+                  fontWeight: '700',
+                  fontSize: 24,
+                }}
+              >
+                One last thing
+              </div>
               <div
                 style={{ fontSize: 12, fontWeight: '600', color: brandPrimaryColor }}
               >
                 {getLeadSelectedCount()} Contacts Selected
               </div>
-
-              <div className="flex flex-row items-center  -mt-2">
+              <div className="flex flex-row items-center -mt-2">
                 <Tooltip
                   title="If the lead has given consent, no need to run against DNC"
                   arrow
                   componentsProps={{
                     tooltip: {
                       sx: {
-                        backgroundColor: '#ffffff', // Ensure white background
-                        color: '#333', // Dark text color
+                        backgroundColor: '#ffffff',
+                        color: '#333',
                         fontSize: '14px',
                         padding: '10px 15px',
                         borderRadius: '8px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                       },
                     },
                     arrow: {
                       sx: {
-                        color: '#ffffff', // Match tooltip background
+                        color: '#ffffff',
                       },
                     },
                   }}
@@ -437,11 +419,8 @@ const LastStep = ({
                     Check DNC List
                   </div>
                 </Tooltip>
-
                 <Switch
                   checked={isDncChecked}
-                  // color="#7902DF"
-                  // exclusive
                   onChange={(event) => {
                     if (
                       userLocalDetails?.planCapabilities.maxDNCChecks >=
@@ -467,6 +446,14 @@ const LastStep = ({
                 />
               </div>
             </div>
+            <button
+              onClick={() => {
+                handleMoveBack()
+              }}
+              aria-label="Close"
+            >
+              <Image src={'/assets/cross.png'} height={14} width={14} alt="" />
+            </button>
           </div>
 
           <div className="mt-4" style={styles.heading}>
@@ -902,51 +889,46 @@ const LastStep = ({
             </div>
           ) : (
             <div className="w-full">
-              {(NoOfLeadsToSend || customLeadsToSend) &&
-              (CallNow ||
-                (CallLater &&
-                  selectedDateTime &&
-                  hasUserSelectedDate &&
-                  !isDisabled)) ? (
+              <div className="flex flex-row items-center gap-2 w-full mt-4">
                 <button
-                  className="text-white w-full h-[50px] rounded-lg mt-4"
-                  style={{ backgroundColor: brandPrimaryColor }}
-                  onClick={() => {
-                    const localData = localStorage.getItem('User')
-                    // if (localData) {
-                    //   const UserDetails = JSON.parse(localData);
-                    //   console.log(UserDetails.user.smartRefill);
-                    //   if (UserDetails.user.smartRefill === false) {
-                    //     // setShowSmartRefillPopUp(true);
-                    //     //handle continue here
-                    //     return;
-                    //   }
-                    // }
-                    const lastStepData = {
-                      // numberOfLeads: NoOfLeadsToSend,
-                      numberOfLeads: getLeadSelectedCount(),
-                      cutomLeads: customLeadsToSend,
-                      selectedDate: selectedDateTime,
-                      DncChecked: isDncChecked,
-                      isCallNow: CallNow,
-                      callL: CallLater,
-                    }
-                    handleContinue(lastStepData)
-                    //triger assign lead api here
-                    // handleAssignLead();
-                    // handleAssigLead()
-                  }}
+                  className="flex flex-row items-center justify-center gap-2 bg-[#15151515] h-[34px] w-[92px] rounded-2xl pe-2 flex-shrink-0"
+                  onClick={handleMoveBack}
                 >
-                  Continue
+                  <CaretLeft size={20} weight="bold" />
+                  <span style={styles.title}>Back</span>
                 </button>
-              ) : (
-                <button
-                  className="text-[#000000] w-full h-[50px] rounded-lg bg-[#00000020] mt-4"
-                  disabled={true}
-                >
-                  Continue
-                </button>
-              )}
+                {(NoOfLeadsToSend || customLeadsToSend) &&
+                (CallNow ||
+                  (CallLater &&
+                    selectedDateTime &&
+                    hasUserSelectedDate &&
+                    !isDisabled)) ? (
+                  <button
+                    className="text-white flex-1 h-[50px] rounded-lg min-w-0"
+                    style={{ backgroundColor: brandPrimaryColor }}
+                    onClick={() => {
+                      const lastStepData = {
+                        numberOfLeads: getLeadSelectedCount(),
+                        cutomLeads: customLeadsToSend,
+                        selectedDate: selectedDateTime,
+                        DncChecked: isDncChecked,
+                        isCallNow: CallNow,
+                        callL: CallLater,
+                      }
+                      handleContinue(lastStepData)
+                    }}
+                  >
+                    Continue
+                  </button>
+                ) : (
+                  <button
+                    className="text-[#000000] flex-1 h-[50px] rounded-lg bg-[#00000020] min-w-0"
+                    disabled={true}
+                  >
+                    Continue
+                  </button>
+                )}
+              </div>
 
               <UpgradeModal
                 open={showUpgradeModal}

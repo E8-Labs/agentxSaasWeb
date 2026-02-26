@@ -652,16 +652,17 @@ const AssignLead = ({
 
   const styles = {
     heading: {
-      fontWeight: '600',
-      fontSize: 17,
+      fontWeight: '400',
+      fontSize: 16,
     },
     paragraph: {
       fontWeight: '500',
-      fontSize: 12,
+      fontSize: 14,
     },
     paragraph2: {
-      fontWeight: '500',
-      fontSize: 12,
+      fontWeight: '400',
+      fontSize: 14,
+      color: 'rgba(0,0,0,0.8)',
     },
     title: {
       fontWeight: '500',
@@ -681,7 +682,7 @@ const AssignLead = ({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col" style={{ gap: 2 }}>
       <AgentSelectSnackMessage
         message={errorMessage}
         title={errTitle}
@@ -713,36 +714,54 @@ const AssignLead = ({
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
         />
       )}
-      {/* Snackbar for invalid time */}
-      <div className="flex flex-row items-center justify-between mt-4">
-        <div style={{ fontSize: 24, fontWeight: '700' }}>Select your Agent</div>
-        <div className="flex flex-row items-center gap-2">
-          <div style={{ ...styles.paragraph, color: brandPrimaryColor }}>
-            {getLeadSelectedCount()} Contacts Selected
-          </div>
-          <CloseBtn onClick={handleCloseAssignLeadModal} />
-        </div>
-      </div>
-      <div
-        className="mt-2"
-        style={styles.paragraph2}
-        onClick={() => {
-          // setLastStepModal(true);
-        }}
-      >
-        Only outbound agents assigned to a stage can be selected.
-      </div>
-      {initialLoader ? (
-        <div className="w-full flex flex-row justify-center mt-4">
-          <CircularProgress size={30} />
-        </div>
-      ) : (
+      {/* Title + content wrapper */}
+      <div className="flex flex-col flex-1 min-h-0" style={{ padding: 0, borderRadius: 16 }}>
+        <div className="flex flex-col w-full flex-1 min-h-0" style={{ padding: 0, gap: 1 }}>
         <div
-          className="relative max-h-[50vh] overflow-y-auto"
-          style={{ scrollbarWidth: 'none' }}
-          id="scrollableAgentDiv"
+          className="flex flex-col"
+          style={{ borderBottom: '1px solid #eaeaea' }}
         >
-          <InfiniteScroll
+          <div
+            className="flex flex-row items-center justify-between"
+            style={{ paddingTop: 16, paddingBottom: 16, margin: 0, paddingLeft: 16, paddingRight: 16, height: 65 }}
+          >
+            <div className="flex flex-row items-center" style={{ gap: 4, fontSize: 12, fontWeight: 400, color: 'rgba(0,0,0,0.7)' }}>
+              <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-0.5px' }}>Select your Agent</div>
+              <div style={{ ...styles.paragraph, fontSize: 12, color: 'rgba(0,0,0,0.7)' }}>
+                {getLeadSelectedCount()} Contacts Selected
+              </div>
+            </div>
+            <CloseBtn onClick={handleCloseAssignLeadModal} />
+          </div>
+        </div>
+        {initialLoader ? (
+          <div className="w-full flex flex-row justify-center mt-4" style={{ padding: 16 }}>
+            <CircularProgress size={30} />
+          </div>
+        ) : (
+          <div
+            className="relative flex-1 min-h-0 overflow-y-auto max-h-[400px]"
+            style={{ scrollbarWidth: 'none', paddingLeft: 16, paddingRight: 16, paddingTop: 16, paddingBottom: 16 }}
+            id="scrollableAgentDiv"
+          >
+            <div
+              className="mt-2 pb-2"
+              style={{
+                ...styles.paragraph2,
+                fontWeight: 400,
+                fontSize: 14,
+                height: 'auto',
+                padding: 12,
+                borderRadius: 8,
+                margin: 0,
+                backgroundColor: '#FEF4E4',
+                border: '1px solid #E49024',
+                color: '#000000',
+              }}
+            >
+              Only outbound agents assigned to a stage can be selected.
+            </div>
+            <InfiniteScroll
             dataLength={agentsList.length}
             next={() => {
               getAgents({ initialoaderStatus: false })
@@ -761,7 +780,7 @@ const AssignLead = ({
                   paddingTop: '10px',
                   fontWeight: '400',
                   fontFamily: 'inter',
-                  fontSize: 16,
+                  fontSize: 14,
                   color: '#00000060',
                 }}
               >
@@ -795,7 +814,7 @@ const AssignLead = ({
                             <i
                               className="text-red"
                               style={{
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: '600',
                               }}
                             >
@@ -814,8 +833,13 @@ const AssignLead = ({
                 <button
                   key={index}
                   disabled={checkNostageAndInboundAgent(item)}
-                  className={`rounded-xl p-2 mt-4 w-full outline-none ${checkNostageAndInboundAgent(item) ? 'bg-[#00000020]' : ''}`} //
+                  className={`rounded-xl mt-4 w-full outline-none flex flex-col active:scale-[0.98] transition-transform ${checkNostageAndInboundAgent(item) ? 'bg-[#00000020]' : ''}`}
                   style={{
+                    gap: 4,
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    paddingLeft: 16,
+                    paddingRight: 16,
                     border: SelectedAgents.some((a) => a.id === item.id)
                       ? `2px solid ${brandPrimaryColor}`
                       : '1px solid #00000020',
@@ -848,37 +872,62 @@ const AssignLead = ({
                     }
                   }}
                 >
-                  <div className="flex flex-row items-center justify-between pt-2">
-                    <div className="flex flex-row items-center gap-2">
-                      {getAgentImage(item)}
-                      <span style={styles.heading}>
-                        {GetOutboundAgent(item)
-                          ?.name?.slice(0, 1)
-                          ?.toUpperCase()}
-                        {GetOutboundAgent(item)?.name?.slice(1)}
-                        {/*item?.name?.slice(0, 1)?.toUpperCase()}
-                        {item?.name?.slice(1)*/}
-                      </span>
+                  <div
+                    className="flex flex-row items-center justify-between"
+                    style={{ paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0 }}
+                  >
+                    <div className="flex flex-row items-center" style={{ gap: 12 }}>
+                      <div
+                        style={{
+                          width: 58,
+                          height: 58,
+                          borderRadius: '50%',
+                          border: '2px solid white',
+                          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.08)',
+                          backgroundColor: 'white',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <div style={{ transform: 'scale(0.748)', transformOrigin: 'center' }}>
+                          {getAgentImage(item)}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-start text-left" style={{ gap: 2 }}>
+                        <span style={{ ...styles.heading, fontSize: 16 }}>
+                          {GetOutboundAgent(item)
+                            ?.name?.slice(0, 1)
+                            ?.toUpperCase()}
+                          {GetOutboundAgent(item)?.name?.slice(1)}
+                        </span>
+                        <div
+                          style={{
+                            fontWeight: '500',
+                            fontSize: 14,
+                            color: 'rgba(0,0,0,0.8)',
+                          }}
+                        >
+                          {item.agents[0]?.agentRole}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex flex-col items-end">
                       <div>{noNumberWarning(item)}</div>
-                      <div
-                        style={{
-                          fontWeight: '500',
-                          fontSize: 12,
-                        }}
-                      >
-                        {item.agents[0]?.agentRole}
-                      </div>
                     </div>
                   </div>
                   <div
-                    className="flex flex-row items-center gap-2 mt-6 pb-2 w-full overflow-auto"
+                    className="flex flex-row items-center gap-2 w-full overflow-auto"
                     style={{
-                      ...styles.paragraph,
+                      fontWeight: 400,
+                      fontSize: 14,
+                      height: 'auto',
+                      paddingTop: 2,
+                      paddingBottom: 2,
                       overflowY: 'hidden',
-                      scrollbarWidth: 'none', // For Firefox
-                      msOverflowStyle: 'none', // For Internet Explorer and Edge
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none',
                     }}
                   >
                     <style jsx>
@@ -890,9 +939,9 @@ const AssignLead = ({
                     </style>
                     <div
                       className="flex-shrink-0 flex flex-row items-center gap-1"
-                      style={styles.paragraph}
+                      style={{ fontWeight: 400, fontSize: 14 }}
                     >
-                      <span style={{ color: brandPrimaryColor }}>Active in | </span>{' '}
+                      <span style={{ color: brandPrimaryColor, fontWeight: 400, fontSize: 14 }}>Active in | </span>{' '}
                       {item.pipeline?.title || 'No Pipeline'}
                     </div>
 
@@ -903,8 +952,8 @@ const AssignLead = ({
                       >
                         {item.stages.map((item, index) => (
                           <div
-                            className="px-3 py-1 rounded-3xl border"
-                            style={styles.paragraph}
+                            className="px-3 py-1 border"
+                            style={{ fontWeight: 400, fontSize: 14, borderRadius: 8 }}
                             key={index}
                           >
                             {item.stageTitle}
@@ -913,8 +962,8 @@ const AssignLead = ({
                       </div>
                     ) : (
                       <div
-                        className="px-3 py-1 rounded-3xl border"
-                        style={styles.paragraph}
+                        className="px-3 py-1 border"
+                        style={{ fontWeight: 400, fontSize: 14, borderRadius: 8 }}
                       >
                         No Stage
                       </div>
@@ -925,15 +974,25 @@ const AssignLead = ({
             })}
           </InfiniteScroll>
         </div>
-      )}
-      <div>
+        )}
+      </div>
+      <div className="flex items-center justify-center">
         <button
-          className="rounded-lg mt-4 w-full h-[50px]"
+          className="rounded-lg mt-4 active:scale-[0.98] transition-transform"
           style={{
-            ...styles.heading,
+            fontSize: 14,
+            fontWeight: styles.heading?.fontWeight ?? 600,
+            height: 40,
+            width: '96%',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            marginTop: 12,
+            marginBottom: 12,
+            paddingLeft: 12,
+            paddingRight: 12,
             backgroundColor: ShouldContinue ? '#00000020' : brandPrimaryColor,
             color: ShouldContinue ? '#00000080' : 'white',
-          }} //onClick={handleAssigLead}
+          }}
           disabled={ShouldContinue}
           onClick={() => {
             const A = agentsList
@@ -944,6 +1003,7 @@ const AssignLead = ({
         >
           Continue
         </button>
+      </div>
       </div>
       {/* last step modal 
 

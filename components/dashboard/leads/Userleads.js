@@ -242,6 +242,30 @@ const Userleads = ({
   const [showEditSmartList, setShowEditSmartList] = useState(false)
   const [selectedSmartListForEdit, setSelectedSmartListForEdit] = useState(null)
 
+  // Inline rename for sheet tab name
+  const [editingSheetId, setEditingSheetId] = useState(null)
+  const [editingSheetName, setEditingSheetName] = useState('')
+  const sheetClickTimeoutRef = useRef(null)
+  const inlineSheetNameInputRef = useRef(null)
+
+  useEffect(() => {
+    if (editingSheetId && inlineSheetNameInputRef.current) {
+      const el = inlineSheetNameInputRef.current
+      el.focus()
+      el.select()
+      const rafId = requestAnimationFrame(() => {
+        el.select()
+      })
+      const tId = setTimeout(() => {
+        el.select()
+      }, 0)
+      return () => {
+        cancelAnimationFrame(rafId)
+        clearTimeout(tId)
+      }
+    }
+  }, [editingSheetId])
+
   //code for passing columns
   const [Columns, setColumns] = useState(null)
 
@@ -1002,6 +1026,65 @@ const Userleads = ({
       }
     } finally {
       setDelSmartListLoader(false)
+    }
+  }
+
+  const saveInlineSheetName = async (item, newName) => {
+    const trimmed = (newName ?? '').trim()
+    if (!trimmed) {
+      setEditingSheetId(null)
+      setEditingSheetName('')
+      return
+    }
+    if (trimmed === (item.sheetName ?? '').trim()) {
+      setEditingSheetId(null)
+      setEditingSheetName('')
+      return
+    }
+    try {
+      const localData = localStorage.getItem('User')
+      const AuthToken = localData ? JSON.parse(localData).token : null
+      if (!AuthToken) {
+        setSnackMessage('Not authenticated')
+        setMessageType(SnackbarTypes.Error)
+        setShowSnackMessage(true)
+        return
+      }
+      const columns = (item.columns && Array.isArray(item.columns))
+        ? item.columns.map((col) => (col && typeof col === 'object' && 'columnName' in col ? col.columnName : String(col)))
+        : []
+      const ApiData = {
+        sheetName: trimmed,
+        columns,
+        inbound: item.type === 'inbound',
+        enrich: item.enrich ?? false,
+        smartListId: item.id,
+      }
+      const response = await axios.put(Apis.updateSmartList, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true && response?.data?.data) {
+        const updated = response.data.data
+        setSheetsList((prev) =>
+          prev.map((s) => (s.id === item.id ? { ...s, sheetName: updated.sheetName ?? trimmed } : s)),
+        )
+        setEditingSheetId(null)
+        setEditingSheetName('')
+        setSnackMessage('List name updated')
+        setMessageType(SnackbarTypes.Success)
+        setShowSnackMessage(true)
+      } else {
+        setSnackMessage(response?.data?.message || 'Failed to update list name')
+        setMessageType(SnackbarTypes.Error)
+        setShowSnackMessage(true)
+      }
+    } catch (error) {
+      setSnackMessage(error?.response?.data?.message || 'Failed to update list name')
+      setMessageType(SnackbarTypes.Error)
+      setShowSnackMessage(true)
     }
   }
 
@@ -2342,7 +2425,7 @@ const Userleads = ({
                     return (
                       <div
                         key={index}
-                        className="group flex flex-row items-center gap-3 px-2 h-[40px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98]"
+                        className={`group flex flex-row items-center gap-3 px-2 h-[40px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98] ${editingSheetId === item.id ? 'flex-shrink-0' : ''}`}
                         style={{
                           borderBottom:
                             SelectedSheetId === item.id
@@ -2352,38 +2435,75 @@ const Userleads = ({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        <button
-                          style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}
-                          className="outline-none w-full text-left"
-                          onClick={() => {
-                            setSearchLead('')
-                            // Update ref immediately to prevent flash
-                            sheetIndexSelected.current = index
-                            // Clear leads immediately to prevent race condition
-                            setLeadsList([])
-                            setFilterLeads([])
-                            setLeadColumns([])
-                            // Clear loading state immediately to prevent showing old loading state
-                            setMoreLeadsLoader(false)
-                            setSheetsLoader(false)
-                            setInitialLoader(false)
-                            // Reset filtering flag to allow new request to start
-                            isFilteringRef.current = false
-                            // Invalidate any pending requests by incrementing request version
-                            requestVersion.current++
-                            // Reset pagination
-                            setNextCursorValue(0)
-                            setHasMore(true)
-                            // Update selected sheet
-                            setSelectedSheetId(item.id)
-                            setParamsInSearchBar(index)
-                            setSelectedLeadsList([])
-                            setSelectedAll(false)
-                            //   getLeads(item, 0);
-                          }}
-                        >
-                          {item.sheetName}
-                        </button>
+                        {editingSheetId === item.id ? (
+                          <input
+                            type="text"
+                            value={editingSheetName}
+                            onChange={(e) => setEditingSheetName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                saveInlineSheetName(item, editingSheetName)
+                              } else if (e.key === 'Escape') {
+                                setEditingSheetId(null)
+                                setEditingSheetName('')
+                                e.target.blur()
+                              }
+                            }}
+                            onBlur={() => saveInlineSheetName(item, editingSheetName)}
+                            onDoubleClick={(e) => e.stopPropagation()}
+                            ref={inlineSheetNameInputRef}
+                            style={{
+                              fontWeight: 400,
+                              fontSize: 14,
+                              opacity: 0.8,
+                              width: `${Math.max((editingSheetName || '').length + 1, 8)}ch`,
+                              minWidth: '8ch',
+                              border: 'none',
+                              borderBottom: '1px dotted rgba(0,0,0,0.7)',
+                              borderRadius: 0,
+                            }}
+                            className="outline-none text-left bg-transparent px-0 py-0 min-w-0"
+                          />
+                        ) : (
+                          <button
+                            style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}
+                            className="outline-none w-full text-left"
+                            onClick={() => {
+                              if (sheetClickTimeoutRef.current) clearTimeout(sheetClickTimeoutRef.current)
+                              sheetClickTimeoutRef.current = setTimeout(() => {
+                                sheetClickTimeoutRef.current = null
+                                setSearchLead('')
+                                sheetIndexSelected.current = index
+                                setLeadsList([])
+                                setFilterLeads([])
+                                setLeadColumns([])
+                                setMoreLeadsLoader(false)
+                                setSheetsLoader(false)
+                                setInitialLoader(false)
+                                isFilteringRef.current = false
+                                requestVersion.current++
+                                setNextCursorValue(0)
+                                setHasMore(true)
+                                setSelectedSheetId(item.id)
+                                setParamsInSearchBar(index)
+                                setSelectedLeadsList([])
+                                setSelectedAll(false)
+                              }, 200)
+                            }}
+                            onDoubleClick={(e) => {
+                              e.stopPropagation()
+                              if (sheetClickTimeoutRef.current) {
+                                clearTimeout(sheetClickTimeoutRef.current)
+                                sheetClickTimeoutRef.current = null
+                              }
+                              setEditingSheetId(item.id)
+                              setEditingSheetName(item.sheetName ?? '')
+                            }}
+                          >
+                            {item.sheetName}
+                          </button>
+                        )}
                         <DropdownMenu
                           open={dropdownOpen[item.id] || false}
                           onOpenChange={(open) => {
@@ -2398,7 +2518,7 @@ const Userleads = ({
                         >
                           <DropdownMenuTrigger asChild>
                             <button
-                              className={`outline-none transition-opacity duration-150 ${dropdownOpen[item.id] ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                              className={`outline-none transition-opacity duration-150 ${(dropdownOpen[item.id] || SelectedSheetId === item.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                               onClick={() => {
                                 handleShowPopup(item)
                               }}
@@ -2534,7 +2654,7 @@ const Userleads = ({
                           }}
                         >
                           {isNameColumn ? (
-                            <div className="flex flex-row items-center gap-3">
+                            <div className="flex flex-row items-center gap-2">
                               {selectedAll ? (
                                 <button
                                   className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center flex-shrink-0"
@@ -2560,6 +2680,21 @@ const Userleads = ({
                                 />
                               )}
                               <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
+                              {(selectedLeadsList.length > 0 || selectedAll) && (
+                                <span
+                                  className="ml-auto flex-shrink-0"
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: 12,
+                                    fontWeight: 500,
+                                    color: 'hsl(var(--brand-primary))',
+                                    backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                    borderRadius: 8,
+                                  }}
+                                >
+                                  {getLeadSelectedCount()} {getLeadSelectedCount() === 1 ? 'lead' : 'leads'}
+                                </span>
+                              )}
                             </div>
                           ) : (
                             (column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()

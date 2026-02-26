@@ -2813,7 +2813,7 @@ const LeadDetails = ({
                   </Popover>
 
 
-                  {/* </div> */}
+                  </div>
 
                   <div className="w-full" style={{ paddingInline: 0 }}>
                     <TabsCN
