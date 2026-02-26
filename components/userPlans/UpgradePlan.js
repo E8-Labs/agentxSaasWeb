@@ -801,6 +801,8 @@ function UpgradePlanContent({
 
   const isPlanCurrent = (item) => {
 
+    // console.log("currentUserFullPlan in is plan current is", currentFullPlan)
+
     console.log("item in is plan current is", item)
     if (!item) {
       return false
@@ -809,6 +811,7 @@ function UpgradePlanContent({
     // When selectedUser is provided (agency/admin viewing subaccount/other user),
     // use currentFullPlan (selected user's plan) instead of currentUserPlan (logged-in user's plan from localStorage)
     const planToCompare = selectedUser?.id ? currentFullPlan : currentUserPlan
+    console.log("planToCompare in is plan current is itemPlanId", currentFullPlan)
 
     if (!planToCompare) {
       return false
@@ -818,10 +821,10 @@ function UpgradePlanContent({
     // item.id is the plan ID from the plans list
     // Convert both to numbers for strict comparison
     const itemPlanId = Number(item.id || item.planId)
-    const currentPlanId = Number(planToCompare.id || planToCompare.planId)
+    const currentPlanId = Number(planToCompare.planId ||planToCompare.id)
 
     console.log("itemPlanId", itemPlanId)
-    console.log("currentPlanId", currentPlanId)
+    console.log("currentPlanId itemPlanId", currentPlanId)
 
     // Only log when there's a potential match to reduce noise
     if (
