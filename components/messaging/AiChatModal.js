@@ -4,7 +4,13 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import moment from 'moment'
 import { PaperPlaneTilt, CircleNotch, Paperclip } from '@phosphor-icons/react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Mail, MessageSquareDot, MessagesSquare } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Drawer, CircularProgress } from '@mui/material'
 import Image from 'next/image'
 import { toast } from '@/utils/toast'
@@ -107,6 +113,8 @@ const AiChatModal = ({
   onPlayRecording,
   onCopyCallId,
   onReadTranscript,
+  /** When user selects Email or Text from AI actions in drawer, close drawer and open follow-up for this message */
+  onCloseDrawerAndOpenFollowUp = null,
 }) => {
   const [inputValue, setInputValue] = useState('')
   const [messages, setMessages] = useState([])
@@ -665,7 +673,7 @@ const AiChatModal = ({
                 </div>
               )}
 
-              {/* Call summary card (no AI actions) */}
+              {/* Call summary card with AI actions (Email / Text / Chat) */}
               <div className="w-full max-w-2xl px-4">
                 <div
                   className="rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden"
@@ -681,6 +689,56 @@ const AiChatModal = ({
                     onReadTranscript={onReadTranscript}
                     leadName={selectedThread?.lead?.firstName}
                     leadId={selectedThread?.lead?.id}
+                    bottomRightContent={
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-[color,transform] duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-black"
+                          >
+                            <Image
+                              src="/otherAssets/starsIcon2.png"
+                              height={14}
+                              width={14}
+                              alt="AI"
+                            />
+                            <span>AI Action</span>
+                            <ChevronDown className="h-4 w-4 shrink-0" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] z-[1300]">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (typeof onCloseDrawerAndOpenFollowUp === 'function') {
+                                onCloseDrawerAndOpenFollowUp({ messageId: callSummaryMessage?.id, type: 'email' })
+                              }
+                              onClose()
+                            }}
+                            className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
+                          >
+                            <Mail className="h-4 w-4" />
+                            <span>Email</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (typeof onCloseDrawerAndOpenFollowUp === 'function') {
+                                onCloseDrawerAndOpenFollowUp({ messageId: callSummaryMessage?.id, type: 'text' })
+                              }
+                              onClose()
+                            }}
+                            className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
+                          >
+                            <MessageSquareDot className="h-4 w-4" />
+                            <span>Text</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem disabled className="flex items-center gap-2 opacity-70">
+                            <MessagesSquare className="h-4 w-4" />
+                            <span>Chat</span>
+                            <span className="text-xs text-muted-foreground ml-1">(open)</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    }
                   />
                 </div>
               </div>

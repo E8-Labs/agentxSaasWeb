@@ -43,6 +43,7 @@ const Apis = {
   updateSubAgent: `${BasePath}api/agent/updateSubAgent`,
   createLead: `${BasePath}api/leads/addLeads`,
   getLeads: `${BasePath}api/leads/getLeads`,
+  deleteLeadEmails: `${BasePath}api/leads/deleteLeadEmails`,
   searchLeadsForMessaging: `${BasePath}api/leads/searchLeadsForMessaging`,
   getSheets: `${BasePath}api/leads/getSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
