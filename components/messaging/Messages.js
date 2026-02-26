@@ -215,12 +215,37 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
 
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
+  // Resolve planCapabilities from Redux or localStorage (localStorage can have fresher full profile)
+  const effectivePlanCapabilities = reduxUser?.planCapabilities ?? (typeof window !== 'undefined' && (() => {
+    try {
+      const stored = localStorage.getItem('User')
+      if (!stored) return undefined
+      return JSON.parse(stored)?.user?.planCapabilities
+    } catch { return undefined }
+  })())
   // Check if user has access to messaging features
-  const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || reduxUser?.planCapabilities?.allowTextMessages === true
-  // AI Email & Text plan flags for SystemMessage (call transcript AI actions)
-  const allowAIEmailAndText = reduxUser?.planCapabilities?.allowAIEmailAndText === true
-  const shouldShowAllowAiEmailAndTextUpgrade = reduxUser?.planCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
-  const shouldShowAiEmailAndTextRequestFeature = reduxUser?.planCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
+  const hasMessagingAccess = effectivePlanCapabilities?.allowEmails === true || effectivePlanCapabilities?.allowTextMessages === true
+  // AI Email & Text plan flags for SystemMessage and for gating AI Message Settings modal
+  const allowAIEmailAndText = effectivePlanCapabilities?.allowAIEmailAndText === true
+  const shouldShowAllowAiEmailAndTextUpgrade = effectivePlanCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
+  const shouldShowAiEmailAndTextRequestFeature = effectivePlanCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
+
+  // When user clicks "AI Message Settings": open settings only if they have access; otherwise show upgrade or request feature
+  const handleOpenMessageSettings = useCallback(() => {
+    if (allowAIEmailAndText) {
+      setShowMessageSettingsModal(true)
+      return
+    }
+    if (shouldShowAiEmailAndTextRequestFeature) {
+      setShowAiRequestFeatureModal(true)
+      return
+    }
+    if (shouldShowAllowAiEmailAndTextUpgrade) {
+      setShowUpgradePlanModal(true)
+      return
+    }
+    // No access and no upgrade/request UI — do not open the modal
+  }, [allowAIEmailAndText, shouldShowAllowAiEmailAndTextUpgrade, shouldShowAiEmailAndTextRequestFeature])
 
   // Close email detail popover when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
@@ -3410,7 +3435,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     }}
                     selectedUser={selectedUser}
                     agencyUser={agencyUser}
-                    onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
+                    onOpenMessageSettings={handleOpenMessageSettings}
                   />
                 )
               })()}
@@ -3480,7 +3505,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           onReplyClick={handleReplyClick}
                           onOpenEmailTimeline={handleOpenEmailTimeline}
                           updateComposerFromMessage={updateComposerFromMessage}
-                          onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
+                          onOpenMessageSettings={handleOpenMessageSettings}
                           onOpenAiChat={setAiChatContext}
                           onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
                           hasAiKey={messageSettingsHasAiKey}
