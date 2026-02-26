@@ -346,7 +346,7 @@ const Page = () => {
             >
             </div>
             {/* Standard Header */}
-            <div className="absolute top-0 left-0 right-0 z-20">
+            <div className="absolute top-0 left-0 right-0 z-20 bg-transparent">
               <StandardHeader title="" showTasks={true} showSeparator={false} variant="light" />
             </div>
             <div className="w-9/12 flex flex-col items-center h-[100%] relative z-10">

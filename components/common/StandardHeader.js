@@ -48,7 +48,7 @@ function StandardHeader({
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
 
-  
+
   // Get task status for indicator dots
   const { hasActiveTasks, hasPastDueTasks } = useTaskStatus(
     leadId || selectedThread?.leadId || null,
@@ -75,7 +75,7 @@ function StandardHeader({
 
   return (
     <>
-      <div className={containerClasses} style={showSeparator ? { borderBottom: '1px solid #eaeaea' } : undefined}>
+      <div className={containerClasses} style={{ borderBottom: showSeparator ? '1px solid #eaeaea' : undefined, backgroundColor: 'transparent' }}>
         {/* Left: Title Section - matches MessageHeader exactly */}
         {titleContent || (typeof title === 'string' ? <TypographyH3 className={textColorClass}>{title}</TypographyH3> : title)}
 
@@ -160,13 +160,13 @@ function StandardHeader({
                 setTaskBoardOpen(true)
                 window.dispatchEvent(new CustomEvent('hideSlider', { detail: { update: true } }))
               }}
-              className="mb-1 w-auto h-auto p-2 rounded-lg flex flex-row items-center justify-center gap-1.5 flex-shrink-0 relative bg-black/[0.02] hover:opacity-70 transition-opacity active:scale-[0.98]"
+              className="mb-1 w-auto h-auto p-2 rounded-lg flex flex-row items-center justify-center gap-1.5 flex-shrink-0 relative bg-black/[0.05] hover:opacity-70 transition-opacity active:scale-[0.98]"
             >
-              <Image 
-                src='/messaging/checkList.svg' 
-                alt='Tasks' 
-                width={20} 
-                height={20} 
+              <Image
+                src='/messaging/checkList.svg'
+                alt='Tasks'
+                width={20}
+                height={20}
               />
               <span className="text-sm font-medium">Task</span>
               {/* Status indicator dots */}
@@ -174,14 +174,14 @@ function StandardHeader({
                 <div className="absolute -top-1 -right-1 flex items-center gap-0.5">
                   {/* Red dot for past due (highest priority) */}
                   {hasPastDueTasks && (
-                    <div 
+                    <div
                       className="w-1 h-1 rounded-full border-2 border-white"
                       style={{ backgroundColor: '#EF4444' }}
                     />
                   )}
                   {/* Purple dot for active tasks (todo/in-progress) */}
                   {hasActiveTasks && !hasPastDueTasks && (
-                    <div 
+                    <div
                       className="w-1 h-1 rounded-full border-2 border-white"
                       style={{ backgroundColor: '#7804DF' }}
                     />
@@ -190,12 +190,12 @@ function StandardHeader({
               )}
             </button>
           )}
-          <NotficationsDrawer/>
+          <NotficationsDrawer />
         </div>
-      </div>
+      </div >
       {showTasks && (
-        <TaskBoard 
-          open={taskBoardOpen} 
+        <TaskBoard
+          open={taskBoardOpen}
           onClose={() => {
             setTaskBoardOpen(false)
             window.dispatchEvent(new CustomEvent('showSlider', { detail: { update: true } }))
@@ -206,7 +206,8 @@ function StandardHeader({
           selectedUser={selectedUser}
           enablePermissionChecks={enablePermissionChecks}
         />
-      )}
+      )
+      }
     </>
   )
 }

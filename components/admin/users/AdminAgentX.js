@@ -471,7 +471,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
       ? (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
       : model?.icon
-    // console.log("Value of reduxUser is", reduxUser)
+  // console.log("Value of reduxUser is", reduxUser)
 
   // Restore agent drawer state when component mounts and agents are loaded (only for admin/agency users)
   useEffect(() => {
@@ -2875,9 +2875,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         if (voiceData?.idleMessage !== undefined) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
+        if (selectedUser) {
+          formData.append('userId', selectedUser?.id)
+        }
 
-        for (let [key, value] of formData.entries()) { }
-
+        for (let [key, value] of formData.entries()) {
+          // console.log("key in formData", key, "value in formData", value)
+        }
+        // return
         const response = await axios.post(ApiPath, formData, {
           headers: {
             Authorization: 'Bearer ' + AuthToken,
