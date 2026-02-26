@@ -243,7 +243,7 @@ const UnlockPremiunFeatures = ({
               }}
               className="w-full bg-brand-primary text-white py-3 px-6 rounded-xl text-[15px] font-bold transition-colors"
             >
-              {from === 'agencyPayments' ? 'Continue' : 'Request Feature'}
+              {from === 'agencyPayments' ? 'Continue' : 'Request'}
             </button>
           )}
         </div>

@@ -5983,11 +5983,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                             const scriptBuilderUrl =
                               selectedUser?.agencySettings?.scriptWidgetUrl ??
                               reduxUser?.agencySettings?.scriptWidgetUrl ??
+                              reduxUser?.userSettings?.scriptWidgetUrl ??
                               PersistanceKeys.DefaultScriptBuilderUrl
                             window.open(scriptBuilderUrl, '_blank')
                           }}
                         >
-                          Use Script Builder
+                          Use {selectedUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
                           <ArrowUpRight size={20} color="white" />
                         </button>
                       </div>

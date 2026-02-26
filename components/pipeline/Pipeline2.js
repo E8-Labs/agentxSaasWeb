@@ -1069,11 +1069,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     onClick={() => {
                       const scriptBuilderUrl =
                         user?.user?.agencySettings?.scriptWidgetUrl ||
+                        user?.user?.userSettings?.scriptWidgetUrl ||
                         PersistanceKeys.DefaultScriptBuilderUrl
                       window.open(scriptBuilderUrl, '_blank')
                     }}
                   >
-                    Use Script Builder
+                    Use {user?.user?.agencySettings?.scriptWidgetTitle ?? user?.user?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
                     <ArrowUpRight size={20} color="white" />
                   </button>
                 </div>
