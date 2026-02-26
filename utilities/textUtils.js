@@ -5,6 +5,31 @@ import DOMPurify from 'dompurify'
  */
 
 /**
+ * Convert markdown to HTML: **text** -> <strong>, [text](url) -> <a href="url">.
+ * Run this before sanitize so both HTML and markdown in content render correctly.
+ * Only http/https URLs allowed for links.
+ */
+export function simpleMarkdownToHtml(text) {
+  if (!text || typeof text !== 'string') return text
+  let out = text
+  // Markdown links [text](url) — only http/https
+  out = out.replace(
+    /\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,
+    (_, linkText, url) => {
+      const safeUrl = (url || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+      const safeText = (linkText || '')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/&/g, '&amp;')
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="underline text-brand-primary hover:opacity-80">${safeText}</a>`
+    },
+  )
+  // Bold **text**
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  return out
+}
+
+/**
  * Sanitize HTML for email body display (conversation view style).
  * Preserves p, br, strong, em, lists, links, etc. Safe to use with dangerouslySetInnerHTML.
  * @param {string} html - Raw email HTML content

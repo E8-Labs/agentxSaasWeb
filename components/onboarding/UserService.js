@@ -161,13 +161,13 @@ const UserService = ({ handleContinue, handleBack }) => {
       >
         <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
           {/* header84svh */}
-          <div className="h-[10%]">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[100%]">
+          <div className="flex flex-col items-center px-4 w-full h-[100%] mt-4">
             <div
-              className="mt-6  w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
+              className="w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
               style={{ textAlign: 'center' }}
             >
               What would you like to assign to your AI?
@@ -194,7 +194,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                     className="border-none outline-none"
                   >
                     <div
-                      className="border bg-white flex flex-row items-center w-full rounded-2xl pt-3"
+                      className="border bg-white flex flex-row items-center w-full rounded-2xl py-2"
                       style={{
                         border: serviceId.includes(item.id)
                           ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'

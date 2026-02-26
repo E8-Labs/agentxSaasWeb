@@ -23,8 +23,33 @@ import { TypographyBody, TypographyH3Semibold, TypographyH4Semibold } from '@/li
 import { cn } from '@/lib/utils'
 import { OpenAiLogoIcon } from '@phosphor-icons/react'
 import Image from 'next/image'
+import { useUser } from '@/hooks/redux-hooks'
+import { UpgradeTagWithModal } from '@/components/constants/constants'
+
+// Resolve planCapabilities from Redux or localStorage (localStorage can have fresher full profile with planCapabilities)
+const getEffectivePlanCapabilities = (reduxUser) => {
+  const fromRedux = reduxUser?.planCapabilities
+  if (fromRedux && typeof fromRedux === 'object') return fromRedux
+  if (typeof window === 'undefined') return undefined
+  try {
+    const stored = localStorage.getItem('User')
+    if (!stored) return undefined
+    const parsed = JSON.parse(stored)
+    return parsed?.user?.planCapabilities
+  } catch {
+    return undefined
+  }
+}
 
 const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+  const planCapabilities = getEffectivePlanCapabilities(reduxUser)
+  const hasAIEmailAndTextAccess = planCapabilities?.allowAIEmailAndText === true
+  const shouldShowAllowAiEmailAndTextUpgrade = planCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
+  const shouldShowAiEmailAndTextRequestFeature = planCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
+  const showCommunicationUpgradeOrRequest = !hasAIEmailAndTextAccess && (shouldShowAllowAiEmailAndTextUpgrade || shouldShowAiEmailAndTextRequestFeature)
+
+  const [triggerCommunicationUpgradeModal, setTriggerCommunicationUpgradeModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState({
@@ -657,6 +682,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const isAgentMeterScreen = subModalKey === 'agentMeter'
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         className="w-[500px] max-w-[500px] p-0 gap-0.5 data-[state=open]:animate-modal-entry shadow-md"
@@ -809,6 +835,15 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 {activeSubModalConfig.question && (
                   <p className="text-[14px] text-gray-600 mt-1">{activeSubModalConfig.question}</p>
                 )}
+                {subModalSelectedValue != null && (
+                  <button
+                    type="button"
+                    onClick={() => setSubModalSelectedValue(null)}
+                    className="text-sm text-gray-500 hover:text-brand-primary hover:underline mb-2"
+                  >
+                    Clear selection (save as none)
+                  </button>
+                )}
                 {activeSubModalConfig.options.map((opt) => {
                   const isOptSelected = subModalSelectedValue === opt.value
                   return (
@@ -903,7 +938,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       subModalSelectedValue
                     )
                   }
-                  disabled={savingSubModal || !subModalSelectedValue}
+                  disabled={savingSubModal}
                   className="hover:opacity-90 text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-auto"
                   style={{
                     backgroundColor: 'hsl(var(--brand-primary))',
@@ -920,9 +955,9 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             </div>
           )
         ) : (
-          <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
-            <div className="flex flex-col gap-[2px]">
-              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-[#eaeaea]">
+          <div className="max-h-[75svh] overflow-hidden p-0 gap-0 flex flex-col">
+            <div className="flex flex-col gap-[2px] flex-1 min-h-0">
+              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-[#eaeaea] shrink-0">
                 <DialogTitle className="text-[18px] font-semibold">AI Message Settings</DialogTitle>
                 <DialogClose asChild>
                   <button
@@ -940,7 +975,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px] font-['Inter']">
+                <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto w-full px-4 text-[14px] font-['Inter']">
                   {/* API Key Section */}
                   <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-[#eaeaea]">
                     <label className="text-base font-normal text-gray-900">AI Provider</label>
@@ -1128,6 +1163,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             key={row.key}
                             type="button"
                             onClick={() => {
+                              if (showCommunicationUpgradeOrRequest) {
+                                setTriggerCommunicationUpgradeModal(true)
+                                return
+                              }
                               setSubModalKey(row.key)
                               setSubModalSelectedValue(settings[row.settingsKey] ?? null)
                             }}
@@ -1148,6 +1187,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       <button
                         type="button"
                         onClick={() => {
+                          if (showCommunicationUpgradeOrRequest) {
+                            setTriggerCommunicationUpgradeModal(true)
+                            return
+                          }
                           const meter = settings.agentSettings?.agentMeterSettings
                           if (meter && typeof meter === 'object') {
                             setAgentMeterDraft({
@@ -1171,7 +1214,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
                               </span>
                               <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
-                                Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
+                                Client Handling: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
                               </span>
                             </div>
                           )}
@@ -1184,7 +1227,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               )}
             </div>
 
-            <DialogFooter className="gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between">
+            <DialogFooter className="shrink-0 gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between border-t border-[#eaeaea]">
               <Button
                 variant="outline"
                 onClick={onClose}
@@ -1209,6 +1252,16 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         )}
       </DialogContent>
     </Dialog>
+    <UpgradeTagWithModal
+      reduxUser={reduxUser}
+      setReduxUser={setReduxUser}
+      hideTag
+      externalTrigger={triggerCommunicationUpgradeModal}
+      onModalClose={() => setTriggerCommunicationUpgradeModal(false)}
+      requestFeature={shouldShowAiEmailAndTextRequestFeature}
+      featureTitle="AI Text & Messages"
+    />
+    </>
   )
 }
 

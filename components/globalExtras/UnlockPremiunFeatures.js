@@ -35,6 +35,8 @@ const UnlockPremiunFeatures = ({
         if (!Data?.allowLiveCallTransfer) {
           setFeatureTitleValue('LiveTransfer')
         }
+      } else if (title === 'Enable Dialer') {
+        setFeatureTitleValue('Dialer')
       } else if (title === 'Unlock Actions') {
         if (!Data?.allowToolsAndActions) {
           setFeatureTitleValue('ToolsAndActions')
@@ -62,6 +64,12 @@ const UnlockPremiunFeatures = ({
         if (!Data?.allowLeadScoring) {
           setFeatureTitleValue('LeadScoring')
         }
+      } else if (
+        title === 'AI Text & Messages' ||
+        title === 'Enable AI Text & Messages' ||
+        title === 'Unlock AI Email & Text'
+      ) {
+        setFeatureTitleValue('AiEmailAndText')
       } else {
         setFeatureTitleValue(title)
       }
@@ -101,10 +109,15 @@ const UnlockPremiunFeatures = ({
   const requestFeatureFromAgency = async () => {
     try {
       setRequestLoader(true)
+      setSnackMsg(null)
       const Token = AuthToken()
       const ApiPath = Apis.requestFeatureFromAgency
+      // Map display title to backend feature key (e.g. "Enable Dialer" -> "Dialer")
+      const featureKey =
+        featureTitleValue ||
+        (title === 'Enable Dialer' ? 'Dialer' : title)
       const ApiData = {
-        featureTitle: featureTitleValue || title,
+        featureTitle: featureKey,
       }
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -114,22 +127,26 @@ const UnlockPremiunFeatures = ({
       })
       if (response.data.status === true) {
         setRequestLoader(false)
-        setSnackMsg('Request sent.')
+        setSnackMsg('Request sent successfully. Your agency has been notified.')
         setSnackMsgType(SnackbarTypes.Success)
-        // handleClose();
+        // Keep modal open briefly so user sees snackbar, then dismiss
         setTimeout(() => {
           handleClose()
-        }, 300)
+        }, 1500)
       } else if (response.data.status === false) {
         setRequestLoader(false)
-        setSnackMsg(response.data.message)
+        setSnackMsg(response.data.message || 'Request failed. Please try again.')
         setSnackMsgType(SnackbarTypes.Error)
       }
     } catch (error) {
-      if (error.response.data.status === false) {
-        setRequestLoader(false)
-        console.error('Error occured in request feature api is', error)
-      }
+      setRequestLoader(false)
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Something went wrong. Please try again.'
+      setSnackMsg(errorMessage)
+      setSnackMsgType(SnackbarTypes.Error)
+      console.error('Error occurred in request feature api:', error)
     }
   }
 

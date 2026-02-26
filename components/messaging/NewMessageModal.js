@@ -29,6 +29,7 @@ import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, delet
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
+import { messageMarkdownToHtml } from './messageMarkdown'
 
 /** Sliding pill background for MUI Select Menu: follows hovered menu item, 2% black, 8px radius. */
 const SlidingPillMenuList = React.forwardRef((props, ref) => {
@@ -1623,7 +1624,7 @@ const NewMessageModal = ({
           const formData = new FormData()
           formData.append('leadId', lead.id)
           formData.append('subject', emailSubject)
-          formData.append('body', messageBody)
+          formData.append('body', messageMarkdownToHtml(messageBody))
           formData.append('emailAccountId', selectedEmailAccount)
 
           if (ccEmails.length > 0) {

@@ -2,7 +2,9 @@ import moment from 'moment'
 import {
   linkifyText,
   sanitizeHTMLForEmailBody,
+  simpleMarkdownToHtml,
 } from '@/utilities/textUtils'
+import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
 import AttachmentList from './AttachmentList'
 
 function unescapeHtmlEntities(str) {
@@ -27,8 +29,9 @@ function getDisplayHtml(content) {
   if (text.includes('&lt;') || text.includes('&gt;') || text.includes('&amp;')) {
     text = unescapeHtmlEntities(text)
   }
-  if (/<[^>]+>/.test(text)) {
-    return sanitizeHTMLForEmailBody(text)
+  const withMarkdown = simpleMarkdownToHtml(text)
+  if (/<[^>]+>/.test(withMarkdown)) {
+    return sanitizeHTMLForEmailBody(withMarkdown)
   }
   return linkifyText(text)
 }
@@ -59,7 +62,7 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
         dangerouslySetInnerHTML={{
           __html: isAttachmentOnlyPlaceholder(message.content)
             ? ''
-            : getDisplayHtml(message.content || ''),
+            : getDisplayHtml(stripQuotedReplyFromContent(message.content || '')),
         }}
       />
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
