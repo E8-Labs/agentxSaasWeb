@@ -194,7 +194,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                     className="border-none outline-none"
                   >
                     <div
-                      className="border bg-white flex flex-row items-center w-full rounded-2xl pt-3"
+                      className="border bg-white flex flex-row items-center w-full rounded-2xl py-2"
                       style={{
                         border: serviceId.includes(item.id)
                           ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'

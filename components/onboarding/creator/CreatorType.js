@@ -87,7 +87,7 @@ const CreatorType = ({ handleContinue, handleBack }) => {
                   className="border-none outline-none"
                 >
                   <div
-                    className="border bg-white flex flex-row items-center w-full rounded-2xl pt-3"
+                    className="border bg-white flex flex-row items-center w-full rounded-2xl py-2"
                     style={{
                       border:
                         selectedCreatorType === item.id

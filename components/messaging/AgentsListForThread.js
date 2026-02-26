@@ -8,6 +8,9 @@ import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { TypographyBody } from '@/components/dashboard/leads/extras/TypographyCN'
 import { toast } from '@/utils/toast'
+import { PersistanceKeys } from '@/constants/Constants'
+
+const AGENTS_CACHE_KEY = PersistanceKeys.agentsListForMessaging;
 
 /**
  * Fetches agents via GET Apis.getAgents, shows list with getAgentsListImage.
@@ -20,7 +23,7 @@ export default function AgentsListForThread({
   onSelectionSaved,
 }) {
   const [agentsList, setAgentsList] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const listWrapRef = React.useRef(null)
   const [pill, setPill] = React.useState({ top: 0, height: 0 })
@@ -40,6 +43,19 @@ export default function AgentsListForThread({
   const handleListMouseLeave = () => setPillVisible(false)
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(AGENTS_CACHE_KEY)
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed)) setAgentsList(parsed)
+          return
+        }
+      } catch (_) {
+        // ignore cache read errors
+      }
+    }
+
     const token = getToken()
     if (!token) {
       setLoading(false)
@@ -48,6 +64,7 @@ export default function AgentsListForThread({
     }
 
     setLoading(true)
+
     fetch(`${Apis.getAgents}?pagination=false`, {
       method: 'GET',
       headers: {
@@ -57,8 +74,15 @@ export default function AgentsListForThread({
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data?.data) setAgentsList(Array.isArray(data.data) ? data.data : [])
-        else setAgentsList([])
+        const list = data?.data && Array.isArray(data.data) ? data.data : []
+        setAgentsList(list)
+        if (typeof window !== 'undefined' && list.length > 0) {
+          try {
+            localStorage.setItem(AGENTS_CACHE_KEY, JSON.stringify(list))
+          } catch (_) {
+            // ignore cache write errors
+          }
+        }
       })
       .catch((err) => {
         console.error('Error fetching agents for thread:', err)

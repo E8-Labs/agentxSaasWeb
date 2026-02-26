@@ -920,9 +920,9 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             </div>
           )
         ) : (
-          <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
-            <div className="flex flex-col gap-[2px]">
-              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-[#eaeaea]">
+          <div className="max-h-[75svh] overflow-hidden p-0 gap-0 flex flex-col">
+            <div className="flex flex-col gap-[2px] flex-1 min-h-0">
+              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-[#eaeaea] shrink-0">
                 <DialogTitle className="text-[18px] font-semibold">AI Message Settings</DialogTitle>
                 <DialogClose asChild>
                   <button
@@ -940,7 +940,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px] font-['Inter']">
+                <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto w-full px-4 text-[14px] font-['Inter']">
                   {/* API Key Section */}
                   <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-[#eaeaea]">
                     <label className="text-base font-normal text-gray-900">AI Provider</label>
@@ -1171,7 +1171,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                                 Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
                               </span>
                               <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
-                                Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
+                                Client Handling: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
                               </span>
                             </div>
                           )}
@@ -1184,7 +1184,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               )}
             </div>
 
-            <DialogFooter className="gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between">
+            <DialogFooter className="shrink-0 gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between border-t border-[#eaeaea]">
               <Button
                 variant="outline"
                 onClick={onClose}

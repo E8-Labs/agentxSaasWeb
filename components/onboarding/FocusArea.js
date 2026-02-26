@@ -272,7 +272,7 @@ const FocusArea = ({
                     className="border-none outline-none"
                   >
                     <div
-                      className="border bg-white flex flex-row items-start pt-3 w-full rounded-2xl"
+                      className="border bg-white flex flex-row items-start py-2 w-full rounded-2xl"
                       style={{
                         border: focusArea.includes(item.id)
                           ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
@@ -370,7 +370,7 @@ const FocusArea = ({
                 {showOtherInput && (
                   <div className="border-none outline-none">
                     <div
-                      className="border bg-white flex flex-row items-start pt-3 w-full rounded-2xl"
+                      className="border bg-white flex flex-row items-start py-2 w-full rounded-2xl"
                       style={{
                         border: checkOthersFocusArea
                           ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'

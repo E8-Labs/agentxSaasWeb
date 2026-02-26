@@ -31,6 +31,9 @@ export const PersistanceKeys = {
   CalendarAddedByGoogle: 'CalendarAddedByGoogle',
   isDefaultCadenceEditing: 'isDefaultCadenceEditing',
 
+  //stores agents list for messaging
+  agentsListForMessaging: 'assignx_messages_agents_list',
+
   //vapi-widget call popup
   showVapiModal: 'showVapiModal',
 
