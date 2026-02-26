@@ -57,6 +57,8 @@ const ConversationView = ({
   onSelectDraft,
   onDiscardDraft,
   selectedDraftId = null,
+  followUpAfterDrawerClose = null,
+  onClearFollowUpAfterDrawer = null,
 }) => {
 
   //lead details
@@ -368,6 +370,9 @@ const ConversationView = ({
                       shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
                       onShowUpgrade={onShowUpgrade}
                       onShowRequestFeature={onShowRequestFeature}
+                      openFollowUpForMessageId={followUpAfterDrawerClose?.messageId ?? null}
+                      openFollowUpType={followUpAfterDrawerClose?.type ?? null}
+                      onOpenFollowUpConsumed={onClearFollowUpAfterDrawer}
                     />
                   ) : (
                     <div
