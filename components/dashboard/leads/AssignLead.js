@@ -371,7 +371,7 @@ const AssignLead = ({
       } else {
         // //console.log;
         if (!errorMessage) {
-          setErrTitle('Pipeline Confilict')
+          setErrTitle('Pipeline Conflict')
           setErrorMessage(
             'You can’t assign leads to agents in different pipelines',
           )

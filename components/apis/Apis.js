@@ -105,6 +105,7 @@ const Apis = {
   getProfileData: `${BasePath}api/user/myProfile`,
   getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgent`,
   getUserByAgentVapiIdWithLeadDetails: `${BasePath}api/agent/getUserByAgentWithLeadDetails`,
+  canStartWebCall: `${BasePath}api/agent/canStartWebCall`,
   registerWebCall: `${BasePath}api/agent/registerWebCall`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
