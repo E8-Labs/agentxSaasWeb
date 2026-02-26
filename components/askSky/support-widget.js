@@ -645,7 +645,7 @@ export function SupportWidget({
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: '#00000020',
+            backgroundColor: isEmbed ? 'transparent' : '#00000020',
           },
         }}
       >
