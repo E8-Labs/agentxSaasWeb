@@ -241,7 +241,7 @@ function MyPhoneNumber() {
             .slice()
             .reverse()
             .map((item, index) => (
-              <div key={index} className="w-full min-w-0 flex">
+              <div key={index} className="w-full sm:w-[80%] md:w-1/2 min-w-0 flex">
                 <div className="w-full min-w-0 border rounded-lg p-4">
                   <div className="w-full min-w-0 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                     <div className="flex-1 min-w-0 flex flex-col items-start gap-4">
