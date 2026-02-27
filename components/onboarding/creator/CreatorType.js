@@ -63,12 +63,12 @@ const CreatorType = ({ handleContinue, handleBack }) => {
         style={{ scrollbarWidth: 'none' }}
       >
         <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
-          <div className="h-[10%]">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
           </div>
-          <div className="flex flex-col items-center px-4 w-full h-[100%]">
+          <div className="flex flex-col items-center px-4 w-full h-[100%] mt-4">
             <div
-              className="mt-6 w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
+              className="w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
               style={{ textAlign: 'center' }}
             >
               What type of creator are you?

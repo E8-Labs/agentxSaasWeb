@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import moment from 'moment'
 import { sanitizeAndLinkifyHTML, simpleMarkdownToHtml } from '@/utilities/textUtils'
 import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import AttachmentList from './AttachmentList'
 
 const EmailBubble = ({
@@ -20,7 +22,13 @@ const EmailBubble = ({
   onReplyClick,
   isLastMessage = false,
   updateComposerFromMessage,
-}) => (
+}) => {
+  const [linkColor, setLinkColor] = useState('#7902DF')
+  useEffect(() => {
+    setLinkColor(getBrandPrimaryHex())
+  }, [])
+
+  return (
   <>
     <div
       className={`px-4 py-2 ${isOutbound
@@ -128,11 +136,12 @@ const EmailBubble = ({
           [&_ul]:!my-[0.2em] [&_ul]:!pl-[1.15em] [&_ul]:!list-disc
           [&_ol]:!my-[0.2em] [&_ol]:!pl-[1.15em]
           [&_li]:!my-[0.08em]
+          [&_a]:underline [&_a]:![color:var(--message-link-color)] hover:[&_a]:opacity-80
           ${isOutbound
-          ? 'text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a]:!text-brand-primary [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black'
+          ? 'text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black'
           : 'text-black'
           }`}
-        style={isOutbound ? { color: 'black' } : {}}
+        style={isOutbound ? { color: 'black', ['--message-link-color']: linkColor } : { ['--message-link-color']: linkColor }}
         dangerouslySetInnerHTML={{
           __html: (() => {
             const raw = message.content || ''
@@ -154,6 +163,7 @@ const EmailBubble = ({
       <span className={`text-[12px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
     </div>
   </>
-)
+  )
+}
 
 export default EmailBubble

@@ -378,10 +378,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           </div>
         </div>
       ) : (
-        <div
-          className="flex flex-col gap-4 overflow-y-auto"
-          style={{  }}
-        >
+        <div className="flex flex-col gap-4 overflow-y-auto w-full min-w-0">
           {phoneNumbers.map((number) => {
             const isGlobal = number.isAgencyGlobalNumber
             const isSubaccountNumber = number.subaccountNumber
@@ -392,7 +389,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             return (
               <div
                 key={number.id}
-                className="flex w-7/12 px-4 py-5 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
+                className="flex w-full min-w-0 px-4 py-5 rounded-lg border-2 transition-all items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap"
                 style={{
                   borderColor: isGlobal ? 'hsl(var(--brand-primary))' : isDisabled ? '#d0d0d0' : '#e0e0e0',
                   backgroundColor: isGlobal ? 'hsl(var(--brand-primary) / 0.1)' : isDisabled ? '#f9f9f9' : '#fff',
@@ -400,76 +397,59 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                 }}
               >
                 {/* Left Section - Phone Number Info */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    {isGlobal && (
-                      <div
-                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap bg-brand-primary text-white"
-                      >
-                        Global Number
-                      </div>
-                    )}
-                    {isA2PVerified && (
-                      <div
-                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
-                        style={{ backgroundColor: '#10b981', color: '#fff' }}
-                      >
-                        A2P
-                      </div>
-                    )}
-                    {isDisabled && (
-                      <div
-                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
-                        style={{ backgroundColor: '#999', color: '#fff' }}
-                      >
-                        Disabled
-                      </div>
-                    )}
+                <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                  {isGlobal && (
                     <div
-                      className="text-base md:text-lg font-semibold whitespace-nowrap"
-                      style={{ color: isDisabled ? '#999' : '#000' }}
+                      className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap bg-brand-primary text-white"
                     >
-                      {formatPhoneNumber(number.phone)}
+                      Global Number
                     </div>
+                  )}
+                  {isA2PVerified && (
+                    <div
+                      className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
+                      style={{ backgroundColor: '#10b981', color: '#fff' }}
+                    >
+                      A2P
+                    </div>
+                  )}
+                  {isDisabled && (
+                    <div
+                      className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
+                      style={{ backgroundColor: '#999', color: '#fff' }}
+                    >
+                      Disabled
+                    </div>
+                  )}
+                  <div
+                    className="text-base md:text-lg font-semibold truncate min-w-0"
+                    style={{ color: isDisabled ? '#999' : '#000' }}
+                    title={formatPhoneNumber(number.phone)}
+                  >
+                    {formatPhoneNumber(number.phone)}
                   </div>
-                  {/* <div className="flex flex-wrap items-center gap-4 text-xs">
-                    <div style={{ color: "#666" }}>
-                      {getSourceLabel(number.source)}
-                      {number.isOwnTwilioAccount && " • Your Account"}
-                    </div>
-                    <div style={{ color: "#999" }}>
-                      <span className="font-medium">SID:</span> {number.phoneSid}
-                    </div>
-                    {number.createdAt && (
-                      <div style={{ color: "#999" }}>
-                        <span className="font-medium">Added:</span>{" "}
-                        {moment(number.createdAt).format("MMM DD, YYYY")}
-                      </div>
-                    )}
-                  </div> */}
                 </div>
 
                 {/* Right Section - Action Button or Subaccount Info */}
-                <div className="flex-shrink-0 ml-auto">
+                <div className="flex-shrink-0 min-w-0 max-w-full">
                   {isSubaccountNumber ? (
                     <div
-                      className="text-sm py-2 px-4 text-center rounded"
+                      className="text-sm py-2 px-3 sm:px-4 text-center rounded truncate max-w-full"
                       style={{
                         color: '#666',
                         fontWeight: '500',
-                        minWidth: '260px',
                         backgroundColor: '#f5f5f5',
                       }}
+                      title={number.subaccountName || 'Subaccount'}
                     >
                       {number.subaccountName || 'Subaccount'}
                     </div>
                   ) : isDisabled ? (
                     <div
-                      className="text-sm py-2 px-4 text-center rounded"
+                      className="text-sm py-2 px-3 sm:px-4 text-center rounded"
                       style={{
                         color: '#999',
                         fontWeight: '500',
-                        minWidth: '180px',
                         backgroundColor: '#f5f5f5',
                       }}
                     >
@@ -480,11 +460,11 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                       variant="contained"
                       onClick={() => handleSetGlobalNumber(number.id)}
                       disabled={isLoading}
+                      className="shrink-0"
                       style={{
                         backgroundColor: 'hsl(var(--brand-primary))',
                         color: '#fff',
                         textTransform: 'none',
-                        minWidth: '100px',
                       }}
                     >
                       {isLoading ? (
@@ -494,15 +474,6 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                       )}
                     </Button>
                   ) : null}
-
-                  {/* {isGlobal && (
-                    <div
-                      className="text-sm py-2 px-4 text-center"
-                      style={{ color: "#7902DF", fontWeight: "500", minWidth: "180px" }}
-                    >
-                      Currently Global
-                    </div>
-                  )} */}
                 </div>
               </div>
             )

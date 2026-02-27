@@ -233,7 +233,7 @@ function MyPhoneNumber() {
         />
       )}
 
-      <div className="w-full flex flex-col items-start gap-4 mt-10">
+      <div className="w-full min-w-0 flex flex-col items-start gap-4 mt-10">
         {loading ? (
           <CircularProgress style={{ alignSelf: 'center' }} size={45} />
         ) : (
@@ -241,36 +241,36 @@ function MyPhoneNumber() {
             .slice()
             .reverse()
             .map((item, index) => (
-              <div key={index} className="w-7/12 flex">
-                {/* <button className='w-full flex'
-                            > */}
-                <div className="w-full border rounded-lg p-4">
-                  <div className="w-full flex flex-row items-center justify-between">
-                    <div className="flex flex-col items-start gap-4">
-                      <div className="flex flex-row items-center gap-2">
+              <div key={index} className="w-full min-w-0 flex">
+                <div className="w-full min-w-0 border rounded-lg p-4">
+                  <div className="w-full min-w-0 flex flex-row items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+                    <div className="flex-1 min-w-0 flex flex-col items-start gap-4">
+                      <div className="flex flex-row items-center gap-2 min-w-0 w-full">
                         <div
-                          className=""
+                          className="truncate min-w-0"
                           style={{ fontSize: 16, fontWeight: '700' }}
+                          title={item.phoneNumber}
                         >
                           {item.phoneNumber}
                         </div>
                         {item.isA2PVerified === 1 && (
-                          <div className="p-2 py-1 rounded-lg bg-green-100 text-green text-sm font-semibold">
+                          <div className="p-2 py-1 rounded-lg bg-green-100 text-green text-sm font-semibold shrink-0">
                             A2P Verified
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex-shrink-0 flex flex-col items-end gap-2">
                       <button
                         id="more-menu"
                         onClick={(event) => {
                           setOpenMoreDropdown(true)
                           setMoreDropdown(event.currentTarget)
-                          // //console.log
                           setSelectedNumber(item.phoneNumber)
                         }}
+                        type="button"
+                        aria-label="More options"
                       >
                         <Image
                           src={'/otherAssets/threeDotsIcon.png'}
@@ -282,7 +282,6 @@ function MyPhoneNumber() {
                     </div>
                   </div>
                 </div>
-                {/* </button> */}
               </div>
             ))
         )}

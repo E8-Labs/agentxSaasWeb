@@ -90,7 +90,7 @@ function SocialVideoPlayer({ attachment, message, idx, getPlayableUrl, displayNa
     return () => {
       try {
         URL.revokeObjectURL(playableUrl)
-      } catch (_) {}
+      } catch (_) { }
     }
   }, [playableUrl, needsProxy])
 
@@ -187,7 +187,7 @@ function SocialAudioPlayer({ attachment, message, idx, getPlayableUrl, textMuted
     return () => {
       try {
         URL.revokeObjectURL(playableUrl)
-      } catch (_) {}
+      } catch (_) { }
     }
   }, [playableUrl, needsProxy])
 
@@ -289,7 +289,11 @@ const AttachmentList = ({ message, isOutbound, onAttachmentClick, getImageUrl, g
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
 
   return (
-    <div className={`mt-3 flex flex-col gap-2 ${isOutbound ? 'text-white' : 'text-black'}`}>
+    <div
+      className={`mt-3 flex flex-col gap-2`}
+      // ${isOutbound ? 'text-black' : 'text-black'}
+      style={{ color: 'black' }}
+    >
       {message.metadata.attachments.map((attachment, idx) => {
         const isImage = isImageAttachment(attachment)
         const isVideo = isVideoAttachment(attachment)
@@ -310,8 +314,8 @@ const AttachmentList = ({ message, isOutbound, onAttachmentClick, getImageUrl, g
 
         const displayName = attachment.originalName || attachment.fileName || `Attachment ${idx + 1}`
         const sizeLabel = attachment.size ? `(${(attachment.size / 1024).toFixed(1)} KB)` : null
-        const textMuted = isOutbound ? 'text-white/70' : 'text-gray-500'
-        const linkClass = isOutbound ? 'text-white/90 hover:text-white' : 'text-brand-primary hover:underline'
+        const textMuted = 'text-gray-500' //isOutbound ? 'text-white/70' : 'text-gray-500'
+        const linkClass = 'text-brand-primary' //isOutbound ? 'text-white/90 hover:text-white' : 'text-brand-primary hover:underline'
 
         // Image: thumbnail, click opens lightbox
         if (isImage) {
