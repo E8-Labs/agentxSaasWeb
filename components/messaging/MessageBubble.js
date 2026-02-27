@@ -29,6 +29,10 @@ function getDisplayHtml(content) {
   if (text.includes('&lt;') || text.includes('&gt;') || text.includes('&amp;')) {
     text = unescapeHtmlEntities(text)
   }
+  // Stored content may be HTML (e.g. from social composer); render it so lists/bold/links show correctly
+  if (/<\w[\s\S]*>/.test(text)) {
+    return sanitizeHTMLForEmailBody(text)
+  }
   const withMarkdown = simpleMarkdownToHtml(text)
   if (/<[^>]+>/.test(withMarkdown)) {
     return sanitizeHTMLForEmailBody(withMarkdown)

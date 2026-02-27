@@ -953,23 +953,23 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     // Set composer mode based on draft type
     setComposerMode(draft.messageType || 'sms')
 
-    // Populate composer with draft content (plain text → HTML for email so formatting is preserved)
+    // Populate composer with draft content (markdown → HTML so composer shows formatted bold/links like the bubble)
     if (draft.messageType === 'email') {
       setComposerData(prev => ({
         ...prev,
-        emailBody: plainTextToHtml(draft.content || ''),
+        emailBody: messageMarkdownToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
     } else if (draft.messageType === 'messenger' || draft.messageType === 'instagram') {
       setComposerData(prev => ({
         ...prev,
-        socialBody: draft.content || '',
+        socialBody: messageMarkdownToHtml(draft.content || ''),
       }))
       setComposerMode(draft.messageType === 'instagram' ? 'instagram' : 'facebook')
     } else {
       setComposerData(prev => ({
         ...prev,
-        smsBody: draft.content || '',
+        smsBody: messageMarkdownToHtml(draft.content || ''),
       }))
     }
 

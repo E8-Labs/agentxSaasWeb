@@ -1231,12 +1231,13 @@ const MessageComposer = ({
   const handleSendSocial = async (e) => {
     e?.preventDefault()
     const raw = (composerData.socialBody ?? socialContent ?? '').trim()
-    const text = stripHTML(raw).trim()
-    if (!text || !selectedThread?.id || !onSendSocialMessage) return
+    const hasText = stripHTML(raw).trim().length > 0
+    if (!hasText || !selectedThread?.id || !onSendSocialMessage) return
     if (sendingSocialMessage) return
     setSendingSocialMessage(true)
     try {
-      await onSendSocialMessage(selectedThread.id, text)
+      // Send raw content (HTML or plain) so backend can store it for bubble rendering; backend strips to plain text for Meta API
+      await onSendSocialMessage(selectedThread.id, raw)
       setComposerData((prev) => ({ ...prev, socialBody: '' }))
       setSocialContent('')
       toast.success('Message sent')
