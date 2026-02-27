@@ -784,12 +784,26 @@ const PipelineStages = ({
       lastPointerYRef.current = null
 
       const { source, destination } = result
+
       if (!destination || source.index === 0 || destination.index === 0) {
-        setShowRearrangeErr('Cannot rearrange when stage is expanded.')
+        if (!destination) {
+          setShowRearrangeErr('Cannot rearrange when stage is dropped outside the container.')
+        } else if (destination.index === 0) {
+          setShowRearrangeErr('Cannot rearrange when stage is dropped at the first position.');
+        } else if (source.index === 0) {
+          setShowRearrangeErr('Cannot rearrange when stage source is dropped at the first position.');
+        }
         setIsVisibleSnack(true)
         setSnackType('Error')
         return
       }
+
+      // if (!destination || source.index === 0 || destination.index === 0) {
+      //   setShowRearrangeErr('Cannot rearrange when stage is expanded.')
+      //   setIsVisibleSnack(true)
+      //   setSnackType('Error')
+      //   return
+      // }
 
       const items = Array.from(pipelineStages)
       const [reorderedItem] = items.splice(source.index, 1)
