@@ -451,7 +451,7 @@ const AdminAssignLead = ({
         } else if (response.data.status === false) {
           handleCloseAssignLeadModal({
             status: true,
-            showSnack: 'Error assigning lead',
+            showSnack: response.data.message || 'Error assigning lead',
             disSelectLeads: false,
           })
         }

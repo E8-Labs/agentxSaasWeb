@@ -505,7 +505,7 @@ const AiChatModal = ({
       ])
     } catch (error) {
       console.error('Error sending AI chat message:', error)
-      toast.error('Failed to send message. Please try again.')
+      toast.error(error.response?.data?.message || 'Failed to send message. Please try again.')
       setMessages((prev) => prev.filter((m) => m.id !== userMessage.id))
     } finally {
       setIsLoading(false)

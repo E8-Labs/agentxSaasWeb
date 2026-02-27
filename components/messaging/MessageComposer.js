@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2 } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
@@ -263,6 +264,8 @@ const MessageComposer = ({
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
   const templatesDropdownRef = useRef(null)
+  const templatesPortalRef = useRef(null)
+  const [templatesDropdownPosition, setTemplatesDropdownPosition] = useState({ left: 0, bottom: 0 })
   const [templatesFetched, setTemplatesFetched] = useState(false) // Track if templates have been fetched for current mode
   const [templateHoveredKey, setTemplateHoveredKey] = useState(null)
   const [templatePillStyle, setTemplatePillStyle] = useState({ top: 0, height: 0 })
@@ -323,7 +326,7 @@ const MessageComposer = ({
       if (subjectVariablesDropdownRef.current && !subjectVariablesDropdownRef.current.contains(event.target)) {
         setSubjectVariablesDropdownOpen(false)
       }
-      if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target)) {
+      if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target) && !templatesPortalRef.current?.contains(event.target)) {
         setShowTemplatesDropdown(false)
       }
       if (variablesDropdownRef.current && !variablesDropdownRef.current.contains(event.target)) {
@@ -552,6 +555,28 @@ const MessageComposer = ({
       fetchTemplates()
     }
   }, [showTemplatesDropdown, templatesFetched, templatesLoading, fetchTemplates])
+
+  // Position templates dropdown portal above the Templates button (fixed, so not clipped by overflow)
+  useEffect(() => {
+    if (!showTemplatesDropdown || typeof document === 'undefined') return
+    const el = templatesDropdownRef.current
+    if (!el) return
+    const update = () => {
+      const rect = el.getBoundingClientRect()
+      setTemplatesDropdownPosition({
+        left: rect.left,
+        bottom: window.innerHeight - rect.top + 8,
+      })
+    }
+    update()
+    requestAnimationFrame(update)
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [showTemplatesDropdown])
 
   // Update sliding pill position when hovered template row changes
   useEffect(() => {
@@ -2341,84 +2366,6 @@ const MessageComposer = ({
                               <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                             </button>
 
-                            {/* Templates Dropdown */}
-                            {showTemplatesDropdown && (
-                              <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
-                                {templatesLoading ? (
-                                  <div className="p-4 text-center">
-                                    <CircularProgress size={20} />
-                                  </div>
-                                ) : templates.length === 0 ? (
-                                  <div className="p-4 text-center text-sm text-gray-500">
-                                    No templates found
-                                  </div>
-                                ) : (
-                                  <div
-                                    ref={templateListRef}
-                                    className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
-                                    onMouseLeave={() => setTemplateHoveredKey(null)}
-                                  >
-                                    {templatePillStyle.height > 0 && (
-                                      <div
-                                        className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
-                                        style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
-                                        aria-hidden
-                                      />
-                                    )}
-                                    {templates.map((template, idx) => {
-                                      const key = template.id || template.templateId || idx
-                                      return (
-                                        <Tooltip
-                                          key={key}
-                                          title={template.subject}
-                                          arrow
-                                          placement="right"
-                                          componentsProps={{
-                                            tooltip: {
-                                              sx: {
-                                                backgroundColor: '#ffffff',
-                                                color: '#333',
-                                                fontSize: '16px',
-                                                fontWeight: '500',
-                                                padding: '10px 15px',
-                                                borderRadius: '8px',
-                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                              },
-                                            },
-                                            arrow: {
-                                              sx: { color: '#ffffff' },
-                                            },
-                                          }}
-                                        >
-                                          <button
-                                            ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
-                                            onMouseEnter={() => setTemplateHoveredKey(key)}
-                                            onClick={() => handleTemplateSelect(template)}
-                                            className="group w-full flex flex-row items-center justify-between px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
-                                          >
-                                            <div className="font-medium text-gray-900 truncate">
-                                              {template.templateName || 'Untitled Template'}
-                                            </div>
-                                            {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
-                                              <CircularProgress size={16} />
-                                            ) : (
-                                              <button
-                                                type="button"
-                                                onClick={(e) => handleDeleteTemplate(template, e)}
-                                                className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
-                                                title="Delete template"
-                                              >
-                                                <Trash2 size={16} className="text-black/80" />
-                                              </button>
-                                            )}
-                                          </button>
-                                        </Tooltip>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            )}
                           </div>
                             <div className="flex items-center gap-2 ">
                             {/* Character count: SMS only (plain text length); email branch so this is for consistency if mode toggles */}
@@ -2631,84 +2578,6 @@ const MessageComposer = ({
                             <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                           </button>
 
-                          {/* Templates Dropdown */}
-                          {showTemplatesDropdown && (
-                            <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
-                              {templatesLoading ? (
-                                <div className="p-4 text-center">
-                                  <CircularProgress size={20} />
-                                </div>
-                              ) : templates.length === 0 ? (
-                                <div className="p-4 text-center text-sm text-gray-500">
-                                  No templates found
-                                </div>
-                              ) : (
-                                <div
-                                  ref={templateListRef}
-                                  className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
-                                  onMouseLeave={() => setTemplateHoveredKey(null)}
-                                >
-                                  {templatePillStyle.height > 0 && (
-                                    <div
-                                      className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
-                                      style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
-                                      aria-hidden
-                                    />
-                                  )}
-                                  {templates.map((template, idx) => {
-                                    const key = template.id || template.templateId || idx
-                                    return (
-                                      <Tooltip
-                                        key={key}
-                                        title={template.content}
-                                        arrow
-                                        placement="right"
-                                        componentsProps={{
-                                          tooltip: {
-                                            sx: {
-                                              backgroundColor: '#ffffff',
-                                              color: '#333',
-                                              fontSize: '16px',
-                                              fontWeight: '500',
-                                              padding: '10px 15px',
-                                              borderRadius: '8px',
-                                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                            },
-                                          },
-                                          arrow: {
-                                            sx: { color: '#ffffff' },
-                                          },
-                                        }}
-                                      >
-                                        <button
-                                          ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
-                                          onMouseEnter={() => setTemplateHoveredKey(key)}
-                                          onClick={() => handleTemplateSelect(template)}
-                                          className="group flex items-center justify-between gap-2 w-full px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
-                                        >
-                                          <div className="font-medium text-gray-900 truncate">
-                                            {template.templateName || 'Untitled Template'}
-                                          </div>
-                                          {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
-                                            <CircularProgress size={16} />
-                                          ) : (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => handleDeleteTemplate(template, e)}
-                                              className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
-                                              title="Delete template"
-                                            >
-                                              <Trash2 size={16} className="text-black/80" />
-                                            </button>
-                                          )}
-                                        </button>
-                                      </Tooltip>
-                                    )
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           {/* Character Count (plain text length for SMS) */}
@@ -2884,6 +2753,95 @@ const MessageComposer = ({
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Templates dropdown rendered in portal so it is not clipped by overflow and does not affect layout */}
+      {typeof document !== 'undefined' && document.body && showTemplatesDropdown && createPortal(
+        <div
+          ref={templatesPortalRef}
+          className="w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]"
+          style={{
+            position: 'fixed',
+            left: templatesDropdownPosition.left,
+            bottom: templatesDropdownPosition.bottom,
+          }}
+        >
+          {templatesLoading ? (
+            <div className="p-4 text-center">
+              <CircularProgress size={20} />
+            </div>
+          ) : templates.length === 0 ? (
+            <div className="p-4 text-center text-sm text-gray-500">
+              No templates found
+            </div>
+          ) : (
+            <div
+              ref={templateListRef}
+              className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+              onMouseLeave={() => setTemplateHoveredKey(null)}
+            >
+              {templatePillStyle.height > 0 && (
+                <div
+                  className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                  style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
+                  aria-hidden
+                />
+              )}
+              {templates.map((template, idx) => {
+                const key = template.id || template.templateId || idx
+                const tooltipTitle = composerMode === 'email' ? template.subject : template.content
+                return (
+                  <Tooltip
+                    key={key}
+                    title={tooltipTitle}
+                    arrow
+                    placement="right"
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: '#ffffff',
+                          color: '#333',
+                          fontSize: '16px',
+                          fontWeight: '500',
+                          padding: '10px 15px',
+                          borderRadius: '8px',
+                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                        },
+                      },
+                      arrow: {
+                        sx: { color: '#ffffff' },
+                      },
+                    }}
+                  >
+                    <button
+                      ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
+                      onMouseEnter={() => setTemplateHoveredKey(key)}
+                      onClick={() => handleTemplateSelect(template)}
+                      className="group w-full flex flex-row items-center justify-between px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
+                    >
+                      <div className="font-medium text-gray-900 truncate">
+                        {template.templateName || 'Untitled Template'}
+                      </div>
+                      {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteTemplate(template, e)}
+                          className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                          title="Delete template"
+                        >
+                          <Trash2 size={16} className="text-black/80" />
+                        </button>
+                      )}
+                    </button>
+                  </Tooltip>
+                )
+              })}
+            </div>
+          )}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

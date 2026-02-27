@@ -547,7 +547,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
   }
 
   return (
-    <div className="w-full flex flex-col items-center h-full mt-[4vh]">
+    <div className="w-full flex flex-col items-center h-full">
       {/* Slider code */}
       <div
         style={{
@@ -567,7 +567,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
         />
       )}
       <div
-        className=" w-full flex flex-row justify-between items-center px-4"
+        className=" w-full flex flex-row justify-between items-center"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
 

@@ -3056,7 +3056,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // ////console.log
 
   return (
-    <div className="w-full flex flex-col items-center h-full overflow-hidden mt-[1vh] ps-4">
+    <div className="w-full flex flex-col items-center h-full overflow-hidden">
       {/* Slider code */}
       <div
         style={{

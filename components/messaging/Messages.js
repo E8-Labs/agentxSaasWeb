@@ -2282,7 +2282,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             fetchMessages(selectedThread.id, null, false)
           }, 500)
         } else {
-          toast.error('Failed to send message')
+          toast.error(response?.data?.message || 'Failed to send message')
         }
       } else {
         // Send Email with attachments
@@ -2486,7 +2486,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       }
     } catch (error) {
       console.error('Error sending message:', error)
-      toast.error('Failed to send message')
+      toast.error(error.response?.data?.message || 'Failed to send message')
     } finally {
       setSendingMessage(false)
     }

@@ -488,7 +488,12 @@ const NewMessageModal = ({
         return
       }
 
-      const apiPath = `${Apis.searchLeadsForMessaging}?search=${encodeURIComponent(searchTerm.trim())}&limit=50`
+      let apiPath = `${Apis.searchLeadsForMessaging}?search=${encodeURIComponent(searchTerm.trim())}&limit=50`
+      if (selectedUser) {
+        apiPath = `${Apis.searchLeadsForMessaging}?search=${encodeURIComponent(searchTerm.trim())}&limit=50&userId=${selectedUser.id}`
+      }
+
+      // console.log("ApiPath for search leads is", apiPath);
 
       const response = await axios.get(apiPath, {
         headers: {
