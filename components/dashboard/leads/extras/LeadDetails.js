@@ -475,9 +475,9 @@ const LeadDetails = ({
     getLeadDetails(selectedLead)
 
     // Remove or comment out the console.log to avoid build errors
-    // console.log("pipelineId", pipelineId);
+    console.log("Pipeline id ApiPath for stages list is", pipelineId);
 
-    if (pipelineId) {
+    if (pipelineId || selectedLead) {
       // //console.log;
       getStagesList(selectedLead)
     }
@@ -982,6 +982,7 @@ const LeadDetails = ({
 
       if (response) {
         console.log("lead details are api data ", response.data.data)
+        getStagesList(response?.data?.data?.pipeline?.id)
         let dynamicColumns = []
         dynamicColumns = [
           ...response?.data?.columns,
@@ -1109,7 +1110,7 @@ const LeadDetails = ({
   }
 
   //function to get the stages list using pipelineId
-  const getStagesList = async () => {
+  const getStagesList = async (id) => {
     try {
       let AuthToken = null
       setStagesListLoader(true)
@@ -1120,11 +1121,16 @@ const LeadDetails = ({
         AuthToken = Data.token
       }
 
-      // //console.log;
+      // console.log("Selected lead is", id);
 
-      const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}&liteResource=true`
+      const pipeline_Id = id || pipelineId
 
-      // console.log("ApiPath", ApiPath);
+      let ApiPath = `${Apis.getStagesList}?pipelineId=${pipeline_Id}&liteResource=true`
+      if (selectedUser) {
+        ApiPath = `${Apis.getStagesList}?pipelineId=${pipeline_Id}&liteResource=true&userId=${selectedUser.id}`
+      }
+
+      console.log("ApiPath for stages list is", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
