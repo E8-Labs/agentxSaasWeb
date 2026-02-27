@@ -85,6 +85,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [bccInput, setBccInput] = useState('')
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
   const [messageOffset, setMessageOffset] = useState(0) // Offset of the oldest message currently loaded
+  const messageOffsetRef = useRef(0) // Ref so scroll handler always has latest offset (avoids stale closure)
+  const justLoadedOlderRef = useRef(false) // Skip scroll-to-bottom once after prepending older messages
   const [loadingOlderMessages, setLoadingOlderMessages] = useState(false)
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
@@ -499,7 +501,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   })
   const [linkingLeadId, setLinkingLeadId] = useState(null)
 
-  const MESSAGES_PER_PAGE = 30
+  const MESSAGES_PER_PAGE = 10
   const SMS_CHAR_LIMIT = 300
   const MAX_ATTACHMENTS = 5
   const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB
@@ -711,14 +713,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           if (response.data?.status && response.data?.data) {
             const allMessages = response.data.data
             console.log('allMessages', allMessages)
-            // Take the last 30 messages (most recent)
+            // Take the last N messages (most recent)
             const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
-            // Calculate the offset of the oldest message we're showing
-            // If we fetched 500 and took last 30, the oldest is at offset 470 (if there are 500+ messages)
-            // If we fetched less than 500, it means we got all messages, so offset is 0
-            const oldestMessageOffset = allMessages.length >= 500
-              ? Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
-              : 0
+            // Offset of the oldest message we're showing (so next "load older" fetches before this)
+            const oldestMessageOffset = Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
@@ -733,10 +731,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               latestMessageIdRef.current = fetchedMessages[fetchedMessages.length - 1]?.id || null
             }
 
-            // Check if there are more older messages
-            // If we got exactly 500, there might be more. If less, we got all messages.
-            setHasMoreMessages(allMessages.length >= 500)
+            // There are more older messages if we have more than one page (so we can load older)
+            setHasMoreMessages(allMessages.length > MESSAGES_PER_PAGE)
             setMessageOffset(oldestMessageOffset)
+            messageOffsetRef.current = oldestMessageOffset
 
             // Scroll to bottom instantly after DOM update (no visible animation)
             requestAnimationFrame(() => {
@@ -789,6 +787,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           })
 
           if (append) {
+            justLoadedOlderRef.current = true
             // Store scroll position before prepending
             const container = messagesContainerRef.current
             const scrollHeight = container?.scrollHeight || 0
@@ -797,17 +796,20 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             // Prepend older messages at the top
             setMessages((prev) => [...fetchedMessages, ...prev])
 
-            // Restore scroll position after prepending (maintain scroll position)
-            setTimeout(() => {
-              if (container) {
-                const newScrollHeight = container.scrollHeight
-                const heightDifference = newScrollHeight - scrollHeight
-                container.scrollTop = scrollTop + heightDifference
-              }
-            }, 0)
+            // Restore scroll position after prepending — wait for DOM to update (double rAF = after layout/paint)
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (container) {
+                  const newScrollHeight = container.scrollHeight
+                  const heightDifference = newScrollHeight - scrollHeight
+                  container.scrollTop = scrollTop + heightDifference
+                }
+              })
+            })
 
-            // Update offset to the oldest message now loaded
+            // Update offset to the oldest message now loaded (ref so next scroll uses it)
             setMessageOffset(actualOffset)
+            messageOffsetRef.current = actualOffset
             // Check if there are more older messages
             setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
@@ -830,7 +832,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
             // Check if there are more messages
             setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
-            setMessageOffset(actualOffset + fetchedMessages.length)
+            const nextOffset = actualOffset + fetchedMessages.length
+            setMessageOffset(nextOffset)
+            messageOffsetRef.current = nextOffset
           }
         }
       } catch (error) {
@@ -846,7 +850,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     [selectedUser]
   )
 
-  // Load older messages when scrolling to top
+  // Load older messages when scrolling to top (use ref so we always pass latest offset after first fetch)
   const handleScroll = useCallback(() => {
     if (!messagesContainerRef.current || messagesLoading || loadingOlderMessages || !hasMoreMessages) {
       return
@@ -855,9 +859,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     const container = messagesContainerRef.current
     // Load when near the top (within 100px)
     if (container.scrollTop <= 100 && selectedThread) {
-      fetchMessages(selectedThread.id, messageOffset, true)
+      fetchMessages(selectedThread.id, messageOffsetRef.current, true)
     }
-  }, [messagesLoading, loadingOlderMessages, hasMoreMessages, selectedThread, messageOffset, fetchMessages])
+  }, [messagesLoading, loadingOlderMessages, hasMoreMessages, selectedThread, fetchMessages])
 
   // Mark thread as read
   const markThreadAsRead = useCallback(async (threadId) => {
@@ -1339,6 +1343,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const handleThreadSelect = (thread) => {
     setSelectedThread(thread)
     setMessageOffset(0)
+    messageOffsetRef.current = 0
     setHasMoreMessages(true)
     setMessages([])
     fetchMessages(thread.id, null, false) // null means initial load
@@ -2813,6 +2818,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (threadToSelect) {
         setSelectedThread(threadToSelect)
         setMessageOffset(0)
+        messageOffsetRef.current = 0
         setHasMoreMessages(true)
         setMessages([])
         fetchMessages(threadToSelect.id, null, false)
@@ -3225,17 +3231,22 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [searchValue, selectedThread, fetchThreads, selectedUser])
 
-  // Setup scroll listener
+  // Setup scroll listener (re-run when thread changes so we attach after container mounts)
   useEffect(() => {
     const container = messagesContainerRef.current
     if (container) {
-      container.addEventListener('scroll', handleScroll)
+      container.addEventListener('scroll', handleScroll, { passive: true })
       return () => container.removeEventListener('scroll', handleScroll)
     }
-  }, [handleScroll])
+  }, [handleScroll, selectedThread?.id])
 
   // Scroll to bottom instantly when messages are loaded (only if not loading older messages or initial load)
   useEffect(() => {
+    // Skip once after we prepended older messages (scroll position is restored in fetchMessages)
+    if (justLoadedOlderRef.current) {
+      justLoadedOlderRef.current = false
+      return
+    }
     // Only scroll if:
     // 1. Not loading older messages (to preserve scroll position)
     // 2. Not in initial loading state
