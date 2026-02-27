@@ -7,13 +7,9 @@ import {
 import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
 import AttachmentList from './AttachmentList'
 
+/** Unescape HTML entities only; do not parse as HTML (parsing would strip tags and lose formatting). */
 function unescapeHtmlEntities(str) {
   if (!str || typeof str !== 'string') return str
-  if (typeof document !== 'undefined') {
-    const tempDiv = document.createElement('div')
-    tempDiv.innerHTML = str
-    return tempDiv.textContent || tempDiv.innerText || str
-  }
   return str
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
