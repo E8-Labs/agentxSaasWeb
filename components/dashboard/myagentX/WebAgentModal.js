@@ -131,10 +131,12 @@ const WebAgentModal = ({
       }
 
       // Include userId parameter for agency/admin scenarios (like EmbedModal does)
-      let apiUrl = `${Apis.getSheets}?type=manual`
+      let apiUrl = `${Apis.getSheets}`   //?type=manual
       if (selectedUser?.id) {
         apiUrl += `&userId=${selectedUser.id}`
       }
+
+      console.log("ApiUrl for smart lists is", apiUrl);
 
       const response = await axios.get(apiUrl, {
         headers: {
@@ -148,6 +150,7 @@ const WebAgentModal = ({
         response.data.data &&
         response.data.data.length > 0
       ) {
+        console.log("Smart lists are", response.data.data);
         setSmartLists(response.data.data)
 
         // Don't override requireForm here - it's set in the useEffect based on agent prop
@@ -534,6 +537,7 @@ const WebAgentModal = ({
                           maxHeight: '30vh', // Limit dropdown height
                           overflow: 'auto', // Enable scrolling in dropdown
                           scrollbarWidth: 'none',
+                          width: 'auto',
                           // borderRadius: "10px"
                         },
                       },
