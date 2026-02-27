@@ -1404,7 +1404,7 @@ const MessageComposer = ({
                 setIsExpanded(true)
               }}
             />
-            {(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Development' || selectedUser?.id === 155) && (
+            {(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Development' || (selectedUser?.id ?? getUserLocalData()?.user?.id) == 155) && (
               <MessageComposerTabCN
                 icon={MessengerTabIcon}
                 label="FB/IG DM"
