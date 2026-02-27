@@ -9,13 +9,9 @@ import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent
 import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import AttachmentList from './AttachmentList'
 
+/** Unescape HTML entities only; do not parse as HTML (parsing would strip tags and lose formatting). */
 function unescapeHtmlEntities(str) {
   if (!str || typeof str !== 'string') return str
-  if (typeof document !== 'undefined') {
-    const tempDiv = document.createElement('div')
-    tempDiv.innerHTML = str
-    return tempDiv.textContent || tempDiv.innerText || str
-  }
   return str
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -30,6 +26,10 @@ function getDisplayHtml(content) {
   let text = content
   if (text.includes('&lt;') || text.includes('&gt;') || text.includes('&amp;')) {
     text = unescapeHtmlEntities(text)
+  }
+  // Stored content may be HTML (e.g. from social composer); render it so lists/bold/links show correctly
+  if (/<\w[\s\S]*>/.test(text)) {
+    return sanitizeHTMLForEmailBody(text)
   }
   const withMarkdown = simpleMarkdownToHtml(text)
   if (/<[^>]+>/.test(withMarkdown)) {

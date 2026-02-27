@@ -61,12 +61,44 @@ export function MessageMarkdown({ content, className = '' }) {
 }
 
 /**
- * Convert markdown to HTML string for sending in emails.
- * Matches MessageMarkdown display: **bold**, [text](url) links, and newlines as <br>.
- * Use before appending body to send-email API so recipients see formatted email.
+ * Convert markdown list lines (- item / * item) to <ul><li> so composer and bubbles show real bullets.
+ * Runs before simpleMarkdownToHtml so list items can still contain **bold** and [links](url).
+ */
+function markdownListBlocksToHtml(text) {
+  if (!text || typeof text !== 'string') return text
+  const lines = text.split('\n')
+  const out = []
+  let listItems = []
+
+  const flushList = () => {
+    if (listItems.length === 0) return
+    const ul = '<ul>' + listItems.map((item) => '<li>' + item + '</li>').join('') + '</ul>'
+    out.push(ul)
+    listItems = []
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    const unorderedMatch = line.match(/^\s*[-*]\s+(.*)$/)
+    if (unorderedMatch) {
+      listItems.push(unorderedMatch[1])
+      continue
+    }
+    flushList()
+    out.push(line)
+  }
+  flushList()
+  return out.join('\n')
+}
+
+/**
+ * Convert markdown to HTML string for sending in emails / populating composer.
+ * Matches MessageMarkdown display: **bold**, [text](url) links, lists (- / *), and newlines as <br>.
+ * Use before appending body to send-email API or when setting draft content in composer.
  */
 export function messageMarkdownToHtml(text) {
   if (!text || typeof text !== 'string') return text
-  const withMarkdown = simpleMarkdownToHtml(text)
+  const withLists = markdownListBlocksToHtml(text)
+  const withMarkdown = simpleMarkdownToHtml(withLists)
   return withMarkdown.replace(/\n/g, '<br>')
 }
