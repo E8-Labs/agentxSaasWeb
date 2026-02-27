@@ -74,7 +74,7 @@ const EmbedModal = ({
         AuthToken = UserDetails.token
       }
 
-      let apiUrl = `${Apis.getSheets}?type=manual`
+      let apiUrl = `${Apis.getSheets}`   //?type=manual
       if (selectedUser?.id) {
         apiUrl += `&userId=${selectedUser.id}`
       }
