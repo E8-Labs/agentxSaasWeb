@@ -389,7 +389,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             return (
               <div
                 key={number.id}
-                className="flex w-full min-w-0 px-4 py-5 rounded-lg border-2 transition-all items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap"
+                className="flex w-full sm:w-[80%] md:w-1/2 min-w-0 px-4 py-5 rounded-lg border-2 transition-all items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap"
                 style={{
                   borderColor: isGlobal ? 'hsl(var(--brand-primary))' : isDisabled ? '#d0d0d0' : '#e0e0e0',
                   backgroundColor: isGlobal ? 'hsl(var(--brand-primary) / 0.1)' : isDisabled ? '#f9f9f9' : '#fff',
