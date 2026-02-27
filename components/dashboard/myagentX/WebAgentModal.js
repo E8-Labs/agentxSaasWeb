@@ -9,7 +9,7 @@ import {
 import { ArrowUpRight, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
@@ -45,6 +45,8 @@ const WebAgentModal = ({
     message: '',
     type: SnackbarTypes.Error,
   })
+  const formControlRef = useRef(null)
+  const [selectMenuWidth, setSelectMenuWidth] = useState(null)
 
   const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
     setSnackbar({
@@ -60,6 +62,20 @@ const WebAgentModal = ({
   }
 
   useEffect(() => {}, [agentSmartRefillId])
+
+  // Measure FormControl width when smart list section is visible so dropdown matches it
+  useEffect(() => {
+    if (!open || !requireForm || smartLists.length === 0) return
+    const measure = () => {
+      if (formControlRef.current) {
+        setSelectMenuWidth(formControlRef.current.offsetWidth)
+      }
+    }
+    measure()
+    const resizeObserver = new ResizeObserver(measure)
+    if (formControlRef.current) resizeObserver.observe(formControlRef.current)
+    return () => resizeObserver.disconnect()
+  }, [open, requireForm, smartLists.length])
 
   useEffect(() => {
     if (open) {
@@ -501,55 +517,62 @@ const WebAgentModal = ({
                   <div>Loading...</div>
                 </div>
               ) : smartLists.length > 0 ? (
-                <FormControl className="w-full h-[50px]">
-                  <Select
-                    value={selectedSmartList}
-                    onChange={(e) => setSelectedSmartList(e.target.value)}
-                    style={{
-                      border: '1px solid #E5E7EB',
-                      fontSize: '14px',
-                      padding: '12px',
-                      backgroundColor: '#fff',
-                      width: '100%',
-                      borderRadius: '6px',
-                      outline: 'none',
-                    }}
-                    sx={{
-                      height: '48px',
-                      borderRadius: '13px',
-                      border: '1px solid #00000020', // Default border
-                      '&:hover': {
-                        border: '1px solid #00000020', // Same border on hover
-                      },
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        border: 'none', // Remove the default outline
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        border: 'none', // Remove outline on focus
-                      },
-                      '&.MuiSelect-select': {
-                        py: 0, // Optional padding adjustments
-                      },
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: '30vh', // Limit dropdown height
-                          overflow: 'auto', // Enable scrolling in dropdown
-                          scrollbarWidth: 'none',
-                          width: 'auto',
-                          // borderRadius: "10px"
+                <div ref={formControlRef} className="w-full">
+                  <FormControl className="w-full h-[50px]">
+                    <Select
+                      value={selectedSmartList}
+                      onChange={(e) => setSelectedSmartList(e.target.value)}
+                      style={{
+                        border: '1px solid #E5E7EB',
+                        fontSize: '14px',
+                        padding: '12px',
+                        backgroundColor: '#fff',
+                        width: '100%',
+                        borderRadius: '6px',
+                        outline: 'none',
+                      }}
+                      sx={{
+                        height: '48px',
+                        borderRadius: '13px',
+                        border: '1px solid #00000020', // Default border
+                        '&:hover': {
+                          border: '1px solid #00000020', // Same border on hover
                         },
-                      },
-                    }}
-                  >
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          border: 'none', // Remove the default outline
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          border: 'none', // Remove outline on focus
+                        },
+                        '&.MuiSelect-select': {
+                          py: 0, // Optional padding adjustments
+                        },
+                      }}
+                      MenuProps={{
+                        onOpen: () => {
+                          if (formControlRef.current) {
+                            setSelectMenuWidth(formControlRef.current.offsetWidth)
+                          }
+                        },
+                        PaperProps: {
+                          style: {
+                            maxHeight: '30vh',
+                            overflow: 'auto',
+                            scrollbarWidth: 'none',
+                            width: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
+                            minWidth: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
+                          },
+                        },
+                      }}
+                    >
                     {smartLists.map((list, index) => (
                       <MenuItem key={list.id || index} value={list.id}>
                         {list.sheetName}
                       </MenuItem>
                     ))}
-                  </Select>
-                </FormControl>
+                    </Select>
+                  </FormControl>
+                </div>
               ) : (
                 <div
                   style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}
