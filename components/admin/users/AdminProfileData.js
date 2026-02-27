@@ -433,9 +433,9 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
           My Account
         </TypographyH3>
       </div>
-      <div className="w-12/12 h-[calc(100vh-4rem)] flex flex-row items-stretch pl-2 w-full">
+      <div className="w-12/12 ${isAgencyView ? 'h-[calc(100svh-25svh)]' : 'h-[calc(100vh-4rem)]'} flex flex-row items-stretch pl-2 w-full">
         <div
-          className="w-4/12 h-[calc(100vh-4rem)] flex flex-col items-center pr-2 overflow-y-auto"
+          className={`w-4/12 ${isAgencyView ? 'h-[calc(100svh-25svh)]' : 'h-[calc(100vh-4rem)]'} flex flex-col items-center pr-2 overflow-y-auto`}
           style={{
             borderRightWidth: 1,
             borderBottomColor: '#00000010',
