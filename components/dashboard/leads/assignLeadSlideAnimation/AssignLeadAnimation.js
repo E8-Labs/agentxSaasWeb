@@ -385,7 +385,7 @@ export default function AssignLeadAnimation({
                 className="rounded-lg w-[100%] bg-white border-none outline-none flex flex-col flex-1 min-h-0"
                 style={{ padding: 0 }}
               >
-                <div className="w-full flex flex-col flex-1 min-h-0" style={{ padding: 0 }}>
+                <div className="w-full flex flex-col flex-1 min-h-0" style={{ padding: 0, gap: 2 }}>
                   <AssignLead
                     selectedLead={selectedLead}
                     handleCloseAssignLeadModal={() => {
@@ -422,10 +422,10 @@ export default function AssignLeadAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
-                // style={styles.motionDiv}
+                className="rounded-[16px] w-[100%] bg-white border-none outline-none flex flex-col"
+                style={{ padding: 0, gap: 2 }}
               >
-                <div className="">
+                <div className="w-full flex flex-col flex-1 min-h-0" style={{ padding: 0, gap: 4 }}>
                   <LastStep
                     selectedLead={selectedLead}
                     leadIs={leadIs}

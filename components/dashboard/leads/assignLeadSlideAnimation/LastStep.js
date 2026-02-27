@@ -11,7 +11,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { CalendarDots, CaretLeft } from '@phosphor-icons/react'
+import { Calendar, Phone } from 'lucide-react'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 // Import Day.js
@@ -274,8 +274,8 @@ const LastStep = ({
 
   const styles = {
     heading: {
-      fontWeight: '600',
-      fontSize: 17,
+      fontWeight: '400',
+      fontSize: 14,
     },
     paragraph: {
       fontWeight: '500',
@@ -364,19 +364,21 @@ const LastStep = ({
         )}
 
         <div
-          className="w-full"
+          className="w-full flex flex-col"
           style={{
             backgroundColor: '#ffffff',
-            padding: 20,
+            padding: 0,
             borderRadius: '13px',
+            gap: 8,
           }}
         >
-          <div className="flex flex-row items-center justify-between w-full">
+          <div style={{ paddingLeft: 0, paddingRight: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-row items-center justify-between w-full" style={{ width: '100%', padding: 16, borderBottom: '1px solid #eaeaea' }}>
             <div className="flex flex-col items-start">
               <div
                 style={{
                   fontWeight: '700',
-                  fontSize: 24,
+                  fontSize: 18,
                 }}
               >
                 One last thing
@@ -385,65 +387,6 @@ const LastStep = ({
                 style={{ fontSize: 12, fontWeight: '600', color: brandPrimaryColor }}
               >
                 {getLeadSelectedCount()} Contacts Selected
-              </div>
-              <div className="flex flex-row items-center -mt-2">
-                <Tooltip
-                  title="If the lead has given consent, no need to run against DNC"
-                  arrow
-                  componentsProps={{
-                    tooltip: {
-                      sx: {
-                        backgroundColor: '#ffffff',
-                        color: '#333',
-                        fontSize: '14px',
-                        padding: '10px 15px',
-                        borderRadius: '8px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                      },
-                    },
-                    arrow: {
-                      sx: {
-                        color: '#ffffff',
-                      },
-                    },
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: '600',
-                      color: '#000000',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Check DNC List
-                  </div>
-                </Tooltip>
-                <Switch
-                  checked={isDncChecked}
-                  onChange={(event) => {
-                    if (
-                      userLocalDetails?.planCapabilities.maxDNCChecks >=
-                      userLocalDetails.currentUsage.maxDNCChecks
-                    ) {
-                      setIsDncChecked(event.target.checked)
-                      if (event.target.checked) {
-                        setShowDncConfirmationPopup(true)
-                      } else {
-                        setShowUpgradeModal(true)
-                      }
-                    }
-                  }}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: brandPrimaryColor,
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: brandPrimaryColor,
-                    },
-                    margin: 0,
-                  }}
-                />
               </div>
             </div>
             <button
@@ -456,19 +399,83 @@ const LastStep = ({
             </button>
           </div>
 
-          <div className="mt-4" style={styles.heading}>
-            Drip per day
+          <div style={{ paddingLeft: 16, paddingRight: 16 }}>
+          <div className="flex flex-row items-center justify-between" style={{ padding: 12, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.02)' }}>
+            <Tooltip
+              title="If the lead has given consent, no need to run against DNC"
+              arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#ffffff',
+                    color: '#333',
+                    fontSize: '14px',
+                    padding: '10px 15px',
+                    borderRadius: '8px',
+                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                  },
+                },
+                arrow: {
+                  sx: {
+                    color: '#ffffff',
+                  },
+                },
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: '#000000',
+                  cursor: 'pointer',
+                }}
+              >
+                Check DNC List
+              </div>
+            </Tooltip>
+            <Switch
+              checked={isDncChecked}
+              onChange={(event) => {
+                if (
+                  userLocalDetails?.planCapabilities.maxDNCChecks >=
+                  userLocalDetails.currentUsage.maxDNCChecks
+                ) {
+                  setIsDncChecked(event.target.checked)
+                  if (event.target.checked) {
+                    setShowDncConfirmationPopup(true)
+                  } else {
+                    setShowUpgradeModal(true)
+                  }
+                }
+              }}
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: brandPrimaryColor,
+                },
+                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                  backgroundColor: brandPrimaryColor,
+                },
+                margin: 0,
+              }}
+            />
+          </div>
           </div>
 
-          <div className="flex flex-row items-center gap-8 mt-4">
+          <div className="flex flex-col" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingLeft: 16, paddingRight: 16 }}>
+            <div style={styles.heading}>
+              Drip per day
+            </div>
+            <div className="flex flex-row items-center" style={{ gap: 12 }}>
             <div
-              className="w-1/2 h-[50px] rounded-2xl p-4 flex flex-row items-center"
+              className="w-1/2 h-[50px] flex flex-row items-center"
               style={{
                 border: `${
                   isFocustedCustomLeads
                     ? `2px solid ${brandPrimaryColor}`
                     : '1px solid #00000040'
                 }`,
+                borderRadius: 8,
+                padding: 12,
               }}
             >
               <input
@@ -491,12 +498,14 @@ const LastStep = ({
               />
             </div>
             <button
-              className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
+              className="w-1/2 flex flex-row items-center"
               style={{
                 border: NoOfLeadsToSend
                   ? `2px solid ${brandPrimaryColor}`
                   : '1px solid #00000040',
                 height: '50px',
+                borderRadius: 8,
+                padding: 12,
               }}
               onClick={() => {
                 setNoOfLeadsToSend(totalLeads)
@@ -507,17 +516,21 @@ const LastStep = ({
               All {getLeadSelectedCount()}
             </button>
           </div>
-
-          <div className="mt-4" style={styles.heading}>
-            When to start?
           </div>
 
-          <div className="flex flex-row items-center gap-8 mt-4">
+          <div className="flex flex-col" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingLeft: 16, paddingRight: 16 }}>
+            <div style={styles.heading}>
+              When to start?
+            </div>
+            <div className="flex flex-row items-center" style={{ gap: 12 }}>
             <button
-              className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
+              className="w-1/2 flex flex-col justify-between items-start rounded-2xl"
               style={{
                 border: CallNow ? `2px solid ${brandPrimaryColor}` : '1px solid #00000040',
-                height: '119px',
+                height: 'auto',
+                minHeight: 'unset',
+                padding: 12,
+                gap: 12,
               }}
               onClick={() => {
                 setHasUserSelectedDate(false)
@@ -543,22 +556,22 @@ const LastStep = ({
                 // handleDateTimerDifference();
               }}
             >
-              <Image
-                src={'/assets/callBtn.png'}
-                height={24}
-                width={24}
-                alt="*"
-              />
+              <Phone size={16} className="flex-shrink-0" aria-hidden />
               <div style={styles.title}>Start Now</div>
             </button>
             <div className="w-1/2">
               <button
-                className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
+                className="w-full flex flex-col items-start justify-between"
                 style={{
                     border: CallLater
                       ? `2px solid ${brandPrimaryColor}`
                       : '1px solid #00000040',
-                  height: '119px',
+                  backgroundColor: CallLater ? `${brandPrimaryColor}0D` : undefined,
+                  height: 'auto',
+                  minHeight: 'unset',
+                  padding: 12,
+                  gap: 12,
+                  borderRadius: 8,
                 }}
                 onClick={() => {
                   setShowFromDatePicker(!showFromDatePicker)
@@ -569,7 +582,7 @@ const LastStep = ({
                   setIsDisabled(false)
                 }}
               >
-                <CalendarDots size={32} weight="bold" />
+                <Calendar size={16} className="flex-shrink-0" aria-hidden />
                 <div style={styles.title}>Schedule</div>
               </button>
               {/* <div>
@@ -731,6 +744,7 @@ const LastStep = ({
               </Modal>
             </div>
           </div>
+          </div>
 
           {CallLater && (
             <div>
@@ -744,7 +758,7 @@ const LastStep = ({
               >
                 Select date & time
               </div>
-              <div className="mt-2">
+              <div className="mt-2 w-full">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DateTimePicker
                     // label="Select date and time"
@@ -884,17 +898,17 @@ const LastStep = ({
           )}
 
           {loader ? (
-            <div className="mt-4 w-full flex flex-row items-center justify-center">
+            <div className="w-full flex flex-row items-center justify-center" style={{ margin: 0 }}>
               <CircularProgress size={30} />
             </div>
           ) : (
             <div className="w-full">
-              <div className="flex flex-row items-center gap-2 w-full mt-4">
+              <div className="flex flex-row items-center justify-between w-full" style={{ padding: 16, margin: 0 }}>
                 <button
-                  className="flex flex-row items-center justify-center gap-2 bg-[#15151515] h-[34px] w-[92px] rounded-2xl pe-2 flex-shrink-0"
+                  className="flex flex-row items-center justify-center gap-2 bg-[#15151515] flex-shrink-0"
+                  style={{ width: 'auto', height: 40, paddingLeft: 12, paddingRight: 12, borderRadius: 8 }}
                   onClick={handleMoveBack}
                 >
-                  <CaretLeft size={20} weight="bold" />
                   <span style={styles.title}>Back</span>
                 </button>
                 {(NoOfLeadsToSend || customLeadsToSend) &&
@@ -904,8 +918,8 @@ const LastStep = ({
                     hasUserSelectedDate &&
                     !isDisabled)) ? (
                   <button
-                    className="text-white flex-1 h-[50px] rounded-lg min-w-0"
-                    style={{ backgroundColor: brandPrimaryColor }}
+                    className="text-white flex-shrink-0"
+                    style={{ backgroundColor: brandPrimaryColor, width: 'auto', minWidth: 'unset', maxWidth: 'none', height: 40, paddingLeft: 12, paddingRight: 12, borderRadius: 8 }}
                     onClick={() => {
                       const lastStepData = {
                         numberOfLeads: getLeadSelectedCount(),
@@ -922,7 +936,8 @@ const LastStep = ({
                   </button>
                 ) : (
                   <button
-                    className="text-[#000000] flex-1 h-[50px] rounded-lg bg-[#00000020] min-w-0"
+                    className="text-[#000000] flex-shrink-0 bg-[#00000020]"
+                    style={{ width: 'auto', minWidth: 'unset', maxWidth: 'none', height: 40, paddingLeft: 12, paddingRight: 12, borderRadius: 8 }}
                     disabled={true}
                   >
                     Continue
@@ -941,6 +956,7 @@ const LastStep = ({
               />
             </div>
           )}
+          </div>
 
           {/* <div className='mt-4 w-full'>
                               <button className="text-white rounded-xl w-full h-[50px]" style={{ ...styles.heading, backgroundColor: brandPrimaryColor }} onClick={() => { setLastStepModal(false) }}>
