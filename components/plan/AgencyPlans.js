@@ -849,7 +849,7 @@ function AgencyPlans({
                     setHoverPlan(null)
                   }}
                   className={
-                    `flex flex-col items-center rounded-lg flex-shrink-0 hover:shadow-md hover:shadow-brand-primary border p-2 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-b hover:from-brand-primary hover:to-brand-primary/80' : ''} ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-b from-brand-primary to-brand-primary/80 p-2' : 'opacity-75 cursor-not-allowed' }`
+                    `group flex flex-col items-center rounded-lg flex-shrink-0 hover:shadow-md hover:shadow-brand-primary border p-2 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-b hover:from-brand-primary hover:to-brand-primary/80' : ''} ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-b from-brand-primary to-brand-primary/80 p-2' : 'opacity-75 cursor-not-allowed' }`
                   }
                   style={{
                     width: '28vw',
@@ -860,19 +860,16 @@ function AgencyPlans({
                   <div className="flex flex-col items-center rounded-lg h-auto w-full">
                     <div className="pb-2">
                       {item.tag ? (
-                        <div className=" flex flex-row items-center gap-2">
-                          {
-                            renderBrandedIcon('/svgIcons/power.svg', 24, 24)
-                          }
-
-                          <div
-                            className={`text-base font-bold text-brand-primary`}
-                          >
+                        <div className="flex flex-row items-center gap-2">
+                          <span className="inline-block [&>div]:transition-[background-color] [&>div]:duration-200 group-hover:[&>div]:[background-color:white!important]">
+                            {renderBrandedIcon('/svgIcons/power.svg', 24, 24)}
+                          </span>
+                          <div className="text-base font-bold text-brand-primary group-hover:!text-white transition-colors duration-200">
                             {item.tag}
                           </div>
-                          {
-                            renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
-                          }
+                          <span className="inline-block [&>div]:transition-[background-color] [&>div]:duration-200 group-hover:[&>div]:[background-color:white!important]">
+                            {renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)}
+                          </span>
                         </div>
                       ) : (
                         <div className="h-[4vh]"></div>

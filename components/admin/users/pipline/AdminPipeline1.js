@@ -77,6 +77,7 @@ import PipelineFilterModal from '@/components/common/PipelineFilterModal'
 import StandardHeader from '@/components/common/StandardHeader'
 import { Check } from 'lucide-react'
 import { isColorDark } from '@/components/dashboardPipeline/PipelineUtilities'
+import { toast } from '@/utils/toast'
 
 const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   const bottomRef = useRef()
@@ -560,6 +561,11 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   //function to call create pipeline api
   const handleCreatePipeline = async () => {
     try {
+      console.log('handleCreatePipeline selected user', selectedUser?.planStatus?.hasActivePlan);
+      if(selectedUser?.planStatus?.hasActivePlan === false){
+        toast.error('Plan required to create pipeline.');
+        return
+      }
       setAddPipelineLoader(true)
       const localData = localStorage.getItem('User')
       let AuthToken = null
