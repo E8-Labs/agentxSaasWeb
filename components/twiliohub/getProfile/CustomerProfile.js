@@ -17,6 +17,8 @@ import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn'
 import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip'
 import LockDetailsView from './LockDetailsView'
 import { Play } from 'lucide-react'
+import { useUser } from '@/hooks/redux-hooks'
+import { maskSensitive } from '@/components/agency/plan/AgencyUtilities'
 
 const CustomerProfile = ({
   twilioHubData,
@@ -27,6 +29,10 @@ const CustomerProfile = ({
   isFromAgency = false,
   selectedUser,
 }) => {
+
+  // console.log("twilioHubData passed is", twilioHubData)
+
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
   //how to video
   const [introVideoModal2, setIntroVideoModal2] = useState(false)
 
@@ -78,10 +84,10 @@ const CustomerProfile = ({
 
   const introVideoUrl = isFromAgency
     ? introVideo?.videoUrl ||
-      getVideoUrlByType(HowToVideoTypes.TwilioIntegrationAgency)
+    getVideoUrlByType(HowToVideoTypes.TwilioIntegrationAgency)
     : introVideo?.videoUrl ||
-      getVideoUrlByType(HowToVideoTypes.TwilioTrustHub) ||
-      HowtoVideos.TwilioTrustHub
+    getVideoUrlByType(HowToVideoTypes.TwilioTrustHub) ||
+    HowtoVideos.TwilioTrustHub
 
   return (
     <div className="w-full">
@@ -143,13 +149,13 @@ const CustomerProfile = ({
             {learnMoreCta}
           </button>
           <Play onClick={() => {
-              setIntroVideoModal2(true)
-            }}
-            size={18} 
-          weight='bold'
-          className="text-brand-primary cursor-pointer"
-          
-          style={{ color: 'hsl(var(--brand-primary))' }}
+            setIntroVideoModal2(true)
+          }}
+            size={18}
+            weight='bold'
+            className="text-brand-primary cursor-pointer"
+
+            style={{ color: 'hsl(var(--brand-primary))' }}
           />
           {/* <Image
             src="/otherAssets/playIcon.jpg"
@@ -160,6 +166,14 @@ const CustomerProfile = ({
             onClick={() => setIntroVideoModal2(true)}
           /> */}
         </div>
+      </div>
+      <div className='mt-2'>
+        {twilioHubData?.accountSid && twilioHubData?.authToken && (
+          <div style={{ fontWeight: '500', fontSize: 15 }}>
+            SID {maskSensitive(twilioHubData?.accountSid)} Token{' '}
+            {maskSensitive(twilioHubData?.authToken)}
+          </div>
+        )}
       </div>
       {/* Intro modal */}
       <IntroVideoModal
@@ -264,7 +278,7 @@ const CustomerProfile = ({
                   Profile Friendly Name |{' '}
                   {twilioHubData?.profileType &&
                     twilioHubData?.profileType.charAt(0).toUpperCase() +
-                      twilioHubData?.profileType.slice(1).toLowerCase()}
+                    twilioHubData?.profileType.slice(1).toLowerCase()}
                 </div>
                 <div className="w-1/2" style={styles.mediumfontDarkClr}>
                   {twilioHubData?.friendlyName || 'Profile Friendly Name'}

@@ -122,6 +122,7 @@ const TwilioTrustHub = ({
         }
         const ApiResponse = response.data
         if (ApiResponse.status === true) {
+          // console.log("ApiResponse.data passed is", ApiResponse.data)
           setTwilioHubData(ApiResponse.data)
           const twilioHubData = PersistanceKeys.twilioHubData
           localStorage.setItem(twilioHubData, JSON.stringify(ApiResponse.data))

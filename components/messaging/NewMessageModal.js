@@ -2101,58 +2101,58 @@ const NewMessageModal = ({
                                       {emailAccounts.map((account) => {
                                         const gmailError = getGmailWatchErrorInfo(account)
                                         return (
-                                        <div key={account.id} className="group relative w-full">
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                              setSelectedEmailAccount(account.id.toString())
-                                              setSelectedEmailAccountObj(accountObj)
-                                              setEmailDropdownOpen(false)
-                                            }}
-                                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'}`}
-                                          >
-                                            <div className="flex items-center justify-between">
-                                              <span>{account.email || account.name || account.displayName}</span>
-                                              <div className="flex items-center gap-2">
-                                                {account.provider && (
-                                                  <span className="text-xs text-gray-500">
-                                                    {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                                  </span>
-                                                )}
+                                          <div key={account.id} className="group relative w-full">
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                                setSelectedEmailAccount(account.id.toString())
+                                                setSelectedEmailAccountObj(accountObj)
+                                                setEmailDropdownOpen(false)
+                                              }}
+                                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'}`}
+                                            >
+                                              <div className="flex items-center justify-between">
+                                                <span>{account.email || account.name || account.displayName}</span>
+                                                <div className="flex items-center gap-2">
+                                                  {account.provider && (
+                                                    <span className="text-xs text-gray-500">
+                                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                                    </span>
+                                                  )}
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                                    disabled={deletingEmailAccountId === account.id}
+                                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                                    title="Delete email account"
+                                                  >
+                                                    {deletingEmailAccountId === account.id ? (
+                                                      <CircularProgress size={14} />
+                                                    ) : (
+                                                      <Trash2 size={14} />
+                                                    )}
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            </button>
+                                            {gmailError && (
+                                              <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
+                                                <span>{gmailError.shortLabel} —</span>
                                                 <button
                                                   type="button"
-                                                  onClick={(e) => handleDeleteEmailAccount(account, e)}
-                                                  disabled={deletingEmailAccountId === account.id}
-                                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
-                                                  title="Delete email account"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setShowAuthSelectionPopup(true)
+                                                    setEmailDropdownOpen(false)
+                                                  }}
+                                                  className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
                                                 >
-                                                  {deletingEmailAccountId === account.id ? (
-                                                    <CircularProgress size={14} />
-                                                  ) : (
-                                                    <Trash2 size={14} />
-                                                  )}
+                                                  Reconnect
                                                 </button>
                                               </div>
-                                            </div>
-                                          </button>
-                                          {gmailError && (
-                                            <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
-                                              <span>{gmailError.shortLabel} —</span>
-                                              <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                  e.stopPropagation()
-                                                  setShowAuthSelectionPopup(true)
-                                                  setEmailDropdownOpen(false)
-                                                }}
-                                                className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
-                                              >
-                                                Reconnect
-                                              </button>
-                                            </div>
-                                          )}
-                                        </div>
+                                            )}
+                                          </div>
                                         )
                                       })}
                                     </div>
@@ -2363,9 +2363,22 @@ const NewMessageModal = ({
                                         onClick={(e) => e.stopPropagation()}
                                       />
                                       <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                                        <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                        <span className="text-sm text-gray-700 truncate max-w-[180px]">
                                           {ccEmails[0]}
                                         </span>
+                                        {
+                                          ccEmails.length === 1 && (
+                                            <button
+                                              onClick={() => {
+                                                removeCcEmail(ccEmails[0])
+                                              }}
+                                              className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                              title="Remove email"
+                                            >
+                                              <Trash2 size={16} className="text-brand-primary" />
+                                            </button>
+                                          )
+                                        }
                                         {ccEmails.length > 1 && (
                                           <span
                                             className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
@@ -2446,6 +2459,17 @@ const NewMessageModal = ({
                                         <span className="text-sm text-gray-700 truncate max-w-[150px]">
                                           {bccEmails[0]}
                                         </span>
+                                        {bccEmails.length === 1 && (
+                                          <button
+                                            onClick={() => {
+                                              removeBccEmail(bccEmails[0])
+                                            }}
+                                            className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                            title="Remove email"
+                                          >
+                                            <Trash2 size={16} className="text-brand-primary" />
+                                          </button>
+                                        )}
                                         {bccEmails.length > 1 && (
                                           <span
                                             className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
