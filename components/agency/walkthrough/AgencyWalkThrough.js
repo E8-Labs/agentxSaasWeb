@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 
 import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService'
 import { getBrandPrimaryHex, getBrandPrimaryHsl } from '@/utilities/colorUtils'
+import { PersistanceKeys } from '@/constants/Constants'
 
 const AgencyWalkThrough = ({ open, onClose }) => {
   const router = useRouter()
@@ -71,7 +72,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
         id: 4,
         label: 'Join us on Skool',
         videoUrl: null,
-        route: 'https://www.skool.com/agentx',
+        route: PersistanceKeys.AgencySkoolUrl,
       },
     ])
   }
