@@ -1685,7 +1685,7 @@ const Leads1 = () => {
                 className="w-full flex flex-col"
                 style={{
                   backgroundColor: '#ffffff',
-                  padding: 20,
+                  padding: 0,
                   borderRadius: '13px',
                   height: 'auto',
                   minHeight: 700,
@@ -1695,7 +1695,10 @@ const Leads1 = () => {
               >
                 <div
                   className="flex flex-row items-center justify-between w-full"
-                  style={{ padding: 16 }}
+                  style={{
+                    padding: 16,
+                    borderBottom: '1px solid #eaeaea',
+                  }}
                 >
                   <div style={{ fontSize: 18, fontWeight: 600 }}>Leads</div>
                   <CloseBtn
@@ -1705,8 +1708,9 @@ const Leads1 = () => {
                   />
                 </div>
 
+                <div className="flex flex-col" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingLeft: 16, paddingRight: 16 }}>
                 <div
-                  className="flex flex-row items-center justify-between gap-2 mt-8"
+                  className="flex flex-row items-center justify-between gap-2"
                   style={{
                     padding: 12,
                     fontSize: 14,
@@ -1714,7 +1718,7 @@ const Leads1 = () => {
                     borderRadius: 8,
                   }}
                 >
-                  <span style={styles.subHeadingStyle}>List Name</span>{' '}
+                  <span style={{ fontSize: 14, fontWeight: 400 }}>List Name</span>{' '}
                   <div className="flex flex-row items-center gap-2 ">
                     <Tooltip
                       title="Our AI will search the web to pull all current data on your leads."
@@ -1774,7 +1778,7 @@ const Leads1 = () => {
                   </div>
                 </div>
 
-                <div className="w-full mt-4" style={styles.subHeadingStyle}>
+                <div className="w-full" style={styles.subHeadingStyle}>
                   <input
                     className="outline-none rounded-lg p-2 w-full"
                     style={{
@@ -1790,24 +1794,26 @@ const Leads1 = () => {
                     placeholder="Enter sheet name"
                   />
                 </div>
-
-                <div style={{ fontWeight: '500', fontSize: 14 }}>
-                  Create a tag for leads
                 </div>
 
-                <div className="mt-4">
-                  <TagsInput setTags={setTagsValue} />
+                <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
+                  <div style={{ fontSize: 14, fontWeight: 400 }}>
+                    Create a tag for leads
+                  </div>
+                  <div>
+                    <TagsInput setTags={setTagsValue} />
+                  </div>
                 </div>
 
-                <div className="mt-4" style={styles.paragraph}>
-                  Match columns in your file to column fields
-                </div>
-
-                {NewColumnsObtained && NewColumnsObtained.length > 0 && (
+                <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
+                  <div style={styles.paragraph}>
+                    Match columns in your file to column fields
+                  </div>
+                  {NewColumnsObtained && NewColumnsObtained.length > 0 && (
                   <>
                     <div
                       className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
-                      style={{ height: 'auto', marginTop: 2 }}
+                      style={{ height: 'auto', marginTop: 0, padding: 0 }}
                     >
                       <table className="w-full border-collapse table-fixed" role="table">
                         <colgroup>
@@ -1951,19 +1957,26 @@ const Leads1 = () => {
                     </div>
                   </>
                 )}
+                </div>
 
                 {NewColumnsObtained && NewColumnsObtained.length > 0 && (
                   <div
-                    className="w-full flex justify-center items-center mt-4"
+                    className="w-full flex justify-end items-center mt-4"
                     style={{
-                      paddingBottom: 16,
+                      height: 'auto',
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 12,
+                      paddingBottom: 12,
                     }}
                   >
                     {Loader ? (
                       <CircularProgress size={27} />
                     ) : (
                       <button
-                        className="bg-brand-primary text-white rounded-lg h-[50px] w-4/12"
+                        type="button"
+                        className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none"
+                        style={{ paddingLeft: 12, paddingRight: 12 }}
                         onClick={() => {
                           console.log('🟡 [CONTINUE_BUTTON] Continue button clicked')
                           console.log('🟡 [CONTINUE_BUTTON] Calling validateColumns...')

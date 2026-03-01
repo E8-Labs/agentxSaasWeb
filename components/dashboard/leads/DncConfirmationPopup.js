@@ -14,7 +14,7 @@ import {
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import axios from 'axios'
 
@@ -25,6 +25,45 @@ import { getUserLocalData } from '@/components/constants/constants'
 import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
+
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      setStage('entering')
+      onEnter?.()
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = requestAnimationFrame(() => setStage('entered'))
+      })
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, timeout, onExited, onEnter])
+
+  const isEntering = stage === 'entering'
+  const style = {
+    opacity: isEntering || stage === 'exiting' ? 0 : 1,
+    transform: isEntering || stage === 'exiting' ? 'scale(0.95)' : 'scale(1)',
+    transition: `opacity ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1), transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+  }
+
+  return <div style={style}>{children}</div>
+}
 
 export default function DncConfirmationPopup({
   open,
@@ -40,6 +79,8 @@ export default function DncConfirmationPopup({
 
   const [userData, setUserData] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)
+  const [addCardClosing, setAddCardClosing] = useState(false)
+  const pendingConfirmRef = useRef(null)
   const [creditCost, setCreditCost] = useState(null)
   const [minimumCost, setMinimumCost] = useState(null)
   const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
@@ -258,11 +299,25 @@ export default function DncConfirmationPopup({
       : creditCost?.totalCharge ||
         (leadsCount < 34 ? 1 : leadsCount * displayPricePerLead)
 
+  useEffect(() => {
+    if (showAddCard) setAddCardClosing(false)
+  }, [showAddCard])
+
+  const handleCloseAddCard = () => setAddCardClosing(true)
+
+  const handleAddCardExited = () => {
+    setShowAddCard(false)
+    setAddCardClosing(false)
+    if (pendingConfirmRef.current) {
+      onConfirm(pendingConfirmRef.current)
+      pendingConfirmRef.current = null
+    }
+  }
+
   const handleClose = (data) => {
     if (data) {
-      setShowAddCard(false)
-      onConfirm()
-      // setCards([newCard, ...cards]);
+      pendingConfirmRef.current = data
+      setAddCardClosing(true)
     }
   }
   return (
@@ -468,19 +523,23 @@ export default function DncConfirmationPopup({
 
       {/* Add Payment Modal */}
       <Modal
-        open={showAddCard} //addPaymentPopUp
-        // open={true}
+        open={showAddCard}
+        onClose={handleCloseAddCard}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
+            backgroundColor: '#00000099',
           },
         }}
       >
-        <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-          <div className="flex flex-row justify-center w-full">
+        <ScaleFadeTransition
+          in={!addCardClosing}
+          onExited={handleAddCardExited}
+          timeout={250}
+        >
+          <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+            <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-7/12 w-full"
               style={{
@@ -498,7 +557,7 @@ export default function DncConfirmationPopup({
                 >
                   Payment Details
                 </div>
-                <button onClick={() => setShowAddCard(false)}>
+                <button onClick={handleCloseAddCard}>
                   <Image
                     src={'/assets/crossIcon.png'}
                     height={40}
@@ -522,6 +581,7 @@ export default function DncConfirmationPopup({
             </div>
           </div>
         </Box>
+        </ScaleFadeTransition>
       </Modal>
     </div>
   )
