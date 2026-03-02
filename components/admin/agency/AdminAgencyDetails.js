@@ -157,7 +157,34 @@ function AdminAgencyDetails() {
           <div style={styles.text}>Plan</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>Total Spent</div>
+          <Tooltip
+            title="Combined spending by this agency and all of its subaccounts."
+            arrow
+            placement="top"
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  backgroundColor: getBrandPrimaryHex(),
+                  color: 'white',
+                  fontSize: '13px',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+                  maxWidth: 220,
+                },
+              },
+              arrow: {
+                sx: {
+                  color: getBrandPrimaryHex(),
+                },
+              },
+            }}
+          >
+            <div className="flex flex-row items-center gap-1 cursor-help" style={styles.text}>
+              Total Spent
+              <Info size={14} strokeWidth={2} color={getBrandPrimaryHex()} />
+            </div>
+          </Tooltip>
         </div>
         <div className="w-1/12">
           <div style={styles.text}>Credits Used</div>
@@ -218,24 +245,8 @@ function AdminAgencyDetails() {
                   <div style={styles.text2}>{GetAgencyPlan(item)}</div>
                 </div>
                 <div className="w-1/12">
-                  <div className='flex flex-row items-center' style={styles.text2}>
+                  <div style={styles.text2}>
                     ${formatFractional2(item.totalSpent)}
-                    <Tooltip title="Total spent is the sum of amount spent by agency and it's subaccounts" arrow componentsProps={{
-                      tooltip: {
-                        sx: {
-                          backgroundColor: getBrandPrimaryHex(),
-                          color: 'white',
-                          fontSize: '13px',
-                          padding: '5px 10px',
-                          borderRadius: '8px',
-                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                        },
-                      },
-                    }}>
-                      <span className='ml-2' style={{ cursor: 'pointer' }}>
-                        <Info size={16} strokeWidth={2} color={getBrandPrimaryHex()} />
-                      </span>
-                    </Tooltip>
                   </div>
                 </div>
                 <div className="w-1/12">
