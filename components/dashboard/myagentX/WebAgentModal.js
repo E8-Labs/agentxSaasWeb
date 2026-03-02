@@ -149,7 +149,7 @@ const WebAgentModal = ({
       // Include userId parameter for agency/admin scenarios (like EmbedModal does)
       let apiUrl = `${Apis.getSheets}`   //?type=manual
       if (selectedUser?.id) {
-        apiUrl += `&userId=${selectedUser.id}`
+        apiUrl += `?userId=${selectedUser.id}`
       }
 
       console.log("ApiUrl for smart lists is", apiUrl);
