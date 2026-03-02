@@ -117,7 +117,7 @@ export default function ThreadOptionsDropdown({
             </TabsTrigger>
             </TabsList>
           </div>
-          <TabsContent value="teams" className="flex-1 max-h-[220px] overflow-auto">
+          <TabsContent value="teams" className="flex-1 max-h-[220px] overflow-hidden">
             <TeamsTabContent teamOptions={teamOptions} onToggle={onToggle} />
           </TabsContent>
           <TabsContent value="agents" className="flex-1 max-h-[220px] overflow-auto">

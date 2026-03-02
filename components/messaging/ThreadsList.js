@@ -21,6 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { plainTextWithBoldToHTML } from '@/utilities/textUtils'
 
 const ThreadsList = ({
   loading,
@@ -557,21 +558,48 @@ const ThreadsList = ({
                           </div>
                         </div>
                       </div>
-                      <TypographyCaption className="text-gray-500 truncate text-[14px] leading-[18px]">
-                        {(() => {
-                          const lastMessage = thread.messages?.[0]
-                          if (!lastMessage) return 'No messages yet'
-                          let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
-                          const trimmed = text.trim()
-                          if (/^\[\d+ .+\]$/.test(trimmed)) {
-                            if (/voice message/i.test(trimmed)) text = 'Voice message'
-                            else if (/image/i.test(trimmed)) text = 'Photo'
-                            else if (/video|reel/i.test(trimmed)) text = 'Video'
-                            else text = 'Attachment'
-                          }
-                          const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
-                          return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
-                        })()}
+                      <TypographyCaption className="text-gray-500 text-[14px] leading-[18px] [&_strong]:font-bold [&_strong]:text-gray-700 min-w-0">
+                        <span
+                          className="block truncate min-w-0"
+                          dangerouslySetInnerHTML={{
+                            __html: (() => {
+                              const lastMessage = thread.messages?.[0]
+                              if (!lastMessage) return 'No messages yet'
+                              let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                              // For email, show the body (actual message) not the subject
+                              if (lastMessage.messageType === 'email') {
+                                const raw = text
+                                // Strip "Replying to: ..." and "Subject: ..." lines to get body only
+                                let body = raw
+                                  .replace(/^Replying to:\s*.*$/im, '')
+                                  .replace(/^Subject:\s*.*$/im, '')
+                                  .replace(/\n{2,}/g, '\n')
+                                  .trim()
+                                if (body) {
+                                  text = body
+                                }
+                              }
+                              const trimmed = text.trim()
+                              if (/^\[\d+ .+\]$/.test(trimmed)) {
+                                if (/voice message/i.test(trimmed)) text = 'Voice message'
+                                else if (/image/i.test(trimmed)) text = 'Photo'
+                                else if (/video|reel/i.test(trimmed)) text = 'Video'
+                                else text = 'Attachment'
+                              }
+                              const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
+                              const maxLen = 50
+                              const full = prefix + text
+                              let truncated = full.length > maxLen ? full.substring(0, maxLen) + '...' : full
+                              // Remove unclosed ** so we don't show literal asterisks when truncation cuts mid-bold
+                              const asteriskCount = (truncated.match(/\*\*/g) || []).length
+                              if (asteriskCount % 2 === 1) {
+                                truncated = truncated.replace(/\*\*([^*]*)(\.\.\.)?$/, '$1$2')
+                              }
+                              // Convert **stage** to <strong> (same as conversation view / SystemMessage)
+                              return plainTextWithBoldToHTML(truncated)
+                            })(),
+                          }}
+                        />
                       </TypographyCaption>
                       {thread.lead?.pipelineStage?.stageTitle && (
                         <div className="inline-flex w-fit items-center gap-2 px-2.5 py-1 mt-0.5 border border-gray-200 rounded-md">

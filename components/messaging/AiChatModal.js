@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import moment from 'moment'
 import { PaperPlaneTilt, CircleNotch, Paperclip } from '@phosphor-icons/react'
-import { ChevronDown, Mail, MessageSquareDot, MessagesSquare } from 'lucide-react'
+import { ChevronDown, Mail, MessageSquareDot, MessagesSquare, X } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -129,6 +129,31 @@ const AiChatModal = ({
   const messagesEndRef = useRef(null)
   const aiEditorRef = useRef(null)
   const hasLoadedRef = useRef(false)
+  const attachmentInputRef = useRef(null)
+  const [attachments, setAttachments] = useState([])
+  const maxAttachments = 5
+
+  // Clear attachments when modal closes
+  useEffect(() => {
+    if (!open) setAttachments([])
+  }, [open])
+
+  const handleAttachmentChange = (e) => {
+    const files = e.target.files ? Array.from(e.target.files) : []
+    if (files.length === 0) return
+    setAttachments((prev) => {
+      const combined = [...prev, ...files]
+      if (combined.length > maxAttachments) {
+        toast.error(`Maximum ${maxAttachments} attachments allowed`)
+      }
+      return combined.slice(0, maxAttachments)
+    })
+    e.target.value = ''
+  }
+
+  const removeAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index))
+  }
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -437,6 +462,8 @@ const AiChatModal = ({
 
     setMessages((prev) => [...prev, userMessage])
     setInputValue('<p><br></p>')
+    const hadAttachments = attachments.length > 0
+    setAttachments([])
     setIsLoading(true)
 
     try {
@@ -503,6 +530,9 @@ const AiChatModal = ({
           createdAt: data.assistantMessage.createdAt,
         },
       ])
+      if (hadAttachments) {
+        toast.info('Message sent. File attachments are not yet sent with AI Chat.')
+      }
     } catch (error) {
       console.error('Error sending AI chat message:', error)
       toast.error(error.response?.data?.message || 'Failed to send message. Please try again.')
@@ -876,6 +906,26 @@ const AiChatModal = ({
             className={`relative border border-brand-primary/20 rounded-lg bg-white transition-opacity ${aiKeyError || isLoading ? 'pointer-events-none opacity-60' : ''
               }`}
           >
+            {attachments.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 px-2 pt-2 pb-1 border-b border-border">
+                {attachments.map((file, index) => (
+                  <span
+                    key={`${file.name}-${index}`}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted text-foreground text-xs max-w-[160px] truncate"
+                  >
+                    <span className="truncate" title={file.name}>{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(index)}
+                      className="shrink-0 p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
+                      aria-label="Remove attachment"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
             <RichTextEditor
               ref={aiEditorRef}
               value={inputValue}
@@ -891,14 +941,34 @@ const AiChatModal = ({
               toolbarPosition="bottom"
               customToolbarElement={
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="p-1.5 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-                    title="Attach file (coming soon)"
-                    disabled={aiKeyError || isLoading}
+                  <label
+                    className={cn(
+                      'cursor-pointer',
+                      (aiKeyError || isLoading) && 'pointer-events-none opacity-50'
+                    )}
                   >
-                    <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
-                  </button>
+                    <button
+                      type="button"
+                      className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative"
+                      onClick={() => document.getElementById('ai-chat-attachment-input')?.click()}
+                    >
+                      <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                      {attachments.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                          {attachments.length}
+                        </span>
+                      )}
+                    </button>
+                    <input
+                      ref={attachmentInputRef}
+                      id="ai-chat-attachment-input"
+                      type="file"
+                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      multiple
+                      className="hidden"
+                      onChange={handleAttachmentChange}
+                    />
+                  </label>
                   <button
                     type="button"
                     onClick={handleSend}

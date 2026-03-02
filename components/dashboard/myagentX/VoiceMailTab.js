@@ -334,7 +334,7 @@ function VoiceMailTab({
           const planCapabilities = user?.planCapabilities || {}
           const shouldShowUpgrade = planCapabilities.shouldShowAllowVoicemailUpgrade === true
           const shouldShowRequestFeature = planCapabilities.shouldShowVoicemailRequestFeature === true
-          
+
           if (shouldShowUpgrade || shouldShowRequestFeature) {
             return (
               <UpgardView
@@ -628,7 +628,21 @@ function VoiceMailTab({
             </Box>
           </Box>
 
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box className="w-full flex flex-row justify-between items-center" sx={{ mt: 4 }}>
+            <Button
+              onClick={() => {
+                onSaveVoicemailAdvancedSettings({
+                  startAtSeconds: advancedSettings.startAtSeconds,
+                  frequencySeconds: advancedSettings.frequencySeconds,
+                  maxRetries: advancedSettings.maxRetries,
+                  beepMaxAwaitSeconds: advancedSettings.beepMaxAwaitSeconds,
+                })
+                setShowVoicemailAdvancedModal(false)
+              }}
+              className="bg-red hover:bg-red-500"
+            >
+              Reset
+            </Button>
             <Button
               onClick={() => {
                 onSaveVoicemailAdvancedSettings({

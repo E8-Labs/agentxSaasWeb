@@ -114,7 +114,7 @@ export const EditPhoneNumberModal = ({
             <PhoneInput
               className="outline-none bg-transparent focus:ring-0"
               country={'us'} // restrict to US only
-              onlyCountries={['us', 'mx','sv', 'ec']}
+              onlyCountries={['us', 'mx', 'sv', 'ec']}
               disableDropdown={true}
               countryCodeEditable={false}
               disableCountryCode={false}
@@ -156,6 +156,23 @@ export const EditPhoneNumberModal = ({
           <div className="mt-2 text-sm font-medium text-red">
             {errorMessage}
           </div>
+
+          {isTransfer && (
+            <>
+              <div style={{ fontSize: 16, fontWeight: '500', marginTop: 5 }}>
+                Transfer Phrase
+              </div>
+              <input
+                type="text"
+                // value={transferMessageInput}
+                // onChange={(e) => setTransferMessageInput(e.target.value)}
+                placeholder="What should be said when transferring"
+                // disabled={loading}
+                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:ring-0"
+                maxLength={500}
+              />
+            </>
+          )}
 
           {isTransfer && (
             <>
