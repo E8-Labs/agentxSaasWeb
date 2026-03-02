@@ -21,6 +21,7 @@ import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
 import UpgardView from '@/constants/UpgardView'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import { useUser } from '@/hooks/redux-hooks'
 import { getGlobalPhoneNumber } from '@/utilities/PhoneNumberUtility'
 
@@ -42,6 +43,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser()
+  const { isFreePlan } = usePlanCapabilities()
   const [isFromAgencyOrAdmin, setIsFromAgencyOrAdmin] = useState(null)
   const [isSubaccount, setIsSubaccount] = useState(false)
 
@@ -873,6 +875,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                               handleContinue={() => {
                                 setOpenPurchaseSuccessModal(false)
                               }}
+                              isFreePlan={isFreePlan}
                             />
                           </div>
                         </div>
