@@ -1311,7 +1311,7 @@ const Creator = ({ agentId, name }) => {
             <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10">
               <WebAgentChatInput
                 onFocus={() => setChatDrawerOpen(true)}
-                placeholder="Type your message…"
+                placeholder="Ask me anything"
                 readOnly
               />
             </div>

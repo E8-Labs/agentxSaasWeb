@@ -86,7 +86,7 @@ const WebAgentChatDrawer = ({
 
           {/* Footer: chat input */}
           <div className="flex-shrink-0 p-4 pt-2 border-t border-gray-100">
-            <WebAgentChatInput placeholder="Type your message…" readOnly />
+            <WebAgentChatInput placeholder="Ask me anything" readOnly />
           </div>
         </div>
       </Slide>
