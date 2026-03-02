@@ -166,6 +166,8 @@ const PipelineStages = ({
 
   //open task modal
   const [openTaskModal, setOpenTaskModal] = useState(false)
+  // when adding task as cadence step, which stage index to add to
+  const [pendingTaskStageIndex, setPendingTaskStageIndex] = useState(null)
 
   // useEffect(() => {
   //   console.log("targetUser key is is", targetUser)
@@ -315,7 +317,15 @@ const PipelineStages = ({
   }, [])
 
   const actionLabel = (v) =>
-    ACTIONS.find((a) => a.value === v)?.label || 'Make Call'
+    (v === 'task' ? 'Task' : ACTIONS.find((a) => a.value === v)?.label) || 'Make Call'
+
+  // Step action text for display: "Make Call", "Send Email", "Create Task", etc. Uses communicationType or action so loaded rows (e.g. from API) never show undefined.
+  const stepActionDisplayText = (row) => {
+    const type = row.communicationType || row.action
+    if (type === 'task') return 'Create Task'
+    if (type && type !== 'call') return `Send ${actionLabel(type)}`
+    return 'Make Call'
+  }
 
   // one menu anchor per stage row-set
   const [addMenuAnchor, setAddMenuAnchor] = useState({}) // { [stageIndex]: HTMLElement|null }
@@ -361,6 +371,7 @@ const PipelineStages = ({
     } else if (value === 'create_task') {
       // Close add menu first to avoid focus-trap conflict with the task modal (prevents FocusTrap.js errors and hang)
       closeAddMenu(stageIndex)
+      setPendingTaskStageIndex(stageIndex)
       setOpenTaskModal(true)
       return
     }
@@ -421,6 +432,18 @@ const PipelineStages = ({
       setEditingRow(row)
       setEditingStageIndex(stageIndex)
       setSelectedType(row.action ? row.action : 'call')
+      setSelectedIndex(stageIndex)
+      return
+    }
+
+    // For 'task' type, open add menu so user can change to another action type
+    if (row.communicationType === 'task' && eventTarget) {
+      const syntheticEvent = { currentTarget: eventTarget }
+      openAddMenu(stageIndex, syntheticEvent)
+      setIsEditing(true)
+      setEditingRow(row)
+      setEditingStageIndex(stageIndex)
+      setSelectedType('task')
       setSelectedIndex(stageIndex)
       return
     }
@@ -1502,24 +1525,12 @@ const PipelineStages = ({
                                                         }}
                                                         onMouseLeave={() => setRowHoverTemplate(null)}
                                                       >
-                                                        {(row.communicationType &&
-                                                          row.communicationType !=
-                                                          'call') ||
-                                                          (row.action &&
-                                                            row.action != 'call')
-                                                          ? `Send ${actionLabel(row.communicationType)}`
-                                                          : `Make Call`}
+                                                        {stepActionDisplayText(row)}
                                                       </div>
                                                     </Tooltip>
                                                   ) : (
                                                     <div className="text-brand-primary text-[12px]">
-                                                      {(row.communicationType &&
-                                                        row.communicationType !=
-                                                        'call') ||
-                                                        (row.action &&
-                                                          row.action != 'call')
-                                                        ? `Send ${actionLabel(row.communicationType)}`
-                                                        : `Make Call`}
+                                                      {stepActionDisplayText(row)}
                                                     </div>
                                                   )}
 
@@ -2330,12 +2341,33 @@ const PipelineStages = ({
               openTaskModal && (
                 <CreateTaskFromNextStepsModal
                   open={openTaskModal}
-                  onClose={() => setOpenTaskModal(false)}
-                  // nextSteps={callSummary.nextSteps}
-                  // leadId={leadId}
-                  // leadName={leadName}
-                  // callId={item.id}
+                  onClose={() => {
+                    setOpenTaskModal(false)
+                    setPendingTaskStageIndex(null)
+                  }}
                   selectedUser={targetUser?.subAccountData?.id ? targetUser?.subAccountData : targetUser}
+                  cadenceStepMode={pendingTaskStageIndex !== null}
+                  onAddAsCadenceStep={(formData) => {
+                    const payload = {
+                      title: formData.title?.trim() || 'Task',
+                      description: formData.description ?? '',
+                      status: formData.status || 'todo',
+                      priority: formData.priority || 'no-priority',
+                      assignedToUserIds: Array.isArray(formData.assignedTo) ? formData.assignedTo : [],
+                    }
+                    if (formData.dueDate) {
+                      const due = new Date(formData.dueDate)
+                      const now = new Date()
+                      const diffMs = due.getTime() - now.getTime()
+                      payload.dueDateOffsetDays = Math.max(0, Math.floor(diffMs / (24 * 60 * 60 * 1000)))
+                      payload.dueDateOffsetHours = Math.max(0, Math.round((diffMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)))
+                    }
+                    if (addRow && pendingTaskStageIndex !== null) {
+                      addRow(pendingTaskStageIndex, 'task', { taskPayload: payload })
+                    }
+                    setOpenTaskModal(false)
+                    setPendingTaskStageIndex(null)
+                  }}
                 />
               )
             }

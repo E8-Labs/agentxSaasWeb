@@ -193,6 +193,21 @@ const Page = () => {
       if (cadenceData) {
         const cadenceDetails = JSON.parse(cadenceData)
         cadence = cadenceDetails
+        // Ensure every task step has taskPayload with at least title (backend validation)
+        if (cadence?.cadenceDetails && Array.isArray(cadence.cadenceDetails)) {
+          cadence.cadenceDetails = cadence.cadenceDetails.map((stage) => ({
+            ...stage,
+            calls: (stage.calls || []).map((call) => {
+              const isTask = call.communicationType === 'task' || call.action === 'task'
+              if (!isTask) return call
+              const hasValidPayload = call.taskPayload && typeof call.taskPayload === 'object' && (call.taskPayload.title ?? '').toString().trim() !== ''
+              return {
+                ...call,
+                taskPayload: hasValidPayload ? call.taskPayload : { ...(call.taskPayload || {}), title: call.taskPayload?.title || 'Task' },
+              }
+            }),
+          }))
+        }
       }
 
       ////console.log("cadence details are :",
