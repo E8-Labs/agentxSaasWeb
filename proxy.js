@@ -325,6 +325,15 @@ export async function proxy(request) {
   }
 
   // ---- Public paths (including favicon routes) ----
+  // Policy pages: allow with or without trailing slash so /terms always works when logged in or not
+  const isPolicyPath =
+    pathname === '/terms' ||
+    pathname === '/terms/' ||
+    pathname === '/privacy' ||
+    pathname === '/privacy/' ||
+    pathname === '/cancellation' ||
+    pathname === '/cancellation/'
+
   if (
     pathname === '/' ||
     pathname === '/onboarding' ||
@@ -332,9 +341,7 @@ export async function proxy(request) {
     pathname.startsWith('/onboarding/') || // allows /onboarding/[uuid]
     pathname.startsWith('/agency/onboarding') ||
     pathname.startsWith('/agency/verify') ||
-    pathname === '/terms' ||
-    pathname === '/privacy' ||
-    pathname === '/cancellation' ||
+    isPolicyPath ||
     (pathname.startsWith('/agency/') &&
       (pathname.includes('/privacy') ||
         pathname.includes('/terms') ||
@@ -550,7 +557,7 @@ export async function proxy(request) {
     expectedPath = '/dashboard'
   }
 
-  // ✅ UPDATE: Skip redirect enforcement for certain paths
+  // ✅ UPDATE: Skip redirect enforcement for certain paths (so logged-in users can view these without being sent to dashboard)
   if (
     pathname.startsWith('/createagent') ||
     pathname.startsWith('/pipeline') ||
@@ -558,7 +565,13 @@ export async function proxy(request) {
     pathname.startsWith('/web-agent') ||
     pathname.startsWith('/embedCalendar') ||
     pathname === '/icon' ||
-    pathname === '/apple-icon'
+    pathname === '/apple-icon' ||
+    pathname === '/terms' ||
+    pathname === '/terms/' ||
+    pathname === '/privacy' ||
+    pathname === '/privacy/' ||
+    pathname === '/cancellation' ||
+    pathname === '/cancellation/'
   ) {
     return createResponseWithBrandingHeaders(request, agencyBranding)
   }
