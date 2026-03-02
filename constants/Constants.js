@@ -66,7 +66,7 @@ export const PersistanceKeys = {
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
   // Agency Support URLs
-  AgencySkoolUrl: 'https://www.skool.com/agentx',
+  AgencySkoolUrl:  "https://www.skool.com/myagentx-ai-aaas-5171",  //'https://www.skool.com/agentx',
   AgencyPartnerUrl: 'https://set.myagentx.com/widget/bookings/assignx-gameplan-session',
   AgencyBillingSupportUrl: 'https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D',
   AgencySupportTicketUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
