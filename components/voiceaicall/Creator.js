@@ -1307,7 +1307,7 @@ const Creator = ({ agentId, name }) => {
               }
             </div>
           </div>
-          {!profileLoader && hasAiChatEnabled && (
+          {!profileLoader && hasAiChatEnabled && !chatDrawerOpen && (
             <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10">
               <WebAgentChatInput
                 onFocus={() => setChatDrawerOpen(true)}
