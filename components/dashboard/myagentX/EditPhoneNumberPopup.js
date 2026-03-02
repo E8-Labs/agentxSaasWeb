@@ -164,23 +164,6 @@ export const EditPhoneNumberModal = ({
               </div>
               <input
                 type="text"
-                // value={transferMessageInput}
-                // onChange={(e) => setTransferMessageInput(e.target.value)}
-                placeholder="What should be said when transferring"
-                // disabled={loading}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:ring-0"
-                maxLength={500}
-              />
-            </>
-          )}
-
-          {isTransfer && (
-            <>
-              <div style={{ fontSize: 16, fontWeight: '500', marginTop: 5 }}>
-                Message spoken during transfer
-              </div>
-              <input
-                type="text"
                 value={transferMessageInput}
                 onChange={(e) => setTransferMessageInput(e.target.value)}
                 placeholder="e.g. Let me connect you to a live agent"

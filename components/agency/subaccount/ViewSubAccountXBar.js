@@ -30,7 +30,7 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
     }
   }, [subAccountXBarPlans])
 
-  useEffect(() => {}, [selectedXBarPlans])
+  useEffect(() => { }, [selectedXBarPlans])
 
   useEffect(() => {
     getXBarPlans()
@@ -46,7 +46,7 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
       if (response) {
         setAgencyXBarPlans(response)
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   //get XBar plans from user id api
@@ -182,7 +182,7 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
                   }}
                 >
                   {item.hasTrial && (
-                    <div 
+                    <div
                       className="w-full rounded-t-lg px-4 py-2"
                       style={{
                         background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
@@ -237,21 +237,26 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
                       style={styles.content}
                     >
                       <div className="mt-1">
-                        <div>
-                          {selectedXBarPlans.includes(item.id) ? (
-                            <Image
+                        {/*<Image
                               src={'/svgIcons/checkMark.svg'}
                               height={24}
                               width={24}
                               alt="*"
                             />
-                          ) : (
                             <Image
                               src={'/svgIcons/unCheck.svg'}
                               height={24}
                               width={24}
                               alt="*"
-                            />
+                            />*/}
+                        <div>
+                          {selectedXBarPlans.includes(item.id) ? (
+                            <div className="w-[24px] h-[24px] border-[1.5px] border-brand-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                              <div className="w-[16px] h-[16px] bg-brand-primary rounded-full flex-shrink-0" />
+                            </div>
+                          ) : (
+                            <div className="w-[24px] h-[24px] border-[1.5px] border-brand-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                            </div>
                           )}
                         </div>
                       </div>
@@ -332,18 +337,18 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
                 subAccountXBarPlans.map((plan) => plan.id),
                 selectedXBarPlans,
               ) && (
-                <button
-                  className="w-full text-center rounded-lg text-white bg-brand-primary h-[49px]"
-                  onClick={handleUpdateAgencyXBarPlans}
-                  disabled={updateXBarLoader}
-                >
-                  {updateXBarLoader ? (
-                    <CircularProgress size={25} sx={{ color: 'white' }} />
-                  ) : (
-                    'Update'
-                  )}
-                </button>
-              )}
+                  <button
+                    className="w-full text-center rounded-lg text-white bg-brand-primary h-[49px]"
+                    onClick={handleUpdateAgencyXBarPlans}
+                    disabled={updateXBarLoader}
+                  >
+                    {updateXBarLoader ? (
+                      <CircularProgress size={25} sx={{ color: 'white' }} />
+                    ) : (
+                      'Update'
+                    )}
+                  </button>
+                )}
             </div>
           </div>
         )}
