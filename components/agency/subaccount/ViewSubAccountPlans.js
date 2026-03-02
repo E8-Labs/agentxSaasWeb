@@ -30,7 +30,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
     }
   }, [subAccountPlans])
 
-  useEffect(() => {}, [selectedPlans])
+  useEffect(() => { }, [selectedPlans])
 
   useEffect(() => {
     getPlans()
@@ -53,7 +53,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
       if (response) {
         setAgencyPlans(response)
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   //get plans from user id api
@@ -196,7 +196,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                   }}
                 >
                   {item.hasTrial && (
-                    <div 
+                    <div
                       className="w-full rounded-t-lg px-4 py-2"
                       style={{
                         background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
@@ -251,19 +251,12 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                       <div className="mt-1">
                         <div>
                           {selectedPlans.includes(item.id) ? (
-                            <Image
-                              src={'/svgIcons/checkMark.svg'}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
+                            <div className="w-[24px] h-[24px] border-[1.5px] border-brand-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                              <div className="w-[16px] h-[16px] bg-brand-primary rounded-full flex-shrink-0" />
+                            </div>
                           ) : (
-                            <Image
-                              src={'/svgIcons/unCheck.svg'}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
+                            <div className="w-[24px] h-[24px] border-[1.5px] border-brand-primary rounded-full flex-shrink-0 flex items-center justify-center">
+                            </div>
                           )}
                         </div>
                       </div>
@@ -321,7 +314,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                           </div>
                           <div className="flex flex-row items-center">
                             <div className="flex flex-row justify-start items-center">
-                              {item.originalPrice>0 && (
+                              {item.originalPrice > 0 && (
                                 <div style={styles.originalPrice}>
                                   ${formatDecimalValue(item.originalPrice)}
                                 </div>
@@ -344,18 +337,18 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                 subAccountPlans.map((plan) => plan.id),
                 selectedPlans,
               ) && (
-                <button
-                  className="w-full text-center rounded-lg text-white bg-brand-primary h-[49px]"
-                  onClick={handleUpdateAgencyPlans}
-                  disabled={updatePlansLoader}
-                >
-                  {updatePlansLoader ? (
-                    <CircularProgress size={25} sx={{ color: 'white' }} />
-                  ) : (
-                    'Update'
-                  )}
-                </button>
-              )}
+                  <button
+                    className="w-full text-center rounded-lg text-white bg-brand-primary h-[49px]"
+                    onClick={handleUpdateAgencyPlans}
+                    disabled={updatePlansLoader}
+                  >
+                    {updatePlansLoader ? (
+                      <CircularProgress size={25} sx={{ color: 'white' }} />
+                    ) : (
+                      'Update'
+                    )}
+                  </button>
+                )}
             </div>
           </div>
         )}

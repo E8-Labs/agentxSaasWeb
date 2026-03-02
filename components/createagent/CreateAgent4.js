@@ -1094,7 +1094,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         >
                           {errorMessage}
                         </div>
-                        <div
+                        {/*<div
                           style={{
                             fontSize: 16,
                             fontWeight: '500',
@@ -1116,7 +1116,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             borderRadius: '7px',
                           }}
                           maxLength={500}
-                        />
+                        />*/}
                       </div>
                       <div className="flex flex-row items-center gap-4 justify-start w-full">
                         <button onClick={handleToggleClick}>
