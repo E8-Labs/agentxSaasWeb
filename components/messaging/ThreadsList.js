@@ -226,16 +226,28 @@ const ThreadsList = ({
         ref={(el) => { if (el) filterOptionRefs.current[key] = el }}
         onMouseEnter={() => setFilterHoveredKey(key)}
         onClick={() => onSelectTeamMember?.(isAll ? null : option.id)}
-        className="flex items-center gap-3 w-full h-[40px] px-3 py-0 rounded-lg hover:bg-transparent transition-transform duration-150 ease-out active:scale-[0.98] text-left relative z-[1]"
+        className="flex items-center gap-3 w-full h-[40px] px-3 py-0 rounded-lg hover:bg-transparent transition-all duration-150 ease-out active:scale-[0.98] text-left relative z-[1]"
       >
-        <div className="w-[28px] h-[28px] rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-semibold text-[16px] shrink-0">
+        <div
+          className={cn(
+            'w-[28px] h-[28px] rounded-full flex items-center justify-center font-semibold text-[14px] shrink-0',
+            isSelected ? 'bg-brand-primary/10 text-brand-primary' : 'bg-black/[0.06] text-muted-foreground',
+          )}
+        >
           {displayInitial}
         </div>
-        <span className="flex-1 font-medium text-[14px] text-gray-900 truncate">{isAll ? 'All Members' : option.name}</span>
         <span
           className={cn(
-            'w-5 h-5 rounded-full border-2 flex items-center justify-center',
-            isSelected ? 'border-brand-primary' : 'border-gray-300',
+            'flex-1 font-medium text-[14px] truncate',
+            isSelected ? 'text-foreground' : 'text-muted-foreground',
+          )}
+        >
+          {isAll ? 'All Members' : option.name}
+        </span>
+        <span
+          className={cn(
+            'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0',
+            isSelected ? 'border-brand-primary' : 'border-black/[0.15]',
           )}
         >
           {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
@@ -377,41 +389,43 @@ const ThreadsList = ({
             <div
               ref={filterPopoverRef}
               data-state="open"
-              className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-dropdown-below-enter"
+              className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] animate-dropdown-below-enter"
             >
-              <div className="px-4 pt-3 pb-2 text-sm font-semibold text-black/70 border-b border-[#eaeaea]">Filter by</div>
+              <div className="px-4 py-3 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
+                Filter by
+              </div>
               <div
                 ref={filterListRef}
-                className="relative flex flex-col gap-0.5 max-h-64 overflow-y-auto py-3"
+                className="relative flex flex-col gap-0.5 max-h-64 overflow-y-auto py-2"
                 onMouseLeave={() => setFilterHoveredKey(null)}
               >
                 {filterPillStyle.height > 0 && (
                   <div
-                    className="absolute left-2 right-2 rounded-xl bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                    className="absolute left-2 right-2 rounded-lg bg-black/[0.04] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
                     style={{ top: filterPillStyle.top, height: filterPillStyle.height }}
                     aria-hidden
                   />
                 )}
                 {renderFilterOption({}, true, 'all-members')}
                 {filterTeamMembers.length === 0 ? (
-                  <div className="px-4 py-4 text-sm text-gray-500">No team members available</div>
+                  <div className="px-4 py-4 text-sm text-muted-foreground">No team members available</div>
                 ) : (
                   filterTeamMembers.map((member) => renderFilterOption(member, false, member.id))
                 )}
               </div>
-              <div className="px-2 py-2 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div className="px-3 py-3 border-t border-black/[0.06] flex items-center justify-between gap-2">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => {
                     onClearFilter?.()
                   }}
-                  className="h-8 rounded-lg px-4 py-2 bg-[#EAEAEA] border-0 shadow-sm hover:bg-[#e0e0e0] active:scale-[0.98] transition-transform text-sm font-medium text-gray-700"
+                  className="h-8 rounded-lg px-3 py-2 bg-transparent text-muted-foreground hover:text-foreground hover:bg-black/[0.04] active:scale-[0.98] transition-all duration-150 ease-out text-[14px] font-medium"
                 >
                   Clear
                 </Button>
                 <Button
                   size="sm"
-                  className="w-auto h-8 px-4 py-2 rounded-lg text-sm bg-brand-primary hover:bg-brand-primary/90 text-white transition-transform duration-150 ease-out active:scale-[0.98]"
+                  className="h-8 px-4 py-2 rounded-lg text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white transition-all duration-150 ease-out active:scale-[0.98]"
                   onClick={() => {
                     onApplyFilter?.()
                   }}
