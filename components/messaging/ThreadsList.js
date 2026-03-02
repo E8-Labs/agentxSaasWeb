@@ -59,6 +59,9 @@ const ThreadsList = ({
   loadingMoreThreads = false,
   onLoadMoreThreads,
 }) => {
+
+  console.log("Threads passed in threadlist are", threads)
+
   const [openMenuId, setOpenMenuId] = useState(null)
   const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
   const filterButtonRef = useRef(null)
@@ -565,7 +568,10 @@ const ThreadsList = ({
                             __html: (() => {
                               const lastMessage = thread.messages?.[0]
                               if (!lastMessage) return 'No messages yet'
-                              let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                              // Strip HTML but insert space at block boundaries so "Noah,</p><p>This" → "Noah, This"
+                              let rawContent = lastMessage.content || ''
+                              rawContent = rawContent.replace(/<\s*\/?(?:p|div|br|tr|li|h[1-6])\s*[^>]*>/gi, ' ')
+                              let text = rawContent.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
                               // For email, show the body (actual message) not the subject
                               if (lastMessage.messageType === 'email') {
                                 const raw = text
