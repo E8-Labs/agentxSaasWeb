@@ -1,7 +1,11 @@
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
+const PurchaseNumberSuccess = ({
+  handleContinue,
+  selectedNumber,
+  isFreePlan = false,
+}) => {
   const [purchaseNumber, setPurchaseNumber] = useState(null)
 
   useEffect(() => {
@@ -47,6 +51,20 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
       >
         {`You've claimed a number!`}
       </div>
+      {isFreePlan && (
+        <div
+          className="mt-3 text-center"
+          style={{
+            fontSize: 13,
+            fontWeight: '400',
+            color: '#00000099',
+            fontStyle: 'italic',
+          }}
+        >
+          <span style={{ fontWeight: '600' }}>Disclaimer:</span> Free plan
+          numbers release in 30 days unless upgraded
+        </div>
+      )}
       <div className="border-2 border-green text-green p-2 rounded-lg mt-6 flex flex-row items-center gap-4">
         <Image src={'/assets/successTick.png'} height={18} width={18} alt="*" />
         <div style={{ fontWeight: '600', fontSize: 17 }}>

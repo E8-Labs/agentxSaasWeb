@@ -57,6 +57,8 @@ import AgentXOrb from '../common/AgentXOrb'
 import { MYAGENTX_URL } from '../askSky/constants'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { useUser } from '@/hooks/redux-hooks'
+import WebAgentChatInput from '@/components/web-agent/WebAgentChatInput'
+import WebAgentChatDrawer from '@/components/web-agent/WebAgentChatDrawer'
 
 
 // Add style tag to override global white background for loading message
@@ -116,6 +118,7 @@ const Creator = ({ agentId, name }) => {
   const [menuOpen, setMenuOpen] = useState(false) // Opens the support menu
   const [voiceOpen, setVoiceOpen] = useState(false) // Sets up the Voice AI interface
   const [chatOpen, setChatOpen] = useState(false) // Sets up the chat interface
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false)
   const [open, setOpen] = useState(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -1147,6 +1150,8 @@ const Creator = ({ agentId, name }) => {
     resize: 'cover',
   }
 
+  const hasAiChatEnabled = agentDetails?.data?.data?.hasAiChatEnabled === true
+
   return (
     <div>
       <div
@@ -1302,6 +1307,15 @@ const Creator = ({ agentId, name }) => {
               }
             </div>
           </div>
+          {!profileLoader && hasAiChatEnabled && (
+            <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10">
+              <WebAgentChatInput
+                onFocus={() => setChatDrawerOpen(true)}
+                placeholder="Type your message…"
+                readOnly
+              />
+            </div>
+          )}
           <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
 
@@ -1349,6 +1363,15 @@ const Creator = ({ agentId, name }) => {
           </AnimatePresence>
         </div>
       </div>
+
+      <WebAgentChatDrawer
+        open={chatDrawerOpen}
+        onClose={() => setChatDrawerOpen(false)}
+        agentId={agentId}
+        agentName={agentDetails?.data?.data?.agent?.name}
+        agencyBranding={agentDetails?.data?.data?.agencyBranding || reduxUser?.agencyBranding}
+        agent={agentDetails?.data?.data?.agent}
+      />
 
       {/* Lead Details Modal */}
       <Modal
