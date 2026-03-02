@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star, StarOff } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -21,6 +21,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const ThreadsList = ({
   loading,
@@ -45,10 +51,13 @@ const ThreadsList = ({
   onClearFilter,
   hasActiveFilters = false,
   selectedTeamMemberIdsCount,
-  filterType = 'all', // 'all' or 'unreplied'
+  filterType = 'all', // 'all' | 'unreplied' | 'shortlisted'
   onFilterTypeChange,
   allCount = 0,
   unrepliedCount = 0,
+  shortlistedLeadIds = new Set(),
+  onShortlistToggle,
+  shortlistedCount = 0,
   onContactCreated,
   selectedUser = null,
   agencyUser = null,
@@ -239,11 +248,12 @@ const ThreadsList = ({
     <div className={`w-[400px] border-r px-0 border-gray-200 flex flex-col gap-px ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
       <div className="w-full flex flex-row items-center justify-between mt-0 px-3 py-3">
 
-        {/* Toggle Buttons - All / Unreplied */}
+        {/* Toggle Buttons - All / Unreplied / Shortlisted */}
         <ToggleGroupCN
           options={[
             { label: 'All', value: 'all', count: allCount },
             { label: 'Unreplied', value: 'unreplied', count: unrepliedCount },
+            { label: 'Shortlisted', value: 'shortlisted', count: shortlistedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
@@ -460,7 +470,10 @@ const ThreadsList = ({
             next={onLoadMoreThreads ?? (() => { })}
           >
             <div className="flex flex-col gap-1">
-              {threads.map((thread) => (
+              {threads.map((thread) => {
+                const leadId = thread.lead?.id
+                const isShortlisted = leadId && shortlistedLeadIds.has(leadId)
+                return (
                 <div
                   key={thread.id}
                   onClick={() => onSelectThread(thread)}
@@ -468,7 +481,8 @@ const ThreadsList = ({
                     "relative py-4 px-3 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-none transition-transform duration-150 ease-out active:scale-[0.98]",
                     selectedThread?.id === thread.id
                       ? 'bg-thread-selected'
-                      : 'hover:bg-gray-50'
+                      : 'hover:bg-gray-50',
+                    isShortlisted && 'border-l-2 border-l-brand-primary bg-primary/5'
                   )}
                 >
                   {selectedThread?.id === thread.id && (
@@ -515,46 +529,86 @@ const ThreadsList = ({
                           {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Lead')}
                         </TypographyBody>
                         <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                          {leadId && (
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onShortlistToggle?.(leadId)
+                                    }}
+                                    className="p-1 rounded transition-colors hover:bg-black/5"
+                                    aria-label={isShortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
+                                  >
+                                    {isShortlisted ? (
+                                      <Star size={16} className="fill-brand-primary text-brand-primary" />
+                                    ) : (
+                                      <Star size={16} className="text-gray-500" />
+                                    )}
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                  {isShortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                           <TypographyCaption className="text-gray-500 text-[14px] leading-[18px]">
                             {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
                           </TypographyCaption>
-                          <div className="relative">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setOpenMenuId(openMenuId === thread.id ? null : thread.id)
-                              }}
-                              className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                aria-label="Thread options"
+                              >
+                                <MoreVertical size={16} className="text-gray-500" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="min-w-[160px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom-2 duration-200 ease-out [&_svg]:text-black"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <MoreVertical size={16} className="text-gray-500" />
-                            </button>
-                            {openMenuId === thread.id && (
-                              <>
-                                <div
-                                  className="fixed inset-0 z-10"
+                              {leadId && (
+                                <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    setOpenMenuId(null)
+                                    onShortlistToggle?.(leadId)
                                   }}
-                                />
-                                <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[120px]">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      if (onDeleteThread && thread.lead?.id) {
-                                        onDeleteThread(thread.lead.id, thread.id)
-                                      }
-                                      setOpenMenuId(null)
-                                    }}
-                                    className="w-full whitespace-nowrap px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                  >
-                                    <Trash size={16} />
-                                    Delete
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
+                                  className="flex items-center gap-2 cursor-pointer"
+                                >
+                                  {isShortlisted ? (
+                                    <>
+                                      <StarOff size={16} />
+                                      Remove from shortlist
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Star size={16} />
+                                      Add to shortlist
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (onDeleteThread && leadId) {
+                                    onDeleteThread(leadId, thread.id)
+                                  }
+                                }}
+                                className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                              >
+                                <Trash size={16} />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                       <TypographyCaption className="text-gray-500 truncate text-[14px] leading-[18px]">
@@ -606,7 +660,8 @@ const ThreadsList = ({
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
             {loadingMoreThreads && (
               <div className="flex justify-center py-4" aria-hidden="true">

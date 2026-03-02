@@ -691,7 +691,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     })
                 }}
             />
-        <div className="px-6 py-4 h-[65px] border-b border-gray-200 flex items-center justify-between bg-white">
+        <div className="w-full h-[65px] px-6 py-4 flex flex-row items-center justify-between border-b border-border bg-background">
             <div className="flex flex-row items-center gap-2">
             <div 
                 className="relative flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"

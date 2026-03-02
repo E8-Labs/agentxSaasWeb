@@ -201,7 +201,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   }, [showMessageSettingsModal, selectedThread, fetchMessageSettingsHasAiKey])
 
   // Filter state
-  const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
+  const [filterType, setFilterType] = useState('all') // 'all' | 'unreplied' | 'shortlisted'
   const [socialConnections, setSocialConnections] = useState([]) // for composer Facebook/Instagram tabs
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
   const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
@@ -212,6 +212,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     appliedTeamMemberIds.length > 0 &&
     appliedTeamMemberIds.length < filterTeamMembers.length
 
+  // Shortlist: per-lead IDs, persisted in localStorage keyed by effective user (messaging_shortlist_${userId})
+  const [shortlistedLeadIds, setShortlistedLeadIds] = useState(() => new Set())
 
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
   // Check if user has access to messaging features
@@ -237,6 +239,37 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
   }, [openEmailDetailId])
+
+  // Load shortlist from localStorage when effective user changes (key: messaging_shortlist_${userId})
+  const effectiveShortlistUserId = selectedUser?.id ?? reduxUser?.id
+  useEffect(() => {
+    if (!effectiveShortlistUserId) return
+    try {
+      const raw = localStorage.getItem(`messaging_shortlist_${effectiveShortlistUserId}`)
+      const arr = raw ? JSON.parse(raw) : []
+      setShortlistedLeadIds(new Set(Array.isArray(arr) ? arr : []))
+    } catch {
+      setShortlistedLeadIds(new Set())
+    }
+  }, [effectiveShortlistUserId])
+
+  const onShortlistToggle = useCallback((leadId) => {
+    if (!leadId) return
+    const uid = selectedUser?.id ?? reduxUser?.id
+    setShortlistedLeadIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(leadId)) next.delete(leadId)
+      else next.add(leadId)
+      if (uid) {
+        try {
+          localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify([...next]))
+        } catch {
+          // ignore storage errors
+        }
+      }
+      return next
+    })
+  }, [selectedUser?.id, reduxUser?.id])
 
   // Normalize email header details for the popover
   const getEmailDetails = useCallback(
@@ -551,7 +584,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         const localData = localStorage.getItem('User')
         if (!localData) {
-          if (!append) setThreads([])
+          if (!append) {
+            setThreads([])
+            setLoading(false)
+            if (isSearch) setSearchLoading(false)
+          }
           return
         }
 
@@ -575,6 +612,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
+          timeout: 20000, // 20s so loading never sticks if API hangs
         })
 
         if (requestId !== threadsRequestIdRef.current) {
@@ -3347,11 +3385,15 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 // Calculate counts
                 const allCount = threads.length
                 const unrepliedCount = threads.filter(isUnrepliedThread).length
+                const shortlistedCount = threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id)).length
 
                 // Filter threads based on filterType
-                const filteredThreads = filterType === 'unreplied'
-                  ? threads.filter(isUnrepliedThread)
-                  : threads
+                let filteredThreads = threads
+                if (filterType === 'unreplied') {
+                  filteredThreads = threads.filter(isUnrepliedThread)
+                } else if (filterType === 'shortlisted') {
+                  filteredThreads = threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id))
+                }
 
                 return (
                   <ThreadsList
@@ -3392,6 +3434,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     onFilterTypeChange={setFilterType}
                     allCount={allCount}
                     unrepliedCount={unrepliedCount}
+                    shortlistedLeadIds={shortlistedLeadIds}
+                    onShortlistToggle={onShortlistToggle}
+                    shortlistedCount={shortlistedCount}
                     onContactCreated={() => {
                       // Refresh threads after contact creation
                       fetchThreads(searchValue || '', appliedTeamMemberIds)
