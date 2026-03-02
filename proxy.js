@@ -49,6 +49,15 @@ export async function proxy(request) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
+  // Redirect old agency policy URLs to new base path (baseurl/terms, baseurl/privacy, baseurl/cancellation)
+  const oldPolicyMatch = pathname.match(
+    /^\/agency\/[^/]+\/(privacy|terms|cancellation)$/,
+  )
+  if (oldPolicyMatch) {
+    const policy = oldPolicyMatch[1]
+    return NextResponse.redirect(new URL(`/${policy}`, request.url))
+  }
+
   // Custom domain detection
   // Treat only real custom domains as custom (not platform hosts)
   let agencyId = null
@@ -320,8 +329,9 @@ export async function proxy(request) {
     pathname.startsWith('/onboarding/') || // allows /onboarding/[uuid]
     pathname.startsWith('/agency/onboarding') ||
     pathname.startsWith('/agency/verify') ||
-    (pathname.startsWith('/agency/') &&
-      (pathname.includes('/privacy') || pathname.includes('/terms'))) || // allows /agency/[agencyUUID]/privacy and /agency/[agencyUUID]/terms
+    pathname === '/terms' ||
+    pathname === '/privacy' ||
+    pathname === '/cancellation' ||
     pathname.startsWith('/recordings/')
   ) {
     // Create response with branding in request headers (for immediate access by getServerBranding)
