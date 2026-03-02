@@ -273,6 +273,7 @@ const ThreadsList = ({
         <DropdownCn
           className="shadow-none"
           label="New"
+          title="New"
           options={[
             {
               label: 'Contact',

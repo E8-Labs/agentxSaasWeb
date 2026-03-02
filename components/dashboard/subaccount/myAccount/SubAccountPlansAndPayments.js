@@ -1198,7 +1198,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                   <div className="flex flex-row items-center w-full justify-between mb-3">
                     <RadioGroupItem
                       value={item.id?.toString() || ''}
-                      className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                      className="h-6 w-6"
                     />
 
                     {/*

@@ -182,15 +182,18 @@ const DropdownMenuRadioItem = React.forwardRef(
     <DropdownMenuPrimitive.RadioItem
       ref={ref}
       className={cn(
-        'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'group relative flex cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-[14px] outline-none transition-all duration-150 ease-out',
+        'focus:bg-black/[0.04] focus:text-foreground hover:bg-black/[0.04]',
+        'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'data-[state=checked]:text-foreground',
         className,
       )}
       {...props}
     >
-      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-        <Circle className="h-3.5 w-3.5 stroke-current stroke-2 fill-none" />
-        <DropdownMenuPrimitive.ItemIndicator className="absolute">
-          <Circle className="h-2 w-2 fill-current" />
+      <span className="absolute left-2 flex h-4 w-4 items-center justify-center">
+        <span className="h-4 w-4 rounded-full border-2 border-black/[0.15] bg-white transition-all duration-150 ease-out group-hover:border-black/[0.25] group-data-[state=checked]:border-brand-primary group-data-[state=checked]:bg-brand-primary group-data-[state=checked]:group-hover:border-brand-primary" />
+        <DropdownMenuPrimitive.ItemIndicator className="absolute flex items-center justify-center">
+          <Circle className="h-2 w-2 fill-white text-white" />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
       {children}

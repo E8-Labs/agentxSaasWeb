@@ -75,8 +75,8 @@ const TaskBoardFilterPopover = ({
           e.preventDefault()
         }}
       >
-        <div className="p-3 border-none border-gray-200">
-          <TypographyCaption className="font-semibold text-[#666666]">
+        <div className="p-3 border-b border-black/[0.06]">
+          <TypographyCaption className="font-semibold text-foreground">
             Filter by
           </TypographyCaption>
         </div>
@@ -93,10 +93,10 @@ const TaskBoardFilterPopover = ({
               }
               className="space-y-1.5"
             >
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="all" id="members-all" />
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">All Members</span>
+                <span className="text-[14px] text-foreground">All Members</span>
               </label>
               {teamMembers.map((m) => {
                 const id = m.invitedUserId ?? m.invitedUser?.id ?? m.id
@@ -106,7 +106,7 @@ const TaskBoardFilterPopover = ({
                 return (
                   <label
                     key={id}
-                    className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50"
+                    className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-black/[0.04]"
                   >
                     <RadioGroupItem value={String(id)} id={`member-${id}`} />
                     <Avatar className="h-5 w-5">
@@ -117,7 +117,7 @@ const TaskBoardFilterPopover = ({
                         {name[0]?.toUpperCase() ?? '?'}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm truncate">{name}</span>
+                    <span className="text-[14px] text-foreground truncate">{name}</span>
                   </label>
                 )
               })}
@@ -135,21 +135,21 @@ const TaskBoardFilterPopover = ({
               }
               className="space-y-1.5"
             >
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="all" id="status-all" />
-                <span className="text-sm">All</span>
+                <span className="text-[14px] text-foreground">All</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="past-due" id="status-past-due" />
-                <span className="text-sm">Past Due</span>
+                <span className="text-[14px] text-foreground">Past Due</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="due-today" id="status-due-today" />
-                <span className="text-sm">Due Today</span>
+                <span className="text-[14px] text-foreground">Due Today</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="in-future" id="status-in-future" />
-                <span className="text-sm">In future</span>
+                <span className="text-[14px] text-foreground">In future</span>
               </label>
             </RadioGroup>
           </div>
@@ -165,25 +165,25 @@ const TaskBoardFilterPopover = ({
               }
               className="space-y-1.5"
             >
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="all" id="priority-all" />
-                <span className="text-sm">All</span>
+                <span className="text-[14px] text-foreground">All</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="no-priority" id="priority-no-priority" />
-                <span className="text-sm">No Priority</span>
+                <span className="text-[14px] text-foreground">No Priority</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="low" id="priority-low" />
-                <span className="text-sm">Low</span>
+                <span className="text-[14px] text-foreground">Low</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="medium" id="priority-medium" />
-                <span className="text-sm">Medium</span>
+                <span className="text-[14px] text-foreground">Medium</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-muted/50">
+              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
                 <RadioGroupItem value="high" id="priority-high" />
-                <span className="text-sm">High</span>
+                <span className="text-[14px] text-foreground">High</span>
               </label>
             </RadioGroup>
           </div>
