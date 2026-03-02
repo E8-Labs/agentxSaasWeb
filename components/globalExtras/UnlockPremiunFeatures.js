@@ -29,6 +29,11 @@ const UnlockPremiunFeatures = ({
 
   useEffect(() => {
     fetchLocalUserData()
+    // Map titles to API feature key so request works when modal is used in any context (e.g. agency viewing subaccount)
+    if (title === 'Unlock Messaging' || title === 'Unlock AI Email & Text' || title === 'AI Text & Messages' || title === 'Enable AI Text & Messages') {
+      setFeatureTitleValue('AiEmailAndText')
+      return
+    }
     const Data = localUserData?.agencyCapabilities
     if (localUserData?.userRole === 'AgencySubAccount') {
       if (title === 'Enable Live Transfer') {
@@ -64,12 +69,6 @@ const UnlockPremiunFeatures = ({
         if (!Data?.allowLeadScoring) {
           setFeatureTitleValue('LeadScoring')
         }
-      } else if (
-        title === 'AI Text & Messages' ||
-        title === 'Enable AI Text & Messages' ||
-        title === 'Unlock AI Email & Text'
-      ) {
-        setFeatureTitleValue('AiEmailAndText')
       } else {
         setFeatureTitleValue(title)
       }
