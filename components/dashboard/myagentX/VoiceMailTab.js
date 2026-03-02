@@ -22,6 +22,9 @@ import AgentSelectSnackMessage, {
 import AddVoiceMail from './AddVoiceMail'
 import EditVoicemailModal from './EditVoicemailModal'
 import NoVoicemailView from './NoVoicemailView'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Info } from 'lucide-react'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 const VOICEMAIL_ADVANCED_DEFAULTS = {
   startAtSeconds: 0.1,
@@ -41,6 +44,11 @@ function VoiceMailTab({
 }) {
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
   // console.log('agent', agent)
+
+  const Initial_Detection_Delay_Label_Tooltip = "Time the system waits before starting the first detection."
+  const Detection_Retry_Interval_Label_Tooltip = "Delay between each attempt if the system fails to detect initially."
+  const Max_Detection_Retries_Label_Tooltip = "Maximum number of detection attempts before stopping."
+  const Max_Voicemail_Message_Wait_Label_Tooltip = "Maximum time the system waits for a voicemail message to start."
 
   const vd = agent?.additionalSettings?.voicemailDetection
   const [advancedSettings, setAdvancedSettings] = useState({
@@ -334,7 +342,7 @@ function VoiceMailTab({
           const planCapabilities = user?.planCapabilities || {}
           const shouldShowUpgrade = planCapabilities.shouldShowAllowVoicemailUpgrade === true
           const shouldShowRequestFeature = planCapabilities.shouldShowVoicemailRequestFeature === true
-          
+
           if (shouldShowUpgrade || shouldShowRequestFeature) {
             return (
               <UpgardView
@@ -521,8 +529,8 @@ function VoiceMailTab({
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, zIndex: 1800 }}>
             <Box className="space-y-2">
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                Initial Detection Delay (0–20 s)
+              <Typography className="flex items-center gap-2" variant="subtitle1" fontWeight="bold" gutterBottom>
+                Initial Detection Delay (0–20 s) <span><InfoTooltip title={Initial_Detection_Delay_Label_Tooltip} /></span>
               </Typography>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
@@ -546,8 +554,8 @@ function VoiceMailTab({
               </div>
             </Box>
             <Box className="space-y-2">
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                Detection Retry Interval (2.5–20 s)
+              <Typography className="flex items-center gap-2" variant="subtitle1" fontWeight="bold" gutterBottom>
+                Detection Retry Interval (2.5–20 s) <span><InfoTooltip title={Detection_Retry_Interval_Label_Tooltip} /></span>
               </Typography>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
@@ -574,8 +582,8 @@ function VoiceMailTab({
               </div>
             </Box>
             <Box className="space-y-2">
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                Max Detection Retries (1–10)
+              <Typography className="flex items-center gap-2" variant="subtitle1" fontWeight="bold" gutterBottom>
+                Max Detection Retries (1–10) <span><InfoTooltip title={Max_Detection_Retries_Label_Tooltip} /></span>
               </Typography>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
@@ -599,8 +607,8 @@ function VoiceMailTab({
               </div>
             </Box>
             <Box className="space-y-2">
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                Max Voicemail Message Wait (0–60 s)
+              <Typography className="flex items-center gap-2" variant="subtitle1" fontWeight="bold" gutterBottom>
+                Max Voicemail Message Wait (0–60 s) <span><InfoTooltip title={Max_Voicemail_Message_Wait_Label_Tooltip} /></span>
               </Typography>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
@@ -628,7 +636,18 @@ function VoiceMailTab({
             </Box>
           </Box>
 
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box className="w-full flex flex-row justify-between items-center" sx={{ mt: 4 }}>
+            <Button
+              onClick={() => {
+                const defaults = { ...VOICEMAIL_ADVANCED_DEFAULTS }
+                setAdvancedSettings(defaults)
+                onSaveVoicemailAdvancedSettings(defaults)
+                setShowVoicemailAdvancedModal(false)
+              }}
+              className="bg-red hover:bg-red-500"
+            >
+              Reset
+            </Button>
             <Button
               onClick={() => {
                 onSaveVoicemailAdvancedSettings({
@@ -674,4 +693,26 @@ const styles = {
     border: 'none',
     outline: 'none',
   },
+}
+
+
+export const InfoTooltip = ({ title }) => {
+  return (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Info size={18} strokeWidth={2} color={getBrandPrimaryHex()} className="cursor-pointer" />
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          align="start"
+          sideOffset={8}
+          className="max-w-xs bg-black text-white z-[1500]"
+          collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+        >
+          <p className="text-xs">{title}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
 }

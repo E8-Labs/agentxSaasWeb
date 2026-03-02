@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 export const PersistanceKeys = {
+  SUPER_HUMAN_MODAL_STATE: 'superHumanModalState',
   LocalStorageUser: 'User',
   LocalSavedAgentDetails: 'agentDetails',
   LocalStorageUserLocation: 'userLocation',

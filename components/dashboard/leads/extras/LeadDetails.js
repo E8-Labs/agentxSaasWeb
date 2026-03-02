@@ -2408,13 +2408,12 @@ const LeadDetails = ({
                                                             <CircularProgress size={16} />
                                                           ) : (
                                                             <button
-                                                              // className="text-brand-primary underline hover:text-brand-primary/80"
-                                                              className="ml-2 pt-1"
+                                                              className="ml-2 pt-1 text-black hover:text-destructive transition-colors"
                                                               onClick={() => {
                                                                 handleDeleteLeadsEmail(email.email)
                                                               }}
                                                             >
-                                                              <TrashIcon className="h-4 w-4" size={16} color="red" />
+                                                              <TrashIcon className="h-4 w-4 shrink-0" size={16} color="currentColor" />
                                                             </button>
                                                           )
                                                         }
@@ -2653,7 +2652,7 @@ const LeadDetails = ({
                     }}
                   >
                     <Box
-                      className="lg:w-5/12 sm:w-full w-8/12"
+                      className="lg:w-4/12 sm:w-full w-6/12"
                       sx={{
                         ...styles.modalsStyle,
                         zIndex: overlayZIndex,
@@ -2693,12 +2692,12 @@ const LeadDetails = ({
                                             <CircularProgress size={16} />
                                           ) : (
                                             <button
-                                              // className="text-brand-primary underline hover:text-brand-primary/80"
+                                              className="ml-2 pt-1 text-black hover:text-destructive transition-colors"
                                               onClick={() => {
                                                 handleDeleteLeadsEmail(email.email)
                                               }}
                                             >
-                                              <TrashIcon className="h-4 w-4" size={16} color="red" />
+                                              <TrashIcon className="h-4 w-4 shrink-0" size={16} color="currentColor" />
                                             </button>
                                           )
                                         }
