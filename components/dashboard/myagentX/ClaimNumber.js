@@ -563,8 +563,8 @@ const ClaimNumber = ({
                       ? (() => {
                           const plan = isFromAdminOrAgency?.plan
                           if (!plan) return false
-                          const type = (plan?.type ?? '').toString().toLowerCase()
-                          const title = (plan?.title ?? '').toString().toLowerCase()
+                          const type = plan?.type?.toLowerCase?.() || plan?.planType?.toLowerCase?.() || ''
+                          const title = plan?.title?.toLowerCase?.() || ''
                           return type.includes('free') || title.includes('free') || plan?.price === 0
                         })()
                       : currentUserIsFreePlan

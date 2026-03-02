@@ -492,6 +492,7 @@ function UpgradePlanContent({
             resp.data?.codeType === 'promo' &&
             resp.data?.promoType === 'discount'
           ) {
+            console.log('promo codes resp.data', resp.data)
             setPromoCodeDetails(resp.data)
           } else {
             setPromoCodeDetails(null)
@@ -2110,8 +2111,21 @@ function UpgradePlanContent({
                                     }}
                                   >
                                     Next Charge Date{' '}
-                                    {promoCodeDetails?.nextChargeDateFormatted ||
-                                      moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
+                                    {(() => {
+                                      const isFullDiscount =
+                                        promoCodeDetails?.discountType === 'percentage' &&
+                                        Number(promoCodeDetails?.discountValue) === 100 &&
+                                        promoCodeDetails?.discountDurationMonths > 0
+                                      if (isFullDiscount) {
+                                        return moment()
+                                          .add(promoCodeDetails.discountDurationMonths, 'months')
+                                          .format('MMMM DD, YYYY')
+                                      }
+                                      return (
+                                        promoCodeDetails?.nextChargeDateFormatted ||
+                                        moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')
+                                      )
+                                    })()}
                                   </div>
                                   {discountCalculation &&
                                     discountCalculation.discountMonths > 0 && (
