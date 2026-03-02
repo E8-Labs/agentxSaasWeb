@@ -49,7 +49,7 @@ const EMPTY_STATE_MESSAGES = [
 ]
 
 const EXPAND_DURATION_MS = 320
-const TITLE_MAX_LENGTH = 40
+const TITLE_MAX_LENGTH = 28
 
 function truncateTitle(title) {
   if (!title || typeof title !== 'string') return title || ''
@@ -350,8 +350,8 @@ const WebAgentChatDrawer = ({
           aria-label="Chat"
         >
           {/* Header: X (close) top left with avatar + title (editable when thread exists); History + Upload top right */}
-          <div className="flex flex-shrink-0 items-center justify-between gap-3 px-4 py-3 border-b border-white/50">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex flex-shrink-0 items-center justify-between gap-3 px-4 py-3 border-b border-white/50 min-w-0 relative z-10 bg-inherit">
+            <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
               <button
                 type="button"
                 onClick={handleCloseClick}
@@ -360,13 +360,13 @@ const WebAgentChatDrawer = ({
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+              {/* <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
                 {headerAvatar || (
                   <span className="text-lg font-semibold text-gray-500">
                     {agentName?.charAt(0)?.toUpperCase() || '?'}
                   </span>
                 )}
-              </div>
+              </div> */}
               {titleEditing ? (
                 <input
                   ref={titleInputRef}
@@ -386,7 +386,7 @@ const WebAgentChatDrawer = ({
                   type="button"
                   onClick={startTitleEdit}
                   className={cn(
-                    'font-semibold text-[15px] text-gray-900 truncate text-left min-w-0 overflow-hidden',
+                    'flex-1 min-w-[80px] font-semibold text-[15px] text-gray-900 truncate text-left overflow-hidden block',
                     currentThreadId != null && 'hover:bg-white/50 rounded px-1 -mx-1'
                   )}
                   title={currentThreadId != null ? (displayTitleFull !== displayTitle ? displayTitleFull : 'Click to edit title') : displayTitleFull}
@@ -404,33 +404,6 @@ const WebAgentChatDrawer = ({
               >
                 <RotateCcw className="w-5 h-5" />
               </button>
-              {historyOpen && (
-                <div
-                  className="absolute top-full right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-xl bg-white shadow-lg border border-gray-100 py-2 z-50"
-                  role="listbox"
-                >
-                  {historyLoading ? (
-                    <p className="px-3 py-2 text-sm text-gray-500">Loading...</p>
-                  ) : historyList.length === 0 ? (
-                    <p className="px-3 py-2 text-sm text-gray-500">No previous chats</p>
-                  ) : (
-                    historyList.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => selectHistoryThread(t)}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-800 hover:bg-gray-50 flex flex-col gap-0.5"
-                      >
-                        <span className="font-medium truncate overflow-hidden" title={t.title || 'New chat'}>{truncateTitle(t.title) || 'New chat'}</span>
-                        <span className="text-xs text-gray-500">
-                          {t.dateStr || (t.createdAt ? new Date(t.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '')}
-                          {t.timeStr ? `, ${t.timeStr}` : (t.lastMessageAt || t.createdAt ? `, ${new Date(t.lastMessageAt || t.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : '')}
-                        </span>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
               <button
                 type="button"
                 onClick={() => {}}
@@ -439,11 +412,53 @@ const WebAgentChatDrawer = ({
               >
                 <Upload className="w-5 h-5" />
               </button>
+              {/* History dropdown: compact floating panel (like second screenshot) */}
+              {historyOpen && (
+                <div
+                  className="absolute top-full right-0 mt-2 w-72 max-h-80 rounded-xl bg-white shadow-lg border border-gray-200 overflow-hidden z-50 flex flex-col"
+                  role="dialog"
+                  aria-label="Chat history"
+                >
+                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-gray-100">
+                    <span className="text-sm font-medium text-gray-700">History</span>
+                    <button
+                      type="button"
+                      onClick={() => setHistoryOpen(false)}
+                      className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                      aria-label="Close history"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 py-1">
+                    {historyLoading ? (
+                      <p className="px-3 py-3 text-sm text-gray-500">Loading...</p>
+                    ) : historyList.length === 0 ? (
+                      <p className="px-3 py-3 text-sm text-gray-500">No previous chats</p>
+                    ) : (
+                      historyList.map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => selectHistoryThread(t)}
+                          className="w-full min-w-0 text-left px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 flex flex-col gap-0.5 overflow-hidden"
+                        >
+                          <span className="font-medium truncate block min-w-0 overflow-hidden" title={t.title || 'New chat'}>{truncateTitle(t.title) || 'New chat'}</span>
+                          <span className="text-xs text-gray-500">
+                            {t.dateStr || (t.createdAt ? new Date(t.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '')}
+                            {t.timeStr ? `, ${t.timeStr}` : (t.lastMessageAt || t.createdAt ? `, ${new Date(t.lastMessageAt || t.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : '')}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Body: messages or empty state */}
-          <div className="flex-1 overflow-y-auto min-h-0 flex flex-col px-4 py-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col px-4 py-4 relative z-0 bg-[rgba(255,255,255,0.82)]">
             {messagesLoading ? (
               <div className="flex-1 flex items-center justify-center py-8">
                 <p className="text-sm text-gray-500">Loading...</p>
