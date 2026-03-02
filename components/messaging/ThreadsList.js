@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star, StarOff } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -253,7 +253,7 @@ const ThreadsList = ({
           options={[
             { label: 'All', value: 'all', count: allCount },
             { label: 'Unreplied', value: 'unreplied', count: unrepliedCount },
-            { label: 'Shortlisted', value: 'shortlisted', count: shortlistedCount },
+            { label: 'Starred', value: 'shortlisted', count: shortlistedCount },
           ]}
           value={filterType}
           onChange={onFilterTypeChange}
@@ -574,27 +574,6 @@ const ThreadsList = ({
                               className="min-w-[160px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] [&_svg]:text-black"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              {leadId && (
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onShortlistToggle?.(leadId)
-                                  }}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
-                                  {isShortlisted ? (
-                                    <>
-                                      <StarOff size={16} />
-                                      Remove from shortlist
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Star size={16} />
-                                      Add to shortlist
-                                    </>
-                                  )}
-                                </DropdownMenuItem>
-                              )}
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation()

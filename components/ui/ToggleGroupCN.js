@@ -16,14 +16,14 @@ import { TypographyBody } from '@/lib/typography'
  * @param {string} props.height - Optional height class (e.g., 'p-1', 'p-2', 'p-1.5')
  * @param {string} props.roundedness - Optional roundedness class (e.g., 'rounded-lg', 'rounded-xl', 'rounded-md')
  */
-const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-1', roundedness = 'rounded-lg' }) => {
+const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'h-[40px] py-1', roundedness = 'rounded-lg' }) => {
   return (
     <div
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.05)',
         boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.06)',
       }}
-      className={cn(height, "flex flex-row items-center justify-center gap-2", roundedness, className)}
+      className={cn(height, "flex flex-row items-stretch justify-center gap-[2px]", roundedness, className)}
     >
       {options.map((option) => {
 
@@ -35,7 +35,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-1
             key={option.value}
             onClick={() => onChange(option.value)}
             className={cn(
-              "w-auto px-3 py-1 transition-colors active:scale-[0.98] rounded-md",
+              "w-auto px-2 flex items-center justify-center transition-colors active:scale-[0.98] rounded-md",
               isSelected ? 'bg-white text-brand-primary shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-[#eaeaea]' : 'bg-transparent text-black',
             )}
             style={isSelected ? { borderWidth: '0.5px' } : undefined}
