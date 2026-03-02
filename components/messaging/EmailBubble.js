@@ -44,13 +44,10 @@ const EmailBubble = ({
             Subject:
             {openEmailDetailId === message.id && (
               <div
-                className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900 ${isLastMessage
+                className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] bg-white text-gray-900 ${isLastMessage
                   ? `bottom-full mb-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
                   : `top-full mt-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
                   }`}
-                style={{
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
-                }}
                 onMouseEnter={(e) => {
                   e.stopPropagation()
                   setOpenEmailDetailId(message.id)
@@ -62,7 +59,7 @@ const EmailBubble = ({
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
               >
-                <div className="px-2.5 py-2 border-b border-gray-200">
+                <div className="px-2.5 py-2 border-b border-black/[0.06]">
                   <span className="text-[11px] font-medium text-gray-700">Message details</span>
                 </div>
                 {(() => {

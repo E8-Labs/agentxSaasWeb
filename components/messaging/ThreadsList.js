@@ -315,7 +315,7 @@ const ThreadsList = ({
           onSelect={(opt) => opt?.onSelect?.()}
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
           triggerClassName="h-10 rounded-lg text-sm"
-          contentClassName="min-w-[180px] w-[180px] bg-white text-foreground text-sm border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl animate-dropdown-below-enter"
+          contentClassName="min-w-[180px] w-[180px] bg-white text-foreground text-sm border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-lg animate-dropdown-below-enter"
         />
 
         {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
@@ -585,7 +585,7 @@ const ThreadsList = ({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                               align="end"
-                              className="min-w-[160px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] [&_svg]:text-black"
+                              className="min-w-[160px] rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] [&_svg]:text-black"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <DropdownMenuItem

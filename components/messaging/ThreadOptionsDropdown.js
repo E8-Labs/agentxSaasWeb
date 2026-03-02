@@ -95,7 +95,7 @@ export default function ThreadOptionsDropdown({
       <DropdownMenuContent
         align="end"
         side="bottom"
-        className="z-[2000] w-[280px] min-h-[400px] border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl p-0 gap-3 max-h-[80vh] overflow-hidden flex flex-col"
+        className="z-[2000] w-[280px] min-h-[400px] border border-black/[0.06] bg-white text-foreground shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-lg p-0 gap-3 max-h-[80vh] overflow-hidden flex flex-col"
       >
         <Tabs defaultValue="teams" className="flex flex-col flex-1 min-h-0 gap-1 max-h-[450px]">
           <div
