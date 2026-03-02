@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import axios from 'axios'
 import { format } from 'date-fns'
 import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo, ChevronDown, CalendarIcon, MessageSquareDot } from 'lucide-react'
@@ -28,6 +28,10 @@ import { sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
 import CreateTaskFromNextStepsModal from '../leads/extras/CreateTaskFromNextStepsModal'
 import { Button } from '@/components/ui/button'
 import CloseIcon from '@mui/icons-material/Close'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+/** Page size for activities (infinite scroll). Offset is passed to the API. */
+const ACTIVITIES_PAGE_SIZE = 10
 
 const getAuthToken = () => {
   try {
@@ -56,6 +60,7 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, sele
   const res = await axios.get(ApiPath, {
     headers: { Authorization: `Bearer ${token}` },
   })
+  console.log("res.data for get user activity is", res.data);
   return res.data
 }
 
@@ -97,6 +102,10 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [customToOpen, setCustomToOpen] = useState(false)
   //show date modals
   const [showCustomDateModal, setShowCustomDateModal] = useState(false)
+  const [activitiesOffset, setActivitiesOffset] = useState(0)
+  const activitiesOffsetRef = useRef(0)
+  const isLoadingMoreRef = useRef(false)
+  const [hasMoreActivities, setHasMoreActivities] = useState(true)
 
   const teamMemberUserId = teamMember?.invitedUserId || teamMember?.invitedUser?.id
 
@@ -135,23 +144,57 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     }
   }, [loadTasks])
 
-  const loadActivities = useCallback(async () => {
+  const loadActivities = useCallback(async (append = false) => {
     if (!teamMemberUserId) return
     if (range === 'custom' && (!customFromDate || !customToDate)) return
+    if (append && isLoadingMoreRef.current) return
     const fromStr = range === 'custom' && customFromDate ? format(customFromDate, 'yyyy-MM-dd') : undefined
     const toStr = range === 'custom' && customToDate ? format(customToDate, 'yyyy-MM-dd') : undefined
+    const offset = append ? activitiesOffsetRef.current : 0
+    if (!append) {
+      setActivitiesOffset(0)
+      activitiesOffsetRef.current = 0
+      setHasMoreActivities(true)
+    } else {
+      isLoadingMoreRef.current = true
+    }
     setActivitiesLoading(true)
     try {
-      const res = await fetchTeamMemberActivities(teamMemberUserId, range, fromStr, toStr, selectedUser)
+      const res = await fetchTeamMemberActivities(
+        teamMemberUserId,
+        range,
+        fromStr,
+        toStr,
+        selectedUser,
+        ACTIVITIES_PAGE_SIZE,
+        offset
+      )
       const data = res?.data
-      setActivities(data?.activities ?? [])
-      setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
+      console.log('data of fetchactivities', data)
+      const newActivities = data?.activities ?? []
+      const nextOffset = offset + newActivities.length
+      if (append) {
+        setActivities((prev) => [...prev, ...newActivities])
+      } else {
+        setActivities(newActivities)
+      }
+      setActivitiesOffset(nextOffset)
+      activitiesOffsetRef.current = nextOffset
+      if (!append) setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
+      const total = data?.total ?? data?.totalCount
+      const hasMore =
+        total != null ? nextOffset < total : newActivities.length >= 10
+      setHasMoreActivities(data?.hasMore ?? hasMore);
     } catch (err) {
       console.error('Failed to load activities:', err)
-      setActivities([])
-      setTotals({ sms: 0, email: 0, calls: 0 })
+      if (!append) {
+        setActivities([])
+        setTotals({ sms: 0, email: 0, calls: 0 })
+      }
+      setHasMoreActivities(false)
     } finally {
       setActivitiesLoading(false)
+      if (append) isLoadingMoreRef.current = false
     }
   }, [teamMemberUserId, range, customFromDate, customToDate])
 
@@ -160,7 +203,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   }, [open, activeTab, teamMemberUserId, taskStatusFilter, loadTasks])
 
   useEffect(() => {
-    if (open && activeTab === 'activity' && teamMemberUserId) loadActivities()
+    if (open && activeTab === 'activity' && teamMemberUserId) loadActivities(false)
   }, [open, activeTab, teamMemberUserId, range, customFromDate, customToDate, loadActivities])
 
   const displayName = teamMember?.name || teamMember?.invitedUser?.name || 'Team Member'
@@ -267,8 +310,8 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           )}
         </div>
 
-        {/* Right column: content - header height h-14 to align divider line with left */}
-        <div className="flex flex-col flex-1 min-w-0 w-[80vw]">
+        {/* Right column: content - header height h-14 to align divider line with left; min-h-0 so scroll area gets bounded height */}
+        <div className="flex flex-col flex-1 min-w-0 min-h-0 w-[80vw]">
           <div className="flex flex-row items-center justify-end px-4 h-14 shrink-0 border-b border-border">
             <button
               type="button"
@@ -513,26 +556,49 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                   </div>
                 </div>
               </div>
-              <ScrollArea className="flex-1 bg-[#F9F9F9]">
+              <div
+                id="teamMemberActivitiesScroll"
+                className="flex-1 min-h-0 overflow-auto bg-[#F9F9F9]"
+                style={{ scrollbarWidth: 'thin' }}
+              >
                 <div className="px-6 py-5">
-                  {activitiesLoading ? (
+                  {activitiesLoading && activities.length === 0 ? (
                     <div className="flex justify-center py-12">
                       <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
                     </div>
                   ) : activities.length === 0 ? (
                     <TypographyBody className="text-muted-foreground italic py-8">No activities in this range</TypographyBody>
                   ) : (
-                    <ActivityTimeline
-                      activities={activities}
-                      onLeadClick={(lead_ID) => {
-                        setSelectedLeadIdForModal(lead_ID)
-                        console.log("lead_ID", lead_ID)
-                        setActiveTab("lead_details")
+                    <InfiniteScroll
+                      dataLength={activities.length}
+                      next={() => {
+                        if (!isLoadingMoreRef.current && hasMoreActivities) loadActivities(true)
                       }}
-                    />
+                      hasMore={hasMoreActivities}
+                      scrollableTarget="teamMemberActivitiesScroll"
+                      loader={
+                        <div className="flex justify-center py-6">
+                          <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                        </div>
+                      }
+                      endMessage={
+                        <p className="text-center py-4 text-muted-foreground text-sm">
+                          You are all caught up
+                        </p>
+                      }
+                    >
+                      <ActivityTimeline
+                        activities={activities}
+                        onLeadClick={(lead_ID) => {
+                          setSelectedLeadIdForModal(lead_ID)
+                          console.log("lead_ID", lead_ID)
+                          setActiveTab("lead_details")
+                        }}
+                      />
+                    </InfiniteScroll>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </>
           )}
 

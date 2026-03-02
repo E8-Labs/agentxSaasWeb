@@ -49,6 +49,9 @@ function SelectedUserDetails({
   handleClose,
   agencyUser = false,
 }) {
+
+  console.log("From passed is", from)
+
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -62,9 +65,9 @@ function SelectedUserDetails({
 
   // Sliding pill for nav links hover (update sidebar spec)
   const [hoveredNavIndex, setHoveredNavIndex] = useState(null)
-  const [navPillStyle, setNavPillStyle] = useState(/** @type {{ top: number; left: number; width: number; height: number } | null} */ (null))
-  const navLinksContainerRef = useRef(/** @type {HTMLDivElement | null} */ (null))
-  const navLinkItemRefs = useRef(/** @type {(HTMLDivElement | null)[]} */ ([]))
+  const [navPillStyle, setNavPillStyle] = useState(/** @type {{ top: number; left: number; width: number; height: number } | null} */(null))
+  const navLinksContainerRef = useRef(/** @type {HTMLDivElement | null} */(null))
+  const navLinkItemRefs = useRef(/** @type {(HTMLDivElement | null)[]} */([]))
 
   // Update sliding pill position when hovered nav index changes
   useLayoutEffect(() => {
@@ -784,7 +787,7 @@ function SelectedUserDetails({
   }
 
   return (
-    <div className={`w-full flex flex-col ${isAgencyView ? 'h-[90svh]' : 'h-[100svh]'} items-center justify-center overflow-y-auto`}>
+    <div className={`w-full flex flex-col ${(isAgencyView || from === "admin") ? 'h-[88svh]' : 'h-[100svh]'} items-center justify-center overflow-y-auto`}>
       <AgentSelectSnackMessage
         isVisible={showSnackMessage != null && showSnackMessage !== ''}
         hide={() => {
@@ -899,7 +902,7 @@ function SelectedUserDetails({
               </div>
             </div>
           )}
-          <div className="flex flex-row items-start w-full h-full" style={{backgroundColor: ''}}>
+          <div className="flex flex-row items-start w-full h-full" style={{ backgroundColor: '' }}>
             <div
               className={`flex flex-shrink-0 flex-col items-start justify-start w-[250px] p-px gap-1 text-[14px] ${!enablePermissionChecks ? "h-[100%]" : "h-[100svh]"} ${!enablePermissionChecks && '-mt-10'}`}
               style={{
@@ -1026,67 +1029,69 @@ function SelectedUserDetails({
               </div>
 
               {(from === "admin" || from === "subaccount" || enablePermissionChecks) && (
-                <div
-                  onClick={() => {
-                    console.log('clicked')
-                    handleManuClick(accountMenu)
-                  }}
-                  className="w-full flex flex-row items-start gap-3 py-2 px-2 truncate outline-none text-start no-underline hover:no-underline cursor-pointer text-[14px] flex-shrink-0 border-t border-[#00000010]"
-                  style={{
-                    textOverflow: "ellipsis",
-                    textDecoration: "none",
-                  }}
-                >
-                  {user?.thumb_profile_image ? (
-                    <img
-                      src={user?.thumb_profile_image}
-                      alt="*"
-                      style={{
-                        objectFit: "fill",
-                        height: "34px",
-                        width: "34px",
-                        borderRadius: "50%",
-                      }}
-                    />
-                  ) : (
-                    <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                      {user?.name.slice(0, 1).toUpperCase()}
-                    </div>
-                  )}
+               <div
+                onClick={() => {
+                  console.log('clicked')
+                  handleManuClick(accountMenu)
+                }}
+                className="w-full flex flex-row items-start gap-3 py-2 px-2 truncate outline-none text-start no-underline hover:no-underline cursor-pointer text-[14px] flex-shrink-0 border-t border-[#00000010]"
+                style={{
+                  textOverflow: "ellipsis",
+                  textDecoration: "none",
+                }}
+              >
+                {user?.thumb_profile_image ? (
+                  <img
+                    src={user?.thumb_profile_image}
+                    alt="*"
+                    style={{
+                      objectFit: "fill",
+                      height: "34px",
+                      width: "34px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                ) : (
+                  <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+                    {user?.name.slice(0, 1).toUpperCase()}
+                  </div>
+                )}
 
-                  <div >
-                    <div className="flex flex-row items-center gap-2">
-                      <div
-                        className="truncate"
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "black",
-                        }}
-                      >
-                        {(() => {
-                          const name = user?.name?.split(" ")[0] || "";
-                          return name.length > 10 ? `${name.slice(0, 7)}...` : name;
-                        })()}
-                      </div>
-                      <div className="text-xs font-medium text-brand-primary">
-                        {checkTrialDays(selectedUser) ? `${checkTrialDays(selectedUser)}` : ""}
-                      </div>
-                    </div>
+                <div >
+                  <div className="flex flex-row items-center gap-2">
                     <div
-                      className="truncate w-[120px]"
+                      className="truncate"
                       style={{
                         fontSize: 15,
                         fontWeight: "500",
-                        color: "#15151560",
-                        textOverflow: "ellipsis",
+                        color: "black",
                       }}
                     >
-                      {user?.email}
+                      {(() => {
+                        const name = user?.name?.split(" ")[0] || "";
+                        return name.length > 10 ? `${name.slice(0, 7)}...` : name;
+                      })()}
+                    </div>
+                    <div className="text-xs font-medium text-brand-primary">
+                      {checkTrialDays(selectedUser) ? `${checkTrialDays(selectedUser)}` : ""}
                     </div>
                   </div>
+                  <div
+                    className="truncate w-[120px]"
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "#15151560",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user?.email}
+                  </div>
                 </div>
+              </div> 
               )}
+
+              
             </div>
 
             <div

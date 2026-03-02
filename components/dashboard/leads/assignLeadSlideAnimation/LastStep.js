@@ -32,6 +32,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../AgentSelectSnackMessage'
 import DncConfirmationPopup from '../DncConfirmationPopup'
+import { Calendar, CalendarDays, PhoneCall } from 'lucide-react'
 
 // Helper function to get brand primary color as hex (for MUI sx props)
 const getBrandPrimaryHex = () => {
@@ -556,12 +557,13 @@ const LastStep = ({
                 // handleDateTimerDifference();
               }}
             >
-              <Image
+              {/*<Image
                 src={'/assets/callBtn.png'}
                 height={24}
                 width={24}
                 alt="*"
-              />
+              />*/}
+              <PhoneCall size={32} weight="900" />
               <div style={styles.title}>Start Now</div>
             </button>
             <div className="w-1/2">
@@ -582,7 +584,7 @@ const LastStep = ({
                   setIsDisabled(false)
                 }}
               >
-                <CalendarDots size={32} weight="bold" />
+                <CalendarDays size={32} weight="900" />
                 <div style={styles.title}>Schedule</div>
               </button>
               {/* <div>
@@ -643,8 +645,30 @@ const LastStep = ({
                               //user profile will be passed to it
                               minDateTime={dayjs().tz(userProfile.timeZone)}
                               //   value={value}
+                              slotProps={{
+                                digitalClockSectionItem: {
+                                  sx: {
+                                    '&.Mui-selected': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
+                                      color: '#fff !important',
+                                    },
+                                    '&.Mui-selected:hover': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
+                                      color: '#fff !important',
+                                    },
+                                  },
+                                },
+                                desktopPaper: {
+                                  sx: {
+                                    '& .MuiMultiSectionDigitalClockSection-root': {
+                                      scrollbarWidth: 'none',
+                                      msOverflowStyle: 'none',
+                                      '&::-webkit-scrollbar': { display: 'none' },
+                                    },
+                                  },
+                                },
+                              }}
                               sx={{
-                                // Date Picker (Large Screen)
                                 '& .MuiPickersDay-root.Mui-selected': {
                                   backgroundColor: `${brandPrimaryColor} !important`,
                                   color: 'white !important',
@@ -652,12 +676,9 @@ const LastStep = ({
                                 '& .MuiPickersDay-root:hover': {
                                   backgroundColor: `${brandPrimaryColor}CC !important`,
                                 },
-                                '& .Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: '#fff !important',
+                                '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
+                                  color: '#333 !important',
                                 },
-
-                                // Time Picker (Large Screen)
                                 '& .MuiClock-pin': {
                                   backgroundColor: `${brandPrimaryColor} !important`,
                                 },
@@ -667,32 +688,6 @@ const LastStep = ({
                                 '& .MuiClockPointer-thumb': {
                                   borderColor: `${brandPrimaryColor} !important`,
                                 },
-                                '& .MuiPickersToolbar-root': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiTypography-root': {
-                                  color: `${brandPrimaryColor} !important`,
-                                },
-
-                                // Time Selection List (Large Screen)
-                                '& .MuiPickersTimeClock-root .Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: 'white !important',
-                                },
-                                '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
-                                  {
-                                    backgroundColor: `${brandPrimaryColor}CC !important`,
-                                  },
-
-                                // Time Picker List (Dropdown List)
-                                '& .MuiTimeClock-root .Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: 'white !important',
-                                },
-                                '& .MuiTimeClock-root .MuiButtonBase-root:hover':
-                                  {
-                                    backgroundColor: `${brandPrimaryColor}CC !important`,
-                                  },
                               }}
                               onChange={handleDateChange}
                               renderInput={(params) => (
@@ -792,6 +787,31 @@ const LastStep = ({
                           },
                         },
                       },
+                      // Style time list items (hour, minute, AM/PM) with brand color when selected
+                      digitalClockSectionItem: {
+                        sx: {
+                          '&.Mui-selected': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
+                            color: '#fff !important',
+                          },
+                          '&.Mui-selected:hover': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
+                            color: '#fff !important',
+                          },
+                        },
+                      },
+                      // Hide scrollbar in time picker columns (scrollable element is MultiSectionDigitalClockSection root)
+                      desktopPaper: {
+                        sx: {
+                          '& .MuiMultiSectionDigitalClockSection-root': {
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                            '&::-webkit-scrollbar': {
+                              display: 'none',
+                            },
+                          },
+                        },
+                      },
                     }}
                     sx={{
                           '& .MuiPickersDay-root.Mui-selected': {
@@ -805,10 +825,6 @@ const LastStep = ({
                             {
                               color: '#333 !important',
                             },
-                          '& .Mui-selected': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: '#fff !important',
-                          },
                           '& .MuiClock-pin': {
                             backgroundColor: `${brandPrimaryColor} !important`,
                           },

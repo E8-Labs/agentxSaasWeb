@@ -216,10 +216,10 @@ function UserPlans({
           const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
             typeof navigator !== 'undefined' ? navigator.userAgent : ''
           )
-          
+
           // For mobile normal users and subaccounts, redirect to continue to desktop screen
-          if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
-              (isFrom === 'SubAccount' || routedFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
+          if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) &&
+            (isFrom === 'SubAccount' || routedFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
             router.push('/createagent/desktop')
           } else {
             // Otherwise, continue to next step (for createagent flow)
@@ -329,7 +329,7 @@ function UserPlans({
       if (response) {
         if (response.data.status === true) {
           await refreshUserData()
-          
+
           // If subscribing for a subaccount (agency/admin context), refresh the subaccount's profile
           if (selectedUser && (isFrom === 'SubAccount' || reduxUser?.userRole === 'Agency')) {
             try {
@@ -350,14 +350,14 @@ function UserPlans({
               console.error('Error refreshing subaccount profile after subscription:', error)
             }
           }
-          
+
           // Close payment modal if it's open
           setAddPaymentPopUp(false)
           setShouldAutoSubscribe(false)
-          
+
           // Determine redirect path
           let redirectPath = null
-          
+
           if (reduxUser?.userRole === 'Agency') {
             redirectPath = '/agency/dashboard'
           } else if (from === 'dashboard' || isFrom === 'SubAccount') {
@@ -369,10 +369,10 @@ function UserPlans({
             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
               typeof navigator !== 'undefined' ? navigator.userAgent : ''
             )
-            
+
             // For mobile normal users and subaccounts, redirect to continue to desktop screen
-            if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
-                (isFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
+            if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) &&
+              (isFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
               redirectPath = '/createagent/desktop'
             } else {
               if (handleContinue) {
@@ -381,7 +381,7 @@ function UserPlans({
               }
             }
           }
-          
+
           // Use window.location.href for hard redirect to ensure clean page reload
           // This prevents DOM cleanup errors during navigation
           if (redirectPath) {
@@ -404,13 +404,13 @@ function UserPlans({
       }
     } catch (error) {
       console.error('Error occured in api is:', error)
-      const errorMessage = error?.response?.data?.message || 
-                          error?.message || 
-                          'An error occurred while subscribing to the plan. Please try again.'
-      
+      const errorMessage = error?.response?.data?.message ||
+        error?.message ||
+        'An error occurred while subscribing to the plan. Please try again.'
+
       // If error is related to payment, show payment modal
-      if (error?.response?.data?.message?.toLowerCase().includes('payment') || 
-          error?.response?.data?.message?.toLowerCase().includes('card')) {
+      if (error?.response?.data?.message?.toLowerCase().includes('payment') ||
+        error?.response?.data?.message?.toLowerCase().includes('card')) {
         setShouldAutoSubscribe(true)
         setAddPaymentPopUp(true)
       } else {
@@ -525,6 +525,17 @@ function UserPlans({
     return []
   }
 
+  const checkWindowInnerWidth = () => {
+    console.log("Window inner width is", getCurrentPlans()?.length * 300, window.innerWidth)
+    if (getCurrentPlans()?.length <= 3) {
+      return getCurrentPlans()?.length * 300 > window.innerWidth
+        ? 'start'
+        : 'center'
+    } else {
+      return 'start'
+    }
+  }
+
   // Check if a plan is the current user's plan
   const isCurrentPlan = (plan) => {
     if (!reduxUser?.plan || !plan) {
@@ -547,7 +558,7 @@ function UserPlans({
       if (userPlanPlanIdStr === planIdStr) {
         return true
       }
-    } else {}
+    } else { }
 
     // Fallback: Match by name and billing cycle ONLY if both plan IDs are missing
     // This is a last resort - we should always prefer ID matching
@@ -570,9 +581,9 @@ function UserPlans({
           userBillingCycle === planBillingCycle
         ) {
           return true
-        } else {}
+        } else { }
       }
-    } else {}
+    } else { }
 
     return false
   }
@@ -759,30 +770,30 @@ function UserPlans({
             )}
             <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
               {// count how many have length > 0
-              [
-                monthlyPlans?.length > 0,
-                quaterlyPlans?.length > 0,
-                yearlyPlans?.length > 0,
-              ].filter(Boolean).length >= 2 && (
-                <div
-                  // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
-                  className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start"
-                >
-                  {duration?.map((item) => (
-                    <button
-                      key={item.id}
-                      // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                      className={`px-4 py-1 text-black ${selectedDuration.id === item.id ? ' bg-white shadow-md  rounded-full' : ''}`}
-                      onClick={() => {
-                        setSelectedDuration(item)
-                        // getCurrentPlans();
-                      }}
-                    >
-                      {item.title}
-                    </button>
-                  ))}
-                </div>
-              )}
+                [
+                  monthlyPlans?.length > 0,
+                  quaterlyPlans?.length > 0,
+                  yearlyPlans?.length > 0,
+                ].filter(Boolean).length >= 2 && (
+                  <div
+                    // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
+                    className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start"
+                  >
+                    {duration?.map((item) => (
+                      <button
+                        key={item.id}
+                        // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                        className={`px-4 py-1 text-black ${selectedDuration.id === item.id ? ' bg-white shadow-md  rounded-full' : ''}`}
+                        onClick={() => {
+                          setSelectedDuration(item)
+                          // getCurrentPlans();
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    ))}
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -798,10 +809,11 @@ function UserPlans({
             // marginTop: 20,
             flexShrink: 0,
             alignItems: 'stretch', // This makes all cards the same height
-            justifyContent:
-              getCurrentPlans()?.length * 300 > window.innerWidth
-                ? 'start'
-                : 'center',
+            // justifyContent: 'center',
+            justifyContent: checkWindowInnerWidth()
+            // getCurrentPlans()?.length * 300 > window.innerWidth
+            //   ? 'start'
+            //   : 'center',
           }}
         >
           {(() => {
@@ -838,6 +850,7 @@ function UserPlans({
               const isCurrentUserPlan = isCurrentPlan(item)
               const currentPlanStatus = reduxUser?.plan?.status
               const isDisabled = disAblePlans || (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
+              console.log("current plans are", getCurrentPlans())
 
               return (
                 <button
@@ -875,12 +888,11 @@ function UserPlans({
                           )}
 
                           <div
-                            className={`text-base font-semibold ${
-                              selectedPlan?.id === item.id ||
-                              (hoverPlan?.id === item.id && !isDisabled)
+                            className={`text-base font-semibold ${selectedPlan?.id === item.id ||
+                                (hoverPlan?.id === item.id && !isDisabled)
                                 ? 'text-brand-primary'
                                 : 'text-brand-primary'
-                            }`}
+                              }`}
                             style={{}}
                           >
                             {item.status}
@@ -1063,7 +1075,7 @@ function UserPlans({
                               <div className="w-full items-center p-3 rounded-lg bg-gray-100 mb-3 flex-shrink-0">
                                 <div className="text-sm font-semibold text-black text-center">
                                   Everything in{' '}
-                                  {getCurrentPlans()[index - 1]?.name||getCurrentPlans()[index - 1]?.title} and
+                                  {getCurrentPlans()[index - 1]?.name || getCurrentPlans()[index - 1]?.title} and
                                 </div>
                               </div>
                             )}
@@ -1116,7 +1128,7 @@ function UserPlans({
               }
             }
           }}
-          setSelectedPlan={() => {}}
+          setSelectedPlan={() => { }}
         />
       </Elements>
       <YearlyPlanModal
@@ -1182,7 +1194,7 @@ function UserPlans({
                   addCardFailure={addCardFailure}
                   addCardSuccess={addCardSuccess}
                   addCardErrtxt={addCardErrtxt}
-                  // togglePlan={togglePlan}
+                // togglePlan={togglePlan}
                 />
               </Elements>
             </div>
