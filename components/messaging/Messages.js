@@ -129,6 +129,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
+  const [showMessagingRequestModal, setShowMessagingRequestModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
   // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
@@ -219,20 +220,32 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
 
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
-  // Resolve planCapabilities from Redux or localStorage (localStorage can have fresher full profile)
-  const effectivePlanCapabilities = reduxUser?.planCapabilities ?? (typeof window !== 'undefined' && (() => {
+  // When agency/admin is viewing another user's messages, use that user's plan capabilities so we show Request vs Upgrade correctly for the viewed user
+  const selfPlanCapabilities = reduxUser?.planCapabilities ?? (typeof window !== 'undefined' && (() => {
     try {
       const stored = localStorage.getItem('User')
       if (!stored) return undefined
       return JSON.parse(stored)?.user?.planCapabilities
     } catch { return undefined }
   })())
-  // Check if user has access to messaging features
+  const effectivePlanCapabilities = (selectedUser?.planCapabilities && typeof selectedUser.planCapabilities === 'object')
+    ? selectedUser.planCapabilities
+    : selfPlanCapabilities
+    console.log('effectivePlanCapabilities Messages.js', effectivePlanCapabilities)
+    console.log('allowEmails Messages.js', effectivePlanCapabilities?.allowEmails)
+    console.log('Selected User' , selectedUser)
+  // Check if user has access to messaging features (effective = viewed user when agency/admin viewing subaccount)
   const hasMessagingAccess = effectivePlanCapabilities?.allowEmails === true || effectivePlanCapabilities?.allowTextMessages === true
   // AI Email & Text plan flags for SystemMessage and for gating AI Message Settings modal
   const allowAIEmailAndText = effectivePlanCapabilities?.allowAIEmailAndText === true
   const shouldShowAllowAiEmailAndTextUpgrade = effectivePlanCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
   const shouldShowAiEmailAndTextRequestFeature = effectivePlanCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
+  // For no-messaging-access block: show Request when viewed user is subaccount and agency doesn't have email/sms
+  const shouldShowMessagingRequestFeature = effectivePlanCapabilities?.shouldShowEmailRequestFeature === true || effectivePlanCapabilities?.shouldShowSmsRequestFeature === true
+  // Modal "from" context: when viewing another user's messages, use that user's role so copy is correct
+  const modalFromContext = selectedUser
+    ? (selectedUser.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User')
+    : (reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User')
 
   // When user clicks "AI Message Settings": open settings only if they have access; otherwise show upgrade or request feature
   const handleOpenMessageSettings = useCallback(() => {
@@ -3271,6 +3284,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // If user doesn't have access to emails or text messages, show empty state
   if (!hasMessagingAccess) {
+    const showRequestForMessaging = shouldShowMessagingRequestFeature
     return (
       <>
         <div className={`w-full h-full flex flex-col items-center justify-center bg-white }`}>
@@ -3300,13 +3314,26 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 width: '173px',
               }}
               onClick={() => {
-                setShowUpgradePlanModal(true)
+                if (showRequestForMessaging) {
+                  setShowMessagingRequestModal(true)
+                } else {
+                  setShowUpgradePlanModal(true)
+                }
               }}
             >
-              Upgrade Plan
+              {showRequestForMessaging ? 'Request' : 'Upgrade Plan'}
             </button>
           </div>
         </div>
+        {/* Request feature modal - when viewed user (e.g. subaccount) must request from agency */}
+        {showMessagingRequestModal && (
+          <UnlockPremiunFeatures
+            title="Unlock Messaging"
+            open={showMessagingRequestModal}
+            handleClose={() => setShowMessagingRequestModal(false)}
+            from={modalFromContext}
+          />
+        )}
         {/* Upgrade Plan Modal - For users without messaging access */}
         {showUpgradePlanModal && (
           <UpgradePlan
@@ -3321,7 +3348,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               }
             }}
             currentFullPlan={reduxUser?.plan || reduxUser?.user?.plan}
-            from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+            from={modalFromContext}
             selectedUser={selectedUser}
           />
         )}
@@ -3352,7 +3379,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           }
         }}
         currentFullPlan={reduxUser?.plan}
-        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+        from={modalFromContext}
         selectedUser={selectedUser}
       />
 
@@ -3360,7 +3387,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         title="Unlock AI Email & Text"
         open={showAiRequestFeatureModal}
         handleClose={() => setShowAiRequestFeatureModal(false)}
-        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+        from={modalFromContext}
       />
 
       {
