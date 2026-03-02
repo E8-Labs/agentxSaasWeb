@@ -27,6 +27,8 @@ const CreateTaskFromNextStepsModal = ({
   selectedUser = null,
   elevatedZIndex = false,
   onTaskCreated = null,
+  cadenceStepMode = false,
+  onAddAsCadenceStep = null,
 }) => {
   const [teamMembers, setTeamMembers] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -78,8 +80,17 @@ const CreateTaskFromNextStepsModal = ({
     }
   }, [open, fetchTeamMembers])
 
-  // Handle task creation
-  const handleCreateTask = async (taskData) => {
+  // Handle task creation (or add as cadence step when cadenceStepMode)
+  const handleSubmit = async (taskData) => {
+    if (cadenceStepMode && onAddAsCadenceStep) {
+      if (!taskData.title?.trim()) {
+        toast.error('Title is required')
+        return false
+      }
+      onAddAsCadenceStep(taskData)
+      onClose()
+      return
+    }
 
     if (!taskData.title.trim() || !taskData.description.trim()) {
       setIsValidForm(false)
@@ -147,7 +158,7 @@ const CreateTaskFromNextStepsModal = ({
         <div className="flex-1 overflow-y-auto px-4 py-3">
           <TaskForm
             teamMembers={teamMembers}
-            onSubmit={handleCreateTask}
+            onSubmit={handleSubmit}
             onCancel={onClose}
             leadId={leadId}
             callId={callId}
@@ -161,6 +172,7 @@ const CreateTaskFromNextStepsModal = ({
             selectedUser={selectedUser}
             elevatedZIndex={elevatedZIndex}
             defaultAssignees={defaultAssignees.length > 0 ? defaultAssignees : undefined}
+            requireDescription={!cadenceStepMode}
           />
         </div>
 
@@ -185,6 +197,11 @@ const CreateTaskFromNextStepsModal = ({
                 <span className="animate-spin">⏳</span>
 
                 Creating...
+              </>
+            ) : cadenceStepMode ? (
+              <>
+                <span>+</span>
+                Add to Cadence
               </>
             ) : (
               <>

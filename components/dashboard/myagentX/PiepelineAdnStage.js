@@ -182,6 +182,9 @@ const PipelineAndStage = ({
     } else if (cadence.communicationType === 'sms') {
       return 'then Send Text'
     }
+    else if (cadence.communicationType === 'task') {
+      return 'then Create Task'
+    }
   }
 
   //booking time status text
@@ -282,12 +285,14 @@ const PipelineAndStage = ({
           // Determine if this is a booking stage
           const isBookingStage = stage.cadence.stage?.identifier === 'booked'
 
+          const communicationType = call.communicationType || 'call'
           return {
             id: call.id,
             waitTimeDays: call.waitTimeDays || 0,
             waitTimeHours: call.waitTimeHours || 0,
             waitTimeMinutes: call.waitTimeMinutes || 0,
-            communicationType: call.communicationType || 'call',
+            communicationType,
+            action: communicationType, // keep in sync so step label (e.g. "Create Task") never shows undefined
             referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'), // Include referencePoint
             // Include template data if present
             ...(call.templateId && { templateId: call.templateId }),
@@ -298,6 +303,13 @@ const PipelineAndStage = ({
             ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
             // Include emailAccountId for email cadence calls (for consistency)
             ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
+            // Task steps must always have taskPayload with at least title (backend validation)
+            ...(communicationType === 'task' && {
+              taskPayload:
+                call.taskPayload && typeof call.taskPayload === 'object' && (call.taskPayload.title ?? '').toString().trim() !== ''
+                  ? call.taskPayload
+                  : { title: 'Task' },
+            }),
           }
         }),
         moveToStage: stage.cadence.moveToStage?.id || null,
