@@ -303,7 +303,7 @@ const ThreadsList = ({
           onSelect={(opt) => opt?.onSelect?.()}
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
           triggerClassName="h-10 rounded-lg text-sm"
-          contentClassName="bg-white text-foreground text-sm border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl animate-in slide-in-from-bottom-2 duration-200 ease-out"
+          contentClassName="bg-white text-foreground text-sm border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl animate-dropdown-below-enter"
         />
 
         {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
@@ -377,7 +377,7 @@ const ThreadsList = ({
             <div
               ref={filterPopoverRef}
               data-state="open"
-              className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out"
+              className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-dropdown-below-enter"
             >
               <div className="px-4 pt-3 pb-2 text-sm font-semibold text-black/70 border-b border-[#eaeaea]">Filter by</div>
               <div
@@ -571,7 +571,7 @@ const ThreadsList = ({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                               align="end"
-                              className="min-w-[160px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom-2 duration-200 ease-out [&_svg]:text-black"
+                              className="min-w-[160px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] [&_svg]:text-black"
                               onClick={(e) => e.stopPropagation()}
                             >
                               {leadId && (

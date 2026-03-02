@@ -1769,7 +1769,7 @@ const MessageComposer = ({
                           <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         </button>
                         {phoneDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto animate-in slide-in-from-bottom-2 duration-200 ease-out">
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto animate-dropdown-below-enter">
                             {phoneNumbers.length === 0 ? (
                               <div className="p-3">
                                 <button
@@ -1858,7 +1858,7 @@ const MessageComposer = ({
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
                             {emailDropdownOpen && (
-                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 animate-in slide-in-from-bottom-2 duration-200 ease-out">
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 animate-dropdown-below-enter">
                                 <div className="max-h-44 overflow-y-auto">
                                   {emailAccounts.map((account) => (
                                     <div
@@ -2058,7 +2058,7 @@ const MessageComposer = ({
                               <CaretDown size={16} className="text-gray-400" />
                             </button>
                             {subjectVariablesDropdownOpen && (
-                              <div className="absolute z-50 right-0 mt-1 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-top-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px]">
+                              <div className="absolute z-50 right-0 mt-1 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-dropdown-below-enter max-h-60 overflow-hidden min-w-[200px]">
                                 <div
                                   ref={subjectVarListRef}
                                   className="relative flex flex-col py-0 max-h-[312px] overflow-auto"

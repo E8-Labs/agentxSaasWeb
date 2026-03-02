@@ -139,11 +139,21 @@ module.exports = {
           from: { transform: 'translateY(0) scale(1)', opacity: '1' },
           to: { transform: 'translateY(30px) scale(0.98)', opacity: '0' },
         },
+        dropdownBelowEnter: {
+          from: { transform: 'translateY(20px)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' },
+        },
+        dropdownBelowExit: {
+          from: { transform: 'translateY(0)', opacity: '1' },
+          to: { transform: 'translateY(20px)', opacity: '0' },
+        },
       },
       animation: {
         'modal-entry': 'modalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         'dropdown-cn-enter': 'dropdownCnEnter 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         'dropdown-cn-exit': 'dropdownCnExit 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'dropdown-below-enter': 'dropdownBelowEnter 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+        'dropdown-below-exit': 'dropdownBelowExit 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
       },
     },
   },

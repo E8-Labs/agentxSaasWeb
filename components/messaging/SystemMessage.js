@@ -456,7 +456,7 @@ const SystemMessage = ({
                                 <ChevronDown className="h-4 w-4 shrink-0" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] animate-in slide-in-from-bottom-2 duration-200 ease-out [&_svg]:text-black">
+                            <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] [&_svg]:text-black">
                               <DropdownMenuItem
                                 onClick={() => {
                                   setAiActionType('email')
