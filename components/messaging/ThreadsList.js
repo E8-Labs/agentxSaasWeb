@@ -303,7 +303,7 @@ const ThreadsList = ({
           onSelect={(opt) => opt?.onSelect?.()}
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
           triggerClassName="h-10 rounded-lg text-sm"
-          contentClassName="bg-white text-foreground text-sm border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl animate-dropdown-below-enter"
+          contentClassName="min-w-[180px] w-[180px] bg-white text-foreground text-sm border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl animate-dropdown-below-enter"
         />
 
         {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (

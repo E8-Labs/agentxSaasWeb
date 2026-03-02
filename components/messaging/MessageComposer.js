@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2 } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
@@ -228,6 +228,7 @@ const MessageComposer = ({
   const commentEditorRef = useRef(null)
   const commentEditorContainerRef = useRef(null)
   const composerContentRef = useRef(null)
+  const previousContentHeightRef = useRef(null)
   const [contentHeight, setContentHeight] = useState('auto')
   const [isTransitioning, setIsTransitioning] = useState(false)
 
@@ -355,8 +356,8 @@ const MessageComposer = ({
     else if (isMessenger) setComposerMode('facebook')
   }, [selectedThread?.id, selectedThread?.threadType, selectedThread?.lead?.instagramPsid, selectedThread?.lead?.messengerPsid])
 
-  // Smooth height transition when switching tabs
-  useEffect(() => {
+  // Smooth height transition when switching tabs: use previous content height as "from", then animate to new height.
+  useLayoutEffect(() => {
     if (!isExpanded || !composerContentRef.current) {
       setContentHeight('auto')
       setIsTransitioning(false)
@@ -365,66 +366,40 @@ const MessageComposer = ({
 
     const element = composerContentRef.current
     let timeoutId = null
-    let rafId1 = null
-    let rafId2 = null
+    let rafId = null
 
-    // Get the current height before any changes
-    const currentHeight = element.scrollHeight
+    // Use stored previous height as "from" (so we animate from old content height). Fallback to current scrollHeight if none.
+    const fromHeight = previousContentHeightRef.current != null && previousContentHeightRef.current > 0
+      ? previousContentHeightRef.current
+      : element.scrollHeight
 
-    // Set explicit height immediately to lock current height
-    setContentHeight(`${currentHeight}px`)
-
-    // Force a reflow to ensure the height is set
-    void element.offsetHeight
-
-    // Enable transition AFTER setting the initial height
+    setContentHeight(`${fromHeight}px`)
     setIsTransitioning(true)
 
-    // Wait for React to render the new content
-    // Use multiple requestAnimationFrame calls to ensure DOM has fully updated
-    rafId1 = requestAnimationFrame(() => {
-      rafId2 = requestAnimationFrame(() => {
-        // Force another reflow
-        void element.offsetHeight
+    rafId = requestAnimationFrame(() => {
+      const newHeight = composerContentRef.current ? composerContentRef.current.scrollHeight : fromHeight
+      setContentHeight(`${newHeight}px`)
 
-        // One more frame to ensure content is rendered
-        requestAnimationFrame(() => {
-          // Measure new content height after mode change
-          const newHeight = element.scrollHeight
-
-          // Only animate if heights are different (with small threshold for rounding)
-          if (Math.abs(newHeight - currentHeight) > 1) {
-            // Animate to new height
-            setContentHeight(`${newHeight}px`)
-
-            // Reset to auto after transition completes
-            timeoutId = setTimeout(() => {
-              if (composerContentRef.current) {
-                setContentHeight('auto')
-              }
-              setIsTransitioning(false)
-            }, 350) // Slightly longer than transition duration
-          } else {
-            // Heights are the same, no transition needed
-            setContentHeight('auto')
-            setIsTransitioning(false)
-          }
-        })
-      })
+      timeoutId = setTimeout(() => {
+        if (composerContentRef.current) {
+          setContentHeight('auto')
+        }
+        setIsTransitioning(false)
+      }, 350)
     })
 
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-      if (rafId1) {
-        cancelAnimationFrame(rafId1)
-      }
-      if (rafId2) {
-        cancelAnimationFrame(rafId2)
-      }
+      if (timeoutId) clearTimeout(timeoutId)
+      if (rafId) cancelAnimationFrame(rafId)
     }
   }, [composerMode, isExpanded])
+
+  // Persist current content height when not transitioning, so the transition effect can use it as "from" on next mode change.
+  useLayoutEffect(() => {
+    if (!isTransitioning && composerContentRef.current) {
+      previousContentHeightRef.current = composerContentRef.current.scrollHeight
+    }
+  }, [composerMode, isExpanded, isTransitioning])
 
   // Fetch team members for @ mentions
   useEffect(() => {
