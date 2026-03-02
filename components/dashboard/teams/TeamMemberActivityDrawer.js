@@ -793,6 +793,18 @@ function ActivityTimelineItem({ item, onLeadClick }) {
               </TypographyBody>
             )}
             {item.summary && <TypographyBody className="text-sm text-muted-foreground mt-1 line-clamp-3">{item.summary}</TypographyBody>}
+            {
+              item.metadata?.attachments?.length > 0 && (
+                <div className="text-sm text-muted-foreground mt-1">
+                  <span className="text-brand-primary underline cursor-pointer hover:opacity-90">
+                    Attachments:
+                  </span>
+                  {item.metadata?.attachments?.map((attachment) => (
+                    <span key={attachment.id}>{attachment?.url}</span>
+                  ))}
+                </div>
+              )
+            }
           </>
         )}
         {item.type === 'email' && (
@@ -890,6 +902,23 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                 )}
               </>
             )}
+            {
+              item.metadata?.attachments?.length > 0 && (
+                <button
+                  type="button"
+                  className="text-sm hover:text-brand-primary text-muted-foreground text-start mt-1 underline cursor-pointer hover:opacity-90"
+                  onClick={() => {
+                    item.metadata?.attachments?.map((attachment) => {
+                      window.open(attachment?.url, '_blank')
+                    })
+                  }}
+                >
+                  {item.metadata?.attachments?.map((attachment) => (
+                    <span key={attachment.id}>{attachment?.url}</span>
+                  ))}
+                </button>
+              )
+            }
           </>
         )}
         {item.type === 'sms' && (

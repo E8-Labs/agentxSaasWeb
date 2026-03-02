@@ -835,7 +835,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 {activeSubModalConfig.question && (
                   <p className="text-[14px] text-gray-600 mt-1">{activeSubModalConfig.question}</p>
                 )}
-                {subModalSelectedValue != null && (
+                {/*subModalSelectedValue != null && (
                   <button
                     type="button"
                     onClick={() => setSubModalSelectedValue(null)}
@@ -843,7 +843,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   >
                     Clear selection (save as none)
                   </button>
-                )}
+                )*/}
                 {activeSubModalConfig.options.map((opt) => {
                   const isOptSelected = subModalSelectedValue === opt.value
                   return (

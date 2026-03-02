@@ -12,6 +12,8 @@ export default function TeamsTabContent({ teamOptions = [], onToggle }) {
   const [pill, setPill] = useState({ top: 0, height: 0 })
   const [pillVisible, setPillVisible] = useState(false)
 
+  // console.log('🎯 [TeamsTabContent] Team options passed:', teamOptions)
+
   const handleListMouseMove = (e) => {
     const wrap = listWrapRef.current
     if (!wrap) return
@@ -41,7 +43,7 @@ export default function TeamsTabContent({ teamOptions = [], onToggle }) {
 
   return (
     <div className="p-2 rounded-lg">
-    <div ref={listWrapRef} className="relative max-h-[220px] overflow-y-hidden space-y-0.5" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
+    <div ref={listWrapRef} className="relative max-h-[220px] overflow-y-auto space-y-0.5" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
       {pillVisible && (
         <div
           className="absolute left-1 right-1 rounded-lg bg-black/[0.02] transition-[top,height] duration-150 ease-out pointer-events-none"

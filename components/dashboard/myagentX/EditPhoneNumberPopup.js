@@ -114,7 +114,7 @@ export const EditPhoneNumberModal = ({
             <PhoneInput
               className="outline-none bg-transparent focus:ring-0"
               country={'us'} // restrict to US only
-              onlyCountries={['us', 'mx','sv', 'ec']}
+              onlyCountries={['us', 'mx', 'sv', 'ec']}
               disableDropdown={true}
               countryCodeEditable={false}
               disableCountryCode={false}
@@ -160,7 +160,7 @@ export const EditPhoneNumberModal = ({
           {isTransfer && (
             <>
               <div style={{ fontSize: 16, fontWeight: '500', marginTop: 5 }}>
-                Message spoken during transfer
+                Transfer Phrase
               </div>
               <input
                 type="text"

@@ -33,6 +33,8 @@ import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatur
 import MessageSettingsModal from './MessageSettingsModal'
 import AiChatModal from './AiChatModal'
 import { messageMarkdownToHtml } from './messageMarkdown'
+import SuperHumanModal from './SuperHumanModal'
+import { PersistanceKeys } from '@/constants/Constants'
 
 /** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
 function plainTextToHtml(text) {
@@ -148,6 +150,24 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   // Ref to current drafts so AI Action callback can discard them before setting new drafts
   const draftsRef = useRef([])
 
+  //super human modal state
+  const [showSuperHumanModal, setShowSuperHumanModal] = useState(false);
+
+  //check if user has super human modal already shown
+  useEffect(() => {
+    const localData = localStorage.getItem(PersistanceKeys.SUPER_HUMAN_MODAL_STATE);
+    if (!localData) {
+      setShowSuperHumanModal(true)
+      return
+    }
+    const userData = JSON.parse(localData)
+    if (userData?.showModal === false) {
+      setShowSuperHumanModal(false)
+    } else {
+      setShowSuperHumanModal(true)
+    }
+  }, [])
+
   // Keep drafts ref in sync for use in handleGenerateCallSummaryDrafts
   useEffect(() => {
     draftsRef.current = drafts
@@ -231,9 +251,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const effectivePlanCapabilities = (selectedUser?.planCapabilities && typeof selectedUser.planCapabilities === 'object')
     ? selectedUser.planCapabilities
     : selfPlanCapabilities
-    console.log('effectivePlanCapabilities Messages.js', effectivePlanCapabilities)
-    console.log('allowEmails Messages.js', effectivePlanCapabilities?.allowEmails)
-    console.log('Selected User' , selectedUser)
+  console.log('effectivePlanCapabilities Messages.js', effectivePlanCapabilities)
+  console.log('allowEmails Messages.js', effectivePlanCapabilities?.allowEmails)
+  console.log('Selected User', selectedUser)
   // Check if user has access to messaging features (effective = viewed user when agency/admin viewing subaccount)
   const hasMessagingAccess = effectivePlanCapabilities?.allowEmails === true || effectivePlanCapabilities?.allowTextMessages === true
   // AI Email & Text plan flags for SystemMessage and for gating AI Message Settings modal
@@ -672,6 +692,68 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     },
     [selectedUser],
   )
+
+  // Optimistically update the thread list so the left sidebar shows the new message/time without a full refetch
+  const updateThreadPreviewAfterSend = useCallback((threadId, payload) => {
+    if (!threadId) return
+    const { content = '', messageType = 'sms', direction = 'outbound', subject } = payload
+    const now = new Date().toISOString()
+    const newMessage = {
+      id: `local-${Date.now()}`,
+      content: typeof content === 'string' ? content : (content || ''),
+      messageType,
+      direction,
+      createdAt: now,
+      ...(messageType === 'email' && subject != null && { subject: String(subject).trim() }),
+    }
+    setThreads((prev) =>
+      prev.map((t) => {
+        if (t.id !== threadId) return t
+        const existingMessages = t.messages || []
+        const newMessages = [newMessage, ...existingMessages.slice(0, 49)]
+        return {
+          ...t,
+          lastMessageAt: now,
+          messages: newMessages,
+        }
+      })
+    )
+  }, [])
+
+  // Update thread list when lead stage changes: refresh stage pill and set latest preview to "Stage changed from X to Y"
+  const updateThreadAfterStageChange = useCallback((threadId, { newStage, previousStageTitle }) => {
+    if (!threadId || !newStage) return
+    const now = new Date().toISOString()
+    const toStage = newStage.stageTitle || newStage
+    const previewContent = previousStageTitle
+      ? `Stage changed from **${previousStageTitle}** to **${toStage}** by AgentX`
+      : `Stage changed to **${toStage}** by AgentX`
+    const newMessage = {
+      id: `local-stage-${Date.now()}`,
+      content: previewContent,
+      messageType: 'system',
+      direction: 'inbound',
+      createdAt: now,
+    }
+    const pipelineStage = typeof newStage === 'object' ? { ...newStage, stageTitle: newStage.stageTitle || newStage } : { stageTitle: String(newStage) }
+    setThreads((prev) =>
+      prev.map((t) => {
+        if (t.id !== threadId) return t
+        const existingMessages = t.messages || []
+        const newMessages = [newMessage, ...existingMessages.slice(0, 49)]
+        return {
+          ...t,
+          lastMessageAt: now,
+          messages: newMessages,
+          lead: t.lead ? { ...t.lead, pipelineStage } : t.lead,
+        }
+      })
+    )
+    setSelectedThread((prev) => {
+      if (!prev || prev.id !== threadId) return prev
+      return { ...prev, lead: prev.lead ? { ...prev.lead, pipelineStage } : prev.lead }
+    })
+  }, [])
 
   const loadMoreThreads = useCallback(() => {
     if (loadingMoreThreads || !hasMoreThreads || loading) return
@@ -2145,12 +2227,17 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     const newMessage = res.data?.data?.message
     if (newMessage) {
       setMessages((prev) => [...prev, newMessage])
+      const previewContent = typeof newMessage.content === 'string' ? newMessage.content : (content || '').trim()
+      updateThreadPreviewAfterSend(threadId, {
+        content: previewContent,
+        messageType: newMessage.messageType || selectedThread?.threadType || 'messenger',
+        direction: 'outbound',
+      })
       setTimeout(() => {
         if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
       }, 100)
     }
-    // Do not refetch threads — only the current conversation was updated
-  }, [selectedUser?.id])
+  }, [selectedUser?.id, selectedThread?.threadType, updateThreadPreviewAfterSend])
 
   const fetchSocialConnections = useCallback(async () => {
     try {
@@ -2295,6 +2382,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
+          updateThreadPreviewAfterSend(selectedThread.id, {
+            content: messageBody,
+            messageType: 'sms',
+            direction: 'outbound',
+          })
           // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
@@ -2494,6 +2586,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
+          // Preview = email body (actual content), not subject
+          const emailBodyPreview = typeof messageBody === 'string'
+            ? messageBody.replace(/<[^>]*>/g, '').trim().slice(0, 80)
+            : ''
+          updateThreadPreviewAfterSend(selectedThread.id, {
+            content: emailBodyPreview || (composerData.subject?.trim() || 'Email sent'),
+            messageType: 'email',
+            direction: 'outbound',
+            subject: (composerData.subject && composerData.subject.trim()) ? composerData.subject.trim() : undefined,
+          })
           // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
@@ -3492,6 +3594,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       formatUnreadCount={formatUnreadCount}
                       getLeadName={getLeadName}
                       getThreadDisplayName={getThreadDisplayName}
+                      onStageChange={({ newStage, previousStageTitle }) => {
+                        if (selectedThread?.id) {
+                          updateThreadAfterStageChange(selectedThread.id, { newStage, previousStageTitle })
+                        }
+                      }}
                       onThreadUpdated={(updated) => {
                         if (updated?.id != null) {
                           setSelectedThread((prev) =>
@@ -3617,18 +3724,64 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           // If new message is provided, add it to messages and refresh
                           if (newMessage) {
                             setMessages((prev) => [...prev, newMessage])
+                            const content = (newMessage.content && typeof newMessage.content === 'string')
+                              ? newMessage.content.replace(/<[^>]*>/g, '').trim()
+                              : ''
+                            if (selectedThread?.id && content) {
+                              updateThreadPreviewAfterSend(selectedThread.id, {
+                                content: content.slice(0, 80),
+                                messageType: newMessage.messageType || 'comment',
+                                direction: 'outbound',
+                              })
+                            }
                             setTimeout(() => {
                               if (messagesEndRef.current) {
                                 messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
                               }
                             }, 100)
                           }
-                          // Do not refetch threads on every send/comment
                         }}
                         selectedUser={selectedUser}
                         searchLoading={searchLoading}
                       />
                     </div>
+
+                    {/* Super Human Modal */}
+                    {
+                      showSuperHumanModal && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: 15,
+                            right: 10,
+                            width: '300px',
+                            height: '440px',
+                            zIndex: 1000,
+                            borderRadius: "25px",
+                            backgroundColor: "white",
+                            boxShadow: "0 0 15px 0 rgba(0, 0, 0, 0.2)",
+                            padding: 10,
+                            paddingInline: 15
+                          }}
+                        >
+                          <SuperHumanModal
+                            open={showSuperHumanModal}
+                            onClose={() => {
+                              const d = {
+                                showModal: false
+                              }
+                              localStorage.setItem(PersistanceKeys.SUPER_HUMAN_MODAL_STATE, JSON.stringify(d))
+                              setShowSuperHumanModal(false)
+                            }}
+                            onStart={() => {
+                              // setShowSuperHumanModal(false)
+                              handleOpenMessageSettings()
+                            }}
+                          />
+                        </div>
+                      )
+                    }
+
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
