@@ -2,53 +2,51 @@
 
 import axios from 'axios'
 import DOMPurify from 'dompurify'
-import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
-import { agencyPrivacyPolicyUrl } from '@/constants/Constants'
+import { agencyTermsAndConditionUrl } from '@/constants/Constants'
 
-/**
- * Agency privacy page by UUID. Used when agency has no custom domain
- * (links are baseurl/agency/[agencyUUID]/privacy).
- */
-function PrivacyPage() {
-  const params = useParams()
-  const [privacyText, setPrivacyText] = useState(null)
+function TermsPage() {
+  const [termsText, setTermsText] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const agencyUUID = params?.agencyUUID
 
   useEffect(() => {
-    if (agencyUUID) {
-      fetchPrivacyText()
-    }
-  }, [agencyUUID])
+    fetchTermsText()
+  }, [])
 
-  const fetchPrivacyText = async () => {
+  const fetchTermsText = async () => {
+    if (typeof window === 'undefined') return
+    const domain = window.location.host
+    if (!domain) {
+      setLoading(false)
+      window.location.href = agencyTermsAndConditionUrl
+      return
+    }
     try {
       setLoading(true)
       setError(null)
 
-      const response = await axios.get(Apis.getAgencyPrivacyByUUID, {
-        params: { agencyUUID },
+      const response = await axios.get(Apis.getAgencyTermsByDomain, {
+        params: { domain },
       })
 
       if (response?.data?.status === true) {
-        const customPrivacyText = response.data.data?.privacyText
-        if (customPrivacyText) {
-          setPrivacyText(customPrivacyText)
+        const customTermsText = response.data.data?.termsText
+        if (customTermsText) {
+          setTermsText(customTermsText)
         } else {
-          window.location.href = agencyPrivacyPolicyUrl
+          window.location.href = agencyTermsAndConditionUrl
           return
         }
       } else {
-        window.location.href = agencyPrivacyPolicyUrl
+        window.location.href = agencyTermsAndConditionUrl
         return
       }
     } catch (err) {
-      console.error('Error fetching privacy text:', err)
-      window.location.href = agencyPrivacyPolicyUrl
+      console.error('Error fetching terms text:', err)
+      window.location.href = agencyTermsAndConditionUrl
       return
     } finally {
       setLoading(false)
@@ -60,23 +58,23 @@ function PrivacyPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading privacy policy...</p>
+          <p className="mt-4 text-gray-600">Loading terms & conditions...</p>
         </div>
       </div>
     )
   }
 
-  if (error || !privacyText) {
+  if (error || !termsText) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-gray-600">Redirecting to privacy policy...</p>
+          <p className="text-gray-600">Redirecting to terms & conditions...</p>
         </div>
       </div>
     )
   }
 
-  const sanitizedContent = DOMPurify.sanitize(privacyText, {
+  const sanitizedContent = DOMPurify.sanitize(termsText, {
     ALLOWED_TAGS: [
       'p',
       'br',
@@ -112,4 +110,4 @@ function PrivacyPage() {
   )
 }
 
-export default PrivacyPage
+export default TermsPage

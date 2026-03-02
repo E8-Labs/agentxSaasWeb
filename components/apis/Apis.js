@@ -399,8 +399,11 @@ const Apis = {
   lookupAgencyByDomain: `${BasePath}api/agency/lookup-by-domain`,
   updateAgencyTermsPrivacy: `${BasePath}api/agency/branding/terms-privacy`,
   getAgencyTermsByUUID: `${BasePath}api/agency/getTermsByUUID`,
+  getAgencyTermsByDomain: `${BasePath}api/agency/getTermsByDomain`,
   getAgencyPrivacyByUUID: `${BasePath}api/agency/getPrivacyByUUID`,
+  getAgencyPrivacyByDomain: `${BasePath}api/agency/getPrivacyByDomain`,
   getAgencyCancellationByUUID: `${BasePath}api/agency/getCancellationByUUID`,
+  getAgencyCancellationByDomain: `${BasePath}api/agency/getCancellationByDomain`,
 
   // Agency Global Phone Number APIs
   getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,

@@ -2,14 +2,18 @@
 
 import axios from 'axios'
 import DOMPurify from 'dompurify'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import { agencyCancellationAndRefundUrl } from '@/constants/Constants'
 
+/**
+ * Agency cancellation page by UUID. Used when agency has no custom domain
+ * (links are baseurl/agency/[agencyUUID]/cancellation).
+ */
 function CancellationPage() {
   const params = useParams()
-  const router = useRouter()
   const [cancellationText, setCancellationText] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -27,31 +31,24 @@ function CancellationPage() {
       setError(null)
 
       const response = await axios.get(Apis.getAgencyCancellationByUUID, {
-        params: {
-          agencyUUID: agencyUUID,
-        },
+        params: { agencyUUID },
       })
 
       if (response?.data?.status === true) {
         const customCancellationText = response.data.data?.cancellationText
-
         if (customCancellationText) {
-          // Agency has custom cancellation text
           setCancellationText(customCancellationText)
         } else {
-          // No custom text, redirect to default URL
-          window.location.href = 'https://www.assignx.ai/agency-cancellation'
+          window.location.href = agencyCancellationAndRefundUrl
           return
         }
       } else {
-        // Agency not found or error, redirect to default
-        window.location.href = 'https://www.assignx.ai/agency-cancellation'
+        window.location.href = agencyCancellationAndRefundUrl
         return
       }
     } catch (err) {
       console.error('Error fetching cancellation text:', err)
-      // On error, redirect to default URL
-      window.location.href = 'https://www.assignx.ai/agency-cancellation'
+      window.location.href = agencyCancellationAndRefundUrl
       return
     } finally {
       setLoading(false)
@@ -79,7 +76,6 @@ function CancellationPage() {
     )
   }
 
-  // Sanitize HTML content
   const sanitizedContent = DOMPurify.sanitize(cancellationText, {
     ALLOWED_TAGS: [
       'p',
@@ -117,6 +113,3 @@ function CancellationPage() {
 }
 
 export default CancellationPage
-
-
-
