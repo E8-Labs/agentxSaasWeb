@@ -903,16 +903,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       paddingTop: '6px',
                       paddingBottom: '6px',
                       gap: 'clamp(5px, 1.2vw, 10px)',
+                      WebkitOverflowScrolling: 'touch',
                     }}
                   >
                     <div
-                      className="flex flex-row items-center min-w-full"
+                      className="flex flex-row items-center flex-nowrap flex-shrink-0"
                       style={{ gap: 'clamp(5px, 1.2vw, 10px)' }}
                     >
                       {previousNumber.map((item, index) => (
                         <button
                           key={index}
-                          className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
+                          className="flex flex-row items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0"
                           style={{
                             ...styles.callBackStyles,
                             width: 'clamp(100px, 22vw, 220px)',
@@ -935,10 +936,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         </button>
                       ))}
                       <button
-                        className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
+                        className="flex flex-row items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0"
                         style={{
                           ...styles.callBackStyles,
-                          width: 'clamp(100px, 22vw, 200px)',
+                          // width: 'clamp(100px, 22vw, 200px)',
                           height: 'clamp(30px, 35px, 40px)',
                           fontSize: 'clamp(9px, 1.8vw, 13px)',
                           border: useOfficeNumber

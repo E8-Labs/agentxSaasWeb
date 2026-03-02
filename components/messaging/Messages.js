@@ -54,6 +54,14 @@ function stripHTML(html) {
   return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
 }
 
+/** Convert HTML to plain text with spaces at block boundaries (matches ThreadsList preview). */
+function htmlToPreviewText(html) {
+  if (!html || typeof html !== 'string') return ''
+  let out = html.replace(/<\s*\/?(?:p|div|br|tr|li|h[1-6])\s*[^>]*>/gi, ' ')
+  out = out.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+  return out
+}
+
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
   const THREADS_PAGE_SIZE = 50
@@ -2586,9 +2594,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
-          // Preview = email body (actual content), not subject
+          // Preview = email body with spaces at block boundaries (match ThreadsList)
           const emailBodyPreview = typeof messageBody === 'string'
-            ? messageBody.replace(/<[^>]*>/g, '').trim().slice(0, 80)
+            ? htmlToPreviewText(messageBody).slice(0, 80)
             : ''
           updateThreadPreviewAfterSend(selectedThread.id, {
             content: emailBodyPreview || (composerData.subject?.trim() || 'Email sent'),
@@ -3725,7 +3733,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           if (newMessage) {
                             setMessages((prev) => [...prev, newMessage])
                             const content = (newMessage.content && typeof newMessage.content === 'string')
-                              ? newMessage.content.replace(/<[^>]*>/g, '').trim()
+                              ? htmlToPreviewText(newMessage.content)
                               : ''
                             if (selectedThread?.id && content) {
                               updateThreadPreviewAfterSend(selectedThread.id, {
