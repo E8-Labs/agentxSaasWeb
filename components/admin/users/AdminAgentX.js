@@ -5337,7 +5337,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           : 'Call Transfer Number'
                       }
                       loading={loading}
-                      update={async (value) => {
+                      isTransfer={selectedNumber === 'Calltransfer'}
+                      transferMessage={showDrawerSelectedAgent?.liveTransferMessage}
+                      update={async (value, transferMessage) => {
                         let data = ''
                         if (selectedNumber === 'Callback') {
                           data = {
@@ -5346,6 +5348,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         } else {
                           data = {
                             liveTransferNumber: value,
+                            ...(transferMessage !== undefined && {
+                              liveTransferMessage: transferMessage,
+                            }),
                           }
                         }
                         //console.log;

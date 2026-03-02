@@ -1153,7 +1153,7 @@ function SelectedUserDetails({
                     embedded
                   />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
-                  <Messages selectedUser={selectedUser} agencyUser={enablePermissionChecks} from={from} />
+                  <Messages selectedUser={user ?? selectedUser} agencyUser={enablePermissionChecks} from={from} />
                 ) : (
                   'Coming soon...'
                 )}

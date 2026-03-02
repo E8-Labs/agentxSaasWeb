@@ -76,6 +76,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     useState(false)
 
   const [callBackNumber, setCallBackNumber] = useState('')
+  const [liveTransferMessage, setLiveTransferMessage] = useState(
+    'Let me connect you to a live agent',
+  )
   const [countryCode, setCountryCode] = useState('us')
   const [assignLoader, setAssignLoader] = useState(false)
   const [shouldContinue, setShouldContinue] = useState(true)
@@ -484,6 +487,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       formData.append('liveTransferNumber', callBackNumber)
       formData.append('mainAgentId', MyAgentData.id)
       formData.append('liveTransfer', !toggleClick)
+      if (!toggleClick && liveTransferMessage?.trim()) {
+        formData.append(
+          'liveTransferMessage',
+          liveTransferMessage.trim(),
+        )
+      }
 
       const ApiPath = Apis.asignPhoneNumber
 
@@ -1085,6 +1094,29 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         >
                           {errorMessage}
                         </div>
+                        <div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: '500',
+                            marginTop: 16,
+                            width: '100%',
+                          }}
+                        >
+                          Message spoken during transfer
+                        </div>
+                        <input
+                          type="text"
+                          value={liveTransferMessage}
+                          onChange={(e) =>
+                            setLiveTransferMessage(e.target.value)}
+                          placeholder="e.g. Let me connect you to a live agent"
+                          className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:ring-0 mt-1"
+                          style={{
+                            border: '1px solid #00000020',
+                            borderRadius: '7px',
+                          }}
+                          maxLength={500}
+                        />
                       </div>
                       <div className="flex flex-row items-center gap-4 justify-start w-full">
                         <button onClick={handleToggleClick}>
