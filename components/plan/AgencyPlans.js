@@ -212,13 +212,18 @@ function AgencyPlans({
     setTogglePlan(item.id)
     // setSelectedPlan((prevId) => (prevId === item ? null : item));
     setSelectedPlan(item)
+    
     if (selectedDuration.id === 3) {
+      setAddPaymentPopUp(true)
+      return
       handleSubscribePlan(item)
       return
     }
     if (isContinueMonthly === false) {
       checkCanSelectYearly()
     } else if (isContinueMonthly === true) {
+      setAddPaymentPopUp(true)
+      return
       handleSubscribePlan(item)
     }
   }
@@ -226,6 +231,7 @@ function AgencyPlans({
   //close add card popup
   const handleClose = async (data) => {
     if (data) {
+      console.log('data passed back is', data)
       const userProfile = await getProfileDetails()
       // Clear failure state when card is successfully added
       setSubscriptionPaymentFailed(false)
@@ -503,6 +509,8 @@ function AgencyPlans({
   }
 
   const handleContinueClick = async () => {
+
+    console.log('handleContinueClick is triggered')
     
     if (!selectedPlan) return
 
@@ -525,11 +533,14 @@ function AgencyPlans({
     const isFreePlan = getTotalPrice(selectedPlan) === 0
 
     if (isFreePlan) {
-      await handleSubscribePlan(selectedPlan.id)
+      console.log('isFreePlan is true, subscribing to plan')
+      // await handleSubscribePlan(selectedPlan.id)
     } else {
       if (hasPM()) {
-        await handleSubscribePlan(selectedPlan.id)
+        console.log('hasPM is true, subscribing to plan')
+        // await handleSubscribePlan(selectedPlan.id)
       } else {
+        console.log('hasPM is false, showing add payment popup')
         setAddPaymentPopUp(true)
       }
     }
