@@ -104,7 +104,6 @@ import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
 import { isPlanActive } from '@/components/userPlans/UserPlanServices'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
-import { isPlanActive } from '@/components/userPlans/UserPlanServices'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
