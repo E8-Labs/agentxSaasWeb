@@ -612,7 +612,7 @@ const UserAddCard = ({
     <div style={{ width: '100%' }}>
       {isSmallScreen ? (
         // Mobile Layout - Matching AgencyAddCard design
-        (<div className="flex flex-col items-center h-screen w-full overflow-y-auto bg-gray-100">
+        <div className="flex flex-col items-center h-screen w-full overflow-y-auto bg-gray-100">
           <SignupHeaderMobile
             title={reduxUser?.userRole == 'Agency' ? "Get an AI AaaS Agency" : "Grow Your Business"}
             description={reduxUser?.userRole == 'Agency' || reduxUser?.userRole == 'AgencySubAccount' ? "Gets more done than coffee. Cheaper too.😉" : "Gets more done than coffee. Cheaper too. Cancel anytime.😉"}
@@ -945,10 +945,10 @@ const UserAddCard = ({
               </button>
             </div>
           </div>
-        </div>)
+        </div>
       ) : (
         // Desktop Layout
-        (<div
+        <div
           className={`w-full flex flex-row items-start gap-6`}
           style={{ backgroundColor: 'transparent' }}
         >
@@ -1423,7 +1423,7 @@ const UserAddCard = ({
               </div>
             </div>
           )}
-        </div>)
+        </div>
       )}
     </div>
   );
