@@ -234,6 +234,47 @@ input[type="date"]::-moz-datetime-edit-year-field {
       transform: translateY(0);
     }
   }
+  @keyframes date-picker-drop-exit {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+
+  /* Airbnb-style 3-dot loader (e.g. Leads upload modal) */
+  .loader-dots-three {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .loader-dots-three span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: hsl(var(--brand-primary));
+    animation: loader-dot-bounce 0.6s ease-in-out infinite alternate;
+  }
+  .loader-dots-three span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .loader-dots-three span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  @keyframes loader-dot-bounce {
+    from {
+      transform: translateY(0);
+      opacity: 0.6;
+    }
+    to {
+      transform: translateY(-6px);
+      opacity: 1;
+    }
+  }
 
   /* Prevent any black space at top - ensure body and html are white */
   html, body {

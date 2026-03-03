@@ -5,16 +5,13 @@ import {
   Switch,
   Tooltip,
 } from '@mui/material'
-// import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { Calendar, Phone } from 'lucide-react'
+import { Calendar, Info, Phone } from 'lucide-react'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
-// Import Day.js
 import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -30,6 +27,7 @@ import { getAgentImage } from '@/utilities/agentUtilities'
 
 import { Checkbox } from '@/components/ui/checkbox'
 
+import { DateAndTimeFields } from './DateAndTimeFields'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../AgentSelectSnackMessage'
@@ -99,7 +97,7 @@ const LastStep = ({
   const [errTitle, setErrTitle] = useState(null)
   const SelectAgentErrorTimeout = 4000 //change this to change the duration of the snack timer
 
-  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false)
+  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(true)
   const [isDncChecked, setIsDncChecked] = useState(false)
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
     useState(false)
@@ -129,7 +127,7 @@ const LastStep = ({
   //select call
   const [selectedFromDate, setSelectedFromDate] = useState(null)
   const [showFromDatePicker, setShowFromDatePicker] = useState(false)
-  const [selectedDateTime, setSelectedDateTime] = useState(null)
+  const [selectedDateTime, setSelectedDateTime] = useState(() => dayjs().startOf('day'))
   const [CallNow, setCallNow] = useState('')
   const [CallLater, setCallLater] = useState(false)
   const [isRefill, setIsRefill] = useState(false)
@@ -166,7 +164,7 @@ const LastStep = ({
       setNoOfLeadsToSend(numberOfLeads)
       setCustomLeadsToSend(cutomLeads)
       setCallNow(isCallNow)
-      setIsDncChecked(DncChecked)
+      setIsDncChecked(!!DncChecked)
       setCallLater(callL)
 
       if (cutomLeads) setisFocustedCustomLeads(true)
@@ -425,8 +423,13 @@ const LastStep = ({
                 Check DNC List
               </div>
             </Tooltip>
+            <Info
+              size={16}
+              style={{ color: 'rgba(0,0,0,0.7)', flexShrink: 0 }}
+              aria-hidden
+            />
             <Switch
-              checked={isDncChecked}
+              checked={!!isDncChecked}
               onChange={(event) => {
                 if (
                   userLocalDetails?.planCapabilities.maxDNCChecks >=
@@ -573,7 +576,7 @@ const LastStep = ({
                   setShowFromDatePicker(!showFromDatePicker)
                   setCallNow('')
                   setCallLater(true)
-                  setSelectedDateTime(dayjs())
+                  setSelectedDateTime(dayjs().startOf('day'))
                   setHasUserSelectedDate(true)
                   setIsDisabled(false)
                 }}
@@ -633,103 +636,13 @@ const LastStep = ({
                         <div className="text-center text-xl font-bold">
                           Select date and time to schedule call
                         </div>
-                        <div className="w-full mt-4 flex flex-row justify-center">
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                              value={selectedDateTime}
-                              minDateTime={dayjs().tz(userProfile.timeZone)}
-                              onChange={handleDateChange}
-                              slotProps={{
-                                textField: {
-                                  variant: 'outlined',
-                                  fullWidth: true,
-                                  size: 'small',
-                                  sx: {
-                                    '& .MuiOutlinedInput-root': {
-                                      minHeight: 40,
-                                      height: 40,
-                                      borderRadius: '8px',
-                                      backgroundColor: '#F9FAFB',
-                                      fontSize: 14,
-                                      fontWeight: 500,
-                                      color: '#111827',
-                                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
-                                      '& fieldset': {
-                                        borderColor: hasUserSelectedDate ? brandPrimaryColor : '#E5E7EB',
-                                        borderWidth: '1px',
-                                      },
-                                      '&:hover fieldset': {
-                                        borderColor: hasUserSelectedDate ? brandPrimaryColor : '#D1D5DB',
-                                      },
-                                      '&:hover': {
-                                        backgroundColor: '#FFFFFF',
-                                      },
-                                      '&.Mui-focused fieldset': {
-                                        borderColor: 'hsl(var(--brand-primary))',
-                                        borderWidth: '1px',
-                                      },
-                                      '&.Mui-focused': {
-                                        boxShadow: '0 0 0 2px hsl(var(--brand-primary) / 0.2)',
-                                        backgroundColor: '#FFFFFF',
-                                      },
-                                    },
-                                  },
-                                },
-                                popper: {
-                                  sx: {
-                                    '& .MuiPaper-root': {
-                                      borderRadius: 12,
-                                      boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
-                                      border: '1px solid #eaeaea',
-                                      animation: 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-                                    },
-                                  },
-                                },
-                              }}
-                              sx={{
-                                '& .MuiPickersDay-root.Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: 'white !important',
-                                },
-                                '& .MuiPickersDay-root:hover': {
-                                  backgroundColor: `${brandPrimaryColor}CC !important`,
-                                },
-                                '& .Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: '#fff !important',
-                                },
-                                '& .MuiClock-pin': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiClockPointer-root': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiClockPointer-thumb': {
-                                  borderColor: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiPickersToolbar-root': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiTypography-root': {
-                                  color: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiPickersTimeClock-root .Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: 'white !important',
-                                },
-                                '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover': {
-                                  backgroundColor: `${brandPrimaryColor}CC !important`,
-                                },
-                                '& .MuiTimeClock-root .Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: 'white !important',
-                                },
-                                '& .MuiTimeClock-root .MuiButtonBase-root:hover': {
-                                  backgroundColor: `${brandPrimaryColor}CC !important`,
-                                },
-                              }}
-                            />
-                          </LocalizationProvider>
+                        <div className="w-full mt-4 flex flex-row justify-center max-w-md">
+                          <DateAndTimeFields
+                            value={selectedDateTime}
+                            onChange={handleDateChange}
+                            minDate={userProfile?.timeZone ? dayjs().tz(userProfile.timeZone) : dayjs()}
+                            error={false}
+                          />
                         </div>
                         <div className="w-full flex flex-row justify-center mt-6">
                           <button
@@ -752,97 +665,17 @@ const LastStep = ({
           </div>
 
           {CallLater && (
-            <div>
-              <div
-                className="mt-4"
-                style={{
-                  fontWeight: '500',
-                  fontsize: 12,
-                  color: '#00000050',
-                }}
-              >
+            <div className="px-4">
+              <div className="mt-4 start-campaign-label">
                 Select date & time
               </div>
               <div className="mt-2 w-full">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker
-                    minDateTime={dayjs()}
-                    value={selectedDateTime}
-                    minDate={dayjs()}
-                    onChange={handleDateChange}
-                    slotProps={{
-                      textField: {
-                        variant: 'outlined',
-                        error: isDisabled,
-                        sx: {
-                          '& .MuiOutlinedInput-root': {
-                            minHeight: 40,
-                            height: 40,
-                            borderRadius: '8px',
-                            backgroundColor: '#F9FAFB',
-                            fontSize: 14,
-                            fontWeight: 500,
-                            color: '#111827',
-                            transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
-                            '& fieldset': {
-                              borderColor: hasUserSelectedDate ? brandPrimaryColor : '#E5E7EB',
-                              borderWidth: '1px',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: hasUserSelectedDate ? brandPrimaryColor : '#D1D5DB',
-                            },
-                            '&:hover': {
-                              backgroundColor: '#FFFFFF',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'hsl(var(--brand-primary))',
-                              borderWidth: '1px',
-                            },
-                            '&.Mui-focused': {
-                              boxShadow: '0 0 0 2px hsl(var(--brand-primary) / 0.2)',
-                              backgroundColor: '#FFFFFF',
-                            },
-                          },
-                        },
-                      },
-                      popper: {
-                        sx: {
-                          '& .MuiPaper-root': {
-                            borderRadius: 12,
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
-                            border: '1px solid #eaeaea',
-                            animation: 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-                          },
-                        },
-                      },
-                    }}
-                    sx={{
-                      '& .MuiPickersDay-root.Mui-selected': {
-                        backgroundColor: `${brandPrimaryColor} !important`,
-                        color: 'white !important',
-                      },
-                      '& .MuiPickersDay-root:hover': {
-                        backgroundColor: `${brandPrimaryColor}CC !important`,
-                      },
-                      '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
-                        color: '#333 !important',
-                      },
-                      '& .Mui-selected': {
-                        backgroundColor: `${brandPrimaryColor} !important`,
-                        color: '#fff !important',
-                      },
-                      '& .MuiClock-pin': {
-                        backgroundColor: `${brandPrimaryColor} !important`,
-                      },
-                      '& .MuiClockPointer-root': {
-                        backgroundColor: `${brandPrimaryColor} !important`,
-                      },
-                      '& .MuiClockPointer-thumb': {
-                        borderColor: `${brandPrimaryColor} !important`,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
+                <DateAndTimeFields
+                  value={selectedDateTime}
+                  onChange={handleDateChange}
+                  minDate={dayjs()}
+                  error={isDisabled}
+                />
               </div>
             </div>
           )}

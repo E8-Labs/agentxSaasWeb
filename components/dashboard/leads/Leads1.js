@@ -12,7 +12,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { CaretDown, CaretUp } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, Check } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
@@ -55,11 +55,15 @@ function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout 
 
   useEffect(() => {
     if (inProp) {
-      setStage('entering')
-      onEnter?.()
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = requestAnimationFrame(() => setStage('entered'))
-      })
+      // Only run enter animation when not already fully entered.
+      // Avoids re-triggering "entering" on parent re-renders (e.g. typing in List Name input).
+      if (stage !== 'entered') {
+        setStage('entering')
+        onEnter?.()
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = requestAnimationFrame(() => setStage('entered'))
+        })
+      }
       return () => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current)
       }
@@ -112,6 +116,7 @@ const Leads1 = () => {
   const [SelectedFile, setSelectedFile] = useState(null)
   const [selectedfileLoader, setSelectedfileLoader] = useState(false)
   const [ShowUploadLeadModal, setShowUploadLeadModal] = useState(false)
+  const [uploadContentLoading, setUploadContentLoading] = useState(false)
   const [columnAnchorEl, setcolumnAnchorEl] = React.useState(null)
   const [selectedItem, setSelectedItem] = useState(null)
   const [UpdateHeader, setUpdateHeader] = useState(null)
@@ -194,6 +199,7 @@ const Leads1 = () => {
     //console.log;
     if (ShowUploadLeadModal == false) {
       //console.log;
+      setUploadContentLoading(false)
       setSelectedFile(null)
       setSheetName('')
       setProcessedData([])
@@ -308,20 +314,11 @@ const Leads1 = () => {
   }, [showPopUp])
 
   useEffect(() => {
-    try {
-      setSelectedfileLoader(true)
-      if (SelectedFile) {
-        const timer = setTimeout(() => {
-          setShowUploadLeadModal(true)
-          setShowAddLeadModal(false)
-          setSelectedFile(null)
-        }, 1000)
-        return () => clearTimeout(timer)
-      }
-    } catch (error) {
-      // console.error("Error occured in selecting file is :", error);
-    } finally {
-      setSelectedfileLoader(false)
+    if (SelectedFile?.length) {
+      setShowUploadLeadModal(true)
+      setShowAddLeadModal(false)
+      setUploadContentLoading(true)
+      setSelectedFile(null)
     }
   }, [SelectedFile])
 
@@ -930,8 +927,10 @@ const Leads1 = () => {
           setOriginalTransformedData(transformedData) // Store original unfiltered data for re-validation
           setNewColumnsObtained(mappedColumns) // Store the column mappings
         }
+        setUploadContentLoading(false)
       }
 
+      reader.onerror = () => setUploadContentLoading(false)
       reader.readAsBinaryString(file)
     },
     [LeadDefaultColumns],
@@ -1636,29 +1635,14 @@ const Leads1 = () => {
                 {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
               </div>
             </div>
-            <Modal
-              open={SelectedFile}
-              // onClose={() => setShowAddLeadModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: '#00000020',
-                  // //backdropFilter: "blur(2px)",
-                },
-              }}
-            >
+            {/* Legacy fullscreen loader removed: upload modal opens instantly with in-modal 3-dot loader */}
+            <Modal open={false} aria-hidden>
               <Box
                 className="lg:w-6/12 sm:w-9/12 w-10/12"
                 sx={styles.modalsStyle}
               >
                 <div className="w-full flex flex-row items-center justify-center">
-                  <CircularProgress
-                    className="text-brand-primary"
-                    size={150}
-                    weight=""
-                    thickness={1}
-                  />
+                  <CircularProgress size={150} thickness={1} />
                 </div>
               </Box>
             </Modal>
@@ -1679,7 +1663,7 @@ const Leads1 = () => {
           }}
         >
           <ScaleFadeTransition in={ShowUploadLeadModal} timeout={250}>
-          <Box className="lg:w-7/12 sm:w-10/12 w-10/12" sx={styles.modalsStyle}>
+            <Box className="lg:w-7/12 sm:w-10/12 w-10/12" sx={styles.modalsStyle}>
             <div className="flex flex-row justify-center w-full" style={{ height: 'auto' }}>
               <div
                 className="w-full flex flex-col"
@@ -1708,6 +1692,20 @@ const Leads1 = () => {
                   />
                 </div>
 
+                {uploadContentLoading ? (
+                  <div
+                    className="flex flex-1 items-center justify-center"
+                    style={{ minHeight: 600 }}
+                    aria-busy="true"
+                    aria-label="Loading file"
+                  >
+                    <div className="loader-dots-three">
+                      <span aria-hidden />
+                      <span aria-hidden />
+                      <span aria-hidden />
+                    </div>
+                  </div>
+                ) : (
                 <div className="flex flex-col" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingLeft: 16, paddingRight: 16 }}>
                 <div
                   className="flex flex-row items-center justify-between gap-2"
@@ -1793,7 +1791,6 @@ const Leads1 = () => {
                     }}
                     placeholder="Enter sheet name"
                   />
-                </div>
                 </div>
 
                 <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
@@ -2009,8 +2006,10 @@ const Leads1 = () => {
                 {/* Can be use full to add shadow */}
                 {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
               </div>
+                )}
             </div>
-          </Box>
+            </div>
+            </Box>
           </ScaleFadeTransition>
         </Modal>
 
@@ -2105,8 +2104,7 @@ const Leads1 = () => {
           </Box>
         </Modal>
 
-        {/* Not matched Columns popover */}
-
+        {/* Not matched Columns popover – Firecrawl-style dropdown */}
         <Popover
           id={id}
           open={open}
@@ -2118,67 +2116,113 @@ const Leads1 = () => {
           }}
           transformOrigin={{
             vertical: 'top',
-            horizontal: 'center', // Ensures the Popover's top right corner aligns with the anchor point
+            horizontal: 'center',
+          }}
+          slotProps={{
+            root: {
+              sx: { zIndex: 9999 },
+            },
           }}
           PaperProps={{
-            elevation: 1, // This will remove the shadow
-            style: {
-              boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
+            elevation: 0,
+            sx: {
+              border: '1px solid #eaeaea',
+              borderRadius: '12px',
+              boxShadow: '0 4px 30px rgba(0,0,0,0.15)',
               maxHeight: '400px',
               overflowY: 'auto',
+              animation: 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
             },
           }}
         >
-          <div className="w-[170px]" style={styles.paragraph}>
+          <div
+            className="w-[200px] py-1"
+            style={{
+              fontSize: 14,
+              fontWeight: 400,
+              color: 'rgba(0,0,0,0.8)',
+            }}
+          >
             <div>
-              <div className="flex flex-col text-start">
+              <div className="flex flex-col text-start gap-0.5 px-1">
                 {GetDefaultColumnsNotMatched()
                   .filter((item) => !item.isUniqueColumn)
                   .map((item, index) => {
+                    const selected =
+                      UpdateHeader &&
+                      (UpdateHeader.matchedColumn?.UserFacingName || UpdateHeader.UserFacingName) === item.UserFacingName
                     return (
                       <button
-                        className="text-start hover:bg-[#402FFF10] p-2"
+                        type="button"
+                        className={selected
+                          ? 'flex flex-row items-center justify-between w-full rounded-lg px-3 py-2 transition-colors duration-200'
+                          : 'flex flex-row items-center justify-between w-full rounded-lg px-3 py-2 hover:bg-black/[0.04] transition-colors duration-200'}
                         key={`default-${index}`}
+                        style={{
+                          backgroundColor: selected ? 'hsl(var(--brand-primary) / 0.08)' : undefined,
+                          color: selected ? 'hsl(var(--brand-primary))' : 'rgba(0,0,0,0.8)',
+                          fontSize: 14,
+                          fontWeight: 400,
+                        }}
                         onClick={() => {
                           ChangeColumnName(item.UserFacingName)
                         }}
                       >
-                        {item.UserFacingName}
+                        <span className="truncate text-left">{item.UserFacingName}</span>
+                        {selected && (
+                          <Check size={16} weight="bold" className="shrink-0 ml-2" style={{ color: 'hsl(var(--brand-primary))' }} aria-hidden />
+                        )}
                       </button>
                     )
                   })}
               </div>
-              {GetDefaultColumnsNotMatched().filter((item) => item.isUniqueColumn)
-                .length > 0 && (
-                  <>
-                    <div
-                      className="text-xs text-gray-500 px-2 py-1 mt-1"
-                      style={{ fontSize: 12, fontWeight: '600' }}
-                    >
-                      Custom Columns
-                    </div>
-                    <div className="flex flex-col text-start">
-                      {GetDefaultColumnsNotMatched()
-                        .filter((item) => item.isUniqueColumn)
-                        .map((item, index) => {
-                          return (
-                            <button
-                              className="text-start hover:bg-[#402FFF10] p-2"
-                              key={`unique-${index}`}
-                              onClick={() => {
-                                ChangeColumnName(item.UserFacingName)
-                              }}
-                            >
-                              {item.UserFacingName}
-                            </button>
-                          )
-                        })}
-                    </div>
-                  </>
-                )}
+              {GetDefaultColumnsNotMatched().filter((item) => item.isUniqueColumn).length > 0 && (
+                <>
+                  <div
+                    className="px-3 py-1.5 mt-1"
+                    style={{ fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.6)' }}
+                  >
+                    Custom Columns
+                  </div>
+                  <div className="flex flex-col text-start gap-0.5 px-1">
+                    {GetDefaultColumnsNotMatched()
+                      .filter((item) => item.isUniqueColumn)
+                      .map((item, index) => {
+                        const selected =
+                          UpdateHeader &&
+                          (UpdateHeader.matchedColumn?.UserFacingName || UpdateHeader.UserFacingName) === item.UserFacingName
+                        return (
+                          <button
+                            type="button"
+                            className={selected
+                              ? 'flex flex-row items-center justify-between w-full rounded-lg px-3 py-2 transition-colors duration-200'
+                              : 'flex flex-row items-center justify-between w-full rounded-lg px-3 py-2 hover:bg-black/[0.04] transition-colors duration-200'}
+                            key={`unique-${index}`}
+                            style={{
+                              backgroundColor: selected ? 'hsl(var(--brand-primary) / 0.08)' : undefined,
+                              color: selected ? 'hsl(var(--brand-primary))' : 'rgba(0,0,0,0.8)',
+                              fontSize: 14,
+                              fontWeight: 400,
+                            }}
+                            onClick={() => {
+                              ChangeColumnName(item.UserFacingName)
+                            }}
+                          >
+                            <span className="truncate text-left">{item.UserFacingName}</span>
+                            {selected && (
+                              <Check size={16} weight="bold" className="shrink-0 ml-2" style={{ color: 'hsl(var(--brand-primary))' }} aria-hidden />
+                            )}
+                          </button>
+                        )
+                      })}
+                  </div>
+                </>
+              )}
             </div>
             <button
-              className="underline text-brand-primary p-2 hover:bg-brand-primary/10 w-full text-start"
+              type="button"
+              className="w-full text-start px-3 py-2 mt-0.5 rounded-lg hover:bg-black/[0.04] transition-colors duration-200 border-t border-[#eaeaea]"
+              style={{ fontSize: 14, fontWeight: 400, color: 'hsl(var(--brand-primary))' }}
               onClick={() => {
                 setShowPopUp(true)
               }}

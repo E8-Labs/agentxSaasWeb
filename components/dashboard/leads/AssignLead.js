@@ -16,7 +16,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { CalendarDots, CaretLeft } from '@phosphor-icons/react'
+import { CalendarDots, CaretLeft, Info } from '@phosphor-icons/react'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
@@ -1063,7 +1063,11 @@ const AssignLead = ({
                         Check DNC List
                       </div>
                     </Tooltip>
-
+                    <Info
+                      size={16}
+                      style={{ color: 'rgba(0,0,0,0.7)', flexShrink: 0 }}
+                      aria-hidden
+                    />
                     <Switch
                       checked={isDncChecked}
                       // color="#7902DF"

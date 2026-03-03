@@ -144,6 +144,8 @@ module.exports = {
         'modal-entry': 'modalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         'dropdown-cn-enter': 'dropdownCnEnter 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         'dropdown-cn-exit': 'dropdownCnExit 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'date-drop-enter': 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'date-drop-exit': 'date-picker-drop-exit 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
       },
     },
   },
