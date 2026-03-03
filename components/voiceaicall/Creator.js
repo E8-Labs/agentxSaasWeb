@@ -101,6 +101,7 @@ const Creator = ({ agentId, name }) => {
 
   const [boxVisible, setBoxVisible] = useState(false) // Animation state
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 }) // Mouse position state
+  const [pointerOverChatInputArea, setPointerOverChatInputArea] = useState(false) // Hide Click to Talk when over chat input + buffer
   const { creator } = useParams()
   const searchParams = useSearchParams()
   const from = searchParams.get('from')
@@ -223,6 +224,10 @@ const Creator = ({ agentId, name }) => {
       return () => clearTimeout(timer)
     }
   }, [loading])
+
+  useEffect(() => {
+    if (chatDrawerOpen) setPointerOverChatInputArea(false)
+  }, [chatDrawerOpen])
 
   useEffect(() => {
     const handleResize = () => {
@@ -1316,8 +1321,12 @@ const Creator = ({ agentId, name }) => {
               }
             </div>
           </div>
-          {!profileLoader && hasAiChatEnabled && !chatDrawerOpen && (
-            <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10">
+          {!profileLoader && hasAiChatEnabled && !chatDrawerOpen && !loading && !open && (
+            <div
+              className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10 py-8 -my-8 -mx-4"
+              onMouseEnter={() => setPointerOverChatInputArea(true)}
+              onMouseLeave={() => setPointerOverChatInputArea(false)}
+            >
               <WebAgentChatInput
                 onFocus={handleOpenChat}
                 placeholder="Ask me anything"
@@ -1328,10 +1337,10 @@ const Creator = ({ agentId, name }) => {
           <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
 
-        {/* Mouse Following Box Animation */}
+        {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer */}
         <div className="lg:flex hidden">
           <AnimatePresence>
-            {boxVisible && (
+            {boxVisible && !pointerOverChatInputArea && (
               <motion.div
                 style={{
                   position: 'absolute',
