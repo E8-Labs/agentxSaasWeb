@@ -1761,13 +1761,19 @@ const Leads1 = () => {
                       style={{ height: 'calc(100vh - 500px)' }}
                     >
                       {NewColumnsObtained.map((item, index) => {
-                        // const matchingValue = processedData.find((data) =>
-                        //   Object.keys(data).includes(item.dbName)
-                        // );
-                        // console.log(
-                        //   `1342: matching val: ${item.dbName}`,
-                        //   matchingValue
-                        // );
+                        // Debug: log preview data for this column
+                        const previewValue = originalTransformedData[0][item.ColumnNameInSheet]
+                          // processedData &&
+                          // processedData.length > 0 &&
+                          // processedData[0]
+                          //   ? processedData[0][item.ColumnNameInSheet] || ''
+                          //   : ''
+                        console.log('[Leads Preview]', {
+                          itemColumnNameInSheet: item.ColumnNameInSheet,
+                          processedDataLength: processedData?.length ?? 0,
+                          processedDataFirstRow: processedData?.[0],
+                          previewValue,
+                        })
                         return (
                           <div
                             key={index}
@@ -1796,9 +1802,7 @@ const Leads1 = () => {
                             </div>
                             <div className="w-3/12">{item.ColumnNameInSheet}</div>
                             <div className="w-3/12 truncate">
-                              {processedData && processedData.length > 0 && processedData[0]
-                                ? processedData[0][item.ColumnNameInSheet] || ''
-                                : ''}
+                              {previewValue}
                               {/* {item.matchedColumn ? (
                           processedData[0][item.matchedColumn.dbName]
                         ) : (

@@ -24,8 +24,33 @@ import { TypographyBody, TypographyH3Semibold, TypographyH4Semibold } from '@/li
 import { cn } from '@/lib/utils'
 import { OpenAiLogoIcon } from '@phosphor-icons/react'
 import Image from 'next/image'
+import { useUser } from '@/hooks/redux-hooks'
+import { UpgradeTagWithModal } from '@/components/constants/constants'
+
+// Resolve planCapabilities from Redux or localStorage (localStorage can have fresher full profile with planCapabilities)
+const getEffectivePlanCapabilities = (reduxUser) => {
+  const fromRedux = reduxUser?.planCapabilities
+  if (fromRedux && typeof fromRedux === 'object') return fromRedux
+  if (typeof window === 'undefined') return undefined
+  try {
+    const stored = localStorage.getItem('User')
+    if (!stored) return undefined
+    const parsed = JSON.parse(stored)
+    return parsed?.user?.planCapabilities
+  } catch {
+    return undefined
+  }
+}
 
 const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+  const planCapabilities = getEffectivePlanCapabilities(reduxUser)
+  const hasAIEmailAndTextAccess = planCapabilities?.allowAIEmailAndText === true
+  const shouldShowAllowAiEmailAndTextUpgrade = planCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
+  const shouldShowAiEmailAndTextRequestFeature = planCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
+  const showCommunicationUpgradeOrRequest = !hasAIEmailAndTextAccess && (shouldShowAllowAiEmailAndTextUpgrade || shouldShowAiEmailAndTextRequestFeature)
+
+  const [triggerCommunicationUpgradeModal, setTriggerCommunicationUpgradeModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState({
@@ -658,6 +683,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const isAgentMeterScreen = subModalKey === 'agentMeter'
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         className="w-[500px] max-w-[500px] p-0 gap-0 overflow-hidden rounded-xl border border-black/[0.06] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] data-[state=open]:animate-modal-entry"
@@ -810,6 +836,15 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 {activeSubModalConfig.question && (
                   <p className="text-[14px] text-muted-foreground mt-1">{activeSubModalConfig.question}</p>
                 )}
+                {/*subModalSelectedValue != null && (
+                  <button
+                    type="button"
+                    onClick={() => setSubModalSelectedValue(null)}
+                    className="text-sm text-gray-500 hover:text-brand-primary hover:underline mb-2"
+                  >
+                    Clear selection (save as none)
+                  </button>
+                )*/}
                 {activeSubModalConfig.options.map((opt) => {
                   const isOptSelected = subModalSelectedValue === opt.value
                   return (
@@ -984,10 +1019,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       }}
                       className="w-full"
                     />
-                      {apiKeyError && (
-                        <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
-                      )}
-                    </div>
+                    {apiKeyError && (
+                      <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                    )}
+                  </div>
 
                   {/* Set Reply Delay + Save as Draft Section */}
                   <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
@@ -1063,11 +1098,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                        <Switch
-                          checked={settings.saveAsDraftEnabled}
-                          onCheckedChange={handleSaveAsDraftToggle}
-                          className="data-[state=checked]:bg-brand-primary"
-                        />
+                      <Switch
+                        checked={settings.saveAsDraftEnabled}
+                        onCheckedChange={handleSaveAsDraftToggle}
+                        className="data-[state=checked]:bg-brand-primary"
+                      />
                     </div>
                   </div>
 
@@ -1083,6 +1118,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             key={row.key}
                             type="button"
                             onClick={() => {
+                              if (showCommunicationUpgradeOrRequest) {
+                                setTriggerCommunicationUpgradeModal(true)
+                                return
+                              }
                               setSubModalKey(row.key)
                               setSubModalSelectedValue(settings[row.settingsKey] ?? null)
                             }}
@@ -1103,6 +1142,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       <button
                         type="button"
                         onClick={() => {
+                          if (showCommunicationUpgradeOrRequest) {
+                            setTriggerCommunicationUpgradeModal(true)
+                            return
+                          }
                           const meter = settings.agentSettings?.agentMeterSettings
                           if (meter && typeof meter === 'object') {
                             setAgentMeterDraft({
@@ -1160,6 +1203,16 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         )}
       </DialogContent>
     </Dialog>
+    <UpgradeTagWithModal
+      reduxUser={reduxUser}
+      setReduxUser={setReduxUser}
+      hideTag
+      externalTrigger={triggerCommunicationUpgradeModal}
+      onModalClose={() => setTriggerCommunicationUpgradeModal(false)}
+      requestFeature={shouldShowAiEmailAndTextRequestFeature}
+      featureTitle="AI Text & Messages"
+    />
+    </>
   )
 }
 

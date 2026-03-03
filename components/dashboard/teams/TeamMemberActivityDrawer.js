@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import axios from 'axios'
 import { format } from 'date-fns'
 import { X, Phone, Mail, MessageSquare, PhoneCall, ListTodo, ChevronDown, CalendarIcon, MessageSquareDot } from 'lucide-react'
@@ -28,6 +28,10 @@ import { sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
 import CreateTaskFromNextStepsModal from '../leads/extras/CreateTaskFromNextStepsModal'
 import { Button } from '@/components/ui/button'
 import CloseIcon from '@mui/icons-material/Close'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+/** Page size for activities (infinite scroll). Offset is passed to the API. */
+const ACTIVITIES_PAGE_SIZE = 10
 
 const getAuthToken = () => {
   try {
@@ -40,7 +44,7 @@ const getAuthToken = () => {
   return null
 }
 
-async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limit = 50, offset = 0) {
+async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, selectedUser, limit = 50, offset = 0) {
   const token = getAuthToken()
   if (!token) throw new Error('Not authenticated')
   const params = new URLSearchParams({ teamMemberUserId: String(teamMemberUserId), range: range || 'all', limit: String(limit), offset: String(offset) })
@@ -48,9 +52,15 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, limi
     params.append('from', from)
     params.append('to', to)
   }
-  const res = await axios.get(`${Apis.getTeamMemberActivities}?${params.toString()}`, {
+  if (selectedUser) {
+    params.append('userId', selectedUser.id)
+  }
+  const ApiPath = `${Apis.getTeamMemberActivities}?${params.toString()}`
+  console.log("ApiPath for get user activity is", ApiPath);
+  const res = await axios.get(ApiPath, {
     headers: { Authorization: `Bearer ${token}` },
   })
+  console.log("res.data for get user activity is", res.data);
   return res.data
 }
 
@@ -67,7 +77,7 @@ const STATUS_OPTIONS = [
   { value: 'done', label: 'Done' },
 ]
 
-export default function TeamMemberActivityDrawer({ open, onClose, teamMember, admin }) {
+export default function TeamMemberActivityDrawer({ open, onClose, teamMember, admin, selectedUser }) {
 
 
   //code for create task modal
@@ -92,6 +102,10 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [customToOpen, setCustomToOpen] = useState(false)
   //show date modals
   const [showCustomDateModal, setShowCustomDateModal] = useState(false)
+  const [activitiesOffset, setActivitiesOffset] = useState(0)
+  const activitiesOffsetRef = useRef(0)
+  const isLoadingMoreRef = useRef(false)
+  const [hasMoreActivities, setHasMoreActivities] = useState(true)
 
   const teamMemberUserId = teamMember?.invitedUserId || teamMember?.invitedUser?.id
 
@@ -106,7 +120,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     try {
       const params = { assignedTo: teamMemberUserId }
       if (effectiveStatus) params.status = effectiveStatus
-      const res = await getTasks(params)
+      const res = await getTasks(params, selectedUser)
       const list = Array.isArray(res?.data) ? res.data : res?.data?.tasks ?? res?.tasks ?? []
       setTasks(list)
       const c = res?.counts ?? res?.data?.counts ?? {}
@@ -130,23 +144,57 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
     }
   }, [loadTasks])
 
-  const loadActivities = useCallback(async () => {
+  const loadActivities = useCallback(async (append = false) => {
     if (!teamMemberUserId) return
     if (range === 'custom' && (!customFromDate || !customToDate)) return
+    if (append && isLoadingMoreRef.current) return
     const fromStr = range === 'custom' && customFromDate ? format(customFromDate, 'yyyy-MM-dd') : undefined
     const toStr = range === 'custom' && customToDate ? format(customToDate, 'yyyy-MM-dd') : undefined
+    const offset = append ? activitiesOffsetRef.current : 0
+    if (!append) {
+      setActivitiesOffset(0)
+      activitiesOffsetRef.current = 0
+      setHasMoreActivities(true)
+    } else {
+      isLoadingMoreRef.current = true
+    }
     setActivitiesLoading(true)
     try {
-      const res = await fetchTeamMemberActivities(teamMemberUserId, range, fromStr, toStr)
+      const res = await fetchTeamMemberActivities(
+        teamMemberUserId,
+        range,
+        fromStr,
+        toStr,
+        selectedUser,
+        ACTIVITIES_PAGE_SIZE,
+        offset
+      )
       const data = res?.data
-      setActivities(data?.activities ?? [])
-      setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
+      console.log('data of fetchactivities', data)
+      const newActivities = data?.activities ?? []
+      const nextOffset = offset + newActivities.length
+      if (append) {
+        setActivities((prev) => [...prev, ...newActivities])
+      } else {
+        setActivities(newActivities)
+      }
+      setActivitiesOffset(nextOffset)
+      activitiesOffsetRef.current = nextOffset
+      if (!append) setTotals(data?.totals ?? { sms: 0, email: 0, calls: 0 })
+      const total = data?.total ?? data?.totalCount
+      const hasMore =
+        total != null ? nextOffset < total : newActivities.length >= 10
+      setHasMoreActivities(data?.hasMore ?? hasMore);
     } catch (err) {
       console.error('Failed to load activities:', err)
-      setActivities([])
-      setTotals({ sms: 0, email: 0, calls: 0 })
+      if (!append) {
+        setActivities([])
+        setTotals({ sms: 0, email: 0, calls: 0 })
+      }
+      setHasMoreActivities(false)
     } finally {
       setActivitiesLoading(false)
+      if (append) isLoadingMoreRef.current = false
     }
   }, [teamMemberUserId, range, customFromDate, customToDate])
 
@@ -155,7 +203,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   }, [open, activeTab, teamMemberUserId, taskStatusFilter, loadTasks])
 
   useEffect(() => {
-    if (open && activeTab === 'activity' && teamMemberUserId) loadActivities()
+    if (open && activeTab === 'activity' && teamMemberUserId) loadActivities(false)
   }, [open, activeTab, teamMemberUserId, range, customFromDate, customToDate, loadActivities])
 
   const displayName = teamMember?.name || teamMember?.invitedUser?.name || 'Team Member'
@@ -262,8 +310,8 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           )}
         </div>
 
-        {/* Right column: content - header height h-14 to align divider line with left */}
-        <div className="flex flex-col flex-1 min-w-0 w-[80vw]">
+        {/* Right column: content - header height h-14 to align divider line with left; min-h-0 so scroll area gets bounded height */}
+        <div className="flex flex-col flex-1 min-w-0 min-h-0 w-[80vw]">
           <div className="flex flex-row items-center justify-end px-4 h-14 shrink-0 border-b border-border">
             <button
               type="button"
@@ -508,32 +556,56 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                   </div>
                 </div>
               </div>
-              <ScrollArea className="flex-1 bg-[#F9F9F9]">
+              <div
+                id="teamMemberActivitiesScroll"
+                className="flex-1 min-h-0 overflow-auto bg-[#F9F9F9]"
+                style={{ scrollbarWidth: 'thin' }}
+              >
                 <div className="px-6 py-5">
-                  {activitiesLoading ? (
+                  {activitiesLoading && activities.length === 0 ? (
                     <div className="flex justify-center py-12">
                       <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
                     </div>
                   ) : activities.length === 0 ? (
                     <TypographyBody className="text-muted-foreground italic py-8">No activities in this range</TypographyBody>
                   ) : (
-                    <ActivityTimeline
-                      activities={activities}
-                      onLeadClick={(lead_ID) => {
-                        setSelectedLeadIdForModal(lead_ID)
-                        console.log("lead_ID", lead_ID)
-                        setActiveTab("lead_details")
+                    <InfiniteScroll
+                      dataLength={activities.length}
+                      next={() => {
+                        if (!isLoadingMoreRef.current && hasMoreActivities) loadActivities(true)
                       }}
-                    />
+                      hasMore={hasMoreActivities}
+                      scrollableTarget="teamMemberActivitiesScroll"
+                      loader={
+                        <div className="flex justify-center py-6">
+                          <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                        </div>
+                      }
+                      endMessage={
+                        <p className="text-center py-4 text-muted-foreground text-sm">
+                          You are all caught up
+                        </p>
+                      }
+                    >
+                      <ActivityTimeline
+                        activities={activities}
+                        onLeadClick={(lead_ID) => {
+                          setSelectedLeadIdForModal(lead_ID)
+                          console.log("lead_ID", lead_ID)
+                          setActiveTab("lead_details")
+                        }}
+                      />
+                    </InfiniteScroll>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </>
           )}
 
           {activeTab === "lead_details" && selectedLeadIdForModal != null && (
             <div>
               <LeadDetails
+                selectedUser={selectedUser}
                 selectedLead={selectedLeadIdForModal}
                 showDetailsModal={true}
                 setShowDetailsModal={() => {
@@ -721,6 +793,18 @@ function ActivityTimelineItem({ item, onLeadClick }) {
               </TypographyBody>
             )}
             {item.summary && <TypographyBody className="text-sm text-muted-foreground mt-1 line-clamp-3">{item.summary}</TypographyBody>}
+            {
+              item.metadata?.attachments?.length > 0 && (
+                <div className="text-sm text-muted-foreground mt-1">
+                  <span className="text-brand-primary underline cursor-pointer hover:opacity-90">
+                    Attachments:
+                  </span>
+                  {item.metadata?.attachments?.map((attachment) => (
+                    <span key={attachment.id}>{attachment?.url}</span>
+                  ))}
+                </div>
+              )
+            }
           </>
         )}
         {item.type === 'email' && (
@@ -798,10 +882,10 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                 <div
                   className={cn(
                     'prose prose-sm max-w-none break-words text-sm text-muted-foreground mt-1',
-                    '[&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug',
-                    '[&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc',
-                    '[&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]',
-                    '[&_li]:!my-[0.15em] [&_a]:!text-brand-primary [&_a:hover]:!underline',
+                    '[&_p]:!mt-0 [&_p]:!mb-[0.2em] [&_p]:!leading-snug',
+                    '[&_ul]:!my-[0.2em] [&_ul]:!pl-[1.15em] [&_ul]:!list-disc',
+                    '[&_ol]:!my-[0.2em] [&_ol]:!pl-[1.15em]',
+                    '[&_li]:!my-[0.08em] [&_a]:!text-brand-primary [&_a:hover]:!underline',
                     !contentExpanded && hasLongContent && 'line-clamp-3 overflow-hidden'
                   )}
                   dangerouslySetInnerHTML={{ __html: sanitizeHTMLForEmailBody(item.content) }}
@@ -818,6 +902,23 @@ function ActivityTimelineItem({ item, onLeadClick }) {
                 )}
               </>
             )}
+            {
+              item.metadata?.attachments?.length > 0 && (
+                <button
+                  type="button"
+                  className="text-sm hover:text-brand-primary text-muted-foreground text-start mt-1 underline cursor-pointer hover:opacity-90"
+                  onClick={() => {
+                    item.metadata?.attachments?.map((attachment) => {
+                      window.open(attachment?.url, '_blank')
+                    })
+                  }}
+                >
+                  {item.metadata?.attachments?.map((attachment) => (
+                    <span key={attachment.id}>{attachment?.url}</span>
+                  ))}
+                </button>
+              )
+            }
           </>
         )}
         {item.type === 'sms' && (

@@ -34,6 +34,7 @@ const TeamAssignDropdownCn = ({
   leadId = null,
   leadSettings = null,
   onSettingsUpdate = null,
+  contentClassName = null,
 }) => {
   // Create a stable key from teamOptions to ensure useMemo recalculates
   const teamOptionsKey = useMemo(
@@ -259,7 +260,7 @@ const TeamAssignDropdownCn = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg p-0 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto"
+        className={contentClassName ?? 'z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg p-0 flex flex-col gap-0.5 max-h-[300px] overflow-y-auto'}
       >
         <DropdownMenuLabel className="p-3 text-sm font-semibold text-muted-foreground border-b border-[#eaeaea]">
           Team

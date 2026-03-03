@@ -712,11 +712,11 @@ function AdminBasicInfo({ selectedUser, isAgencyView = false }) {
 
   return (
     <div
-      className="w-full flex flex-col items-start px-8 py-2 h-screen"
+      className="w-full flex flex-col items-start px-8 py-2 h-[100vh]"
       style={{
-        paddingBottom: isAgencyView ? '170px' : '50px',
+        paddingBottom: '20px',
 
-        overflow: 'auto',
+        // overflow: 'auto',
         scrollbarWidth: 'none',
       }}
     >

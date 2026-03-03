@@ -92,23 +92,24 @@ function PlanSummaryMobile({ selectedPlan,
     durationLabel = 'Annual Subscription'
   }
 
-  // Calculate total price with trial logic (matching UserAddCardModal)
-  const calculateTotalPrice = () => {
-    // Check if plan has trial and user is subscribing for the first time
-    const hasTrial = selectedPlan?.hasTrial === true
-    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+  // hasRedeemedTrial from profile (subaccount: show $0 only when plan has trial and user hasn't used trial)
+  const hasRedeemedTrial =
+    reduxUser?.hasRedeemedTrial === true ||
+    (typeof window !== 'undefined' && (() => {
+      try {
+        const u = localStorage.getItem('User')
+        if (!u) return false
+        return JSON.parse(u)?.user?.hasRedeemedTrial === true
+      } catch {
+        return false
+      }
+    })())
 
-    // If plan has trial and user has no previous plan, show $0
-    if (hasTrial && isFirstTimeSubscription) {
-      return 0
-    }
-
-    const billingMonths = GetMonthCountFronBillingCycle(planDuration)
-    const monthlyPrice = planPrice
-    return billingMonths * monthlyPrice
-  }
-
-  const totalPrice = calculateTotalPrice()
+  // Total Billed = actual recurring amount (always). Due Today = $0 when trial, else same as Total Billed
+  const billingMonths = GetMonthCountFronBillingCycle(planDuration)
+  const totalBilledAmount = billingMonths * planPrice
+  const hasTrial = selectedPlan?.hasTrial === true
+  const dueTodayAmount = hasTrial && !hasRedeemedTrial ? 0 : totalBilledAmount
 
   // Format card expiry
   const formatCardExpiry = (card) => {
@@ -235,20 +236,7 @@ function PlanSummaryMobile({ selectedPlan,
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600">Total Billed {planDuration === 'yearly' ? 'Annually' : planDuration === 'quarterly' ? 'Quarterly' : 'Monthly'}:</span>
                   <span className="text-base font-semibold text-black">
-                    {(() => {
-                      // Check if plan has trial and user is subscribing for the first time
-                      const hasTrial = selectedPlan?.hasTrial === true
-                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                      // If plan has trial and user has no previous plan, show $0
-                      if (hasTrial && isFirstTimeSubscription) {
-                        return '$0'
-                      }
-
-                      const billingMonths = GetMonthCountFronBillingCycle(planDuration)
-                      const monthlyPrice = planPrice
-                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
-                    })()}
+                    ${formatFractional2(totalBilledAmount)}
                   </span>
                 </div>
                 <div className="text-sm text-gray-500">
@@ -266,23 +254,7 @@ function PlanSummaryMobile({ selectedPlan,
               </div>
               <div className="flex flex-col items-end">
                 <div className="text-2xl font-bold text-black">
-                  {(() => {
-                    if (!selectedPlan) return '$0'
-
-                    // Check if plan has trial and user is subscribing for the first time
-                    const hasTrial = selectedPlan?.hasTrial === true
-                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                    // If plan has trial and user has no previous plan, show $0
-                    if (hasTrial && isFirstTimeSubscription) {
-                      return '$0'
-                    }
-
-                    const billingMonths = GetMonthCountFronBillingCycle(planDuration)
-                    const monthlyPrice = planPrice
-                    
-                    return `$${formatFractional2(billingMonths*monthlyPrice)}`
-                  })()}
+                  ${formatFractional2(selectedPlan ? dueTodayAmount : 0)}
                 </div>
                 <div
                   style={{

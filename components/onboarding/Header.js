@@ -291,10 +291,10 @@ const Header = ({
             const shouldShowOrb = !currentIsCustomDomain && (!isSubaccount || (isSubaccount && !hasAgencyLogo)) && !isAgencyCreatingForSubaccount
             return shouldShowOrb ? (
               <div className="hidden md:flex">
-                <AgentXOrb
+                {/*<AgentXOrb
                   size={69}
                   style={{ height: '69px', width: '75px', resize: 'contain' }}
-                />
+                />*/}
               </div>
             ) : null
           })()}

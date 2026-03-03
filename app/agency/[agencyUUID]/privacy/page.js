@@ -2,14 +2,18 @@
 
 import axios from 'axios'
 import DOMPurify from 'dompurify'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import { agencyPrivacyPolicyUrl } from '@/constants/Constants'
 
+/**
+ * Agency privacy page by UUID. Used when agency has no custom domain
+ * (links are baseurl/agency/[agencyUUID]/privacy).
+ */
 function PrivacyPage() {
   const params = useParams()
-  const router = useRouter()
   const [privacyText, setPrivacyText] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -27,31 +31,24 @@ function PrivacyPage() {
       setError(null)
 
       const response = await axios.get(Apis.getAgencyPrivacyByUUID, {
-        params: {
-          agencyUUID: agencyUUID,
-        },
+        params: { agencyUUID },
       })
 
       if (response?.data?.status === true) {
         const customPrivacyText = response.data.data?.privacyText
-
         if (customPrivacyText) {
-          // Agency has custom privacy text
           setPrivacyText(customPrivacyText)
         } else {
-          // No custom text, redirect to default URL
-          window.location.href = 'https://www.assignx.ai/agency-policy'
+          window.location.href = agencyPrivacyPolicyUrl
           return
         }
       } else {
-        // Agency not found or error, redirect to default
-        window.location.href = 'https://www.assignx.ai/agency-policy'
+        window.location.href = agencyPrivacyPolicyUrl
         return
       }
     } catch (err) {
       console.error('Error fetching privacy text:', err)
-      // On error, redirect to default URL
-      window.location.href = 'https://www.assignx.ai/agency-policy'
+      window.location.href = agencyPrivacyPolicyUrl
       return
     } finally {
       setLoading(false)
@@ -79,7 +76,6 @@ function PrivacyPage() {
     )
   }
 
-  // Sanitize HTML content
   const sanitizedContent = DOMPurify.sanitize(privacyText, {
     ALLOWED_TAGS: [
       'p',
@@ -117,8 +113,3 @@ function PrivacyPage() {
 }
 
 export default PrivacyPage
-
-
-
-
-

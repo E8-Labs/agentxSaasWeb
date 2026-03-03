@@ -46,10 +46,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../../leads/AgentSelectSnackMessage'
+import { getPlanChangeDirection } from '@/utils/planComparison'
 
 const stripePromise = getStripe()
 
-function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
+function SubAccountPlansAndPayments({ hideBtns, selectedUser, agencyView, isAgencyView }) {
   //stroes user cards list
   const [cards, setCards] = useState([])
 
@@ -919,23 +920,22 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       return 'Cancel Subscription'
     }
 
-    // check if selected togglePlan is higher id than currentPlan → Upgrade
-    if (selectedPlan?.sequenceId > currentPlanSequenceId) {
-      return 'Upgrade'
+    // Subaccount: compare billing → price → plan id only (no name-based tier)
+    if (currentPlanDetails && selectedPlan) {
+      const direction = getPlanChangeDirection(currentPlanDetails, selectedPlan, {
+        skipTierFromName: true,
+      })
+      if (direction === 'upgrade') return 'Upgrade'
+      if (direction === 'downgrade') return 'Downgrade'
+      if (direction === 'same') return 'Cancel Subscription'
     }
 
-    // check if selected togglePlan is lower id than currentPlan → Downgrade
-    if (selectedPlan?.sequenceId < currentPlanSequenceId) {
-      return 'Downgrade'
-    }
-
-    // fallback
     return 'Cancel Subscription'
   }
 
   return (
     <div
-      className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
+      className={`w-full flex flex-col items-start px-8 py-2 ${isAgencyView ? 'h-[calc(100svh-25svh)]' : 'h-[calc(100vh-4rem)]'} overflow-y-auto`}
       style={{
         paddingBottom: '50px',
         scrollbarWidth: 'none', // For Firefox
@@ -1504,6 +1504,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
             open={showUpgradeModal}
             selectedUser={selectedUser}
             allPlans={plans}
+            hasRedeemedTrial={userLocalData?.hasRedeemedTrial}
             handleClose={async (upgradeResult) => {
               setShowUpgradeModal(false)
 

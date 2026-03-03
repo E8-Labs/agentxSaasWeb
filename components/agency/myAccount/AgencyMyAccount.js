@@ -263,7 +263,7 @@ function AgencyMyAccount({ selectedAgency }) {
           <NotficationsDrawer />
         </div>
       </div>
-      <div className="w-full flex flex-row item-center pl-4">
+      <div className="w-full flex flex-row item-center pl-4 bg-white">
         <div className="w-4/12 items-center flex flex-col pt-4 pr-2">
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">

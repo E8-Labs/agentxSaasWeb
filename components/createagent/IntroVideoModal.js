@@ -9,6 +9,7 @@ const IntroVideoModal = ({
   videoUrl,
   videoDescription,
   showLoader = false,
+  zIndex,
 }) => {
   const modalStyles = {
     position: 'fixed',
@@ -24,6 +25,7 @@ const IntroVideoModal = ({
   return (
     <Modal
       open={open}
+      sx={zIndex != null ? { zIndex } : undefined}
       onClose={() => {
         if (videoTitle === 'Welcome to AssignX') {} else {
           onClose()
@@ -74,7 +76,7 @@ const IntroVideoModal = ({
           </div>
 
           {/* Video Section */}
-          <div className="mt-6">
+          <div className="mt-4">
             {/* <iframe
               src={`${videoUrl}?autoplay=1&mute=1`}
               frameBorder="0"

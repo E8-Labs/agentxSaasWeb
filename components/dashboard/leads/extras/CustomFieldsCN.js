@@ -172,11 +172,11 @@ const CustomFieldsCN = ({
   }
 
   return (
-    <div className="flex flex-col gap-2 mt-0 px-4 py-3 bg-black/[0.02]">
+    <div className="flex flex-col gap-2 mt-0 px-4 bg-transparent">
       <div className="flex flex-row items-center justify-between w-full">
         <Button
           variant="ghost"
-          className="justify-start p-0 h-10 gap-2"
+          className="justify-start p-0 h-8 gap-2"
           onClick={onToggleCustomVariables}
         >
           <FileText className="h-4 w-4" />

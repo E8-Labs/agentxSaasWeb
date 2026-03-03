@@ -1,6 +1,7 @@
-import moment from 'moment'
+import moment from 'moment';
 
 export const PersistanceKeys = {
+  SUPER_HUMAN_MODAL_STATE: 'superHumanModalState',
   LocalStorageUser: 'User',
   LocalSavedAgentDetails: 'agentDetails',
   LocalStorageUserLocation: 'userLocation',
@@ -30,6 +31,9 @@ export const PersistanceKeys = {
   SelectedAgent: 'SelectedAgent',
   CalendarAddedByGoogle: 'CalendarAddedByGoogle',
   isDefaultCadenceEditing: 'isDefaultCadenceEditing',
+
+  //stores agents list for messaging
+  agentsListForMessaging: 'assignx_messages_agents_list',
 
   //vapi-widget call popup
   showVapiModal: 'showVapiModal',
@@ -63,7 +67,7 @@ export const PersistanceKeys = {
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
   // Agency Support URLs
-  AgencySkoolUrl: 'https://www.skool.com/agentx',
+  AgencySkoolUrl:  "https://www.skool.com/myagentx-ai-aaas-5171",  //'https://www.skool.com/agentx',
   AgencyPartnerUrl: 'https://set.myagentx.com/widget/bookings/assignx-gameplan-session',
   AgencyBillingSupportUrl: 'https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D',
   AgencySupportTicketUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
@@ -91,6 +95,7 @@ export const HowtoVideos = {
   ConnectBankAgency: process.env.NEXT_PUBLIC_REACT_APP_ConnectBankAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Connect_Bank_Stripe_Agency_AgentX_155_2025_Reupload',
   SettingGlobalNumber: process.env.NEXT_PUBLIC_REACT_APP_SettingGlobalNumber || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Setting_Global_Number_Agency_AgentX_155_2025_Reupload',
   TwilioIntegrationAgency: process.env.NEXT_PUBLIC_REACT_APP_TwilioIntegrationAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Twilio_Integration_Agency_AgentX_155_2025_Reupload',
+  MailgunIntegrationAgency: process.env.NEXT_PUBLIC_REACT_APP_MailgunIntegrationAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Mailgun_Integration_Agency_AgentX_155_2026.mp4',
 }
 
 export const HowToVideoTypes = {
@@ -111,6 +116,7 @@ export const HowToVideoTypes = {
   ConnectBankAgency: 'ConnectBankAgency',
   SettingGlobalNumber: 'SettingGlobalNumber',
   TwilioIntegrationAgency: 'TwilioIntegrationAgency',
+  MailgunIntegrationAgency: 'MailgunIntegrationAgency',
 }
 
 export const Constants = {

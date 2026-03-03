@@ -76,6 +76,8 @@ import { TypographyH3 } from '@/lib/typography'
 import PipelineFilterModal from '@/components/common/PipelineFilterModal'
 import StandardHeader from '@/components/common/StandardHeader'
 import { Check } from 'lucide-react'
+import { isColorDark } from '@/components/dashboardPipeline/PipelineUtilities'
+import { toast } from '@/utils/toast'
 
 const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   const bottomRef = useRef()
@@ -559,6 +561,11 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   //function to call create pipeline api
   const handleCreatePipeline = async () => {
     try {
+      console.log('handleCreatePipeline selected user', selectedUser?.planStatus?.hasActivePlan);
+      if(selectedUser?.planStatus?.hasActivePlan === false){
+        toast.error('Plan required to create pipeline.');
+        return
+      }
       setAddPipelineLoader(true)
       const localData = localStorage.getItem('User')
       let AuthToken = null
@@ -662,6 +669,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
       // if (!data) {
       //   setInitialLoader(true);
       // }
+      setInitialLoader(true);
       const localData = localStorage.getItem('User')
       let AuthToken = null
       if (localData) {
@@ -2530,8 +2538,8 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
 
 
       {initialLoader ? (
-        <div className="w-full flex flex-row justify-center mt-12">
-          <CircularProgress size={35} />
+        <div className="w-screen">
+          <PipelineLoading />
         </div>
       ) : (
         <>
@@ -2551,8 +2559,8 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                     {StagesList?.map((stage, index) => (
                       <div
                         key={index}
-                        style={{ width: '300px' }}
-                        className="flex flex-col items-start h-full gap-8 bg-[#00000005] rounded-xl p-4"
+                        style={{ width: '300px', backgroundColor: `${stage.defaultColor}05` }}
+                        className="flex flex-col items-start h-full gap-8 rounded-xl p-4"
                       >
                         {/* Display the stage */}
                         <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">
@@ -2576,8 +2584,8 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                             </span>
                             <div
                               // className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full bg-white flex items-center justify-center text-black min-w-8 min-h-8 w-8 h-8 shrink-0 px-1"
-                              style={{ ...styles.paragraph, fontSize: 14 }}
+                              className="rounded-full flex items-center justify-center min-w-8 min-h-8 w-8 h-8 shrink-0 px-1"
+                              style={{ ...styles.paragraph, fontSize: 14, backgroundColor: stage?.defaultColor, color: isColorDark(stage?.defaultColor) ? "white" : "black" }}
                             >
                               {/* {leadCounts[stage.id] ? (
                             <div>{leadCounts[stage.id]}</div>
@@ -4328,7 +4336,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                 maxHeight: '90svh',
               }}
             >
-              <div className="flex flex-row justify-between h-[10%] w-full">
+              <div className="flex flex-row justify-between h-[10svh] w-full">
                 <div style={{ fontWeight: '600', fontSize: 22 }}>
                   Rearrange Stages
                 </div>
@@ -4342,7 +4350,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
               </div>
 
               <div
-                className="w-full h-[80%] overflow-auto"
+                className="w-full h-[67svh] overflow-auto"
                 style={{ scrollbarWidth: 'none' }}
               >
                 <RearrangeStages
@@ -4371,7 +4379,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                 />
               </div>
 
-              <div className="w-full h-[10%]">
+              <div className="w-full h-[10svh]">
                 {reorderStageLoader ? (
                   <div className="w-full flex flex-row items-center h-[50px] justify-center mt-6">
                     <CircularProgress size={25} />

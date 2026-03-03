@@ -34,6 +34,7 @@ const TaskForm = ({
   setIsValidForm = () => { },
   elevatedZIndex = false,
   defaultAssignees = null,
+  requireDescription = true,
 }) => {
   const titleInputRef = useRef(null)
   const titleContainerRef = useRef(null)
@@ -106,9 +107,11 @@ const TaskForm = ({
 
   // Sync form validity to parent (e.g. for CreateTaskFromNextStepsModal submit button)
   useEffect(() => {
-    const valid = !!(title?.trim() && description?.trim())
+    const valid = requireDescription
+      ? !!(title?.trim() && description?.trim())
+      : !!title?.trim()
     setIsValidForm(valid)
-  }, [title, description, setIsValidForm])
+  }, [title, description, requireDescription, setIsValidForm])
 
   // Priority options
   const priorityOptions = [

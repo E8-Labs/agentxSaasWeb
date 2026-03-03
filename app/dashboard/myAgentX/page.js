@@ -577,6 +577,12 @@ function Page() {
 
   const [openGptManu, setOpenGptManu] = useState('')
   const [selectedGptManu, setSelectedGptManu] = useState(models[0])
+  const getModelIcon = (model) =>
+    model?.value === 'gpt-4.1-mini' &&
+      (reduxUser?.agencyBranding?.supportWidgetLogoUrl)
+      ? (reduxUser?.agencyBranding?.supportWidgetLogoUrl)
+      : model?.icon
+    // console.log("Value of reduxUser is", reduxUser)
 
   // Agency custom name for the AssignX (gpt-4.1-mini) model; subaccounts see this via agency branding
   const assignxModelDisplayName =
@@ -2601,6 +2607,12 @@ function Page() {
           ) {
             formData.append('liveTransferNumber', voiceData.liveTransferNumber)
           }
+          if (voiceData.liveTransferMessage !== undefined) {
+            formData.append(
+              'liveTransferMessage',
+              voiceData.liveTransferMessage,
+            )
+          }
           if (
             voiceData.callbackNumber ||
             voiceData.callbackNumber !== undefined
@@ -2627,6 +2639,14 @@ function Page() {
         if (voiceData?.idleMessage !== undefined) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
+        if (voiceData?.additionalSettings !== undefined) {
+          formData.append(
+            'additionalSettings',
+            typeof voiceData.additionalSettings === 'string'
+              ? voiceData.additionalSettings
+              : JSON.stringify(voiceData.additionalSettings),
+          )
+        }
 
         // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
@@ -2647,7 +2667,7 @@ function Page() {
           //   response.data.data
           // );
           // //console.log;
-          if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage) {
+          if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage || voiceData?.additionalSettings) {
             setShowSuccessSnack("Advanced Settings Updated");
           } else {
             setShowSuccessSnack(
@@ -3377,9 +3397,9 @@ function Page() {
           )
         }
         // console.log("New list is", newList);
-        if(search){
+        if (search) {
           setMainAgentsList(agents)
-        }else{
+        } else {
           setMainAgentsList(newList)
         }
       }
@@ -4810,7 +4830,7 @@ function Page() {
                               }}
                             >
                               <Avatar
-                                src={selectedGptManu?.icon}
+                                src={getModelIcon(selectedGptManu)}
                                 sx={{ width: 24, height: 24, marginRight: 1 }}
                               />
                               {getModelDisplayName(selectedGptManu)}
@@ -4835,62 +4855,68 @@ function Page() {
                                 },
                               }}
                             >
-                              {models.map((model, index) => (
-                                <MenuItem
-                                  key={index}
-                                  onClick={() => handleGptManuSelect(model)}
-                                  disabled={model.disabled}
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    gap: '10px',
-                                    padding: '8px 12px',
-                                    borderRadius: '8px',
-                                    transition: 'background 0.2s',
-                                    '&:hover': {
-                                      backgroundColor: model.disabled
-                                        ? 'inherit'
-                                        : '#F5F5F5',
-                                    },
-                                    opacity: model.disabled ? 0.6 : 1,
-                                  }}
-                                >
-                                  <div
-                                    style={{
+                              {models.map((model, index) => {
+                                const iconSrc =
+                                  model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
+                                    ? reduxUser.agencyBranding.supportWidgetLogoUrl
+                                    : model.icon
+                                return (
+                                  <MenuItem
+                                    key={index}
+                                    onClick={() => handleGptManuSelect(model)}
+                                    disabled={model.disabled}
+                                    sx={{
                                       display: 'flex',
                                       alignItems: 'center',
+                                      justifyContent: 'space-between',
                                       gap: '10px',
+                                      padding: '8px 12px',
+                                      borderRadius: '8px',
+                                      transition: 'background 0.2s',
+                                      '&:hover': {
+                                        backgroundColor: model.disabled
+                                          ? 'inherit'
+                                          : '#F5F5F5',
+                                      },
+                                      opacity: model.disabled ? 0.6 : 1,
                                     }}
                                   >
-                                    <Avatar
-                                      src={model.icon}
-                                      sx={{ width: 24, height: 24 }}
-                                    />
-                                    <span
+                                    <div
                                       style={{
-                                        fontSize: '14px',
-                                        fontWeight: '500',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
                                       }}
                                     >
-                                      {getModelDisplayName(model)}
-                                    </span>
-                                  </div>
-                                  <div
-                                    style={{
-                                      backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                      color: 'hsl(var(--brand-primary))',
-                                      padding: '4px 8px',
-                                      borderRadius: '12px',
-                                      fontSize: '12px',
-                                      fontWeight: '600',
-                                      minWidth: 'fit-content',
-                                    }}
-                                  >
-                                    {model.responseTime}
-                                  </div>
-                                </MenuItem>
-                              ))}
+                                      <Avatar
+                                        src={iconSrc}
+                                        sx={{ width: 24, height: 24 }}
+                                      />
+                                      <span
+                                        style={{
+                                          fontSize: '14px',
+                                          fontWeight: '500',
+                                        }}
+                                      >
+                                        {getModelDisplayName(model)}
+                                      </span>
+                                    </div>
+                                    <div
+                                      style={{
+                                        backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                        color: 'hsl(var(--brand-primary))',
+                                        padding: '4px 8px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        minWidth: 'fit-content',
+                                      }}
+                                    >
+                                      {model.responseTime}
+                                    </div>
+                                  </MenuItem>
+                                )
+                              })}
                             </Menu>
                           </div>
                         )}
@@ -6164,7 +6190,9 @@ function Page() {
                             : 'Call Transfer Number'
                         }
                         loading={loading}
-                        update={async (value) => {
+                        isTransfer={selectedNumber === 'Calltransfer'}
+                        transferMessage={showDrawerSelectedAgent?.liveTransferMessage}
+                        update={async (value, transferMessage) => {
                           let data = ''
                           if (selectedNumber === 'Callback') {
                             data = {
@@ -6173,6 +6201,9 @@ function Page() {
                           } else {
                             data = {
                               liveTransferNumber: value,
+                              ...(transferMessage !== undefined && {
+                                liveTransferMessage: transferMessage,
+                              }),
                             }
                           }
                           //console.log;
@@ -6302,6 +6333,15 @@ function Page() {
                         setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                         kycsData={kycsData}
                         uniqueColumns={uniqueColumns}
+                        onSaveVoicemailAdvancedSettings={(voicemailDetection) => {
+                          const existing = showDrawerSelectedAgent?.additionalSettings || {}
+                          updateSubAgent({
+                            additionalSettings: {
+                              ...existing,
+                              voicemailDetection,
+                            },
+                          })
+                        }}
                       />
                     </div>
                   )
@@ -6788,11 +6828,12 @@ function Page() {
                               onClick={() => {
                                 const scriptBuilderUrl =
                                   reduxUser?.agencySettings?.scriptWidgetUrl ||
+                                  reduxUser?.userSettings?.scriptWidgetUrl ||
                                   PersistanceKeys.DefaultScriptBuilderUrl
                                 window.open(scriptBuilderUrl, '_blank')
                               }}
                             >
-                              Use Script Builder
+                              Use {reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
                               <ArrowUpRight size={20} color="white" />
                             </button>
                           </div>

@@ -5,6 +5,31 @@ import DOMPurify from 'dompurify'
  */
 
 /**
+ * Convert markdown to HTML: **text** -> <strong>, [text](url) -> <a href="url">.
+ * Run this before sanitize so both HTML and markdown in content render correctly.
+ * Only http/https URLs allowed for links.
+ */
+export function simpleMarkdownToHtml(text) {
+  if (!text || typeof text !== 'string') return text
+  let out = text
+  // Markdown links [text](url) — only http/https
+  out = out.replace(
+    /\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,
+    (_, linkText, url) => {
+      const safeUrl = (url || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+      const safeText = (linkText || '')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/&/g, '&amp;')
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="underline text-brand-primary hover:opacity-80">${safeText}</a>`
+    },
+  )
+  // Bold **text**
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  return out
+}
+
+/**
  * Sanitize HTML for email body display (conversation view style).
  * Preserves p, br, strong, em, lists, links, etc. Safe to use with dangerouslySetInnerHTML.
  * @param {string} html - Raw email HTML content
@@ -30,6 +55,31 @@ export function sanitizeHTMLForEmailBody(html) {
   return DOMPurify.sanitize(processedContent, {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4', 'div'],
     ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+    KEEP_CONTENT: true,
+  })
+}
+
+/**
+ * Converts plain text with **bold** markdown to HTML with <strong> tags.
+ * Escapes HTML and sanitizes output. Safe for dangerouslySetInnerHTML.
+ * @param {string} text - Plain text possibly containing **bold** segments
+ * @returns {string} HTML string with bold rendered as <strong>
+ */
+export function plainTextWithBoldToHTML(text) {
+  if (!text || typeof text !== 'string') return ''
+  const escapeHtml = (str) =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+  let out = escapeHtml(text)
+  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  out = out.replace(/\n/g, '<br />')
+  return DOMPurify.sanitize(out, {
+    ALLOWED_TAGS: ['strong', 'em', 'br'],
+    ALLOWED_ATTR: [],
     KEEP_CONTENT: true,
   })
 }

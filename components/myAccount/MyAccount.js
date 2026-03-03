@@ -381,7 +381,7 @@ function MyAccount() {
       style={{ overflow: 'hidden', height: '100vh' }}
     >
       <StandardHeader title="My Account" showTasks={true} />
-      <div className="w-full flex flex-row item-center pl-4 h-[100%]">
+      <div className="w-full flex flex-row item-center pl-4 h-[100%] bg-white">
         <div className="w-3/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
           {!permissionsLoaded && isInvitee ? (
             // Show loading state while checking permissions

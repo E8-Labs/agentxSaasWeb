@@ -62,6 +62,9 @@ const Pipeline1 = ({
   const [pipelinesDetails, setPipelinesDetails] = useState([])
   // Per-pipeline cadence: { [pipelineId]: { assignedLeads, rowsByIndex, nextStage, selectedNextStage } }
   const [cadenceByPipeline, setCadenceByPipeline] = useState({})
+  // Skip re-restoring from localStorage when pipelinesDetails is updated in-place (e.g. after adding a stage)
+  // so we don't overwrite current in-memory assignments.
+  const restoredCadenceForPipelineRef = useRef(new Set())
   const [createPipelineLoader, setPipelineLoader] = useState(false)
   const [isInboundAgent, setIsInboundAgent] = useState(false)
   const [showRearrangeErr, setShowRearrangeErr] = useState(null)
@@ -192,6 +195,17 @@ const Pipeline1 = ({
       )
 
       if (selectedPipeline) {
+        // Only restore from localStorage once per pipeline (e.g. on initial load).
+        // When pipelinesDetails is updated in-place (e.g. after adding a new stage),
+        // skip restore so we don't overwrite current in-memory assignments and unassign stages.
+        const alreadyRestored = restoredCadenceForPipelineRef.current.has(storedPipelineItem)
+        if (alreadyRestored) {
+          setSelectedPipelineItem(selectedPipeline)
+          setSelectedPipelineStages(selectedPipeline.stages)
+          return
+        }
+        restoredCadenceForPipelineRef.current.add(storedPipelineItem)
+
         // console.log("Pipeline stages1 are ", selectedPipeline.stages);
         // console.log("Pipeline indentifier1 are ", selectedPipeline);
         setSelectedPipelineItem(selectedPipeline)

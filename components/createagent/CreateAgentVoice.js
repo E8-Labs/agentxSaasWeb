@@ -452,16 +452,16 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       <div className="bg-white rounded-2xl w-10/12 h-[100%] sm:h-[95%] py-4 flex flex-col relative">
         <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
           {/* header */}
-          <div className="h-[10%]">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[95%]">
+          <div className="flex flex-col items-center px-4 w-full h-[95%] mt-4">
             <div
-              className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
+              className="w-11/12 md:text-4xl text-lg font-[700]"
               style={{
                 textAlign: 'center',
-                marginTop: isSubaccount ? '-40px' : undefined,
+                // marginTop: isSubaccount ? '-40px' : undefined,
               }}
             >
               Choose a voice for {agentDetails?.name}

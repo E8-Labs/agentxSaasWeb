@@ -9,6 +9,8 @@ import AgentSelectSnackMessage, {
 import { DEFAULT_TERMS_TEXT } from '@/constants/agencyTermsPrivacy'
 
 import LabelingHeader from './LabelingHeader'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import Image from 'next/image'
 
 const TermsConfig = ({ selectedAgency }) => {
   const [termsText, setTermsText] = useState('')
@@ -20,7 +22,13 @@ const TermsConfig = ({ selectedAgency }) => {
     message: '',
     isVisible: false,
   })
-  const richTextEditorRef = useRef(null)
+  const richTextEditorRef = useRef(null);
+
+  //opening cancellation in new tab
+  const getTermsUrl = async () => {
+    const { termsUrl } = await getPolicyUrls(null, true);
+    window.open(termsUrl, '_blank')
+  }
 
   // Fetch terms text on mount or when selectedAgency changes
   useEffect(() => {
@@ -133,7 +141,7 @@ const TermsConfig = ({ selectedAgency }) => {
       const updateData = {
         termsText: termsText,
       }
-      
+
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
         updateData.userId = selectedAgency.id
@@ -215,47 +223,65 @@ const TermsConfig = ({ selectedAgency }) => {
         </div>
       ) : (
 
-        <> 
-      {/* Terms Editor Card */}
-      <div className="w-full flex flex-row justify-center pt-8">
-        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
-          <div className="self-stretch">
-            <div className="text-black text-base font-normal leading-normal mb-2">
-              Terms & Conditions Content
-            </div>
-            <RichTextEditor
-              ref={richTextEditorRef}
-              value={termsText}
-              onChange={(html) => {
-                setTermsText(html)
-              }}
-              placeholder="Enter terms & conditions text..."
-            />
-          </div>
-
-          {/* Save Buttons */}
-          <div className="self-stretch inline-flex justify-between items-center mt-4">
-            {hasChanges() && (
-              <div
-                className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={handleReset}
-              >
-                <div className="text-slate-900 text-base font-normal leading-relaxed">
-                  Reset
+        <>
+          {/* Terms Editor Card */}
+          <div className="w-full flex flex-row justify-center pt-8">
+            <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
+              <div className="self-stretch">
+                <div className='mb-2 flex flex-row items-center justify-between'>
+                  <div className="text-black text-base font-normal leading-normal mb-2">
+                    Terms & Conditions Content
+                  </div>
+                  <button
+                    style={{
+                      pointerEvents: 'auto',
+                      zIndex: 10,
+                    }}
+                    onClick={() => {
+                      getTermsUrl();
+                      return
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/arrowboxIcon.svg'}
+                      height={20}
+                      width={20}
+                      alt="*"
+                    />
+                  </button>
                 </div>
+                <RichTextEditor
+                  ref={richTextEditorRef}
+                  value={termsText}
+                  onChange={(html) => {
+                    setTermsText(html)
+                  }}
+                  placeholder="Enter terms & conditions text..."
+                />
               </div>
-            )}
-            <div
-              className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
-                loading
-                  ? 'bg-brand-primary/60 cursor-not-allowed'
-                  : 'bg-brand-primary hover:bg-brand-primary/90'
-              } ${!hasChanges() ? 'ml-auto' : ''}`}
-              onClick={loading ? undefined : handleSave}
-            >
-              <div className="text-white text-base font-normal leading-relaxed">
-                {loading ? 'Saving...' : 'Save Changes'}
-              </div>
+
+              {/* Save Buttons */}
+              <div className="self-stretch inline-flex justify-between items-center mt-4">
+                {hasChanges() && (
+                  <div
+                    className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={handleReset}
+                  >
+                    <div className="text-slate-900 text-base font-normal leading-relaxed">
+                      Reset
+                    </div>
+                  </div>
+                )}
+                <div
+                  className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${loading
+                    ? 'bg-brand-primary/60 cursor-not-allowed'
+                    : 'bg-brand-primary hover:bg-brand-primary/90'
+                    } ${!hasChanges() ? 'ml-auto' : ''}`}
+                  onClick={loading ? undefined : handleSave}
+                >
+                  <div className="text-white text-base font-normal leading-relaxed">
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </div>
                 </div>
               </div>
             </div>

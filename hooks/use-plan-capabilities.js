@@ -13,7 +13,7 @@ import {
   selectUserPlan,
 } from '../store/slices/userSlice'
 
-export const usePlanCapabilities = () => {
+export const usePlanCapabilities = (selectedUser) => {
   const localData = localStorage.getItem('User')
   let agencyCapabilities = null
   if (localData) {

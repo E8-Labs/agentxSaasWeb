@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal } from '@mui/material'
+import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
@@ -11,6 +11,8 @@ import { Searchbar } from '@/components/general/MuiSearchBar'
 
 import SelectedUserDetails from '../users/SelectedUserDetails'
 import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
+import { Info } from 'lucide-react'
 
 function AdminAgencyDetails() {
   useEffect(() => {
@@ -44,7 +46,7 @@ function AdminAgencyDetails() {
         page: page.toString(),
         limit: LimitPerPage.toString(),
       })
-      
+
       if (searchTerm && searchTerm.trim()) {
         queryParams.append('search', searchTerm.trim())
       }
@@ -86,21 +88,21 @@ function AdminAgencyDetails() {
   // Handle search with debouncing
   const handleSearchChange = (value) => {
     setSearchQuery(value)
-    
+
     // Clear existing timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout)
     }
-    
+
     // Reset to first page when search changes
     setCurrentPage(1)
     setHasMore(true)
-    
+
     // Debounce API call by 500ms
     const timeout = setTimeout(() => {
       getAgencyDetails(1, value, true, false)
     }, 500)
-    
+
     setSearchTimeout(timeout)
   }
 
@@ -117,19 +119,19 @@ function AdminAgencyDetails() {
   const filteredAgencies = agencies
 
 
-  function GetAgencyPlan(agency){
-    if(agency.plan){
-      if(agency.plan.status === 'active'){
+  function GetAgencyPlan(agency) {
+    if (agency.plan) {
+      if (agency.plan.status === 'active') {
         return agency.plan.title
       }
-      else if(agency.plan.status === 'cancelled'){
+      else if (agency.plan.status === 'cancelled') {
         return 'Cancelled'
       }
-      else{
+      else {
         return 'No plan'
       }
     }
-    else{
+    else {
       return 'No plan'
     }
   }
@@ -155,7 +157,34 @@ function AdminAgencyDetails() {
           <div style={styles.text}>Plan</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>Total Spent</div>
+          <Tooltip
+            title="Combined spending by this agency and all of its subaccounts."
+            arrow
+            placement="top"
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  backgroundColor: getBrandPrimaryHex(),
+                  color: 'white',
+                  fontSize: '13px',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+                  maxWidth: 220,
+                },
+              },
+              arrow: {
+                sx: {
+                  color: getBrandPrimaryHex(),
+                },
+              },
+            }}
+          >
+            <div className="flex flex-row items-center gap-1 cursor-help" style={styles.text}>
+              Total Spent
+              <Info size={14} strokeWidth={2} color={getBrandPrimaryHex()} />
+            </div>
+          </Tooltip>
         </div>
         <div className="w-1/12">
           <div style={styles.text}>Credits Used</div>
@@ -194,58 +223,58 @@ function AdminAgencyDetails() {
         >
           {filteredAgencies.length > 0
             ? filteredAgencies.map((item) => (
-                <div
-                  key={item.id}
-                  className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    setSelectedUser(item)
-                  }}
-                >
-                  <div className="w-3/12 flex flex-row gap-2 items-center">
-                    <div className="h-[40px] w-[40px] rounded-full bg-black text-white flex items-center justify-center">
-                      {item.agencyName?.slice(0, 1).toUpperCase()}
-                    </div>
-                    <div style={styles.text2}>{item.agencyName}</div>
+              <div
+                key={item.id}
+                className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  setSelectedUser(item)
+                }}
+              >
+                <div className="w-3/12 flex flex-row gap-2 items-center">
+                  <div className="h-[40px] w-[40px] rounded-full bg-black text-white flex items-center justify-center">
+                    {item.agencyName?.slice(0, 1).toUpperCase()}
                   </div>
+                  <div style={styles.text2}>{item.agencyName}</div>
+                </div>
 
-                  <div className="w-2/12">
-                    <div style={styles.text2}>{item.subAccountsCount}</div>
-                  </div>
-                  <div className="w-1/12">
-                    <div style={styles.text2}>{GetAgencyPlan(item)}</div>
-                  </div>
-                  <div className="w-1/12">
-                    <div style={styles.text2}>
-                      ${formatFractional2(item.totalSpent)}
-                    </div>
-                  </div>
-                  <div className="w-1/12">
-                    <div style={styles.text2}>{item.minutesUsed} credits</div>
-                  </div>
-                  <div className="w-1/12">
-                    <div style={styles.text2}>
-                      {moment(item.renewal).format('MM/DD/YYYY')}
-                    </div>
-                  </div>
-                  <div className="w-1/12">
-                    <div style={styles.text2}>{item.agentsCount}</div>
-                  </div>
-                  <div className="w-2/12">
-                    <div style={styles.text2}>
-                      {moment(item.createdAt).format('MM/DD/YYYY')}
-                    </div>
+                <div className="w-2/12">
+                  <div style={styles.text2}>{item.subAccountsCount}</div>
+                </div>
+                <div className="w-1/12">
+                  <div style={styles.text2}>{GetAgencyPlan(item)}</div>
+                </div>
+                <div className="w-1/12">
+                  <div style={styles.text2}>
+                    ${formatFractional2(item.totalSpent)}
                   </div>
                 </div>
-              ))
+                <div className="w-1/12">
+                  <div style={styles.text2}>{item.minutesUsed} credits</div>
+                </div>
+                <div className="w-1/12">
+                  <div style={styles.text2}>
+                    {moment(item.renewal).format('MM/DD/YYYY')}
+                  </div>
+                </div>
+                <div className="w-1/12">
+                  <div style={styles.text2}>{item.agentsCount}</div>
+                </div>
+                <div className="w-2/12">
+                  <div style={styles.text2}>
+                    {moment(item.createdAt).format('MM/DD/YYYY')}
+                  </div>
+                </div>
+              </div>
+            ))
             : !loading && (
-                <div
-                  className="text-center mt-4"
-                  style={{ fontWeight: 'bold', fontSize: 20 }}
-                >
-                  No agency found
-                </div>
-              )}
+              <div
+                className="text-center mt-4"
+                style={{ fontWeight: 'bold', fontSize: 20 }}
+              >
+                No agency found
+              </div>
+            )}
         </InfiniteScroll>
       </div>
       <Modal

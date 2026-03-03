@@ -22,6 +22,7 @@ import {
 import MailgunEmailRequest from '../messaging/MailgunEmailRequest'
 import { generateOAuthState } from '@/utils/oauthState'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 
 function AuthSelectionPopup({
   open,
@@ -31,7 +32,9 @@ function AuthSelectionPopup({
   showEmailTempPopup,
   setSelectedGoogleAccount,
   selectedUser,
+  elevatedZIndex = false,
 }) {
+  const modalZIndex = elevatedZIndex ? 5020 : 1600
   // Get userId from URL query params as fallback (for agency managing subaccount)
   const getUserIdFromUrl = () => {
     if (typeof window === 'undefined') return null
@@ -199,11 +202,11 @@ function AuthSelectionPopup({
         open={open} 
         onClose={onClose}
         sx={{
-          zIndex: 1600, // Higher than NewMessageModal (1500) to appear on top
+          zIndex: modalZIndex,
         }}
         BackdropProps={{
           sx: {
-            zIndex: 1600, // Match Modal z-index
+            zIndex: modalZIndex,
           },
         }}
       >
@@ -212,7 +215,7 @@ function AuthSelectionPopup({
           sx={{ 
             ...styles.modalsStyle,
             position: 'relative',
-            zIndex: 1601, // Higher than backdrop (1600) to appear on top
+            zIndex: modalZIndex + 1,
           }}
         >
           <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
@@ -276,23 +279,26 @@ function AuthSelectionPopup({
                   {accountLoader ? (
                     <CircularProgress size={20} />
                   ) : gmailAccounts?.length > 0 ? (
-                    gmailAccounts?.map((item, index) => (
+                    gmailAccounts?.map((item, index) => {
+                      const gmailError = getGmailWatchErrorInfo(item)
+                      return (
                       <MenuItem
                         key={index}
                         // className="hover:bg-[#402FFF10]"
                         value={item}
                       >
-                        <div className="flex w-full flex-row items-center justify-between">
-                          <div className="flex flex-row items-center gap-2 max-w-[80%]">
-                            <div className="text-[15] font-[500]">
-                              {item.displayName}
+                        <div className="flex w-full flex-col gap-1">
+                          <div className="flex w-full flex-row items-center justify-between">
+                            <div className="flex flex-row items-center gap-2 max-w-[80%]">
+                              <div className="text-[15] font-[500]">
+                                {item.displayName}
+                              </div>
+                              <div className="text-[13] font-[500]  text-[#00000070]">
+                                {`(${item.email})`}
+                              </div>
                             </div>
-                            <div className="text-[13] font-[500]  text-[#00000070]">
-                              {`(${item.email})`}
-                            </div>
-                          </div>
 
-                          {delLoader?.id === item.id ? (
+                            {delLoader?.id === item.id ? (
                             <CircularProgress size={20} />
                           ) : (
                             <button
@@ -311,9 +317,26 @@ function AuthSelectionPopup({
                               />
                             </button>
                           )}
+                          </div>
+                          {gmailError && (
+                            <div className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 mt-0.5 flex items-center gap-1 flex-wrap" title={gmailError.actionHint}>
+                              <span>{gmailError.shortLabel} —</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleGmailConfirmationPopupOpen()
+                                }}
+                                className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
+                              >
+                                Reconnect
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </MenuItem>
-                    ))
+                    );
+                    })
                   ) : (
                     <div className="ml-2">No account found</div>
                   )}
@@ -376,11 +399,11 @@ function AuthSelectionPopup({
         open={showGmailConfirmationPopup}
         onClose={() => setShowGmailConfirmationPopup(false)}
         sx={{
-          zIndex: 1700, // Higher than AuthSelectionPopup (1600) to appear on top
+          zIndex: modalZIndex + 100,
         }}
         BackdropProps={{
           sx: {
-            zIndex: 1700, // Match Modal z-index
+            zIndex: modalZIndex + 100,
           },
         }}
       >
@@ -388,7 +411,7 @@ function AuthSelectionPopup({
           className="w-full h-full py-4 flex items-center justify-center"
           sx={{
             position: 'relative',
-            zIndex: 1701, // Higher than backdrop (1700) to appear on top
+            zIndex: modalZIndex + 101,
           }}
         >
           <div className="flex flex-col w-3/12  items-center px-4 py-6 bg-white max-h-[70vh] rounded-2xl">

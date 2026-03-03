@@ -43,7 +43,10 @@ const NotesTabCN = forwardRef(({
   noteDetails = [],
   selectedLeadsDetails,
   onNotesUpdated,
+  elevatedZIndex = false,
 }, ref) => {
+  const dialogOverlayClass = elevatedZIndex ? '!z-[5020]' : undefined
+  const dialogContentClass = elevatedZIndex ? '!z-[5020]' : undefined
   const [showAddNotes, setShowAddNotes] = useState(false)
 
   useImperativeHandle(ref, () => ({
@@ -301,7 +304,7 @@ const NotesTabCN = forwardRef(({
 
       {/* Add Note Modal */}
       <Dialog open={showAddNotes} onOpenChange={setShowAddNotes} modal={true}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className={dialogContentClass ? `sm:max-w-[500px] ${dialogContentClass}` : 'sm:max-w-[500px]'} overlayClassName={dialogOverlayClass}>
           <DialogHeader>
             <DialogTitle>
               <TypographyBodySemibold>{selectedLeadsDetails?.firstName ? `Add notes for ${selectedLeadsDetails?.firstName[0]?.toUpperCase()}` + selectedLeadsDetails?.firstName?.slice(1) : "Add your notes"}</TypographyBodySemibold>
@@ -349,7 +352,7 @@ const NotesTabCN = forwardRef(({
           setEditNoteValue('')
         }
       }} modal={true}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className={dialogContentClass ? `sm:max-w-[500px] ${dialogContentClass}` : 'sm:max-w-[500px]'} overlayClassName={dialogOverlayClass}>
           <DialogHeader>
             <DialogTitle>
               <TypographyBodySemibold>{selectedLeadsDetails?.firstName ? `Edit notes for ${selectedLeadsDetails?.firstName[0]?.toUpperCase()}` + selectedLeadsDetails?.firstName?.slice(1) : "Edit your notes"}</TypographyBodySemibold>
@@ -392,7 +395,7 @@ const NotesTabCN = forwardRef(({
 
       {/* Delete Confirmation Modal */}
       <Dialog open={showDeleteNoteConfirm} onOpenChange={setShowDeleteNoteConfirm} modal={true}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className={dialogContentClass ? `sm:max-w-[400px] ${dialogContentClass}` : 'sm:max-w-[400px]'} overlayClassName={dialogOverlayClass}>
           <DialogHeader>
             <DialogTitle>
               <TypographyBodySemibold>Delete Note</TypographyBodySemibold>

@@ -8,9 +8,36 @@ import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { TypographyBody } from '@/components/dashboard/leads/extras/TypographyCN'
 import { toast } from '@/utils/toast'
+import { PersistanceKeys } from '@/constants/Constants'
+
+const AGENTS_CACHE_KEY = PersistanceKeys.agentsListForMessaging;
+
+const AGENTS_LIST_CACHE_KEY = 'messaging_agents_list'
+
+function getCachedAgents() {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(AGENTS_LIST_CACHE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function setCachedAgents(list) {
+  if (typeof window === 'undefined' || !Array.isArray(list)) return
+  try {
+    localStorage.setItem(AGENTS_LIST_CACHE_KEY, JSON.stringify(list))
+  } catch (e) {
+    console.warn('AgentsListForThread: failed to cache agents', e)
+  }
+}
 
 /**
  * Fetches agents via GET Apis.getAgents, shows list with getAgentsListImage.
+ * Loads from localStorage first (if any), then refreshes from API and updates cache.
  * On select: PATCH thread with selectedAgentId, then call onSelectionSaved(updatedThread).
  */
 export default function AgentsListForThread({
@@ -19,8 +46,8 @@ export default function AgentsListForThread({
   threadId,
   onSelectionSaved,
 }) {
-  const [agentsList, setAgentsList] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [agentsList, setAgentsList] = useState(() => getCachedAgents() ?? [])
+  const [loading, setLoading] = useState(!getCachedAgents())
   const [saving, setSaving] = useState(false)
   const listWrapRef = React.useRef(null)
   const [pill, setPill] = React.useState({ top: 0, height: 0 })
@@ -40,6 +67,19 @@ export default function AgentsListForThread({
   const handleListMouseLeave = () => setPillVisible(false)
 
   useEffect(() => {
+    // if (typeof window !== 'undefined') {
+    //   try {
+    //     const raw = localStorage.getItem(AGENTS_CACHE_KEY)
+    //     if (raw) {
+    //       const parsed = JSON.parse(raw)
+    //       if (Array.isArray(parsed)) setAgentsList(parsed)
+    //       return
+    //     }
+    //   } catch (_) {
+    //     // ignore cache read errors
+    //   }
+    // }
+
     const token = getToken()
     if (!token) {
       setLoading(false)
@@ -47,7 +87,9 @@ export default function AgentsListForThread({
       return
     }
 
-    setLoading(true)
+    const hasCache = getCachedAgents()?.length > 0
+    if (!hasCache) setLoading(true)
+
     fetch(`${Apis.getAgents}?pagination=false`, {
       method: 'GET',
       headers: {
@@ -57,12 +99,13 @@ export default function AgentsListForThread({
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data?.data) setAgentsList(Array.isArray(data.data) ? data.data : [])
-        else setAgentsList([])
+        const list = data?.data && Array.isArray(data.data) ? data.data : []
+        setAgentsList(list)
+        setCachedAgents(list)
       })
       .catch((err) => {
         console.error('Error fetching agents for thread:', err)
-        setAgentsList([])
+        if (!hasCache) setAgentsList([])
       })
       .finally(() => setLoading(false))
   }, [threadId])
@@ -131,52 +174,20 @@ export default function AgentsListForThread({
 
   return (
     <div className="py-2 px-3 rounded-lg m-0 flex-1 min-h-0 flex flex-col">
-    <div ref={listWrapRef} className="relative flex-1 min-h-0 overflow-y-auto space-y-0.5" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
-      {pillVisible && (
-        <div
-          className="absolute left-1 right-1 rounded-lg bg-black/[0.02] transition-[top,height] duration-150 ease-out pointer-events-none"
-          style={{ top: pill.top, height: pill.height }}
-        />
-      )}
-      {/* First option: Sky (default for normal chats, same as AI Chat) */}
-      <div data-sliding-pill-item className="w-full">
-      <button
-        type="button"
-        className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
-        style={selectedAgentId == null ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : undefined}
-        onClick={() => handleSelect(null)}
-        disabled={saving}
-      >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="relative shrink-0 w-[24px] h-[24px] rounded-full overflow-hidden bg-muted flex items-center justify-center">
-            <div
-              className="absolute left-0 right-0 flex items-center justify-center rounded-full overflow-hidden"
-              style={{ top: 6, filter: 'blur(10px)', transform: 'scale(0.9)', zIndex: 0 }}
-              aria-hidden
-            >
-              <AgentXOrb width={24} height={24} />
-            </div>
-            <div className="relative z-10 flex items-center justify-center w-full h-full">
-              <AgentXOrb width={24} height={24} />
-            </div>
-          </div>
-          <TypographyBody className={`text-sm truncate ${selectedAgentId == null ? 'text-brand-primary font-medium' : 'text-foreground'}`}>Sky</TypographyBody>
-        </div>
-        {selectedAgentId == null && (
-          <Check className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
+      <div ref={listWrapRef} className="relative flex-1 min-h-0 overflow-y-auto space-y-0.5" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
+        {pillVisible && (
+          <div
+            className="absolute left-1 right-1 rounded-lg bg-black/[0.02] transition-[top,height] duration-150 ease-out pointer-events-none"
+            style={{ top: pill.top, height: pill.height }}
+          />
         )}
-      </button>
-      </div>
-
-      {flatAgents.map((agent) => {
-        const isSelected = selectedAgentId != null && Number(selectedAgentId) === Number(agent.id)
-        return (
-          <div key={agent.id} data-sliding-pill-item className="w-full">
+        {/* First option: Sky (default for normal chats, same as AI Chat) */}
+        <div data-sliding-pill-item className="w-full">
           <button
             type="button"
             className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
-            style={isSelected ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : undefined}
-            onClick={() => handleSelect(agent.id)}
+            style={selectedAgentId == null ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : undefined}
+            onClick={() => handleSelect(null)}
             disabled={saving}
           >
             <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -186,22 +197,54 @@ export default function AgentsListForThread({
                   style={{ top: 6, filter: 'blur(10px)', transform: 'scale(0.9)', zIndex: 0 }}
                   aria-hidden
                 >
-                  {getAgentsListImage(agent.raw, 24, 24)}
+                  <AgentXOrb width={24} height={24} />
                 </div>
                 <div className="relative z-10 flex items-center justify-center w-full h-full">
-                  {getAgentsListImage(agent.raw, 24, 24)}
+                  <AgentXOrb width={24} height={24} />
                 </div>
               </div>
-              <TypographyBody className={`text-sm truncate ${isSelected ? 'text-brand-primary font-medium' : 'text-foreground'}`}>{agent.name}</TypographyBody>
+              <TypographyBody className={`text-sm truncate ${selectedAgentId == null ? 'text-brand-primary font-medium' : 'text-foreground'}`}>Sky</TypographyBody>
             </div>
-            {isSelected && (
+            {selectedAgentId == null && (
               <Check className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
             )}
           </button>
-          </div>
-        )
-      })}
-    </div>
+        </div>
+
+        {flatAgents.map((agent) => {
+          const isSelected = selectedAgentId != null && Number(selectedAgentId) === Number(agent.id)
+          return (
+            <div key={agent.id} data-sliding-pill-item className="w-full">
+              <button
+                type="button"
+                className="h-10 w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md hover:bg-transparent cursor-pointer text-left"
+                style={isSelected ? { backgroundColor: 'hsl(var(--brand-primary) / 0.05)' } : undefined}
+                onClick={() => handleSelect(agent.id)}
+                disabled={saving}
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className="relative shrink-0 w-[24px] h-[24px] rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                    <div
+                      className="absolute left-0 right-0 flex items-center justify-center rounded-full overflow-hidden"
+                      style={{ top: 6, filter: 'blur(10px)', transform: 'scale(0.9)', zIndex: 0 }}
+                      aria-hidden
+                    >
+                      {getAgentsListImage(agent.raw, 24, 24)}
+                    </div>
+                    <div className="relative z-10 flex items-center justify-center w-full h-full">
+                      {getAgentsListImage(agent.raw, 24, 24)}
+                    </div>
+                  </div>
+                  <TypographyBody className={`text-sm truncate ${isSelected ? 'text-brand-primary font-medium' : 'text-foreground'}`}>{agent.name}</TypographyBody>
+                </div>
+                {isSelected && (
+                  <Check className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
+                )}
+              </button>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

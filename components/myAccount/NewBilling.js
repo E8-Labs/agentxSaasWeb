@@ -519,6 +519,7 @@ function NewBilling() {
 
       if (matchedPlan) {
         matchedPlan.planId = profilePlan.planId
+        if (profilePlan.status != null) matchedPlan.status = profilePlan.status
         setCurrentFullPlan(matchedPlan)
       } else {
         setCurrentFullPlan(profilePlan)
@@ -1214,6 +1215,9 @@ function NewBilling() {
     if (currentPlan && selectedPlan.name === 'Free') {
       // if user try to downgrade on free plan
       setShowCancelPoup(true)
+    } else if (currentFullPlan?.status === 'cancelled') {
+      // Cancelled plan: open upgrade modal so user can subscribe/resume (same or different plan)
+      setShowUpgradeModal(true)
     } else {
       const planComparison = comparePlans(currentFullPlan, selectedPlan)
 
@@ -1333,6 +1337,24 @@ function NewBilling() {
         className:
           'w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border',
         style: {},
+      }
+    }
+
+    // If current plan is cancelled, show Subscribe (resume) regardless of selection
+    if (currentFullPlan?.status === 'cancelled') {
+      return {
+        text: 'Subscribe',
+        action: () => handleUpgradeClick(),
+        isLoading: subscribePlanLoader,
+        className: 'rounded-xl w-full',
+        style: {
+          height: '50px',
+          fontSize: 16,
+          fontWeight: '700',
+          flexShrink: 0,
+          backgroundColor: '#7902DF',
+          color: '#ffffff',
+        },
       }
     }
 

@@ -28,7 +28,9 @@ import { cn } from '@/lib/utils'
 import { TypographyCaption } from '@/lib/typography'
 import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
+import { messageMarkdownToHtml } from './messageMarkdown'
 
 /** Sliding pill background for MUI Select Menu: follows hovered menu item, 2% black, 8px radius. */
 const SlidingPillMenuList = React.forwardRef((props, ref) => {
@@ -163,7 +165,10 @@ const NewMessageModal = ({
   isLeadMode = false,
   isBookingStage = false,
   isFromAdminOrAgency = null,
+  elevatedZIndex = false, // When true, modal and overlays use z-index above TeamMemberActivityDrawer (5000)
 }) => {
+  const modalZIndex = elevatedZIndex ? 15020 : 1500
+  console.log("modalZIndex in newmessage modal is", modalZIndex);
   const [selectedMode, setSelectedMode] = useState(mode)
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [searchQuery, setSearchQuery] = useState('')
@@ -484,7 +489,12 @@ const NewMessageModal = ({
         return
       }
 
-      const apiPath = `${Apis.searchLeadsForMessaging}?search=${encodeURIComponent(searchTerm.trim())}&limit=50`
+      let apiPath = `${Apis.searchLeadsForMessaging}?search=${encodeURIComponent(searchTerm.trim())}&limit=50`
+      if (selectedUser) {
+        apiPath = `${Apis.searchLeadsForMessaging}?search=${encodeURIComponent(searchTerm.trim())}&limit=50&userId=${selectedUser.id}`
+      }
+
+      // console.log("ApiPath for search leads is", apiPath);
 
       const response = await axios.get(apiPath, {
         headers: {
@@ -1620,7 +1630,7 @@ const NewMessageModal = ({
           const formData = new FormData()
           formData.append('leadId', lead.id)
           formData.append('subject', emailSubject)
-          formData.append('body', messageBody)
+          formData.append('body', messageMarkdownToHtml(messageBody))
           formData.append('emailAccountId', selectedEmailAccount)
 
           if (ccEmails.length > 0) {
@@ -1800,8 +1810,13 @@ const NewMessageModal = ({
         closeAfterTransition
         aria-labelledby="new-message-modal"
         aria-describedby="new-message-description"
+        slotProps={{
+          root: {
+            style: { zIndex: modalZIndex },
+          },
+        }}
         sx={{
-          zIndex: 1500, // Higher than LeadDetails Drawer (1400) to appear on top
+          zIndex: modalZIndex,
         }}
         BackdropProps={{
           timeout: 250,
@@ -1920,10 +1935,10 @@ const NewMessageModal = ({
                                 transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                 slotProps={{
                                   root: {
-                                    style: { zIndex: 9999 },
+                                    style: { zIndex: modalZIndex + 100 },
                                   },
                                 }}
-                                sx={{ zIndex: 9999 }}
+                                sx={{ zIndex: modalZIndex + 100 }}
                                 disableScrollLock
                                 PaperProps={{
                                   style: {
@@ -2068,10 +2083,10 @@ const NewMessageModal = ({
                                     transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                                     slotProps={{
                                       root: {
-                                        style: { zIndex: 9999 },
+                                        style: { zIndex: modalZIndex + 100 },
                                       },
                                     }}
-                                    sx={{ zIndex: 9999 }}
+                                    sx={{ zIndex: modalZIndex + 100 }}
                                     disableScrollLock
                                     PaperProps={{
                                       style: {
@@ -2113,19 +2128,6 @@ const NewMessageModal = ({
                                                     {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
                                                   </span>
                                                 )}
-                                                <button
-                                                  type="button"
-                                                  onClick={(e) => handleDeleteEmailAccount(account, e)}
-                                                  disabled={deletingEmailAccountId === account.id}
-                                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
-                                                  title="Delete email account"
-                                                >
-                                                  {deletingEmailAccountId === account.id ? (
-                                                    <CircularProgress size={14} />
-                                                  ) : (
-                                                    <Trash2 size={14} />
-                                                  )}
-                                                </button>
                                               </div>
                                             </div>
                                           </button>
@@ -2339,6 +2341,19 @@ const NewMessageModal = ({
                                         <span className="text-[14px] text-foreground truncate max-w-[150px]">
                                           {ccEmails[0]}
                                         </span>
+                                        {
+                                          ccEmails.length === 1 && (
+                                            <button
+                                              onClick={() => {
+                                                removeCcEmail(ccEmails[0])
+                                              }}
+                                              className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                              title="Remove email"
+                                            >
+                                              <Trash2 size={16} className="text-brand-primary" />
+                                            </button>
+                                          )
+                                        }
                                         {ccEmails.length > 1 && (
                                           <span
                                             className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
@@ -2416,6 +2431,17 @@ const NewMessageModal = ({
                                         <span className="text-[14px] text-foreground truncate max-w-[150px]">
                                           {bccEmails[0]}
                                         </span>
+                                        {bccEmails.length === 1 && (
+                                          <button
+                                            onClick={() => {
+                                              removeBccEmail(bccEmails[0])
+                                            }}
+                                            className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                            title="Remove email"
+                                          >
+                                            <Trash2 size={16} className="text-brand-primary" />
+                                          </button>
+                                        )}
                                         {bccEmails.length > 1 && (
                                           <span
                                             className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
@@ -3167,6 +3193,7 @@ const NewMessageModal = ({
             })
           }
         }}
+        elevatedZIndex={elevatedZIndex}
       // selectedUser={getSelectedUser()}
       />
 

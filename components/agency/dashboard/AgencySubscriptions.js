@@ -301,20 +301,20 @@ function AgencySubscriptions({ selectedAgency }) {
   }
   const UpgateRateData = analyticData?.subscription?.upgradeBreakdown
     ? Object.keys(analyticData?.subscription?.upgradeBreakdown).map(
-        (key, index) => ({
-          name: key,
-          value: analyticData.subscription.upgradeBreakdown[key] || 0,
-          color: colors[index % colors.length], // Assign color based on index
-        }),
-      )
+      (key, index) => ({
+        name: key,
+        value: analyticData.subscription.upgradeBreakdown[key] || 0,
+        color: colors[index % colors.length], // Assign color based on index
+      }),
+    )
     : []
 
   const UpgateRateData2 = analyticData?.plan30Upgrades
     ? Object.keys(analyticData?.plan30Upgrades).map((key, index) => ({
-        name: key,
-        value: analyticData.subscription.upgradeBreakdown[key] || 0,
-        color: colors[index % colors.length], // Assign color based on index
-      }))
+      name: key,
+      value: analyticData.subscription.upgradeBreakdown[key] || 0,
+      color: colors[index % colors.length], // Assign color based on index
+    }))
     : []
 
   useEffect(() => {
@@ -411,7 +411,7 @@ function AgencySubscriptions({ selectedAgency }) {
           setTestPlans(planTitles)
         }
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   const handleStartDateSelect = (date) => {
@@ -724,12 +724,27 @@ function AgencySubscriptions({ selectedAgency }) {
                         bottom: 20,
                       }}
                     >
-                      {/* X-Axis */}
-                      <XAxis
+                      {/* X-Axis
+                        <XAxis
                         dataKey="name"
                         tickLine={false}
                         axisLine={false}
                         tick={{ fontSize: 12, fill: '#6b7280' }}
+                      /> */}
+                      <XAxis
+                        dataKey="name"
+                        tick={false}
+                        tickLine={false}
+                        axisLine={false}
+                        label={{
+                          value: 'Revenue (US$)',
+                          // position: 'bottom',
+                          style: {
+                            textAnchor: 'middle',
+                            fontSize: 12,
+                            fill: '#6b7280',
+                          },
+                        }}
                       />
 
                       {/* Y-Axis */}

@@ -60,6 +60,9 @@ const SystemMessage = ({
   shouldShowAiEmailAndTextRequestFeature = false,
   onShowUpgrade,
   onShowRequestFeature,
+  openFollowUpForMessageId = null,
+  openFollowUpType = null,
+  onOpenFollowUpConsumed = null,
 }) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
@@ -68,6 +71,17 @@ const SystemMessage = ({
   const hasAiKey = hasAiKeyProp
   const [followUpSubmitting, setFollowUpSubmitting] = useState(false)
   const aiActionRef = useRef(null)
+
+  // When user selected Email/Text from AI actions inside the chat drawer, open this message's follow-up panel
+  useEffect(() => {
+    if (openFollowUpForMessageId != null && openFollowUpType && message?.id === openFollowUpForMessageId) {
+      setAiActionType(openFollowUpType)
+      setAiActionInput('')
+      if (typeof onOpenFollowUpConsumed === 'function') {
+        onOpenFollowUpConsumed()
+      }
+    }
+  }, [openFollowUpForMessageId, openFollowUpType, message?.id, onOpenFollowUpConsumed])
 
   useEffect(() => {
     if (aiActionType && aiActionRef.current) {
@@ -281,6 +295,7 @@ const SystemMessage = ({
   // Handle call_summary activity type - render CallTranscriptCN component
   if (message.activityType === 'call_summary') {
     const activityData = message.metadata?.activityData || {}
+    console.log("activityData tension is", activityData)
     // Use displayCallId if available (prioritizes twilioCallSid for dialer calls), otherwise fallback to synthflowCallId or callId
     // Ensure we always have a valid callId - convert to string if it's a number
     const callId = activityData.displayCallId || activityData.twilioCallSid || activityData.synthflowCallId || (activityData.callId ? String(activityData.callId) : null)
@@ -291,6 +306,8 @@ const SystemMessage = ({
       recordingUrl: activityData.recordingUrl,
       transcript: activityData.transcript,
       callSummary: activityData.callSummary || null, // Can be null if no summary available
+      callOutcome: activityData.callOutcome || null,
+      callStatus: activityData.status || null,
     }
 
     // Get caller name from senderUser or agent
@@ -380,9 +397,9 @@ const SystemMessage = ({
                     )
                 }
 
-                <div className="w-full max-w-2xl px-4 py-4">
+                <div className={`${(callData.callStatus === "voicemail" || callData.callStatus === "no-answer") ? "w-[250px] flex flex-row items-center justify-center" : "w-full max-w-2xl "} px-4 py-4`}>
                   <div
-                    className="rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden"
+                    className={`bg-background px-0 flex flex-col gap-1 overflow-hidden ${callData.callStatus === "voicemail" || callData.callStatus === "no-answer" ? "w-[150px] flex flex-row items-center justify-center py-2 rounded-full" : "pt-0 pb-3 w-full max-w-2xl rounded-[16px]"}`}
                     style={{
                       boxShadow:
                         '0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9',

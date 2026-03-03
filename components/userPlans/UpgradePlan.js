@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import { getPlanChangeDirection } from '@/utils/planComparison'
 
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -241,9 +242,16 @@ function UpgradePlanContent({
   setShowSnackMsg = null,
   showSnackMsg = null,
   selectedUser,
+  hasRedeemedTrial: hasRedeemedTrialProp,
+  elevatedZIndex = false,
 }) {
+  const modalZIndex = elevatedZIndex ? 5020 : 3000
   const stripeReact = useStripe()
   const elements = useElements()
+  // For subaccount: show Due today $0 when plan has trial and user has not redeemed trial
+  const hasRedeemedTrial =
+    hasRedeemedTrialProp === true ||
+    getUserLocalData()?.hasRedeemedTrial === true
 
   //plans durations view
   const [duration, setDuration] = useState([
@@ -484,6 +492,7 @@ function UpgradePlanContent({
             resp.data?.codeType === 'promo' &&
             resp.data?.promoType === 'discount'
           ) {
+            console.log('promo codes resp.data', resp.data)
             setPromoCodeDetails(resp.data)
           } else {
             setPromoCodeDetails(null)
@@ -793,6 +802,8 @@ function UpgradePlanContent({
 
   const isPlanCurrent = (item) => {
 
+    // console.log("currentUserFullPlan in is plan current is", currentFullPlan)
+
     console.log("item in is plan current is", item)
     if (!item) {
       return false
@@ -801,6 +812,7 @@ function UpgradePlanContent({
     // When selectedUser is provided (agency/admin viewing subaccount/other user),
     // use currentFullPlan (selected user's plan) instead of currentUserPlan (logged-in user's plan from localStorage)
     const planToCompare = selectedUser?.id ? currentFullPlan : currentUserPlan
+    console.log("planToCompare in is plan current is itemPlanId", currentFullPlan)
 
     if (!planToCompare) {
       return false
@@ -810,10 +822,10 @@ function UpgradePlanContent({
     // item.id is the plan ID from the plans list
     // Convert both to numbers for strict comparison
     const itemPlanId = Number(item.id || item.planId)
-    const currentPlanId = Number(planToCompare.id || planToCompare.planId)
+    const currentPlanId = Number(planToCompare.planId ||planToCompare.id)
 
     console.log("itemPlanId", itemPlanId)
-    console.log("currentPlanId", currentPlanId)
+    console.log("currentPlanId itemPlanId", currentPlanId)
 
     // Only log when there's a potential match to reduce noise
     if (
@@ -1277,42 +1289,22 @@ function UpgradePlanContent({
       return 'Subscribe'
     }
 
-    // Use planToCompare (which is currentFullPlan when selectedUser is provided, otherwise currentUserPlan)
-    const comparison = comparePlans(planToCompare, currentSelectedPlan)
-    console.log("Comparison check btn is", comparison)
-
-    if (currentSelectedPlan?.discountPrice === 0) {
-      return 'Downgrade'
-    }
+    const isSubAccount =
+      from === 'SubAccount' ||
+      selectedUser?.userRole === 'AgencySubAccount' ||
+      UserLocalData?.userRole === 'AgencySubAccount'
+    const comparison = getPlanChangeDirection(planToCompare, currentSelectedPlan, {
+      ...(isSubAccount ? { skipTierFromName: true } : {}),
+    })
 
     if (comparison === 'upgrade') {
       return 'Upgrade'
-    } else if (comparison === 'downgrade') {
-      return 'Downgrade'
-    } else if (comparison === 'same' && !isCurrentPlan) {
-      return 'Upgrade'
-    } else if (comparison === 'same' && isCurrentPlan) {
-      return 'Cancel Subscription'
     }
-
-    // Fallback: Compare prices directly from planToCompare and currentSelectedPlan
-    // Try multiple possible price fields
-    const currentPrice =
-      planToCompare?.price ||
-      planToCompare?.discountPrice ||
-      planToCompare?.discountedPrice ||
-      0
-    const selectedPrice =
-      currentSelectedPlan?.discountPrice ||
-      currentSelectedPlan?.discountedPrice ||
-      currentSelectedPlan?.price ||
-      currentSelectedPlan?.originalPrice ||
-      0
-
-    if (selectedPrice > currentPrice && selectedPrice > 0) {
-      return 'Upgrade'
-    } else if (selectedPrice < currentPrice && selectedPrice > 0) {
+    if (comparison === 'downgrade') {
       return 'Downgrade'
+    }
+    if (comparison === 'same') {
+      return isCurrentPlan ? 'Cancel Subscription' : 'Upgrade'
     }
 
     return 'Subscribe'
@@ -1641,16 +1633,19 @@ function UpgradePlanContent({
   }
 
   const getButtonConfig = () => {
-    // Compare plans based on price
-    const planComparison = comparePlans(currentFullPlan, selectedPlan)
-
-    // If still loading (currentFullPlan not ready), don't show any button
-    if (planComparison === null) {
-      return null // Will hide the button section while loading
-    }
+    if (!currentFullPlan || !selectedPlan) return null
+    const UserLocalData = getUserLocalData()
+    const isSubAccount =
+      from === 'SubAccount' ||
+      selectedUser?.userRole === 'AgencySubAccount' ||
+      UserLocalData?.userRole === 'AgencySubAccount'
+    const direction = getPlanChangeDirection(currentFullPlan, selectedPlan, {
+      ...(isSubAccount ? { skipTierFromName: true } : {}),
+    })
+    if (direction === 'same') return null
 
     // If it's an upgrade, show Upgrade button
-    if (planComparison === 'upgrade') {
+    if (direction === 'upgrade') {
       return {
         text: 'Upgrade',
         action: () => handleSubscribePlan(),
@@ -1696,13 +1691,14 @@ function UpgradePlanContent({
       onClose={() => handleClose(false)}
       closeAfterTransition
       sx={{
-        zIndex: 3000, // Higher than dropdown menu (z-[2000])
+        zIndex: modalZIndex,
       }}
       BackdropProps={{
         timeout: 100,
         sx: {
           backgroundColor: '#00000020',
           backdropFilter: 'blur(15px)',
+          zIndex: modalZIndex,
         },
         onClick: (e) => {
           // Close modal when clicking backdrop
@@ -1714,7 +1710,7 @@ function UpgradePlanContent({
     >
       <Box
         className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
-        sx={styles.paymentModal}
+        sx={{ ...styles.paymentModal, zIndex: modalZIndex + 1 }}
       >
         <div className="flex flex-col justify-center w-full h-full">
           <AgentSelectSnackMessage
@@ -1806,9 +1802,9 @@ function UpgradePlanContent({
                   </div>
                 </div>
 
-                {/* Content Section */}
+                {/* Content Section - overflow-x-hidden so only the plan strip scrolls horizontally */}
                 <div
-                  className="w-full flex flex-col items-start flex-1 min-h-0 overflow-y-auto"
+                  className="w-full flex flex-col items-start flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
                   style={{
                     scrollbarWidth: 'none',
                   }}
@@ -1816,9 +1812,10 @@ function UpgradePlanContent({
                   <div className="text-lg font-semibold">Select Plan</div>
 
                   <div
-                    className="w-full flex flex-row gap-3 mt-3"
+                    className="w-full min-w-0 max-w-[100%] flex flex-row gap-3 mt-3 overflow-x-auto overflow-y-auto h-[120px] min-h-[120px]"
                     style={{
                       scrollbarWidth: 'none',
+                      WebkitOverflowScrolling: 'touch',
                     }}
                   >
                     {loading ? (
@@ -1830,7 +1827,7 @@ function UpgradePlanContent({
                         const isCurrentPlan = isPlanCurrent(item)
                         return (
                           <button
-                            className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
+                            className={`w-[240px] min-w-[240px] h-[120px] min-h-[120px] flex-shrink-0 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
                                                         ${isCurrentPlan
                                 ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
                                 : currentSelectedPlan?.id ===
@@ -1847,22 +1844,22 @@ function UpgradePlanContent({
                             }}
                             disabled={isCurrentPlan}
                           >
-                            <div className="w-full flex flex-row items-center justify-between">
-                              <div className="text-[15px] font-semibold">
+                            <div className="w-full flex flex-row items-center justify-between flex-shrink-0">
+                              <div className="text-[15px] font-semibold truncate min-w-0 mr-2">
                                 {item.name || item.title}
                               </div>
 
-                              <div className="text-[15px] font-semibold">
+                              <div className="text-[15px] font-semibold flex-shrink-0">
                                 {`$${formatFractional2(item.discountPrice || item.discountedPrice || item.originalPrice)}`}
                               </div>
                             </div>
 
-                            <div className="text-[13px] font-[500] mt-1">
+                            <div className="text-[13px] font-[500] mt-1 min-h-0 flex-1 overflow-hidden line-clamp-2">
                               {item.details || item.description}
                             </div>
 
                             <div
-                              className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold
+                              className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold flex-shrink-0
                                                         ${isCurrentPlan
                                   ? 'bg-gray-400 text-white cursor-not-allowed'
                                   : 'bg-brand-primary text-white'
@@ -2021,55 +2018,9 @@ function UpgradePlanContent({
                           </div>
                         </div>
 
-                        {/* Calculate discount if promo code is applied */}
+                        {/* Calculate discount if promo code is applied. Total Billed = actual recurring amount; Due Today (below) = $0 when trial */}
                         {(() => {
-                          // Check if plan has trial and user is subscribing for the first time
                           const hasTrial = currentSelectedPlan?.hasTrial === true
-                          const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                          // If plan has trial and user has no previous plan, show $0 for all pricing
-                          if (hasTrial && isFirstTimeSubscription) {
-                            return (
-                              <>
-                                <div className="flex flex-row items-start justify-between w-full mt-6">
-                                  <div>
-                                    <div
-                                      className="capitalize"
-                                      style={{ fontWeight: '600', fontSize: 15 }}
-                                    >
-                                      {` Total Billed ${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration}`}
-                                    </div>
-                                    <div
-                                      className=""
-                                      style={{
-                                        fontWeight: '400',
-                                        fontSize: 13,
-                                        marginTop: '',
-                                      }}
-                                    >
-                                      Next Charge Date{' '}
-                                      {promoCodeDetails?.nextChargeDateFormatted ||
-                                        moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className=""
-                                    style={{ fontWeight: '600', fontSize: 15 }}
-                                  >
-                                    $0
-                                  </div>
-                                </div>
-                              </>
-                            )
-                          }
-
-                          const discountCalculation = promoCodeDetails
-                            ? calculateDiscountedPrice(
-                              currentSelectedPlan,
-                              promoCodeDetails,
-                            )
-                            : null
-
                           const billingMonths = GetMonthCountFronBillingCycle(
                             currentSelectedPlan?.billingCycle ||
                             currentSelectedPlan?.duration,
@@ -2080,6 +2031,13 @@ function UpgradePlanContent({
                             currentSelectedPlan?.originalPrice ||
                             0
                           const originalTotal = billingMonths * monthlyPrice
+                          const discountCalculation = promoCodeDetails
+                            ? calculateDiscountedPrice(
+                              currentSelectedPlan,
+                              promoCodeDetails,
+                            )
+                            : null
+
                           const est = promoCodeDetails?.estimatedDiscount
                           const useApiTotals =
                             est != null &&
@@ -2153,8 +2111,21 @@ function UpgradePlanContent({
                                     }}
                                   >
                                     Next Charge Date{' '}
-                                    {promoCodeDetails?.nextChargeDateFormatted ||
-                                      moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
+                                    {(() => {
+                                      const isFullDiscount =
+                                        promoCodeDetails?.discountType === 'percentage' &&
+                                        Number(promoCodeDetails?.discountValue) === 100 &&
+                                        promoCodeDetails?.discountDurationMonths > 0
+                                      if (isFullDiscount) {
+                                        return moment()
+                                          .add(promoCodeDetails.discountDurationMonths, 'months')
+                                          .format('MMMM DD, YYYY')
+                                      }
+                                      return (
+                                        promoCodeDetails?.nextChargeDateFormatted ||
+                                        moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')
+                                      )
+                                    })()}
                                   </div>
                                   {discountCalculation &&
                                     discountCalculation.discountMonths > 0 && (
@@ -2188,17 +2159,8 @@ function UpgradePlanContent({
                                   style={{ fontWeight: '600', fontSize: 15 }}
                                 >
                                   {(() => {
-                                    // Check if plan has trial and user is subscribing for the first time
-                                    console.log("currentSelectedPlan value is", currentSelectedPlan)
-                                    console.log("currentUserPlan", currentUserPlan)
                                     const hasTrial = currentSelectedPlan?.hasTrial === true
-                                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId
-
-                                    // If plan has trial and user has no previous plan, show $0
-                                    if (hasTrial && isFirstTimeSubscription) {
-                                      return '$0'
-                                    }
-
+                                    if (hasTrial && !hasRedeemedTrial) return '$0'
                                     return discountCalculation
                                       ? `$${formatFractional2(finalTotal)}`
                                       : `$${formatFractional2(originalTotal)}`
@@ -2302,18 +2264,8 @@ function UpgradePlanContent({
                     <div className=" text-3xl font-semibold  ">
                       {(() => {
                         if (!currentSelectedPlan) return '$0'
-
-                        // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = currentSelectedPlan?.hasTrial === true
-                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId
-
-                        // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
-                        if (hasTrial && isFirstTimeSubscription) {
-                          return '$0'
-                        }
-
-                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
-
+                        if (hasTrial && !hasRedeemedTrial) return '$0'
                         const discountCalculation = promoCodeDetails
                           ? calculateDiscountedPrice(
                             currentSelectedPlan,
@@ -2640,6 +2592,8 @@ function UpgradePlan({
   setSelectedPlan = null,
   from = 'User',
   selectedUser,
+  hasRedeemedTrial,
+  elevatedZIndex = false,
   // setShowSnackMsg = null
 }) {
   // Get parent component name for debugging (without props)
@@ -2694,6 +2648,8 @@ function UpgradePlan({
         setShowSnackMsg={setShowSnackMsg}
         showSnackMsg={showSnackMsg}
         selectedUser={selectedUser}
+        hasRedeemedTrial={hasRedeemedTrial}
+        elevatedZIndex={elevatedZIndex}
       />
     </Elements>
   )

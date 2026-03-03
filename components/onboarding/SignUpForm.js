@@ -573,13 +573,13 @@ const SignUpForm = ({
       <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
         <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24 scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
-          <div className="h-[10%]">
+          <div className="absolute top-0 left-0 right-0">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full">
+          <div className="flex flex-col items-center px-4 w-full mt-4">
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
+              className="w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
               // onClick={()=>{
               //   console.log('push',)

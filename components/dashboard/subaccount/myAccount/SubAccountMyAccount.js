@@ -417,7 +417,7 @@ function SubAccountMyAccount() {
           <NotficationsDrawer />
         </div>
       </div>
-      <div className="w-full flex flex-row item-center pl-4">
+      <div className="w-full flex flex-row item-center pl-4 bg-white">
         {initialLoader ? (
           <div className="w-4/12 flex flex-row items-center justify-center">
             <CircularProgress />

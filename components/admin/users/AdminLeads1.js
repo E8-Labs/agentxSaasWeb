@@ -49,6 +49,7 @@ import AdminLeads from './AdminLeads'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { Plus } from 'lucide-react'
+import NewContactDrawer from '@/components/messaging/NewContactDrawer'
 
 const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const addColRef = useRef(null)
@@ -84,6 +85,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
   //functions for add custom stage list
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false)
+
+  //function to show new contact drawer
+  const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
 
   const [isEnrich, setIsEnrich] = useState(false)
 
@@ -1325,7 +1329,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       <button
                         className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                         onClick={() => {
-                          setShowAddNewSheetModal(true)
+                          setShowNewContactDrawer(true)
                         }}
                       >
                         <Plus className="text-white" />
@@ -2202,7 +2206,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
             },
           }}
         >
-          <Box className="md:w-[627px] w-8/12" sx={styles.modalsStyle}>
+          <Box className="md:w-[750px] w-9/12" sx={styles.modalsStyle}>
             <div className="flex flex-row justify-center w-full">
               <div
                 className="sm:w-full w-full"
@@ -2285,6 +2289,17 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       <span style={styles.headingStyle}>Create Smartlist</span>
                     </button>
                   </div>
+                  <div className="">
+                    <button
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] px-4 rounded-lg items-center justify-center"
+                      onClick={() => {
+                        setShowNewContactDrawer(true)
+                      }}
+                    >
+                      <Plus className='text-white' />
+                      <span style={styles.headingStyle}>New Contact</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2303,6 +2318,26 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           }
           duratuin={11}
         />
+
+        {/* New Contact Drawer */}
+        {
+          showNewContactDrawer && (
+            <NewContactDrawer
+              open={showNewContactDrawer}
+              onClose={() => setShowNewContactDrawer(false)}
+              onSuccess={() => {
+                // // Refresh threads after contact creation
+                // if (onContactCreated) {
+                //   onContactCreated()
+                // }
+                setShowNewContactDrawer(false)
+                setAddNewLeadModal(false)
+              }}
+              selectedUser={selectedUser}
+            />
+          )
+        }
+
         {/* Modal to add custom sheet When no leads are added */}
         <CreateSmartlistModal
           open={showAddNewSheetModal}

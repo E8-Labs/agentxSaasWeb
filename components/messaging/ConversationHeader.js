@@ -18,7 +18,7 @@ import { X, Link2 } from 'lucide-react'
 import LinkToLeadModal from '@/components/messaging/LinkToLeadModal'
 import PlatformIcon from '@/components/messaging/PlatformIcon'
 
-function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, getThreadDisplayName, selectedUser, onThreadUpdated, onThreadLinked }) {
+function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, getThreadDisplayName, selectedUser, onThreadUpdated, onThreadLinked, onStageChange }) {
     const router = useRouter()
     
     // Stage management state
@@ -260,6 +260,8 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     const teamData = response.data.data || []
                     const adminData = response.data.admin
 
+                    // console.log('🎯 [getMyteam] Team data:', response.data)
+
                     setMyTeam(teamData)
                     setMyTeamAdmin(adminData || null)
                 }
@@ -345,7 +347,11 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 setUpdateLeadLoader(false)
                 if (response.data.status === true) {
                     showSnackbar(response.data.message, SnackbarTypes.Success)
+                    const previousStageTitle = selectedStage
                     setSelectedStage(stage.stageTitle)
+                    if (onStageChange) {
+                        onStageChange({ newStage: stage, previousStageTitle })
+                    }
                     // Update lead details if available
                     if (leadDetails) {
                         setLeadDetails({

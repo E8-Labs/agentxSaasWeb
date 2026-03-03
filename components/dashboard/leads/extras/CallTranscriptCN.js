@@ -6,10 +6,10 @@ import Image from 'next/image'
 import { Copy, FileText, ListChecks } from 'lucide-react'
 import { Tooltip } from '@mui/material'
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
 import { Button } from '@/components/ui/button'
 
 import {
@@ -17,8 +17,8 @@ import {
   TypographyBodySemibold,
   TypographyBodyMedium,
 } from '@/lib/typography'
+import { getSentimentEmoji } from '@/utils/sentimentToEmoji'
 import {
-  getSentimentIcon,
   getTemperatureIconForActivity,
   formatNextStepsForTooltip,
 } from './activityUtils'
@@ -33,7 +33,9 @@ const CallTranscriptCN = ({
   leadName = null,
   selectedUser = null,
   bottomRightContent = null,
+  tooltipZIndex,
 }) => {
+  const popperZIndexProps = tooltipZIndex != null ? { PopperProps: { style: { zIndex: tooltipZIndex } } } : {}
   const callSummary = item.callSummary
   const summaryText = callSummary?.callSummary || null
   const hasSummary = summaryText && summaryText.trim()
@@ -43,8 +45,7 @@ const CallTranscriptCN = ({
     ? summaryText
     : 'No summary available'
 
-  // State for popover and modal
-  const [nextStepsPopoverOpen, setNextStepsPopoverOpen] = useState(false)
+  // State for task modal (hover card is uncontrolled)
   const [taskModalOpen, setTaskModalOpen] = useState(false)
 
   // useEffect(() => {
@@ -88,8 +89,9 @@ const CallTranscriptCN = ({
 
         {/* Top right icons: Sentiment, Temperature, Next Steps */}
         <div className="flex flex-row items-center gap-3 text-black [&_svg]:text-black [&_svg]:text-current" style={{ color: '#000' }}>
-          {callSummary?.prospectSentiment && (
+          {callSummary?.prospectSentiment && getSentimentEmoji(callSummary.prospectSentiment) && (
             <Tooltip
+              {...popperZIndexProps}
               title={`Sentiment: ${callSummary.prospectSentiment}`}
               arrow
               componentsProps={{
@@ -113,14 +115,19 @@ const CallTranscriptCN = ({
             >
               <div
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                role="img"
+                aria-label={`Sentiment: ${callSummary.prospectSentiment}`}
               >
-                {getSentimentIcon(callSummary.prospectSentiment)}
+                <span className="text-lg leading-none">
+                  {getSentimentEmoji(callSummary.prospectSentiment)}
+                </span>
               </div>
             </Tooltip>
           )}
 
           {callSummary?.leadTemperature && (
             <Tooltip
+              {...popperZIndexProps}
               title={`Temperature: ${callSummary.leadTemperature}`}
               arrow
               componentsProps={{
@@ -151,25 +158,21 @@ const CallTranscriptCN = ({
           )}
 
           {callSummary?.nextSteps && (
-            <Popover open={nextStepsPopoverOpen} onOpenChange={setNextStepsPopoverOpen}>
-              <PopoverTrigger asChild>
+            <HoverCard openDelay={0} closeDelay={200}>
+              <HoverCardTrigger asChild>
                 <div
                   style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                  onMouseEnter={() => setNextStepsPopoverOpen(true)}
-                  onMouseLeave={() => setNextStepsPopoverOpen(false)}
+                  className="outline-none"
                 >
                   <ListChecks size={18} color="hsl(var(--brand-primary))" />
                 </div>
-              </PopoverTrigger>
-              <PopoverContent 
-                className="p-0 flex flex-col gap-1"
-                onMouseEnter={() => setNextStepsPopoverOpen(true)}
-                onMouseLeave={() => setNextStepsPopoverOpen(false)}
+              </HoverCardTrigger>
+              <HoverCardContent
+                className="p-0 flex flex-col gap-1 w-[280px]"
                 side="right"
                 align="center"
                 style={{
-                  zIndex: 15000,
-                  width: '280px',
+                  zIndex: tooltipZIndex ?? 15000,
                   animation: 'nextStepsPopoverEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                   boxShadow: '0 8px 40px rgba(0, 0, 0, 0.15)',
                 }}
@@ -193,18 +196,15 @@ const CallTranscriptCN = ({
                 </div>
                 <div className="px-4 py-3">
                   <Button
-                    onClick={() => {
-                      setNextStepsPopoverOpen(false)
-                      setTaskModalOpen(true)
-                    }}
+                    onClick={() => setTaskModalOpen(true)}
                     className="w-full bg-brand-primary text-white hover:bg-brand-primary/90"
                     size="sm"
                   >
                     Add task
                   </Button>
                 </div>
-              </PopoverContent>
-            </Popover>
+              </HoverCardContent>
+            </HoverCard>
           )}
         </div>
       </div>
@@ -226,6 +226,7 @@ const CallTranscriptCN = ({
           <Tooltip
             title="Copy Call ID"
             arrow
+            {...popperZIndexProps}
             componentsProps={{
               tooltip: {
                 sx: {
@@ -272,6 +273,7 @@ const CallTranscriptCN = ({
             <Tooltip
               title="Read Transcript"
               arrow
+              {...popperZIndexProps}
               componentsProps={{
                 tooltip: {
                   sx: {
@@ -313,6 +315,7 @@ const CallTranscriptCN = ({
           leadName={leadName}
           callId={item.id}
           selectedUser={selectedUser}
+          elevatedZIndex={tooltipZIndex != null}
         />
       )}
     </div>

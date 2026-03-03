@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import { messageMarkdownToHtml } from './messageMarkdown'
 
 // Helper function to check if HTML body has actual text content
 const hasTextContent = (html) => {
@@ -91,6 +92,10 @@ const EmailTimelineModal = ({
   const [showBCC, setShowBCC] = useState(false)
   const [imageErrors, setImageErrors] = useState(new Set())
   const [currentUserData, setCurrentUserData] = useState(null)
+  const [attachments, setAttachments] = useState([])
+  const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false)
+  const attachmentDropdownRef = useRef(null)
+  const attachmentDropdownTimeoutRef = useRef(null)
 
   // Get current user data from localStorage on mount
   useEffect(() => {
@@ -122,6 +127,33 @@ const EmailTimelineModal = ({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Handle file attachment (same as NewMessageModal: max 5 files, 10MB total)
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || [])
+    const maxSizeInBytes = 10 * 1024 * 1024 // 10MB
+    const maxAttachments = 5
+
+    if (attachments.length + files.length > maxAttachments) {
+      toast.error(`Maximum ${maxAttachments} attachments allowed`)
+      return
+    }
+
+    const currentTotalSize = attachments.reduce((total, file) => total + file.size, 0)
+    const newFilesTotalSize = files.reduce((total, file) => total + file.size, 0)
+
+    if (currentTotalSize + newFilesTotalSize > maxSizeInBytes) {
+      toast.error("File size can't be more than 10MB")
+      return
+    }
+
+    setAttachments((prev) => [...prev, ...files])
+    e.target.value = ''
+  }
+
+  const removeAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index))
+  }
 
   // Format reply subject (add "Re:" prefix if not present)
   const formatReplySubject = (originalSubject) => {
@@ -381,7 +413,7 @@ const EmailTimelineModal = ({
       const formData = new FormData()
       formData.append('leadId', leadId)
       formData.append('subject', emailSubject)
-      formData.append('body', replyBody)
+      formData.append('body', messageMarkdownToHtml(replyBody))
       formData.append('emailAccountId', selectedEmailAccount)
 
       // Add CC and BCC if they exist
@@ -395,6 +427,13 @@ const EmailTimelineModal = ({
       // Add replyToMessageId if replying to a specific message
       if (replyToMessage && replyToMessage.id) {
         formData.append('replyToMessageId', replyToMessage.id.toString())
+      }
+
+      // Add attachments if any
+      if (attachments && attachments.length > 0) {
+        attachments.forEach((file) => {
+          formData.append('attachments', file)
+        })
       }
 
       const response = await axios.post(Apis.sendEmailToLead, formData, {
@@ -412,8 +451,9 @@ const EmailTimelineModal = ({
             whiteSpace: 'nowrap',
           },
         })
-        // Clear reply body but keep subject, email, CC, and BCC for next reply
+        // Clear reply body and attachments; keep subject, email, CC, and BCC for next reply
         setReplyBody('')
+        setAttachments([])
         // Don't clear replySubject - keep it for subsequent replies in the same thread
         // Only regenerate if it's empty (shouldn't happen, but safety check)
         if (!replySubject && replyToMessage?.subject) {
@@ -829,6 +869,98 @@ const EmailTimelineModal = ({
                   placeholder="Type your message..."
                   toolbarPosition="bottom"
                   className="min-h-[80px]"
+                  attachmentButton={
+                    <div
+                      className="relative"
+                      ref={attachmentDropdownRef}
+                      onMouseEnter={() => {
+                        if (attachmentDropdownTimeoutRef.current) {
+                          clearTimeout(attachmentDropdownTimeoutRef.current)
+                          attachmentDropdownTimeoutRef.current = null
+                        }
+                        if (attachments.length > 0) {
+                          setShowAttachmentDropdown(true)
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                          setShowAttachmentDropdown(false)
+                          attachmentDropdownTimeoutRef.current = null
+                        }, 300)
+                      }}
+                    >
+                      <label className="cursor-pointer">
+                        <button
+                          type="button"
+                          className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative"
+                          onClick={() => document.getElementById('email-timeline-attachment-input')?.click()}
+                        >
+                          <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                          {attachments.length > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                              {attachments.length}
+                            </span>
+                          )}
+                        </button>
+                        <input
+                          id="email-timeline-attachment-input"
+                          type="file"
+                          accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+
+                      {showAttachmentDropdown && attachments.length > 0 && (
+                        <div
+                          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-[2000]"
+                          onMouseEnter={() => {
+                            if (attachmentDropdownTimeoutRef.current) {
+                              clearTimeout(attachmentDropdownTimeoutRef.current)
+                              attachmentDropdownTimeoutRef.current = null
+                            }
+                            setShowAttachmentDropdown(true)
+                          }}
+                          onMouseLeave={() => {
+                            attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                              setShowAttachmentDropdown(false)
+                              attachmentDropdownTimeoutRef.current = null
+                            }, 300)
+                          }}
+                        >
+                          <div className="p-2">
+                            <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                              Attachments ({attachments.length})
+                            </div>
+                            <div className="space-y-1">
+                              {attachments.map((file, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50 rounded transition-colors group"
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-sm text-gray-900 truncate">
+                                      {file.name || file.originalName || `File ${index + 1}`}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {file.size ? `${(file.size / 1024).toFixed(2)} KB` : ''}
+                                    </div>
+                                  </div>
+                                  <CloseBtn
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      removeAttachment(index)
+                                    }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  }
                 />
 
                 {/* Overlapping send button above toolbar */}

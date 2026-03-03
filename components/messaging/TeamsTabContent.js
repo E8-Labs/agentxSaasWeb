@@ -12,6 +12,8 @@ export default function TeamsTabContent({ teamOptions = [], onToggle }) {
   const [pill, setPill] = useState({ top: 0, height: 0 })
   const [pillVisible, setPillVisible] = useState(false)
 
+  // console.log('🎯 [TeamsTabContent] Team options passed:', teamOptions)
+
   const handleListMouseMove = (e) => {
     const wrap = listWrapRef.current
     if (!wrap) return

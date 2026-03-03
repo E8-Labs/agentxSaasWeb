@@ -12,7 +12,7 @@ import AgentSelectSnackMessage, {
 import {
   formatDecimalValue,
 } from '../agencyServices/CheckAgencyData'
-import { formatFractional2 } from './AgencyUtilities'
+import { formatFractional2, formatFractional2Stable } from './AgencyUtilities'
 import { AuthToken } from './AuthDetails'
 import SideUI from './SideUI'
 import SubDuration from './SubDuration'
@@ -306,7 +306,8 @@ export default function AddMonthlyPlan({
       ) {
         // basicsData.discountedPrice is now total price per month (not price per credit)
         // Store raw number without formatting to avoid comma issues in calculations
-        setDiscountedPrice(DiscountedPrice > 0 ? DiscountedPrice.toString() : '')
+        const price = formatFractional2Stable(DiscountedPrice)
+        setDiscountedPrice(price) // > 0 ? price.toString() : ''
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')
@@ -338,7 +339,8 @@ export default function AddMonthlyPlan({
       if (selectedPlan?.discountedPrice) {
         // selectedPlan.discountedPrice is the total price per month (stored in DB)
         // Store raw number without formatting to avoid comma issues in calculations
-        setDiscountedPrice(selectedPlan.discountedPrice > 0 ? selectedPlan.discountedPrice.toString() : '')
+        const price = formatFractional2Stable(selectedPlan.discountedPrice)
+        setDiscountedPrice(price) // > 0 ? price.toString() : ''
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')

@@ -102,10 +102,25 @@ import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
+import { isPlanActive } from '@/components/userPlans/UserPlanServices'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
   const { user: reduxUser, setUser: setReduxUser } = useUser()
+
+  const {
+    canCreateAgent,
+    allowVoicemail,
+    allowToolsAndActions,
+    allowKnowledgeBases,
+    allowLiveCallTransfer,
+    isFeatureAllowed,
+    getUpgradeMessage,
+    isFreePlan,
+    currentAgents,
+    maxAgents,
+  } = usePlanCapabilities(selectedUser)
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
@@ -466,6 +481,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setAudio(ad) // Play the audio
   }
 
+  const getModelIcon = (model) =>
+    model?.value === 'gpt-4.1-mini' &&
+      (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
+      ? (reduxUser?.agencyBranding?.supportWidgetLogoUrl || selectedUser?.agencyBranding?.supportWidgetLogoUrl)
+      : model?.icon
+  // console.log("Value of reduxUser is", reduxUser)
+
   // Restore agent drawer state when component mounts and agents are loaded (only for admin/agency users)
   useEffect(() => {
     if (!isAdminOrAgency() || !agentData || agentData.length === 0) return
@@ -717,6 +739,90 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       console.error('Error occurred in duplicate agent API:', errorMessage)
       setShowErrorSnack(`Error: ${errorMessage}`)
       setIsVisibleSnack2(true)
+    }
+  }
+
+  const shouldDuplicateAgent = async () => {
+    if (!selectedUser?.id) {
+      setShowErrorSnack('User not selected')
+      setIsVisibleSnack2(true)
+      setShowDuplicateConfirmationPopup(false)
+      return
+    }
+
+    // Fetch fresh user details so we check limits against current data (selectedUser may be stale)
+    const freshUser = await AdminGetProfileDetails(selectedUser.id)
+    if (!freshUser) {
+      setShowErrorSnack('Could not load user details')
+      setIsVisibleSnack2(true)
+      setShowDuplicateConfirmationPopup(false)
+      return
+    }
+
+    if (!isPlanActive(freshUser?.plan)) {
+      setShowErrorSnack(
+        "This user's plan is paused. Activate to duplicate agents",
+      )
+      setIsVisibleSnack2(true)
+      setShowDuplicateConfirmationPopup(false)
+      return
+    }
+
+    const planCapabilities = freshUser?.planCapabilities
+    const currentUsage = freshUser?.currentUsage
+    const plan = freshUser?.plan
+    const maxAgentsLimit = planCapabilities?.maxAgents ?? 0
+    const currentAgentsCount = currentUsage?.maxAgents ?? 0
+
+    const isFreePlanUser =
+      !plan || plan?.price === 0 || plan?.type?.toLowerCase?.()?.includes('free')
+    const canCreate =
+      currentAgentsCount < maxAgentsLimit &&
+      !(isFreePlanUser && currentAgentsCount >= 1)
+
+    if (planCapabilities) {
+      if (!canCreate) {
+        if (isFreePlanUser && currentAgentsCount >= 1) {
+          setShowUpgradeModal(true)
+          setTitle('Unlock your Web Agent')
+          setSubTitle(
+            'Bring your AI agent to your website allowing them to engage with leads and customers',
+          )
+          setShowDuplicateConfirmationPopup(false)
+          return
+        }
+        if (currentAgentsCount >= maxAgentsLimit) {
+          setShowMoreAgentsPopup(true)
+          setMoreAgentsPopupType('duplicate')
+          return
+        }
+      }
+      handleDuplicate()
+      return
+    }
+
+    // Fallback when planCapabilities not present (use same shape as API: top-level)
+    const user = freshUser
+    if (user?.planCapabilities) {
+      if (user?.plan === null || user?.plan?.price === 0) {
+        if (
+          (user?.currentUsage?.maxAgents ?? 0) >=
+          (user?.planCapabilities?.maxAgents ?? 0)
+        ) {
+          setShowUpgradePlanModal(true)
+          setMoreAgentsPopupType('duplicate')
+          return
+        }
+      }
+      if (
+        (user?.currentUsage?.maxAgents ?? 0) >=
+        (user?.planCapabilities?.maxAgents ?? 0)
+      ) {
+        setShowUpgradePlanModal(true)
+        setMoreAgentsPopupType('duplicate')
+        return
+      }
+      handleDuplicate()
     }
   }
 
@@ -2842,6 +2948,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           ) {
             formData.append('liveTransferNumber', voiceData.liveTransferNumber)
           }
+          if (voiceData.liveTransferMessage !== undefined) {
+            formData.append(
+              'liveTransferMessage',
+              voiceData.liveTransferMessage,
+            )
+          }
           if (
             voiceData.callbackNumber ||
             voiceData.callbackNumber !== undefined
@@ -2868,9 +2980,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         if (voiceData?.idleMessage !== undefined) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
+        if (selectedUser) {
+          formData.append('userId', selectedUser?.id)
+        }
 
-        for (let [key, value] of formData.entries()) { }
-
+        for (let [key, value] of formData.entries()) {
+          // console.log("key in formData", key, "value in formData", value)
+        }
+        // return
         const response = await axios.post(ApiPath, formData, {
           headers: {
             Authorization: 'Bearer ' + AuthToken,
@@ -3044,7 +3161,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // ////console.log
 
   return (
-    <div className="w-full flex flex-col items-center h-full overflow-hidden mt-[1vh] ps-4">
+    <div className="w-full flex flex-col items-center h-full overflow-hidden">
       {/* Slider code */}
       <div
         style={{
@@ -3153,9 +3270,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           <div className="flex flex-row items-center gap-3">
             <TypographyH3
               className="cursor-pointer"
-              // onClick={() => {
-              //   router.push('/createagent')
-              // }}
+            // onClick={() => {
+            //   router.push('/createagent')
+            // }}
             >
               Agents
             </TypographyH3>
@@ -3745,7 +3862,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <DuplicateConfirmationPopup
                     open={showDuplicateConfirmationPopup}
                     handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                    handleDuplicate={handleDuplicate}
+                    handleDuplicate={shouldDuplicateAgent}
                   />
                   {/* GPT Button */}
 
@@ -3772,7 +3889,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         }}
                       >
                         <Avatar
-                          src={selectedGptManu?.icon}
+                          src={getModelIcon(selectedGptManu)}
                           sx={{ width: 24, height: 24, marginRight: 1 }}
                         />
                         {getModelDisplayName(selectedGptManu)}
@@ -3797,47 +3914,53 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           },
                         }}
                       >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              padding: '8px 12px',
-                              borderRadius: '8px',
-                              transition: 'background 0.2s',
-                              '&:hover': {
-                                backgroundColor: model.disabled
-                                  ? 'inherit'
-                                  : '#F5F5F5',
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <Avatar
-                              src={model.icon}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            {getModelDisplayName(model)}
-
-                            <div
-                              style={{
-                                backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                color: 'hsl(var(--brand-primary))',
-                                padding: '4px 8px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                minWidth: 'fit-content',
+                        {models.map((model, index) => {
+                          const iconSrc =
+                            model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
+                              ? reduxUser.agencyBranding.supportWidgetLogoUrl
+                              : model.icon
+                          return (
+                            <MenuItem
+                              key={index}
+                              onClick={() => handleGptManuSelect(model)}
+                              disabled={model.disabled}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                transition: 'background 0.2s',
+                                '&:hover': {
+                                  backgroundColor: model.disabled
+                                    ? 'inherit'
+                                    : '#F5F5F5',
+                                },
+                                opacity: model.disabled ? 0.6 : 1,
                               }}
                             >
-                              {model.responseTime}
-                            </div>
-                          </MenuItem>
-                        ))}
+                              <Avatar
+                                src={iconSrc}
+                                sx={{ width: 24, height: 24 }}
+                              />
+                              {getModelDisplayName(model)}
+
+                              <div
+                                style={{
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                  color: 'hsl(var(--brand-primary))',
+                                  padding: '4px 8px',
+                                  borderRadius: '12px',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  minWidth: 'fit-content',
+                                }}
+                              >
+                                {model.responseTime}
+                              </div>
+                            </MenuItem>
+                          )
+                        })}
                       </Menu>
                     </div>
                   )}
@@ -5220,7 +5343,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           : 'Call Transfer Number'
                       }
                       loading={loading}
-                      update={async (value) => {
+                      isTransfer={selectedNumber === 'Calltransfer'}
+                      transferMessage={showDrawerSelectedAgent?.liveTransferMessage}
+                      update={async (value, transferMessage) => {
                         let data = ''
                         if (selectedNumber === 'Callback') {
                           data = {
@@ -5229,6 +5354,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         } else {
                           data = {
                             liveTransferNumber: value,
+                            ...(transferMessage !== undefined && {
+                              liveTransferMessage: transferMessage,
+                            }),
                           }
                         }
                         //console.log;
@@ -5965,11 +6093,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                             const scriptBuilderUrl =
                               selectedUser?.agencySettings?.scriptWidgetUrl ??
                               reduxUser?.agencySettings?.scriptWidgetUrl ??
+                              reduxUser?.userSettings?.scriptWidgetUrl ??
                               PersistanceKeys.DefaultScriptBuilderUrl
                             window.open(scriptBuilderUrl, '_blank')
                           }}
                         >
-                          Use Script Builder
+                          Use {selectedUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
                           <ArrowUpRight size={20} color="white" />
                         </button>
                       </div>
