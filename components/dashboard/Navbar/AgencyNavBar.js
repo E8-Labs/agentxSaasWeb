@@ -205,6 +205,14 @@ const AgencyNavBarContent = () => {
       uneselected: '/agencyNavbarIcons/unSelectedWhitelabelling.png',
       permissionKey: 'agency.whitelabel.manage',
     },
+    {
+      id: 8,
+      name: 'Templates',
+      href: '/agency/dashboard/templates',
+      selected: '/agencyNavbarIcons/selectedSubAccountIcon.png',
+      uneselected: '/agencyNavbarIcons/unSelectedSubAccountIcon.png',
+      permissionKey: 'agency.templates.manage',
+    },
   ], [])
 
   // Pre-check all permissions for Invitee users to prevent flicker

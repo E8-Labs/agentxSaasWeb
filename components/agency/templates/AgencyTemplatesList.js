@@ -1,0 +1,476 @@
+'use client'
+
+import {
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  IconButton,
+  Typography,
+} from '@mui/material'
+import axios from 'axios'
+import Link from 'next/link'
+import React, { useEffect, useState } from 'react'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded'
+
+import Apis from '@/components/apis/Apis'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+
+const cardShadow = '0 2px 12px rgba(0, 0, 0, 0.06)'
+const cardShadowHover = '0 8px 24px rgba(0, 0, 0, 0.1)'
+const textPrimary = '#151515'
+const textSecondary = '#6b7280'
+const textMuted = '#666666'
+const grayCaption = '#8a8a8a'
+const pillBg = 'rgba(255,255,255,0.4)'
+const pillBorder = '1px solid rgba(255,255,255,1)'
+const pillShadow = '0px 7px 50px 0px rgba(0,0,0,0.14)'
+const borderSubtle = '1px solid rgba(21,21,21,0.1)'
+const newCardBg = '#faf9ff'
+const successGreen = '#01CB76'
+
+/** Map industry value to display label (e.g. RealEstateAgent -> Real Estate) */
+function industryLabel(industry) {
+  if (!industry) return 'Industry'
+  const map = {
+    RealEstateAgent: 'Real Estate',
+    SalesDevRep: 'Sales Dev',
+    SolarRep: 'Solar',
+    InsuranceAgent: 'Insurance',
+    MarketerAgent: 'Marketer',
+    RecruiterAgent: 'Recruiter',
+    Creator: 'Creator',
+    TaxAgent: 'Tax',
+  }
+  return map[industry] || industry.replace(/([A-Z])/g, ' $1').trim()
+}
+
+export default function AgencyTemplatesList() {
+  const [templates, setTemplates] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await axios.get(Apis.getTemplates, {
+          headers: { Authorization: 'Bearer ' + AuthToken() },
+        })
+        if (res?.data?.status && res?.data?.data?.agencyTemplates) {
+          setTemplates(res.data.data.agencyTemplates)
+        } else {
+          setTemplates([])
+        }
+      } catch (err) {
+        setError(
+          err?.response?.data?.message || err?.message || 'Failed to load templates',
+        )
+        setTemplates([])
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTemplates()
+  }, [])
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight={280}
+        sx={{ color: textSecondary }}
+      >
+        <CircularProgress size={32} />
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography sx={{ color: '#b91c1c', fontSize: '0.9375rem' }}>
+          {error}
+        </Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <Box
+      sx={{
+        p: 3,
+        maxWidth: 1200,
+        mx: 'auto',
+      }}
+    >
+      <Box
+        sx={{
+          pb: 3,
+          mb: 3,
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
+        }}
+      >
+        <Typography
+          component="h1"
+          sx={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: textPrimary,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Templates
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: 2.5,
+        }}
+      >
+        {/* New card Figma 24207-80562 */}
+        {/* New Template card - always first (Figma: node 24207-80562) */}
+        <Link href="/create-template" style={{ textDecoration: 'none' }}>
+          <Card
+            elevation={0}
+            sx={{
+              borderRadius: '3.688px',
+              boxShadow: 'none',
+              border: '0.738px solid rgba(21,21,21,0.1)',
+              bgcolor: newCardBg,
+              minHeight: 260,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+              '&:hover': {
+                boxShadow: cardShadowHover,
+                borderColor: 'rgba(21,21,21,0.15)',
+              },
+            }}
+          >
+            <CardContent sx={{ textAlign: 'center', py: 5, width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  mx: 'auto',
+                }}
+              >
+                <Typography
+                  component="span"
+                  sx={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '3rem',
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    color: textPrimary,
+                  }}
+                >
+                  +
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    lineHeight: 'normal',
+                    color: textPrimary,
+                  }}
+                >
+                  New Template
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Template cards (Figma: node 24207-80889) */}
+        {templates.map((t) => {
+          const status = t.status || 'Draft'
+          const isPublished = status === 'Published'
+          return (
+            <Card
+              key={t.agentTemplateId}
+              elevation={0}
+              sx={{
+                borderRadius: '8px',
+                boxShadow: cardShadow,
+                border: borderSubtle,
+                bgcolor: '#ffffff',
+                minHeight: 260,
+                overflow: 'hidden',
+                transition: 'box-shadow 0.2s ease',
+                '&:hover': {
+                  boxShadow: cardShadowHover,
+                },
+              }}
+            >
+              <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                {/* Top section: pills + menu (Figma #faf9ff area) */}
+                <Box
+                  sx={{
+                    bgcolor: newCardBg,
+                    borderBottom: borderSubtle,
+                    px: 1,
+                    py: 1,
+                    position: 'relative',
+                    minHeight: 120,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      width: '100%',
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      px: 1.5,
+                      pt: 1,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                          px: 0.5,
+                          py: 0.25,
+                          borderRadius: '64px',
+                          bgcolor: pillBg,
+                          border: pillBorder,
+                          boxShadow: pillShadow,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 7.373,
+                            height: 7.373,
+                            borderRadius: '50%',
+                            bgcolor: isPublished ? successGreen : textSecondary,
+                          }}
+                        />
+                        <Typography
+                          sx={{
+                            fontFamily: 'Inter, sans-serif',
+                            fontSize: '12px',
+                            fontWeight: 400,
+                            lineHeight: '16px',
+                            letterSpacing: '-0.06px',
+                            color: textPrimary,
+                          }}
+                        >
+                          {status}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          px: 0.5,
+                          py: 0.25,
+                          borderRadius: '64px',
+                          bgcolor: pillBg,
+                          border: pillBorder,
+                          boxShadow: pillShadow,
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontFamily: 'Inter, sans-serif',
+                            fontSize: '12px',
+                            fontWeight: 400,
+                            lineHeight: '16px',
+                            letterSpacing: '-0.06px',
+                            color: textPrimary,
+                          }}
+                        >
+                          {industryLabel(t.industry)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <IconButton
+                      size="small"
+                      sx={{ color: textPrimary, mt: -0.25, mr: -0.5 }}
+                      aria-label="More actions"
+                    >
+                      <MoreVertRoundedIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  {/* Avatar with gradient */}
+                  <Box
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      background: 'radial-gradient(circle at 30% 30%, #e0e7ff 0%, #fce7f3 50%, #e0f2fe 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mt: 3,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '1.75rem', fontWeight: 600, color: textPrimary }}>
+                      {t.name ? t.name.charAt(0).toUpperCase() : '?'}
+                    </Typography>
+                  </Box>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '12px',
+                      fontWeight: 400,
+                      lineHeight: '16px',
+                      letterSpacing: '-0.06px',
+                      color: textPrimary,
+                      mt: 0.5,
+                    }}
+                  >
+                    0 sub accounts
+                  </Typography>
+                </Box>
+
+                {/* Name and Role */}
+                <Box sx={{ px: 2, pt: 1.25, textAlign: 'center' }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      lineHeight: 1.2,
+                      letterSpacing: '-0.14px',
+                      color: textPrimary,
+                    }}
+                  >
+                    {t.name || 'Unnamed template'}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '10px',
+                      fontWeight: 400,
+                      lineHeight: 1.2,
+                      letterSpacing: '-0.1px',
+                      color: grayCaption,
+                    }}
+                  >
+                    {t.agentRole || 'Role'}
+                  </Typography>
+                </Box>
+
+                {/* KPIs: Leads, Booked, Credits */}
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr 1fr',
+                    gap: 0.5,
+                    px: 1.5,
+                    pt: 1.25,
+                    pb: 2,
+                    mt: 'auto',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '12px',
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        letterSpacing: '-0.12px',
+                        color: textMuted,
+                      }}
+                    >
+                      Leads
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        letterSpacing: '-0.14px',
+                        color: textPrimary,
+                      }}
+                    >
+                      {t.leads != null ? t.leads : '—'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '12px',
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        letterSpacing: '-0.12px',
+                        color: textMuted,
+                      }}
+                    >
+                      Booked
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        letterSpacing: '-0.14px',
+                        color: textPrimary,
+                      }}
+                    >
+                      {t.booked != null ? t.booked : '—'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '12px',
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        letterSpacing: '-0.12px',
+                        color: textMuted,
+                      }}
+                    >
+                      Credits
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        lineHeight: 1.4,
+                        letterSpacing: '-0.14px',
+                        color: textPrimary,
+                      }}
+                    >
+                      {t.credits != null ? t.credits : '—'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </Box>
+    </Box>
+  )
+}
