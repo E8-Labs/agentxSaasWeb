@@ -25,6 +25,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import CustomTooltip from '@/utilities/CustomTooltip'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 // Helper function to format numbers with commas
 const formatNumberWithCommas = (num) => {
@@ -689,14 +690,14 @@ function SubscriptionGraphsSection({
                       style: {
                         textAnchor: 'middle',
                         fontSize: 12,
-                        fill: '#6b7280',
+                        fill: getBrandPrimaryHex() //'#6b7280',
                       },
                     }}
                   />
                   <YAxis
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fontSize: 11, fill: '#6b7280' }}
+                    tick={{ fontSize: 11, fill: getBrandPrimaryHex() }} //'#6b7280'
                     domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
                     allowDecimals={true}
                     label={{
@@ -706,7 +707,7 @@ function SubscriptionGraphsSection({
                       style: {
                         textAnchor: 'middle',
                         fontSize: 12,
-                        fill: '#6b7280',
+                        fill: getBrandPrimaryHex() //'#6b7280',
                       },
                     }}
                     tickFormatter={(value) => `$${formatNumberWithK(value)}`}
@@ -715,7 +716,7 @@ function SubscriptionGraphsSection({
                   <Bar
                     zIndex={1}
                     dataKey="value"
-                    fill="#7902DF"
+                    fill={getBrandPrimaryHex()} //"#7902DF"
                     isAnimationActive={true}
                     radius={[4, 4, 0, 0]}
                     barSize={20}
@@ -767,12 +768,12 @@ function SubscriptionGraphsSection({
                     dataKey="name"
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fontSize: 11, fill: '#6b7280' }}
+                    tick={{ fontSize: 11, fill: getBrandPrimaryHex() }} //'#6b7280'
                   />
                   <YAxis
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fontSize: 11, fill: '#6b7280' }}
+                    tick={{ fontSize: 11, fill: getBrandPrimaryHex() }} //'#6b7280'
                     domain={[
                       0,
                       maxReactivationValue > 0 ? maxReactivationValue + 1 : 1,
@@ -792,7 +793,7 @@ function SubscriptionGraphsSection({
                   <Bar
                     zIndex={1}
                     dataKey="value"
-                    fill="#7902DF"
+                    fill={getBrandPrimaryHex()} //"#7902DF"
                     radius={[4, 4, 0, 0]}
                     barSize={20}
                   />
