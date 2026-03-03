@@ -854,6 +854,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       id: 3,
       title: 'Objections',
     },
+    {
+      id: 4,
+      title: 'KYC',
+    },
   ]
 
   // useEffect(() => {
@@ -875,7 +879,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       color: '#00000070',
     },
     modalsStyle: {
-      height: 'auto',
+      maxHeight: '80vh',
       bgcolor: 'transparent',
       // p: 2,
       mx: 'auto',
@@ -1311,6 +1315,21 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                       kycsData={kycsData}
                       uniqueColumns={uniqueColumns}
                     />
+                  ) : settingToggleClick === 4 ? (
+                    <div
+                      style={{
+                        maxHeight: '50vh',
+                        overflow: 'auto',
+                        scrollbarWidth: 'none',
+                        backgroundColor: '',
+                      }}
+                    >
+                      <KYCs
+                        kycsDetails={setKycsData}
+                        mainAgentId={AgentDetails?.id}
+                        user={user && user}
+                      />
+                    </div>
                   ) : (
                     ''
                   )}

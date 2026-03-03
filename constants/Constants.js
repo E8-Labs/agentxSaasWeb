@@ -35,6 +35,9 @@ export const PersistanceKeys = {
   //stores agents list for messaging
   agentsListForMessaging: 'assignx_messages_agents_list',
 
+  // last selected email account in NewMessageModal (for "From" when composing email)
+  LastUsedEmailAccountId: 'assignx_lastUsedEmailAccountId',
+
   //vapi-widget call popup
   showVapiModal: 'showVapiModal',
 

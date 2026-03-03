@@ -2650,7 +2650,7 @@ function Page() {
 
         // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
-          // console.log(`${key}: ${value}`);
+          // console.log(`test data passed is ${key}: ${value}`);
         }
 
         // return
@@ -2666,7 +2666,7 @@ function Page() {
           //   "Response of update sub agent api is :--",
           //   response.data.data
           // );
-          // //console.log;
+          console.log("Response o update live transfer number is", response.data.data);
           if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage || voiceData?.additionalSettings) {
             setShowSuccessSnack("Advanced Settings Updated");
           } else {
@@ -6206,7 +6206,8 @@ function Page() {
                               }),
                             }
                           }
-                          //console.log;
+                          console.log('data passed is', data);
+                          // return
                           setLoading(true)
                           await updateSubAgent(data)
                           setLoading(false)
