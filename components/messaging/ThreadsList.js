@@ -499,8 +499,7 @@ const ThreadsList = ({
                     "relative py-4 px-3 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-none transition-transform duration-150 ease-out active:scale-[0.98]",
                     selectedThread?.id === thread.id
                       ? 'bg-thread-selected'
-                      : 'hover:bg-gray-50',
-                    isShortlisted && 'border-l-2 border-l-brand-primary bg-primary/5'
+                      : 'hover:bg-gray-50'
                   )}
                 >
                   {selectedThread?.id === thread.id && (

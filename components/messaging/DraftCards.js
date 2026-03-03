@@ -96,7 +96,7 @@ const DraftCards = ({
 
       {/* Draft cards - horizontal scrolling; single draft is full width */}
       {!loading && drafts.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto overflow-y-visible scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent max-w-[900px] mx-auto">
+        <div className="flex gap-2 overflow-x-auto overflow-y-visible scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent max-w-[900px] mx-auto p-6">
           {drafts.map((draft) => {
             const isSelected = selectedDraftId === draft.id
             const isExpanded = expandedDraftId === draft.id
