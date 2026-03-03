@@ -184,16 +184,18 @@ export const EditPhoneNumberModal = ({
               disabled={errorMessage}
               onClick={() => {
                 if (!errorMessage) {
+                  const messageValue =
+                    isTransfer ? (transferMessageInput?.trim() ?? '') : undefined
                   if (userPhoneNumber.length > 2) {
                     if (isTransfer) {
-                      update(userPhoneNumber, transferMessageInput?.trim() || 'Let me connect you to a live agent')
+                      update(userPhoneNumber, messageValue)
                     } else {
                       update(userPhoneNumber)
                     }
                   } else {
                     const emptyPhone = ''
                     if (isTransfer) {
-                      update(emptyPhone, transferMessageInput?.trim() || 'Let me connect you to a live agent')
+                      update(emptyPhone, messageValue)
                     } else {
                       update(emptyPhone)
                     }
