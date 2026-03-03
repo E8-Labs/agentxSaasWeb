@@ -1395,6 +1395,7 @@ const Creator = ({ agentId, name }) => {
         agencyBranding={agentDetails?.data?.data?.agencyBranding || reduxUser?.agencyBranding}
         agent={agentDetails?.data?.data?.agent}
         leadId={webChatLeadId}
+        canChangeLlmProvider={reduxUser?.id != null && agentDetails?.data?.data?.user?.id != null && reduxUser.id === agentDetails.data.data.user.id}
       />
 
       {/* Lead Details Modal */}
