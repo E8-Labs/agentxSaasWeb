@@ -116,6 +116,7 @@
     "react-quill-new": "^3.6.0",
     "react-redux": "^9.2.0",
     "react-select": "^5.8.3",
+    "react-voice-visualizer": "^2.0.8",
     "recharts": "^2.15.1",
     "redux-persist": "^6.0.0",
     "remark-gfm": "^4.0.1",

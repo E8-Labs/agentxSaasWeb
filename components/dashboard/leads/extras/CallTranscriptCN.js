@@ -48,12 +48,8 @@ const CallTranscriptCN = ({
   // State for task modal (hover card is uncontrolled)
   const [taskModalOpen, setTaskModalOpen] = useState(false)
 
-  // useEffect(() => {
-  //   console.log("leadId in call transcript is", leadId)
-  // }, [leadId])
-
   return (
-    <div className="w-full flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
       <div
         className="flex flex-row items-center justify-between text-sm h-auto p-3 bg-white"

@@ -64,12 +64,12 @@ const SystemMessage = ({
   openFollowUpType = null,
   onOpenFollowUpConsumed = null,
 }) => {
-  const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
   const [aiActionInput, setAiActionInput] = useState('')
   // Parent passes hasAiKey from a single fetch (null = loading, true/false). No per-message API call.
   const hasAiKey = hasAiKeyProp
   const [followUpSubmitting, setFollowUpSubmitting] = useState(false)
+  const [showAudioPlay, setShowAudioPlay] = useState(null)
   const aiActionRef = useRef(null)
 
   // When user selected Email/Text from AI actions inside the chat drawer, open this message's follow-up panel
@@ -496,7 +496,7 @@ const SystemMessage = ({
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => {
-                                  if (typeof onOpenAiChat === 'function') {
+                                    if (typeof onOpenAiChat === 'function') {
                                     onOpenAiChat({
                                       message,
                                       callData,
