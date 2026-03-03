@@ -120,6 +120,8 @@ const Creator = ({ agentId, name }) => {
   const [voiceOpen, setVoiceOpen] = useState(false) // Sets up the Voice AI interface
   const [chatOpen, setChatOpen] = useState(false) // Sets up the chat interface
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false)
+  /** Remount drawer on each open so chat always starts fresh (new session); avoids any reused in-memory state. */
+  const [chatDrawerKey, setChatDrawerKey] = useState(0)
   /** Lead ID from pre-chat form for web chat; passed to drawer so first message creates thread tied to this lead */
   const [webChatLeadId, setWebChatLeadId] = useState(null)
   const [open, setOpen] = useState(false)
@@ -561,6 +563,7 @@ const Creator = ({ agentId, name }) => {
             handleStartCall()
           }
         } else {
+          setChatDrawerKey((k) => k + 1)
           setChatDrawerOpen(true)
         }
       }
@@ -642,6 +645,7 @@ const Creator = ({ agentId, name }) => {
             handleStartCall()
           }
         } else {
+          setChatDrawerKey((k) => k + 1)
           setChatDrawerOpen(true)
         }
       }
@@ -1383,6 +1387,7 @@ const Creator = ({ agentId, name }) => {
       </div>
 
       <WebAgentChatDrawer
+        key={chatDrawerKey}
         open={chatDrawerOpen}
         onClose={() => setChatDrawerOpen(false)}
         agentId={agentDetails?.data?.data?.agent?.id ?? agentId}

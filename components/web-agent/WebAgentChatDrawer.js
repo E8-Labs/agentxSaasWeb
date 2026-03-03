@@ -142,6 +142,12 @@ const WebAgentChatDrawer = ({
     if (open) {
       setClosing(false)
       setSessionError(null)
+      // Always start a new chat when opening (ChatGPT-style: old thread only when selected from History)
+      setCurrentThreadId(null)
+      setCurrentSessionId(null)
+      setCurrentThreadTitle(null)
+      setMessages([])
+      setHistoryOpen(false)
       const t = setTimeout(() => setExpanded(true), 50)
       return () => clearTimeout(t)
     } else {
@@ -255,21 +261,49 @@ const WebAgentChatDrawer = ({
     return () => clearInterval(id)
   }, [sendLoading])
 
+  const readImageAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) {
+        resolve(null)
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
   const handleSend = useCallback(async (e) => {
     e?.preventDefault?.()
-    const text = inputValue.trim()
-    if (!text || !agentId) return
+    const text = (inputValue || '').trim()
+    const hasAttachments = attachedFiles && attachedFiles.length > 0
+    if ((!text && !hasAttachments) || !agentId) return
     if (!sessionReady) return
+
+    const imageFiles = (attachedFiles || []).filter((f) => f.type?.startsWith('image/'))
+    const attachmentDataUrls = []
+    for (const file of imageFiles) {
+      try {
+        const dataUrl = await readImageAsDataUrl(file)
+        if (dataUrl) attachmentDataUrls.push({ type: 'image', dataUrl })
+      } catch (err) {
+        console.warn('Failed to read image:', file.name, err)
+      }
+    }
+    const optimisticAttachments = attachmentDataUrls.length
+      ? attachmentDataUrls.map((a) => ({ type: 'image', dataUrl: a.dataUrl }))
+      : []
 
     const optimisticId = `opt-${Date.now()}`
     const optimisticMessage = {
       id: optimisticId,
       threadId: currentThreadId,
       direction: 'inbound',
-      content: text,
+      content: text || (hasAttachments ? '[Image]' : ''),
       status: 'sending',
       createdAt: new Date().toISOString(),
       messageType: 'web',
+      metadata: optimisticAttachments.length ? { attachments: optimisticAttachments } : undefined,
     }
     setMessages((prev) => [...prev, optimisticMessage])
     setInputValue('')
@@ -279,7 +313,7 @@ const WebAgentChatDrawer = ({
     const visitorId = getVisitorId()
     const payload = {
       agentId: Number(agentId),
-      content: text,
+      content: text || (hasAttachments ? '[Image]' : ''),
       visitorId: visitorId || undefined,
     }
     if (currentThreadId != null) {
@@ -287,6 +321,9 @@ const WebAgentChatDrawer = ({
     } else {
       payload.sessionId = currentSessionId
       if (leadId != null) payload.leadId = leadId
+    }
+    if (optimisticAttachments.length > 0) {
+      payload.attachments = optimisticAttachments
     }
 
     try {
@@ -314,7 +351,7 @@ const WebAgentChatDrawer = ({
     } finally {
       setSendLoading(false)
     }
-  }, [agentId, inputValue, currentThreadId, currentSessionId, sessionReady, leadId])
+  }, [agentId, inputValue, currentThreadId, currentSessionId, sessionReady, leadId, attachedFiles])
 
   return (
     <Modal
@@ -465,25 +502,43 @@ const WebAgentChatDrawer = ({
               </div>
             ) : messages.length > 0 ? (
               <div className="flex flex-col gap-2">
-                {messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={cn(
-                      'max-w-[85%] min-w-0 rounded-2xl px-3 py-2 text-sm overflow-hidden break-words',
-                      m.direction === 'inbound'
-                        ? 'self-end bg-brand-primary/15 text-gray-900'
-                        : 'self-start bg-white/90 text-gray-900 border border-gray-100'
-                    )}
-                  >
-                    <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(m.createdAt).toLocaleTimeString(undefined, {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
-                ))}
+                {messages.map((m) => {
+                  const attachments = m.metadata?.attachments || []
+                  const imageAttachments = attachments.filter((a) => a.type === 'image' && a.dataUrl)
+                  return (
+                    <div
+                      key={m.id}
+                      className={cn(
+                        'max-w-[85%] min-w-0 rounded-2xl px-3 py-2 text-sm overflow-hidden break-words',
+                        m.direction === 'inbound'
+                          ? 'self-end bg-brand-primary/15 text-gray-900'
+                          : 'self-start bg-white/90 text-gray-900 border border-gray-100'
+                      )}
+                    >
+                      {imageAttachments.length > 0 && (
+                        <div className="flex flex-col gap-1.5 mb-2">
+                          {imageAttachments.map((img, i) => (
+                            <img
+                              key={i}
+                              src={img.dataUrl}
+                              alt=""
+                              className="rounded-lg max-h-48 w-auto object-contain"
+                            />
+                          ))}
+                        </div>
+                      )}
+                      {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
+                        <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                      ) : null}
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(m.createdAt).toLocaleTimeString(undefined, {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  )
+                })}
               {sendLoading && (
                 <div className="flex items-end gap-2 w-full justify-start mt-2">
                   <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden">
