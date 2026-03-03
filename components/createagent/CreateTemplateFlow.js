@@ -2,9 +2,22 @@
 
 import React, { useState, useCallback } from 'react'
 import Image from 'next/image'
-import { Box, Typography, LinearProgress, Button } from '@mui/material'
+import {
+  Box,
+  Typography,
+  LinearProgress,
+  Button,
+  FormControl,
+  Select,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material'
+import ChevronDown from '@mui/icons-material/KeyboardArrowDown'
 import axios from 'axios'
 import { UserTypeOptions } from '@/constants/UserTypeOptions'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { SellerKycsQuestions } from '@/constants/Kycs'
 import { PersistanceKeys } from '@/constants/Constants'
 import Apis from '@/components/apis/Apis'
@@ -33,16 +46,10 @@ const cardStyle = {
   p: 3,
 }
 
-const inputStyle = {
-  width: '100%',
-  borderRadius: 1.5,
-  border: '1px solid #d1d5db',
-  px: 2,
-  py: 1.5,
-  fontSize: 14,
-  color: '#151515',
-  '&:focus': { outline: 'none', borderColor: 'var(--brand-primary, #6A0DAD)' },
-}
+const inputClassName =
+  'border-[0.5px] border-[rgba(0,0,0,0.1)] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-brand-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-brand-primary'
+const inputStyleObj = { fontSize: 15, fontWeight: '500', borderRadius: '7px' }
+const labelStyle = { fontSize: 14, fontWeight: '400' }
 
 export default function CreateTemplateFlow({ onSaved }) {
   const [step, setStep] = useState(0)
@@ -342,77 +349,128 @@ export default function CreateTemplateFlow({ onSaved }) {
                       </Typography>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                         <Box>
-                          <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
+                          <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
                             Agent Type
                           </Typography>
-                          <select
-                            value={industry}
-                            onChange={(e) => setIndustry(e.target.value)}
-                            style={{
-                              ...inputStyle,
-                              padding: '10px 12px',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <option value="">Select</option>
-                            {UserTypeOptions.map((opt) => (
-                              <option key={opt.id} value={opt.userType}>
-                                {opt.title}
-                              </option>
-                            ))}
-                          </select>
+                          <FormControl fullWidth sx={{ mt: 1 }}>
+                            <Select
+                              value={industry}
+                              onChange={(e) => setIndustry(e.target.value)}
+                              displayEmpty
+                              IconComponent={ChevronDown}
+                              renderValue={(val) => {
+                                if (!val) return 'Select'
+                                const opt = UserTypeOptions.find((o) => o.userType === val)
+                                return opt ? (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    {opt.icon && (
+                                      <Image
+                                        src={opt.icon}
+                                        alt={opt.title}
+                                        width={24}
+                                        height={24}
+                                        style={{ borderRadius: 4, objectFit: 'cover' }}
+                                      />
+                                    )}
+                                    <span>{opt.title}</span>
+                                  </Box>
+                                ) : (
+                                  val
+                                )
+                              }}
+                              sx={{
+                                ...inputStyleObj,
+                                minHeight: 48,
+                                borderRadius: '7px',
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'rgba(0,0,0,0.1)',
+                                  borderWidth: 0.5,
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'rgba(0,0,0,0.15)',
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  borderWidth: 0.5,
+                                },
+                              }}
+                            >
+                              <MenuItem value="">
+                                <ListItemText primary="Select" />
+                              </MenuItem>
+                              {UserTypeOptions.map((opt) => (
+                                <MenuItem key={opt.id} value={opt.userType}>
+                                  <ListItemIcon sx={{ minWidth: 36 }}>
+                                    {opt.icon && (
+                                      <Image
+                                        src={opt.icon}
+                                        alt={opt.title}
+                                        width={28}
+                                        height={28}
+                                        style={{ borderRadius: 4, objectFit: 'cover' }}
+                                      />
+                                    )}
+                                  </ListItemIcon>
+                                  <ListItemText primary={opt.title} />
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
                         </Box>
                         <Box>
-                          <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
-                            Agent&apos;s Name
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <input
-                              placeholder="Type here"
-                              value={name}
-                              onChange={(e) => setName(e.target.value.slice(0, 20))}
-                              maxLength={20}
-                              style={{ ...inputStyle, flex: 1 }}
-                            />
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
+                            <Typography sx={{ ...labelStyle, color: '#151515' }}>
+                              Agent&apos;s Name
+                            </Typography>
                             <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
                               {name.length}/20
                             </Typography>
                           </Box>
+                          <Input
+                            placeholder="Type here"
+                            value={name}
+                            onChange={(e) => setName(e.target.value.slice(0, 20))}
+                            maxLength={20}
+                            className={inputClassName}
+                            style={{ ...inputStyleObj, marginTop: '8px' }}
+                          />
                         </Box>
                         <Box>
-                          <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
-                            Agent&apos;s Role
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <input
-                              placeholder="Type here"
-                              value={agentRole}
-                              onChange={(e) => setAgentRole(e.target.value.slice(0, 20))}
-                              maxLength={20}
-                              style={{ ...inputStyle, flex: 1 }}
-                            />
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
+                            <Typography sx={{ ...labelStyle, color: '#151515' }}>
+                              Agent&apos;s Role
+                            </Typography>
                             <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
                               {agentRole.length}/20
                             </Typography>
                           </Box>
+                          <Input
+                            placeholder="Type here"
+                            value={agentRole}
+                            onChange={(e) => setAgentRole(e.target.value.slice(0, 20))}
+                            maxLength={20}
+                            className={inputClassName}
+                            style={{ ...inputStyleObj, marginTop: '8px' }}
+                          />
                         </Box>
                         <Box>
-                          <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
-                            Description
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                            <textarea
-                              placeholder="Type here"
-                              value={description}
-                              onChange={(e) => setDescription(e.target.value.slice(0, 120))}
-                              maxLength={120}
-                              rows={3}
-                              style={{ ...inputStyle, flex: 1, minHeight: 80 }}
-                            />
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
+                            <Typography sx={{ ...labelStyle, color: '#151515' }}>
+                              Description
+                            </Typography>
                             <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
                               {description.length}/120
                             </Typography>
                           </Box>
+                          <Textarea
+                            placeholder="Type here"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value.slice(0, 120))}
+                            maxLength={120}
+                            rows={3}
+                            className={inputClassName}
+                            style={{ ...inputStyleObj, marginTop: '8px', minHeight: 80 }}
+                          />
                         </Box>
                       </Box>
                     </Box>
@@ -435,12 +493,13 @@ export default function CreateTemplateFlow({ onSaved }) {
                       <Typography sx={{ fontSize: 14, color: '#151515', mb: 1 }}>
                         What&apos;s the main objective?
                       </Typography>
-                      <textarea
+                      <Textarea
                         placeholder="Type here"
                         value={objective}
                         onChange={(e) => setObjective(e.target.value)}
                         rows={5}
-                        style={{ ...inputStyle, minHeight: 120 }}
+                        className={inputClassName}
+                        style={{ ...inputStyleObj, marginTop: '8px', minHeight: 120 }}
                       />
                     </Box>
                   </Box>
@@ -492,11 +551,12 @@ export default function CreateTemplateFlow({ onSaved }) {
                               gap: 1,
                             }}
                           >
-                            <input
+                            <Input
                               value={item.question || ''}
                               onChange={(e) => updateKycQuestion(index, e.target.value)}
                               placeholder="What's the question?"
-                              style={{ ...inputStyle, flex: 1, border: 'none' }}
+                              className={inputClassName}
+                              style={{ ...inputStyleObj, flex: 1, border: 'none', marginTop: 0 }}
                             />
                           </Box>
                         ))}
@@ -534,23 +594,25 @@ export default function CreateTemplateFlow({ onSaved }) {
                         <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
                           Greetings
                         </Typography>
-                        <input
+                        <Input
                           placeholder="Type here"
                           value={greeting}
                           onChange={(e) => setGreeting(e.target.value)}
-                          style={inputStyle}
+                          className={inputClassName}
+                          style={{ ...inputStyleObj, marginTop: '8px' }}
                         />
                       </Box>
                       <Box>
                         <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
                           Script
                         </Typography>
-                        <textarea
+                        <Textarea
                           placeholder="Type here"
                           value={callScript}
                           onChange={(e) => setCallScript(e.target.value)}
                           rows={6}
-                          style={{ ...inputStyle, minHeight: 140 }}
+                          className={inputClassName}
+                          style={{ ...inputStyleObj, marginTop: '8px', minHeight: 140 }}
                         />
                       </Box>
                     </Box>
@@ -613,18 +675,20 @@ export default function CreateTemplateFlow({ onSaved }) {
                         <>
                           {objections.map((obj, index) => (
                             <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #e5e7eb', borderRadius: 1 }}>
-                              <input
+                              <Input
                                 placeholder="Title"
                                 value={obj.title || ''}
                                 onChange={(e) => updateObjection(index, 'title', e.target.value)}
-                                style={{ ...inputStyle, marginBottom: 8 }}
+                                className={inputClassName}
+                                style={{ ...inputStyleObj, marginBottom: 8 }}
                               />
-                              <textarea
+                              <Textarea
                                 placeholder="Description"
                                 value={obj.description || ''}
                                 onChange={(e) => updateObjection(index, 'description', e.target.value)}
                                 rows={2}
-                                style={inputStyle}
+                                className={inputClassName}
+                                style={{ ...inputStyleObj, marginTop: '8px' }}
                               />
                             </Box>
                           ))}
@@ -695,18 +759,20 @@ export default function CreateTemplateFlow({ onSaved }) {
                         <>
                           {guardrails.map((gr, index) => (
                             <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #e5e7eb', borderRadius: 1 }}>
-                              <input
+                              <Input
                                 placeholder="Title"
                                 value={gr.title || ''}
                                 onChange={(e) => updateGuardrail(index, 'title', e.target.value)}
-                                style={{ ...inputStyle, marginBottom: 8 }}
+                                className={inputClassName}
+                                style={{ ...inputStyleObj, marginBottom: 8 }}
                               />
-                              <textarea
+                              <Textarea
                                 placeholder="Description"
                                 value={gr.description || ''}
                                 onChange={(e) => updateGuardrail(index, 'description', e.target.value)}
                                 rows={2}
-                                style={inputStyle}
+                                className={inputClassName}
+                                style={{ ...inputStyleObj, marginTop: '8px' }}
                               />
                             </Box>
                           ))}
