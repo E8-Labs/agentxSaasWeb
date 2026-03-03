@@ -390,7 +390,10 @@ const ThreadsList = ({
             <div
               ref={filterPopoverRef}
               data-state="open"
-              className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] animate-dropdown-below-enter"
+              className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-lg border border-black/[0.06] animate-dropdown-below-enter"
+              style={{
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.04), 0 10px 20px -4px rgba(0,0,0,0.06), 0 24px 40px -8px rgba(0,0,0,0.06)',
+              }}
             >
               <div className="px-4 py-2 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
                 Filter by

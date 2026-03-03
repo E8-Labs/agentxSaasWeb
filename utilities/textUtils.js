@@ -179,28 +179,6 @@ export function linkifyText(text) {
 }
 
 /**
- * Converts simple markdown to HTML (bold, italic, line breaks).
- * Safe for draft/email preview content.
- * @param {string} text - Plain text with simple markdown
- * @returns {string} HTML string
- */
-export function simpleMarkdownToHtml(text) {
-  if (!text || typeof text !== 'string') return ''
-  let html = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-  // **bold** or __bold__
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>')
-  // *italic* or _italic_
-  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/_([^_]+)_/g, '<em>$1</em>')
-  // newlines -> <br>
-  html = html.replace(/\n/g, '<br>')
-  return html
-}
-
-/**
  * Sanitizes HTML by converting to plain text, removing quoted email content,
  * and linkifying URLs.
  * @param {string} html - HTML string to sanitize

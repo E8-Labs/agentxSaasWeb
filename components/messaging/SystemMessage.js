@@ -397,9 +397,9 @@ const SystemMessage = ({
                     )
                 }
 
-                <div className={`${(callData.callStatus === "voicemail" || callData.callStatus === "no-answer") ? "w-[250px] flex flex-row items-center justify-center" : "w-full max-w-2xl "} px-4 py-4`}>
+                <div className={`${(callData.callStatus === "voicemail" || callData.callStatus === "no-answer") ? "w-full flex flex-row items-center justify-center" : "w-full max-w-2xl min-w-0 sm:min-w-[35rem] flex-shrink-0"} px-4 py-4`}>
                   <div
-                    className={`bg-background px-0 flex flex-col gap-1 overflow-hidden ${callData.callStatus === "voicemail" || callData.callStatus === "no-answer" ? "w-[150px] flex flex-row items-center justify-center py-2 rounded-full" : "pt-0 pb-3 w-full max-w-2xl rounded-[16px]"}`}
+                    className={`bg-background px-0 flex flex-col gap-1 ${callData.callStatus === "voicemail" || callData.callStatus === "no-answer" ? "w-[150px] min-w-[665px] flex flex-row items-center justify-center py-2 rounded-[16px] overflow-hidden" : "pt-0 pb-3 w-full min-w-[665px] sm:min-w-[35rem] max-w-2xl rounded-[16px] overflow-visible"}`}
                     style={{
                       boxShadow:
                         '0px 0px 44px 0px rgba(0, 0, 0, 0.02), 0px 88px 56px -20px rgba(0, 0, 0, 0.03), 0px 56px 56px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 0px 0px 10px #F9F9F9',

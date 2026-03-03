@@ -53,7 +53,7 @@ const CallTranscriptCN = ({
   // }, [leadId])
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="w-full flex flex-col gap-1">
       {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
       <div
         className="flex flex-row items-center justify-between text-sm h-auto p-3 bg-white"
