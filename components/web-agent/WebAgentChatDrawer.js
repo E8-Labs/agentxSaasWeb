@@ -208,7 +208,10 @@ const WebAgentChatDrawer = ({
 
   const handleTransitionEnd = (e) => {
     if (e.propertyName !== 'height') return
-    if (closing) onClose()
+    if (closing) {
+      onClose()
+      setClosing(false)
+    }
   }
 
   const fetchHistory = useCallback(async () => {
@@ -590,60 +593,76 @@ const WebAgentChatDrawer = ({
               )}
             </div>
             {canChangeLlmProvider && (
-              <div ref={llmProviderRef} className="flex items-center shrink-0 relative">
-                <button
-                  type="button"
-                  onClick={() => setLlmProviderOpen((o) => !o)}
-                  disabled={llmLoading}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/80 hover:bg-white text-gray-700 text-sm font-medium shadow-sm border border-white/60 min-w-0"
-                  aria-label="LLM Provider"
-                >
-                  {llmLoading ? (
-                    <span className="text-xs">...</span>
-                  ) : currentLlmIntegration ? (
-                    <>
-                      {currentLlmIntegration.provider === 'anthropic' && (
-                        <Image src="/Claude.jpeg" alt="" width={18} height={18} className="rounded object-contain shrink-0" />
-                      )}
-                      {currentLlmIntegration.provider === 'openai' && (
-                        <OpenAiLogoIcon size={18} className="shrink-0 text-[#10a37f]" />
-                      )}
-                      {currentLlmIntegration.provider === 'google' && (
-                        <Image src="/gemini.png" alt="" width={18} height={18} className="rounded object-contain shrink-0" />
-                      )}
-                      <span className="truncate max-w-[80px]">
-                        {currentLlmIntegration.provider === 'anthropic' ? 'Claude AI' : currentLlmIntegration.provider === 'google' ? 'Gemini' : 'GPT'}
-                      </span>
-                      <ChevronDown className="w-4 h-4 shrink-0 opacity-70" />
-                    </>
-                  ) : (
-                    <>
-                      <span className="truncate max-w-[80px]">LLM</span>
-                      <ChevronDown className="w-4 h-4 shrink-0 opacity-70" />
-                    </>
+              <div
+                ref={llmProviderRef}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
+              >
+                <div className="pointer-events-auto relative">
+                  <button
+                    type="button"
+                    onClick={() => setLlmProviderOpen((o) => !o)}
+                    disabled={llmLoading}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white text-gray-900 font-medium min-w-0 transition-colors hover:bg-gray-50/80"
+                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+                    aria-label="LLM Provider"
+                  >
+                    {llmLoading ? (
+                      <span className="text-sm">...</span>
+                    ) : currentLlmIntegration ? (
+                      <>
+                        <span className={cn(
+                          'flex h-6 w-6 shrink-0 items-center justify-center rounded-full overflow-hidden',
+                          currentLlmIntegration.provider === 'anthropic' && 'bg-[#E0775B]',
+                          currentLlmIntegration.provider === 'openai' && 'bg-[#10a37f]',
+                          currentLlmIntegration.provider === 'google' && 'bg-[#4285f4]'
+                        )}>
+                          {currentLlmIntegration.provider === 'anthropic' && (
+                            <Image src="/Claude.jpeg" alt="" width={14} height={14} className="object-contain" />
+                          )}
+                          {currentLlmIntegration.provider === 'openai' && (
+                            <OpenAiLogoIcon size={14} className="text-white" />
+                          )}
+                          {currentLlmIntegration.provider === 'google' && (
+                            <Image src="/gemini.png" alt="" width={14} height={14} className="object-contain" />
+                          )}
+                        </span>
+                        <span className="truncate max-w-[100px] text-sm">
+                          {currentLlmIntegration.provider === 'anthropic' ? 'Claude AI' : currentLlmIntegration.provider === 'google' ? 'Gemini' : 'GPT'}
+                        </span>
+                        <ChevronDown className="w-3.5 h-3.5 shrink-0 text-black" />
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200">
+                          <span className="text-[10px] font-medium text-gray-500">LLM</span>
+                        </span>
+                        <span className="truncate max-w-[100px] text-sm">LLM</span>
+                        <ChevronDown className="w-3.5 h-3.5 shrink-0 text-black" />
+                      </>
+                    )}
+                  </button>
+                  {llmProviderOpen && (
+                    <div className="absolute left-1/2 top-full mt-2 -translate-x-1/2 w-48 rounded-xl bg-white overflow-hidden z-50 py-1" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                      {LLM_PROVIDERS.map((p) => {
+                        const hasKey = !!integrationForProvider(p.id)
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => handleLlmProviderSelect(p.id)}
+                            className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-sm text-gray-800 hover:bg-gray-50"
+                          >
+                            {p.icon === 'anthropic' && <Image src="/Claude.jpeg" alt="" width={20} height={20} className="rounded object-contain" />}
+                            {p.icon === 'openai' && <OpenAiLogoIcon size={20} className="text-[#10a37f]" />}
+                            {p.icon === 'google' && <Image src="/gemini.png" alt="" width={20} height={20} className="rounded object-contain" />}
+                            <span>{p.label}</span>
+                            {!hasKey && <span className="text-xs text-amber-600 ml-auto">Add key</span>}
+                          </button>
+                        )
+                      })}
+                    </div>
                   )}
-                </button>
-                {llmProviderOpen && (
-                  <div className="absolute top-full right-0 mt-1.5 w-44 rounded-xl bg-white shadow-lg border border-gray-200 overflow-hidden z-50 py-1">
-                    {LLM_PROVIDERS.map((p) => {
-                      const hasKey = !!integrationForProvider(p.id)
-                      return (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => handleLlmProviderSelect(p.id)}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-50"
-                        >
-                          {p.icon === 'anthropic' && <Image src="/Claude.jpeg" alt="" width={20} height={20} className="rounded object-contain" />}
-                          {p.icon === 'openai' && <OpenAiLogoIcon size={20} className="text-[#10a37f]" />}
-                          {p.icon === 'google' && <Image src="/gemini.png" alt="" width={20} height={20} className="rounded object-contain" />}
-                          <span>{p.label}</span>
-                          {!hasKey && <span className="text-xs text-amber-600 ml-auto">Add key</span>}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
+                </div>
               </div>
             )}
             <div ref={historyPanelRef} className="flex items-center gap-1 shrink-0 relative">
@@ -666,7 +685,8 @@ const WebAgentChatDrawer = ({
               {/* History dropdown: compact floating panel (like second screenshot) */}
               {historyOpen && (
                 <div
-                  className="absolute top-full right-0 mt-2 w-72 max-h-80 rounded-xl bg-white shadow-lg border border-gray-200 overflow-hidden z-50 flex flex-col"
+                  className="absolute top-full right-0 mt-2 w-72 max-h-80 rounded-xl bg-white overflow-hidden z-50 flex flex-col"
+                  style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
                   role="dialog"
                   aria-label="Chat history"
                 >
