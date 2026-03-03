@@ -12,8 +12,11 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  IconButton,
+  Menu,
 } from '@mui/material'
 import ChevronDown from '@mui/icons-material/KeyboardArrowDown'
+import MoreVert from '@mui/icons-material/MoreVert'
 import axios from 'axios'
 import { UserTypeOptions } from '@/constants/UserTypeOptions'
 import { Input } from '@/components/ui/input'
@@ -73,6 +76,10 @@ export default function CreateTemplateFlow({ onSaved }) {
     () => (SellerKycsQuestions.DefaultSellerKycsUrgency || []).map((q) => ({ ...q }))
   )
   const [activeKycTab, setActiveKycTab] = useState('Needs')
+  const [kycAddingInline, setKycAddingInline] = useState(false)
+  const [kycNewQuestionDraft, setKycNewQuestionDraft] = useState('')
+  const [kycMenuAnchor, setKycMenuAnchor] = useState(null)
+  const [kycMenuIndex, setKycMenuIndex] = useState(null)
   const [greeting, setGreeting] = useState('')
   const [callScript, setCallScript] = useState('')
   const [objections, setObjections] = useState([])
@@ -221,6 +228,23 @@ export default function CreateTemplateFlow({ onSaved }) {
       next[index] = { ...next[index], question }
       return next
     })
+  }
+
+  const removeKycQuestion = (index) => {
+    setKycList((prev) => (prev || []).filter((_, i) => i !== index))
+  }
+
+  const saveKycNewQuestion = () => {
+    const trimmed = kycNewQuestionDraft.trim()
+    if (!trimmed) return
+    setKycList((prev) => [...(prev || []), { id: Date.now(), question: trimmed }])
+    setKycNewQuestionDraft('')
+    setKycAddingInline(false)
+  }
+
+  const cancelKycInline = () => {
+    setKycAddingInline(false)
+    setKycNewQuestionDraft('')
   }
 
   const addObjection = () => {
@@ -521,14 +545,17 @@ export default function CreateTemplateFlow({ onSaved }) {
                         {KYC_CATEGORIES.map((cat) => (
                           <Button
                             key={cat.key}
-                            onClick={() => setActiveKycTab(cat.label)}
+                            onClick={() => {
+                              setActiveKycTab(cat.label)
+                              cancelKycInline()
+                            }}
                             sx={{
                               textTransform: 'none',
                               fontSize: 14,
                               fontWeight: 500,
-                              color: activeKycTab === cat.label ? 'var(--brand-primary, #6A0DAD)' : '#6b7280',
+                              color: activeKycTab === cat.label ? 'hsl(var(--brand-primary, 270 75% 50%))' : '#6b7280',
                               borderBottom: activeKycTab === cat.label ? '2px solid' : 'none',
-                              borderColor: 'var(--brand-primary, #6A0DAD)',
+                              borderColor: 'hsl(var(--brand-primary, 270 75% 50%))',
                               borderRadius: 0,
                               px: 2,
                               py: 1,
@@ -538,41 +565,109 @@ export default function CreateTemplateFlow({ onSaved }) {
                           </Button>
                         ))}
                       </Box>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                         {(getKycList() || []).map((item, index) => (
                           <Box
                             key={item.id || index}
                             sx={{
-                              border: '1px solid #e5e7eb',
-                              borderRadius: 1,
+                              border: '0.5px solid rgba(0,0,0,0.1)',
+                              borderRadius: 1.5,
                               p: 1.5,
                               display: 'flex',
                               alignItems: 'center',
+                              justifyContent: 'space-between',
                               gap: 1,
+                              bgcolor: '#fff',
                             }}
                           >
-                            <Input
-                              value={item.question || ''}
-                              onChange={(e) => updateKycQuestion(index, e.target.value)}
-                              placeholder="What's the question?"
-                              className={inputClassName}
-                              style={{ ...inputStyleObj, flex: 1, border: 'none', marginTop: 0 }}
-                            />
+                            <Typography sx={{ fontSize: 15, fontWeight: 400, color: '#151515', flex: 1 }}>
+                              {item.question || ''}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setKycMenuAnchor(e.currentTarget)
+                                setKycMenuIndex(index)
+                              }}
+                              sx={{ color: '#6b7280', p: 0.5 }}
+                            >
+                              <MoreVert fontSize="small" />
+                            </IconButton>
                           </Box>
                         ))}
                       </Box>
-                      <Button
-                        onClick={addKycQuestion}
-                        sx={{
-                          textTransform: 'none',
-                          color: 'var(--brand-primary, #6A0DAD)',
-                          fontWeight: 600,
-                          mt: 1,
-                          p: 0,
-                        }}
+                      <Menu
+                        anchorEl={kycMenuAnchor}
+                        open={Boolean(kycMenuAnchor)}
+                        onClose={() => { setKycMenuAnchor(null); setKycMenuIndex(null) }}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                       >
-                        Add New
-                      </Button>
+                        <MenuItem
+                          onClick={() => {
+                            if (kycMenuIndex !== null) removeKycQuestion(kycMenuIndex)
+                            setKycMenuAnchor(null)
+                            setKycMenuIndex(null)
+                          }}
+                          sx={{ color: '#EA4335', fontSize: 14 }}
+                        >
+                          Delete
+                        </MenuItem>
+                      </Menu>
+                      {!kycAddingInline ? (
+                        <Button
+                          onClick={() => setKycAddingInline(true)}
+                          sx={{
+                            textTransform: 'none',
+                            color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                            fontWeight: 600,
+                            mt: 1.5,
+                            p: 0,
+                          }}
+                        >
+                          Add New
+                        </Button>
+                      ) : (
+                        <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
+                          <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
+                            What&apos;s the question?
+                          </Typography>
+                          <Input
+                            placeholder="Ex: What's your name?"
+                            value={kycNewQuestionDraft}
+                            onChange={(e) => setKycNewQuestionDraft(e.target.value.replace(/[{}\[\]<>]/g, ''))}
+                            className={inputClassName}
+                            style={{ ...inputStyleObj, marginTop: '8px' }}
+                          />
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                            <Button
+                              onClick={cancelKycInline}
+                              sx={{
+                                textTransform: 'none',
+                                color: '#EA4335',
+                                fontWeight: 500,
+                                '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="contained"
+                              onClick={saveKycNewQuestion}
+                              disabled={!kycNewQuestionDraft.trim()}
+                              sx={{
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
+                              }}
+                            >
+                              Save
+                            </Button>
+                          </Box>
+                        </Box>
+                      )}
                     </Box>
                   </Box>
 
