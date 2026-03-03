@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import CustomTooltip from '@/utilities/CustomTooltip'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 /**
  * RevenueGrowthChart - Bar chart showing monthly revenue growth
@@ -248,13 +249,13 @@ function RevenueGrowthChart({
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
+                tick={{ fontSize: 12, fill: getBrandPrimaryHex() }} //'#6b7280'
                 tickMargin={10}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
+                tick={{ fontSize: 12, fill: getBrandPrimaryHex() }} //'#6b7280'
                 tickMargin={10}
                 tickFormatter={formatYAxis}
                 domain={[0, maxValue > 0 ? maxValue * 1.2 : 100]}
@@ -263,7 +264,7 @@ function RevenueGrowthChart({
               <Tooltip content={customTooltip} />
               <Bar
                 dataKey="value"
-                fill="#8E24AA"
+                fill={getBrandPrimaryHex()} //"#8E24AA"
                 radius={[4, 4, 0, 0]}
                 barSize={30}
               />
