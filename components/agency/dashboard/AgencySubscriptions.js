@@ -32,6 +32,7 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { PersistanceKeys } from '@/constants/Constants'
 
 import AgencyDashboardDefaultUI from './AgencyDashboardDefaultUI'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 // Helper function to format numbers with commas
 const formatNumberWithCommas = (num) => {
@@ -742,7 +743,7 @@ function AgencySubscriptions({ selectedAgency }) {
                           style: {
                             textAnchor: 'middle',
                             fontSize: 12,
-                            fill: '#6b7280',
+                            fill: getBrandPrimaryHex() //'#6b7280',
                           },
                         }}
                       />
@@ -751,7 +752,7 @@ function AgencySubscriptions({ selectedAgency }) {
                       <YAxis
                         tickLine={false}
                         axisLine={false}
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        tick={{ fontSize: 12, fill: getBrandPrimaryHex() }} //'#6b7280'
                         domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
                         allowDecimals={true}
                         label={{
@@ -761,7 +762,7 @@ function AgencySubscriptions({ selectedAgency }) {
                           style: {
                             textAnchor: 'middle',
                             fontSize: 12,
-                            fill: '#6b7280',
+                            fill: getBrandPrimaryHex(), //'#6b7280'
                             marginLeft: '10px',
                           },
                         }}
@@ -776,7 +777,7 @@ function AgencySubscriptions({ selectedAgency }) {
                         <Bar
                           zIndex={1}
                           dataKey="value"
-                          fill="#7902DF"
+                          fill={getBrandPrimaryHex()} //"#7902DF"
                           isAnimationActive={true}
                           radius={[4, 4, 0, 0]}
                           barSize={20}
