@@ -66,7 +66,7 @@ export const PersistanceKeys = {
   ExternalCalendarLink: process.env.NEXT_PUBLIC_REACT_APP_ExternalCalendarLink,
   SupportWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_SupportWebinarUrl,
   ResourceHubUrl: process.env.NEXT_PUBLIC_REACT_APP_ResourceHubUrl,
-  FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl,
+  FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl || "https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx",
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
   // Agency Support URLs

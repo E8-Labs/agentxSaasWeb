@@ -189,14 +189,14 @@ export const EditPhoneNumberModal = ({
                     isTransfer ? (transferMessageInput?.trim() ?? '') : undefined
                   if (userPhoneNumber.length > 2) {
                     if (isTransfer) {
-                      update(userPhoneNumber, messageValue)
+                      update(userPhoneNumber, transferMessageInput?.trim()) //|| 'Let me connect you to a live agent')
                     } else {
                       update(userPhoneNumber)
                     }
                   } else {
                     const emptyPhone = ''
                     if (isTransfer) {
-                      update(emptyPhone, messageValue)
+                      update(emptyPhone, transferMessageInput?.trim()) //|| 'Let me connect you to a live agent')
                     } else {
                       update(emptyPhone)
                     }

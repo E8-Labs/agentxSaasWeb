@@ -114,7 +114,7 @@ const DashboardSlider = ({
     // },
     {
       id: 4,
-      label: 'Give Feedback',
+      label: 'Create Ticket',
       image: '/svgIcons/feedbackIcon.svg',
       image2: '/svgIcons/feedBackIconBlue.svg',
       url: PersistanceKeys.FeedbackFormUrl,
@@ -289,7 +289,7 @@ const DashboardSlider = ({
       if (Data?.giveFeedback) {
         dynamicButtons.push({
           id: crypto.randomUUID(),
-          label: Data.giveFeedbackTitle || 'Give Feedback',
+          label: Data.giveFeedbackTitle || 'Create Ticket',
           url: Data.giveFeedbackUrl || PersistanceKeys.FeedbackFormUrl,
           image: '/svgIcons/feedbackIcon.svg',
           image2: '/svgIcons/feedBackIconBlue.svg',
