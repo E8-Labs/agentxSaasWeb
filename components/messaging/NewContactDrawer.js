@@ -836,7 +836,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
             >
               <SelectTrigger
                 className={cn(
-                  'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
+                  'h-[40px] bg-white border border-black/[0.06] rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary transition-all duration-150',
                   errors.smartlist && 'border-red-500 focus:border-red-500 focus:ring-red-500'
                 )}
               >
@@ -882,10 +882,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                   value={formData.firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
                   placeholder="Type here"
-                  className={cn(
-                    'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
-                    errors.firstName && 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                  )}
+                  className={cn(errors.firstName && 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500')}
                 />
                 {errors.firstName && (
                   <p className="text-xs text-red-500 mt-0.5">{errors.firstName}</p>
@@ -905,7 +902,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                     e.stopPropagation()
                   }}
                   placeholder="Type here"
-                  className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                  className="w-full"
                 />
               </div>
 
@@ -917,10 +914,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="Type here"
-                  className={cn(
-                    'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
-                    errors.email && 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                  )}
+                  className={cn(errors.email && 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500')}
                 />
                 {errors.email && (
                   <p className="text-xs text-red-500 mt-0.5">{errors.email}</p>
@@ -934,7 +928,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                 </Label>
                 <div
                   className={cn(
-                    'rounded-lg border border-gray-200 shadow-sm bg-white focus-within:border-brand-primary focus-within:ring-1 focus-within:ring-brand-primary',
+                    'rounded-lg border border-black/[0.06] shadow-sm bg-white focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 transition-all duration-150',
                     errors.phone && 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500'
                   )}
                 >
@@ -1004,7 +998,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                             handleCustomFieldChange(field.columnName, e.target.value)
                           }
                           placeholder="Type here"
-                          className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                          className="w-full"
                         />
                       </div>
                     ))}
@@ -1069,7 +1063,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                     }}
                     disabled={loadingPipelines}
                   >
-                    <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Pipeline" />
                     </SelectTrigger>
                     <SelectContent className="!z-[1600]">
@@ -1105,7 +1099,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                     }}
                     disabled={!selectedPipeline || stages.length === 0}
                   >
-                    <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Stage" />
                     </SelectTrigger>
                     <SelectContent className="!z-[1600]">

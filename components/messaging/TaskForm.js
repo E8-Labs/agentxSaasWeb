@@ -436,8 +436,8 @@ const TaskForm = ({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description here..."
-            className="border-0 p-0 min-h-[60px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
-            style={{ fontSize: '14px', lineHeight: '2' }}
+            className="min-h-[80px] resize-none"
+            style={{ fontSize: '14px', lineHeight: '1.6' }}
             rows={3}
             required={isValidForm}
           />

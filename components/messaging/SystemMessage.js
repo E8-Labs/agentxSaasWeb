@@ -547,7 +547,7 @@ const SystemMessage = ({
                           placeholder="Send a follow up message to lead"
                           value={aiActionInput}
                           onChange={(e) => setAiActionInput(e.target.value)}
-                          className="min-h-[80px] resize-none text-sm focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary"
+                          className="min-h-[80px] resize-none"
                           disabled={followUpSubmitting}
                         />
                         <div className="flex items-center justify-end gap-[8px] m-0 pt-2">

@@ -76,7 +76,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
   return (
     <div className="relative">
       <DropdownMenu open={open} onOpenChange={handleOpenChange}>
-        <div className={cn("flex items-center rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
+        <div className={cn("flex items-center h-[40px] rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
           {onChevronClick ? (
             <>
               <DropdownMenuTrigger asChild>
@@ -128,7 +128,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           ) : (
             <DropdownMenuTrigger asChild>
               <button
-                className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName, triggerClassName)}
+                className={cn("flex items-center focus:outline-none rounded-md h-[40px]", backgroundClassName, triggerClassName)}
                 style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
                   // Prevent event from bubbling up to modal close handler
@@ -176,7 +176,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           }}
         >
           {title && (
-            <div className="px-4 py-3 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
+            <div className="px-4 py-2 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
               {title}
             </div>
           )}

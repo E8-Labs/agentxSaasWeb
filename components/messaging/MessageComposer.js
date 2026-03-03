@@ -17,7 +17,7 @@ import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiS
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import Image from 'next/image'
-import MessageComposerTabCN from './MessageComposerTabCN'
+import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
 
 // Tab icon for consolidated Messenger/Instagram: uses fb_message_icon PNG (accepts size/style like Lucide)
@@ -1308,89 +1308,69 @@ const MessageComposer = ({
   return (
     <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
       <div className="w-full px-3 py-3 flex flex-col gap-1">
-        <div className="flex items-center justify-between border-b m-0 gap-1 py-1">
-          <div className="flex items-center gap-2 pb-1 h-8">
-            <MessageComposerTabCN
-              icon={MessageSquareDot}
-              label="Text"
-              isActive={composerMode === 'sms'}
-              onClick={() => {
-                // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
-                if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
-                  const plainText = stripHTML(composerData.emailBody)
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || '',
-                    smsBody: plainText.substring(0, SMS_CHAR_LIMIT) // Ensure it doesn't exceed SMS limit
-                  }))
-                } else {
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
-                  }))
-                }
-                setComposerMode('sms')
-                fetchPhoneNumbers()
-                setIsExpanded(true)
-              }}
-            />
-            <MessageComposerTabCN
-              icon={Mail}
-              label="Email"
-              isActive={composerMode === 'email'}
-              onClick={() => {
-                // When switching to Email, preserve email body if it exists, otherwise convert SMS text to HTML
-                if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
-                  // Convert plain text SMS to HTML format for email
-                  const htmlBody = composerData.smsBody.replace(/\n/g, '<br>')
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverEmail || selectedThread?.lead?.email || '',
-                    emailBody: htmlBody
-                  }))
-                } else {
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
-                  }))
-                }
-                setComposerMode('email')
-                setIsExpanded(true)
-                // Only fetch if accounts are empty, otherwise the effect in Messages.js will restore selection
-                if (emailAccounts.length === 0) {
-                  fetchEmailAccounts()
-                }
-              }}
-            />
-            <MessageComposerTabCN
-              icon={MessageSquare}
-              label="Comment"
-              isActive={composerMode === 'comment'}
-              onClick={() => {
-                setComposerMode('comment')
-                setIsExpanded(true)
-              }}
-            />
-            {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
-              <MessageComposerTabCN
-                icon={MessengerTabIcon}
-                label="FB/IG DM"
-                isActive={composerMode === 'facebook' || composerMode === 'instagram'}
-                onClick={() => {
-                  // Prefer Instagram when thread or linked lead has Instagram PSID (so input enables for linked IG conversations)
+        <div className="flex items-center justify-between border-b border-black/[0.06] m-0 gap-1 py-1">
+          <div className="flex items-center gap-2 pb-1">
+            <ToggleGroupCN
+              height="h-[40px] py-1"
+              roundedness="rounded-lg"
+              options={[
+                { label: 'Text', value: 'sms', icon: MessageSquareDot },
+                { label: 'Email', value: 'email', icon: Mail },
+                { label: 'Comment', value: 'comment', icon: MessageSquare },
+                ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
+                  ? [{ label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }]
+                  : []),
+              ]}
+              value={composerMode === 'instagram' ? 'facebook' : composerMode}
+              onChange={(value) => {
+                if (value === 'sms') {
+                  if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
+                    const plainText = stripHTML(composerData.emailBody)
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || '',
+                      smsBody: plainText.substring(0, SMS_CHAR_LIMIT)
+                    }))
+                  } else {
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
+                    }))
+                  }
+                  setComposerMode('sms')
+                  fetchPhoneNumbers()
+                } else if (value === 'email') {
+                  if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
+                    const htmlBody = composerData.smsBody.replace(/\n/g, '<br>')
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverEmail || selectedThread?.lead?.email || '',
+                      emailBody: htmlBody
+                    }))
+                  } else {
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
+                    }))
+                  }
+                  setComposerMode('email')
+                  if (emailAccounts.length === 0) fetchEmailAccounts()
+                } else if (value === 'comment') {
+                  setComposerMode('comment')
+                } else if (value === 'facebook') {
                   const useInstagram = selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid
                   setComposerMode(useInstagram ? 'instagram' : 'facebook')
-                  setIsExpanded(true)
-                }}
-              />
-            )}
+                }
+                setIsExpanded(true)
+              }}
+            />
           </div>
 
           <div className="flex items-center gap-2">
 
             {composerMode === 'email' && (
 
-              <div className="flex items-center border-[0.5px] border-gray-200 rounded-lg">
+              <div className="flex items-center border border-black/[0.06] rounded-lg">
                 <SplitButtonCN buttons={[{
                   label: 'Cc',
                   isSelected: showCC,
@@ -1489,14 +1469,13 @@ const MessageComposer = ({
                   }
                 }}
                 placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
-                className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                style={{ height: '42px' }}
+                className="flex-1"
               />
               <button
                 onClick={handleSendSocial}
                 disabled={!(composerData.socialBody ?? '').trim() || sendingSocialMessage}
                 className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                style={{ height: '42px' }}
+                style={{ height: '40px' }}
               >
                 {sendingSocialMessage ? <CircularProgress size={20} color="inherit" sx={{ display: 'block' }} /> : <PaperPlaneTilt size={20} weight="fill" />}
               </button>
@@ -1543,8 +1522,7 @@ const MessageComposer = ({
                 }
               }}
               placeholder={composerMode === 'comment' ? 'Type a comment...' : 'Type your message...'}
-              className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-              style={{ height: '42px' }}
+              className="flex-1"
             />
             <button
               onClick={composerMode === 'comment' ? handleSendComment : handleSendMessage}
@@ -1557,7 +1535,7 @@ const MessageComposer = ({
                     (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
               }
               className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              style={{ height: '42px' }}
+              style={{ height: '40px' }}
             >
               <PaperPlaneTilt size={20} weight="fill" />
             </button>
@@ -1585,7 +1563,7 @@ const MessageComposer = ({
                     {isMessengerReply ? 'Reply in Messenger' : 'Reply in Instagram'}
                   </label>
                 </div>
-                <div className="border border-brand-primary/20 rounded-lg bg-white">
+                <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
                     ref={socialRichTextEditorRef}
                     value={socialBodyToEditorValue(composerData.socialBody ?? '')}
@@ -1624,7 +1602,7 @@ const MessageComposer = ({
                 </div>
 
                 {/* Comment Input with Formatting Toolbar */}
-                <div ref={commentEditorContainerRef} className="relative border border-brand-primary/20 rounded-lg bg-white">
+                <div ref={commentEditorContainerRef} className="relative border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
                     ref={commentEditorRef}
                     value={commentBody}
@@ -1727,7 +1705,7 @@ const MessageComposer = ({
             ) : (
               <>
                 <div className="flex items-center gap-2 m-0 px-1">
-                  <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                  <div className="flex border border-black/[0.06] rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center gap-2 flex-1 h-[40px] px-3 bg-white transition-all duration-150">
                     <label className="text-sm text-[#737373] font-medium whitespace-nowrap">From:</label>
                     {composerMode === 'sms' ? (
                       <div className="flex-1 relative min-w-0" ref={phoneDropdownRef}>
@@ -1808,8 +1786,7 @@ const MessageComposer = ({
                         {emailAccounts.length === 0 ? (
                           <button
                             onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
-                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-                            style={{ height: '42px' }}
+                            className="w-full px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-all duration-150 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary bg-white"
                           >
                             Connect Email
                           </button>
@@ -1909,7 +1886,7 @@ const MessageComposer = ({
                       <div className="flex items-start gap-4 m-0 px-1">
                         {showCC && (
                           <div className="flex items-start gap-2 flex-1 w-full">
-                            <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                            <div className="flex border border-black/[0.06] rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center gap-2 flex-1 min-h-[40px] px-3 bg-white transition-all duration-150">
                               <label className="text-sm font-medium whitespace-nowrap text-[#737373]">Cc:</label>
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
@@ -1955,7 +1932,7 @@ const MessageComposer = ({
                         )}
                         {showBCC && (
                           <div className="flex items-start gap-2 flex-1 w-full">
-                            <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                            <div className="flex border border-black/[0.06] rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center gap-2 flex-1 min-h-[40px] px-3 bg-white transition-all duration-150">
                               <label className="text-sm font-medium whitespace-nowrap text-[#737373]">Bcc:</label>
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
@@ -2003,8 +1980,8 @@ const MessageComposer = ({
                     )}
 
                     <div className="flex items-center gap-2 m-0 px-1">
-                      <div className={cn("flex rounded-lg focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary items-center flex-1 bg-white", subjectVariablesDropdownOpen ? "border-0" : "border-[0.5px] border-gray-200")}>
-                        <div className="flex items-center gap-2 flex-1 px-3">
+                      <div className={cn("flex rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center flex-1 bg-white transition-all duration-150", subjectVariablesDropdownOpen ? "border-0" : "border border-black/[0.06]")}>
+                        <div className="flex items-center gap-2 flex-1 px-3 h-[40px]">
                           <label className="text-sm text-[#737373] font-medium whitespace-nowrap">Subject:</label>
                           <input
                             type="text"
@@ -2016,7 +1993,7 @@ const MessageComposer = ({
                         </div>
                         {/* Divider */}
                         {uniqueColumns && uniqueColumns.length > 0 && (
-                          <div className="w-[0.5px] h-[36px]  bg-gray-200 flex-shrink-0"></div>
+                          <div className="w-[0.5px] h-[40px] bg-black/[0.08] flex-shrink-0"></div>
                         )}
                         {/* Variables dropdown */}
                         {uniqueColumns && uniqueColumns.length > 0 && (
@@ -2116,7 +2093,7 @@ const MessageComposer = ({
                                   onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
                                   className={cn(
                                   "px-3 py-2 w-32 border-l-[0.5px] flex items-center justify-between gap-2 text-sm text-gray-700 transition-colors rounded-[12px]",
-                                  variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-gray-200 border-gray-200 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary"
+                                  variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-black/[0.06] hover:bg-black/[0.02] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary"
                                 )}
                                 >
                                   <span>Variables</span>
@@ -2322,7 +2299,7 @@ const MessageComposer = ({
                                 <button
                                   type="button"
                                   onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
-                                  className="px-3 py-2 w-32 border-gray-200 border-l-[0.5px] border-gray-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                  className="px-3 py-2 w-32 border-l border-black/[0.06] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-black/[0.02] transition-colors"
                                 >
                                   <span>Variables</span>
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />

@@ -1900,7 +1900,7 @@ const NewMessageModal = ({
                                 ref={phoneAnchorRef}
                                 type="button"
                                 onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
-                                className="w-full px-3 py-2 h-[42px] border border-black/[0.06] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary bg-white text-left flex items-center justify-between transition-all duration-150"
+                                className="w-full px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary bg-white text-left flex items-center justify-between transition-all duration-150"
                               >
                                 <div className="flex items-center gap-2 flex-1">
                                   <span className="text-[14px] text-muted-foreground flex-shrink-0">From:</span>
@@ -2022,7 +2022,7 @@ const NewMessageModal = ({
                                 <div className="flex flex-row gap-2 items-center justify-center">
                                   <button
                                     onClick={() => setShowAuthSelectionPopup(true)}
-                                    className="w-full whitespace-nowrap px-3 py-2 h-[42px] border border-black/[0.06] rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-all duration-150 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                                    className="w-full whitespace-nowrap px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-all duration-150 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
 
                                   >
                                     Connect Email
@@ -2043,7 +2043,7 @@ const NewMessageModal = ({
                                     ref={emailAnchorRef}
                                     type="button"
                                     onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                                    className="w-full px-3 py-2 h-[42px] border border-black/[0.06] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary bg-white text-left flex items-center justify-between transition-all duration-150"
+                                    className="w-full px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary bg-white text-left flex items-center justify-between transition-all duration-150"
                                   >
                                     <div className="flex items-center gap-2 flex-1">
                                       <span className="text-[14px] text-muted-foreground flex-shrink-0">From:</span>
@@ -2156,7 +2156,7 @@ const NewMessageModal = ({
                           <div className="relative flex-1 min-w-0" style={{ flexBasis: 0 }}>
                             {/* Tag Input Container */}
                             <div
-                              className="flex items-center gap-2 px-3 h-[42px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
+                              className="flex items-center gap-2 px-3 h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
                               onClick={() => {
                                 setShowLeadList(true)
                               }}
@@ -2181,7 +2181,7 @@ const NewMessageModal = ({
                                     className="flex-1 min-w-[80px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                     style={{
                                       height: '100%',
-                                      lineHeight: '42px',
+                                      lineHeight: '40px',
                                       padding: 0,
                                       verticalAlign: 'middle',
                                       maxWidth: '100%'
@@ -2224,7 +2224,7 @@ const NewMessageModal = ({
                                   className="flex-1 min-w-[120px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                   style={{
                                     height: '100%',
-                                    lineHeight: '42px',
+                                    lineHeight: '40px',
                                     padding: 0,
                                     verticalAlign: 'middle',
                                     maxWidth: '100%'
@@ -2305,7 +2305,7 @@ const NewMessageModal = ({
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
                                 <div
-                                  className="flex items-center gap-2 px-3 h-[42px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
+                                  className="flex items-center gap-2 px-3 h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
                                   onClick={() => {
                                     const input = document.querySelector('#cc-input')
                                     if (input) input.focus()
@@ -2328,7 +2328,7 @@ const NewMessageModal = ({
                                         className="flex-1 min-w-[80px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                         style={{
                                           height: '100%',
-                                          lineHeight: '42px',
+                                          lineHeight: '40px',
                                           padding: 0,
                                           verticalAlign: 'middle',
                                           maxWidth: '100%'
@@ -2366,7 +2366,7 @@ const NewMessageModal = ({
                                       className="flex-1 min-w-[120px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                       style={{
                                         height: '100%',
-                                        lineHeight: '42px',
+                                        lineHeight: '40px',
                                         padding: 0,
                                         verticalAlign: 'middle',
                                         maxWidth: '100%'
@@ -2382,7 +2382,7 @@ const NewMessageModal = ({
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
                                 <div
-                                  className="flex items-center gap-2 px-3 h-[42px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
+                                  className="flex items-center gap-2 px-3 h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
                                   onClick={() => {
                                     const input = document.querySelector('#bcc-input')
                                     if (input) input.focus()
@@ -2405,7 +2405,7 @@ const NewMessageModal = ({
                                         className="flex-1 min-w-[80px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                         style={{
                                           height: '100%',
-                                          lineHeight: '42px',
+                                          lineHeight: '40px',
                                           padding: 0,
                                           verticalAlign: 'middle',
                                           maxWidth: '100%'
@@ -2443,7 +2443,7 @@ const NewMessageModal = ({
                                       className="flex-1 min-w-[120px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                       style={{
                                         height: '100%',
-                                        lineHeight: '42px',
+                                        lineHeight: '40px',
                                         padding: 0,
                                         verticalAlign: 'middle',
                                         maxWidth: '100%'
@@ -2465,7 +2465,7 @@ const NewMessageModal = ({
                             id="subject-field-group"
                           >
                             {/* Subject Input Section */}
-                            <div className="flex-1 flex items-center gap-2 px-3 h-[42px]">
+                            <div className="flex-1 flex items-center gap-2 px-3 h-[40px]">
                               <span className="text-[14px] text-muted-foreground flex-shrink-0">Subject:</span>
                               <input
                                 type="text"
@@ -2475,18 +2475,18 @@ const NewMessageModal = ({
                                 className="flex-1 outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                 style={{
                                   height: '100%',
-                                  lineHeight: '42px',
+                                  lineHeight: '40px',
                                   padding: 0,
                                 }}
                               />
                             </div>
                             {/* Divider */}
                             {uniqueColumns && uniqueColumns.length > 0 && (
-                              <div className="w-[2px] h-[42px] bg-black/[0.08] group-focus-within/subject-field:bg-brand-primary has-focus:bg-brand-primary transition-colors flex-shrink-0"></div>
+                              <div className="w-[2px] h-[40px] bg-black/[0.08] group-focus-within/subject-field:bg-brand-primary has-focus:bg-brand-primary transition-colors flex-shrink-0"></div>
                             )}
                             {/* Variables dropdown for subject */}
                             {uniqueColumns && uniqueColumns.length > 0 && (
-                              <FormControl size="small" sx={{ minWidth: 150, height: '42px' }}>
+                              <FormControl size="small" sx={{ minWidth: 150, height: '40px' }}>
                                 <Select
                                   value={selectedSubjectVariable}
                                   onOpen={() => setSubjectVariableSearchQuery('')}
@@ -2530,7 +2530,7 @@ const NewMessageModal = ({
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        height: '42px',  // match Select height so icon is centered in both states
+                                        height: '40px',  // match Select height so icon is centered in both states
                                         cursor: 'pointer',
                                       }}
                                     >
@@ -2539,26 +2539,26 @@ const NewMessageModal = ({
                                   )}
                                   sx={{
                                     fontSize: '0.875rem',
-                                    height: '42px',
+                                    height: '40px',
                                     '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
-                                      height: '42px',
+                                      height: '40px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                       top: 0,
                                     },
                                     '&.Mui-focused .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                     },
                                   }}
                                 >
@@ -2572,7 +2572,7 @@ const NewMessageModal = ({
                                         placeholder="Search variables..."
                                         value={subjectVariableSearchQuery}
                                         onChange={(e) => setSubjectVariableSearchQuery(e.target.value)}
-                                        className="h-9 text-[14px] border border-black/[0.06] rounded-lg px-3 w-full focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary transition-all duration-150"
+                                        className="w-full"
                                       />
                                     </div>
                                   </ListSubheader>
@@ -2760,7 +2760,7 @@ const NewMessageModal = ({
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        height: '42px',  // match Select height so icon is centered in both states
+                                        height: '40px',  // match Select height so icon is centered in both states
                                         cursor: 'pointer',
                                       }}
                                     >
@@ -2769,26 +2769,26 @@ const NewMessageModal = ({
                                   )}
                                   sx={{
                                     fontSize: '0.875rem',
-                                    height: '42px',
+                                    height: '40px',
                                     '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
-                                      height: '42px',
+                                      height: '40px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                       top: 0,
                                     },
                                     '&.Mui-focused .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                     },
                                   }}
                                 >
@@ -2802,7 +2802,7 @@ const NewMessageModal = ({
                                         placeholder="Search variables..."
                                         value={variableSearchQuery}
                                         onChange={(e) => setVariableSearchQuery(e.target.value)}
-                                        className="h-9 text-[14px] border border-black/[0.06] rounded-lg px-3 w-full focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary transition-all duration-150"
+                                        className="w-full"
                                       />
                                     </div>
                                   </ListSubheader>
@@ -2913,7 +2913,7 @@ const NewMessageModal = ({
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        height: '42px',  // match Select height so icon is centered in both states
+                                        height: '40px',  // match Select height so icon is centered in both states
                                         cursor: 'pointer',
                                       }}
                                     >
@@ -2922,26 +2922,26 @@ const NewMessageModal = ({
                                   )}
                                   sx={{
                                     fontSize: '0.875rem',
-                                    height: '42px',
+                                    height: '40px',
                                     '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
-                                      height: '42px',
+                                      height: '40px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                       top: 0,
                                     },
                                     '&.Mui-focused .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                     },
                                   }}
                                 >
@@ -2955,7 +2955,7 @@ const NewMessageModal = ({
                                         placeholder="Search variables..."
                                         value={smsVariableSearchQuery}
                                         onChange={(e) => setSmsVariableSearchQuery(e.target.value)}
-                                        className="h-9 text-[14px] border border-black/[0.06] rounded-lg px-3 w-full focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary transition-all duration-150"
+                                        className="w-full"
                                       />
                                     </div>
                                   </ListSubheader>
@@ -3284,7 +3284,7 @@ const NewMessageModal = ({
         }}
       >
         <div className="py-2">
-          <div className="px-4 py-3 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
+          <div className="px-4 py-2 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
             {emailListPopoverType === 'cc' ? 'CC Recipients' : 'BCC Recipients'}
           </div>
           <div className="max-h-60 overflow-y-auto">

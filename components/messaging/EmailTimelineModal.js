@@ -759,7 +759,7 @@ const EmailTimelineModal = ({
                 <div className="flex items-center gap-2">
                   <label className="text-sm font-medium w-16">Cc:</label>
                   <div className="relative flex-1">
-                    <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto">
+                    <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 bg-white transition-all duration-150 overflow-y-auto">
                       {ccEmails.map((email, index) => (
                         <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
                           <span className="text-gray-700">{email}</span>
@@ -792,7 +792,7 @@ const EmailTimelineModal = ({
                 <div className="flex items-center gap-2">
                   <label className="text-sm font-medium w-16">Bcc:</label>
                   <div className="relative flex-1">
-                    <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto">
+                    <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 bg-white transition-all duration-150 overflow-y-auto">
                       {bccEmails.map((email, index) => (
                         <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
                           <span className="text-gray-700">{email}</span>

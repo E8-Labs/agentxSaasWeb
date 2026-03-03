@@ -6,7 +6,8 @@ import { TypographyBody } from '@/lib/typography'
 
 /**
  * Reusable Toggle Group Component
- * Firecrawl-inspired minimal pill tabs with brand styling.
+ * Firecrawl-style segmented control: light gray container, selected item
+ * "pops" with white background and soft shadow, unselected with hover feedback.
  * Used for toggle buttons like All/Unreplied/Starred, SMS/Email, etc.
  *
  * @param {Object} props
@@ -22,40 +23,43 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'h-[
     <div
       className={cn(
         height,
-        'flex flex-row items-stretch justify-center gap-px',
-        'bg-black/[0.04]',
+        'flex flex-row items-stretch justify-center gap-0',
+        'bg-black/[0.06]',
         roundedness,
+        'shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-1',
         className,
       )}
     >
-      {options.map((option) => {
+      {options.map((option, index) => {
         const isSelected = value === option.value
         const Icon = option.icon
 
         return (
           <button
             key={option.value}
+            type="button"
             onClick={() => onChange(option.value)}
             className={cn(
-              'w-auto px-2 flex items-center justify-center gap-1.5',
-              'transition-all duration-150 ease-out rounded-[6px]',
+              'w-auto px-2 flex items-center justify-center gap-1.5 min-w-0',
+              'transition-all duration-150 ease-out rounded-md',
               'active:scale-[0.98]',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:ring-offset-1',
+              index > 0 && 'border-l border-black/[0.08]',
               isSelected
-                ? 'bg-white text-brand-primary shadow-sm border border-black/[0.06]'
-                : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-black/[0.02]',
+                ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.06),0_2px_4px_rgba(0,0,0,0.04)]'
+                : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-black/[0.04]',
             )}
           >
             <TypographyBody
               className={cn(
-                'flex items-center gap-1.5 text-[14px] font-medium',
-                isSelected ? 'text-brand-primary' : 'text-inherit',
+                'flex items-center gap-1.5 text-[14px]',
+                isSelected ? 'font-medium text-foreground' : 'font-medium text-inherit',
               )}
             >
               {Icon && (
                 <Icon
                   size={18}
-                  className={cn('shrink-0', isSelected ? 'text-brand-primary' : 'text-muted-foreground')}
+                  className={cn('shrink-0', isSelected ? 'text-brand-primary' : 'text-inherit')}
                 />
               )}
               <span>{option.label}</span>

@@ -982,7 +982,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           }
                         }
                       }}
-                      className={cn('h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary')}
+                      className="w-full"
                     />
                       {apiKeyError && (
                         <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
@@ -1029,7 +1029,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             value={settings.replyDelaySeconds || ''}
                             onChange={(e) => handleDelaySecondsChange(e.target.value)}
                             min={0}
-                            className={cn('h-10 pr-10')}
+                            className="w-full pr-10"
                           />
                           <span
                             className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"

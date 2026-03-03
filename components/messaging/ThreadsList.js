@@ -315,7 +315,7 @@ const ThreadsList = ({
           // icon={ChevronDown}
           onSelect={(opt) => opt?.onSelect?.()}
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
-          triggerClassName="h-10 rounded-lg text-sm"
+          triggerClassName="h-[40px] rounded-lg text-sm"
           contentClassName="min-w-[180px] w-[180px] bg-white text-foreground text-sm border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-lg animate-dropdown-below-enter"
         />
 
@@ -355,7 +355,7 @@ const ThreadsList = ({
             placeholder="Search"
             value={searchValue || ''}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-9 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border focus:border-primary focus:bg-white"
+            className="pl-10 pr-9 w-full"
           />
           {searchLoading ? (
             <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={18} />
@@ -392,7 +392,7 @@ const ThreadsList = ({
               data-state="open"
               className="absolute right-0 top-full mt-1 z-30 w-[280px] bg-white rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] animate-dropdown-below-enter"
             >
-              <div className="px-4 py-3 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
+              <div className="px-4 py-2 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
                 Filter by
               </div>
               <div
