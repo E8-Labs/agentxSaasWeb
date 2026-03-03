@@ -34,13 +34,15 @@ const ActionsTab = ({
 
   const hasLeadScoringAccess = useMemo(() => {
     const planCapabilities = reduxUser?.planCapabilities || {}
-    // If allowLeadScoring is undefined/null, default to true (backward compatibility)
-    if (planCapabilities.allowLeadScoring === undefined || 
-        planCapabilities.allowLeadScoring === null) {
-      return true
-    }
-    return planCapabilities.allowLeadScoring === true
-  }, [reduxUser?.planCapabilities])
+    const agencyCapabilities = reduxUser?.agencyCapabilities || {}
+    const isSubaccount = reduxUser?.userRole === 'AgencySubAccount'
+    const planHasLeadScoring = planCapabilities.allowLeadScoring === true
+    const agencyHasLeadScoring = agencyCapabilities.allowLeadScoring === true
+    // Must have plan access; for subaccounts, agency must also have the feature
+    if (!planHasLeadScoring) return false
+    if (isSubaccount && !agencyHasLeadScoring) return false
+    return true
+  }, [reduxUser?.planCapabilities, reduxUser?.agencyCapabilities, reduxUser?.userRole])
 
   // Get upgrade/request feature flags from backend
   const shouldShowCalendarUpgrade = useMemo(() => {

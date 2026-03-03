@@ -1,7 +1,7 @@
 'use client'
 
 import { CircularProgress, Tooltip } from '@mui/material'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, InfoIcon } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useState } from 'react'
@@ -25,6 +25,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 /**
  * TransactionTable - Full-width table displaying transaction details
@@ -363,7 +364,8 @@ function TransactionTable({
                   </TableHead>
                   <TableHead className="text-gray-600 font-medium">
                     <Tooltip
-                      title={`The partner share isn’t just a fee — it’s what fuels new features, better tools, and ongoing innovation designed to help your agency reach the next level. Upgrade to save 20%.`}
+                      title={`The partner share isn’t just a fee — it’s what fuels new features, better tools, and ongoing innovation designed to help your agency reach the next level. This is take after your credit cost and stripe fee is deducted. Upgrade to save 20%.`}
+                      className='flex items-center flex-row'
                       componentsProps={{
                         tooltip: {
                           sx: {
@@ -383,11 +385,13 @@ function TransactionTable({
                       }}
                     >
                       <span className="cursor-help">Partner Share</span>
+                      <InfoIcon size={22} className="cursor-help pl-2" color={getBrandPrimaryHex()} />
                     </Tooltip>
                   </TableHead>
                   <TableHead className="text-gray-600 font-medium">
                     <Tooltip
-                      title={` Its the cost of your AI credits sold on this plan. Currently your cost per credit is dependent on your plan. Upgrade to save 30%. `}
+                      title={`Its the cost of your AI credits sold on this plan. Currently your cost per credit is dependent on your plan. Upgrade to save 30%. `}
+                      className='flex items-center flex-row'
                       componentsProps={{
                         tooltip: {
                           sx: {
@@ -407,6 +411,7 @@ function TransactionTable({
                       }}
                     >
                       <span className="cursor-help">Service Cost</span>
+                      <InfoIcon size={22} className="cursor-help pl-2" color={getBrandPrimaryHex()} />
                     </Tooltip>
                   </TableHead>
                   <TableHead className="text-gray-600 font-medium">

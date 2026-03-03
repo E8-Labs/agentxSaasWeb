@@ -21,6 +21,7 @@ import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
 import UpgardView from '@/constants/UpgardView'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import { useUser } from '@/hooks/redux-hooks'
 import { getGlobalPhoneNumber } from '@/utilities/PhoneNumberUtility'
 
@@ -42,6 +43,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser()
+  const { isFreePlan } = usePlanCapabilities()
   const [isFromAgencyOrAdmin, setIsFromAgencyOrAdmin] = useState(null)
   const [isSubaccount, setIsSubaccount] = useState(false)
 
@@ -76,6 +78,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     useState(false)
 
   const [callBackNumber, setCallBackNumber] = useState('')
+  const [liveTransferMessage, setLiveTransferMessage] = useState(
+    'Let me connect you to a live agent',
+  )
   const [countryCode, setCountryCode] = useState('us')
   const [assignLoader, setAssignLoader] = useState(false)
   const [shouldContinue, setShouldContinue] = useState(true)
@@ -484,6 +489,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       formData.append('liveTransferNumber', callBackNumber)
       formData.append('mainAgentId', MyAgentData.id)
       formData.append('liveTransfer', !toggleClick)
+      if (!toggleClick && liveTransferMessage?.trim()) {
+        formData.append(
+          'liveTransferMessage',
+          liveTransferMessage.trim(),
+        )
+      }
 
       const ApiPath = Apis.asignPhoneNumber
 
@@ -864,6 +875,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                               handleContinue={() => {
                                 setOpenPurchaseSuccessModal(false)
                               }}
+                              isFreePlan={isFreePlan}
                             />
                           </div>
                         </div>
@@ -891,16 +903,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       paddingTop: '6px',
                       paddingBottom: '6px',
                       gap: 'clamp(5px, 1.2vw, 10px)',
+                      WebkitOverflowScrolling: 'touch',
                     }}
                   >
                     <div
-                      className="flex flex-row items-center min-w-full"
+                      className="flex flex-row items-center flex-nowrap flex-shrink-0"
                       style={{ gap: 'clamp(5px, 1.2vw, 10px)' }}
                     >
                       {previousNumber.map((item, index) => (
                         <button
                           key={index}
-                          className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
+                          className="flex flex-row items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0"
                           style={{
                             ...styles.callBackStyles,
                             width: 'clamp(100px, 22vw, 220px)',
@@ -923,10 +936,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         </button>
                       ))}
                       <button
-                        className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
+                        className="flex flex-row items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0"
                         style={{
                           ...styles.callBackStyles,
-                          width: 'clamp(100px, 22vw, 200px)',
+                          // width: 'clamp(100px, 22vw, 200px)',
                           height: 'clamp(30px, 35px, 40px)',
                           fontSize: 'clamp(9px, 1.8vw, 13px)',
                           border: useOfficeNumber
@@ -1085,6 +1098,29 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         >
                           {errorMessage}
                         </div>
+                        {/*<div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: '500',
+                            marginTop: 16,
+                            width: '100%',
+                          }}
+                        >
+                          Message spoken during transfer
+                        </div>
+                        <input
+                          type="text"
+                          value={liveTransferMessage}
+                          onChange={(e) =>
+                            setLiveTransferMessage(e.target.value)}
+                          placeholder="e.g. Let me connect you to a live agent"
+                          className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:ring-0 mt-1"
+                          style={{
+                            border: '1px solid #00000020',
+                            borderRadius: '7px',
+                          }}
+                          maxLength={500}
+                        />*/}
                       </div>
                       <div className="flex flex-row items-center gap-4 justify-start w-full">
                         <button onClick={handleToggleClick}>

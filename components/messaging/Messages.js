@@ -33,6 +33,8 @@ import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatur
 import MessageSettingsModal from './MessageSettingsModal'
 import AiChatModal from './AiChatModal'
 import { messageMarkdownToHtml } from './messageMarkdown'
+import SuperHumanModal from './SuperHumanModal'
+import { PersistanceKeys } from '@/constants/Constants'
 
 /** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
 function plainTextToHtml(text) {
@@ -50,6 +52,14 @@ function stripHTML(html) {
     return (tempDiv.textContent || tempDiv.innerText || '').replace(/\n{3,}/g, '\n\n').trim()
   }
   return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
+}
+
+/** Convert HTML to plain text with spaces at block boundaries (matches ThreadsList preview). */
+function htmlToPreviewText(html) {
+  if (!html || typeof html !== 'string') return ''
+  let out = html.replace(/<\s*\/?(?:p|div|br|tr|li|h[1-6])\s*[^>]*>/gi, ' ')
+  out = out.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+  return out
 }
 
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
@@ -85,6 +95,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [bccInput, setBccInput] = useState('')
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
   const [messageOffset, setMessageOffset] = useState(0) // Offset of the oldest message currently loaded
+  const messageOffsetRef = useRef(0) // Ref so scroll handler always has latest offset (avoids stale closure)
+  const justLoadedOlderRef = useRef(false) // Skip scroll-to-bottom once after prepending older messages
   const [loadingOlderMessages, setLoadingOlderMessages] = useState(false)
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
@@ -127,11 +139,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
+  const [showMessagingRequestModal, setShowMessagingRequestModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
   // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
   // Single AI Chat drawer: only one instance in the app, opened from a call summary in SystemMessage
   const [aiChatContext, setAiChatContext] = useState(null)
+  // When user selects Email/Text from AI actions inside the chat drawer, we close the drawer and open that follow-up on the matching SystemMessage
+  const [followUpAfterDrawerClose, setFollowUpAfterDrawerClose] = useState(null)
 
   // Draft state for AI-generated responses
   const [drafts, setDrafts] = useState([])
@@ -142,6 +157,24 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [callSummaryDraftsMessageId, setCallSummaryDraftsMessageId] = useState(null)
   // Ref to current drafts so AI Action callback can discard them before setting new drafts
   const draftsRef = useRef([])
+
+  //super human modal state
+  const [showSuperHumanModal, setShowSuperHumanModal] = useState(false);
+
+  //check if user has super human modal already shown
+  useEffect(() => {
+    const localData = localStorage.getItem(PersistanceKeys.SUPER_HUMAN_MODAL_STATE);
+    if (!localData) {
+      setShowSuperHumanModal(true)
+      return
+    }
+    const userData = JSON.parse(localData)
+    if (userData?.showModal === false) {
+      setShowSuperHumanModal(false)
+    } else {
+      setShowSuperHumanModal(true)
+    }
+  }, [])
 
   // Keep drafts ref in sync for use in handleGenerateCallSummaryDrafts
   useEffect(() => {
@@ -215,20 +248,32 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
 
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
-  // Resolve planCapabilities from Redux or localStorage (localStorage can have fresher full profile)
-  const effectivePlanCapabilities = reduxUser?.planCapabilities ?? (typeof window !== 'undefined' && (() => {
+  // When agency/admin is viewing another user's messages, use that user's plan capabilities so we show Request vs Upgrade correctly for the viewed user
+  const selfPlanCapabilities = reduxUser?.planCapabilities ?? (typeof window !== 'undefined' && (() => {
     try {
       const stored = localStorage.getItem('User')
       if (!stored) return undefined
       return JSON.parse(stored)?.user?.planCapabilities
     } catch { return undefined }
   })())
-  // Check if user has access to messaging features
+  const effectivePlanCapabilities = (selectedUser?.planCapabilities && typeof selectedUser.planCapabilities === 'object')
+    ? selectedUser.planCapabilities
+    : selfPlanCapabilities
+  console.log('effectivePlanCapabilities Messages.js', effectivePlanCapabilities)
+  console.log('allowEmails Messages.js', effectivePlanCapabilities?.allowEmails)
+  console.log('Selected User', selectedUser)
+  // Check if user has access to messaging features (effective = viewed user when agency/admin viewing subaccount)
   const hasMessagingAccess = effectivePlanCapabilities?.allowEmails === true || effectivePlanCapabilities?.allowTextMessages === true
   // AI Email & Text plan flags for SystemMessage and for gating AI Message Settings modal
   const allowAIEmailAndText = effectivePlanCapabilities?.allowAIEmailAndText === true
   const shouldShowAllowAiEmailAndTextUpgrade = effectivePlanCapabilities?.shouldShowAllowAiEmailAndTextUpgrade === true
   const shouldShowAiEmailAndTextRequestFeature = effectivePlanCapabilities?.shouldShowAiEmailAndTextRequestFeature === true
+  // For no-messaging-access block: show Request when viewed user is subaccount and agency doesn't have email/sms
+  const shouldShowMessagingRequestFeature = effectivePlanCapabilities?.shouldShowEmailRequestFeature === true || effectivePlanCapabilities?.shouldShowSmsRequestFeature === true
+  // Modal "from" context: when viewing another user's messages, use that user's role so copy is correct
+  const modalFromContext = selectedUser
+    ? (selectedUser.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User')
+    : (reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User')
 
   // When user clicks "AI Message Settings": open settings only if they have access; otherwise show upgrade or request feature
   const handleOpenMessageSettings = useCallback(() => {
@@ -497,7 +542,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   })
   const [linkingLeadId, setLinkingLeadId] = useState(null)
 
-  const MESSAGES_PER_PAGE = 30
+  const MESSAGES_PER_PAGE = 10
   const SMS_CHAR_LIMIT = 300
   const MAX_ATTACHMENTS = 5
   const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB
@@ -656,6 +701,68 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     [selectedUser],
   )
 
+  // Optimistically update the thread list so the left sidebar shows the new message/time without a full refetch
+  const updateThreadPreviewAfterSend = useCallback((threadId, payload) => {
+    if (!threadId) return
+    const { content = '', messageType = 'sms', direction = 'outbound', subject } = payload
+    const now = new Date().toISOString()
+    const newMessage = {
+      id: `local-${Date.now()}`,
+      content: typeof content === 'string' ? content : (content || ''),
+      messageType,
+      direction,
+      createdAt: now,
+      ...(messageType === 'email' && subject != null && { subject: String(subject).trim() }),
+    }
+    setThreads((prev) =>
+      prev.map((t) => {
+        if (t.id !== threadId) return t
+        const existingMessages = t.messages || []
+        const newMessages = [newMessage, ...existingMessages.slice(0, 49)]
+        return {
+          ...t,
+          lastMessageAt: now,
+          messages: newMessages,
+        }
+      })
+    )
+  }, [])
+
+  // Update thread list when lead stage changes: refresh stage pill and set latest preview to "Stage changed from X to Y"
+  const updateThreadAfterStageChange = useCallback((threadId, { newStage, previousStageTitle }) => {
+    if (!threadId || !newStage) return
+    const now = new Date().toISOString()
+    const toStage = newStage.stageTitle || newStage
+    const previewContent = previousStageTitle
+      ? `Stage changed from **${previousStageTitle}** to **${toStage}** by AgentX`
+      : `Stage changed to **${toStage}** by AgentX`
+    const newMessage = {
+      id: `local-stage-${Date.now()}`,
+      content: previewContent,
+      messageType: 'system',
+      direction: 'inbound',
+      createdAt: now,
+    }
+    const pipelineStage = typeof newStage === 'object' ? { ...newStage, stageTitle: newStage.stageTitle || newStage } : { stageTitle: String(newStage) }
+    setThreads((prev) =>
+      prev.map((t) => {
+        if (t.id !== threadId) return t
+        const existingMessages = t.messages || []
+        const newMessages = [newMessage, ...existingMessages.slice(0, 49)]
+        return {
+          ...t,
+          lastMessageAt: now,
+          messages: newMessages,
+          lead: t.lead ? { ...t.lead, pipelineStage } : t.lead,
+        }
+      })
+    )
+    setSelectedThread((prev) => {
+      if (!prev || prev.id !== threadId) return prev
+      return { ...prev, lead: prev.lead ? { ...prev.lead, pipelineStage } : prev.lead }
+    })
+  }, [])
+
   const loadMoreThreads = useCallback(() => {
     if (loadingMoreThreads || !hasMoreThreads || loading) return
     const offset = threadsOffsetRef.current
@@ -709,14 +816,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           if (response.data?.status && response.data?.data) {
             const allMessages = response.data.data
             console.log('allMessages', allMessages)
-            // Take the last 30 messages (most recent)
+            // Take the last N messages (most recent)
             const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
-            // Calculate the offset of the oldest message we're showing
-            // If we fetched 500 and took last 30, the oldest is at offset 470 (if there are 500+ messages)
-            // If we fetched less than 500, it means we got all messages, so offset is 0
-            const oldestMessageOffset = allMessages.length >= 500
-              ? Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
-              : 0
+            // Offset of the oldest message we're showing (so next "load older" fetches before this)
+            const oldestMessageOffset = Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
@@ -731,10 +834,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               latestMessageIdRef.current = fetchedMessages[fetchedMessages.length - 1]?.id || null
             }
 
-            // Check if there are more older messages
-            // If we got exactly 500, there might be more. If less, we got all messages.
-            setHasMoreMessages(allMessages.length >= 500)
+            // There are more older messages if we have more than one page (so we can load older)
+            setHasMoreMessages(allMessages.length > MESSAGES_PER_PAGE)
             setMessageOffset(oldestMessageOffset)
+            messageOffsetRef.current = oldestMessageOffset
 
             // Scroll to bottom instantly after DOM update (no visible animation)
             requestAnimationFrame(() => {
@@ -787,6 +890,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           })
 
           if (append) {
+            justLoadedOlderRef.current = true
             // Store scroll position before prepending
             const container = messagesContainerRef.current
             const scrollHeight = container?.scrollHeight || 0
@@ -795,17 +899,20 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             // Prepend older messages at the top
             setMessages((prev) => [...fetchedMessages, ...prev])
 
-            // Restore scroll position after prepending (maintain scroll position)
-            setTimeout(() => {
-              if (container) {
-                const newScrollHeight = container.scrollHeight
-                const heightDifference = newScrollHeight - scrollHeight
-                container.scrollTop = scrollTop + heightDifference
-              }
-            }, 0)
+            // Restore scroll position after prepending — wait for DOM to update (double rAF = after layout/paint)
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (container) {
+                  const newScrollHeight = container.scrollHeight
+                  const heightDifference = newScrollHeight - scrollHeight
+                  container.scrollTop = scrollTop + heightDifference
+                }
+              })
+            })
 
-            // Update offset to the oldest message now loaded
+            // Update offset to the oldest message now loaded (ref so next scroll uses it)
             setMessageOffset(actualOffset)
+            messageOffsetRef.current = actualOffset
             // Check if there are more older messages
             setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
@@ -828,7 +935,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
             // Check if there are more messages
             setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
-            setMessageOffset(actualOffset + fetchedMessages.length)
+            const nextOffset = actualOffset + fetchedMessages.length
+            setMessageOffset(nextOffset)
+            messageOffsetRef.current = nextOffset
           }
         }
       } catch (error) {
@@ -844,7 +953,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     [selectedUser]
   )
 
-  // Load older messages when scrolling to top
+  // Load older messages when scrolling to top (use ref so we always pass latest offset after first fetch)
   const handleScroll = useCallback(() => {
     if (!messagesContainerRef.current || messagesLoading || loadingOlderMessages || !hasMoreMessages) {
       return
@@ -853,9 +962,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     const container = messagesContainerRef.current
     // Load when near the top (within 100px)
     if (container.scrollTop <= 100 && selectedThread) {
-      fetchMessages(selectedThread.id, messageOffset, true)
+      fetchMessages(selectedThread.id, messageOffsetRef.current, true)
     }
-  }, [messagesLoading, loadingOlderMessages, hasMoreMessages, selectedThread, messageOffset, fetchMessages])
+  }, [messagesLoading, loadingOlderMessages, hasMoreMessages, selectedThread, fetchMessages])
 
   // Mark thread as read
   const markThreadAsRead = useCallback(async (threadId) => {
@@ -951,23 +1060,23 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     // Set composer mode based on draft type
     setComposerMode(draft.messageType || 'sms')
 
-    // Populate composer with draft content (plain text → HTML for email so formatting is preserved)
+    // Populate composer with draft content (markdown → HTML so composer shows formatted bold/links like the bubble)
     if (draft.messageType === 'email') {
       setComposerData(prev => ({
         ...prev,
-        emailBody: plainTextToHtml(draft.content || ''),
+        emailBody: messageMarkdownToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
     } else if (draft.messageType === 'messenger' || draft.messageType === 'instagram') {
       setComposerData(prev => ({
         ...prev,
-        socialBody: draft.content || '',
+        socialBody: messageMarkdownToHtml(draft.content || ''),
       }))
       setComposerMode(draft.messageType === 'instagram' ? 'instagram' : 'facebook')
     } else {
       setComposerData(prev => ({
         ...prev,
-        smsBody: draft.content || '',
+        smsBody: messageMarkdownToHtml(draft.content || ''),
       }))
     }
 
@@ -1337,6 +1446,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const handleThreadSelect = (thread) => {
     setSelectedThread(thread)
     setMessageOffset(0)
+    messageOffsetRef.current = 0
     setHasMoreMessages(true)
     setMessages([])
     fetchMessages(thread.id, null, false) // null means initial load
@@ -2125,12 +2235,17 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     const newMessage = res.data?.data?.message
     if (newMessage) {
       setMessages((prev) => [...prev, newMessage])
+      const previewContent = typeof newMessage.content === 'string' ? newMessage.content : (content || '').trim()
+      updateThreadPreviewAfterSend(threadId, {
+        content: previewContent,
+        messageType: newMessage.messageType || selectedThread?.threadType || 'messenger',
+        direction: 'outbound',
+      })
       setTimeout(() => {
         if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
       }, 100)
     }
-    // Do not refetch threads — only the current conversation was updated
-  }, [selectedUser?.id])
+  }, [selectedUser?.id, selectedThread?.threadType, updateThreadPreviewAfterSend])
 
   const fetchSocialConnections = useCallback(async () => {
     try {
@@ -2275,12 +2390,17 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
+          updateThreadPreviewAfterSend(selectedThread.id, {
+            content: messageBody,
+            messageType: 'sms',
+            direction: 'outbound',
+          })
           // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
           }, 500)
         } else {
-          toast.error('Failed to send message')
+          toast.error(response?.data?.message || 'Failed to send message')
         }
       } else {
         // Send Email with attachments
@@ -2474,6 +2594,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setSelectedDraft(null)
           setCallSummaryDraftsMessageId(null)
 
+          // Preview = email body with spaces at block boundaries (match ThreadsList)
+          const emailBodyPreview = typeof messageBody === 'string'
+            ? htmlToPreviewText(messageBody).slice(0, 80)
+            : ''
+          updateThreadPreviewAfterSend(selectedThread.id, {
+            content: emailBodyPreview || (composerData.subject?.trim() || 'Email sent'),
+            messageType: 'email',
+            direction: 'outbound',
+            subject: (composerData.subject && composerData.subject.trim()) ? composerData.subject.trim() : undefined,
+          })
           // Refresh messages only (do not refetch threads on every send)
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
@@ -2484,7 +2614,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       }
     } catch (error) {
       console.error('Error sending message:', error)
-      toast.error('Failed to send message')
+      toast.error(error.response?.data?.message || 'Failed to send message')
     } finally {
       setSendingMessage(false)
     }
@@ -2811,6 +2941,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (threadToSelect) {
         setSelectedThread(threadToSelect)
         setMessageOffset(0)
+        messageOffsetRef.current = 0
         setHasMoreMessages(true)
         setMessages([])
         fetchMessages(threadToSelect.id, null, false)
@@ -3223,17 +3354,22 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [searchValue, selectedThread, fetchThreads, selectedUser])
 
-  // Setup scroll listener
+  // Setup scroll listener (re-run when thread changes so we attach after container mounts)
   useEffect(() => {
     const container = messagesContainerRef.current
     if (container) {
-      container.addEventListener('scroll', handleScroll)
+      container.addEventListener('scroll', handleScroll, { passive: true })
       return () => container.removeEventListener('scroll', handleScroll)
     }
-  }, [handleScroll])
+  }, [handleScroll, selectedThread?.id])
 
   // Scroll to bottom instantly when messages are loaded (only if not loading older messages or initial load)
   useEffect(() => {
+    // Skip once after we prepended older messages (scroll position is restored in fetchMessages)
+    if (justLoadedOlderRef.current) {
+      justLoadedOlderRef.current = false
+      return
+    }
     // Only scroll if:
     // 1. Not loading older messages (to preserve scroll position)
     // 2. Not in initial loading state
@@ -3258,6 +3394,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // If user doesn't have access to emails or text messages, show empty state
   if (!hasMessagingAccess) {
+    const showRequestForMessaging = shouldShowMessagingRequestFeature
     return (
       <>
         <div className={`w-full h-full flex flex-col items-center justify-center bg-white }`}>
@@ -3287,13 +3424,26 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 width: '173px',
               }}
               onClick={() => {
-                setShowUpgradePlanModal(true)
+                if (showRequestForMessaging) {
+                  setShowMessagingRequestModal(true)
+                } else {
+                  setShowUpgradePlanModal(true)
+                }
               }}
             >
-              Upgrade Plan
+              {showRequestForMessaging ? 'Request' : 'Upgrade Plan'}
             </button>
           </div>
         </div>
+        {/* Request feature modal - when viewed user (e.g. subaccount) must request from agency */}
+        {showMessagingRequestModal && (
+          <UnlockPremiunFeatures
+            title="Unlock Messaging"
+            open={showMessagingRequestModal}
+            handleClose={() => setShowMessagingRequestModal(false)}
+            from={modalFromContext}
+          />
+        )}
         {/* Upgrade Plan Modal - For users without messaging access */}
         {showUpgradePlanModal && (
           <UpgradePlan
@@ -3308,7 +3458,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               }
             }}
             currentFullPlan={reduxUser?.plan || reduxUser?.user?.plan}
-            from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+            from={modalFromContext}
             selectedUser={selectedUser}
           />
         )}
@@ -3339,7 +3489,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           }
         }}
         currentFullPlan={reduxUser?.plan}
-        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+        from={modalFromContext}
         selectedUser={selectedUser}
       />
 
@@ -3347,7 +3497,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         title="Unlock AI Email & Text"
         open={showAiRequestFeatureModal}
         handleClose={() => setShowAiRequestFeatureModal(false)}
-        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+        from={modalFromContext}
       />
 
       {
@@ -3452,6 +3602,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       formatUnreadCount={formatUnreadCount}
                       getLeadName={getLeadName}
                       getThreadDisplayName={getThreadDisplayName}
+                      onStageChange={({ newStage, previousStageTitle }) => {
+                        if (selectedThread?.id) {
+                          updateThreadAfterStageChange(selectedThread.id, { newStage, previousStageTitle })
+                        }
+                      }}
                       onThreadUpdated={(updated) => {
                         if (updated?.id != null) {
                           setSelectedThread((prev) =>
@@ -3521,6 +3676,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           onSelectDraft={handleSelectDraft}
                           onDiscardDraft={handleDiscardDraft}
                           selectedDraftId={selectedDraft?.id}
+                          followUpAfterDrawerClose={followUpAfterDrawerClose}
+                          onClearFollowUpAfterDrawer={() => setFollowUpAfterDrawerClose(null)}
                         />
                       </div>
                     </div>
@@ -3575,18 +3732,64 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           // If new message is provided, add it to messages and refresh
                           if (newMessage) {
                             setMessages((prev) => [...prev, newMessage])
+                            const content = (newMessage.content && typeof newMessage.content === 'string')
+                              ? htmlToPreviewText(newMessage.content)
+                              : ''
+                            if (selectedThread?.id && content) {
+                              updateThreadPreviewAfterSend(selectedThread.id, {
+                                content: content.slice(0, 80),
+                                messageType: newMessage.messageType || 'comment',
+                                direction: 'outbound',
+                              })
+                            }
                             setTimeout(() => {
                               if (messagesEndRef.current) {
                                 messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
                               }
                             }, 100)
                           }
-                          // Do not refetch threads on every send/comment
                         }}
                         selectedUser={selectedUser}
                         searchLoading={searchLoading}
                       />
                     </div>
+
+                    {/* Super Human Modal */}
+                    {
+                      showSuperHumanModal && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: 15,
+                            right: 10,
+                            width: '300px',
+                            height: '440px',
+                            zIndex: 1000,
+                            borderRadius: "25px",
+                            backgroundColor: "white",
+                            boxShadow: "0 0 15px 0 rgba(0, 0, 0, 0.2)",
+                            padding: 10,
+                            paddingInline: 15
+                          }}
+                        >
+                          <SuperHumanModal
+                            open={showSuperHumanModal}
+                            onClose={() => {
+                              const d = {
+                                showModal: false
+                              }
+                              localStorage.setItem(PersistanceKeys.SUPER_HUMAN_MODAL_STATE, JSON.stringify(d))
+                              setShowSuperHumanModal(false)
+                            }}
+                            onStart={() => {
+                              // setShowSuperHumanModal(false)
+                              handleOpenMessageSettings()
+                            }}
+                          />
+                        </div>
+                      )
+                    }
+
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
@@ -3814,6 +4017,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                 onPlayRecording={aiChatContext?.onPlayRecording ?? (() => { })}
                 onCopyCallId={aiChatContext?.onCopyCallId ?? (() => { })}
                 onReadTranscript={aiChatContext?.onReadTranscript ?? (() => { })}
+                onCloseDrawerAndOpenFollowUp={({ messageId, type }) => {
+                  setFollowUpAfterDrawerClose({ messageId, type })
+                  setAiChatContext(null)
+                }}
               />
 
             </div>

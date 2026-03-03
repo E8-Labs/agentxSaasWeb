@@ -2607,6 +2607,12 @@ function Page() {
           ) {
             formData.append('liveTransferNumber', voiceData.liveTransferNumber)
           }
+          if (voiceData.liveTransferMessage !== undefined) {
+            formData.append(
+              'liveTransferMessage',
+              voiceData.liveTransferMessage,
+            )
+          }
           if (
             voiceData.callbackNumber ||
             voiceData.callbackNumber !== undefined
@@ -2633,6 +2639,14 @@ function Page() {
         if (voiceData?.idleMessage !== undefined) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
+        if (voiceData?.additionalSettings !== undefined) {
+          formData.append(
+            'additionalSettings',
+            typeof voiceData.additionalSettings === 'string'
+              ? voiceData.additionalSettings
+              : JSON.stringify(voiceData.additionalSettings),
+          )
+        }
 
         // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
@@ -2653,7 +2667,7 @@ function Page() {
           //   response.data.data
           // );
           // //console.log;
-          if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage) {
+          if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage || voiceData?.additionalSettings) {
             setShowSuccessSnack("Advanced Settings Updated");
           } else {
             setShowSuccessSnack(
@@ -6176,7 +6190,9 @@ function Page() {
                             : 'Call Transfer Number'
                         }
                         loading={loading}
-                        update={async (value) => {
+                        isTransfer={selectedNumber === 'Calltransfer'}
+                        transferMessage={showDrawerSelectedAgent?.liveTransferMessage}
+                        update={async (value, transferMessage) => {
                           let data = ''
                           if (selectedNumber === 'Callback') {
                             data = {
@@ -6185,6 +6201,9 @@ function Page() {
                           } else {
                             data = {
                               liveTransferNumber: value,
+                              ...(transferMessage !== undefined && {
+                                liveTransferMessage: transferMessage,
+                              }),
                             }
                           }
                           //console.log;
@@ -6314,6 +6333,15 @@ function Page() {
                         setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                         kycsData={kycsData}
                         uniqueColumns={uniqueColumns}
+                        onSaveVoicemailAdvancedSettings={(voicemailDetection) => {
+                          const existing = showDrawerSelectedAgent?.additionalSettings || {}
+                          updateSubAgent({
+                            additionalSettings: {
+                              ...existing,
+                              voicemailDetection,
+                            },
+                          })
+                        }}
                       />
                     </div>
                   )
@@ -6800,11 +6828,12 @@ function Page() {
                               onClick={() => {
                                 const scriptBuilderUrl =
                                   reduxUser?.agencySettings?.scriptWidgetUrl ||
+                                  reduxUser?.userSettings?.scriptWidgetUrl ||
                                   PersistanceKeys.DefaultScriptBuilderUrl
                                 window.open(scriptBuilderUrl, '_blank')
                               }}
                             >
-                              Use Script Builder
+                              Use {reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
                               <ArrowUpRight size={20} color="white" />
                             </button>
                           </div>

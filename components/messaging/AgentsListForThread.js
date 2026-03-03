@@ -67,18 +67,18 @@ export default function AgentsListForThread({
   const handleListMouseLeave = () => setPillVisible(false)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const raw = localStorage.getItem(AGENTS_CACHE_KEY)
-        if (raw) {
-          const parsed = JSON.parse(raw)
-          if (Array.isArray(parsed)) setAgentsList(parsed)
-          return
-        }
-      } catch (_) {
-        // ignore cache read errors
-      }
-    }
+    // if (typeof window !== 'undefined') {
+    //   try {
+    //     const raw = localStorage.getItem(AGENTS_CACHE_KEY)
+    //     if (raw) {
+    //       const parsed = JSON.parse(raw)
+    //       if (Array.isArray(parsed)) setAgentsList(parsed)
+    //       return
+    //     }
+    //   } catch (_) {
+    //     // ignore cache read errors
+    //   }
+    // }
 
     const token = getToken()
     if (!token) {

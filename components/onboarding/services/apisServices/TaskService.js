@@ -54,7 +54,7 @@ export const getTasks = async (params = {}, selectedUser = null) => {
       },
     })
 
-    console.log("Response data fetching in task service passing is", response)
+    // console.log("Response data fetching in task service passing is", response)
 
     return response.data
   } catch (error) {

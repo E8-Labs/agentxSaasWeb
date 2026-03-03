@@ -14,6 +14,8 @@ export const EditPhoneNumberModal = ({
   close,
   loading,
   update,
+  isTransfer = false,
+  transferMessage = '',
 }) => {
   // //console.log;
 
@@ -23,10 +25,19 @@ export const EditPhoneNumberModal = ({
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
   const [userPhoneNumber, setUserPhoneNumber] = useState('')
   const [locationLoader, setLocationLoader] = useState(false)
+  const [transferMessageInput, setTransferMessageInput] = useState(
+    transferMessage || 'Let me connect you to a live agent',
+  )
 
   useEffect(() => {
     setUserPhoneNumber(number || '')
   }, [number])
+
+  useEffect(() => {
+    setTransferMessageInput(
+      transferMessage || 'Let me connect you to a live agent',
+    )
+  }, [transferMessage, open])
 
   //getlocation
   useEffect(() => {
@@ -103,7 +114,7 @@ export const EditPhoneNumberModal = ({
             <PhoneInput
               className="outline-none bg-transparent focus:ring-0"
               country={'us'} // restrict to US only
-              onlyCountries={['us', 'mx','sv', 'ec']}
+              onlyCountries={['us', 'mx', 'sv', 'ec']}
               disableDropdown={true}
               countryCodeEditable={false}
               disableCountryCode={false}
@@ -146,6 +157,23 @@ export const EditPhoneNumberModal = ({
             {errorMessage}
           </div>
 
+          {isTransfer && (
+            <>
+              <div style={{ fontSize: 16, fontWeight: '500', marginTop: 5 }}>
+                Transfer Phrase
+              </div>
+              <input
+                type="text"
+                value={transferMessageInput}
+                onChange={(e) => setTransferMessageInput(e.target.value)}
+                placeholder="e.g. Let me connect you to a live agent"
+                disabled={loading}
+                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:ring-0"
+                maxLength={500}
+              />
+            </>
+          )}
+
           {loading ? (
             <div className="flex w-full items-center flex col justify-center h-[52px]">
               <CircularProgress size={25} />
@@ -157,10 +185,18 @@ export const EditPhoneNumberModal = ({
               onClick={() => {
                 if (!errorMessage) {
                   if (userPhoneNumber.length > 2) {
-                    update(userPhoneNumber)
+                    if (isTransfer) {
+                      update(userPhoneNumber, transferMessageInput?.trim() || 'Let me connect you to a live agent')
+                    } else {
+                      update(userPhoneNumber)
+                    }
                   } else {
-                    let emptyPhone = ''
-                    update(emptyPhone)
+                    const emptyPhone = ''
+                    if (isTransfer) {
+                      update(emptyPhone, transferMessageInput?.trim() || 'Let me connect you to a live agent')
+                    } else {
+                      update(emptyPhone)
+                    }
                   }
                 }
               }}

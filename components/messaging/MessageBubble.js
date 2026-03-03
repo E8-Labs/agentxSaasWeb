@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import moment from 'moment'
 import {
   linkifyText,
@@ -5,15 +6,12 @@ import {
   simpleMarkdownToHtml,
 } from '@/utilities/textUtils'
 import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import AttachmentList from './AttachmentList'
 
+/** Unescape HTML entities only; do not parse as HTML (parsing would strip tags and lose formatting). */
 function unescapeHtmlEntities(str) {
   if (!str || typeof str !== 'string') return str
-  if (typeof document !== 'undefined') {
-    const tempDiv = document.createElement('div')
-    tempDiv.innerHTML = str
-    return tempDiv.textContent || tempDiv.innerText || str
-  }
   return str
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -29,6 +27,10 @@ function getDisplayHtml(content) {
   if (text.includes('&lt;') || text.includes('&gt;') || text.includes('&amp;')) {
     text = unescapeHtmlEntities(text)
   }
+  // Stored content may be HTML (e.g. from social composer); render it so lists/bold/links show correctly
+  if (/<\w[\s\S]*>/.test(text)) {
+    return sanitizeHTMLForEmailBody(text)
+  }
   const withMarkdown = simpleMarkdownToHtml(text)
   if (/<[^>]+>/.test(withMarkdown)) {
     return sanitizeHTMLForEmailBody(withMarkdown)
@@ -42,7 +44,13 @@ function isAttachmentOnlyPlaceholder(content) {
   return ATTACHMENT_ONLY_PLACEHOLDER.test(content.trim())
 }
 
-const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, getPlayableUrl }) => (
+const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, getPlayableUrl }) => {
+  const [linkColor, setLinkColor] = useState('#7902DF')
+  useEffect(() => {
+    setLinkColor(getBrandPrimaryHex())
+  }, [])
+
+  return (
   <div className="flex flex-col">
     <div
       className={`px-4 py-2 ${isOutbound
@@ -57,8 +65,9 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
           [&_ul]:!my-[0.2em] [&_ul]:!pl-[1.15em] [&_ul]:!list-disc
           [&_ol]:!my-[0.2em] [&_ol]:!pl-[1.15em]
           [&_li]:!my-[0.08em]
-          [&_a]:text-brand-primary [&_a]:underline hover:[&_a]:opacity-80
-          text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a]:!text-brand-primary [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black`}
+          [&_a]:underline [&_a]:![color:var(--message-link-color)] hover:[&_a]:opacity-80
+          text-black [&_h2]:!text-black [&_h3]:!text-black [&_h4]:!text-black [&_p]:!text-black [&_strong]:!text-black [&_em]:!text-black [&_a:hover]:!opacity-80 [&_ul]:!text-black [&_ol]:!text-black [&_li]:!text-black [&_span]:!text-black [&_*]:!text-black`}
+        style={{ ['--message-link-color']: linkColor }}
         dangerouslySetInnerHTML={{
           __html: isAttachmentOnlyPlaceholder(message.content)
             ? ''
@@ -71,6 +80,7 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick, getImageUrl, ge
       <span className={`text-[12px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
     </div>
   </div>
-)
+  )
+}
 
 export default MessageBubble

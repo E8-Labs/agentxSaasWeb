@@ -338,7 +338,7 @@ function SubscriptionGraphsSection({
 
   // Debug: Log the data to see what we're working with
   useEffect(() => {
-    if (hasFetchedData || Object.keys(localSubscriptionData).length > 0) {}
+    if (hasFetchedData || Object.keys(localSubscriptionData).length > 0) { }
   }, [
     localSubscriptionData,
     activePlansUsers,
@@ -393,35 +393,35 @@ function SubscriptionGraphsSection({
 
     return keys
       .map((planName, index) => {
-      // Handle new structure: { revenue, userCount }
-      const planData = activePlansUsers[planName]
-      let revenue, userCount
+        // Handle new structure: { revenue, userCount }
+        const planData = activePlansUsers[planName]
+        let revenue, userCount
 
-      if (typeof planData === 'object' && planData !== null) {
-        // New structure
-        revenue = planData.revenue || 0
-        userCount = planData.userCount || 0
-      } else {
-        // Fallback for old structure (backward compatibility)
-        revenue = planData || 0
-        userCount = null
-      }
+        if (typeof planData === 'object' && planData !== null) {
+          // New structure
+          revenue = planData.revenue || 0
+          userCount = planData.userCount || 0
+        } else {
+          // Fallback for old structure (backward compatibility)
+          revenue = planData || 0
+          userCount = null
+        }
 
-      // Convert string values to numbers (API returns revenue as strings)
-      const numericValue =
-        typeof revenue === 'string'
-          ? parseFloat(revenue)
-          : Number(revenue) || 0
-      return {
-        name: planName || '',
-        value: numericValue,
-        userCount: userCount,
-        color: colors[index % colors.length],
-      }
-    })
+        // Convert string values to numbers (API returns revenue as strings)
+        const numericValue =
+          typeof revenue === 'string'
+            ? parseFloat(revenue)
+            : Number(revenue) || 0
+        return {
+          name: planName || '',
+          value: numericValue,
+          userCount: userCount,
+          color: colors[index % colors.length],
+        }
+      })
       .filter((item) => {
         const hasValue = item.value > 0
-        if (!hasValue) {}
+        if (!hasValue) { }
         return hasValue
       }); // Only include plans with data
   })()
@@ -442,20 +442,20 @@ function SubscriptionGraphsSection({
 
     return keys
       .map((planName, index) => {
-      const rawValue = reactivationsByPlan[planName] || 0
-      const numericValue =
-        typeof rawValue === 'string'
-          ? parseInt(rawValue, 10)
-          : Number(rawValue) || 0
-      return {
-        name: planName || '',
-        value: numericValue,
-        color: colors[index % colors.length],
-      }
-    })
+        const rawValue = reactivationsByPlan[planName] || 0
+        const numericValue =
+          typeof rawValue === 'string'
+            ? parseInt(rawValue, 10)
+            : Number(rawValue) || 0
+        return {
+          name: planName || '',
+          value: numericValue,
+          color: colors[index % colors.length],
+        }
+      })
       .filter((item) => {
         const hasValue = item.value > 0
-        if (!hasValue) {}
+        if (!hasValue) { }
         return hasValue
       }); // Only include plans with data
   })()
@@ -467,8 +467,8 @@ function SubscriptionGraphsSection({
 
   // Debug: Log transformed chart data
   useEffect(() => {
-    if (planChartData.length > 0) {}
-    if (reActivationChartData.length > 0) {}
+    if (planChartData.length > 0) { }
+    if (reActivationChartData.length > 0) { }
   }, [planChartData, reActivationChartData])
 
   return (
@@ -672,11 +672,26 @@ function SubscriptionGraphsSection({
                     bottom: 10,
                   }}
                 >
-                  <XAxis
+                  {/*<XAxis
                     dataKey="name"
                     tickLine={false}
                     axisLine={false}
                     tick={{ fontSize: 11, fill: '#6b7280' }}
+                  />*/}
+                  <XAxis
+                    dataKey="name"
+                    tick={false}
+                    tickLine={false}
+                    axisLine={false}
+                    label={{
+                      value: 'Revenue (US$)',
+                      // position: 'bottom',
+                      style: {
+                        textAnchor: 'middle',
+                        fontSize: 12,
+                        fill: '#6b7280',
+                      },
+                    }}
                   />
                   <YAxis
                     tickLine={false}

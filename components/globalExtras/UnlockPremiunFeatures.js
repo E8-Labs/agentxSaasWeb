@@ -29,6 +29,11 @@ const UnlockPremiunFeatures = ({
 
   useEffect(() => {
     fetchLocalUserData()
+    // Map titles to API feature key so request works when modal is used in any context (e.g. agency viewing subaccount)
+    if (title === 'Unlock Messaging' || title === 'Unlock AI Email & Text' || title === 'AI Text & Messages' || title === 'Enable AI Text & Messages') {
+      setFeatureTitleValue('AiEmailAndText')
+      return
+    }
     const Data = localUserData?.agencyCapabilities
     if (localUserData?.userRole === 'AgencySubAccount') {
       if (title === 'Enable Live Transfer') {
@@ -64,12 +69,6 @@ const UnlockPremiunFeatures = ({
         if (!Data?.allowLeadScoring) {
           setFeatureTitleValue('LeadScoring')
         }
-      } else if (
-        title === 'AI Text & Messages' ||
-        title === 'Enable AI Text & Messages' ||
-        title === 'Unlock AI Email & Text'
-      ) {
-        setFeatureTitleValue('AiEmailAndText')
       } else {
         setFeatureTitleValue(title)
       }
@@ -243,7 +242,7 @@ const UnlockPremiunFeatures = ({
               }}
               className="w-full bg-brand-primary text-white py-3 px-6 rounded-xl text-[15px] font-bold transition-colors"
             >
-              {from === 'agencyPayments' ? 'Continue' : 'Request Feature'}
+              {from === 'agencyPayments' ? 'Continue' : 'Request'}
             </button>
           )}
         </div>

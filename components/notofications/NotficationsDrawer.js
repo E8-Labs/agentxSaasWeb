@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { MessageSquare, MessageCircle, AtSign, Mail, MessageSquareDot, PhoneCall } from 'lucide-react'
+import { MessageSquare, MessageCircle, AtSign, Mail, MessageSquareDot, PhoneCall, Phone, Info, Zap } from 'lucide-react'
 
 import { NotificationTypes } from '@/constants/NotificationTypes'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -231,7 +231,7 @@ function NotficationsDrawer({ close }) {
       try {
         const user = JSON.parse(userData)
         const userRole = user?.user?.userRole || user?.userRole
-        
+
         // Only for subaccounts: use agency feedback URL if available
         if (userRole === 'AgencySubAccount') {
           if (
@@ -263,7 +263,13 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.RedeemedAgentXCodeMine) {
       return renderBrandedIcon('/svgIcons/minsNotIcon.svg', 32, 32)
     } else if (item.type === NotificationTypes.NoCallsIn3Days) {
-      return renderBrandedIcon('/svgIcons/callsNotIcon.svg', 37, 37)
+      return (
+        <div className="relative inline-flex">
+          <Phone size={20} strokeWidth={2} color={getBrandPrimaryHex()} />
+          <Info size={12} className="absolute -top-0.5 -right-0.5" strokeWidth={2} color={getBrandPrimaryHex()} />
+        </div>
+      )
+      // renderBrandedIcon('/svgIcons/callsNotIcon.svg', 25, 25)
     } else if (item.type === NotificationTypes.LeadReplied) {
       return renderBrandedLucideIcon(MessageSquare, 20)
     } else if (item.type === NotificationTypes.LeadReplyEmail) {
@@ -285,7 +291,8 @@ function NotficationsDrawer({ close }) {
       item.type === NotificationTypes.FirstLeadUpload ||
       item.type === NotificationTypes.SocialProof
     ) {
-      return renderBrandedIcon('/svgIcons/hotLeadNotIcon.svg', 37, 37)
+      return renderBrandedLucideIcon(Zap, 20)
+      // renderBrandedIcon('/svgIcons/hotLeadNotIcon.svg', 25, 25)
     } else if (item.type === NotificationTypes.TotalHotlead) {
       return (
         <div
@@ -665,7 +672,7 @@ function NotficationsDrawer({ close }) {
         if (item.messageId) {
           params.set('messageId', item.messageId.toString())
         }
-        
+
         // Close the drawer and navigate to messaging page
         setShowNotificationDrawer(false)
         router.push(`/dashboard/messages?${params.toString()}`)
@@ -678,19 +685,18 @@ function NotficationsDrawer({ close }) {
   }
 
   const renderItem = (item, index) => {
-    const isClickable = 
+    const isClickable =
       (item.type === NotificationTypes.LeadReplied ||
-       item.type === NotificationTypes.LeadReplyEmail || 
-       item.type === NotificationTypes.LeadReplySms || 
-       item.type === NotificationTypes.TeamMemberMentioned) && 
+        item.type === NotificationTypes.LeadReplyEmail ||
+        item.type === NotificationTypes.LeadReplySms ||
+        item.type === NotificationTypes.TeamMemberMentioned) &&
       item.threadId
-    
+
     return (
       <div
         key={index}
-        className={`w-full flex flex-row justify-between items-start mt-10 ${
-          isClickable ? 'cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2' : ''
-        }`}
+        className={`w-full flex flex-row justify-between items-start mt-10 ${isClickable ? 'cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2' : ''
+          }`}
         onClick={() => isClickable && handleNotificationClick(item)}
       >
         <div className="flex flex-row items-start gap-6 w-[80%]">
@@ -750,7 +756,7 @@ function NotficationsDrawer({ close }) {
           setShowNotificationDrawer(true)
           getNotifications()
         }}
-        className="mb-1 h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity flex-shrink-0 flex items-center justify-center"
+        className="mb-1 h-10 px-3 py-3 rounded-lg bg-black/[0.05] hover:opacity-70 transition-opacity flex-shrink-0 flex items-center justify-center"
       >
         <div className="flex flex-row relative">
           <Image

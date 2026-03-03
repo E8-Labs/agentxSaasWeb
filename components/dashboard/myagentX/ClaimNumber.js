@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Apis from '@/components/apis/Apis'
 import { getUserLocalData } from '@/components/constants/constants'
 import PurchaseNumberSuccess from '@/components/createagent/PurchaseNumberSuccess'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import { Checkbox } from '@/components/ui/checkbox'
 
@@ -45,6 +46,7 @@ const ClaimNumber = ({
   const [cardData, getcardData] = useState('')
 
   const [isFromAdminOrAgency, setIsFromAdminOrAgency] = useState(null)
+  const { isFreePlan: currentUserIsFreePlan } = usePlanCapabilities()
 
   useEffect(() => {
 
@@ -553,6 +555,17 @@ const ClaimNumber = ({
                       AssignNumber(selectedPurchasedNumber.phoneNumber)
                     }
                   }}
+                  isFreePlan={
+                    selectedUSer || isFromAdminOrAgency
+                      ? (() => {
+                          const plan = isFromAdminOrAgency?.plan
+                          if (!plan) return false
+                          const type = plan?.type?.toLowerCase?.() || plan?.planType?.toLowerCase?.() || ''
+                          const title = plan?.title?.toLowerCase?.() || ''
+                          return type.includes('free') || title.includes('free') || plan?.price === 0
+                        })()
+                      : currentUserIsFreePlan
+                  }
                 />
               </div>
             </div>

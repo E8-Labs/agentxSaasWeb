@@ -40,6 +40,7 @@ import AgentSelectSnackMessage, {
 } from './AgentSelectSnackMessage'
 import AllowSmartRefillPopup from './AllowSmartRefillPopup'
 import DncConfirmationPopup from './DncConfirmationPopup'
+import { CalendarDays, PhoneCall } from 'lucide-react'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -373,7 +374,7 @@ const AssignLead = ({
       } else {
         // //console.log;
         if (!errorMessage) {
-          setErrTitle('Pipeline Confilict')
+          setErrTitle('Pipeline Conflict')
           setErrorMessage(
             'You can’t assign leads to agents in different pipelines',
           )
@@ -1186,12 +1187,13 @@ const AssignLead = ({
                     // handleDateTimerDifference();
                   }}
                 >
-                  <Image
+                  {/*<Image
                     src={'/assets/callBtn.png'}
                     height={24}
                     width={24}
                     alt="*"
-                  />
+                  />*/}
+                  <PhoneCall size={32} weight="900" />
                   <div style={styles.title}>Start Now</div>
                 </button>
                 <div className="w-1/2">
@@ -1209,7 +1211,7 @@ const AssignLead = ({
                       setCallLater(true)
                     }}
                   >
-                    <CalendarDots size={32} weight="bold" />
+                    <CalendarDays size={32} weight="900" />
                     <div style={styles.title}>Schedule</div>
                   </button>
                   {/* <div>
@@ -1268,21 +1270,40 @@ const AssignLead = ({
                                   // label="Select date and time"
                                   minDateTime={dayjs().tz(userProfile.timeZone)}
                                   //   value={value}
+                                  slotProps={{
+                                    digitalClockSectionItem: {
+                                      sx: {
+                                        '&.Mui-selected': {
+                                          backgroundColor: `${brandPrimaryColor} !important`,
+                                          color: '#fff !important',
+                                        },
+                                        '&.Mui-selected:hover': {
+                                          backgroundColor: `${brandPrimaryColor} !important`,
+                                          color: '#fff !important',
+                                        },
+                                      },
+                                    },
+                                    desktopPaper: {
+                                      sx: {
+                                        '& .MuiMultiSectionDigitalClockSection-root': {
+                                          scrollbarWidth: 'none',
+                                          msOverflowStyle: 'none',
+                                          '&::-webkit-scrollbar': { display: 'none' },
+                                        },
+                                      },
+                                    },
+                                  }}
                                   sx={{
-                                    // Date Picker (Large Screen)
                                     '& .MuiPickersDay-root.Mui-selected': {
                                       backgroundColor: `${brandPrimaryColor} !important`,
                                       color: 'white !important',
                                     },
                                     '& .MuiPickersDay-root:hover': {
-                                      backgroundColor: `${brandPrimaryColor}CC !important`, // Lighter on hover
+                                      backgroundColor: `${brandPrimaryColor}CC !important`,
                                     },
-                                    '& .Mui-selected': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                      color: '#fff !important',
+                                    '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
+                                      color: '#333 !important',
                                     },
-
-                                    // Time Picker (Large Screen)
                                     '& .MuiClock-pin': {
                                       backgroundColor: `${brandPrimaryColor} !important`,
                                     },
@@ -1292,33 +1313,6 @@ const AssignLead = ({
                                     '& .MuiClockPointer-thumb': {
                                       borderColor: `${brandPrimaryColor} !important`,
                                     },
-                                    '& .MuiPickersToolbar-root': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                    },
-                                    '& .MuiTypography-root': {
-                                      color: `${brandPrimaryColor} !important`,
-                                    },
-
-                                    // Time Selection List (Large Screen)
-                                    '& .MuiPickersTimeClock-root .Mui-selected':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor} !important`,
-                                        color: 'white !important',
-                                      },
-                                    '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor}CC !important`,
-                                      },
-
-                                    // Time Picker List (Dropdown List)
-                                    '& .MuiTimeClock-root .Mui-selected': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                      color: 'white !important',
-                                    },
-                                    '& .MuiTimeClock-root .MuiButtonBase-root:hover':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor}CC !important`,
-                                      },
                                   }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
@@ -1415,6 +1409,27 @@ const AssignLead = ({
                               },
                             },
                           },
+                          digitalClockSectionItem: {
+                            sx: {
+                              '&.Mui-selected': {
+                                backgroundColor: `${brandPrimaryColor} !important`,
+                                color: '#fff !important',
+                              },
+                              '&.Mui-selected:hover': {
+                                backgroundColor: `${brandPrimaryColor} !important`,
+                                color: '#fff !important',
+                              },
+                            },
+                          },
+                          desktopPaper: {
+                            sx: {
+                              '& .MuiMultiSectionDigitalClockSection-root': {
+                                scrollbarWidth: 'none',
+                                msOverflowStyle: 'none',
+                                '&::-webkit-scrollbar': { display: 'none' },
+                              },
+                            },
+                          },
                         }}
                         sx={{
                           '& .MuiPickersDay-root.Mui-selected': {
@@ -1424,13 +1439,8 @@ const AssignLead = ({
                           '& .MuiPickersDay-root:hover': {
                             backgroundColor: `${brandPrimaryColor}CC !important`,
                           },
-                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
-                            {
-                              color: '#333 !important',
-                            },
-                          '& .Mui-selected': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: '#fff !important',
+                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
+                            color: '#333 !important',
                           },
                           '& .MuiClock-pin': {
                             backgroundColor: `${brandPrimaryColor} !important`,
@@ -1446,7 +1456,7 @@ const AssignLead = ({
                           <input
                             {...params.inputProps}
                             style={{
-                              border: 'red', // Disable border
+                              border: 'none',
                               outline: 'none',
                               padding: '8px',
                               backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility

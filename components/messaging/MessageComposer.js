@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2 } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
@@ -263,6 +264,8 @@ const MessageComposer = ({
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
   const templatesDropdownRef = useRef(null)
+  const templatesPortalRef = useRef(null)
+  const [templatesDropdownPosition, setTemplatesDropdownPosition] = useState({ left: 0, bottom: 0 })
   const [templatesFetched, setTemplatesFetched] = useState(false) // Track if templates have been fetched for current mode
   const [templateHoveredKey, setTemplateHoveredKey] = useState(null)
   const [templatePillStyle, setTemplatePillStyle] = useState({ top: 0, height: 0 })
@@ -276,6 +279,13 @@ const MessageComposer = ({
   const [bodyVarPillStyle, setBodyVarPillStyle] = useState({ top: 0, height: 0 })
   const bodyVarListRef = useRef(null)
   const bodyVarOptionRefs = useRef(Object.create(null))
+
+  // Email attachment dropdown (same pattern as NewMessageModal)
+  const attachmentDropdownRef = useRef(null)
+  const attachmentDropdownTimeoutRef = useRef(null)
+  const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false)
+  const emailAttachmentInputRef = useRef(null)
+  const smsAttachmentInputRef = useRef(null)
 
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
@@ -316,7 +326,7 @@ const MessageComposer = ({
       if (subjectVariablesDropdownRef.current && !subjectVariablesDropdownRef.current.contains(event.target)) {
         setSubjectVariablesDropdownOpen(false)
       }
-      if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target)) {
+      if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target) && !templatesPortalRef.current?.contains(event.target)) {
         setShowTemplatesDropdown(false)
       }
       if (variablesDropdownRef.current && !variablesDropdownRef.current.contains(event.target)) {
@@ -545,6 +555,28 @@ const MessageComposer = ({
       fetchTemplates()
     }
   }, [showTemplatesDropdown, templatesFetched, templatesLoading, fetchTemplates])
+
+  // Position templates dropdown portal above the Templates button (fixed, so not clipped by overflow)
+  useEffect(() => {
+    if (!showTemplatesDropdown || typeof document === 'undefined') return
+    const el = templatesDropdownRef.current
+    if (!el) return
+    const update = () => {
+      const rect = el.getBoundingClientRect()
+      setTemplatesDropdownPosition({
+        left: rect.left,
+        bottom: window.innerHeight - rect.top + 8,
+      })
+    }
+    update()
+    requestAnimationFrame(update)
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [showTemplatesDropdown])
 
   // Update sliding pill position when hovered template row changes
   useEffect(() => {
@@ -1224,12 +1256,13 @@ const MessageComposer = ({
   const handleSendSocial = async (e) => {
     e?.preventDefault()
     const raw = (composerData.socialBody ?? socialContent ?? '').trim()
-    const text = stripHTML(raw).trim()
-    if (!text || !selectedThread?.id || !onSendSocialMessage) return
+    const hasText = stripHTML(raw).trim().length > 0
+    if (!hasText || !selectedThread?.id || !onSendSocialMessage) return
     if (sendingSocialMessage) return
     setSendingSocialMessage(true)
     try {
-      await onSendSocialMessage(selectedThread.id, text)
+      // Send raw content (HTML or plain) so backend can store it for bubble rendering; backend strips to plain text for Meta API
+      await onSendSocialMessage(selectedThread.id, raw)
       setComposerData((prev) => ({ ...prev, socialBody: '' }))
       setSocialContent('')
       toast.success('Message sent')
@@ -1397,7 +1430,7 @@ const MessageComposer = ({
                 setIsExpanded(true)
               }}
             />
-            {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
+            {(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Development' || (selectedUser?.id ?? getUserLocalData()?.user?.id) == 155) && (
               <MessageComposerTabCN
                 icon={MessengerTabIcon}
                 label="FB/IG DM"
@@ -2126,23 +2159,23 @@ const MessageComposer = ({
 
                 {/* Message Body and Send Button */}
                 <div className="m-0 px-1">
+                  {(composerMode === 'email' || composerMode === 'sms') && composerData.attachments?.length > 0 ? (
+                    <div className="mb-1 flex flex-col gap-1">
+                      {composerData.attachments.map((file, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                          <Paperclip size={14} className="text-gray-500" />
+                          <span className="flex-1 truncate">{file.name}</span>
+                          <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
+                          <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
                   {composerMode === 'email' ? (
                     <>
-                      {composerData.attachments.length > 0 && (
-                        <div className="mb-1 flex flex-col gap-1">
-                          {composerData.attachments.map((file, idx) => (
-                            <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
-                              <Paperclip size={14} className="text-gray-500" />
-                              <span className="flex-1 truncate">{file.name}</span>
-                              <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
-                              <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
                       {/* Relative container for RichTextEditor and overlapping buttons */}
                       <div className="relative">
                         <RichTextEditor
@@ -2153,6 +2186,108 @@ const MessageComposer = ({
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
                           toolbarDropdownOpen={variablesDropdownOpen}
+                          attachmentButton={
+                            <div
+                              className="relative"
+                              ref={attachmentDropdownRef}
+                              onMouseEnter={() => {
+                                if (attachmentDropdownTimeoutRef.current) {
+                                  clearTimeout(attachmentDropdownTimeoutRef.current)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }
+                                if (composerData.attachments?.length > 0) {
+                                  setShowAttachmentDropdown(true)
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                  setShowAttachmentDropdown(false)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }, 300)
+                              }}
+                            >
+                              <>
+                                <button
+                                  type="button"
+                                  className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative cursor-pointer"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    emailAttachmentInputRef.current?.click()
+                                  }}
+                                  title="Add attachment"
+                                >
+                                  <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                                  {composerData.attachments?.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                                      {composerData.attachments.length}
+                                    </span>
+                                  )}
+                                </button>
+                                <input
+                                  ref={emailAttachmentInputRef}
+                                  id="message-composer-email-attachment-input"
+                                  type="file"
+                                  accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                  multiple
+                                  className="hidden"
+                                  onChange={handleFileChange}
+                                />
+                              </>
+                              {showAttachmentDropdown && composerData.attachments?.length > 0 && (
+                                <div
+                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-[2000]"
+                                  onMouseEnter={() => {
+                                    if (attachmentDropdownTimeoutRef.current) {
+                                      clearTimeout(attachmentDropdownTimeoutRef.current)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }
+                                    setShowAttachmentDropdown(true)
+                                  }}
+                                  onMouseLeave={() => {
+                                    attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                      setShowAttachmentDropdown(false)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }, 300)
+                                  }}
+                                >
+                                  <div className="p-2">
+                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                                      Attachments ({composerData.attachments.length})
+                                    </div>
+                                    <div className="space-y-1">
+                                      {composerData.attachments.map((file, index) => (
+                                        <div
+                                          key={index}
+                                          className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50 rounded transition-colors group"
+                                        >
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-sm text-gray-900 truncate">
+                                              {file.name || file.originalName || `File ${index + 1}`}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                              {file.size ? `${(file.size / 1024).toFixed(2)} KB` : ''}
+                                            </div>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              removeAttachment(index)
+                                            }}
+                                            className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                            aria-label="Remove attachment"
+                                          >
+                                            <X size={16} />
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          }
                           customToolbarElement={
                             uniqueColumns && uniqueColumns.length > 0 ? (
                               <div className="relative" ref={variablesDropdownRef}>
@@ -2232,84 +2367,6 @@ const MessageComposer = ({
                               <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                             </button>
 
-                            {/* Templates Dropdown */}
-                            {showTemplatesDropdown && (
-                              <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
-                                {templatesLoading ? (
-                                  <div className="p-4 text-center">
-                                    <CircularProgress size={20} />
-                                  </div>
-                                ) : templates.length === 0 ? (
-                                  <div className="p-4 text-center text-sm text-gray-500">
-                                    No templates found
-                                  </div>
-                                ) : (
-                                  <div
-                                    ref={templateListRef}
-                                    className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
-                                    onMouseLeave={() => setTemplateHoveredKey(null)}
-                                  >
-                                    {templatePillStyle.height > 0 && (
-                                      <div
-                                        className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
-                                        style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
-                                        aria-hidden
-                                      />
-                                    )}
-                                    {templates.map((template, idx) => {
-                                      const key = template.id || template.templateId || idx
-                                      return (
-                                        <Tooltip
-                                          key={key}
-                                          title={template.subject}
-                                          arrow
-                                          placement="right"
-                                          componentsProps={{
-                                            tooltip: {
-                                              sx: {
-                                                backgroundColor: '#ffffff',
-                                                color: '#333',
-                                                fontSize: '16px',
-                                                fontWeight: '500',
-                                                padding: '10px 15px',
-                                                borderRadius: '8px',
-                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                              },
-                                            },
-                                            arrow: {
-                                              sx: { color: '#ffffff' },
-                                            },
-                                          }}
-                                        >
-                                          <button
-                                            ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
-                                            onMouseEnter={() => setTemplateHoveredKey(key)}
-                                            onClick={() => handleTemplateSelect(template)}
-                                            className="group w-full flex flex-row items-center justify-between px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
-                                          >
-                                            <div className="font-medium text-gray-900 truncate">
-                                              {template.templateName || 'Untitled Template'}
-                                            </div>
-                                            {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
-                                              <CircularProgress size={16} />
-                                            ) : (
-                                              <button
-                                                type="button"
-                                                onClick={(e) => handleDeleteTemplate(template, e)}
-                                                className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
-                                                title="Delete template"
-                                              >
-                                                <Trash2 size={16} className="text-black/80" />
-                                              </button>
-                                            )}
-                                          </button>
-                                        </Tooltip>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            )}
                           </div>
                             <div className="flex items-center gap-2 ">
                             {/* Character count: SMS only (plain text length); email branch so this is for consistency if mode toggles */}
@@ -2351,7 +2408,7 @@ const MessageComposer = ({
                     </>
                   ) : (
                     <>
-                      {/* SMS/Text: same RichTextEditor as email with formatting toolbar and character limit */}
+                      {/* SMS/Text: same RichTextEditor as email with formatting toolbar, attachment, and character limit */}
                       <div className="relative">
                         <RichTextEditor
                           ref={richTextEditorRef}
@@ -2361,6 +2418,108 @@ const MessageComposer = ({
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
                           maxCharLimit={SMS_CHAR_LIMIT}
+                          attachmentButton={
+                            <div
+                              className="relative"
+                              ref={attachmentDropdownRef}
+                              onMouseEnter={() => {
+                                if (attachmentDropdownTimeoutRef.current) {
+                                  clearTimeout(attachmentDropdownTimeoutRef.current)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }
+                                if (composerData.attachments?.length > 0) {
+                                  setShowAttachmentDropdown(true)
+                                }
+                              }}
+                              onMouseLeave={() => {
+                                attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                  setShowAttachmentDropdown(false)
+                                  attachmentDropdownTimeoutRef.current = null
+                                }, 300)
+                              }}
+                            >
+                              <>
+                                <button
+                                  type="button"
+                                  className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative cursor-pointer"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    smsAttachmentInputRef.current?.click()
+                                  }}
+                                  title="Add attachment"
+                                >
+                                  <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                                  {composerData.attachments?.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                                      {composerData.attachments.length}
+                                    </span>
+                                  )}
+                                </button>
+                                <input
+                                  ref={smsAttachmentInputRef}
+                                  id="message-composer-sms-attachment-input"
+                                  type="file"
+                                  accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                  multiple
+                                  className="hidden"
+                                  onChange={handleFileChange}
+                                />
+                              </>
+                              {showAttachmentDropdown && composerData.attachments?.length > 0 && (
+                                <div
+                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-[2000]"
+                                  onMouseEnter={() => {
+                                    if (attachmentDropdownTimeoutRef.current) {
+                                      clearTimeout(attachmentDropdownTimeoutRef.current)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }
+                                    setShowAttachmentDropdown(true)
+                                  }}
+                                  onMouseLeave={() => {
+                                    attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                                      setShowAttachmentDropdown(false)
+                                      attachmentDropdownTimeoutRef.current = null
+                                    }, 300)
+                                  }}
+                                >
+                                  <div className="p-2">
+                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                                      Attachments ({composerData.attachments.length})
+                                    </div>
+                                    <div className="space-y-1">
+                                      {composerData.attachments.map((file, index) => (
+                                        <div
+                                          key={index}
+                                          className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50 rounded transition-colors group"
+                                        >
+                                          <div className="flex-1 min-w-0">
+                                            <div className="text-sm text-gray-900 truncate">
+                                              {file.name || file.originalName || `File ${index + 1}`}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                              {file.size ? `${(file.size / 1024).toFixed(2)} KB` : ''}
+                                            </div>
+                                          </div>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              removeAttachment(index)
+                                            }}
+                                            className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                                            aria-label="Remove attachment"
+                                          >
+                                            <X size={16} />
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          }
                           customToolbarElement={
                             uniqueColumns && uniqueColumns.length > 0 ? (
                               <div className="relative" ref={variablesDropdownRef}>
@@ -2420,84 +2579,6 @@ const MessageComposer = ({
                             <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                           </button>
 
-                          {/* Templates Dropdown */}
-                          {showTemplatesDropdown && (
-                            <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]">
-                              {templatesLoading ? (
-                                <div className="p-4 text-center">
-                                  <CircularProgress size={20} />
-                                </div>
-                              ) : templates.length === 0 ? (
-                                <div className="p-4 text-center text-sm text-gray-500">
-                                  No templates found
-                                </div>
-                              ) : (
-                                <div
-                                  ref={templateListRef}
-                                  className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
-                                  onMouseLeave={() => setTemplateHoveredKey(null)}
-                                >
-                                  {templatePillStyle.height > 0 && (
-                                    <div
-                                      className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
-                                      style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
-                                      aria-hidden
-                                    />
-                                  )}
-                                  {templates.map((template, idx) => {
-                                    const key = template.id || template.templateId || idx
-                                    return (
-                                      <Tooltip
-                                        key={key}
-                                        title={template.content}
-                                        arrow
-                                        placement="right"
-                                        componentsProps={{
-                                          tooltip: {
-                                            sx: {
-                                              backgroundColor: '#ffffff',
-                                              color: '#333',
-                                              fontSize: '16px',
-                                              fontWeight: '500',
-                                              padding: '10px 15px',
-                                              borderRadius: '8px',
-                                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                            },
-                                          },
-                                          arrow: {
-                                            sx: { color: '#ffffff' },
-                                          },
-                                        }}
-                                      >
-                                        <button
-                                          ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
-                                          onMouseEnter={() => setTemplateHoveredKey(key)}
-                                          onClick={() => handleTemplateSelect(template)}
-                                          className="group flex items-center justify-between gap-2 w-full px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
-                                        >
-                                          <div className="font-medium text-gray-900 truncate">
-                                            {template.templateName || 'Untitled Template'}
-                                          </div>
-                                          {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
-                                            <CircularProgress size={16} />
-                                          ) : (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => handleDeleteTemplate(template, e)}
-                                              className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
-                                              title="Delete template"
-                                            >
-                                              <Trash2 size={16} className="text-black/80" />
-                                            </button>
-                                          )}
-                                        </button>
-                                      </Tooltip>
-                                    )
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           {/* Character Count (plain text length for SMS) */}
@@ -2673,6 +2754,95 @@ const MessageComposer = ({
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Templates dropdown rendered in portal so it is not clipped by overflow and does not affect layout */}
+      {typeof document !== 'undefined' && document.body && showTemplatesDropdown && createPortal(
+        <div
+          ref={templatesPortalRef}
+          className="w-64 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-[312px] overflow-hidden z-[100]"
+          style={{
+            position: 'fixed',
+            left: templatesDropdownPosition.left,
+            bottom: templatesDropdownPosition.bottom,
+          }}
+        >
+          {templatesLoading ? (
+            <div className="p-4 text-center">
+              <CircularProgress size={20} />
+            </div>
+          ) : templates.length === 0 ? (
+            <div className="p-4 text-center text-sm text-gray-500">
+              No templates found
+            </div>
+          ) : (
+            <div
+              ref={templateListRef}
+              className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+              onMouseLeave={() => setTemplateHoveredKey(null)}
+            >
+              {templatePillStyle.height > 0 && (
+                <div
+                  className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                  style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
+                  aria-hidden
+                />
+              )}
+              {templates.map((template, idx) => {
+                const key = template.id || template.templateId || idx
+                const tooltipTitle = composerMode === 'email' ? template.subject : template.content
+                return (
+                  <Tooltip
+                    key={key}
+                    title={tooltipTitle}
+                    arrow
+                    placement="right"
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: '#ffffff',
+                          color: '#333',
+                          fontSize: '16px',
+                          fontWeight: '500',
+                          padding: '10px 15px',
+                          borderRadius: '8px',
+                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                        },
+                      },
+                      arrow: {
+                        sx: { color: '#ffffff' },
+                      },
+                    }}
+                  >
+                    <button
+                      ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
+                      onMouseEnter={() => setTemplateHoveredKey(key)}
+                      onClick={() => handleTemplateSelect(template)}
+                      className="group w-full flex flex-row items-center justify-between px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
+                    >
+                      <div className="font-medium text-gray-900 truncate">
+                        {template.templateName || 'Untitled Template'}
+                      </div>
+                      {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteTemplate(template, e)}
+                          className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                          title="Delete template"
+                        >
+                          <Trash2 size={16} className="text-black/80" />
+                        </button>
+                      )}
+                    </button>
+                  </Tooltip>
+                )
+              })}
+            </div>
+          )}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

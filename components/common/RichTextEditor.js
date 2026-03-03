@@ -269,7 +269,7 @@ const RichTextEditor = forwardRef(
             formats={formats}
             placeholder={placeholder}
           />
-          {/* Attachment button right after toolbar buttons */}
+          {/* Attachment button after formatting icons (right of Normal/Bold/Italic/Link/Clean) */}
           {attachmentButton && (
             <div ref={attachmentButtonRef} className="attachment-toolbar-button">
               {attachmentButton}
@@ -373,7 +373,27 @@ const RichTextEditor = forwardRef(
             display: inline-flex;
             align-items: center;
             height: 42px;
-            right: 170px;
+            left: 370px;
+          }
+
+          @media (max-width: 1072px) {
+            .quill-editor-wrapper .attachment-toolbar-button {
+              left: 320px;
+            }
+          }
+
+          
+
+          @media (max-width: 900px) {
+            .quill-editor-wrapper .attachment-toolbar-button {
+              left: 220px;
+            }
+          }
+
+          @media (max-width: 768px) {
+            .quill-editor-wrapper .attachment-toolbar-button {
+              left: 160px;
+            }
           }
 
           .quill-editor-wrapper.toolbar-top .attachment-toolbar-button {

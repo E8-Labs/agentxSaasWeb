@@ -123,3 +123,13 @@ export function formatFractional2Stable(price, maxDecimalPlaces = 2) {
 }
 
 
+//mask numbers
+// Mask string: show 1st letter + last 4 letters, mask the rest
+export const maskSensitive = (str) => {
+  if (!str || str.length <= 5) return str
+  const first = str[0]
+  const middle = str.slice(0, -4).replace(/./g, '*')
+  const last4 = str.slice(-4)
+  return middle + last4
+} 
+

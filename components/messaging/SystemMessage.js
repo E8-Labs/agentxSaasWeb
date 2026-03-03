@@ -60,6 +60,9 @@ const SystemMessage = ({
   shouldShowAiEmailAndTextRequestFeature = false,
   onShowUpgrade,
   onShowRequestFeature,
+  openFollowUpForMessageId = null,
+  openFollowUpType = null,
+  onOpenFollowUpConsumed = null,
 }) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
@@ -68,6 +71,17 @@ const SystemMessage = ({
   const hasAiKey = hasAiKeyProp
   const [followUpSubmitting, setFollowUpSubmitting] = useState(false)
   const aiActionRef = useRef(null)
+
+  // When user selected Email/Text from AI actions inside the chat drawer, open this message's follow-up panel
+  useEffect(() => {
+    if (openFollowUpForMessageId != null && openFollowUpType && message?.id === openFollowUpForMessageId) {
+      setAiActionType(openFollowUpType)
+      setAiActionInput('')
+      if (typeof onOpenFollowUpConsumed === 'function') {
+        onOpenFollowUpConsumed()
+      }
+    }
+  }, [openFollowUpForMessageId, openFollowUpType, message?.id, onOpenFollowUpConsumed])
 
   useEffect(() => {
     if (aiActionType && aiActionRef.current) {

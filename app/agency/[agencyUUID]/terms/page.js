@@ -2,14 +2,18 @@
 
 import axios from 'axios'
 import DOMPurify from 'dompurify'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import { agencyTermsAndConditionUrl } from '@/constants/Constants'
 
+/**
+ * Agency terms page by UUID. Used when agency has no custom domain
+ * (links are baseurl/agency/[agencyUUID]/terms).
+ */
 function TermsPage() {
   const params = useParams()
-  const router = useRouter()
   const [termsText, setTermsText] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -27,31 +31,24 @@ function TermsPage() {
       setError(null)
 
       const response = await axios.get(Apis.getAgencyTermsByUUID, {
-        params: {
-          agencyUUID: agencyUUID,
-        },
+        params: { agencyUUID },
       })
 
       if (response?.data?.status === true) {
         const customTermsText = response.data.data?.termsText
-
         if (customTermsText) {
-          // Agency has custom terms text
           setTermsText(customTermsText)
         } else {
-          // No custom text, redirect to default URL
-          window.location.href = 'https://www.assignx.ai/agency-terms'
+          window.location.href = agencyTermsAndConditionUrl
           return
         }
       } else {
-        // Agency not found or error, redirect to default
-        window.location.href = 'https://www.assignx.ai/agency-terms'
+        window.location.href = agencyTermsAndConditionUrl
         return
       }
     } catch (err) {
       console.error('Error fetching terms text:', err)
-      // On error, redirect to default URL
-      window.location.href = 'https://www.assignx.ai/agency-terms'
+      window.location.href = agencyTermsAndConditionUrl
       return
     } finally {
       setLoading(false)
@@ -79,7 +76,6 @@ function TermsPage() {
     )
   }
 
-  // Sanitize HTML content
   const sanitizedContent = DOMPurify.sanitize(termsText, {
     ALLOWED_TAGS: [
       'p',
@@ -117,8 +113,3 @@ function TermsPage() {
 }
 
 export default TermsPage
-
-
-
-
-

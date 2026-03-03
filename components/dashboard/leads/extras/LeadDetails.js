@@ -122,6 +122,9 @@ import Link from 'next/link'
 // import ActionsGroupBtnCN from './ActionsGroupBtnCN'
 import SendActionsButtonGroup from './SendActionsButtonGroup'
 import RenameLead from './RenameLead'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
+import { TrashIcon } from 'lucide-react'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -202,6 +205,9 @@ const LeadDetails = ({
 
   //code for delete lead
   const [delLeadLoader, setDelLeadLoader] = useState(false)
+
+  //code for delete leadsemail
+  const [deleteLeadsEmailLoader, setDeleteLeadsEmailLoader] = useState(null)
 
   //variable for popover
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -469,9 +475,9 @@ const LeadDetails = ({
     getLeadDetails(selectedLead)
 
     // Remove or comment out the console.log to avoid build errors
-    // console.log("pipelineId", pipelineId);
+    console.log("Pipeline id ApiPath for stages list is", pipelineId);
 
-    if (pipelineId) {
+    if (pipelineId || selectedLead) {
       // //console.log;
       getStagesList(selectedLead)
     }
@@ -976,6 +982,7 @@ const LeadDetails = ({
 
       if (response) {
         console.log("lead details are api data ", response.data.data)
+        getStagesList(response?.data?.data?.pipeline?.id)
         let dynamicColumns = []
         dynamicColumns = [
           ...response?.data?.columns,
@@ -1103,7 +1110,7 @@ const LeadDetails = ({
   }
 
   //function to get the stages list using pipelineId
-  const getStagesList = async () => {
+  const getStagesList = async (id) => {
     try {
       let AuthToken = null
       setStagesListLoader(true)
@@ -1114,11 +1121,16 @@ const LeadDetails = ({
         AuthToken = Data.token
       }
 
-      // //console.log;
+      // console.log("Selected lead is", id);
 
-      const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}&liteResource=true`
+      const pipeline_Id = id || pipelineId
 
-      // console.log("ApiPath", ApiPath);
+      let ApiPath = `${Apis.getStagesList}?pipelineId=${pipeline_Id}&liteResource=true`
+      if (selectedUser) {
+        ApiPath = `${Apis.getStagesList}?pipelineId=${pipeline_Id}&liteResource=true&userId=${selectedUser.id}`
+      }
+
+      console.log("ApiPath for stages list is", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -1506,6 +1518,49 @@ const LeadDetails = ({
       // console.error("Error occured in api is", error);
     } finally {
       setDelLeadLoader(false)
+    }
+  }
+
+  const handleDeleteLeadsEmail = async (email) => {
+    // deleteLeadEmails
+    try {
+      setDeleteLeadsEmailLoader(email)
+      const ApiPath = Apis.deleteLeadEmails;
+      let Token = AuthToken();
+
+      const ApiData = {
+        leadId: selectedLeadsDetails.id,
+        emails: Array.isArray(email) ? email : [email],
+      }
+      console.log('ApiData', ApiData)
+      // console.log(Token)
+      console.log('ApiPath', ApiPath)
+      // return
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response) {
+        if (response.data.status === true) {
+          showSnackbar('Email deleted successfully', SnackbarTypes.Success)
+          setDeleteLeadsEmailLoader(null)
+          setSelectedLeadsDetails((prevDetails) => ({
+            ...prevDetails,
+            emails: prevDetails.emails.filter((item) => item.email !== email),
+          }))
+        }
+        else {
+          showSnackbar(response.data.message, SnackbarTypes.Error)
+          setDeleteLeadsEmailLoader(null)
+        }
+      }
+    } catch (error) {
+      showSnackbar(error?.response?.data?.message || 'Failed to delete email', SnackbarTypes.Error)
+      setDeleteLeadsEmailLoader(null)
+    } finally {
+      setDeleteLeadsEmailLoader(null)
     }
   }
 
@@ -2193,13 +2248,13 @@ const LeadDetails = ({
                                   // tabIndex={0}
                                   className="truncate text-lg font-semibold leading-none text-foreground cursor-pointer hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
                                   onClick={() => setShowRenameLeadPopup(true)}
-                                  // onKeyDown={(e) => {
-                                  //   if (e.key === 'Enter' || e.key === ' ') {
-                                  //     e.preventDefault()
-                                  //     setShowRenameLeadPopup(true)
-                                  //   }
-                                  // }}
-                                  // title="Click to rename lead"
+                                // onKeyDown={(e) => {
+                                //   if (e.key === 'Enter' || e.key === ' ') {
+                                //     e.preventDefault()
+                                //     setShowRenameLeadPopup(true)
+                                //   }
+                                // }}
+                                // title="Click to rename lead"
                                 >
                                   {/* max characters 15 combined */}
                                   {(() => {
@@ -2369,11 +2424,10 @@ const LeadDetails = ({
                                   <Input
                                     ref={emailInputRef}
                                     type="email"
-                                    value={editedEmail || selectedLeadsDetails?.email}
+                                    value={isEditingEmail ? editedEmail : (selectedLeadsDetails?.email || '')}
                                     onChange={(e) => {
                                       setEditedEmail(e.target.value)
                                       setIsEditingEmail(true)
-
                                     }}
                                     placeholder="Enter email address"
                                     className="flex-1 max-w-[200px] text-sm h-8 border-0 rounded-md p-2 shadow-none focus:border focus:border-primary focus:ring-0"
@@ -2434,10 +2488,55 @@ const LeadDetails = ({
                                             alt="*"
                                           />
                                           <div className="text-[12px] font-[400]">
-                                            <span className="text-brand-primary text-[15px] font-[400]">
-                                              New
-                                            </span>{' '}
-                                            {truncateEmail(email.email)}
+                                            {selectedLeadsDetails?.emails?.length === 1 && email?.email ? (
+                                              <TooltipProvider delayDuration={0}>
+                                                <Tooltip>
+                                                  <TooltipTrigger asChild>
+                                                    <span className="inline cursor-pointer flex flex-row items-center gap-2">
+                                                      <span className="text-brand-primary text-[15px] font-[400]">
+                                                        New
+                                                      </span>{' '}
+                                                      {truncateEmail(email.email)}
+                                                      <div>
+                                                        {
+                                                          deleteLeadsEmailLoader === email?.email ? (
+                                                            <CircularProgress size={16} />
+                                                          ) : (
+                                                            <button
+                                                              className="ml-2 pt-1 text-black hover:text-destructive transition-colors"
+                                                              onClick={() => {
+                                                                handleDeleteLeadsEmail(email.email)
+                                                              }}
+                                                            >
+                                                              <TrashIcon className="h-4 w-4 shrink-0" size={16} color="currentColor" />
+                                                            </button>
+                                                          )
+                                                        }
+                                                      </div>
+                                                    </span>
+                                                  </TooltipTrigger>
+                                                  <TooltipContent
+                                                    side="top"
+                                                    style={{
+                                                      backgroundColor: getBrandPrimaryHex(),
+                                                      color: 'white',
+                                                      fontSize: '14px',
+                                                      padding: '5px 10px',
+                                                      borderRadius: '8px',
+                                                    }}
+                                                  >
+                                                    {email.email}
+                                                  </TooltipContent>
+                                                </Tooltip>
+                                              </TooltipProvider>
+                                            ) : (
+                                              <>
+                                                <span className="text-brand-primary text-[15px] font-[400]">
+                                                  New
+                                                </span>{' '}
+                                                {truncateEmail(email.email)}
+                                              </>
+                                            )}
                                           </div>
                                         </div>
                                         <button
@@ -2648,7 +2747,7 @@ const LeadDetails = ({
                     }}
                   >
                     <Box
-                      className="lg:w-5/12 sm:w-full w-8/12"
+                      className="lg:w-4/12 sm:w-full w-6/12"
                       sx={{
                         ...styles.modalsStyle,
                         zIndex: overlayZIndex,
@@ -2681,6 +2780,22 @@ const LeadDetails = ({
                                           New
                                         </span>{' '}
                                         {email?.email}
+                                      </div>
+                                      <div>
+                                        {
+                                          deleteLeadsEmailLoader === email?.email ? (
+                                            <CircularProgress size={16} />
+                                          ) : (
+                                            <button
+                                              className="ml-2 pt-1 text-black hover:text-destructive transition-colors"
+                                              onClick={() => {
+                                                handleDeleteLeadsEmail(email.email)
+                                              }}
+                                            >
+                                              <TrashIcon className="h-4 w-4 shrink-0" size={16} color="currentColor" />
+                                            </button>
+                                          )
+                                        }
                                       </div>
                                     </div>
                                   </div>

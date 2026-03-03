@@ -43,6 +43,7 @@ const Apis = {
   updateSubAgent: `${BasePath}api/agent/updateSubAgent`,
   createLead: `${BasePath}api/leads/addLeads`,
   getLeads: `${BasePath}api/leads/getLeads`,
+  deleteLeadEmails: `${BasePath}api/leads/deleteLeadEmails`,
   searchLeadsForMessaging: `${BasePath}api/leads/searchLeadsForMessaging`,
   getSheets: `${BasePath}api/leads/getSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
@@ -105,6 +106,7 @@ const Apis = {
   getProfileData: `${BasePath}api/user/myProfile`,
   getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgent`,
   getUserByAgentVapiIdWithLeadDetails: `${BasePath}api/agent/getUserByAgentWithLeadDetails`,
+  canStartWebCall: `${BasePath}api/agent/canStartWebCall`,
   registerWebCall: `${BasePath}api/agent/registerWebCall`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
@@ -397,8 +399,11 @@ const Apis = {
   lookupAgencyByDomain: `${BasePath}api/agency/lookup-by-domain`,
   updateAgencyTermsPrivacy: `${BasePath}api/agency/branding/terms-privacy`,
   getAgencyTermsByUUID: `${BasePath}api/agency/getTermsByUUID`,
+  getAgencyTermsByDomain: `${BasePath}api/agency/getTermsByDomain`,
   getAgencyPrivacyByUUID: `${BasePath}api/agency/getPrivacyByUUID`,
+  getAgencyPrivacyByDomain: `${BasePath}api/agency/getPrivacyByDomain`,
   getAgencyCancellationByUUID: `${BasePath}api/agency/getCancellationByUUID`,
+  getAgencyCancellationByDomain: `${BasePath}api/agency/getCancellationByDomain`,
 
   // Agency Global Phone Number APIs
   getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,

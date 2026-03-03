@@ -2948,6 +2948,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           ) {
             formData.append('liveTransferNumber', voiceData.liveTransferNumber)
           }
+          if (voiceData.liveTransferMessage !== undefined) {
+            formData.append(
+              'liveTransferMessage',
+              voiceData.liveTransferMessage,
+            )
+          }
           if (
             voiceData.callbackNumber ||
             voiceData.callbackNumber !== undefined
@@ -2974,9 +2980,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         if (voiceData?.idleMessage !== undefined) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
+        if (selectedUser) {
+          formData.append('userId', selectedUser?.id)
+        }
 
-        for (let [key, value] of formData.entries()) { }
-
+        for (let [key, value] of formData.entries()) {
+          // console.log("key in formData", key, "value in formData", value)
+        }
+        // return
         const response = await axios.post(ApiPath, formData, {
           headers: {
             Authorization: 'Bearer ' + AuthToken,
@@ -3150,7 +3161,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // ////console.log
 
   return (
-    <div className="w-full flex flex-col items-center h-full overflow-hidden mt-[1vh] ps-4">
+    <div className="w-full flex flex-col items-center h-full overflow-hidden">
       {/* Slider code */}
       <div
         style={{
@@ -5332,7 +5343,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           : 'Call Transfer Number'
                       }
                       loading={loading}
-                      update={async (value) => {
+                      isTransfer={selectedNumber === 'Calltransfer'}
+                      transferMessage={showDrawerSelectedAgent?.liveTransferMessage}
+                      update={async (value, transferMessage) => {
                         let data = ''
                         if (selectedNumber === 'Callback') {
                           data = {
@@ -5341,6 +5354,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         } else {
                           data = {
                             liveTransferNumber: value,
+                            ...(transferMessage !== undefined && {
+                              liveTransferMessage: transferMessage,
+                            }),
                           }
                         }
                         //console.log;
@@ -6077,11 +6093,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                             const scriptBuilderUrl =
                               selectedUser?.agencySettings?.scriptWidgetUrl ??
                               reduxUser?.agencySettings?.scriptWidgetUrl ??
+                              reduxUser?.userSettings?.scriptWidgetUrl ??
                               PersistanceKeys.DefaultScriptBuilderUrl
                             window.open(scriptBuilderUrl, '_blank')
                           }}
                         >
-                          Use Script Builder
+                          Use {selectedUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
                           <ArrowUpRight size={20} color="white" />
                         </button>
                       </div>

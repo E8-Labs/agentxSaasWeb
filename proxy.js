@@ -49,7 +49,7 @@ export async function proxy(request) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
-  // Custom domain detection
+  // Custom domain detection (must run before redirect so we know if we're on agency domain)
   // Treat only real custom domains as custom (not platform hosts)
   let agencyId = null
   let agencySubdomain = null
@@ -130,6 +130,18 @@ export async function proxy(request) {
       } catch (error) {
         // Silent fail; continue without branding
       }
+    }
+  }
+
+  // When on a custom domain, redirect old /agency/[uuid]/policy to /terms etc. (agency is known from host)
+  // When NOT on custom domain, do not redirect so /agency/[uuid]/terms still works for agencies without custom domain
+  if (agencyId) {
+    const oldPolicyMatch = pathname.match(
+      /^\/agency\/[^/]+\/(privacy|terms|cancellation)$/,
+    )
+    if (oldPolicyMatch) {
+      const policy = oldPolicyMatch[1]
+      return NextResponse.redirect(new URL(`/${policy}`, request.url))
     }
   }
 
@@ -313,6 +325,15 @@ export async function proxy(request) {
   }
 
   // ---- Public paths (including favicon routes) ----
+  // Policy pages: allow with or without trailing slash so /terms always works when logged in or not
+  const isPolicyPath =
+    pathname === '/terms' ||
+    pathname === '/terms/' ||
+    pathname === '/privacy' ||
+    pathname === '/privacy/' ||
+    pathname === '/cancellation' ||
+    pathname === '/cancellation/'
+
   if (
     pathname === '/' ||
     pathname === '/onboarding' ||
@@ -320,8 +341,11 @@ export async function proxy(request) {
     pathname.startsWith('/onboarding/') || // allows /onboarding/[uuid]
     pathname.startsWith('/agency/onboarding') ||
     pathname.startsWith('/agency/verify') ||
+    isPolicyPath ||
     (pathname.startsWith('/agency/') &&
-      (pathname.includes('/privacy') || pathname.includes('/terms'))) || // allows /agency/[agencyUUID]/privacy and /agency/[agencyUUID]/terms
+      (pathname.includes('/privacy') ||
+        pathname.includes('/terms') ||
+        pathname.includes('/cancellation'))) || // agencies without custom domain use /agency/[uuid]/terms etc.
     pathname.startsWith('/recordings/')
   ) {
     // Create response with branding in request headers (for immediate access by getServerBranding)
@@ -533,7 +557,7 @@ export async function proxy(request) {
     expectedPath = '/dashboard'
   }
 
-  // ✅ UPDATE: Skip redirect enforcement for certain paths
+  // ✅ UPDATE: Skip redirect enforcement for certain paths (so logged-in users can view these without being sent to dashboard)
   if (
     pathname.startsWith('/createagent') ||
     pathname.startsWith('/pipeline') ||
@@ -541,7 +565,13 @@ export async function proxy(request) {
     pathname.startsWith('/web-agent') ||
     pathname.startsWith('/embedCalendar') ||
     pathname === '/icon' ||
-    pathname === '/apple-icon'
+    pathname === '/apple-icon' ||
+    pathname === '/terms' ||
+    pathname === '/terms/' ||
+    pathname === '/privacy' ||
+    pathname === '/privacy/' ||
+    pathname === '/cancellation' ||
+    pathname === '/cancellation/'
   ) {
     return createResponseWithBrandingHeaders(request, agencyBranding)
   }

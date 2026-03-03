@@ -4,7 +4,13 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import moment from 'moment'
 import { PaperPlaneTilt, CircleNotch, Paperclip } from '@phosphor-icons/react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Mail, MessageSquareDot, MessagesSquare, X } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Drawer, CircularProgress } from '@mui/material'
 import Image from 'next/image'
 import { toast } from '@/utils/toast'
@@ -107,6 +113,8 @@ const AiChatModal = ({
   onPlayRecording,
   onCopyCallId,
   onReadTranscript,
+  /** When user selects Email or Text from AI actions in drawer, close drawer and open follow-up for this message */
+  onCloseDrawerAndOpenFollowUp = null,
 }) => {
   const [inputValue, setInputValue] = useState('')
   const [messages, setMessages] = useState([])
@@ -121,6 +129,31 @@ const AiChatModal = ({
   const messagesEndRef = useRef(null)
   const aiEditorRef = useRef(null)
   const hasLoadedRef = useRef(false)
+  const attachmentInputRef = useRef(null)
+  const [attachments, setAttachments] = useState([])
+  const maxAttachments = 5
+
+  // Clear attachments when modal closes
+  useEffect(() => {
+    if (!open) setAttachments([])
+  }, [open])
+
+  const handleAttachmentChange = (e) => {
+    const files = e.target.files ? Array.from(e.target.files) : []
+    if (files.length === 0) return
+    setAttachments((prev) => {
+      const combined = [...prev, ...files]
+      if (combined.length > maxAttachments) {
+        toast.error(`Maximum ${maxAttachments} attachments allowed`)
+      }
+      return combined.slice(0, maxAttachments)
+    })
+    e.target.value = ''
+  }
+
+  const removeAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index))
+  }
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -429,6 +462,8 @@ const AiChatModal = ({
 
     setMessages((prev) => [...prev, userMessage])
     setInputValue('<p><br></p>')
+    const hadAttachments = attachments.length > 0
+    setAttachments([])
     setIsLoading(true)
 
     try {
@@ -495,9 +530,12 @@ const AiChatModal = ({
           createdAt: data.assistantMessage.createdAt,
         },
       ])
+      if (hadAttachments) {
+        toast.info('Message sent. File attachments are not yet sent with AI Chat.')
+      }
     } catch (error) {
       console.error('Error sending AI chat message:', error)
-      toast.error('Failed to send message. Please try again.')
+      toast.error(error.response?.data?.message || 'Failed to send message. Please try again.')
       setMessages((prev) => prev.filter((m) => m.id !== userMessage.id))
     } finally {
       setIsLoading(false)
@@ -665,7 +703,7 @@ const AiChatModal = ({
                 </div>
               )}
 
-              {/* Call summary card (no AI actions) */}
+              {/* Call summary card with AI actions (Email / Text / Chat) */}
               <div className="w-full max-w-2xl px-4">
                 <div
                   className="rounded-[16px] bg-background pt-0 pb-3 px-0 flex flex-col gap-1 overflow-hidden"
@@ -681,6 +719,56 @@ const AiChatModal = ({
                     onReadTranscript={onReadTranscript}
                     leadName={selectedThread?.lead?.firstName}
                     leadId={selectedThread?.lead?.id}
+                    bottomRightContent={
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-[color,transform] duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-black"
+                          >
+                            <Image
+                              src="/otherAssets/starsIcon2.png"
+                              height={14}
+                              width={14}
+                              alt="AI"
+                            />
+                            <span>AI Action</span>
+                            <ChevronDown className="h-4 w-4 shrink-0" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-[140px] rounded-xl border border-[#eaeaea] shadow-[0_4px_30px_rgba(0,0,0,0.15)] z-[1300]">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (typeof onCloseDrawerAndOpenFollowUp === 'function') {
+                                onCloseDrawerAndOpenFollowUp({ messageId: callSummaryMessage?.id, type: 'email' })
+                              }
+                              onClose()
+                            }}
+                            className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
+                          >
+                            <Mail className="h-4 w-4" />
+                            <span>Email</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (typeof onCloseDrawerAndOpenFollowUp === 'function') {
+                                onCloseDrawerAndOpenFollowUp({ messageId: callSummaryMessage?.id, type: 'text' })
+                              }
+                              onClose()
+                            }}
+                            className="flex items-center gap-2 cursor-pointer focus:bg-transparent hover:bg-transparent"
+                          >
+                            <MessageSquareDot className="h-4 w-4" />
+                            <span>Text</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem disabled className="flex items-center gap-2 opacity-70">
+                            <MessagesSquare className="h-4 w-4" />
+                            <span>Chat</span>
+                            <span className="text-xs text-muted-foreground ml-1">(open)</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    }
                   />
                 </div>
               </div>
@@ -818,6 +906,26 @@ const AiChatModal = ({
             className={`relative border border-brand-primary/20 rounded-lg bg-white transition-opacity ${aiKeyError || isLoading ? 'pointer-events-none opacity-60' : ''
               }`}
           >
+            {attachments.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 px-2 pt-2 pb-1 border-b border-border">
+                {attachments.map((file, index) => (
+                  <span
+                    key={`${file.name}-${index}`}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted text-foreground text-xs max-w-[160px] truncate"
+                  >
+                    <span className="truncate" title={file.name}>{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(index)}
+                      className="shrink-0 p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
+                      aria-label="Remove attachment"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
             <RichTextEditor
               ref={aiEditorRef}
               value={inputValue}
@@ -833,14 +941,34 @@ const AiChatModal = ({
               toolbarPosition="bottom"
               customToolbarElement={
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="p-1.5 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-                    title="Attach file (coming soon)"
-                    disabled={aiKeyError || isLoading}
+                  <label
+                    className={cn(
+                      'cursor-pointer',
+                      (aiKeyError || isLoading) && 'pointer-events-none opacity-50'
+                    )}
                   >
-                    <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
-                  </button>
+                    <button
+                      type="button"
+                      className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative"
+                      onClick={() => document.getElementById('ai-chat-attachment-input')?.click()}
+                    >
+                      <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                      {attachments.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                          {attachments.length}
+                        </span>
+                      )}
+                    </button>
+                    <input
+                      ref={attachmentInputRef}
+                      id="ai-chat-attachment-input"
+                      type="file"
+                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      multiple
+                      className="hidden"
+                      onChange={handleAttachmentChange}
+                    />
+                  </label>
                   <button
                     type="button"
                     onClick={handleSend}

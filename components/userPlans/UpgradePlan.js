@@ -492,6 +492,7 @@ function UpgradePlanContent({
             resp.data?.codeType === 'promo' &&
             resp.data?.promoType === 'discount'
           ) {
+            console.log('promo codes resp.data', resp.data)
             setPromoCodeDetails(resp.data)
           } else {
             setPromoCodeDetails(null)
@@ -1811,7 +1812,7 @@ function UpgradePlanContent({
                   <div className="text-lg font-semibold">Select Plan</div>
 
                   <div
-                    className="w-full min-w-0 flex flex-row gap-3 mt-3 overflow-x-auto overflow-y-hidden"
+                    className="w-full min-w-0 max-w-[100%] flex flex-row gap-3 mt-3 overflow-x-auto overflow-y-auto h-[120px] min-h-[120px]"
                     style={{
                       scrollbarWidth: 'none',
                       WebkitOverflowScrolling: 'touch',
@@ -1826,7 +1827,7 @@ function UpgradePlanContent({
                         const isCurrentPlan = isPlanCurrent(item)
                         return (
                           <button
-                            className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
+                            className={`w-[240px] min-w-[240px] h-[120px] min-h-[120px] flex-shrink-0 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
                                                         ${isCurrentPlan
                                 ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
                                 : currentSelectedPlan?.id ===
@@ -1843,22 +1844,22 @@ function UpgradePlanContent({
                             }}
                             disabled={isCurrentPlan}
                           >
-                            <div className="w-full flex flex-row items-center justify-between">
-                              <div className="text-[15px] font-semibold">
+                            <div className="w-full flex flex-row items-center justify-between flex-shrink-0">
+                              <div className="text-[15px] font-semibold truncate min-w-0 mr-2">
                                 {item.name || item.title}
                               </div>
 
-                              <div className="text-[15px] font-semibold">
+                              <div className="text-[15px] font-semibold flex-shrink-0">
                                 {`$${formatFractional2(item.discountPrice || item.discountedPrice || item.originalPrice)}`}
                               </div>
                             </div>
 
-                            <div className="text-[13px] font-[500] mt-1">
+                            <div className="text-[13px] font-[500] mt-1 min-h-0 flex-1 overflow-hidden line-clamp-2">
                               {item.details || item.description}
                             </div>
 
                             <div
-                              className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold
+                              className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold flex-shrink-0
                                                         ${isCurrentPlan
                                   ? 'bg-gray-400 text-white cursor-not-allowed'
                                   : 'bg-brand-primary text-white'
@@ -2110,8 +2111,21 @@ function UpgradePlanContent({
                                     }}
                                   >
                                     Next Charge Date{' '}
-                                    {promoCodeDetails?.nextChargeDateFormatted ||
-                                      moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
+                                    {(() => {
+                                      const isFullDiscount =
+                                        promoCodeDetails?.discountType === 'percentage' &&
+                                        Number(promoCodeDetails?.discountValue) === 100 &&
+                                        promoCodeDetails?.discountDurationMonths > 0
+                                      if (isFullDiscount) {
+                                        return moment()
+                                          .add(promoCodeDetails.discountDurationMonths, 'months')
+                                          .format('MMMM DD, YYYY')
+                                      }
+                                      return (
+                                        promoCodeDetails?.nextChargeDateFormatted ||
+                                        moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')
+                                      )
+                                    })()}
                                   </div>
                                   {discountCalculation &&
                                     discountCalculation.discountMonths > 0 && (

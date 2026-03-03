@@ -2,36 +2,34 @@
 
 import axios from 'axios'
 import DOMPurify from 'dompurify'
-import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import { agencyPrivacyPolicyUrl } from '@/constants/Constants'
 
-/**
- * Agency privacy page by UUID. Used when agency has no custom domain
- * (links are baseurl/agency/[agencyUUID]/privacy).
- */
 function PrivacyPage() {
-  const params = useParams()
   const [privacyText, setPrivacyText] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const agencyUUID = params?.agencyUUID
 
   useEffect(() => {
-    if (agencyUUID) {
-      fetchPrivacyText()
-    }
-  }, [agencyUUID])
+    fetchPrivacyText()
+  }, [])
 
   const fetchPrivacyText = async () => {
+    if (typeof window === 'undefined') return
+    const domain = window.location.host
+    if (!domain) {
+      setLoading(false)
+      window.location.href = agencyPrivacyPolicyUrl
+      return
+    }
     try {
       setLoading(true)
       setError(null)
 
-      const response = await axios.get(Apis.getAgencyPrivacyByUUID, {
-        params: { agencyUUID },
+      const response = await axios.get(Apis.getAgencyPrivacyByDomain, {
+        params: { domain },
       })
 
       if (response?.data?.status === true) {

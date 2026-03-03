@@ -2638,16 +2638,9 @@ const Pipeline1 = () => {
                               )}
                             </span>
                             <div
-                              // className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
-                              className="rounded-full flex items-center justify-center text-black w-6 h-6 min-w-6 min-h-6 shrink-0 px-1"
+                              className="rounded-full inline-flex items-center justify-center text-black min-w-6 h-6 shrink-0 px-2"
                               style={{ ...styles.paragraph, fontSize: 14, backgroundColor: stage?.defaultColor, color: isColorDark(stage?.defaultColor) ? "white" : "black" }}
                             >
-                              {/* {leadCounts[stage.id] ? (
-                            <div>{leadCounts[stage.id]}</div>
-                          ) : (
-                            "0"
-                          )} */}
-
                               {leadsCountInStage?.[stage.id] !== undefined
                                 ? leadsCountInStage[stage.id]
                                 : '0'}

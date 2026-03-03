@@ -40,7 +40,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-1
             )}
             style={isSelected ? { borderWidth: '0.5px' } : undefined}
           >
-            <TypographyBody className={cn("flex items-center gap-2 text-[14px] font-normal", isSelected ? 'text-brand-primary' : 'text-black')}>
+            <TypographyBody className={cn("flex items-center gap-2 text-[12px] xl:text-[12px] font-normal", isSelected ? 'text-brand-primary' : 'text-black')}>
               {Icon && (
                 <Icon 
                   size={20} 
