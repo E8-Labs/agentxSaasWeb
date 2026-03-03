@@ -1534,8 +1534,39 @@ const Userleads = ({
   //     }
   // };
 
+  /** Highlights the first substring in text that matches the search query (case-insensitive). */
+  const highlightSearchMatch = (text, query) => {
+    if (text == null || text === '') return '-'
+    const str = String(text)
+    const q = String(query ?? '').trim()
+    if (!q) return str
+
+    const lowerStr = str.toLowerCase()
+    const lowerQ = q.toLowerCase()
+    const index = lowerStr.indexOf(lowerQ)
+
+    if (index === -1) {
+      return str
+    }
+
+    const before = str.slice(0, index)
+    const match = str.slice(index, index + q.length)
+    const after = str.slice(index + q.length)
+
+    return (
+      <>
+        {before}
+        <mark className="bg-brand-primary/20 rounded px-0.5 font-medium">
+          {match}
+        </mark>
+        {after}
+      </>
+    )
+  }
+
   const getColumnData = (column, item) => {
     const { title } = column
+    const searchQuery = searchLead ? String(searchLead).trim() : ''
     let canShowSelected = false
     if (selectedAll) {
       //check if item.id is in the toggle list or not
@@ -1562,26 +1593,11 @@ const Userleads = ({
         return (
           <div className="text-[14px] font-normal">
             <div className="w-full flex flex-row items-center gap-3 truncate">
-              {canShowSelected ? (
-                <button
-                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
-                  onClick={() => {
-                    handleToggleClick(item.id)
-                  }}
-                >
-                  <Image className=" object-contain pb-0.5"
-                    src={'/assets/whiteTick.png'}
-                    height={10}
-                    width={10}
-                    alt="*"
-                  />
-                </button>
-              ) : (
-                <Checkbox
-                  className="h-4 w-4 flex-shrink-0 border-2 border-muted"
-                  onClick={() => handleToggleClick(item.id)}
-                />
-              )}
+              <Checkbox
+                className="checkbox-leads flex-shrink-0"
+                checked={canShowSelected}
+                onCheckedChange={() => handleToggleClick(item.id)}
+              />
               <div
                 className="h-[32px] w-[32px] min-h-[32px] min-w-[32px] flex-shrink-0 aspect-square rounded-[50%] bg-black cursor-pointer flex flex-row items-center justify-center text-white text-[14px] font-normal break-words overflow-hidden text-ellipsis uppercase"
                 onClick={() => {
@@ -1602,7 +1618,12 @@ const Userleads = ({
                   setColumns(column)
                 }}
               >
-                {item.firstName} {item.lastName}
+                {searchQuery
+                  ? highlightSearchMatch(
+                      [item.firstName, item.lastName].filter(Boolean).join(' ') || '-',
+                      searchQuery,
+                    )
+                  : `${item.firstName || ''} ${item.lastName || ''}`.trim() || '-'}
               </div>
             </div>
           </div>
@@ -1611,7 +1632,9 @@ const Userleads = ({
         // //console.log;
         return (
           <button onClick={() => handleToggleClick(item.id)} className="text-[14px] font-normal border-none bg-transparent p-0">
-            {item.phone ? item.phone : '-'}
+            {searchQuery && item.phone
+              ? highlightSearchMatch(item.phone, searchQuery)
+              : item.phone || '-'}
           </button>
         )
       case 'Stage':
@@ -1645,6 +1668,7 @@ const Userleads = ({
         if (typeof value === 'object' && value !== null) {
           value = JSON.stringify(value)
         }
+        const displayValue = value ?? '-'
         return (
           <div
             className="cursor-pointer break-words overflow-hidden text-ellipsis text-[14px] font-normal"
@@ -1652,7 +1676,9 @@ const Userleads = ({
               handleToggleClick(item.id)
             }}
           >
-            {value || '-'}
+            {searchQuery && displayValue !== '-'
+              ? highlightSearchMatch(displayValue, searchQuery)
+              : displayValue}
           </div>
         )
     }
@@ -2650,30 +2676,19 @@ const Userleads = ({
                         >
                           {isNameColumn ? (
                             <div className="flex flex-row items-center gap-2">
-                              {selectedAll ? (
-                                <button
-                                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center flex-shrink-0"
-                                  onClick={() => {
-                                    setSelectedLeadsList([])
-                                    setSelectedAll(false)
-                                  }}
-                                >
-                                  <Image
-                                    src={'/assets/whiteTick.png'}
-                                    height={10}
-                                    width={10}
-                                    alt="Deselect all"
-                                  />
-                                </button>
-                              ) : (
-                                <Checkbox
-                                  className="h-4 w-4 flex-shrink-0 border-2 border-muted"
-                                  onClick={() => {
+                              <Checkbox
+                                className="checkbox-leads flex-shrink-0"
+                                checked={selectedAll}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
                                     setSelectedLeadsList([])
                                     setSelectedAll(true)
-                                  }}
-                                />
-                              )}
+                                  } else {
+                                    setSelectedLeadsList([])
+                                    setSelectedAll(false)
+                                  }
+                                }}
+                              />
                               <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
                               {(selectedLeadsList.length > 0 || selectedAll) && (
                                 <span

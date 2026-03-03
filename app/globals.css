@@ -158,15 +158,30 @@ input[type="date"]::-moz-datetime-edit-year-field {
     box-shadow: 0 0 24px hsl(var(--brand-primary) / 0.6), 0 0 48px hsl(var(--brand-primary) / 0.6);
   }
 
-  /* Checkbox (Leads etc.): subtle primary shadow when checked */
+  /* Checkbox (Leads / Userleads): Firecrawl-style – soft primary shadow when checked, animated */
   .checkbox-primary-shadow {
-    box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.15),
-      0 2px 8px hsl(var(--brand-primary) / 0.12);
+    box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.2),
+      0 2px 8px hsl(var(--brand-primary) / 0.15),
+      0 4px 12px hsl(var(--brand-primary) / 0.08);
+    transition: box-shadow 0.2s ease-out;
+  }
+
+  /* Userleads / Leads: consistent checkbox size in all states (no scale on press) */
+  .checkbox-leads {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    border-radius: 4px;
+    transition: border-color 0.2s ease-out, background-color 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+  .checkbox-leads:active {
+    transform: none;
   }
 
   /* Start campaign modals & Leads page: firecrawl-style inputs (hover + focus) */
   .start-campaign-input {
-    background-color: #F9FAFB;
+    background-color: #FFFFFF;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
     padding: 10px 12px;
@@ -182,7 +197,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
   }
   .start-campaign-input:hover {
     border-color: #D1D5DB;
-    background-color: #FFFFFF;
+    background-color: #F9FAFB;
   }
   .start-campaign-input:focus {
     border-color: hsl(var(--brand-primary));
@@ -207,12 +222,12 @@ input[type="date"]::-moz-datetime-edit-year-field {
   /* Userleads page: search and other inputs hover/active */
   .search-input-wrapper {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-    background-color: #F9FAFB;
+    background-color: #FFFFFF;
     border: 1px solid #E5E7EB;
   }
   .search-input-wrapper:hover {
     border-color: #D1D5DB;
-    background-color: #FFFFFF;
+    background-color: #F9FAFB;
   }
   .search-input-wrapper:focus-within {
     border-color: hsl(var(--brand-primary)) !important;
