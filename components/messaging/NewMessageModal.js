@@ -588,10 +588,18 @@ const NewMessageModal = ({
       })
 
       if (response.data?.status && response.data?.data) {
-        setEmailAccounts(response.data.data)
-        if (response.data.data.length > 0) {
-          setSelectedEmailAccount(response.data.data[0].id)
-          setSelectedEmailAccountObj(response.data.data[0])
+        const accounts = response.data.data
+        setEmailAccounts(accounts)
+        if (accounts.length > 0) {
+          const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedEmailAccountId) : null
+          const lastUsedAccount = lastUsedId ? accounts.find((a) => a.id.toString() === lastUsedId || a.id === parseInt(lastUsedId, 10)) : null
+          if (lastUsedAccount) {
+            setSelectedEmailAccount(lastUsedAccount.id.toString())
+            setSelectedEmailAccountObj(lastUsedAccount)
+          } else {
+            setSelectedEmailAccount(accounts[0].id.toString())
+            setSelectedEmailAccountObj(accounts[0])
+          }
         }
       }
     } catch (error) {
@@ -1686,6 +1694,11 @@ const NewMessageModal = ({
         })
       }
 
+      // Remember last used email account for next time user opens new email message
+      if (successCount > 0 && selectedMode === 'email' && selectedEmailAccount && typeof window !== 'undefined') {
+        localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, selectedEmailAccount)
+      }
+
       // Always create template - type depends on "Save as template" checkbox
       if (successCount > 0) {
         console.log('✅ [Normal Send Mode] Reached template creation section')
@@ -2106,8 +2119,12 @@ const NewMessageModal = ({
                                               type="button"
                                               onClick={() => {
                                                 const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                                setSelectedEmailAccount(account.id.toString())
+                                                const idStr = account.id.toString()
+                                                setSelectedEmailAccount(idStr)
                                                 setSelectedEmailAccountObj(accountObj)
+                                                if (typeof window !== 'undefined') {
+                                                  localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, idStr)
+                                                }
                                                 setEmailDropdownOpen(false)
                                               }}
                                               className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'}`}
@@ -3215,8 +3232,12 @@ const NewMessageModal = ({
         showEmailTempPopup={false}
         setSelectedGoogleAccount={(account) => {
           if (account) {
-            setSelectedEmailAccount(account.id)
+            const idStr = account.id?.toString?.() ?? String(account.id)
+            setSelectedEmailAccount(idStr)
             setSelectedEmailAccountObj(account)
+            if (typeof window !== 'undefined' && idStr) {
+              localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, idStr)
+            }
             setEmailAccounts((prev) => {
               const exists = prev.find((a) => a.id === account.id)
               if (exists) return prev

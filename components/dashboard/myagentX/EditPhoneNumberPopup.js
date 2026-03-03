@@ -26,7 +26,7 @@ export const EditPhoneNumberModal = ({
   const [userPhoneNumber, setUserPhoneNumber] = useState('')
   const [locationLoader, setLocationLoader] = useState(false)
   const [transferMessageInput, setTransferMessageInput] = useState(
-    transferMessage || 'Let me connect you to a live agent',
+    transferMessage //|| 'Let me connect you to a live agent',
   )
 
   useEffect(() => {
@@ -34,8 +34,9 @@ export const EditPhoneNumberModal = ({
   }, [number])
 
   useEffect(() => {
+    console.log('transferMessage passed is', transferMessage)
     setTransferMessageInput(
-      transferMessage || 'Let me connect you to a live agent',
+      transferMessage //|| 'Let me connect you to a live agent',
     )
   }, [transferMessage, open])
 
@@ -186,14 +187,14 @@ export const EditPhoneNumberModal = ({
                 if (!errorMessage) {
                   if (userPhoneNumber.length > 2) {
                     if (isTransfer) {
-                      update(userPhoneNumber, transferMessageInput?.trim() || 'Let me connect you to a live agent')
+                      update(userPhoneNumber, transferMessageInput?.trim()) //|| 'Let me connect you to a live agent')
                     } else {
                       update(userPhoneNumber)
                     }
                   } else {
                     const emptyPhone = ''
                     if (isTransfer) {
-                      update(emptyPhone, transferMessageInput?.trim() || 'Let me connect you to a live agent')
+                      update(emptyPhone, transferMessageInput?.trim()) //|| 'Let me connect you to a live agent')
                     } else {
                       update(emptyPhone)
                     }
