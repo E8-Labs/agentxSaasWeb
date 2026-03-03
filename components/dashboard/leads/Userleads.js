@@ -2213,7 +2213,7 @@ const Userleads = ({
                   <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
                     <input
                       style={{ ...styles.paragraph, fontWeight: 400 }}
-                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
+                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full text-[14px] text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
                       placeholder="Search by name, email or phone"
                       value={searchLead}
                       onChange={(e) => {
@@ -2233,8 +2233,7 @@ const Userleads = ({
                     </button>
                   </div>
                   <button
-                    className="relative outline-none flex-shrink-0 flex flex-row items-center gap-2 px-3 h-10 rounded-lg border-none active:scale-[0.98] transition-transform"
-                    style={{ backgroundColor: '#ededed' }}
+                    className="relative outline-none flex-shrink-0 flex flex-row items-center gap-2 px-3 h-10 rounded-lg border border-transparent bg-[#F9FAFB] hover:bg-white hover:border-[#E5E7EB] active:scale-[0.98] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                     onClick={() => {
                       setShowFilterModal(true)
                     }}
@@ -2364,12 +2363,8 @@ const Userleads = ({
                           ? 'white'
                           : undefined,
                       borderRadius: 8,
-                      boxShadow:
-                        selectedLeadsList.length > 0 || selectedAll
-                          ? '0 4px 24px hsl(var(--brand-primary) / 0.15)'
-                          : 'none',
                     }}
-                    className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0"
+                    className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 hover:opacity-90"
                     onClick={() => {
                       if (userLocalDetails?.plan) {
                         setAssignLeadModal(true)
@@ -2874,15 +2869,15 @@ const Userleads = ({
                           <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
                             <PopoverTrigger asChild>
                               <button
-                                style={{ border: '1px solid #00000020' }}
-                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
+                                type="button"
+                                className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                               >
                                 <p>
                                   {selectedFromDate
                                     ? selectedFromDate.toDateString()
                                     : 'Select Date'}
                                 </p>
-                                <CalendarDots weight="regular" size={25} />
+                                <CalendarDots weight="regular" size={20} aria-hidden />
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
@@ -2914,15 +2909,15 @@ const Userleads = ({
                           <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
                             <PopoverTrigger asChild>
                               <button
-                                style={{ border: '1px solid #00000020' }}
-                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
+                                type="button"
+                                className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                               >
                                 <p>
                                   {selectedToDate
                                     ? selectedToDate.toDateString()
                                     : 'Select Date'}
                                 </p>
-                                <CalendarDots weight="regular" size={25} />
+                                <CalendarDots weight="regular" size={20} aria-hidden />
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
@@ -3141,10 +3136,10 @@ const Userleads = ({
                       )}
                     </div>
 
-                    <div className="flex flex-row items-center w-full justify-between m-0 p-4 h-auto bg-white">
+                    <div className="flex flex-row items-center w-full justify-between gap-3 m-0 p-4 h-auto bg-white border-t border-[#eaeaea]">
                       <button
-                        className="outline-none w-[105px]"
-                        style={{ fontSize: 16.8, fontWeight: '600' }}
+                        type="button"
+                        className="h-10 px-4 rounded-lg text-[14px] font-medium bg-white border border-[#eaeaea] text-foreground hover:bg-muted/50 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                         onClick={() => {
                           resetFilters()
                         }}
@@ -3152,19 +3147,12 @@ const Userleads = ({
                         Reset
                       </button>
                       {sheetsLoader ? (
-                        <CircularProgress size={25} sx={{ color: '#7902DF' }} />
+                        <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
                       ) : (
                         <button
-                          className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
-                          style={{
-                            fontSize: 16.8,
-                            fontWeight: '600',
-                            // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
-                          }}
+                          type="button"
+                          className="flex items-center justify-center h-10 w-[140px] rounded-lg text-[14px] font-medium bg-brand-primary text-white hover:bg-brand-primary/90 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                           onClick={() => {
-                            //////console.log;
-                            // setLeadsList([]);
-                            // setFilterLeads([]);
                             setShowFilterModal(false)
                             setFiltersFromSelection()
                             setNextCursorValue('')

@@ -36,6 +36,8 @@ import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
 import { getAgentImage } from '@/utilities/agentUtilities'
 import { GetTimezone } from '@/utilities/utility'
 
+import { Checkbox } from '@/components/ui/checkbox'
+
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../AgentSelectSnackMessage'
@@ -722,17 +724,19 @@ const AssignLead = ({
           style={{ borderBottom: '1px solid #eaeaea' }}
         >
           <div
-            className="flex flex-row items-center justify-between"
-            style={{ paddingTop: 16, paddingBottom: 16, margin: 0, paddingLeft: 16, paddingRight: 16, height: 65 }}
+            className="flex flex-row items-center justify-between w-full"
+            style={{ padding: 16, borderBottom: '1px solid #eaeaea', minHeight: 66 }}
           >
-            <div className="flex flex-row items-center" style={{ gap: 4, fontSize: 12, fontWeight: 400, color: 'rgba(0,0,0,0.7)' }}>
-              <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-0.5px' }}>Select your Agent</div>
-              <div style={{ ...styles.paragraph, fontSize: 12, color: 'rgba(0,0,0,0.7)' }}>
+            <div className="flex flex-col items-start" style={{ gap: 2 }}>
+              <div className="start-campaign-label" style={{ fontSize: 18, fontWeight: 600, color: '#111827', letterSpacing: '-0.01em' }}>
+                Select your <span style={{ color: 'hsl(var(--brand-primary))' }}>Agent</span>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 400, color: '#374151' }}>
                 {getLeadSelectedCount()} Contacts Selected
               </div>
             </div>
             <CloseBtn onClick={handleCloseAssignLeadModal} />
-          </div>
+        </div>
         </div>
         {initialLoader ? (
           <div className="w-full flex flex-row justify-center mt-4" style={{ padding: 16 }}>
@@ -832,8 +836,9 @@ const AssignLead = ({
               return (
                 <button
                   key={index}
+                  type="button"
                   disabled={checkNostageAndInboundAgent(item)}
-                  className={`rounded-xl mt-4 w-full outline-none flex flex-col active:scale-[0.98] transition-transform ${checkNostageAndInboundAgent(item) ? 'bg-[#00000020]' : ''}`}
+                  className={`rounded-lg mt-3 w-full outline-none flex flex-col active:scale-[0.98] transition-all duration-200 border ${checkNostageAndInboundAgent(item) ? 'bg-[#F9FAFB] opacity-60' : 'hover:border-[#D1D5DB] hover:bg-[#F9FAFB]'}`}
                   style={{
                     gap: 4,
                     paddingTop: 12,
@@ -842,12 +847,12 @@ const AssignLead = ({
                     paddingRight: 16,
                     border: SelectedAgents.some((a) => a.id === item.id)
                       ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000020',
+                      : '1px solid #E5E7EB',
                     backgroundColor: SelectedAgents.some(
                       (a) => a.id === item.id,
                     )
-                      ? `${brandPrimaryColor}08`
-                      : '',
+                      ? 'hsl(var(--brand-primary) / 0.06)'
+                      : '#FFFFFF',
                   }}
                   onClick={() => {
                     // console.log("Selected item is", item);
@@ -976,29 +981,16 @@ const AssignLead = ({
         </div>
         )}
       </div>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center px-4 pb-4 pt-1">
         <button
-          className="rounded-lg mt-4 active:scale-[0.98] transition-transform"
-          style={{
-            fontSize: 14,
-            fontWeight: styles.heading?.fontWeight ?? 600,
-            height: 40,
-            width: '96%',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            marginTop: 12,
-            marginBottom: 12,
-            paddingLeft: 12,
-            paddingRight: 12,
-            backgroundColor: ShouldContinue ? '#00000020' : brandPrimaryColor,
-            color: ShouldContinue ? '#00000080' : 'white',
-          }}
+          type="button"
+          className={`w-full max-w-[96%] h-12 rounded-lg text-base font-semibold transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98] disabled:pointer-events-none ${!ShouldContinue ? 'bg-brand-primary text-white hover:bg-brand-primary/90 hover:shadow-[0_2px_8px_hsl(var(--brand-primary)/0.3)]' : 'bg-black/[0.08] text-black/50'}`}
+          style={{ marginTop: 16, marginBottom: 16, paddingTop: 12, paddingBottom: 12 }}
           disabled={ShouldContinue}
           onClick={() => {
             const A = agentsList
             localStorage.setItem('AssignLeadAgents', JSON.stringify(A))
             handleContinue({ SelectedAgents, agentsList })
-            // setLastStepModal(true);
           }}
         >
           Continue
@@ -1094,7 +1086,10 @@ const AssignLead = ({
                     {getLeadSelectedCount()} Contacts Selected
                   </div>
 
-                  <div className="flex flex-row items-center  -mt-2">
+                  <div
+                    className="flex flex-row items-center justify-between"
+                    style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.05)' }}
+                  >
                     <Tooltip
                       title="If the lead has given consent, no need to run against DNC"
                       arrow
@@ -1153,22 +1148,21 @@ const AssignLead = ({
                 </div>
               </div>
 
-              <div className="mt-4" style={styles.heading}>
+              <div className="mt-4 start-campaign-label">
                 Drip per day
               </div>
 
-              <div className="flex flex-row items-center gap-8 mt-4">
+              <div className="flex flex-col items-stretch gap-4 mt-4">
                 <input
-                  className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
+                  className="w-full flex flex-row items-center start-campaign-input"
                   style={{
-                    border: `${
-                      isFocustedCustomLeads
-                        ? `2px solid ${brandPrimaryColor}`
-                        : '1px solid #00000040'
-                    }`,
-                    height: '50px',
+                    height: '40px',
+                    borderColor: isFocustedCustomLeads ? brandPrimaryColor : undefined,
+                    borderWidth: isFocustedCustomLeads ? 2 : undefined,
+                    boxShadow: isFocustedCustomLeads ? `0 0 0 2px ${brandPrimaryColor}20` : undefined,
                   }}
                   value={customLeadsToSend}
+                  disabled={!!NoOfLeadsToSend}
                   onFocus={() => {
                     setNoOfLeadsToSend('')
                     setisFocustedCustomLeads(true)
@@ -1180,36 +1174,45 @@ const AssignLead = ({
                   }}
                   placeholder="Ex: 100"
                 />
-                <button
-                  className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
+                <label
+                  className="w-full flex flex-row items-center gap-3 rounded-lg cursor-pointer border border-[#E5E7EB] bg-white transition-colors duration-200 hover:border-[#D1D5DB] hover:bg-[#F9FAFB]"
                   style={{
-                    border: NoOfLeadsToSend
-                      ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000040',
-                    height: '50px',
-                  }}
-                  onClick={() => {
-                    setNoOfLeadsToSend(totalLeads)
-                    setCustomLeadsToSend('')
-                    setisFocustedCustomLeads(false)
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                    paddingLeft: 12,
+                    paddingRight: 12,
                   }}
                 >
-                  All {getLeadSelectedCount()}
-                </button>
+                  <Checkbox
+                    checked={!!NoOfLeadsToSend}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setNoOfLeadsToSend(totalLeads)
+                        setCustomLeadsToSend('')
+                        setisFocustedCustomLeads(false)
+                      } else {
+                        setNoOfLeadsToSend('')
+                      }
+                    }}
+                  />
+                  <span>Select All {getLeadSelectedCount()}</span>
+                </label>
               </div>
 
-              <div className="mt-4" style={styles.heading}>
+              <div className="mt-4 start-campaign-label">
                 When to start calling?
               </div>
 
-              <div className="flex flex-row items-center gap-8 mt-4">
+              <div className="flex flex-row items-center gap-4 mt-4">
                 <button
-                  className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
+                  type="button"
+                  className="w-1/2 flex flex-col justify-between items-start p-4 rounded-lg border transition-all duration-200 hover:border-[#D1D5DB]"
                   style={{
                     border: CallNow
                       ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000040',
+                      : '1px solid #E5E7EB',
                     height: '119px',
+                    backgroundColor: CallNow ? 'hsl(var(--brand-primary) / 0.02)' : '#FFFFFF',
                   }}
                   onClick={() => {
                     setHasUserSelectedDate(false)
@@ -1244,11 +1247,12 @@ const AssignLead = ({
                 </button>
                 <div className="w-1/2">
                   <button
-                    className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
+                    type="button"
+                    className="w-full flex flex-col items-start justify-between p-4 rounded-lg border transition-all duration-200 hover:border-[#D1D5DB] bg-white"
                     style={{
                       border: CallLater
                         ? `2px solid ${brandPrimaryColor}`
-                        : '1px solid #00000040',
+                        : '1px solid #E5E7EB',
                       height: '119px',
                     }}
                     onClick={() => {
@@ -1296,28 +1300,70 @@ const AssignLead = ({
                           className="w-full flex flex-row justify-center"
                           style={{
                             backgroundColor: '#ffffff',
-                            padding: 20,
-                            borderRadius: '13px',
+                            padding: 24,
+                            borderRadius: 12,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                            border: '1px solid #eaeaea',
                           }}
                         >
                           <div>
-                            {/* <Calendar
-                                                              onChange={handleFromDateChange}
-                                                              value={selectedFromDate}
-                                                              locale="en-US"
-                                                              onClose={() => { setShowFromDatePicker(false) }}
-                                                          /> */}
                             <div className="text-center text-xl font-bold">
-                              Select date and time to shedule call
+                              Select date and time to schedule call
                             </div>
                             <div className="w-full mt-4 flex flex-row justify-center">
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DateTimePicker
-                                  // label="Select date and time"
+                                  value={selectedDateTime}
                                   minDateTime={dayjs().tz(userProfile.timeZone)}
-                                  //   value={value}
+                                  onChange={handleDateChange}
+                                  slotProps={{
+                                    textField: {
+                                      variant: 'outlined',
+                                      fullWidth: true,
+                                      size: 'small',
+                                      sx: {
+                                        '& .MuiOutlinedInput-root': {
+                                          minHeight: 40,
+                                          height: 40,
+                                          borderRadius: '8px',
+                                          backgroundColor: '#F9FAFB',
+                                          fontSize: 14,
+                                          fontWeight: 500,
+                                          color: '#111827',
+                                          transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
+                                          '& fieldset': {
+                                            borderColor: hasUserSelectedDate ? brandPrimaryColor : '#E5E7EB',
+                                            borderWidth: '1px',
+                                          },
+                                          '&:hover fieldset': {
+                                            borderColor: hasUserSelectedDate ? brandPrimaryColor : '#D1D5DB',
+                                          },
+                                          '&:hover': {
+                                            backgroundColor: '#FFFFFF',
+                                          },
+                                          '&.Mui-focused fieldset': {
+                                            borderColor: 'hsl(var(--brand-primary))',
+                                            borderWidth: '1px',
+                                          },
+                                          '&.Mui-focused': {
+                                            boxShadow: '0 0 0 2px hsl(var(--brand-primary) / 0.2)',
+                                            backgroundColor: '#FFFFFF',
+                                          },
+                                        },
+                                      },
+                                    },
+                                    popper: {
+                                      sx: {
+                                        '& .MuiPaper-root': {
+                                          borderRadius: 12,
+                                          boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                                          border: '1px solid #eaeaea',
+                                          animation: 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                                        },
+                                      },
+                                    },
+                                  }}
                                   sx={{
-                                    // Date Picker (Large Screen)
                                     '& .MuiPickersDay-root.Mui-selected': {
                                       backgroundColor: `${brandPrimaryColor} !important`,
                                       color: 'white !important',
@@ -1329,8 +1375,6 @@ const AssignLead = ({
                                       backgroundColor: `${brandPrimaryColor} !important`,
                                       color: '#fff !important',
                                     },
-
-                                    // Time Picker (Large Screen)
                                     '& .MuiClock-pin': {
                                       backgroundColor: `${brandPrimaryColor} !important`,
                                     },
@@ -1346,56 +1390,21 @@ const AssignLead = ({
                                     '& .MuiTypography-root': {
                                       color: `${brandPrimaryColor} !important`,
                                     },
-
-                                    // Time Selection List (Large Screen)
-                                    '& .MuiPickersTimeClock-root .Mui-selected':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor} !important`,
-                                        color: 'white !important',
-                                      },
-                                    '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor}CC !important`,
-                                      },
-
-                                    // Time Picker List (Dropdown List)
+                                    '& .MuiPickersTimeClock-root .Mui-selected': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
+                                      color: 'white !important',
+                                    },
+                                    '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover': {
+                                      backgroundColor: `${brandPrimaryColor}CC !important`,
+                                    },
                                     '& .MuiTimeClock-root .Mui-selected': {
                                       backgroundColor: `${brandPrimaryColor} !important`,
                                       color: 'white !important',
                                     },
-                                    '& .MuiTimeClock-root .MuiButtonBase-root:hover':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor}CC !important`,
-                                      },
+                                    '& .MuiTimeClock-root .MuiButtonBase-root:hover': {
+                                      backgroundColor: `${brandPrimaryColor}CC !important`,
+                                    },
                                   }}
-                                  onChange={handleDateChange}
-                                  renderInput={(params) => (
-                                    <input
-                                      {...params.inputProps}
-                                      style={{
-                                        border: 'none', // Disable border
-                                        outline: 'none',
-                                        padding: '8px',
-                                        backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
-                                      }}
-                                      onFocus={(e) => {
-                                        e.target.style.border = 'none' // Ensure no border on focus
-                                        e.target.style.outline = 'none' // Ensure no outline on focus
-                                      }}
-                                      onBlur={(e) => {
-                                        e.target.style.border = 'none' // Reset border on blur
-                                        e.target.style.outline = 'none' // Reset outline on blur
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.target.style.border = 'none' // Remove border on hover
-                                        e.target.style.outline = 'none' // Remove outline on hover
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.style.border = 'none' // Reset border on hover out
-                                        e.target.style.outline = 'none' // Reset outline on hover out
-                                      }}
-                                    />
-                                  )}
                                 />
                               </LocalizationProvider>
                             </div>
@@ -1430,12 +1439,10 @@ const AssignLead = ({
                   >
                     Select date & time
                   </div>
-                  <div className="mt-2">
+                  <div className="mt-2 w-full">
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DateTimePicker
-                        // label="Select date and time"
-                        // minDateTime={dayjs()}
-                        //   value={value}
+                        value={selectedDateTime}
                         minDate={dayjs()}
                         onChange={handleDateChange}
                         slotProps={{
@@ -1443,23 +1450,42 @@ const AssignLead = ({
                             variant: 'outlined',
                             sx: {
                               '& .MuiOutlinedInput-root': {
-                                borderRadius: '10px',
+                                minHeight: 40,
+                                height: 40,
+                                borderRadius: '8px',
+                                backgroundColor: '#F9FAFB',
+                                fontSize: 14,
+                                fontWeight: 500,
+                                color: '#111827',
+                                transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
                                 '& fieldset': {
-                                  borderColor: hasUserSelectedDate
-                                    ? brandPrimaryColor
-                                    : '#00000050',
-                                  borderWidth: '2px',
+                                  borderColor: hasUserSelectedDate ? brandPrimaryColor : '#E5E7EB',
+                                  borderWidth: '1px',
                                 },
                                 '&:hover fieldset': {
-                                  borderColor: hasUserSelectedDate
-                                    ? brandPrimaryColor
-                                    : '#00000050',
+                                  borderColor: hasUserSelectedDate ? brandPrimaryColor : '#D1D5DB',
+                                },
+                                '&:hover': {
+                                  backgroundColor: '#FFFFFF',
                                 },
                                 '&.Mui-focused fieldset': {
-                                  borderColor: hasUserSelectedDate
-                                    ? brandPrimaryColor
-                                    : '#00000050',
+                                  borderColor: 'hsl(var(--brand-primary))',
+                                  borderWidth: '1px',
                                 },
+                                '&.Mui-focused': {
+                                  boxShadow: '0 0 0 2px hsl(var(--brand-primary) / 0.2)',
+                                  backgroundColor: '#FFFFFF',
+                                },
+                              },
+                            },
+                          },
+                          popper: {
+                            sx: {
+                              '& .MuiPaper-root': {
+                                borderRadius: 12,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                                border: '1px solid #eaeaea',
+                                animation: 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                               },
                             },
                           },
@@ -1472,10 +1498,9 @@ const AssignLead = ({
                           '& .MuiPickersDay-root:hover': {
                             backgroundColor: `${brandPrimaryColor}CC !important`,
                           },
-                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
-                            {
-                              color: '#333 !important',
-                            },
+                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
+                            color: '#333 !important',
+                          },
                           '& .Mui-selected': {
                             backgroundColor: `${brandPrimaryColor} !important`,
                             color: '#fff !important',
@@ -1490,33 +1515,6 @@ const AssignLead = ({
                             borderColor: `${brandPrimaryColor} !important`,
                           },
                         }}
-                        renderInput={(params) => (
-                          <input
-                            {...params.inputProps}
-                            style={{
-                              border: 'red', // Disable border
-                              outline: 'none',
-                              padding: '8px',
-                              backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
-                            }}
-                            onFocus={(e) => {
-                              e.target.style.border = 'none' // Ensure no border on focus
-                              e.target.style.outline = 'none' // Ensure no outline on focus
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.border = 'none' // Reset border on blur
-                              e.target.style.outline = 'none' // Reset outline on blur
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.border = 'none' // Remove border on hover
-                              e.target.style.outline = 'none' // Remove outline on hover
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.border = 'none' // Reset border on hover out
-                              e.target.style.outline = 'none' // Reset outline on hover out
-                            }}
-                          />
-                        )}
                       />
                     </LocalizationProvider>
                   </div>

@@ -3,7 +3,6 @@ import {
   CircularProgress,
   Modal,
   Switch,
-  TextField,
   Tooltip,
 } from '@mui/material'
 // import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -25,8 +24,11 @@ import {
   RemoveSmartRefillApi,
   SmartRefillApi,
 } from '@/components/onboarding/extras/SmartRefillapi'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { getAgentImage } from '@/utilities/agentUtilities'
+
+import { Checkbox } from '@/components/ui/checkbox'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -374,33 +376,23 @@ const LastStep = ({
         >
           <div style={{ paddingLeft: 0, paddingRight: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div className="flex flex-row items-center justify-between w-full" style={{ width: '100%', padding: 16, borderBottom: '1px solid #eaeaea' }}>
-            <div className="flex flex-col items-start">
-              <div
-                style={{
-                  fontWeight: '700',
-                  fontSize: 18,
-                }}
-              >
+            <div className="flex flex-col items-start" style={{ gap: 2 }}>
+              <div className="start-campaign-label" style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>
                 One last thing
               </div>
-              <div
-                style={{ fontSize: 12, fontWeight: '600', color: brandPrimaryColor }}
-              >
+              <div style={{ fontSize: 14, fontWeight: 400, color: 'hsl(var(--brand-primary))' }}>
                 {getLeadSelectedCount()} Contacts Selected
               </div>
             </div>
-            <button
+            <CloseBtn
               onClick={() => {
                 handleMoveBack()
               }}
-              aria-label="Close"
-            >
-              <Image src={'/assets/cross.png'} height={14} width={14} alt="" />
-            </button>
+            />
           </div>
 
           <div style={{ paddingLeft: 16, paddingRight: 16 }}>
-          <div className="flex flex-row items-center justify-between" style={{ padding: 12, borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.02)' }}>
+          <div className="flex flex-row items-center justify-between" style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.05)' }}>
             <Tooltip
               title="If the lead has given consent, no need to run against DNC"
               arrow
@@ -461,26 +453,23 @@ const LastStep = ({
           </div>
           </div>
 
-          <div className="flex flex-col" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingLeft: 16, paddingRight: 16 }}>
-            <div style={styles.heading}>
+          <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
+            <div className="start-campaign-label">
               Drip per day
             </div>
-            <div className="flex flex-row items-center" style={{ gap: 12 }}>
+            <div className="flex flex-col items-stretch" style={{ gap: 12 }}>
             <div
-              className="w-1/2 h-[50px] flex flex-row items-center"
+              className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden"
               style={{
-                border: `${
-                  isFocustedCustomLeads
-                    ? `2px solid ${brandPrimaryColor}`
-                    : '1px solid #00000040'
-                }`,
-                borderRadius: 8,
-                padding: 12,
+                paddingLeft: 12,
+                paddingRight: 12,
               }}
             >
               <input
-                className="w-full rounded-2xl outline-none focus:ring-0 border-none"
+                className="w-full outline-none focus:ring-0 border-none bg-transparent text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none"
+                style={{ height: '100%', padding: 0 }}
                 value={customLeadsToSend}
+                disabled={!!NoOfLeadsToSend}
                 onFocus={() => {
                   setNoOfLeadsToSend('')
                   setisFocustedCustomLeads(true)
@@ -494,43 +483,49 @@ const LastStep = ({
                   }
                 }}
                 placeholder="Ex: 100"
-                style={{ fontSize: 15, fontWeight: '500' }}
               />
             </div>
-            <button
-              className="w-1/2 flex flex-row items-center"
+            <label
+              className="w-full flex flex-row items-center gap-3 cursor-pointer rounded-lg border border-[#E5E7EB] bg-white transition-all duration-200 hover:border-[#D1D5DB] hover:bg-[#F9FAFB] active:transition-duration-100"
               style={{
-                border: NoOfLeadsToSend
-                  ? `2px solid ${brandPrimaryColor}`
-                  : '1px solid #00000040',
-                height: '50px',
-                borderRadius: 8,
-                padding: 12,
-              }}
-              onClick={() => {
-                setNoOfLeadsToSend(totalLeads)
-                setCustomLeadsToSend('')
-                setisFocustedCustomLeads(false)
+                paddingTop: 10,
+                paddingBottom: 10,
+                paddingLeft: 12,
+                paddingRight: 12,
               }}
             >
-              All {getLeadSelectedCount()}
-            </button>
+              <Checkbox
+                checked={!!NoOfLeadsToSend}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setNoOfLeadsToSend(totalLeads)
+                    setCustomLeadsToSend('')
+                    setisFocustedCustomLeads(false)
+                  } else {
+                    setNoOfLeadsToSend('')
+                  }
+                }}
+              />
+              <span>Select All {getLeadSelectedCount()}</span>
+            </label>
           </div>
           </div>
 
-          <div className="flex flex-col" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingLeft: 16, paddingRight: 16 }}>
-            <div style={styles.heading}>
+          <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
+            <div className="start-campaign-label">
               When to start?
             </div>
             <div className="flex flex-row items-center" style={{ gap: 12 }}>
             <button
-              className="w-1/2 flex flex-col justify-between items-start rounded-2xl"
+              type="button"
+              className="w-1/2 flex flex-col justify-between items-start rounded-lg border transition-all duration-200 hover:border-[#D1D5DB] bg-white"
               style={{
-                border: CallNow ? `2px solid ${brandPrimaryColor}` : '1px solid #00000040',
+                border: CallNow ? `2px solid ${brandPrimaryColor}` : '1px solid #E5E7EB',
                 height: 'auto',
                 minHeight: 'unset',
                 padding: 12,
                 gap: 12,
+                backgroundColor: CallNow ? 'hsl(var(--brand-primary) / 0.02)' : undefined,
               }}
               onClick={() => {
                 setHasUserSelectedDate(false)
@@ -561,12 +556,13 @@ const LastStep = ({
             </button>
             <div className="w-1/2">
               <button
-                className="w-full flex flex-col items-start justify-between"
+                type="button"
+                className="w-full flex flex-col items-start justify-between rounded-lg border transition-all duration-200 hover:border-[#D1D5DB] bg-white"
                 style={{
                     border: CallLater
                       ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000040',
-                  backgroundColor: CallLater ? `${brandPrimaryColor}0D` : undefined,
+                      : '1px solid #E5E7EB',
+                  backgroundColor: CallLater ? 'hsl(var(--brand-primary) / 0.06)' : undefined,
                   height: 'auto',
                   minHeight: 'unset',
                   padding: 12,
@@ -621,8 +617,10 @@ const LastStep = ({
                       className="w-full flex flex-row justify-center"
                       style={{
                         backgroundColor: '#ffffff',
-                        padding: 20,
-                        borderRadius: '13px',
+                        padding: 24,
+                        borderRadius: 12,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                        border: '1px solid #eaeaea',
                       }}
                     >
                       <div>
@@ -633,18 +631,62 @@ const LastStep = ({
                                                           onClose={() => { setShowFromDatePicker(false) }}
                                                       /> */}
                         <div className="text-center text-xl font-bold">
-                          Select date and time to shedule call
+                          Select date and time to schedule call
                         </div>
                         <div className="w-full mt-4 flex flex-row justify-center">
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                               value={selectedDateTime}
-                              // label="Select date and time"
-                              //user profile will be passed to it
                               minDateTime={dayjs().tz(userProfile.timeZone)}
-                              //   value={value}
+                              onChange={handleDateChange}
+                              slotProps={{
+                                textField: {
+                                  variant: 'outlined',
+                                  fullWidth: true,
+                                  size: 'small',
+                                  sx: {
+                                    '& .MuiOutlinedInput-root': {
+                                      minHeight: 40,
+                                      height: 40,
+                                      borderRadius: '8px',
+                                      backgroundColor: '#F9FAFB',
+                                      fontSize: 14,
+                                      fontWeight: 500,
+                                      color: '#111827',
+                                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
+                                      '& fieldset': {
+                                        borderColor: hasUserSelectedDate ? brandPrimaryColor : '#E5E7EB',
+                                        borderWidth: '1px',
+                                      },
+                                      '&:hover fieldset': {
+                                        borderColor: hasUserSelectedDate ? brandPrimaryColor : '#D1D5DB',
+                                      },
+                                      '&:hover': {
+                                        backgroundColor: '#FFFFFF',
+                                      },
+                                      '&.Mui-focused fieldset': {
+                                        borderColor: 'hsl(var(--brand-primary))',
+                                        borderWidth: '1px',
+                                      },
+                                      '&.Mui-focused': {
+                                        boxShadow: '0 0 0 2px hsl(var(--brand-primary) / 0.2)',
+                                        backgroundColor: '#FFFFFF',
+                                      },
+                                    },
+                                  },
+                                },
+                                popper: {
+                                  sx: {
+                                    '& .MuiPaper-root': {
+                                      borderRadius: 12,
+                                      boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                                      border: '1px solid #eaeaea',
+                                      animation: 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                                    },
+                                  },
+                                },
+                              }}
                               sx={{
-                                // Date Picker (Large Screen)
                                 '& .MuiPickersDay-root.Mui-selected': {
                                   backgroundColor: `${brandPrimaryColor} !important`,
                                   color: 'white !important',
@@ -656,8 +698,6 @@ const LastStep = ({
                                   backgroundColor: `${brandPrimaryColor} !important`,
                                   color: '#fff !important',
                                 },
-
-                                // Time Picker (Large Screen)
                                 '& .MuiClock-pin': {
                                   backgroundColor: `${brandPrimaryColor} !important`,
                                 },
@@ -673,56 +713,21 @@ const LastStep = ({
                                 '& .MuiTypography-root': {
                                   color: `${brandPrimaryColor} !important`,
                                 },
-
-                                // Time Selection List (Large Screen)
                                 '& .MuiPickersTimeClock-root .Mui-selected': {
                                   backgroundColor: `${brandPrimaryColor} !important`,
                                   color: 'white !important',
                                 },
-                                '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
-                                  {
-                                    backgroundColor: `${brandPrimaryColor}CC !important`,
-                                  },
-
-                                // Time Picker List (Dropdown List)
+                                '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover': {
+                                  backgroundColor: `${brandPrimaryColor}CC !important`,
+                                },
                                 '& .MuiTimeClock-root .Mui-selected': {
                                   backgroundColor: `${brandPrimaryColor} !important`,
                                   color: 'white !important',
                                 },
-                                '& .MuiTimeClock-root .MuiButtonBase-root:hover':
-                                  {
-                                    backgroundColor: `${brandPrimaryColor}CC !important`,
-                                  },
+                                '& .MuiTimeClock-root .MuiButtonBase-root:hover': {
+                                  backgroundColor: `${brandPrimaryColor}CC !important`,
+                                },
                               }}
-                              onChange={handleDateChange}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  fullWidth
-                                  size="small"
-                                  sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                      borderRadius: '10px',
-                                      '& fieldset': {
-                                        borderColor: hasUserSelectedDate
-                                          ? brandPrimaryColor
-                                          : '#00000050',
-                                        borderWidth: '2px',
-                                      },
-                                      '&:hover fieldset': {
-                                        borderColor: hasUserSelectedDate
-                                          ? brandPrimaryColor
-                                          : '#00000050',
-                                      },
-                                      '&.Mui-focused fieldset': {
-                                        borderColor: hasUserSelectedDate
-                                          ? brandPrimaryColor
-                                          : '#00000050',
-                                      },
-                                    },
-                                  }}
-                                />
-                              )}
                             />
                           </LocalizationProvider>
                         </div>
@@ -761,9 +766,7 @@ const LastStep = ({
               <div className="mt-2 w-full">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DateTimePicker
-                    // label="Select date and time"
                     minDateTime={dayjs()}
-                    // minDateTime={dayjs().tz(userProfile.timeZone)}
                     value={selectedDateTime}
                     minDate={dayjs()}
                     onChange={handleDateChange}
@@ -773,80 +776,71 @@ const LastStep = ({
                         error: isDisabled,
                         sx: {
                           '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
+                            minHeight: 40,
+                            height: 40,
+                            borderRadius: '8px',
+                            backgroundColor: '#F9FAFB',
+                            fontSize: 14,
+                            fontWeight: 500,
+                            color: '#111827',
+                            transition: 'border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
                             '& fieldset': {
-                              borderColor: hasUserSelectedDate
-                                ? brandPrimaryColor
-                                : '#00000050',
-                              borderWidth: '2px',
+                              borderColor: hasUserSelectedDate ? brandPrimaryColor : '#E5E7EB',
+                              borderWidth: '1px',
                             },
                             '&:hover fieldset': {
-                              borderColor: hasUserSelectedDate
-                                ? '#7902df'
-                                : '#00000050',
+                              borderColor: hasUserSelectedDate ? brandPrimaryColor : '#D1D5DB',
+                            },
+                            '&:hover': {
+                              backgroundColor: '#FFFFFF',
                             },
                             '&.Mui-focused fieldset': {
-                              borderColor: hasUserSelectedDate
-                                ? '#7902df'
-                                : '#00000050',
+                              borderColor: 'hsl(var(--brand-primary))',
+                              borderWidth: '1px',
                             },
+                            '&.Mui-focused': {
+                              boxShadow: '0 0 0 2px hsl(var(--brand-primary) / 0.2)',
+                              backgroundColor: '#FFFFFF',
+                            },
+                          },
+                        },
+                      },
+                      popper: {
+                        sx: {
+                          '& .MuiPaper-root': {
+                            borderRadius: 12,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                            border: '1px solid #eaeaea',
+                            animation: 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                           },
                         },
                       },
                     }}
                     sx={{
-                          '& .MuiPickersDay-root.Mui-selected': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: 'white !important',
-                          },
-                          '& .MuiPickersDay-root:hover': {
-                            backgroundColor: `${brandPrimaryColor}CC !important`,
-                          },
-                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
-                            {
-                              color: '#333 !important',
-                            },
-                          '& .Mui-selected': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: '#fff !important',
-                          },
-                          '& .MuiClock-pin': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                          },
-                          '& .MuiClockPointer-root': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                          },
-                          '& .MuiClockPointer-thumb': {
-                            borderColor: `${brandPrimaryColor} !important`,
-                          },
+                      '& .MuiPickersDay-root.Mui-selected': {
+                        backgroundColor: `${brandPrimaryColor} !important`,
+                        color: 'white !important',
+                      },
+                      '& .MuiPickersDay-root:hover': {
+                        backgroundColor: `${brandPrimaryColor}CC !important`,
+                      },
+                      '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
+                        color: '#333 !important',
+                      },
+                      '& .Mui-selected': {
+                        backgroundColor: `${brandPrimaryColor} !important`,
+                        color: '#fff !important',
+                      },
+                      '& .MuiClock-pin': {
+                        backgroundColor: `${brandPrimaryColor} !important`,
+                      },
+                      '& .MuiClockPointer-root': {
+                        backgroundColor: `${brandPrimaryColor} !important`,
+                      },
+                      '& .MuiClockPointer-thumb': {
+                        borderColor: `${brandPrimaryColor} !important`,
+                      },
                     }}
-                    renderInput={(params) => (
-                      <input
-                        {...params.inputProps}
-                        style={{
-                          border: 'none', // Disable border
-                          outline: 'none',
-                          padding: '8px',
-                          backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.border = 'none' // Ensure no border on focus
-                          e.target.style.outline = 'none' // Ensure no outline on focus
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.border = 'none' // Reset border on blur
-                          e.target.style.outline = 'none' // Reset outline on blur
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.border = 'none' // Remove border on hover
-                          e.target.style.outline = 'none' // Remove outline on hover
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.border = 'none' // Reset border on hover out
-                          e.target.style.outline = 'none' // Reset outline on hover out
-                        }}
-                      />
-                    )}
                   />
                 </LocalizationProvider>
               </div>
@@ -903,13 +897,13 @@ const LastStep = ({
             </div>
           ) : (
             <div className="w-full">
-              <div className="flex flex-row items-center justify-between w-full" style={{ padding: 16, margin: 0 }}>
+              <div className="flex flex-row items-center justify-between w-full gap-3" style={{ padding: 16, margin: 0 }}>
                 <button
-                  className="flex flex-row items-center justify-center gap-2 bg-[#15151515] flex-shrink-0"
-                  style={{ width: 'auto', height: 40, paddingLeft: 12, paddingRight: 12, borderRadius: 8 }}
+                  type="button"
+                  className="flex flex-row items-center justify-center gap-2 h-12 min-w-[60px] rounded-lg px-4 text-[14px] font-medium bg-muted text-foreground hover:bg-muted/80 transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98] flex-shrink-0"
                   onClick={handleMoveBack}
                 >
-                  <span style={styles.title}>Back</span>
+                  Back
                 </button>
                 {(NoOfLeadsToSend || customLeadsToSend) &&
                 (CallNow ||
@@ -918,8 +912,8 @@ const LastStep = ({
                     hasUserSelectedDate &&
                     !isDisabled)) ? (
                   <button
-                    className="text-white flex-shrink-0"
-                    style={{ backgroundColor: brandPrimaryColor, width: 'auto', minWidth: 'unset', maxWidth: 'none', height: 40, paddingLeft: 12, paddingRight: 12, borderRadius: 8 }}
+                    type="button"
+                    className="flex-shrink-0 min-w-[60px] h-12 rounded-lg px-6 text-base font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 hover:shadow-[0_2px_8px_hsl(var(--brand-primary)/0.3)] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
                     onClick={() => {
                       const lastStepData = {
                         numberOfLeads: getLeadSelectedCount(),
@@ -936,9 +930,9 @@ const LastStep = ({
                   </button>
                 ) : (
                   <button
-                    className="text-[#000000] flex-shrink-0 bg-[#00000020]"
-                    style={{ width: 'auto', minWidth: 'unset', maxWidth: 'none', height: 40, paddingLeft: 12, paddingRight: 12, borderRadius: 8 }}
-                    disabled={true}
+                    type="button"
+                    className="flex-shrink-0 min-w-[60px] h-12 rounded-lg px-6 text-base font-semibold bg-black/[0.08] text-black/50 cursor-not-allowed"
+                    disabled
                   >
                     Continue
                   </button>
