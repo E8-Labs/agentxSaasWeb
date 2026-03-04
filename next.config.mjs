@@ -2,6 +2,8 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  // Transpile ESM-only packages that Turbopack may mishandle (fixes "Unexpected token 'export'")
+  transpilePackages: ['agentation'],
   // Allow dev requests from ngrok (and other tunnel) origins to avoid cross-origin warnings.
   // allowedDevOrigins: [
   //   '*.ngrok-free.app',

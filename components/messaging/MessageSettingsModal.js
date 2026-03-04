@@ -5,6 +5,7 @@ import axios from 'axios'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Info, ChevronRight, ArrowLeft, X } from 'lucide-react'
@@ -97,6 +98,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     return null
   }
 
+  // Normalize integration provider to 'openai' | 'google' | 'anthropic'
+  const providerFor = (int) =>
+    int?.provider === 'google' ? 'google' : int?.provider === 'anthropic' ? 'anthropic' : 'openai'
+
   // Helper function to mask API key (show last 6 chars, rest as stars) - used only when server sends raw key (legacy)
   const maskApiKey = (key) => {
     if (!key || key.length === 0) return ''
@@ -115,19 +120,20 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     }
   }, [open, selectedUser])
 
-  // Sync API key display from integrations: use selected aiIntegrationId, or first integration when none is set (so key always shows when user has one)
+  // Sync API key display from integrations: resolve by selectedProvider so each provider keeps its own key
   useEffect(() => {
     if (!open || isEditingApiKey || loading) return
-    if (aiIntegrations.length === 0) return
 
-    const existingIntegration = settings.aiIntegrationId
-      ? aiIntegrations.find((int) => int.id === settings.aiIntegrationId)
-      : aiIntegrations[0]
-    if (!existingIntegration) return
+    const existingIntegration = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
+    if (!existingIntegration) {
+      setExistingIntegrationId(null)
+      setStoredApiKeyMasked('')
+      setExistingApiKey('')
+      setApiKey('••••••••••••••••••••••••••••••••')
+      return
+    }
 
     setExistingIntegrationId(existingIntegration.id)
-    const provider = existingIntegration.provider === 'google' ? 'google' : existingIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
-    setSelectedProvider(provider)
     const masked = existingIntegration.apiKeyMasked || ''
     const legacyRaw = existingIntegration.apiKey || ''
     if (masked) {
@@ -139,7 +145,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     } else {
       setApiKey('••••••••••••••••••••••••••••••••')
     }
-  }, [settings.aiIntegrationId, aiIntegrations, isEditingApiKey, loading, open])
+  }, [selectedProvider, aiIntegrations, isEditingApiKey, loading, open])
 
   // Agent Meter: compute bubble position from actual track width so bubble/arrow align with thumb (18px thumb)
   const THUMB_PX = 18
@@ -276,32 +282,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
       if (response.data?.status && Array.isArray(response.data?.data)) {
         setAiIntegrations(response.data.data)
-
-        // Check if there's an existing integration
-        if (response.data.data.length > 0) {
-          // Use the integration ID from settings if available, otherwise use the first one
-          const targetIntegrationId = settings.aiIntegrationId || response.data.data[0]?.id
-          const existingIntegration = response.data.data.find(
-            (int) => int.id === targetIntegrationId
-          )
-
-          if (existingIntegration) {
-            setExistingIntegrationId(existingIntegration.id)
-            const provider = existingIntegration.provider === 'google' ? 'google' : existingIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
-            setSelectedProvider(provider)
-            const masked = existingIntegration.apiKeyMasked || ''
-            const legacyRaw = existingIntegration.apiKey || ''
-            if (masked && !isEditingApiKey && apiKey === '') {
-              setStoredApiKeyMasked(masked)
-              setApiKey(masked)
-            } else if (legacyRaw && !isEditingApiKey && apiKey === '') {
-              if (!existingApiKey) setExistingApiKey(legacyRaw)
-              setApiKey(maskApiKey(legacyRaw))
-            } else if (!isEditingApiKey && apiKey === '' && !masked && !legacyRaw) {
-              setApiKey('••••••••••••••••••••••••••••••••')
-            }
-          }
-        }
+        // Sync effect will set existingIntegrationId and key from integration matching selectedProvider
       }
     } catch (error) {
       console.error('Error fetching AI integrations:', error)
@@ -349,9 +330,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         }
       }
 
-      let integrationId = settings.aiIntegrationId
+      const integrationForSelected = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
+      let integrationId = integrationForSelected?.id ?? settings.aiIntegrationId
 
-      // If API key is provided and it's not the masked version or placeholder, create or update the integration
+      // If API key is provided and it's not the masked version or placeholder, create or update the integration for this provider only
       const trimmedApiKey = apiKey.trim()
       const isMaskedKey = (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
         (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
@@ -360,12 +342,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
       if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
         try {
           if (existingIntegrationId) {
-            // Update existing integration
+            // Update existing integration for this provider (send only apiKey so provider is not overwritten)
             const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
             const updateResponse = await axios.put(
               updateUrl,
               {
-                provider: selectedProvider,
                 apiKey: trimmedApiKey,
               },
               {
@@ -413,6 +394,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               setStoredApiKeyMasked(newMasked)
               setApiKey(newMasked)
               setSettings(prev => ({ ...prev, aiIntegrationId: integrationId }))
+              await fetchAiIntegrations()
             } else {
               throw new Error(createResponse.data?.message || 'Failed to save API key')
             }
@@ -685,7 +667,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     <>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="w-[500px] max-w-[500px] p-0 gap-0.5 data-[state=open]:animate-modal-entry shadow-md"
+        className="w-[500px] max-w-[500px] p-0 gap-0 overflow-hidden rounded-xl border border-black/[0.06] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] data-[state=open]:animate-modal-entry"
         overlayClassName="bg-black/60 duration-[250ms]"
         hideCloseButton={isSubScreen}
         onPointerDownOutside={(e) => e.preventDefault()}
@@ -696,25 +678,25 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         {isSubScreen ? (
           isAgentMeterScreen ? (
             <div className="max-h-[80svh] overflow-hidden">
-              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-[#eaeaea]">
+              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-black/[0.06]">
                 <button
                   type="button"
                   onClick={() => setSubModalKey(null)}
-                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.02] transition-colors -ml-1"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.04] transition-colors -ml-1"
                   aria-label="Back"
                 >
-                  <ArrowLeft className="w-5 h-5 text-gray-700" />
+                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                 </button>
-                <DialogTitle className="text-xl font-bold flex-1">Agent Meter</DialogTitle>
+                <DialogTitle className="text-[14px] font-semibold flex-1">Agent Meter</DialogTitle>
               </DialogHeader>
-              <div className="flex flex-col gap-2 py-4 px-4 overflow-y-auto max-h-[60svh]">
+              <div className="flex flex-col gap-2 py-4 px-4 overflow-y-auto max-h-[60svh] text-[14px]">
                 {(() => {
                   const bubbleStyle = (leftPct) => ({ left: `${leftPct}%`, transform: 'translateX(-50%)', top: -44 })
                   return (
                     <>
                       <div className="flex flex-col gap-2 py-2">
-                        <TypographyH4Semibold className="!font-medium">Sales Drive</TypographyH4Semibold>
-                        <p className="text-sm text-gray-600 mb-0">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
+                        <TypographyH4Semibold className="!font-medium text-[14px]">Sales Drive</TypographyH4Semibold>
+                        <p className="text-[14px] text-muted-foreground mb-0">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
                             <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
@@ -745,8 +727,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
                       </div>
                       <div className="flex flex-col gap-2 py-2">
-                        <TypographyH4Semibold className="mt-1 !font-medium">Persuasiveness</TypographyH4Semibold>
-                        <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
+                        <TypographyH4Semibold className="mt-1 !font-medium text-[14px]">Persuasiveness</TypographyH4Semibold>
+                        <p className="text-[14px] text-muted-foreground mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
                             <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
@@ -777,8 +759,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
                       </div>
                       <div className="flex flex-col gap-2 py-2">
-                        <TypographyH4Semibold className="mt-1 !font-medium">Client Handling</TypographyH4Semibold>
-                        <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
+                        <TypographyH4Semibold className="mt-1 !font-medium text-[14px]">Client Handling</TypographyH4Semibold>
+                        <p className="text-[14px] text-muted-foreground mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
                         <div className="pt-14">
                           <div className="flex flex-row items-center gap-2">
                             <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
@@ -811,29 +793,29 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   )
                 })()}
               </div>
-              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t p-4">
-                <Button variant="outline" onClick={() => setSubModalKey(null)} disabled={savingSubModal}>Cancel</Button>
-                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} style={{ backgroundColor: 'hsl(var(--brand-primary))' }} className="h-8 rounded-lg text-sm text-white hover:opacity-90 transition-transform duration-150 ease-out active:scale-[0.98]">
+              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t border-black/[0.06] p-4">
+                <Button variant="ghost" onClick={() => setSubModalKey(null)} disabled={savingSubModal} className="h-8 rounded-lg px-3 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04]">Cancel</Button>
+                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} className="h-8 rounded-lg px-4 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white transition-all duration-150 ease-out active:scale-[0.98]">
                   {savingSubModal ? 'Saving...' : 'Save'}
                 </Button>
               </DialogFooter>
             </div>
           ) : (
             <div className="max-h-[80svh] overflow-hidden">
-              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-[#eaeaea]">
+              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-black/[0.06]">
                 <button
                   type="button"
                   onClick={() => setSubModalKey(null)}
-                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.02] transition-colors -ml-1"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.04] transition-colors -ml-1"
                   aria-label="Back"
                 >
-                  <ArrowLeft className="w-5 h-5 text-gray-700" />
+                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                 </button>
-                <DialogTitle className="text-[18px] font-bold tracking-[-0.25px] flex-1">{activeSubModalConfig.label}</DialogTitle>
+                <DialogTitle className="text-[14px] font-semibold flex-1">{activeSubModalConfig.label}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-2 p-4 overflow-y-auto max-h-[60svh] w-full">
+              <div className="space-y-2 p-4 overflow-y-auto max-h-[60svh] w-full text-[14px]">
                 {activeSubModalConfig.question && (
-                  <p className="text-[14px] text-gray-600 mt-1">{activeSubModalConfig.question}</p>
+                  <p className="text-[14px] text-muted-foreground mt-1">{activeSubModalConfig.question}</p>
                 )}
                 {/*subModalSelectedValue != null && (
                   <button
@@ -849,16 +831,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   return (
                     <label
                       key={opt.value}
-                      className={`flex items-start gap-3 p-3 rounded-lg border-[1px] cursor-pointer transition-transform duration-150 ease-out active:scale-[0.98] ${isOptSelected ? '' : 'border-gray-[#1515151A10] hover:bg-gray-50 hover:border-[#1515151A10]'
-                        }`}
-                      style={
-                        isOptSelected
-                          ? {
-                            borderColor: 'hsl(var(--brand-primary))',
-                            backgroundColor: 'hsl(var(--brand-primary) / 0.08)',
-                          }
-                          : undefined
-                      }
+                      className={cn(
+                        'group flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-150 ease-out active:scale-[0.98]',
+                        isOptSelected ? 'border-brand-primary bg-brand-primary/10' : 'border-black/[0.06] hover:bg-black/[0.04]',
+                      )}
                     >
                       <span className="relative mt-1 shrink-0 flex items-center justify-center w-4 h-4">
                         <input
@@ -880,16 +856,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-[1]"
                         />
                         <span
-                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center pointer-events-none ${!isOptSelected ? 'border-gray-300 bg-white' : ''
-                            }`}
-                          style={
-                            isOptSelected
-                              ? {
-                                borderColor: 'hsl(var(--brand-primary))',
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                              }
-                              : undefined
-                          }
+                          className={cn(
+                            'w-4 h-4 rounded-full border-2 flex items-center justify-center pointer-events-none transition-all duration-150 ease-out',
+                            isOptSelected ? 'border-brand-primary bg-brand-primary' : 'border-black/[0.15] bg-white group-hover:border-black/[0.25]',
+                          )}
                         >
                           {isOptSelected && (
                             <span
@@ -900,34 +870,26 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         </span>
                       </span>
                       <div className="min-w-0 flex flex-col gap-2">
-                        <span
-                          className="text-sm font-medium"
-                          style={isOptSelected ? { color: 'hsl(var(--brand-primary))' } : undefined}
-                        >
+                        <span className={cn('text-[14px] font-medium', isOptSelected && 'text-brand-primary')}>
                           {opt.label}
                         </span>
                         {opt.bestFor && (
-                          <p className="text-[14px] text-black/80 mt-0.5">Best for: {opt.bestFor}</p>
+                          <p className="text-[14px] text-muted-foreground mt-0.5">Best for: {opt.bestFor}</p>
                         )}
                         {opt.example && (
-                          <p className="text-[14px] text-gray-600">Ex: {opt.example}</p>
+                          <p className="text-[14px] text-muted-foreground">Ex: {opt.example}</p>
                         )}
                       </div>
                     </label>
                   )
                 })}
               </div>
-              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t p-4">
+              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t border-black/[0.06] p-4">
                 <Button
-                  variant="outline-none"
+                  variant="ghost"
                   onClick={() => setSubModalKey(null)}
                   disabled={savingSubModal}
-                  className="bg-transparent hover:bg-gray-transparent text-black"
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: '400',
-                    color: "#000000",
-                  }}
+                  className="h-9 rounded-lg px-3 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04]"
                 >
                   Cancel
                 </Button>
@@ -938,16 +900,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       subModalSelectedValue
                     )
                   }
-                  disabled={savingSubModal}
-                  className="hover:opacity-90 text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-auto"
-                  style={{
-                    backgroundColor: 'hsl(var(--brand-primary))',
-                    fontSize: '14px',
-                    fontWeight: '400',
-                    color: "#FFFFFF",
-                    height: '36px',
-                    width: '65px',
-                  }}
+                  disabled={savingSubModal || !subModalSelectedValue}
+                  className="h-9 rounded-lg px-4 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 ease-out active:scale-[0.98]"
                 >
                   {savingSubModal ? 'Saving...' : 'Save'}
                 </Button>
@@ -955,17 +909,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             </div>
           )
         ) : (
-          <div className="max-h-[75svh] overflow-hidden p-0 gap-0 flex flex-col">
-            <div className="flex flex-col gap-[2px] flex-1 min-h-0">
-              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-[#eaeaea] shrink-0">
-                <DialogTitle className="text-[18px] font-semibold">AI Message Settings</DialogTitle>
+          <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
+            <div className="flex flex-col gap-[2px]">
+              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-black/[0.06]">
+                <DialogTitle className="text-[14px] font-semibold">AI Message Settings</DialogTitle>
                 <DialogClose asChild>
                   <button
                     type="button"
                     aria-label="Close"
-                    className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
+                    className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/[0.04] transition-colors duration-150 ease-out"
                   >
-                    
+                    <X className="h-[14px] w-[14px] text-muted-foreground" strokeWidth={2} />
                   </button>
                 </DialogClose>
               </div>
@@ -975,125 +929,108 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto w-full px-4 text-[14px] font-['Inter']">
+                <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px]">
                   {/* API Key Section */}
-                  <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-[#eaeaea]">
-                    <label className="text-base font-normal text-gray-900">AI Provider</label>
-                    <div className="flex gap-4">
-                      <label className="flex items-center gap-2 cursor-pointer py-2">
-                        <input
-                          type="radio"
-                          name="aiProvider"
-                          value="openai"
-                          checked={selectedProvider === 'openai'}
-                          onChange={() => setSelectedProvider('openai')}
-                          className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
-                        />
+                  <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-black/[0.06]">
+                    <label className="text-[14px] font-medium text-foreground">AI Provider</label>
+                    <RadioGroup
+                      value={selectedProvider}
+                      onValueChange={(v) => setSelectedProvider(v)}
+                      className="flex flex-wrap gap-4"
+                    >
+                      <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                        <RadioGroupItem value="openai" id="ai-provider-openai" />
                         <OpenAiLogoIcon size={19} className="text-brand-primary" />
-                        <span className="text-sm text-gray-700 -ms-1">OpenAI</span>
+                        <span className="text-[14px] text-foreground">OpenAI</span>
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer py-2">
-                        <input
-                          type="radio"
-                          name="aiProvider"
-                          value="google"
-                          checked={selectedProvider === 'google'}
-                          onChange={() => setSelectedProvider('google')}
-                          className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
-                        />
+                      <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                        <RadioGroupItem value="google" id="ai-provider-google" />
                         <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
-                        <span className="text-sm text-gray-700 -ms-1">Gemini</span>
+                        <span className="text-[14px] text-foreground">Gemini</span>
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                        <RadioGroupItem value="anthropic" id="ai-provider-anthropic" />
                         <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
-                        <input
-                          type="radio"
-                          name="aiProvider"
-                          value="anthropic"
-                          checked={selectedProvider === 'anthropic'}
-                          onChange={() => setSelectedProvider('anthropic')}
-                          className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
-                        />
-                        <span className="text-sm text-gray-700 -ms-1">Claude</span>
+                        <span className="text-[14px] text-foreground">Anthropic</span>
                       </label>
+                    </RadioGroup>
+
+                      <p className="text-sm text-gray-600">
+                        {selectedProvider === 'google'
+                          ? 'Add Gemini API key to enable AI text + email + chat.'
+                          : selectedProvider === 'anthropic'
+                            ? 'Add Anthropic API key to enable AI text + email + chat.'
+                            : 'Add ChatGPT API key to enable AI text + email + chat.'}
+                      </p>
+                      <Input
+                        type={isEditingApiKey ? "password" : "text"}
+                        placeholder={
+                          existingIntegrationId
+                            ? 'Enter new API key to update'
+                            : selectedProvider === 'google'
+                              ? 'Enter your Gemini API key'
+                              : selectedProvider === 'anthropic'
+                                ? 'Enter your Anthropic API key'
+                                : 'Enter your OpenAI API key'
+                        }
+                        value={apiKey}
+                        onChange={(e) => {
+                          const newValue = e.target.value
+                          const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
+                          const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
+                          const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
+                          if (!isEditingApiKey && (isPlaceholder || isMaskedDisplay || (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))) {
+                            setIsEditingApiKey(true)
+                            setApiKey(newValue)
+                          } else {
+                            setApiKey(newValue)
+                          }
+                          setApiKeyError('')
+                        }}
+                        onBlur={() => {
+                          if (!apiKey.trim()) {
+                            setIsEditingApiKey(false)
+                            if (storedApiKeyMasked) {
+                              setApiKey(storedApiKeyMasked)
+                            } else if (existingApiKey) {
+                              setApiKey(maskApiKey(existingApiKey))
+                            } else if (existingIntegrationId) {
+                              setApiKey('••••••••••••••••••••••••••••••••')
+                            }
+                          }
+                        }}
+                        className={cn('h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary')}
+                      />
+                      {apiKeyError && (
+                        <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                      )}
                     </div>
 
-                    <p className="text-sm text-gray-600">
-                      {selectedProvider === 'google'
-                        ? 'Add Gemini API key to enable AI text + email + chat.'
-                        : selectedProvider === 'anthropic'
-                          ? 'Add Anthropic API key to enable AI text + email + chat.'
-                          : 'Add ChatGPT API key to enable AI text + email + chat.'}
-                    </p>
-                    <Input
-                      type={isEditingApiKey ? "password" : "text"}
-                      placeholder={
-                        existingIntegrationId
-                          ? 'Enter new API key to update'
-                          : selectedProvider === 'google'
-                            ? 'Enter your Gemini API key'
-                            : selectedProvider === 'anthropic'
-                              ? 'Enter your Anthropic API key'
-                              : 'Enter your OpenAI API key'
-                      }
-                      value={apiKey}
-                      onChange={(e) => {
-                        const newValue = e.target.value
-                        const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
-                        const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
-                        const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
-                        if (!isEditingApiKey && (isPlaceholder || isMaskedDisplay || (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))) {
-                          setIsEditingApiKey(true)
-                          setApiKey(newValue)
-                        } else {
-                          setApiKey(newValue)
-                        }
-                        setApiKeyError('')
-                      }}
-                      onBlur={() => {
-                        if (!apiKey.trim()) {
-                          setIsEditingApiKey(false)
-                          if (storedApiKeyMasked) {
-                            setApiKey(storedApiKeyMasked)
-                          } else if (existingApiKey) {
-                            setApiKey(maskApiKey(existingApiKey))
-                          } else if (existingIntegrationId) {
-                            setApiKey('••••••••••••••••••••••••••••••••')
-                          }
-                        }
-                      }}
-                      className={cn('h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary')}
-                    />
-                    {apiKeyError && (
-                      <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
-                    )}
-                  </div>
-
                   {/* Set Reply Delay + Save as Draft Section */}
-                  <div className="flex flex-col gap-0.5 pb-4 border-b border-[#eaeaea]">
+                  <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
                     <div className="flex items-center justify-between h-10 min-h-0">
                       <div className="flex items-center gap-2">
-                        <label className="text-sm font-normal text-gray-900">Set reply delay</label>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                <Info size={16} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              align="start"
-                              sideOffset={8}
-                              className="max-w-xs bg-black text-white z-[1500]"
-                              collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
-                            >
-                              <p className="text-xs">
-                                This allows your AI to reply back to emails and text after a certain time. By default, this is set to 30 seconds.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <label className="text-[14px] font-medium text-foreground">Set reply delay</label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                  <Info size={16} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="top"
+                                align="start"
+                                sideOffset={8}
+                                className="max-w-xs bg-black text-white z-[1500]"
+                                collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                              >
+                                <p className="text-xs">
+                                  This allows your AI to reply back to emails and text after a certain time. By default, this is set to 30 seconds.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                       </div>
                       <Switch
                         checked={settings.replyDelayEnabled}
@@ -1102,26 +1039,26 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       />
                     </div>
                     {settings.replyDelayEnabled && (
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="Set delay time (in seconds)"
-                          value={settings.replyDelaySeconds || ''}
-                          onChange={(e) => handleDelaySecondsChange(e.target.value)}
-                          min={0}
-                          className={cn('h-10 pr-10')}
-                        />
-                        <span
-                          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
-                          aria-hidden
-                        >
-                          sec
-                        </span>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            placeholder="Set delay time (in seconds)"
+                            value={settings.replyDelaySeconds || ''}
+                            onChange={(e) => handleDelaySecondsChange(e.target.value)}
+                            min={0}
+                            className="w-full pr-10"
+                          />
+                          <span
+                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+                            aria-hidden
+                          >
+                            sec
+                          </span>
                       </div>
                     )}
                     <div className="flex items-center justify-between h-10 min-h-0">
                       <div className="flex items-center gap-2">
-                        <label className="text-sm font-normal text-gray-900">Save as draft</label>
+                        <label className="text-[14px] font-medium text-foreground">Save as draft</label>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1153,7 +1090,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
                   {/* Communication Settings */}
                   <div className="flex flex-col gap-3 w-full py-3">
-                    <h3 className="text-base font-normal text-black">Communication Settings</h3>
+                    <h3 className="text-[14px] font-semibold text-foreground">Communication Settings</h3>
                     <div className="flex flex-col gap-3 rounded-lg overflow-hidden">
                       {communicationRowsConfig.map((row) => {
                         const value = settings[row.settingsKey]
@@ -1170,17 +1107,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                               setSubModalKey(row.key)
                               setSubModalSelectedValue(settings[row.settingsKey] ?? null)
                             }}
-                            className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-colors bg-white hover:bg-black/[0.02] rounded-lg border border-[#eaeaea] focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400 active:scale-[0.98]"
+                            className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
                           >
                             <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
-                              <div className="text-sm text-black">{row.label}</div>
+                              <div className="text-[14px] font-medium text-foreground">{row.label}</div>
                               {selectedLabel && (
-                                <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-full text-sm font-normal border border-gray-200 text-gray-500 truncate">
+                                <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-md text-[14px] font-normal bg-black/[0.04] text-muted-foreground truncate">
                                   {selectedLabel}
                                 </span>
                               )}
                             </div>
-                            <ChevronRight className="shrink-0 w-5 h-5 text-gray-400" />
+                            <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
                           </button>
                         )
                       })}
@@ -1201,25 +1138,25 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           }
                           setSubModalKey('agentMeter')
                         }}
-                        className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-colors bg-white hover:bg-black/[0.02] rounded-lg border border-[#eaeaea] focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400 active:scale-[0.98]"
+                        className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
                       >
                         <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
-                          <div className="text-sm text-black">Agent meter</div>
+                          <div className="text-[14px] font-medium text-foreground">Agent meter</div>
                           {settings.agentSettings?.agentMeterSettings && (
                             <div className="flex flex-wrap gap-1.5 mt-1">
-                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
                                 Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
                               </span>
-                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
                                 Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
                               </span>
-                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-full text-sm font-medium border border-gray-200 text-gray-500 truncate">
-                                Client Handling: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
+                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
+                                Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
                               </span>
                             </div>
                           )}
                         </div>
-                        <ChevronRight className="shrink-0 w-5 h-5 text-gray-400" />
+                        <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
                       </button>
                     </div>
                   </div>
@@ -1227,23 +1164,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               )}
             </div>
 
-            <DialogFooter className="shrink-0 gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between border-t border-[#eaeaea]">
+            <DialogFooter className="gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between border-t border-black/[0.06]">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={onClose}
                 disabled={saving}
-                className="h-10 rounded-lg px-4 py-2 bg-[#EAEAEA] border-0 shadow-sm hover:bg-[#e0e0e0] active:scale-[0.98] transition-transform"
+                className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] active:scale-[0.98] transition-all duration-150 ease-out"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={saving || loading}
-                className="h-10 rounded-lg px-4 py-2 hover:opacity-90 text-white active:scale-[0.98] transition-transform"
-                style={{
-                  backgroundColor: 'hsl(var(--brand-primary))',
-                  boxShadow: '0 2px 8px hsl(var(--brand-primary) / 0.22)',
-                }}
+                className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white active:scale-[0.98] transition-all duration-150 ease-out"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>

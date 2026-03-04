@@ -8,8 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
@@ -78,7 +76,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
   return (
     <div className="relative">
       <DropdownMenu open={open} onOpenChange={handleOpenChange}>
-        <div className={cn("flex items-center rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
+        <div className={cn("flex items-center h-[40px] rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
           {onChevronClick ? (
             <>
               <DropdownMenuTrigger asChild>
@@ -130,7 +128,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           ) : (
             <DropdownMenuTrigger asChild>
               <button
-                className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName, triggerClassName)}
+                className={cn("flex items-center focus:outline-none rounded-md h-[40px]", backgroundClassName, triggerClassName)}
                 style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
                   // Prevent event from bubbling up to modal close handler
@@ -160,7 +158,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         <DropdownMenuContent
           align={align}
           className={cn(
-            'z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl py-3 px-0 data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit',
+            'z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-[#eaeaea] bg-white text-foreground shadow-[0_4px_30px_rgba(0,0,0,0.15)] rounded-xl pt-0 pb-3 px-0 data-[state=open]:animate-dropdown-cn-enter data-[state=closed]:animate-dropdown-cn-exit',
             contentClassName
           )}
           onCloseAutoFocus={(e) => {
@@ -178,15 +176,12 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           }}
         >
           {title && (
-            <>
-              <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
-                {title}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-            </>
+            <div className="hidden">
+              {title}
+            </div>
           )}
           {options.length ? (
-            <div ref={listWrapRef} className="relative flex flex-col gap-[2px]" onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
+            <div ref={listWrapRef} className={cn("relative flex flex-col gap-[2px]", title && "px-2 py-2")} onMouseMove={handleListMouseMove} onMouseLeave={handleListMouseLeave}>
               {pillVisible && (
                 <div
                   className="absolute left-1 right-1 rounded-lg bg-black/[0.02] transition-[top,height] duration-150 ease-out pointer-events-none"

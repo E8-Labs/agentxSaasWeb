@@ -542,6 +542,24 @@ const Pipeline1 = ({
     }))
   }
 
+  const reorderRows = (stageIndex, fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return
+    updateCurrentPipelineCadence((prev) => {
+      const list = prev.rowsByIndex[stageIndex] ?? []
+      if (fromIndex < 0 || fromIndex >= list.length || toIndex < 0 || toIndex >= list.length) return prev
+      const next = Array.from(list)
+      const [removed] = next.splice(fromIndex, 1)
+      next.splice(toIndex, 0, removed)
+      return {
+        ...prev,
+        rowsByIndex: {
+          ...prev.rowsByIndex,
+          [stageIndex]: next,
+        },
+      }
+    })
+  }
+
   const printAssignedLeadsData = async () => {
     // return
     onContinueClick?.()
@@ -965,6 +983,7 @@ const Pipeline1 = ({
                 removeRow={removeRow}
                 addRow={addRow}
                 updateRow={updateRow}
+                reorderRows={reorderRows}
                 nextStage={nextStage}
                 handleSelectNextChange={handleSelectNextChange}
                 selectedPipelineStages={selectedPipelineStages}

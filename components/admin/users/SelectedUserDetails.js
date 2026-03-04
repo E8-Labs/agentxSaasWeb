@@ -36,7 +36,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  LayoutDashboard,
+  BrainCog,
+  BookUser,
+  MessageCircleMore,
+  HardDriveDownload,
+  Unplug,
+  Users,
+} from 'lucide-react'
 import moment from 'moment/moment'
+
+const LUCIDE_NAV_ICONS = {
+  'layout-dashboard': LayoutDashboard,
+  'brain-cog': BrainCog,
+  'book-user': BookUser,
+  'message-circle-more': MessageCircleMore,
+  'hard-drive-download': HardDriveDownload,
+  unplug: Unplug,
+  users: Users,
+}
 
 function SelectedUserDetails({
   isAgencyView = false,
@@ -97,7 +116,7 @@ function SelectedUserDetails({
   // Get permission context
   const permissionContext = usePermission()
 
-  // All menu items definition
+  // All menu items definition (lucideIconName aligned with ProfileNav)
   let allMenuItems = [
     {
       id: 1,
@@ -106,6 +125,7 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
       permissionKey: 'subaccount.dashboard.view',
       paramValue: 'dashboard',
+      lucideIconName: 'layout-dashboard',
     },
     {
       id: 2,
@@ -114,6 +134,7 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/agentXIcon.svg',
       permissionKey: 'subaccount.agents.view',
       paramValue: 'agents',
+      lucideIconName: '', //brain-cog
     },
     {
       id: 3,
@@ -122,6 +143,7 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg',
       permissionKey: 'subaccount.leads.manage',
       paramValue: 'leads',
+      lucideIconName: '', //book-user
     },
     {
       id: 5,
@@ -138,6 +160,7 @@ function SelectedUserDetails({
       unSelectedImage: '/messaging/icons_chat_menu.svg',
       permissionKey: 'subaccount.messages.manage',
       paramValue: 'messages',
+      lucideIconName: 'message-circle-more',
     },
     {
       id: 4,
@@ -146,6 +169,7 @@ function SelectedUserDetails({
       unSelectedImage: '/otherAssets/activityLog.png',
       permissionKey: 'subaccount.activity.view',
       paramValue: 'activity',
+      lucideIconName: 'hard-drive-download',
     },
     {
       id: 6,
@@ -154,6 +178,7 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedIntegrationIcon.svg',
       permissionKey: 'subaccount.integrations.manage',
       paramValue: 'integration',
+      lucideIconName: 'unplug',
     },
     {
       id: 7,
@@ -162,6 +187,7 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
       permissionKey: 'subaccount.teams.manage',
       paramValue: 'team',
+      lucideIconName: 'users',
     },
   ]
 
@@ -993,32 +1019,47 @@ function SelectedUserDetails({
                         onClick={() => handleManuClick(item)}
                         className={`w-full min-w-0 flex flex-row gap-[12px] items-center h-10 px-3 rounded-lg transition-transform duration-150 ease-out active:scale-[0.98] m-0.5 ${isSelected ? 'bg-brand-primary/5' : 'bg-transparent'}`}
                       >
-                        {isSelected ? (
-                          <div
-                            className="text-brand-primary"
-                            style={{
-                              width: 18,
-                              height: 18,
-                              backgroundColor: 'hsl(var(--brand-primary))',
-                              maskImage: `url(${item.selectedImage})`,
-                              maskSize: 'contain',
-                              maskRepeat: 'no-repeat',
-                              maskPosition: 'center',
-                              WebkitMaskImage: `url(${item.selectedImage})`,
-                              WebkitMaskSize: 'contain',
-                              WebkitMaskRepeat: 'no-repeat',
-                              WebkitMaskPosition: 'center',
-                            }}
-                          />
-                        ) : (
-                          <Image
-                            src={item.unSelectedImage}
-                            height={18}
-                            width={18}
-                            alt=""
-                            className="opacity-80"
-                          />
-                        )}
+                        {(() => {
+                          const LucideIcon = item.lucideIconName && LUCIDE_NAV_ICONS[item.lucideIconName]
+                          if (LucideIcon) {
+                            return (
+                              <span
+                                className={isSelected ? 'text-brand-primary' : 'text-black/80'}
+                              >
+                                <LucideIcon size={18} strokeWidth={2} />
+                              </span>
+                            )
+                          }
+                          if (isSelected) {
+                            return (
+                              <div
+                                className="text-brand-primary"
+                                style={{
+                                  width: 18,
+                                  height: 18,
+                                  backgroundColor: 'hsl(var(--brand-primary))',
+                                  maskImage: `url(${item.selectedImage})`,
+                                  maskSize: 'contain',
+                                  maskRepeat: 'no-repeat',
+                                  maskPosition: 'center',
+                                  WebkitMaskImage: `url(${item.selectedImage})`,
+                                  WebkitMaskSize: 'contain',
+                                  WebkitMaskRepeat: 'no-repeat',
+                                  WebkitMaskPosition: 'center',
+                                }}
+                              />
+                            )
+                          }
+                          return (
+                            <Image
+                              src={item.unSelectedImage}
+                              height={18}
+                              width={18}
+                              alt=""
+                              className="opacity-80"
+                            />
+                          )
+                        })()}
                         <span className={`flex-1 min-w-0 text-left truncate ${isSelected ? 'text-brand-primary' : 'text-black/80'}`}>
                           {item.name}
                         </span>

@@ -24,6 +24,7 @@ import { FormControl, ListSubheader, MenuItem, Select } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '@/components/ui/SplitButtonCN'
+import { cn } from '@/lib/utils'
 import { TypographyCaption } from '@/lib/typography'
 import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
@@ -220,6 +221,8 @@ const NewMessageModal = ({
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
+  // When editing, only apply editingRow's account/phone once so user can change email/phone
+  const appliedEditingRowAccountRef = useRef(false)
   const leadSearchRef = useRef(null)
   const templatesDropdownRef = useRef(null)
   const attachmentDropdownRef = useRef(null)
@@ -450,26 +453,34 @@ const NewMessageModal = ({
     }
   }, [isPipelineMode, isEditing, editingRow, open, selectedMode, selectedUser])
 
-  // Set account/phone when they're loaded and we're editing
+  // Reset "applied editing row account" when modal closes so next open we apply again
   useEffect(() => {
-    if (isPipelineMode && isEditing && editingRow && open) {
-      if (selectedMode === 'email' && editingRow.emailAccountId && emailAccounts.length > 0) {
-        const accountId = editingRow.emailAccountId.toString()
-        const account = emailAccounts.find((a) => a.id === parseInt(accountId))
-        if (account && selectedEmailAccount !== accountId) {
-          setSelectedEmailAccount(accountId)
-          setSelectedEmailAccountObj(account)
-        }
-      } else if (selectedMode === 'sms' && editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
-        const phoneId = editingRow.smsPhoneNumberId.toString()
-        const phone = phoneNumbers.find((p) => p.id === parseInt(phoneId))
-        if (phone && selectedPhoneNumber !== phoneId) {
-          setSelectedPhoneNumber(phoneId)
-          setSelectedPhoneNumberObj(phone)
-        }
+    if (!open) {
+      appliedEditingRowAccountRef.current = false
+    }
+  }, [open])
+
+  // Set account/phone once when modal opens for editing (so user can then change email/phone)
+  useEffect(() => {
+    if (!isPipelineMode || !isEditing || !editingRow || !open || appliedEditingRowAccountRef.current) return
+    if (selectedMode === 'email' && editingRow.emailAccountId && emailAccounts.length > 0) {
+      const accountId = editingRow.emailAccountId.toString()
+      const account = emailAccounts.find((a) => a.id === parseInt(accountId))
+      if (account) {
+        setSelectedEmailAccount(accountId)
+        setSelectedEmailAccountObj(account)
+        appliedEditingRowAccountRef.current = true
+      }
+    } else if (selectedMode === 'sms' && editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
+      const phoneId = editingRow.smsPhoneNumberId.toString()
+      const phone = phoneNumbers.find((p) => p.id === parseInt(phoneId))
+      if (phone) {
+        setSelectedPhoneNumber(phoneId)
+        setSelectedPhoneNumberObj(phone)
+        appliedEditingRowAccountRef.current = true
       }
     }
-  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, emailAccounts, phoneNumbers, selectedEmailAccount, selectedPhoneNumber])
+  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, emailAccounts, phoneNumbers])
 
   // Search leads using the messaging search endpoint
   const searchLeads = async (searchTerm = '') => {
@@ -588,10 +599,18 @@ const NewMessageModal = ({
       })
 
       if (response.data?.status && response.data?.data) {
-        setEmailAccounts(response.data.data)
-        if (response.data.data.length > 0) {
-          setSelectedEmailAccount(response.data.data[0].id)
-          setSelectedEmailAccountObj(response.data.data[0])
+        const accounts = response.data.data
+        setEmailAccounts(accounts)
+        if (accounts.length > 0) {
+          const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedEmailAccountId) : null
+          const lastUsedAccount = lastUsedId ? accounts.find((a) => a.id.toString() === lastUsedId || a.id === parseInt(lastUsedId, 10)) : null
+          if (lastUsedAccount) {
+            setSelectedEmailAccount(lastUsedAccount.id.toString())
+            setSelectedEmailAccountObj(lastUsedAccount)
+          } else {
+            setSelectedEmailAccount(accounts[0].id.toString())
+            setSelectedEmailAccountObj(accounts[0])
+          }
         }
       }
     } catch (error) {
@@ -1686,6 +1705,11 @@ const NewMessageModal = ({
         })
       }
 
+      // Remember last used email account for next time user opens new email message
+      if (successCount > 0 && selectedMode === 'email' && selectedEmailAccount && typeof window !== 'undefined') {
+        localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, selectedEmailAccount)
+      }
+
       // Always create template - type depends on "Save as template" checkbox
       if (successCount > 0) {
         console.log('✅ [Normal Send Mode] Reached template creation section')
@@ -1806,6 +1830,7 @@ const NewMessageModal = ({
       <Modal
         open={open}
         onClose={onClose}
+        closeAfterTransition
         aria-labelledby="new-message-modal"
         aria-describedby="new-message-description"
         slotProps={{
@@ -1817,39 +1842,38 @@ const NewMessageModal = ({
           zIndex: modalZIndex,
         }}
         BackdropProps={{
+          timeout: 250,
           sx: {
-            zIndex: modalZIndex,
+            zIndex: 1500,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+          },
+        }}
+        slotProps={{
+          root: {
+            style: { transitionDuration: '250ms' },
           },
         }}
       >
         <Box
+          className="w-[90%] sm:w-[80%] md:w-[600px] lg:w-[700px] max-h-[90vh] flex flex-col overflow-hidden rounded-xl border border-black/[0.06] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] animate-modal-entry"
           sx={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
-            bgcolor: 'background.paper',
-            borderRadius: '16px',
-            boxShadow: 24,
-            zIndex: modalZIndex + 1,
-            p: 0,
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
+            zIndex: 1501,
           }}
         >
           {/* Header */}
-          <div className="w-full p-4 border-b flex flex-row items-center justify-between h-[65px]" style={{ borderBottom: '1px solid #eaeaea' }}>
-            <h2 className="text-xl font-semibold">{isPipelineMode && isEditing ? 'Update Message ' : 'New Message'}</h2>
+          <div className="w-full px-4 py-3 flex flex-row items-center justify-between h-[56px] border-b border-black/[0.06]">
+            <h2 className="text-[14px] font-semibold text-foreground">{isPipelineMode && isEditing ? 'Update Message' : 'New Message'}</h2>
             <CloseBtn onClick={onClose} />
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto overflow-x-visible w-full px-3 py-3 flex flex-col gap-1" style={{ position: 'relative' }}>
+          <div className="flex-1 overflow-y-auto overflow-x-visible w-full px-4 py-4 flex flex-col gap-3" style={{ position: 'relative' }}>
             {/* Mode Tabs */}
-            <div className="flex items-center justify-between border-b m-0 gap-1 py-1">
+            <div className="flex items-center justify-between border-b border-black/[0.06] m-0 gap-1 pb-3">
               <ToggleGroupCN
                 options={[
                   { label: 'Text', value: 'sms', icon: MessageSquareDot },
@@ -1914,17 +1938,17 @@ const NewMessageModal = ({
                                 ref={phoneAnchorRef}
                                 type="button"
                                 onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
-                                className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white text-left flex items-center justify-between"
+                                className="w-full px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary bg-white text-left flex items-center justify-between transition-all duration-150"
                               >
                                 <div className="flex items-center gap-2 flex-1">
-                                  <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
-                                  <span className="text-sm text-gray-700 truncate">
+                                  <span className="text-[14px] text-muted-foreground flex-shrink-0">From:</span>
+                                  <span className="text-[14px] text-foreground truncate">
                                     {selectedPhoneNumber
                                       ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select number'
                                       : 'Select number'}
                                   </span>
                                 </div>
-                                <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                <CaretDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                               </button>
                               <Popover
                                 open={phoneDropdownOpen}
@@ -1945,11 +1969,13 @@ const NewMessageModal = ({
                                     width: phoneAnchorRef.current?.offsetWidth ?? 280,
                                     maxHeight: 320,
                                     marginTop: 4,
-                                    borderRadius: 8,
+                                    borderRadius: 12,
                                     overflow: 'hidden',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    zIndex: modalZIndex + 100,
+                                    zIndex: 9999,
+                                    border: '1px solid rgba(0,0,0,0.06)',
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                                   },
                                 }}
                               >
@@ -1960,7 +1986,7 @@ const NewMessageModal = ({
                                         router.push('/dashboard/myAccount?tab=5')
                                         setPhoneDropdownOpen(false)
                                       }}
-                                      className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                                      className="w-full px-3 py-2 text-[14px] font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
                                     >
                                       Select Phone Number
                                     </button>
@@ -2002,19 +2028,22 @@ const NewMessageModal = ({
                                             setSelectedPhoneNumberObj(phoneObj)
                                             setPhoneDropdownOpen(false)
                                           }}
-                                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'}`}
+                                          className={cn(
+                                            'w-full px-3 py-2 text-left text-[14px] transition-colors',
+                                            selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-foreground hover:bg-black/[0.04]',
+                                          )}
                                         >
                                           {phone.phone}
                                         </button>
                                       ))}
                                     </div>
-                                    <div className="border-t border-gray-200 p-2 flex-shrink-0">
+                                    <div className="border-t border-black/[0.06] p-2 flex-shrink-0">
                                       <button
                                         onClick={() => {
                                           router.push('/dashboard/myAccount?tab=7')
                                           setPhoneDropdownOpen(false)
                                         }}
-                                        className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                        className="w-full px-3 py-2 text-[14px] font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
                                       >
                                         <Plus className="w-4 h-4" />
                                         Get A2P Verified Number
@@ -2031,8 +2060,7 @@ const NewMessageModal = ({
                                 <div className="flex flex-row gap-2 items-center justify-center">
                                   <button
                                     onClick={() => setShowAuthSelectionPopup(true)}
-                                    className="w-full whitespace-nowrap px-3 py-2 h-[42px] border rounded-[8px] text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-                                    style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
+                                    className="w-full whitespace-nowrap px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-all duration-150 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
 
                                   >
                                     Connect Email
@@ -2053,22 +2081,22 @@ const NewMessageModal = ({
                                     ref={emailAnchorRef}
                                     type="button"
                                     onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white text-left flex items-center justify-between"
+                                    className="w-full px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary bg-white text-left flex items-center justify-between transition-all duration-150"
                                   >
                                     <div className="flex items-center gap-2 flex-1">
-                                      <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
-                                      <span className="text-sm truncate">
+                                      <span className="text-[14px] text-muted-foreground flex-shrink-0">From:</span>
+                                      <span className="text-[14px] truncate">
                                         {selectedEmailAccount
                                           ? (() => {
                                             const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
-                                            if (!account) return <span className="text-gray-500">Select email account</span>
+                                            if (!account) return <span className="text-muted-foreground">Select email account</span>
                                             const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
-                                            return <span className="text-gray-700">{account.email || account.name || account.displayName}{providerLabel ? ` (${providerLabel})` : ''}</span>
+                                            return <span className="text-foreground">{account.email || account.name || account.displayName}{providerLabel ? ` (${providerLabel})` : ''}</span>
                                           })()
-                                          : <span className="text-gray-500">Select email account</span>}
+                                          : <span className="text-muted-foreground">Select email account</span>}
                                       </span>
                                     </div>
-                                    <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    <CaretDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                   </button>
                                   <Popover
                                     open={emailDropdownOpen}
@@ -2089,80 +2117,57 @@ const NewMessageModal = ({
                                         width: emailAnchorRef.current?.offsetWidth ?? 280,
                                         maxHeight: 320,
                                         marginTop: 4,
-                                        borderRadius: 8,
+                                        borderRadius: 12,
                                         overflow: 'hidden',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        zIndex: modalZIndex + 100,
+                                        zIndex: 9999,
+                                        border: '1px solid rgba(0,0,0,0.06)',
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                                       },
                                     }}
                                   >
                                     <div className="overflow-y-auto flex-1 min-h-0" style={{ maxHeight: 240 }}>
-                                      {emailAccounts.map((account) => {
-                                        const gmailError = getGmailWatchErrorInfo(account)
-                                        return (
-                                          <div key={account.id} className="group relative w-full">
-                                            <button
-                                              type="button"
-                                              onClick={() => {
-                                                const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                                setSelectedEmailAccount(account.id.toString())
-                                                setSelectedEmailAccountObj(accountObj)
-                                                setEmailDropdownOpen(false)
-                                              }}
-                                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'}`}
-                                            >
-                                              <div className="flex items-center justify-between">
-                                                <span>{account.email || account.name || account.displayName}</span>
-                                                <div className="flex items-center gap-2">
-                                                  {account.provider && (
-                                                    <span className="text-xs text-gray-500">
-                                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                                    </span>
-                                                  )}
-                                                  <button
-                                                    type="button"
-                                                    onClick={(e) => handleDeleteEmailAccount(account, e)}
-                                                    disabled={deletingEmailAccountId === account.id}
-                                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
-                                                    title="Delete email account"
-                                                  >
-                                                    {deletingEmailAccountId === account.id ? (
-                                                      <CircularProgress size={14} />
-                                                    ) : (
-                                                      <Trash2 size={14} />
-                                                    )}
-                                                  </button>
-                                                </div>
+                                      {emailAccounts.map((account) => (
+                                        <div key={account.id} className="group relative w-full">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                                const idStr = account.id.toString()
+                                              setSelectedEmailAccount(idStr)
+                                              setSelectedEmailAccountObj(accountObj)
+                                                if (typeof window !== 'undefined') {
+                                                  localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, idStr)
+                                                }
+                                              setEmailDropdownOpen(false)
+                                            }}
+                                            className={cn(
+                                            'w-full px-3 py-2 text-left text-[14px] transition-colors',
+                                            selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-foreground hover:bg-black/[0.04]',
+                                          )}
+                                          >
+                                            <div className="flex items-center justify-between">
+                                              <span>{account.email || account.name || account.displayName}</span>
+                                              <div className="flex items-center gap-2">
+                                                {account.provider && (
+                                                  <span className="text-xs text-muted-foreground">
+                                                    {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                                  </span>
+                                                )}
                                               </div>
-                                            </button>
-                                            {gmailError && (
-                                              <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
-                                                <span>{gmailError.shortLabel} —</span>
-                                                <button
-                                                  type="button"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setShowAuthSelectionPopup(true)
-                                                    setEmailDropdownOpen(false)
-                                                  }}
-                                                  className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
-                                                >
-                                                  Reconnect
-                                                </button>
-                                              </div>
-                                            )}
-                                          </div>
-                                        )
-                                      })}
+                                            </div>
+                                          </button>
+                                        </div>
+                                      ))}
                                     </div>
-                                    <div className="border-t border-gray-200 p-2 flex-shrink-0">
+                                    <div className="border-t border-black/[0.06] p-2 flex-shrink-0">
                                       <button
                                         onClick={() => {
                                           setShowAuthSelectionPopup(true)
                                           setEmailDropdownOpen(false)
                                         }}
-                                        className="w-full px-3 whitespace-nowrap py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                        className="w-full px-3 whitespace-nowrap py-2 text-[14px] font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
                                       >
                                         <Plus className="w-4 h-4" />
                                         Connect Email
@@ -2180,14 +2185,12 @@ const NewMessageModal = ({
                           <div className="relative flex-1 min-w-0" style={{ flexBasis: 0 }}>
                             {/* Tag Input Container */}
                             <div
-                              className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                              style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
-
+                              className="flex items-center gap-2 px-3 h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
                               onClick={() => {
                                 setShowLeadList(true)
                               }}
                             >
-                              <span className="text-sm text-gray-500 flex-shrink-0">To:</span>
+                              <span className="text-[14px] text-muted-foreground flex-shrink-0">To:</span>
                               {/* Display first selected lead and badge if multiple */}
                               {selectedLeads.length > 0 ? (
                                 <>
@@ -2204,10 +2207,10 @@ const NewMessageModal = ({
                                       setShowLeadList(true)
                                     }}
                                     placeholder=""
-                                    className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                    className="flex-1 min-w-[80px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                     style={{
                                       height: '100%',
-                                      lineHeight: '42px',
+                                      lineHeight: '40px',
                                       padding: 0,
                                       verticalAlign: 'middle',
                                       maxWidth: '100%'
@@ -2220,7 +2223,7 @@ const NewMessageModal = ({
                                     }}
                                   />
                                   <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                                    <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                    <span className="text-[14px] text-foreground truncate max-w-[150px]">
                                       {selectedMode === 'email'
                                         ? (selectedLeads[0].email || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
                                         : (selectedLeads[0].phone || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
@@ -2247,10 +2250,10 @@ const NewMessageModal = ({
                                     setShowLeadList(true)
                                   }}
                                   placeholder="Search leads"
-                                  className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                  className="flex-1 min-w-[120px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                   style={{
                                     height: '100%',
-                                    lineHeight: '42px',
+                                    lineHeight: '40px',
                                     padding: 0,
                                     verticalAlign: 'middle',
                                     maxWidth: '100%'
@@ -2262,22 +2265,22 @@ const NewMessageModal = ({
                                   }}
                                 />
                               )}
-                              <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                              <CaretDown className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-1" />
                             </div>
 
                             {/* Leads List Dropdown - Show when searching or when clicking on field */}
                             {showLeadList && (
-                              <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden" style={{ zIndex: 1900 }}>
+                              <div className="absolute w-full mt-1 bg-white border border-black/[0.06] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-h-48 overflow-y-auto overflow-x-hidden animate-dropdown-below-enter" style={{ zIndex: 1900 }}>
                                 {loading ? (
                                   <div className="p-4 text-center">
                                     <CircularProgress size={24} />
                                   </div>
                                 ) : !searchQuery.trim() ? (
-                                  <div className="p-4 text-center text-gray-500 text-sm">
+                                  <div className="p-4 text-center text-muted-foreground text-[14px]">
                                     Start typing to search leads...
                                   </div>
                                 ) : filteredLeads.length === 0 ? (
-                                  <div className="p-4 text-center text-gray-500 text-sm">
+                                  <div className="p-4 text-center text-muted-foreground text-[14px]">
                                     No leads found
                                   </div>
                                 ) : (
@@ -2287,15 +2290,17 @@ const NewMessageModal = ({
                                       <div
                                         key={lead.id}
                                         onClick={() => toggleLeadSelection(lead)}
-                                        className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-gray-100' : ''
-                                          }`}
+                                        className={cn(
+                                        'p-3 border-b border-black/[0.06] cursor-pointer transition-colors',
+                                        isSelected ? 'bg-brand-primary/10' : 'hover:bg-black/[0.04]',
+                                      )}
                                       >
                                         <div className="flex items-center justify-between gap-2 min-w-0">
                                           <div className="flex-1 min-w-0">
-                                            <div className="font-medium text-sm text-gray-900 truncate">
+                                            <div className="font-medium text-[14px] text-foreground truncate">
                                               {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
                                             </div>
-                                            <div className="text-xs text-gray-500 mt-1 truncate">
+                                            <div className="text-xs text-muted-foreground mt-1 truncate">
                                               {selectedMode === 'email'
                                                 ? lead.email || 'No email'
                                                 : lead.phone || 'No phone'}
@@ -2329,16 +2334,13 @@ const NewMessageModal = ({
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
                                 <div
-                                  className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                                  style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
-
+                                  className="flex items-center gap-2 px-3 h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
                                   onClick={() => {
-                                    // Focus the input when clicking the container
                                     const input = document.querySelector('#cc-input')
                                     if (input) input.focus()
                                   }}
                                 >
-                                  <span className="text-sm text-gray-500 flex-shrink-0">Cc:</span>
+                                  <span className="text-[14px] text-muted-foreground flex-shrink-0">Cc:</span>
                                   {/* Display CC Email Tags */}
                                   {ccEmails.length > 0 ? (
                                     <>
@@ -2352,10 +2354,10 @@ const NewMessageModal = ({
                                         onPaste={handleCcInputPaste}
                                         onBlur={handleCcInputBlur}
                                         placeholder=""
-                                        className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                        className="flex-1 min-w-[80px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                         style={{
                                           height: '100%',
-                                          lineHeight: '42px',
+                                          lineHeight: '40px',
                                           padding: 0,
                                           verticalAlign: 'middle',
                                           maxWidth: '100%'
@@ -2363,7 +2365,7 @@ const NewMessageModal = ({
                                         onClick={(e) => e.stopPropagation()}
                                       />
                                       <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                                        <span className="text-sm text-gray-700 truncate max-w-[180px]">
+                                        <span className="text-[14px] text-foreground truncate max-w-[150px]">
                                           {ccEmails[0]}
                                         </span>
                                         {
@@ -2403,10 +2405,10 @@ const NewMessageModal = ({
                                       onPaste={handleCcInputPaste}
                                       onBlur={handleCcInputBlur}
                                       placeholder="Add CC recipients"
-                                      className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                      className="flex-1 min-w-[120px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                       style={{
                                         height: '100%',
-                                        lineHeight: '42px',
+                                        lineHeight: '40px',
                                         padding: 0,
                                         verticalAlign: 'middle',
                                         maxWidth: '100%'
@@ -2414,7 +2416,7 @@ const NewMessageModal = ({
                                       onClick={(e) => e.stopPropagation()}
                                     />
                                   )}
-                                  <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                                  <CaretDown className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-1" />
                                 </div>
                               </div>
                             )}
@@ -2422,16 +2424,13 @@ const NewMessageModal = ({
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
                                 <div
-                                  className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                                  style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
-
+                                  className="flex items-center gap-2 px-3 h-[40px] border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 cursor-text overflow-hidden bg-white transition-all duration-150"
                                   onClick={() => {
-                                    // Focus the input when clicking the container
                                     const input = document.querySelector('#bcc-input')
                                     if (input) input.focus()
                                   }}
                                 >
-                                  <span className="text-sm text-gray-500 flex-shrink-0">Bcc:</span>
+                                  <span className="text-[14px] text-muted-foreground flex-shrink-0">Bcc:</span>
                                   {/* Display BCC Email Tags */}
                                   {bccEmails.length > 0 ? (
                                     <>
@@ -2445,10 +2444,10 @@ const NewMessageModal = ({
                                         onPaste={handleBccInputPaste}
                                         onBlur={handleBccInputBlur}
                                         placeholder=""
-                                        className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                        className="flex-1 min-w-[80px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                         style={{
                                           height: '100%',
-                                          lineHeight: '42px',
+                                          lineHeight: '40px',
                                           padding: 0,
                                           verticalAlign: 'middle',
                                           maxWidth: '100%'
@@ -2456,7 +2455,7 @@ const NewMessageModal = ({
                                         onClick={(e) => e.stopPropagation()}
                                       />
                                       <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                                        <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                        <span className="text-[14px] text-foreground truncate max-w-[150px]">
                                           {bccEmails[0]}
                                         </span>
                                         {bccEmails.length === 1 && (
@@ -2494,10 +2493,10 @@ const NewMessageModal = ({
                                       onPaste={handleBccInputPaste}
                                       onBlur={handleBccInputBlur}
                                       placeholder="Add BCC recipients"
-                                      className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                      className="flex-1 min-w-[120px] outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                       style={{
                                         height: '100%',
-                                        lineHeight: '42px',
+                                        lineHeight: '40px',
                                         padding: 0,
                                         verticalAlign: 'middle',
                                         maxWidth: '100%'
@@ -2505,7 +2504,7 @@ const NewMessageModal = ({
                                       onClick={(e) => e.stopPropagation()}
                                     />
                                   )}
-                                  <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                                  <CaretDown className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-1" />
                                 </div>
                               </div>
                             )}
@@ -2515,32 +2514,32 @@ const NewMessageModal = ({
                         <div className="space-y-2">
                           {/* Subject Field */}
                           <div
-                            className="flex items-center border border-brand-primary/20 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden group/subject-field"
+                            className="flex items-center border border-black/[0.06] rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/40 bg-white transition-all duration-150 overflow-hidden group/subject-field"
                             id="subject-field-group"
                           >
                             {/* Subject Input Section */}
-                            <div className="flex-1 flex items-center gap-2 px-3 h-[42px]">
-                              <span className="text-sm text-gray-500 flex-shrink-0">Subject:</span>
+                            <div className="flex-1 flex items-center gap-2 px-3 h-[40px]">
+                              <span className="text-[14px] text-muted-foreground flex-shrink-0">Subject:</span>
                               <input
                                 type="text"
                                 value={emailSubject}
                                 onChange={(e) => setEmailSubject(e.target.value)}
                                 placeholder="Enter subject"
-                                className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                className="flex-1 outline-none bg-transparent text-[14px] border-0 focus:ring-0 focus:outline-none text-foreground"
                                 style={{
                                   height: '100%',
-                                  lineHeight: '42px',
+                                  lineHeight: '40px',
                                   padding: 0,
                                 }}
                               />
                             </div>
                             {/* Divider */}
                             {uniqueColumns && uniqueColumns.length > 0 && (
-                              <div className="w-[2px] h-[42px] bg-gray-200 group-focus-within/subject-field:bg-brand-primary has-focus:bg-brand-primary transition-colors flex-shrink-0"></div>
+                              <div className="w-[2px] h-[40px] bg-black/[0.08] group-focus-within/subject-field:bg-brand-primary has-focus:bg-brand-primary transition-colors flex-shrink-0"></div>
                             )}
                             {/* Variables dropdown for subject */}
                             {uniqueColumns && uniqueColumns.length > 0 && (
-                              <FormControl size="small" sx={{ minWidth: 150, height: '42px' }}>
+                              <FormControl size="small" sx={{ minWidth: 150, height: '40px' }}>
                                 <Select
                                   value={selectedSubjectVariable}
                                   onOpen={() => setSubjectVariableSearchQuery('')}
@@ -2584,35 +2583,35 @@ const NewMessageModal = ({
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        height: '42px',  // match Select height so icon is centered in both states
+                                        height: '40px',  // match Select height so icon is centered in both states
                                         cursor: 'pointer',
                                       }}
                                     >
-                                      <ChevronDown size={24} className="text-gray-400 mr-2" />
+                                      <ChevronDown size={24} className="text-muted-foreground mr-2" />
                                     </span>
                                   )}
                                   sx={{
                                     fontSize: '0.875rem',
-                                    height: '42px',
+                                    height: '40px',
                                     '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
-                                      height: '42px',
+                                      height: '40px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                       top: 0,
                                     },
                                     '&.Mui-focused .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                     },
                                   }}
                                 >
@@ -2626,8 +2625,7 @@ const NewMessageModal = ({
                                         placeholder="Search variables..."
                                         value={subjectVariableSearchQuery}
                                         onChange={(e) => setSubjectVariableSearchQuery(e.target.value)}
-                                        className="h-9 text-sm border border-gray-200 rounded-md px-2 w-full focus-visible:ring-2 focus-visible:ring-brand-primary"
-                                        style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                                        className="w-full"
                                       />
                                     </div>
                                   </ListSubheader>
@@ -2700,10 +2698,10 @@ const NewMessageModal = ({
                               <label className="cursor-pointer">
                                 <button
                                   type="button"
-                                  className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative"
+                                  className="p-1.5 hover:bg-black/[0.04] rounded-lg transition-colors flex items-center justify-center relative"
                                   onClick={() => document.getElementById('new-message-attachment-input')?.click()}
                                 >
-                                  <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                                  <Paperclip size={18} className="text-muted-foreground hover:text-brand-primary" />
                                   {attachments.length > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
                                       {attachments.length}
@@ -2723,7 +2721,7 @@ const NewMessageModal = ({
                               {/* Attachments Dropdown */}
                               {showAttachmentDropdown && attachments.length > 0 && (
                                 <div
-                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-[2000]"
+                                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-black/[0.06] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-h-60 overflow-auto z-[2000] animate-dropdown-below-enter"
                                   onMouseEnter={() => {
                                     // Clear any pending timeout when entering dropdown
                                     if (attachmentDropdownTimeoutRef.current) {
@@ -2741,20 +2739,20 @@ const NewMessageModal = ({
                                   }}
                                 >
                                   <div className="p-2">
-                                    <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                                    <div className="text-xs font-semibold text-foreground mb-2 px-2">
                                       Attachments ({attachments.length})
                                     </div>
                                     <div className="space-y-1">
                                       {attachments.map((file, index) => (
                                         <div
                                           key={index}
-                                          className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50 rounded transition-colors group"
+                                          className="flex items-center justify-between gap-2 p-2 hover:bg-black/[0.04] rounded-lg transition-colors group"
                                         >
                                           <div className="flex-1 min-w-0">
-                                            <div className="text-sm text-gray-900 truncate">
+                                            <div className="text-[14px] text-foreground truncate">
                                               {file.name || file.originalName || `File ${index + 1}`}
                                             </div>
-                                            <div className="text-xs text-gray-500">
+                                            <div className="text-xs text-muted-foreground">
                                               {file.size ? `${(file.size / 1024).toFixed(2)} KB` : ''}
                                             </div>
                                           </div>
@@ -2815,35 +2813,35 @@ const NewMessageModal = ({
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        height: '42px',  // match Select height so icon is centered in both states
+                                        height: '40px',  // match Select height so icon is centered in both states
                                         cursor: 'pointer',
                                       }}
                                     >
-                                      <ChevronDown size={24} className="text-gray-400 mr-2" />
+                                      <ChevronDown size={24} className="text-muted-foreground mr-2" />
                                     </span>
                                   )}
                                   sx={{
                                     fontSize: '0.875rem',
-                                    height: '42px',
+                                    height: '40px',
                                     '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
-                                      height: '42px',
+                                      height: '40px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                       top: 0,
                                     },
                                     '&.Mui-focused .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                     },
                                   }}
                                 >
@@ -2857,8 +2855,7 @@ const NewMessageModal = ({
                                         placeholder="Search variables..."
                                         value={variableSearchQuery}
                                         onChange={(e) => setVariableSearchQuery(e.target.value)}
-                                        className="h-9 text-sm border border-gray-200 rounded-md px-2 w-full focus-visible:ring-2 focus-visible:ring-brand-primary"
-                                        style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                                        className="w-full"
                                       />
                                     </div>
                                   </ListSubheader>
@@ -2905,7 +2902,7 @@ const NewMessageModal = ({
                             }}
                             placeholder="Type your message here"
                             maxLength={SMS_CHAR_LIMIT}
-                            className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary min-h-[120px] pr-24"
+                            className="w-full px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground border border-black/[0.06] rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary min-h-[120px] pr-24 transition-all duration-150 bg-white"
                           />
                           {/* Variables dropdown for SMS */}
                           {uniqueColumns && uniqueColumns.length > 0 && (
@@ -2969,35 +2966,35 @@ const NewMessageModal = ({
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        height: '42px',  // match Select height so icon is centered in both states
+                                        height: '40px',  // match Select height so icon is centered in both states
                                         cursor: 'pointer',
                                       }}
                                     >
-                                      <ChevronDown size={24} className="text-gray-400 mr-2" />
+                                      <ChevronDown size={24} className="text-muted-foreground mr-2" />
                                     </span>
                                   )}
                                   sx={{
                                     fontSize: '0.875rem',
-                                    height: '42px',
+                                    height: '40px',
                                     '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
-                                      height: '42px',
+                                      height: '40px',
                                       display: 'flex',
                                       alignItems: 'center',
                                     },
                                     '& .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                       top: 0,
                                     },
                                     '&.Mui-focused .MuiSelect-icon': {
                                       display: 'flex',
                                       alignItems: 'center',
-                                      height: '42px',
+                                      height: '40px',
                                     },
                                   }}
                                 >
@@ -3011,8 +3008,7 @@ const NewMessageModal = ({
                                         placeholder="Search variables..."
                                         value={smsVariableSearchQuery}
                                         onChange={(e) => setSmsVariableSearchQuery(e.target.value)}
-                                        className="h-9 text-sm border border-gray-200 rounded-md px-2 w-full focus-visible:ring-2 focus-visible:ring-brand-primary"
-                                        style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                                        className="w-full"
                                       />
                                     </div>
                                   </ListSubheader>
@@ -3054,7 +3050,7 @@ const NewMessageModal = ({
 
           {/* Footer with template dropdown, char count, credits, and send button */}
 
-          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+          <div className="flex items-center justify-between gap-4 p-4 border-t border-black/[0.06] bg-black/[0.02]">
             <div className="flex items-center gap-2">
               {/* My Templates Button with Dropdown */}
               <div className="relative" ref={templatesDropdownRef}>
@@ -3065,7 +3061,7 @@ const NewMessageModal = ({
                     }
                     setShowTemplatesDropdown(!showTemplatesDropdown)
                   }}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                 >
                   {renderBrandedIcon("/messaging/templateIcon.svg", 18, 18)}
                   <span>Templates</span>
@@ -3074,13 +3070,13 @@ const NewMessageModal = ({
 
                 {/* Templates Dropdown */}
                 {showTemplatesDropdown && (
-                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-black/[0.06] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-h-60 overflow-auto z-50 animate-dropdown-below-enter">
                     {templatesLoading ? (
                       <div className="p-4 text-center">
                         <CircularProgress size={20} />
                       </div>
                     ) : templates.length === 0 ? (
-                      <div className="p-4 text-center text-sm text-gray-500">
+                      <div className="p-4 text-center text-[14px] text-muted-foreground">
                         No templates found
                       </div>
                     ) : (
@@ -3093,14 +3089,14 @@ const NewMessageModal = ({
                           componentsProps={{
                             tooltip: {
                               sx: {
-                                // pointerEvents: 'none',
-                                backgroundColor: '#ffffff', // Ensure white background
-                                color: '#333', // Dark text color
-                                fontSize: '16px',
+                                backgroundColor: '#ffffff',
+                                color: 'hsl(var(--foreground))',
+                                fontSize: '14px',
                                 fontWeight: '500',
-                                padding: '10px 15px',
+                                padding: '10px 14px',
                                 borderRadius: '8px',
-                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                border: '1px solid rgba(0,0,0,0.06)',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                               },
                             },
                             arrow: {
@@ -3112,13 +3108,13 @@ const NewMessageModal = ({
                         >
                           <div
                             key={template.id || template.templateId}
-                            className="flex items-center justify-between gap-2 px-4 py-2 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0 group"
+                            className="flex items-center justify-between gap-2 px-4 py-2 hover:bg-black/[0.04] transition-colors border-b border-black/[0.06] last:border-b-0 group"
                           >
                             <button
                               onClick={() => handleTemplateSelect(template)}
-                              className="flex-1 text-left text-sm min-w-0"
+                              className="flex-1 text-left text-[14px] min-w-0"
                             >
-                              <div className="font-medium text-gray-900 truncate">
+                              <div className="font-medium text-foreground truncate">
                                 {template.templateName || 'Untitled Template'}
                               </div>
                             </button>
@@ -3156,7 +3152,7 @@ const NewMessageModal = ({
                     }}
                     className="h-5 w-5"
                   />
-                  <label className="text-sm text-gray-700 cursor-pointer select-none">
+                  <label className="text-[14px] text-foreground cursor-pointer select-none">
                     {selectedTemplate ? "Update template" : "Save as template"}
                   </label>
                 </div>
@@ -3180,7 +3176,7 @@ const NewMessageModal = ({
                   (selectedMode === 'sms' && !selectedPhoneNumber) ||
                   (selectedMode === 'email' && !selectedEmailAccount)
                 }
-                className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                className="px-6 py-2.5 h-9 text-[14px] font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-150 ease-out active:scale-[0.98]"
               >
                 {sending ? (
                   <>
@@ -3215,8 +3211,12 @@ const NewMessageModal = ({
         showEmailTempPopup={false}
         setSelectedGoogleAccount={(account) => {
           if (account) {
-            setSelectedEmailAccount(account.id)
+            const idStr = account.id?.toString?.() ?? String(account.id)
+            setSelectedEmailAccount(idStr)
             setSelectedEmailAccountObj(account)
+            if (typeof window !== 'undefined' && idStr) {
+              localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, idStr)
+            }
             setEmailAccounts((prev) => {
               const exists = prev.find((a) => a.id === account.id)
               if (exists) return prev
@@ -3241,6 +3241,7 @@ const NewMessageModal = ({
           root: {
             style: {
               zIndex: 99991,
+              transitionDuration: '250ms',
             },
           },
         }}
@@ -3248,62 +3249,52 @@ const NewMessageModal = ({
           zIndex: 99991,
         }}
         BackdropProps={{
-          timeout: 1000,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000020',
+            backgroundColor: 'rgba(0,0,0,0.6)',
             zIndex: 99991,
           },
         }}
       >
         <Box
-          className="lg:w-3/12 sm:w-4/12 w-6/12"
+          className="w-[90%] max-w-[400px] rounded-xl border border-black/[0.06] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden animate-modal-entry"
           onClick={(e) => e.stopPropagation()}
           sx={{
             position: 'absolute',
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            borderRadius: '13px',
             zIndex: 99992,
           }}
         >
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div className="font-bold text-xl">
-                Are you sure you want to delete {accountToDelete?.email || accountToDelete?.name || accountToDelete?.displayName || 'this email account'}?
-              </div>
-              <div className="flex flex-row items-center gap-4 w-full mt-6">
+          <div className="p-6">
+            <h3 className="text-[14px] font-semibold text-foreground">
+              Are you sure you want to delete {accountToDelete?.email || accountToDelete?.name || accountToDelete?.displayName || 'this email account'}?
+            </h3>
+            <div className="flex flex-row items-center gap-3 w-full mt-6">
+              <button
+                type="button"
+                className="flex-1 h-9 rounded-lg px-4 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] transition-colors"
+                onClick={() => {
+                  setShowDeleteEmailModal(false)
+                  setAccountToDelete(null)
+                }}
+              >
+                Cancel
+              </button>
+              {deletingEmailAccountId === accountToDelete?.id ? (
+                <div className="flex-1 flex items-center justify-center h-9">
+                  <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                </div>
+              ) : (
                 <button
-                  className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
-                  onClick={() => {
-                    setShowDeleteEmailModal(false)
-                    setAccountToDelete(null)
-                  }}
+                  type="button"
+                  className="flex-1 h-9 rounded-lg px-4 text-[14px] font-medium text-destructive border border-destructive/30 hover:bg-destructive/10 transition-colors"
+                  onClick={confirmDeleteEmailAccount}
                 >
-                  Cancel
+                  Delete
                 </button>
-                {deletingEmailAccountId === accountToDelete?.id ? (
-                  <div className="w-1/2 flex items-center justify-center h-[50px]">
-                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                  </div>
-                ) : (
-                  <button
-                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                    onClick={confirmDeleteEmailAccount}
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </Box>
@@ -3339,27 +3330,28 @@ const NewMessageModal = ({
         }}
         PaperProps={{
           style: {
-            padding: '8px',
+            padding: 0,
             minWidth: '250px',
             maxWidth: '350px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
-            position: 'fixed', // Ensure it's positioned correctly when portaled
+            borderRadius: 12,
+            border: '1px solid rgba(0,0,0,0.06)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            zIndex: 1800,
+            position: 'fixed',
           },
         }}
       >
-        <div className="py-1">
-          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-200">
+        <div className="py-2">
+          <div className="hidden">
             {emailListPopoverType === 'cc' ? 'CC Recipients' : 'BCC Recipients'}
           </div>
           <div className="max-h-60 overflow-y-auto">
             {(emailListPopoverType === 'cc' ? ccEmails : bccEmails).map((email, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between px-4 py-2 hover:bg-black/[0.04] transition-colors"
               >
-                <span className="text-sm text-gray-700 flex-1 truncate">{email}</span>
+                <span className="text-[14px] text-foreground flex-1 truncate">{email}</span>
                 <button
                   onClick={() => {
                     // Calculate remaining emails before removal
@@ -3380,7 +3372,7 @@ const NewMessageModal = ({
                       setEmailListPopoverType(null)
                     }
                   }}
-                  className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                  className="ml-2 p-1 hover:bg-black/[0.06] rounded-lg transition-colors flex-shrink-0"
                   title="Remove email"
                 >
                   <Trash2 size={16} className="text-brand-primary" />

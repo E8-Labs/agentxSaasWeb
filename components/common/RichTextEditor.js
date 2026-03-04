@@ -290,9 +290,9 @@ const RichTextEditor = forwardRef(
               className="fixed inset-0 z-[10001] bg-black/20"
               onClick={handleLinkCancel}
             />
-            <div className="fixed left-1/2 top-1/2 z-[10002] -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 min-w-[300px]">
+            <div className="fixed left-1/2 top-1/2 z-[10002] -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-black/[0.06] p-4 min-w-[300px]">
               <div className="mb-3">
-                <label className="text-sm font-medium text-gray-700 block mb-2">
+                <label className="text-[14px] font-medium text-foreground block mb-2">
                   Enter link:
                 </label>
                 <Input
@@ -324,12 +324,18 @@ const RichTextEditor = forwardRef(
           }
 
           .quill-editor-wrapper {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
             overflow: visible;
             margin-top: 0;
             position: relative;
             z-index: 1;
+            background: #ffffff;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          }
+          .quill-editor-wrapper:focus-within {
+            border-color: hsl(var(--brand-primary));
+            box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.4);
           }
           .quill-editor-wrapper.toolbar-dropdown-open {
             border-color: transparent;
@@ -422,11 +428,11 @@ const RichTextEditor = forwardRef(
           }
 
           .quill-editor-wrapper.toolbar-top .ql-toolbar {
-            border-bottom: 1px solid #e5e7eb !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
           }
 
           .quill-editor-wrapper.toolbar-bottom .ql-toolbar {
-            border-top: 1px solid #e5e7eb !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
           }
 
           .quill-editor-wrapper .ql-container {
@@ -580,8 +586,8 @@ const RichTextEditor = forwardRef(
           .quill-editor-wrapper .ql-picker.ql-expanded .ql-picker-options {
             display: block;
             z-index: 1000;
-            border: 1px solid #eaeaea;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border-radius: 12px;
             animation: ql-picker-entry 0.2s ease-out forwards;
           }

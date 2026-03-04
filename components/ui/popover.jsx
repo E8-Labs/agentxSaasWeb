@@ -63,7 +63,12 @@ const PopoverContent = React.forwardRef(
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          'z-50 w-72 rounded-2xl border border-[#eaeaea] bg-popover p-4 text-popover-foreground shadow-[0_8px_30px_rgba(0,0,0,0.12)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 duration-200 ease-out',
+          'z-50 w-72 rounded-2xl border border-[#eaeaea] bg-popover p-4 text-popover-foreground shadow-[0_8px_30px_rgba(0,0,0,0.12)] outline-none duration-200 ease-out',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[side=left]:data-[state=closed]:zoom-out-95 data-[side=left]:data-[state=open]:zoom-in-95 data-[side=left]:slide-in-from-right-2',
+          'data-[side=right]:data-[state=closed]:zoom-out-95 data-[side=right]:data-[state=open]:zoom-in-95 data-[side=right]:slide-in-from-left-2',
+          'data-[side=top]:data-[state=closed]:zoom-out-95 data-[side=top]:data-[state=open]:zoom-in-95 data-[side=top]:slide-in-from-bottom-2',
+          'data-[side=bottom]:data-[state=open]:animate-dropdown-below-enter data-[side=bottom]:data-[state=closed]:animate-dropdown-below-exit',
           className,
         )}
         style={{

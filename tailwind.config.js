@@ -125,6 +125,7 @@ module.exports = {
       },
       boxShadow: {
         custom: '0px 4px 31.5px rgba(121, 2, 223, 0.04)',
+        'brand-glow': '0 0 0 1px hsl(var(--brand-primary, 270 75% 50%) / 0.12), 0 4px 24px hsl(var(--brand-primary, 270 75% 50%) / 0.22)',
       },
       keyframes: {
         modalEntry: {
@@ -139,13 +140,21 @@ module.exports = {
           from: { transform: 'translateY(0) scale(1)', opacity: '1' },
           to: { transform: 'translateY(30px) scale(0.98)', opacity: '0' },
         },
+        dropdownBelowEnter: {
+          from: { transform: 'translateY(20px)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' },
+        },
+        dropdownBelowExit: {
+          from: { transform: 'translateY(0)', opacity: '1' },
+          to: { transform: 'translateY(20px)', opacity: '0' },
+        },
       },
       animation: {
         'modal-entry': 'modalEntry 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         'dropdown-cn-enter': 'dropdownCnEnter 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
         'dropdown-cn-exit': 'dropdownCnExit 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-        'date-drop-enter': 'date-picker-drop-entry 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-        'date-drop-exit': 'date-picker-drop-exit 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'dropdown-below-enter': 'dropdownBelowEnter 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+        'dropdown-below-exit': 'dropdownBelowExit 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
       },
     },
   },

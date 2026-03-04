@@ -57,6 +57,8 @@ import AgentXOrb from '../common/AgentXOrb'
 import { MYAGENTX_URL } from '../askSky/constants'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { useUser } from '@/hooks/redux-hooks'
+import WebAgentChatInput from '@/components/web-agent/WebAgentChatInput'
+import WebAgentChatDrawer from '@/components/web-agent/WebAgentChatDrawer'
 
 
 // Add style tag to override global white background for loading message
@@ -99,6 +101,7 @@ const Creator = ({ agentId, name }) => {
 
   const [boxVisible, setBoxVisible] = useState(false) // Animation state
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 }) // Mouse position state
+  const [pointerOverChatInputArea, setPointerOverChatInputArea] = useState(false) // Hide Click to Talk when over chat input + buffer
   const { creator } = useParams()
   const searchParams = useSearchParams()
   const from = searchParams.get('from')
@@ -116,6 +119,11 @@ const Creator = ({ agentId, name }) => {
   const [menuOpen, setMenuOpen] = useState(false) // Opens the support menu
   const [voiceOpen, setVoiceOpen] = useState(false) // Sets up the Voice AI interface
   const [chatOpen, setChatOpen] = useState(false) // Sets up the chat interface
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false)
+  /** Remount drawer on each open so chat always starts fresh (new session); avoids any reused in-memory state. */
+  const [chatDrawerKey, setChatDrawerKey] = useState(0)
+  /** Lead ID from pre-chat form for web chat; passed to drawer so first message creates thread tied to this lead */
+  const [webChatLeadId, setWebChatLeadId] = useState(null)
   const [open, setOpen] = useState(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -124,7 +132,8 @@ const Creator = ({ agentId, name }) => {
   const [assistantOverrides, setAssistantOverrides] = useState(null)
   const [isMuted, setIsMuted] = useState(false)
 
-  // Modal and form states
+  // Modal and form states ('call' = start voice call after form, 'chat' = open chat drawer after form)
+  const [formMode, setFormMode] = useState('call')
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -217,6 +226,10 @@ const Creator = ({ agentId, name }) => {
       return () => clearTimeout(timer)
     }
   }, [loading])
+
+  useEffect(() => {
+    if (chatDrawerOpen) setPointerOverChatInputArea(false)
+  }, [chatDrawerOpen])
 
   useEffect(() => {
     const handleResize = () => {
@@ -523,33 +536,35 @@ const Creator = ({ agentId, name }) => {
 
       if (response && response.data && response.data.data) {
         const { totalSecondsAvailable } = response.data.data.user
-
-        if (totalSecondsAvailable < 120) {
+        if (formMode === 'call' && totalSecondsAvailable < 120) {
           setSnackbarMessage('Insufficient Balance')
           setSnackbarSeverity('error')
           setSnackbarOpen(true)
           return
         }
-        // Update assistant overrides with new data
         const newAssistantOverrides = response.data.data.assistantOverrides
         const createdLead = response.data.data.createdLead
         if (createdLead?.id) {
           pendingLeadIdRef.current = createdLead.id
+          if (formMode === 'chat') setWebChatLeadId(createdLead.id)
         }
+        let cleanedNewOverrides = null
         if (newAssistantOverrides) {
-          // Clean assistantOverrides: remove duplicates and invalid properties
-          const cleanedNewOverrides = cleanAssistantOverrides(
+          cleanedNewOverrides = cleanAssistantOverrides(
             removeDuplicatesFromAnalysisPlan(newAssistantOverrides),
           )
           setAssistantOverrides(cleanedNewOverrides)
-
-          // Close modal and start call with cleaned overrides
-          handleModalClose()
-          handleStartCallWithOverrides(cleanedNewOverrides)
+        }
+        handleModalClose()
+        if (formMode === 'call') {
+          if (cleanedNewOverrides) {
+            handleStartCallWithOverrides(cleanedNewOverrides)
+          } else {
+            handleStartCall()
+          }
         } else {
-          // Close modal and start call with existing overrides
-          handleModalClose()
-          handleStartCall()
+          setChatDrawerKey((k) => k + 1)
+          setChatDrawerOpen(true)
         }
       }
     } catch (error) {
@@ -562,102 +577,108 @@ const Creator = ({ agentId, name }) => {
     }
   }
 
-  // Handle button click
-  const handleInitiateVapi = async () => {
-    // Check if agent has smartList attached
-    if (smartListData && smartListData.id) {
-      // Check if we have persisted data
+  // Check if we have valid saved form data (default: First Name, Last Name, Phone, Email)
+  const getSavedFormAndValidity = () => {
+    try {
       const savedData = localStorage.getItem(`leadForm_${agentId}`)
+      if (!savedData) return { valid: false }
+      const parsedData = JSON.parse(savedData)
+      const { formData: savedFormData, smartListFields: savedSmartListFields } = parsedData
+      const isValid =
+        savedFormData?.firstName?.trim() &&
+        savedFormData?.lastName?.trim() &&
+        savedFormData?.email?.trim() &&
+        isValidEmail(savedFormData.email) &&
+        savedFormData?.phone?.trim() &&
+        isValidPhone(savedFormData.phone)
+      return { valid: !!isValid, savedFormData, savedSmartListFields }
+    } catch {
+      return { valid: false }
+    }
+  }
 
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData)
-          const {
-            formData: savedFormData,
-            smartListFields: savedSmartListFields,
-          } = parsedData
-
-          // Check if all required fields are filled and valid
-          const isValidSavedData =
-            savedFormData?.firstName?.trim() &&
-            savedFormData?.lastName?.trim() &&
-            savedFormData?.email?.trim() &&
-            isValidEmail(savedFormData.email) &&
-            savedFormData?.phone?.trim() &&
-            isValidPhone(savedFormData.phone)
-
-          if (isValidSavedData) {
-            // Use the saved data to make API call directly
-            setIsSubmitting(true)
-            try {
-              const extraColumns = {}
-              Object.entries(savedSmartListFields || {}).forEach(
-                ([key, value]) => {
-                  if (value && value.trim()) {
-                    extraColumns[key] = value
-                  }
-                },
-              )
-
-              const leadDetails = {
-                firstName: savedFormData.firstName,
-                lastName: savedFormData.lastName,
-                phone: savedFormData.phone,
-                email: savedFormData.email,
-                extraColumns: extraColumns,
-              }
-
-              const response = await callApiPost(
-                `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}?agentType=web`,
-                { lead_details: leadDetails },
-              )
-
-              if (response && response.data && response.data.data) {
-                const { totalSecondsAvailable } = response.data.data.user
-
-                if (totalSecondsAvailable < 120) {
-                  setSnackbarMessage('Insufficient Balance')
-                  setSnackbarSeverity('error')
-                  setSnackbarOpen(true)
-                  return
-                }
-
-                const createdLead = response.data.data.createdLead
-                if (createdLead?.id) {
-                  pendingLeadIdRef.current = createdLead.id
-                }
-                const newAssistantOverrides =
-                  response.data.data.assistantOverrides
-                if (newAssistantOverrides) {
-                  // Clean assistantOverrides: remove duplicates and invalid properties
-                  const cleanedNewOverrides = cleanAssistantOverrides(
-                    removeDuplicatesFromAnalysisPlan(newAssistantOverrides),
-                  )
-                  setAssistantOverrides(cleanedNewOverrides)
-                  handleStartCallWithOverrides(cleanedNewOverrides)
-                } else {
-                  handleStartCall()
-                }
-              }
-            } catch (error) {
-              console.error('Error submitting persisted form data:', error)
-              setSnackbarMessage('Error starting call. Please try again.')
-              setSnackbarSeverity('error')
-              setSnackbarOpen(true)
-            } finally {
-              setIsSubmitting(false)
-            }
-            return
+  // Submit saved form data via API (used for both call and chat when form already filled)
+  const submitSavedFormAndProceed = async (savedFormData, savedSmartListFields, mode) => {
+    setIsSubmitting(true)
+    try {
+      const extraColumns = {}
+      Object.entries(savedSmartListFields || {}).forEach(([key, value]) => {
+        if (value && value.trim()) extraColumns[key] = value
+      })
+      const leadDetails = {
+        firstName: savedFormData.firstName,
+        lastName: savedFormData.lastName,
+        phone: savedFormData.phone,
+        email: savedFormData.email,
+        extraColumns,
+      }
+      const response = await callApiPost(
+        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}?agentType=web`,
+        { lead_details: leadDetails },
+      )
+      if (response?.data?.data) {
+        const { totalSecondsAvailable } = response.data.data.user
+        if (totalSecondsAvailable != null && totalSecondsAvailable < 120 && mode === 'call') {
+          setSnackbarMessage('Insufficient Balance')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+          return
+        }
+        const createdLead = response.data.data.createdLead
+        if (createdLead?.id) {
+          pendingLeadIdRef.current = createdLead.id
+          if (mode === 'chat') setWebChatLeadId(createdLead.id)
+        }
+        const newAssistantOverrides = response.data.data.assistantOverrides
+        if (newAssistantOverrides) {
+          const cleaned = cleanAssistantOverrides(
+            removeDuplicatesFromAnalysisPlan(newAssistantOverrides),
+          )
+          setAssistantOverrides(cleaned)
+        }
+        if (mode === 'call') {
+          if (newAssistantOverrides) {
+            handleStartCallWithOverrides(
+              cleanAssistantOverrides(removeDuplicatesFromAnalysisPlan(newAssistantOverrides)),
+            )
+          } else {
+            handleStartCall()
           }
-        } catch (error) {
-          console.error('Error parsing saved form data:', error)
+        } else {
+          setChatDrawerKey((k) => k + 1)
+          setChatDrawerOpen(true)
         }
       }
-
-      handleModalOpen()
-    } else {
-      handleStartCall()
+    } catch (error) {
+      console.error('Error submitting persisted form data:', error)
+      setSnackbarMessage(mode === 'call' ? 'Error starting call. Please try again.' : 'Error starting chat. Please try again.')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
+    } finally {
+      setIsSubmitting(false)
     }
+  }
+
+  // Handle voice call: show form (default or smartList) or start call if form already filled
+  const handleInitiateVapi = async () => {
+    setFormMode('call')
+    const { valid, savedFormData, savedSmartListFields } = getSavedFormAndValidity()
+    if (valid) {
+      await submitSavedFormAndProceed(savedFormData, savedSmartListFields, 'call')
+      return
+    }
+    handleModalOpen()
+  }
+
+  // Handle chat: show form (default or smartList) or open drawer if form already filled
+  const handleOpenChat = () => {
+    setFormMode('chat')
+    const { valid, savedFormData, savedSmartListFields } = getSavedFormAndValidity()
+    if (valid) {
+      submitSavedFormAndProceed(savedFormData, savedSmartListFields, 'chat')
+      return
+    }
+    handleModalOpen()
   }
 
   useEffect(() => {
@@ -1147,6 +1168,8 @@ const Creator = ({ agentId, name }) => {
     resize: 'cover',
   }
 
+  const hasAiChatEnabled = agentDetails?.data?.data?.hasAiChatEnabled === true
+
   return (
     <div>
       <div
@@ -1302,13 +1325,26 @@ const Creator = ({ agentId, name }) => {
               }
             </div>
           </div>
+          {!profileLoader && hasAiChatEnabled && !chatDrawerOpen && !loading && !open && (
+            <div
+              className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10 py-8 -my-8 -mx-4"
+              onMouseEnter={() => setPointerOverChatInputArea(true)}
+              onMouseLeave={() => setPointerOverChatInputArea(false)}
+            >
+              <WebAgentChatInput
+                onFocus={handleOpenChat}
+                placeholder="Ask me anything"
+                readOnly
+              />
+            </div>
+          )}
           <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
 
-        {/* Mouse Following Box Animation */}
+        {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer */}
         <div className="lg:flex hidden">
           <AnimatePresence>
-            {boxVisible && (
+            {boxVisible && !pointerOverChatInputArea && (
               <motion.div
                 style={{
                   position: 'absolute',
@@ -1349,6 +1385,18 @@ const Creator = ({ agentId, name }) => {
           </AnimatePresence>
         </div>
       </div>
+
+      <WebAgentChatDrawer
+        key={chatDrawerKey}
+        open={chatDrawerOpen}
+        onClose={() => setChatDrawerOpen(false)}
+        agentId={agentDetails?.data?.data?.agent?.id ?? agentId}
+        agentName={agentDetails?.data?.data?.agent?.name}
+        agencyBranding={agentDetails?.data?.data?.agencyBranding || reduxUser?.agencyBranding}
+        agent={agentDetails?.data?.data?.agent}
+        leadId={webChatLeadId}
+        canChangeLlmProvider={reduxUser?.id != null && agentDetails?.data?.data?.user?.id != null && reduxUser.id === agentDetails.data.data.user.id}
+      />
 
       {/* Lead Details Modal */}
       <Modal
@@ -1556,7 +1604,7 @@ const Creator = ({ agentId, name }) => {
                   onClick={handleFormSubmit}
                   disabled={!isFormValid()}
                 >
-                  Continue
+                  {formMode === 'chat' ? 'Start Chat' : 'Continue'}
                 </button>
               )}
             </div>

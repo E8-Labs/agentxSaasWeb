@@ -270,6 +270,18 @@ const TutorialConfig = ({ selectedAgency }) => {
         formData.append('media', updatedData.media)
       }
 
+      // When editing a default tutorial (no custom upload yet) with only a title change,
+      // send the current video URL so the backend can create a record with the default URL and new title
+      if (
+        isEditMode &&
+        selectedTutorial &&
+        !updatedData.media &&
+        selectedTutorial.videoUrl &&
+        !(isUploadedVideo && selectedTutorial.id > 11)
+      ) {
+        formData.append('existingVideoUrl', selectedTutorial.videoUrl)
+      }
+
       // Only append videoType if we have it (for new uploads or when updating)
       if (selectedTutorial && selectedTutorial.videoType) {
         formData.append('videoType', selectedTutorial.videoType)
