@@ -2293,7 +2293,7 @@ const LeadDetails = ({
                               </div>
                             </div>
                           </div>
-                          <div className="w-full space-y-1 text-sm m-0 px-4 text-[14px] font-normal [&>*]:min-h-6 [&>*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          <div className="w-full flex flex-col gap-[2px] text-sm m-0 px-4 text-[14px] font-normal [&>*]:min-h-[40px] [&>*]:m-0 [&_*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
                             {/* Email with edit functionality */}
 
 
@@ -2323,7 +2323,7 @@ const LeadDetails = ({
                           )
                         ) : (  */}
 
-                            <div className="flex flex-col gap-2 m-0 text-[14px] [&_*]:text-[14px]">
+                            <div className="flex flex-col gap-2 m-0 text-[14px] [&_*]:text-[14px] justify-center">
                               <div className="flex flex-row items-center gap-2 m-0">
                                 <Mail className="h-4 w-4 text-muted-foreground" size={16} />
                                 <div className="flex flex-row items-center gap-2 flex-1">

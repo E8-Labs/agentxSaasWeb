@@ -86,8 +86,8 @@ const ActivityTile = ({
             </Button>
           </div>
           {isExpanded && (
-            <Card className="mt-6">
-              <CardContent className="p-4">
+            <Card className="mt-6 shadow-none rounded-none border-0 border-l-2 border-l-brand-primary">
+              <CardContent className="p-4 bg-brand-primary/[0.02]">
                 {children}
               </CardContent>
             </Card>

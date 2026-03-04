@@ -109,8 +109,7 @@ const DraftCards = ({
                 key={draft.id}
                 onClick={() => handleCardClick(draft)}
                 className={cn(
-                  'rounded-xl bg-transparent cursor-pointer transition-all duration-200 overflow-hidden border',
-                  'shadow-[0_4px_20px_rgba(0,0,0,0.08)]',
+                  'rounded-lg cursor-pointer transition-all duration-200 overflow-hidden border bg-black/[0.02]',
                   isSingleDraft ? 'w-full min-w-full' : 'flex-shrink-0 max-w-[49%]',
                   isSelected
                     ? 'border-brand-primary bg-brand-primary/[0.02]'

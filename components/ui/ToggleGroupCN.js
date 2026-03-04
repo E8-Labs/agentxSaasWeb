@@ -24,7 +24,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'h-[
       className={cn(
         height,
         'flex flex-row items-stretch justify-center gap-0',
-        'bg-black/[0.06]',
+        'bg-[#F4F4F5]',
         roundedness,
         'shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-1',
         className,

@@ -3311,7 +3311,7 @@ const NewMessageModal = ({
         }}
       >
         <div className="py-2">
-          <div className="px-4 py-2 text-[14px] font-medium text-foreground border-b border-black/[0.06]">
+          <div className="hidden">
             {emailListPopoverType === 'cc' ? 'CC Recipients' : 'BCC Recipients'}
           </div>
           <div className="max-h-60 overflow-y-auto">

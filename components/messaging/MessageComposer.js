@@ -1340,7 +1340,7 @@ const MessageComposer = ({
   }
 
   return (
-    <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+    <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden border-t border-[#eaeaea] transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
       <div className="w-full px-3 py-3 flex flex-col gap-1">
         <div className="flex items-center justify-between border-b border-black/[0.06] m-0 gap-1 py-1">
           <div className="flex items-center gap-2 pb-1">
