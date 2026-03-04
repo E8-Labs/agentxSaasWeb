@@ -482,7 +482,10 @@ const ClaimNumber = ({
                               if (userData) {
                                 if (userData.user?.cards?.length === 0) {
                                   setShowAddCard(true)
-                                } else handlePurchaseNumber()
+                                } else {
+                                  // setOpenPurchaseSuccessModal(true)
+                                  handlePurchaseNumber()
+                                }
                               }
                             }}
                           >
