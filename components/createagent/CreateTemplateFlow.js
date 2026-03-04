@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import {
   Box,
@@ -57,11 +57,23 @@ const inputClassName =
 const inputStyleObj = { fontSize: 15, fontWeight: '500', borderRadius: '7px' }
 const labelStyle = { fontSize: 14, fontWeight: '400' }
 
-export default function CreateTemplateFlow({ onSaved }) {
+const normalizeCategory = (c) => {
+  if (!c) return ''
+  const s = String(c).trim().toLowerCase()
+  if (s === 'needs' || s === 'need') return 'Needs'
+  if (s === 'motivation') return 'Motivation'
+  if (s === 'urgency') return 'Urgency'
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved }) {
+  const templateId = templateIdProp ? String(templateIdProp).trim() || null : null
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(1) // 1 = forward, -1 = back
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [loadingTemplate, setLoadingTemplate] = useState(!!templateId)
+  const [loadError, setLoadError] = useState(null)
 
   // Form state
   const [industry, setIndustry] = useState('')
@@ -103,6 +115,62 @@ export default function CreateTemplateFlow({ onSaved }) {
 
   const totalSteps = 6
   const progressPercent = templateCreated ? 100 : ((step + 1) / totalSteps) * 100
+
+  // Load template for edit mode
+  useEffect(() => {
+    if (!templateId) {
+      setLoadingTemplate(false)
+      return
+    }
+    let cancelled = false
+    const load = async () => {
+      setLoadError(null)
+      try {
+        const userData = localStorage.getItem(PersistanceKeys.LocalStorageUser) || localStorage.getItem('User')
+        const token = userData ? JSON.parse(userData)?.token : null
+        if (!token) {
+          setLoadError('Please log in again')
+          setLoadingTemplate(false)
+          return
+        }
+        const res = await axios.get(`${Apis.getTemplates}/${templateId}`, {
+          headers: { Authorization: 'Bearer ' + token },
+        })
+        if (cancelled) return
+        if (!res?.data?.status || !res?.data?.data) {
+          setLoadError(res?.data?.message || 'Template not found')
+          setLoadingTemplate(false)
+          return
+        }
+        const t = res.data.data
+        setIndustry(t.industry || '')
+        setName(t.name || '')
+        setAgentRole(t.agentRole || '')
+        setDescription(t.description || '')
+        const po = t.promptOutbound || t.prompt || {}
+        const pi = t.promptInbound || po
+        const prompt = po?.callScript != null ? po : pi
+        setObjective(prompt?.objective ?? po?.objective ?? '')
+        setGreeting(prompt?.greeting ?? po?.greeting ?? '')
+        setCallScript(prompt?.callScript ?? po?.callScript ?? '')
+        setObjections(Array.isArray(t.objections) ? t.objections.map((o) => ({ title: o.title || '', description: o.description || '' })) : [])
+        setGuardrails(Array.isArray(t.guardrails) ? t.guardrails.map((g) => ({ title: g.title || '', description: g.description || '' })) : [])
+        const kycs = Array.isArray(t.kycs) ? t.kycs : []
+        const toKycItem = (q) => ({ id: q.id || Date.now() + Math.random(), question: q.question || '', selected: true })
+        setKycNeeds(kycs.filter((k) => normalizeCategory(k.category) === 'Needs').map(toKycItem))
+        setKycMotivation(kycs.filter((k) => normalizeCategory(k.category) === 'Motivation').map(toKycItem))
+        setKycUrgency(kycs.filter((k) => normalizeCategory(k.category) === 'Urgency').map(toKycItem))
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(err?.response?.data?.message || err?.message || 'Failed to load template')
+        }
+      } finally {
+        if (!cancelled) setLoadingTemplate(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [templateId])
 
   const canContinueStep0 =
     industry &&
@@ -197,9 +265,11 @@ export default function CreateTemplateFlow({ onSaved }) {
         return
       }
       const payload = buildPayload()
-      const res = await axios.post(Apis.createTemplate, payload, {
-        headers: { Authorization: 'Bearer ' + token },
-      })
+      const isEdit = !!templateId
+      const url = isEdit ? `${Apis.getTemplates}/${templateId}` : Apis.createTemplate
+      const res = isEdit
+        ? await axios.put(url, payload, { headers: { Authorization: 'Bearer ' + token } })
+        : await axios.post(url, payload, { headers: { Authorization: 'Bearer ' + token } })
       if (res?.data?.status) {
         setTemplateCreated(true)
         if (onSaved) onSaved(res.data.data)
@@ -211,7 +281,7 @@ export default function CreateTemplateFlow({ onSaved }) {
     } finally {
       setSaving(false)
     }
-  }, [buildPayload, onSaved])
+  }, [buildPayload, onSaved, templateId])
 
   const handleContinue = useCallback(() => {
     if (step === 5) {
@@ -396,7 +466,22 @@ export default function CreateTemplateFlow({ onSaved }) {
           />
         </Box>
 
-        {showForm ? (
+        {loadingTemplate ? (
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', px: 4 }}>
+            <Typography sx={{ color: '#6b7280', fontSize: 16 }}>Loading template...</Typography>
+          </Box>
+        ) : loadError ? (
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', px: 4, gap: 2 }}>
+            <Typography sx={{ color: '#b91c1c', fontSize: 16, textAlign: 'center' }}>{loadError}</Typography>
+            <Button
+              onClick={() => onSaved?.()}
+              variant="outlined"
+              sx={{ textTransform: 'none' }}
+            >
+              Back to Templates
+            </Button>
+          </Box>
+        ) : showForm ? (
           <>
             <Box sx={{ flex: 1, overflow: 'auto', px: 4, pb: 2, justifyContent: 'center', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '' }}>
@@ -1298,7 +1383,7 @@ export default function CreateTemplateFlow({ onSaved }) {
                     py: 1.25,
                   }}
                 >
-                  {saving ? 'Saving...' : isLastFormStep ? 'Save Template' : 'Continue'}
+                  {saving ? 'Saving...' : isLastFormStep ? (templateId ? 'Update Template' : 'Save Template') : 'Continue'}
                 </Button>
               </Box>
             </Box>
@@ -1325,7 +1410,7 @@ export default function CreateTemplateFlow({ onSaved }) {
                 mb: 3,
               }}
             >
-              Template created
+              {templateId ? 'Template updated' : 'Template created'}
             </Typography>
             <Box
               sx={{

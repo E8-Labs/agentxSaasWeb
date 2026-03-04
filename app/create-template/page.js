@@ -1,13 +1,15 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { PersistanceKeys } from '@/constants/Constants'
 import CreateTemplateFlow from '@/components/createagent/CreateTemplateFlow'
 
 const Page = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const templateId = searchParams.get('templateId') || null
   const [ready, setReady] = useState(false)
   const [allowed, setAllowed] = useState(false)
 
@@ -56,7 +58,7 @@ const Page = () => {
 
   return (
     <ErrorBoundary>
-      <CreateTemplateFlow onSaved={handleSaved} />
+      <CreateTemplateFlow templateId={templateId} onSaved={handleSaved} />
     </ErrorBoundary>
   )
 }
