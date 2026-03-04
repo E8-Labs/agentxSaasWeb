@@ -17,6 +17,8 @@ import {
 } from '@mui/material'
 import ChevronDown from '@mui/icons-material/KeyboardArrowDown'
 import MoreVert from '@mui/icons-material/MoreVert'
+import Check from '@mui/icons-material/Check'
+import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
 import axios from 'axios'
 import { UserTypeOptions } from '@/constants/UserTypeOptions'
 import { Input } from '@/components/ui/input'
@@ -67,13 +69,13 @@ export default function CreateTemplateFlow({ onSaved }) {
   const [description, setDescription] = useState('')
   const [objective, setObjective] = useState('')
   const [kycNeeds, setKycNeeds] = useState(
-    () => (SellerKycsQuestions.DefaultSellerKycsNeed || []).map((q) => ({ ...q }))
+    () => (SellerKycsQuestions.DefaultSellerKycsNeed || []).map((q) => ({ ...q, selected: true }))
   )
   const [kycMotivation, setKycMotivation] = useState(
-    () => (SellerKycsQuestions.DefaultSellerKycsMotivation || []).map((q) => ({ ...q }))
+    () => (SellerKycsQuestions.DefaultSellerKycsMotivation || []).map((q) => ({ ...q, selected: true }))
   )
   const [kycUrgency, setKycUrgency] = useState(
-    () => (SellerKycsQuestions.DefaultSellerKycsUrgency || []).map((q) => ({ ...q }))
+    () => (SellerKycsQuestions.DefaultSellerKycsUrgency || []).map((q) => ({ ...q, selected: true }))
   )
   const [activeKycTab, setActiveKycTab] = useState('Needs')
   const [kycAddingInline, setKycAddingInline] = useState(false)
@@ -83,7 +85,17 @@ export default function CreateTemplateFlow({ onSaved }) {
   const [greeting, setGreeting] = useState('')
   const [callScript, setCallScript] = useState('')
   const [objections, setObjections] = useState([])
+  const [objectionsAddingInline, setObjectionsAddingInline] = useState(false)
+  const [objectionDraftTitle, setObjectionDraftTitle] = useState('')
+  const [objectionDraftDescription, setObjectionDraftDescription] = useState('')
+  const [objectionMenuAnchor, setObjectionMenuAnchor] = useState(null)
+  const [objectionMenuIndex, setObjectionMenuIndex] = useState(null)
   const [guardrails, setGuardrails] = useState([])
+  const [guardrailsAddingInline, setGuardrailsAddingInline] = useState(false)
+  const [guardrailDraftTitle, setGuardrailDraftTitle] = useState('')
+  const [guardrailDraftDescription, setGuardrailDraftDescription] = useState('')
+  const [guardrailMenuAnchor, setGuardrailMenuAnchor] = useState(null)
+  const [guardrailMenuIndex, setGuardrailMenuIndex] = useState(null)
   const [templateCreated, setTemplateCreated] = useState(false)
 
   const totalSteps = 6
@@ -120,7 +132,7 @@ export default function CreateTemplateFlow({ onSaved }) {
       { list: kycUrgency, category: 'Urgency' },
     ].forEach(({ list, category }) => {
       (list || []).forEach((item) => {
-        if (item?.question?.trim()) {
+        if (item?.question?.trim() && item.selected !== false) {
           kycs.push({
             question: item.question.trim(),
             type: 'seller',
@@ -237,9 +249,17 @@ export default function CreateTemplateFlow({ onSaved }) {
   const saveKycNewQuestion = () => {
     const trimmed = kycNewQuestionDraft.trim()
     if (!trimmed) return
-    setKycList((prev) => [...(prev || []), { id: Date.now(), question: trimmed }])
+    setKycList((prev) => [...(prev || []), { id: Date.now(), question: trimmed, selected: true }])
     setKycNewQuestionDraft('')
     setKycAddingInline(false)
+  }
+
+  const toggleKycSelected = (index) => {
+    setKycList((prev) => {
+      const next = [...(prev || [])]
+      if (next[index]) next[index] = { ...next[index], selected: !next[index].selected }
+      return next
+    })
   }
 
   const cancelKycInline = () => {
@@ -247,28 +267,46 @@ export default function CreateTemplateFlow({ onSaved }) {
     setKycNewQuestionDraft('')
   }
 
-  const addObjection = () => {
-    setObjections((prev) => [...prev, { title: '', description: '' }])
+  const addObjection = () => setObjectionsAddingInline(true)
+  const cancelObjectionInline = () => {
+    setObjectionsAddingInline(false)
+    setObjectionDraftTitle('')
+    setObjectionDraftDescription('')
+  }
+  const saveObjectionNew = () => {
+    const title = objectionDraftTitle.trim()
+    const description = objectionDraftDescription.trim()
+    if (!title) return
+    setObjections((prev) => [...prev, { title, description }])
+    setObjectionDraftTitle('')
+    setObjectionDraftDescription('')
+    setObjectionsAddingInline(false)
+  }
+  const removeObjection = (index) => {
+    setObjections((prev) => prev.filter((_, i) => i !== index))
+    setObjectionMenuAnchor(null)
+    setObjectionMenuIndex(null)
   }
 
-  const updateObjection = (index, field, value) => {
-    setObjections((prev) => {
-      const next = [...prev]
-      next[index] = { ...next[index], [field]: value }
-      return next
-    })
+  const addGuardrail = () => setGuardrailsAddingInline(true)
+  const cancelGuardrailInline = () => {
+    setGuardrailsAddingInline(false)
+    setGuardrailDraftTitle('')
+    setGuardrailDraftDescription('')
   }
-
-  const addGuardrail = () => {
-    setGuardrails((prev) => [...prev, { title: '', description: '' }])
+  const saveGuardrailNew = () => {
+    const title = guardrailDraftTitle.trim()
+    const description = guardrailDraftDescription.trim()
+    if (!title) return
+    setGuardrails((prev) => [...prev, { title, description }])
+    setGuardrailDraftTitle('')
+    setGuardrailDraftDescription('')
+    setGuardrailsAddingInline(false)
   }
-
-  const updateGuardrail = (index, field, value) => {
-    setGuardrails((prev) => {
-      const next = [...prev]
-      next[index] = { ...next[index], [field]: value }
-      return next
-    })
+  const removeGuardrail = (index) => {
+    setGuardrails((prev) => prev.filter((_, i) => i !== index))
+    setGuardrailMenuAnchor(null)
+    setGuardrailMenuIndex(null)
   }
 
   const isLastFormStep = step === 5
@@ -276,7 +314,8 @@ export default function CreateTemplateFlow({ onSaved }) {
     step === 0 ? canContinueStep0 : step === 5 ? true : true
   const showForm = !templateCreated
 
-  const brandPurple = '#6A0DAD'
+  const brandColor = 'hsl(var(--brand-primary, 270 75% 50%))'
+  const brandColorMuted = 'hsl(var(--brand-primary, 270 75% 50%) / 0.15)'
 
   return (
     <Box
@@ -566,36 +605,59 @@ export default function CreateTemplateFlow({ onSaved }) {
                         ))}
                       </Box>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                        {(getKycList() || []).map((item, index) => (
-                          <Box
-                            key={item.id || index}
-                            sx={{
-                              border: '0.5px solid rgba(0,0,0,0.1)',
-                              borderRadius: 1.5,
-                              p: 1.5,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              gap: 1,
-                              bgcolor: '#fff',
-                            }}
-                          >
-                            <Typography sx={{ fontSize: 15, fontWeight: 400, color: '#151515', flex: 1 }}>
-                              {item.question || ''}
-                            </Typography>
-                            <IconButton
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setKycMenuAnchor(e.currentTarget)
-                                setKycMenuIndex(index)
+                        {(getKycList() || []).map((item, index) => {
+                          const selected = item.selected !== false
+                          return (
+                            <Box
+                              key={item.id || index}
+                              onClick={() => toggleKycSelected(index)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  toggleKycSelected(index)
+                                }
                               }}
-                              sx={{ color: '#6b7280', p: 0.5 }}
+                              sx={{
+                                border: selected
+                                  ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
+                                  : '0.5px solid rgba(0,0,0,0.1)',
+                                borderRadius: 1.5,
+                                p: 1.5,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: 1,
+                                bgcolor: selected ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.08)' : '#fff',
+                                cursor: 'pointer',
+                                '&:hover': { bgcolor: selected ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.12)' : 'rgba(0,0,0,0.02)' },
+                              }}
                             >
-                              <MoreVert fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        ))}
+                              <Typography sx={{ fontSize: 15, fontWeight: 400, color: '#151515', flex: 1 }}>
+                                {item.question || ''}
+                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                {selected ? (
+                                  <Check sx={{ color: 'hsl(var(--brand-primary, 270 75% 50%))', fontSize: 22 }} />
+                                ) : (
+                                  <RadioButtonUnchecked sx={{ color: '#9ca3af', fontSize: 22 }} />
+                                )}
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setKycMenuAnchor(e.currentTarget)
+                                    setKycMenuIndex(index)
+                                  }}
+                                  sx={{ color: '#6b7280', p: 0.5 }}
+                                >
+                                  <MoreVert fontSize="small" />
+                                </IconButton>
+                              </Box>
+                            </Box>
+                          )
+                        })}
                       </Box>
                       <Menu
                         anchorEl={kycMenuAnchor}
@@ -727,40 +789,50 @@ export default function CreateTemplateFlow({ onSaved }) {
                       >
                         Objections
                       </Typography>
-                      {objections.length === 0 ? (
-                        <Box
-                          sx={{
-                            textAlign: 'center',
-                            py: 4,
-                          }}
-                        >
+                      {objections.length === 0 && !objectionsAddingInline ? (
+                        <Box sx={{ textAlign: 'center', py: 0, pt: 0 }}>
                           <Box
                             sx={{
-                              width: 64,
-                              height: 64,
-                              borderRadius: '50%',
-                              bgcolor: 'rgba(0,0,0,0.06)',
                               display: 'flex',
-                              alignItems: 'center',
                               justifyContent: 'center',
-                              mx: 'auto',
-                              mb: 2,
+                              alignItems: 'center',
+                              mb: 0,
+                              lineHeight: 0,
                             }}
                           >
-                            <Typography sx={{ fontSize: 32, color: '#9ca3af' }}>🏆</Typography>
+                            <Box
+                              component="img"
+                              src="/svgIcons/OLD AGENTX UI/no_objections_image.png"
+                              alt="No objections"
+                              sx={{
+                                width: 250,
+                                maxWidth: 250,
+                                height: 'auto',
+                                objectFit: 'contain',
+                                filter: 'grayscale(100%)',
+                                display: 'block',
+                              }}
+                            />
                           </Box>
-                          <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0.5 }}>
+                          <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0, mt: -5.5 }}>
                             No Objections
                           </Typography>
-                          <Typography sx={{ fontSize: 14, color: '#6b7280', mb: 2 }}>
-                            Create common objections for this AI agent to handle during its conversations
-                          </Typography>
+                          <Box sx={{ fontSize: 14, color: '#6b7280', mb: 0.5, mx: 'auto', maxWidth: 380 }}>
+                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                              Create common objections for this AI agent 
+                            </Typography>
+                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                            to handle during its conversations
+                            </Typography>
+                          </Box>
                           <Button
                             onClick={addObjection}
                             sx={{
                               textTransform: 'none',
-                              color: 'var(--brand-primary, #6A0DAD)',
+                              color: 'hsl(var(--brand-primary, 270 75% 50%))',
                               fontWeight: 600,
+                              p: 0,
+                              minHeight: 'auto',
                             }}
                           >
                             + Add New
@@ -768,37 +840,128 @@ export default function CreateTemplateFlow({ onSaved }) {
                         </Box>
                       ) : (
                         <>
-                          {objections.map((obj, index) => (
-                            <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #e5e7eb', borderRadius: 1 }}>
+                          {objections.length > 0 && (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
+                              {objections.map((obj, index) => (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    border: '0.5px solid rgba(0,0,0,0.1)',
+                                    borderRadius: 1.5,
+                                    p: 1.5,
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    justifyContent: 'space-between',
+                                    gap: 1,
+                                    bgcolor: '#fff',
+                                  }}
+                                >
+                                  <Box sx={{ flex: 1 }}>
+                                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#151515', mb: 0.5 }}>
+                                      {obj.title || ''}
+                                    </Typography>
+                                    {obj.description ? (
+                                      <Typography sx={{ fontSize: 14, fontWeight: 400, color: '#6b7280' }}>
+                                        {obj.description}
+                                      </Typography>
+                                    ) : null}
+                                  </Box>
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setObjectionMenuAnchor(e.currentTarget)
+                                      setObjectionMenuIndex(index)
+                                    }}
+                                    sx={{ color: '#6b7280', p: 0.5 }}
+                                  >
+                                    <MoreVert fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              ))}
+                            </Box>
+                          )}
+                          {!objectionsAddingInline ? (
+                            <Button
+                              onClick={addObjection}
+                              sx={{
+                                textTransform: 'none',
+                                color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                fontWeight: 600,
+                                mt: objections.length > 0 ? 0 : 0,
+                              }}
+                            >
+                              + Add New
+                            </Button>
+                          ) : (
+                            <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
+                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
+                                Title
+                              </Typography>
                               <Input
-                                placeholder="Title"
-                                value={obj.title || ''}
-                                onChange={(e) => updateObjection(index, 'title', e.target.value)}
-                                className={inputClassName}
-                                style={{ ...inputStyleObj, marginBottom: 8 }}
-                              />
-                              <Textarea
-                                placeholder="Description"
-                                value={obj.description || ''}
-                                onChange={(e) => updateObjection(index, 'description', e.target.value)}
-                                rows={2}
+                                placeholder="Add title"
+                                value={objectionDraftTitle}
+                                onChange={(e) => setObjectionDraftTitle(e.target.value)}
                                 className={inputClassName}
                                 style={{ ...inputStyleObj, marginTop: '8px' }}
                               />
+                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75, mt: 1.5 }}>
+                                Response
+                              </Typography>
+                              <Textarea
+                                placeholder="Add description"
+                                value={objectionDraftDescription}
+                                onChange={(e) => setObjectionDraftDescription(e.target.value)}
+                                rows={3}
+                                className={inputClassName}
+                                style={{ ...inputStyleObj, marginTop: '8px' }}
+                              />
+                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                                <Button
+                                  onClick={cancelObjectionInline}
+                                  sx={{
+                                    textTransform: 'none',
+                                    color: '#EA4335',
+                                    fontWeight: 500,
+                                    '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={saveObjectionNew}
+                                  disabled={!objectionDraftTitle.trim()}
+                                  sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                    '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
+                                  }}
+                                >
+                                  Save
+                                </Button>
+                              </Box>
                             </Box>
-                          ))}
-                          <Button
-                            onClick={addObjection}
-                            sx={{
-                              textTransform: 'none',
-                              color: 'var(--brand-primary, #6A0DAD)',
-                              fontWeight: 600,
-                            }}
-                          >
-                            + Add New
-                          </Button>
+                          )}
                         </>
                       )}
+                      <Menu
+                        anchorEl={objectionMenuAnchor}
+                        open={Boolean(objectionMenuAnchor)}
+                        onClose={() => { setObjectionMenuAnchor(null); setObjectionMenuIndex(null) }}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                      >
+                        <MenuItem
+                          onClick={() => {
+                            if (objectionMenuIndex !== null) removeObjection(objectionMenuIndex)
+                          }}
+                          sx={{ color: '#EA4335', fontSize: 14 }}
+                        >
+                          Delete
+                        </MenuItem>
+                      </Menu>
                     </Box>
                   </Box>
 
@@ -816,35 +979,50 @@ export default function CreateTemplateFlow({ onSaved }) {
                       >
                         Guardrails
                       </Typography>
-                      {guardrails.length === 0 ? (
-                        <Box sx={{ textAlign: 'center', py: 4 }}>
+                      {guardrails.length === 0 && !guardrailsAddingInline ? (
+                        <Box sx={{ textAlign: 'center', py: 0, pt: 0 }}>
                           <Box
                             sx={{
-                              width: 64,
-                              height: 64,
-                              borderRadius: '50%',
-                              bgcolor: 'rgba(0,0,0,0.06)',
                               display: 'flex',
-                              alignItems: 'center',
                               justifyContent: 'center',
-                              mx: 'auto',
-                              mb: 2,
+                              alignItems: 'center',
+                              mb: 0,
+                              lineHeight: 0,
                             }}
                           >
-                            <Typography sx={{ fontSize: 32, color: '#9ca3af' }}>🛡️</Typography>
+                            <Box
+                              component="img"
+                              src="/svgIcons/OLD AGENTX UI/no_guardrails_image.png"
+                              alt="No guardrails"
+                              sx={{
+                                width: 250,
+                                maxWidth: 250,
+                                height: 'auto',
+                                objectFit: 'contain',
+                                filter: 'grayscale(100%)',
+                                display: 'block',
+                              }}
+                            />
                           </Box>
-                          <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0.5 }}>
+                          <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0, mt: -5.5 }}>
                             No Guardrails
                           </Typography>
-                          <Typography sx={{ fontSize: 14, color: '#6b7280', mb: 2 }}>
-                            Create guardrails for this AI agent to stay within boundaries
-                          </Typography>
+                          <Box sx={{ fontSize: 14, color: '#6b7280', mb: 0.5, mx: 'auto', maxWidth: 380 }}>
+                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                              Create guardrails for this AI agent to stay within
+                            </Typography>
+                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                              boundaries
+                            </Typography>
+                          </Box>
                           <Button
                             onClick={addGuardrail}
                             sx={{
                               textTransform: 'none',
-                              color: 'var(--brand-primary, #6A0DAD)',
+                              color: 'hsl(var(--brand-primary, 270 75% 50%))',
                               fontWeight: 600,
+                              p: 0,
+                              minHeight: 'auto',
                             }}
                           >
                             + Add New
@@ -852,37 +1030,127 @@ export default function CreateTemplateFlow({ onSaved }) {
                         </Box>
                       ) : (
                         <>
-                          {guardrails.map((gr, index) => (
-                            <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #e5e7eb', borderRadius: 1 }}>
+                          {guardrails.length > 0 && (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
+                              {guardrails.map((gr, index) => (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    border: '0.5px solid rgba(0,0,0,0.1)',
+                                    borderRadius: 1.5,
+                                    p: 1.5,
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    justifyContent: 'space-between',
+                                    gap: 1,
+                                    bgcolor: '#fff',
+                                  }}
+                                >
+                                  <Box sx={{ flex: 1 }}>
+                                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#151515', mb: 0.5 }}>
+                                      {gr.title || ''}
+                                    </Typography>
+                                    {gr.description ? (
+                                      <Typography sx={{ fontSize: 14, fontWeight: 400, color: '#6b7280' }}>
+                                        {gr.description}
+                                      </Typography>
+                                    ) : null}
+                                  </Box>
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setGuardrailMenuAnchor(e.currentTarget)
+                                      setGuardrailMenuIndex(index)
+                                    }}
+                                    sx={{ color: '#6b7280', p: 0.5 }}
+                                  >
+                                    <MoreVert fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              ))}
+                            </Box>
+                          )}
+                          {!guardrailsAddingInline ? (
+                            <Button
+                              onClick={addGuardrail}
+                              sx={{
+                                textTransform: 'none',
+                                color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                fontWeight: 600,
+                              }}
+                            >
+                              + Add New
+                            </Button>
+                          ) : (
+                            <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
+                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
+                                Title
+                              </Typography>
                               <Input
-                                placeholder="Title"
-                                value={gr.title || ''}
-                                onChange={(e) => updateGuardrail(index, 'title', e.target.value)}
-                                className={inputClassName}
-                                style={{ ...inputStyleObj, marginBottom: 8 }}
-                              />
-                              <Textarea
-                                placeholder="Description"
-                                value={gr.description || ''}
-                                onChange={(e) => updateGuardrail(index, 'description', e.target.value)}
-                                rows={2}
+                                placeholder="Add title"
+                                value={guardrailDraftTitle}
+                                onChange={(e) => setGuardrailDraftTitle(e.target.value)}
                                 className={inputClassName}
                                 style={{ ...inputStyleObj, marginTop: '8px' }}
                               />
+                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75, mt: 1.5 }}>
+                                Description
+                              </Typography>
+                              <Textarea
+                                placeholder="Add description"
+                                value={guardrailDraftDescription}
+                                onChange={(e) => setGuardrailDraftDescription(e.target.value)}
+                                rows={3}
+                                className={inputClassName}
+                                style={{ ...inputStyleObj, marginTop: '8px' }}
+                              />
+                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                                <Button
+                                  onClick={cancelGuardrailInline}
+                                  sx={{
+                                    textTransform: 'none',
+                                    color: '#EA4335',
+                                    fontWeight: 500,
+                                    '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={saveGuardrailNew}
+                                  disabled={!guardrailDraftTitle.trim()}
+                                  sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                    '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
+                                  }}
+                                >
+                                  Save
+                                </Button>
+                              </Box>
                             </Box>
-                          ))}
-                          <Button
-                            onClick={addGuardrail}
-                            sx={{
-                              textTransform: 'none',
-                              color: 'var(--brand-primary, #6A0DAD)',
-                              fontWeight: 600,
-                            }}
-                          >
-                            + Add New
-                          </Button>
+                          )}
                         </>
                       )}
+                      <Menu
+                        anchorEl={guardrailMenuAnchor}
+                        open={Boolean(guardrailMenuAnchor)}
+                        onClose={() => { setGuardrailMenuAnchor(null); setGuardrailMenuIndex(null) }}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                      >
+                        <MenuItem
+                          onClick={() => {
+                            if (guardrailMenuIndex !== null) removeGuardrail(guardrailMenuIndex)
+                          }}
+                          sx={{ color: '#EA4335', fontSize: 14 }}
+                        >
+                          Delete
+                        </MenuItem>
+                      </Menu>
                     </Box>
                   </Box>
                 </Box>
@@ -917,10 +1185,10 @@ export default function CreateTemplateFlow({ onSaved }) {
                   mb: 2,
                   borderRadius: 3,
                   '& .MuiLinearProgress-bar': {
-                    bgcolor: brandPurple,
+                    bgcolor: brandColor,
                     borderRadius: 3,
                   },
-                  bgcolor: 'rgba(106, 13, 173, 0.15)',
+                  bgcolor: brandColorMuted,
                 }}
               />
               {/* Back and Continue buttons */}
@@ -933,12 +1201,12 @@ export default function CreateTemplateFlow({ onSaved }) {
                     textTransform: 'none',
                     fontWeight: 700,
                     fontSize: 16,
-                    color: brandPurple,
+                    color: brandColor,
                     borderColor: 'rgba(0,0,0,0.12)',
                     bgcolor: '#fff',
                     '&:hover': {
-                      borderColor: 'rgba(0,0,0,0.2)',
-                      bgcolor: 'rgba(0,0,0,0.02)',
+                      borderColor: brandColor,
+                      bgcolor: brandColorMuted,
                     },
                     borderRadius: 2,
                     px: 3,
@@ -956,8 +1224,8 @@ export default function CreateTemplateFlow({ onSaved }) {
                     fontWeight: 700,
                     fontSize: 16,
                     color: '#fff',
-                    bgcolor: brandPurple,
-                    '&:hover': { bgcolor: '#5a0b94' },
+                    bgcolor: brandColor,
+                    '&:hover': { opacity: 0.9, bgcolor: brandColor },
                     borderRadius: 2,
                     px: 3,
                     py: 1.25,
@@ -1020,13 +1288,13 @@ export default function CreateTemplateFlow({ onSaved }) {
         )}
       </Box>
 
-      {/* Right column - solid purple; preview card centered */}
+      {/* Right column - branding purple; preview card centered */}
       <Box
         sx={{
           flex: '0 0 40%',
           minWidth: 280,
           flexShrink: 0,
-          bgcolor: brandPurple,
+          bgcolor: brandColor,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
