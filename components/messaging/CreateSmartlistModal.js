@@ -272,7 +272,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
           <CloseBtn onClick={onClose} />
         </div>
 
-        <div className="flex flex-col flex-1 overflow-y-auto px-0 py-4">
+        <div className="flex flex-col flex-1 overflow-y-auto py-4" style={{ paddingLeft: 16, paddingRight: 16 }}>
           {/* List Name row: label left, Inbound toggle right */}
           <div className="flex flex-row items-center justify-between gap-4 mb-2 py-0 bg-white">
             <label className="start-campaign-label block">List Name</label>
