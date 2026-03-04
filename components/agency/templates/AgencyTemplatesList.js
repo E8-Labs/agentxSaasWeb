@@ -532,7 +532,7 @@ export default function AgencyTemplatesList() {
                 <Typography
                   sx={{
                     fontFamily: 'Inter, sans-serif',
-                    fontWeight: 600,
+                    fontWeight: 400,
                     fontSize: '1rem',
                     lineHeight: 'normal',
                     color: textPrimary,
