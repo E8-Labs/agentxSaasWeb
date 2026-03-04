@@ -143,23 +143,48 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
           return
         }
         const t = res.data.data
+        const parseJson = (v) => {
+          if (v == null) return null
+          if (typeof v === 'object') return v
+          if (typeof v === 'string') {
+            try {
+              return JSON.parse(v)
+            } catch (_) {
+              return null
+            }
+          }
+          return null
+        }
+        const parseJsonArray = (v) => {
+          const parsed = parseJson(v)
+          return Array.isArray(parsed) ? parsed : []
+        }
+
         setIndustry(t.industry || '')
         setName(t.name || '')
         setAgentRole(t.agentRole || '')
         setDescription(t.description || '')
-        const po = t.promptOutbound || t.prompt || {}
-        const pi = t.promptInbound || po
-        const prompt = po?.callScript != null ? po : pi
+
+        const poRaw = t.promptOutbound ?? t.prompt
+        const piRaw = t.promptInbound ?? poRaw
+        const po = parseJson(poRaw) || {}
+        const pi = parseJson(piRaw) || po
+        const prompt = po?.callScript != null || po?.objective != null ? po : pi
         setObjective(prompt?.objective ?? po?.objective ?? '')
         setGreeting(prompt?.greeting ?? po?.greeting ?? '')
         setCallScript(prompt?.callScript ?? po?.callScript ?? '')
-        setObjections(Array.isArray(t.objections) ? t.objections.map((o) => ({ title: o.title || '', description: o.description || '' })) : [])
-        setGuardrails(Array.isArray(t.guardrails) ? t.guardrails.map((g) => ({ title: g.title || '', description: g.description || '' })) : [])
-        const kycs = Array.isArray(t.kycs) ? t.kycs : []
-        const toKycItem = (q) => ({ id: q.id || Date.now() + Math.random(), question: q.question || '', selected: true })
-        setKycNeeds(kycs.filter((k) => normalizeCategory(k.category) === 'Needs').map(toKycItem))
-        setKycMotivation(kycs.filter((k) => normalizeCategory(k.category) === 'Motivation').map(toKycItem))
-        setKycUrgency(kycs.filter((k) => normalizeCategory(k.category) === 'Urgency').map(toKycItem))
+
+        const objectionsRaw = parseJsonArray(t.objections)
+        setObjections(objectionsRaw.map((o) => ({ title: o?.title ?? '', description: o?.description ?? '' })))
+
+        const guardrailsRaw = parseJsonArray(t.guardrails)
+        setGuardrails(guardrailsRaw.map((g) => ({ title: g?.title ?? '', description: g?.description ?? '' })))
+
+        const kycs = parseJsonArray(t.kycs)
+        const toKycItem = (q) => ({ id: q?.id ?? Date.now() + Math.random(), question: q?.question ?? '', selected: true })
+        setKycNeeds(kycs.filter((k) => normalizeCategory(k?.category) === 'Needs').map(toKycItem))
+        setKycMotivation(kycs.filter((k) => normalizeCategory(k?.category) === 'Motivation').map(toKycItem))
+        setKycUrgency(kycs.filter((k) => normalizeCategory(k?.category) === 'Urgency').map(toKycItem))
       } catch (err) {
         if (!cancelled) {
           setLoadError(err?.response?.data?.message || err?.message || 'Failed to load template')
