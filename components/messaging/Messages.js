@@ -1269,6 +1269,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
     const pollForNewMessages = async () => {
       try {
+        if (!selectedThread?.id) return
+
         const localData = localStorage.getItem('User')
         if (!localData) return
 
@@ -1375,8 +1377,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           }
         }
       } catch (error) {
-        console.error('Error polling for new messages:', error)
-        // Don't show error to user, just log it
+        // Avoid logging network errors (e.g. CORS, offline, backend unreachable) as they are expected when API is unavailable
+        if (error?.code !== 'ERR_NETWORK' && error?.message !== 'Network Error') {
+          console.error('Error polling for new messages:', error)
+        }
       }
     }
 
@@ -1385,6 +1389,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     const pollForDrafts = async () => {
       if (callSummaryDraftsMessageId) return
       if (!lastInboundMessageId) return
+      if (!selectedThread?.id) return
 
       try {
         const localData = localStorage.getItem('User')

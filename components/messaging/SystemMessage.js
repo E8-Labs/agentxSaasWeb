@@ -203,8 +203,8 @@ const SystemMessage = ({
         // Join all parts and replace newlines
         let processedContent = parts.join('').replace(/\n/g, '<br>')
 
-        // Wrap entire content in small text (text-xs) with black color for gray bubble
-        return `<span class="text-xs text-black">${processedContent}</span>`
+        // Wrap entire content in 14px text with black color for gray bubble
+        return `<span class="text-[14px] text-black">${processedContent}</span>`
       }
 
       // Fallback: if no mention positions, try to extract from metadata directly
@@ -251,7 +251,7 @@ const SystemMessage = ({
         }
 
         let processedContent = parts.join('').replace(/\n/g, '<br>')
-        return `<span class="text-xs text-black">${processedContent}</span>`
+        return `<span class="text-[14px] text-black">${processedContent}</span>`
       }
 
       // Final fallback: use regex matching (for backward compatibility)
@@ -275,8 +275,8 @@ const SystemMessage = ({
         })
       }
 
-      // Wrap entire content in small text (text-xs) with black color for gray bubble
-      return `<span class="text-xs text-black">${escaped}</span>`
+      // Wrap entire content in 14px text with black color for gray bubble
+      return `<span class="text-[14px] text-black">${escaped}</span>`
     }
 
     // For other system messages (stage changes, assignments), parse markdown-style bold (**text**)
