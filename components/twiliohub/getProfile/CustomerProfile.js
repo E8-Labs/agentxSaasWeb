@@ -168,7 +168,7 @@ const CustomerProfile = ({
         </div>
       </div>
       <div className='mt-2'>
-        {twilioHubData?.accountSid && twilioHubData?.authToken && (
+        {!isFromAgency && twilioHubData?.accountSid && twilioHubData?.authToken && (
           <div style={{ fontWeight: '500', fontSize: 15 }}>
             SID {maskSensitive(twilioHubData?.accountSid)} Token{' '}
             {maskSensitive(twilioHubData?.authToken)}
