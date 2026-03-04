@@ -950,6 +950,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
                         <RadioGroupItem value="anthropic" id="ai-provider-anthropic" />
+                        <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
                         <span className="text-[14px] text-foreground">Anthropic</span>
                       </label>
                     </RadioGroup>
