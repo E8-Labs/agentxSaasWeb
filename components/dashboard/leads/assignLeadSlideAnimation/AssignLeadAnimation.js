@@ -10,6 +10,7 @@ import { SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi'
 import { PersistanceKeys } from '@/constants/Constants'
 import { GetTimezone } from '@/utilities/utility'
 
+import { AnimateHeight } from '@/components/ui/animate-height'
 import AgentSelectSnackMessage from '../AgentSelectSnackMessage'
 import AllowSmartRefillPopup from '../AllowSmartRefillPopup'
 import AssignLead from './AssignLead'
@@ -343,27 +344,39 @@ export default function AssignLeadAnimation({
     }
   }
 
+  const handleModalClose = () => {
+    handleClose({ status: false, showSnack: '', disSelectLeads: false })
+    resetValues()
+  }
+
   return (
     <Modal
       open={showModal}
-      // onClose={() => {
-      //     handleClose();
-      // }}
-      // BackdropProps={{
-      //     timeout: 200,
-      //     sx: {
-      //         backgroundColor: "#00000020",
-      //         zIndex: 1200, // Keep backdrop below Drawer
-      //     },
-      // }}
+      onClose={handleModalClose}
+      closeAfterTransition
+      BackdropProps={{
+        timeout: 250,
+        sx: {
+          backgroundColor: '#00000099',
+        },
+      }}
       sx={{
-        zIndex: 1300, // Keep Modal below the Drawer
-        // backgroundColor: "red"
+        zIndex: 1300,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
-      <Box className="rounded-xl max-w-2xl w-full shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
-        <div className="relative flex justify-center items-center w-full">
-          <AgentSelectSnackMessage
+      <Box
+        className="rounded-[12px] overflow-hidden w-[500px] max-w-[90vw] max-h-[90vh] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col bg-white"
+        sx={{
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.08)',
+          zIndex: 1,
+        }}
+      >
+        <AnimateHeight className="flex flex-col w-full" duration={250}>
+          <div className="relative flex flex-col w-full">
+            <AgentSelectSnackMessage
             isVisible={showTimeError != null}
             hide={() => {
               setShowTimeError(null)
@@ -380,10 +393,10 @@ export default function AssignLeadAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
-                // style={styles.motionDiv}
+                className="rounded-lg w-[100%] bg-white border-none outline-none flex flex-col flex-1 min-h-0"
+                style={{ padding: 0 }}
               >
-                <div className="">
+                <div className="w-full flex flex-col flex-1 min-h-0" style={{ padding: 0, gap: 2 }}>
                   <AssignLead
                     selectedLead={selectedLead}
                     handleCloseAssignLeadModal={() => {
@@ -420,10 +433,10 @@ export default function AssignLeadAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
-                // style={styles.motionDiv}
+                className="rounded-[16px] w-[100%] bg-white border-none outline-none flex flex-col"
+                style={{ padding: 0, gap: 2 }}
               >
-                <div className="">
+                <div className="w-full flex flex-col flex-1 min-h-0" style={{ padding: 0, gap: 4 }}>
                   <LastStep
                     selectedLead={selectedLead}
                     leadIs={leadIs}
@@ -483,8 +496,10 @@ export default function AssignLeadAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
+                className="rounded-lg w-[100%] bg-white border-none outline-none"
+                style={{ padding: 2 }}
               >
+                <div className="w-full" style={{ padding: 16 }}>
                 <AllowSmartRefillPopup
                   // showSmartRefillPopUp={showSmartRefillPopUp}
                   handleCloseReillPopup={() => {
@@ -499,6 +514,7 @@ export default function AssignLeadAnimation({
                   handleSmartRefill={handleSmartRefill}
                   loader={loader}
                 />
+                </div>
               </motion.div>
             )}
 
@@ -511,13 +527,15 @@ export default function AssignLeadAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="p-6 rounded-lg w-[100%] shadow-lg bg-white border-none outline-none"
+                className="rounded-lg w-[100%] shadow-lg bg-white border-none outline-none"
+                style={{ padding: 2 }}
               >
-                S_4
+                <div className="w-full" style={{ padding: 16 }}>S_4</div>
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+          </div>
+        </AnimateHeight>
       </Box>
     </Modal>
   );

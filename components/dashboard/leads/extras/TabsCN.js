@@ -85,7 +85,7 @@ const TabsCN = ({ tabs, value, onValueChange, className }) => {
               key={tab.id}
               value={tab.id}
               className={cn(
-                'flex flex-row items-center gap-2 px-2 py-2 rounded-none border-b-2 border-transparent bg-transparent shadow-none',
+                'flex flex-row items-center gap-2 h-10 px-3 rounded-none border-b-2 border-transparent bg-transparent shadow-none',
                 'border-0 border-b-2',
                 'data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none',
                 'data-[state=active]:text-brand-primary',

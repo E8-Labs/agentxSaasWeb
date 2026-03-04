@@ -2120,104 +2120,112 @@ const LeadDetails = ({
                           <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
                             <div className="flex flex-row items-center gap-3">
 
-                              {/* only show when showAsTab is true */}
-                              {showAsTab && (
-                                <button
-                                  onClick={() => {
-                                    setShowDetailsModal(false)
-                                  }}
-                                >
-                                  <ArrowLeftIcon size={20} />
-                                </button>
-                              )}
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="inline-flex cursor-pointer size-[38px]">
-                                      <Avatar className="h-[38px] w-[38px]">
-                                        {selectedLeadsDetails?.avatar ? (
-                                          <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
-                                        ) : (
-                                          <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
-                                        )}
-                                      </Avatar>
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top">
-                                    Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              <div className="flex min-w-0 flex-1 items-center gap-3">
-                                <p
-                                  // role="button"
-                                  // tabIndex={0}
-                                  className="truncate text-lg font-semibold leading-none text-foreground cursor-pointer hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
-                                  onClick={() => setShowRenameLeadPopup(true)}
-                                // onKeyDown={(e) => {
-                                //   if (e.key === 'Enter' || e.key === ' ') {
-                                //     e.preventDefault()
-                                //     setShowRenameLeadPopup(true)
-                                //   }
-                                // }}
-                                // title="Click to rename lead"
-                                >
-                                  {/* max characters 15 combined */}
-                                  {(() => {
-                                    const firstName = selectedLeadsDetails?.firstName || ''
-                                    const lastName = selectedLeadsDetails?.lastName || ''
-                                    const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
-                                    if (fullName.length > 10) {
-                                      return fullName.slice(0, 10) + '...'
-                                    }
-                                    return fullName
-                                  })()}
-                                </p>
-                                {/* Send actions: Text | Email | Call (ShadCN button group) */}
-                                <>
-                                  <SendActionsButtonGroup
-                                    onSelect={handleSendAction}
-                                    emailCapability={emailCapability}
-                                    dialerCapability={dialerCapability}
-                                    smsCapability={smsCapability}
+                            {/* only show when showAsTab is true */}
+                            {showAsTab && (
+                              <button
+                                onClick={() => {
+                                  setShowDetailsModal(false)
+                                }}
+                              >
+                                <ArrowLeftIcon size={20} />
+                              </button>
+                            )}
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-flex cursor-pointer size-[38px]">
+                                    <Avatar className="h-[38px] w-[38px] bg-red">
+                                      {selectedLeadsDetails?.avatar ? (
+                                        <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
+                                      ) : (
+                                        <AvatarFallback className="text-[24px] font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
+                                      )}
+                                    </Avatar>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                              <p className="truncate text-lg font-semibold leading-none text-foreground capitalize">
+                                {/* max characters 15 combined */}
+                                {(() => {
+                                  const firstName = selectedLeadsDetails?.firstName || ''
+                                  const lastName = selectedLeadsDetails?.lastName || ''
+                                  const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
+                                  if (fullName.length > 10) {
+                                    return fullName.slice(0, 10) + '...'
+                                  }
+                                  return fullName
+                                })()}
+                              </p>
+                              {/* Send actions: Text | Email | Call (ShadCN button group) */}
+                              <>
+                                <SendActionsButtonGroup
+                                  onSelect={handleSendAction}
+                                  emailCapability={emailCapability}
+                                  dialerCapability={dialerCapability}
+                                  smsCapability={smsCapability}
+                                />
+                                {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
+                                  <UpgradeTagWithModal
+                                    reduxUser={effectiveUser}
+                                    setReduxUser={setReduxUser}
+                                    requestFeature={dialerCapability.showRequestFeature}
+                                    externalTrigger={triggerUpgradeModal > 0}
+                                    onModalClose={handleUpgradeModalClose}
+                                    hideTag={true}
+                                    selectedUser={memoizedSelectedUserForUpgrade}
                                   />
-                                  {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
-                                    <UpgradeTagWithModal
-                                      reduxUser={effectiveUser}
-                                      setReduxUser={setReduxUser}
-                                      requestFeature={dialerCapability.showRequestFeature}
-                                      externalTrigger={triggerUpgradeModal > 0}
-                                      onModalClose={handleUpgradeModalClose}
-                                      hideTag={true}
-                                      selectedUser={memoizedSelectedUserForUpgrade}
-                                      featureTitle="Enable Dialer"
-                                    />
-                                  )}
-                                  {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
-                                    <UpgradeTagWithModal
-                                      reduxUser={effectiveUser}
-                                      setReduxUser={setReduxUser}
-                                      requestFeature={emailCapability.showRequestFeature}
-                                      externalTrigger={triggerEmailUpgradeModal > 0}
-                                      onModalClose={handleEmailUpgradeModalClose}
-                                      hideTag={true}
-                                      selectedUser={memoizedSelectedUserForUpgrade}
-                                      featureTitle="Enable Emails"
-                                    />
-                                  )}
-                                  {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
-                                    <UpgradeTagWithModal
-                                      reduxUser={effectiveUser}
-                                      setReduxUser={setReduxUser}
-                                      requestFeature={smsCapability.showRequestFeature}
-                                      externalTrigger={triggerSMSUpgradeModal > 0}
-                                      onModalClose={handleSMSUpgradeModalClose}
-                                      hideTag={true}
-                                      selectedUser={memoizedSelectedUserForUpgrade}
-                                    />
-                                  )}
-                                </>
-                              </div>
+                                )}
+                                {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+                                  <UpgradeTagWithModal
+                                    reduxUser={effectiveUser}
+                                    setReduxUser={setReduxUser}
+                                    requestFeature={emailCapability.showRequestFeature}
+                                    externalTrigger={triggerEmailUpgradeModal > 0}
+                                    onModalClose={handleEmailUpgradeModalClose}
+                                    hideTag={true}
+                                    selectedUser={memoizedSelectedUserForUpgrade}
+                                    featureTitle="Enable Emails"
+                                  />
+                                )}
+                                {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+                                  <UpgradeTagWithModal
+                                    reduxUser={effectiveUser}
+                                    setReduxUser={setReduxUser}
+                                    requestFeature={smsCapability.showRequestFeature}
+                                    externalTrigger={triggerSMSUpgradeModal > 0}
+                                    onModalClose={handleSMSUpgradeModalClose}
+                                    hideTag={true}
+                                    selectedUser={memoizedSelectedUserForUpgrade}
+                                  />
+                                )}
+                              </>
+                            </div>
+
+                            {/* Scoring Progress */}
+                            {selectedLeadsDetails?.scoringDetails &&
+                              selectedLeadsDetails?.scoringDetails?.questions
+                                ?.length > 0 && (
+                                <ScoringProgress
+                                  value={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.totalScore
+                                  }
+                                  maxValue={10}
+                                  questions={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.questions
+                                  }
+                                  showTooltip={true}
+                                  tooltipTitle="Results"
+                                />
+                              )}
+                             
+                             
 
 
 
@@ -2372,6 +2380,7 @@ const LeadDetails = ({
                             {/*)} */}
 
 
+                          <div className="min-h-[40px] w-full">
                             {selectedLeadsDetails?.email && (
                               <div className="flex flex-row w-full justify-start">
                                 {selectedLeadsDetails?.emails
@@ -2380,7 +2389,7 @@ const LeadDetails = ({
                                     return (
                                       <div
                                         key={emailIndex}
-                                        className="flex flex-row items-center gap-2"
+                                        className="flex flex-row items-center gap-2 h-8"
                                       >
                                         <div
                                           className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
@@ -2511,7 +2520,7 @@ const LeadDetails = ({
                                 elevatedZIndex={elevatedZIndex}
                               />
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 h-8">
 
                               {
 
@@ -2730,11 +2739,11 @@ const LeadDetails = ({
                     anchorEl={anchorEl}
                     onClose={handleClosePopup}
                     anchorOrigin={{
-                      vertical: 'bottom',
+                      vertical: 'top',
                       horizontal: 'left',
                     }}
                     transformOrigin={{
-                      vertical: 'top',
+                      vertical: 'bottom',
                       horizontal: 'left',
                     }}
                     disablePortal={false}
@@ -2746,6 +2755,8 @@ const LeadDetails = ({
                         borderRadius: '10px',
                         minWidth: '120px',
                         zIndex: overlayZIndex,
+                        backgroundColor: '#000000',
+                        color: '#ffffff',
                       },
                     }}
                   >
@@ -2756,7 +2767,7 @@ const LeadDetails = ({
                       }}
                     >
                       <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                        <div className="">
+                        <div className="flex-shrink-0 min-h-[32px] min-w-[32px]">
                           {myTeamAdmin?.thumb_profile_image ? (
                             <Image
                               className="rounded-full"
@@ -2770,7 +2781,7 @@ const LeadDetails = ({
                             />
                           ) : (
                             <div
-                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                              className="h-[32px] w-[32px] flex-shrink-0 min-h-[32px] min-w-[32px] aspect-square bg-black rounded-full flex flex-row items-center justify-center text-white"
                             // onClick={() => handleToggleClick(item.id)}
                             >
                               {myTeamAdmin?.name?.slice(0, 1)}
@@ -2811,7 +2822,7 @@ const LeadDetails = ({
                                   />
                                 ) : (
                                   <div
-                                    className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                    className="h-[32px] w-[32px] flex-shrink-0 min-h-[32px] min-w-[32px] aspect-square bg-black rounded-full flex flex-row items-center justify-center text-white"
                                   // onClick={() =>
                                   //   handleToggleClick(item.id)
                                   // }
@@ -2831,7 +2842,7 @@ const LeadDetails = ({
                   </Popover>
 
 
-                  {/* </div> */}
+                  </div>
 
                   <div className="w-full" style={{ paddingInline: 0 }}>
                     <TabsCN

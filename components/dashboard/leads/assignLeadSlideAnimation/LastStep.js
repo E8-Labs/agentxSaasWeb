@@ -3,19 +3,15 @@ import {
   CircularProgress,
   Modal,
   Switch,
-  TextField,
   Tooltip,
 } from '@mui/material'
-// import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { CalendarDots, CaretLeft } from '@phosphor-icons/react'
+import { Calendar, Info, Phone } from 'lucide-react'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
-// Import Day.js
 import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -25,14 +21,17 @@ import {
   RemoveSmartRefillApi,
   SmartRefillApi,
 } from '@/components/onboarding/extras/SmartRefillapi'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { getAgentImage } from '@/utilities/agentUtilities'
 
+import { Checkbox } from '@/components/ui/checkbox'
+
+import { DateAndTimeFields } from './DateAndTimeFields'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../AgentSelectSnackMessage'
 import DncConfirmationPopup from '../DncConfirmationPopup'
-import { Calendar, CalendarDays, PhoneCall } from 'lucide-react'
 
 // Helper function to get brand primary color as hex (for MUI sx props)
 const getBrandPrimaryHex = () => {
@@ -98,7 +97,7 @@ const LastStep = ({
   const [errTitle, setErrTitle] = useState(null)
   const SelectAgentErrorTimeout = 4000 //change this to change the duration of the snack timer
 
-  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false)
+  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(true)
   const [isDncChecked, setIsDncChecked] = useState(false)
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
     useState(false)
@@ -128,7 +127,7 @@ const LastStep = ({
   //select call
   const [selectedFromDate, setSelectedFromDate] = useState(null)
   const [showFromDatePicker, setShowFromDatePicker] = useState(false)
-  const [selectedDateTime, setSelectedDateTime] = useState(null)
+  const [selectedDateTime, setSelectedDateTime] = useState(() => dayjs().startOf('day'))
   const [CallNow, setCallNow] = useState('')
   const [CallLater, setCallLater] = useState(false)
   const [isRefill, setIsRefill] = useState(false)
@@ -165,7 +164,7 @@ const LastStep = ({
       setNoOfLeadsToSend(numberOfLeads)
       setCustomLeadsToSend(cutomLeads)
       setCallNow(isCallNow)
-      setIsDncChecked(DncChecked)
+      setIsDncChecked(!!DncChecked)
       setCallLater(callL)
 
       if (cutomLeads) setisFocustedCustomLeads(true)
@@ -275,8 +274,8 @@ const LastStep = ({
 
   const styles = {
     heading: {
-      fontWeight: '600',
-      fontSize: 17,
+      fontWeight: '400',
+      fontSize: 14,
     },
     paragraph: {
       fontWeight: '500',
@@ -365,129 +364,115 @@ const LastStep = ({
         )}
 
         <div
-          className="w-full"
+          className="w-full flex flex-col"
           style={{
             backgroundColor: '#ffffff',
-            padding: 20,
+            padding: 0,
             borderRadius: '13px',
+            gap: 8,
           }}
         >
-          <div className="flex flex-row justify-between">
-            <button
-              className="flex flex-row items-center justify-center gap-2 bg-[#15151515] h-[34px] w-[92px] rounded-2xl pe-2"
-              onClick={handleMoveBack}
-            >
-              <CaretLeft size={20} weight="bold" />
-              <span style={styles.title}>Back</span>
-            </button>
-            <button
+          <div style={{ paddingLeft: 0, paddingRight: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex flex-row items-center justify-between w-full" style={{ width: '100%', padding: 16, borderBottom: '1px solid #eaeaea' }}>
+            <div className="flex flex-col items-start" style={{ gap: 2 }}>
+              <div className="start-campaign-label" style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>
+                One last thing
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 400, color: 'hsl(var(--brand-primary))' }}>
+                {getLeadSelectedCount()} Contacts Selected
+              </div>
+            </div>
+            <CloseBtn
               onClick={() => {
                 handleMoveBack()
               }}
-            >
-              <Image src={'/assets/cross.png'} height={14} width={14} alt="*" />
-            </button>
+            />
           </div>
 
-          <div className="flex flex-row items-center justify-between mt-6">
-            <div
-              style={{
-                fontWeight: '700',
-                fontSize: 24,
+          <div style={{ paddingLeft: 16, paddingRight: 16 }}>
+          <div className="flex flex-row items-center justify-between" style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.05)' }}>
+            <Tooltip
+              title="If the lead has given consent, no need to run against DNC"
+              arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#ffffff',
+                    color: '#333',
+                    fontSize: '14px',
+                    padding: '10px 15px',
+                    borderRadius: '8px',
+                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                  },
+                },
+                arrow: {
+                  sx: {
+                    color: '#ffffff',
+                  },
+                },
               }}
             >
-              One last thing
-            </div>
-            <div className="flex flex-col items-start">
               <div
-                style={{ fontSize: 12, fontWeight: '600', color: brandPrimaryColor }}
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: '#000000',
+                  cursor: 'pointer',
+                }}
               >
-                {getLeadSelectedCount()} Contacts Selected
+                Check DNC List
               </div>
+            </Tooltip>
+            <Info
+              size={16}
+              style={{ color: 'rgba(0,0,0,0.7)', flexShrink: 0 }}
+              aria-hidden
+            />
+            <Switch
+              checked={!!isDncChecked}
+              onChange={(event) => {
+                if (
+                  userLocalDetails?.planCapabilities.maxDNCChecks >=
+                  userLocalDetails.currentUsage.maxDNCChecks
+                ) {
+                  setIsDncChecked(event.target.checked)
+                  if (event.target.checked) {
+                    setShowDncConfirmationPopup(true)
+                  } else {
+                    setShowUpgradeModal(true)
+                  }
+                }
+              }}
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: brandPrimaryColor,
+                },
+                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                  backgroundColor: brandPrimaryColor,
+                },
+                margin: 0,
+              }}
+            />
+          </div>
+          </div>
 
-              <div className="flex flex-row items-center  -mt-2">
-                <Tooltip
-                  title="If the lead has given consent, no need to run against DNC"
-                  arrow
-                  componentsProps={{
-                    tooltip: {
-                      sx: {
-                        backgroundColor: '#ffffff', // Ensure white background
-                        color: '#333', // Dark text color
-                        fontSize: '14px',
-                        padding: '10px 15px',
-                        borderRadius: '8px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                      },
-                    },
-                    arrow: {
-                      sx: {
-                        color: '#ffffff', // Match tooltip background
-                      },
-                    },
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: '600',
-                      color: '#000000',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Check DNC List
-                  </div>
-                </Tooltip>
-
-                <Switch
-                  checked={isDncChecked}
-                  // color="#7902DF"
-                  // exclusive
-                  onChange={(event) => {
-                    if (
-                      userLocalDetails?.planCapabilities.maxDNCChecks >=
-                      userLocalDetails.currentUsage.maxDNCChecks
-                    ) {
-                      setIsDncChecked(event.target.checked)
-                      if (event.target.checked) {
-                        setShowDncConfirmationPopup(true)
-                      } else {
-                        setShowUpgradeModal(true)
-                      }
-                    }
-                  }}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: brandPrimaryColor,
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: brandPrimaryColor,
-                    },
-                    margin: 0,
-                  }}
-                />
-              </div>
+          <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
+            <div className="start-campaign-label">
+              Drip per day
             </div>
-          </div>
-
-          <div className="mt-4" style={styles.heading}>
-            Drip per day
-          </div>
-
-          <div className="flex flex-row items-center gap-8 mt-4">
+            <div className="flex flex-col items-stretch" style={{ gap: 12 }}>
             <div
-              className="w-1/2 h-[50px] rounded-2xl p-4 flex flex-row items-center"
+              className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden"
               style={{
-                border: `${
-                  isFocustedCustomLeads
-                    ? `2px solid ${brandPrimaryColor}`
-                    : '1px solid #00000040'
-                }`,
+                paddingLeft: 12,
+                paddingRight: 12,
               }}
             >
               <input
-                className="w-full rounded-2xl outline-none focus:ring-0 border-none"
+                className="w-full outline-none focus:ring-0 border-none bg-transparent text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none"
+                style={{ height: '100%', padding: 0 }}
                 value={customLeadsToSend}
+                disabled={!!NoOfLeadsToSend}
                 onFocus={() => {
                   setNoOfLeadsToSend('')
                   setisFocustedCustomLeads(true)
@@ -501,37 +486,49 @@ const LastStep = ({
                   }
                 }}
                 placeholder="Ex: 100"
-                style={{ fontSize: 15, fontWeight: '500' }}
               />
             </div>
-            <button
-              className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
+            <label
+              className="w-full flex flex-row items-center gap-3 cursor-pointer rounded-lg border border-[#E5E7EB] bg-white transition-all duration-200 hover:border-[#D1D5DB] hover:bg-[#F9FAFB] active:transition-duration-100"
               style={{
-                border: NoOfLeadsToSend
-                  ? `2px solid ${brandPrimaryColor}`
-                  : '1px solid #00000040',
-                height: '50px',
-              }}
-              onClick={() => {
-                setNoOfLeadsToSend(totalLeads)
-                setCustomLeadsToSend('')
-                setisFocustedCustomLeads(false)
+                paddingTop: 10,
+                paddingBottom: 10,
+                paddingLeft: 12,
+                paddingRight: 12,
               }}
             >
-              All {getLeadSelectedCount()}
-            </button>
+              <Checkbox
+                checked={!!NoOfLeadsToSend}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setNoOfLeadsToSend(totalLeads)
+                    setCustomLeadsToSend('')
+                    setisFocustedCustomLeads(false)
+                  } else {
+                    setNoOfLeadsToSend('')
+                  }
+                }}
+              />
+              <span>Select All {getLeadSelectedCount()}</span>
+            </label>
+          </div>
           </div>
 
-          <div className="mt-4" style={styles.heading}>
-            When to start?
-          </div>
-
-          <div className="flex flex-row items-center gap-8 mt-4">
+          <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
+            <div className="start-campaign-label">
+              When to start?
+            </div>
+            <div className="flex flex-row items-center" style={{ gap: 12 }}>
             <button
-              className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
+              type="button"
+              className="w-1/2 flex flex-col justify-between items-start rounded-lg border transition-all duration-200 hover:border-[#D1D5DB] bg-white"
               style={{
-                border: CallNow ? `2px solid ${brandPrimaryColor}` : '1px solid #00000040',
-                height: '119px',
+                border: CallNow ? `2px solid ${brandPrimaryColor}` : '1px solid #E5E7EB',
+                height: 'auto',
+                minHeight: 'unset',
+                padding: 12,
+                gap: 12,
+                backgroundColor: CallNow ? 'hsl(var(--brand-primary) / 0.02)' : undefined,
               }}
               onClick={() => {
                 setHasUserSelectedDate(false)
@@ -557,34 +554,34 @@ const LastStep = ({
                 // handleDateTimerDifference();
               }}
             >
-              {/*<Image
-                src={'/assets/callBtn.png'}
-                height={24}
-                width={24}
-                alt="*"
-              />*/}
-              <PhoneCall size={32} weight="900" />
+              <Phone size={16} className="flex-shrink-0" aria-hidden />
               <div style={styles.title}>Start Now</div>
             </button>
             <div className="w-1/2">
               <button
-                className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
+                type="button"
+                className="w-full flex flex-col items-start justify-between rounded-lg border transition-all duration-200 hover:border-[#D1D5DB] bg-white"
                 style={{
                     border: CallLater
                       ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000040',
-                  height: '119px',
+                      : '1px solid #E5E7EB',
+                  backgroundColor: CallLater ? 'hsl(var(--brand-primary) / 0.06)' : undefined,
+                  height: 'auto',
+                  minHeight: 'unset',
+                  padding: 12,
+                  gap: 12,
+                  borderRadius: 8,
                 }}
                 onClick={() => {
                   setShowFromDatePicker(!showFromDatePicker)
                   setCallNow('')
                   setCallLater(true)
-                  setSelectedDateTime(dayjs())
+                  setSelectedDateTime(dayjs().startOf('day'))
                   setHasUserSelectedDate(true)
                   setIsDisabled(false)
                 }}
               >
-                <CalendarDays size={32} weight="900" />
+                <Calendar size={16} className="flex-shrink-0" aria-hidden />
                 <div style={styles.title}>Schedule</div>
               </button>
               {/* <div>
@@ -623,8 +620,10 @@ const LastStep = ({
                       className="w-full flex flex-row justify-center"
                       style={{
                         backgroundColor: '#ffffff',
-                        padding: 20,
-                        borderRadius: '13px',
+                        padding: 24,
+                        borderRadius: 12,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                        border: '1px solid #eaeaea',
                       }}
                     >
                       <div>
@@ -635,91 +634,15 @@ const LastStep = ({
                                                           onClose={() => { setShowFromDatePicker(false) }}
                                                       /> */}
                         <div className="text-center text-xl font-bold">
-                          Select date and time to shedule call
+                          Select date and time to schedule call
                         </div>
-                        <div className="w-full mt-4 flex flex-row justify-center">
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                              value={selectedDateTime}
-                              // label="Select date and time"
-                              //user profile will be passed to it
-                              minDateTime={dayjs().tz(userProfile.timeZone)}
-                              //   value={value}
-                              slotProps={{
-                                digitalClockSectionItem: {
-                                  sx: {
-                                    '&.Mui-selected': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                      color: '#fff !important',
-                                    },
-                                    '&.Mui-selected:hover': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                      color: '#fff !important',
-                                    },
-                                  },
-                                },
-                                desktopPaper: {
-                                  sx: {
-                                    '& .MuiMultiSectionDigitalClockSection-root': {
-                                      scrollbarWidth: 'none',
-                                      msOverflowStyle: 'none',
-                                      '&::-webkit-scrollbar': { display: 'none' },
-                                    },
-                                  },
-                                },
-                              }}
-                              sx={{
-                                '& .MuiPickersDay-root.Mui-selected': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                  color: 'white !important',
-                                },
-                                '& .MuiPickersDay-root:hover': {
-                                  backgroundColor: `${brandPrimaryColor}CC !important`,
-                                },
-                                '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
-                                  color: '#333 !important',
-                                },
-                                '& .MuiClock-pin': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiClockPointer-root': {
-                                  backgroundColor: `${brandPrimaryColor} !important`,
-                                },
-                                '& .MuiClockPointer-thumb': {
-                                  borderColor: `${brandPrimaryColor} !important`,
-                                },
-                              }}
-                              onChange={handleDateChange}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  fullWidth
-                                  size="small"
-                                  sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                      borderRadius: '10px',
-                                      '& fieldset': {
-                                        borderColor: hasUserSelectedDate
-                                          ? brandPrimaryColor
-                                          : '#00000050',
-                                        borderWidth: '2px',
-                                      },
-                                      '&:hover fieldset': {
-                                        borderColor: hasUserSelectedDate
-                                          ? brandPrimaryColor
-                                          : '#00000050',
-                                      },
-                                      '&.Mui-focused fieldset': {
-                                        borderColor: hasUserSelectedDate
-                                          ? brandPrimaryColor
-                                          : '#00000050',
-                                      },
-                                    },
-                                  }}
-                                />
-                              )}
-                            />
-                          </LocalizationProvider>
+                        <div className="w-full mt-4 flex flex-row justify-center max-w-md">
+                          <DateAndTimeFields
+                            value={selectedDateTime}
+                            onChange={handleDateChange}
+                            minDate={userProfile?.timeZone ? dayjs().tz(userProfile.timeZone) : dayjs()}
+                            error={false}
+                          />
                         </div>
                         <div className="w-full flex flex-row justify-center mt-6">
                           <button
@@ -739,131 +662,20 @@ const LastStep = ({
               </Modal>
             </div>
           </div>
+          </div>
 
           {CallLater && (
-            <div>
-              <div
-                className="mt-4"
-                style={{
-                  fontWeight: '500',
-                  fontsize: 12,
-                  color: '#00000050',
-                }}
-              >
+            <div className="px-4">
+              <div className="mt-4 start-campaign-label">
                 Select date & time
               </div>
-              <div className="mt-2">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker
-                    // label="Select date and time"
-                    minDateTime={dayjs()}
-                    // minDateTime={dayjs().tz(userProfile.timeZone)}
-                    value={selectedDateTime}
-                    minDate={dayjs()}
-                    onChange={handleDateChange}
-                    slotProps={{
-                      textField: {
-                        variant: 'outlined',
-                        error: isDisabled,
-                        sx: {
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
-                            '& fieldset': {
-                              borderColor: hasUserSelectedDate
-                                ? brandPrimaryColor
-                                : '#00000050',
-                              borderWidth: '2px',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: hasUserSelectedDate
-                                ? '#7902df'
-                                : '#00000050',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: hasUserSelectedDate
-                                ? '#7902df'
-                                : '#00000050',
-                            },
-                          },
-                        },
-                      },
-                      // Style time list items (hour, minute, AM/PM) with brand color when selected
-                      digitalClockSectionItem: {
-                        sx: {
-                          '&.Mui-selected': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: '#fff !important',
-                          },
-                          '&.Mui-selected:hover': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: '#fff !important',
-                          },
-                        },
-                      },
-                      // Hide scrollbar in time picker columns (scrollable element is MultiSectionDigitalClockSection root)
-                      desktopPaper: {
-                        sx: {
-                          '& .MuiMultiSectionDigitalClockSection-root': {
-                            scrollbarWidth: 'none',
-                            msOverflowStyle: 'none',
-                            '&::-webkit-scrollbar': {
-                              display: 'none',
-                            },
-                          },
-                        },
-                      },
-                    }}
-                    sx={{
-                          '& .MuiPickersDay-root.Mui-selected': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: 'white !important',
-                          },
-                          '& .MuiPickersDay-root:hover': {
-                            backgroundColor: `${brandPrimaryColor}CC !important`,
-                          },
-                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
-                            {
-                              color: '#333 !important',
-                            },
-                          '& .MuiClock-pin': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                          },
-                          '& .MuiClockPointer-root': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                          },
-                          '& .MuiClockPointer-thumb': {
-                            borderColor: `${brandPrimaryColor} !important`,
-                          },
-                    }}
-                    renderInput={(params) => (
-                      <input
-                        {...params.inputProps}
-                        style={{
-                          border: 'none', // Disable border
-                          outline: 'none',
-                          padding: '8px',
-                          backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.border = 'none' // Ensure no border on focus
-                          e.target.style.outline = 'none' // Ensure no outline on focus
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.border = 'none' // Reset border on blur
-                          e.target.style.outline = 'none' // Reset outline on blur
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.border = 'none' // Remove border on hover
-                          e.target.style.outline = 'none' // Remove outline on hover
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.border = 'none' // Reset border on hover out
-                          e.target.style.outline = 'none' // Reset outline on hover out
-                        }}
-                      />
-                    )}
-                  />
-                </LocalizationProvider>
+              <div className="mt-2 w-full">
+                <DateAndTimeFields
+                  value={selectedDateTime}
+                  onChange={handleDateChange}
+                  minDate={dayjs()}
+                  error={isDisabled}
+                />
               </div>
             </div>
           )}
@@ -913,56 +725,52 @@ const LastStep = ({
           )}
 
           {loader ? (
-            <div className="mt-4 w-full flex flex-row items-center justify-center">
+            <div className="w-full flex flex-row items-center justify-center" style={{ margin: 0 }}>
               <CircularProgress size={30} />
             </div>
           ) : (
             <div className="w-full">
-              {(NoOfLeadsToSend || customLeadsToSend) &&
-              (CallNow ||
-                (CallLater &&
-                  selectedDateTime &&
-                  hasUserSelectedDate &&
-                  !isDisabled)) ? (
+              <div className="flex flex-row items-center justify-between w-full gap-3" style={{ padding: 16, margin: 0 }}>
                 <button
-                  className="text-white w-full h-[50px] rounded-lg mt-4"
-                  style={{ backgroundColor: brandPrimaryColor }}
-                  onClick={() => {
-                    const localData = localStorage.getItem('User')
-                    // if (localData) {
-                    //   const UserDetails = JSON.parse(localData);
-                    //   console.log(UserDetails.user.smartRefill);
-                    //   if (UserDetails.user.smartRefill === false) {
-                    //     // setShowSmartRefillPopUp(true);
-                    //     //handle continue here
-                    //     return;
-                    //   }
-                    // }
-                    const lastStepData = {
-                      // numberOfLeads: NoOfLeadsToSend,
-                      numberOfLeads: getLeadSelectedCount(),
-                      cutomLeads: customLeadsToSend,
-                      selectedDate: selectedDateTime,
-                      DncChecked: isDncChecked,
-                      isCallNow: CallNow,
-                      callL: CallLater,
-                    }
-                    handleContinue(lastStepData)
-                    //triger assign lead api here
-                    // handleAssignLead();
-                    // handleAssigLead()
-                  }}
+                  type="button"
+                  className="flex flex-row items-center justify-center gap-2 h-12 min-w-[60px] rounded-lg px-4 text-[14px] font-medium bg-muted text-foreground hover:bg-muted/80 transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98] flex-shrink-0"
+                  onClick={handleMoveBack}
                 >
-                  Continue
+                  Back
                 </button>
-              ) : (
-                <button
-                  className="text-[#000000] w-full h-[50px] rounded-lg bg-[#00000020] mt-4"
-                  disabled={true}
-                >
-                  Continue
-                </button>
-              )}
+                {(NoOfLeadsToSend || customLeadsToSend) &&
+                (CallNow ||
+                  (CallLater &&
+                    selectedDateTime &&
+                    hasUserSelectedDate &&
+                    !isDisabled)) ? (
+                  <button
+                    type="button"
+                    className="flex-shrink-0 min-w-[60px] h-12 rounded-lg px-6 text-base font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 hover:shadow-[0_2px_8px_hsl(var(--brand-primary)/0.3)] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
+                    onClick={() => {
+                      const lastStepData = {
+                        numberOfLeads: getLeadSelectedCount(),
+                        cutomLeads: customLeadsToSend,
+                        selectedDate: selectedDateTime,
+                        DncChecked: isDncChecked,
+                        isCallNow: CallNow,
+                        callL: CallLater,
+                      }
+                      handleContinue(lastStepData)
+                    }}
+                  >
+                    Continue
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="flex-shrink-0 min-w-[60px] h-12 rounded-lg px-6 text-base font-semibold bg-black/[0.08] text-black/50 cursor-not-allowed"
+                    disabled
+                  >
+                    Continue
+                  </button>
+                )}
+              </div>
 
               <UpgradeModal
                 open={showUpgradeModal}
@@ -975,6 +783,7 @@ const LastStep = ({
               />
             </div>
           )}
+          </div>
 
           {/* <div className='mt-4 w-full'>
                               <button className="text-white rounded-xl w-full h-[50px]" style={{ ...styles.heading, backgroundColor: brandPrimaryColor }} onClick={() => { setLastStepModal(false) }}>

@@ -2,19 +2,16 @@ import CloseIcon from '@mui/icons-material/Close'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
-  IconButton,
   Modal,
   Typography,
 } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import axios from 'axios'
 
@@ -25,6 +22,45 @@ import { getUserLocalData } from '@/components/constants/constants'
 import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
+
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      setStage('entering')
+      onEnter?.()
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = requestAnimationFrame(() => setStage('entered'))
+      })
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, timeout, onExited, onEnter])
+
+  const isEntering = stage === 'entering'
+  const style = {
+    opacity: isEntering || stage === 'exiting' ? 0 : 1,
+    transform: isEntering || stage === 'exiting' ? 'scale(0.95)' : 'scale(1)',
+    transition: `opacity ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1), transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+  }
+
+  return <div style={style}>{children}</div>
+}
 
 export default function DncConfirmationPopup({
   open,
@@ -40,6 +76,8 @@ export default function DncConfirmationPopup({
 
   const [userData, setUserData] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)
+  const [addCardClosing, setAddCardClosing] = useState(false)
+  const pendingConfirmRef = useRef(null)
   const [creditCost, setCreditCost] = useState(null)
   const [minimumCost, setMinimumCost] = useState(null)
   const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
@@ -258,11 +296,25 @@ export default function DncConfirmationPopup({
       : creditCost?.totalCharge ||
         (leadsCount < 34 ? 1 : leadsCount * displayPricePerLead)
 
+  useEffect(() => {
+    if (showAddCard) setAddCardClosing(false)
+  }, [showAddCard])
+
+  const handleCloseAddCard = () => setAddCardClosing(true)
+
+  const handleAddCardExited = () => {
+    setShowAddCard(false)
+    setAddCardClosing(false)
+    if (pendingConfirmRef.current) {
+      onConfirm(pendingConfirmRef.current)
+      pendingConfirmRef.current = null
+    }
+  }
+
   const handleClose = (data) => {
     if (data) {
-      setShowAddCard(false)
-      onConfirm()
-      // setCards([newCard, ...cards]);
+      pendingConfirmRef.current = data
+      setAddCardClosing(true)
     }
   }
   return (
@@ -272,21 +324,26 @@ export default function DncConfirmationPopup({
         onClose={onClose}
         PaperProps={{
           sx: {
-            borderRadius: '16px',
-            padding: '24px',
+            borderRadius: '12px',
+            padding: 0,
             width: '500px',
             maxWidth: '90%',
+            overflow: 'hidden',
+            border: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.08)',
           },
         }}
       >
-        {/* Close Button */}
-        <div className="flex w-full justify-end">
+        {/* Header */}
+        <div
+          className="flex flex-row items-center justify-between w-full"
+          style={{ padding: 16, borderBottom: '1px solid #eaeaea', minHeight: 66 }}
+        >
+          <div className="start-campaign-label" style={{ fontSize: 18, fontWeight: 600, color: '#111827', letterSpacing: '-0.01em' }}>
+            Confirm <span style={{ color: 'hsl(var(--brand-primary))' }}>DNC</span> Charges
+          </div>
           <CloseBtn onClick={onClose} />
         </div>
-        {/* Modal Title */}
-        <DialogTitle sx={{ fontWeight: 'bold', fontSize: '20px', mt: 1 }}>
-          Confirm DNC Charges
-        </DialogTitle>
 
         {/* Info Box */}
         <Box
@@ -294,11 +351,11 @@ export default function DncConfirmationPopup({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'start',
-            // gap: 1.5,
-            backgroundColor: '#F6F0FF',
-            padding: '8px 12px',
+            backgroundColor: 'hsl(var(--brand-primary) / 0.06)',
+            padding: '10px 12px',
             borderRadius: '8px',
-            mb: 1,
+            margin: '0 16px 16px',
+            border: '1px solid hsl(var(--brand-primary) / 0.15)',
           }}
         >
           {isMinimumEnforced && minimumCost && (
@@ -313,7 +370,7 @@ export default function DncConfirmationPopup({
                 width: '100%',
               }}
             >
-              <InfoOutlinedIcon sx={{ color: '#7902DF', fontSize: 20 }} />
+              <InfoOutlinedIcon sx={{ color: 'hsl(var(--brand-primary))', fontSize: 20 }} />
               <Typography
                 sx={{ fontSize: '14px', color: '#000', fontWeight: '600' }}
               >
@@ -335,7 +392,7 @@ export default function DncConfirmationPopup({
                   mb: 0,
                 }}
               >
-                <InfoOutlinedIcon sx={{ color: '#7902DF', fontSize: 20 }} />
+                <InfoOutlinedIcon sx={{ color: 'hsl(var(--brand-primary))', fontSize: 20 }} />
                 <Typography sx={{ fontSize: '14px', color: '#000' }}>
                   {`DNC Checklist is $${formatFractional2(displayPricePerLead)}/number.`}
                 </Typography>
@@ -362,18 +419,19 @@ export default function DncConfirmationPopup({
         </Box>
 
         {/* Modal Content */}
-        <DialogContent>
+        <DialogContent sx={{ padding: '0 16px 16px', fontSize: '14px', '& .MuiTypography-root': { fontSize: '14px' } }}>
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              mb: 3,
+              alignItems: 'center',
+              mb: 2.5,
             }}
           >
-            <Typography sx={{ color: '#000', fontSize: '16px' }}>
+            <Typography className="start-campaign-label" sx={{ fontSize: '14px' }}>
               Total Leads
             </Typography>
-            <Typography sx={{ fontWeight: 'medium', fontSize: '16px' }}>
+            <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#111827' }}>
               {displayLeadCount}
             </Typography>
           </Box>
@@ -382,13 +440,14 @@ export default function DncConfirmationPopup({
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              mb: 2,
+              alignItems: 'center',
+              mb: 2.5,
             }}
           >
-            <Typography sx={{ color: '#000', fontSize: '16px' }}>
+            <Typography className="start-campaign-label" sx={{ fontSize: '14px' }}>
               Cost Per Lead
             </Typography>
-            <Typography sx={{ fontWeight: 'medium', fontSize: '16px' }}>
+            <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#111827' }}>
               ${formatFractional2(displayPricePerLead)}
             </Typography>
           </Box>
@@ -397,15 +456,16 @@ export default function DncConfirmationPopup({
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
-              mt: 2,
-              pt: 1,
-              borderTop: '1px solid #ddd',
+              alignItems: 'center',
+              mt: 2.5,
+              pt: 2,
+              borderTop: '1px solid #eaeaea',
             }}
           >
-            <Typography sx={{ color: '#000', fontSize: '16px' }}>
+            <Typography className="start-campaign-label" sx={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
               Total Cost
             </Typography>
-            <Typography sx={{ fontWeight: 'medium', fontSize: '16px' }}>
+            <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#111827' }}>
               $
               {typeof displayTotalCost === 'number'
                 ? displayTotalCost.toFixed(2)
@@ -417,33 +477,19 @@ export default function DncConfirmationPopup({
         </DialogContent>
 
         {/* Buttons */}
-        <DialogActions sx={{ justifyContent: 'space-between', mt: 3 }}>
-          <div
+        <DialogActions sx={{ padding: '12px', gap: 20, justifyContent: 'space-between' }}>
+          <button
+            type="button"
             onClick={onClose}
-            className=" flex w-[45%] text-[#6b7280] font-bold text-[16px]  py-3
-                     items-center justify-center"
-            style={{ textTransform: 'none', cursor: 'pointer' }}
+            className="flex-1 h-12 rounded-lg px-4 text-base font-semibold bg-muted hover:bg-muted/80 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
+            style={{ textTransform: 'none', color: '#111827' }}
           >
             Cancel
-          </div>
-
-          {/* <Button
-          onClick={onConfirm}
-          sx={{
-            textTransform: "none",
-            fontWeight: "bold",
-            fontSize: "16px",
-            backgroundColor: "#7902DF",
-            color: "white",
-            borderRadius: "8px",
-            padding: "10px 20px",
-            "&:hover": { backgroundColor: "#6901C3" },
-          }}
-        >
-          Confirm & Pay
-        </Button> */}
-          <div
-            className="cursor-pointer w-[45%] flex justify-center items-center bg-brand-primary font-bold rounded-lg text-white text-center py-3"
+          </button>
+          <button
+            type="button"
+            className="flex-1 h-12 rounded-lg px-6 text-base font-semibold bg-brand-primary hover:bg-brand-primary/90 hover:shadow-[0_2px_8px_hsl(var(--brand-primary)/0.3)] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
+            style={{ textTransform: 'none', color: '#ffffff' }}
             onClick={() => {
               if (userData?.user?.cards?.length === 0) {
                 setShowAddCard(true)
@@ -451,77 +497,79 @@ export default function DncConfirmationPopup({
                 onConfirm()
               }
             }}
-            style={{
-              borderColor: '#ddd',
-              color: '#fff',
-              fontWeight: 'bold',
-              textTransform: 'none',
-              padding: '0.8rem',
-              borderRadius: '10px',
-              width: '45%',
-            }}
           >
             Confirm & Pay
-          </div>
+          </button>
         </DialogActions>
       </Dialog>
 
       {/* Add Payment Modal */}
       <Modal
-        open={showAddCard} //addPaymentPopUp
-        // open={true}
+        open={showAddCard}
+        onClose={handleCloseAddCard}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
+            backgroundColor: '#00000099',
           },
         }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
-        <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-          <div className="flex flex-row justify-center w-full">
+        <ScaleFadeTransition
+          in={!addCardClosing}
+          onExited={handleAddCardExited}
+          timeout={250}
+        >
+          <Box
+            className="lg:w-8/12 sm:w-full w-full max-w-[90vw]"
+            sx={{
+              ...styles.paymentModal,
+              maxWidth: 560,
+            }}
+          >
             <div
-              className="sm:w-7/12 w-full"
+              className="w-full flex flex-col bg-white rounded-[12px] overflow-hidden"
               style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.08)',
               }}
             >
-              <div className="flex flex-row justify-between items-center">
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: '600',
-                  }}
-                >
-                  Payment Details
+              <div
+                className="flex flex-row items-center justify-between w-full"
+                style={{ padding: 16, borderBottom: '1px solid #eaeaea', minHeight: 66 }}
+              >
+                <div className="start-campaign-label" style={{ fontSize: 18, fontWeight: 600, color: '#111827', letterSpacing: '-0.01em' }}>
+                  Payment <span style={{ color: 'hsl(var(--brand-primary))' }}>Details</span>
                 </div>
-                <button onClick={() => setShowAddCard(false)}>
+                <button
+                  type="button"
+                  onClick={handleCloseAddCard}
+                  className="outline-none rounded-lg p-1 hover:bg-black/5 transition-colors duration-150"
+                  aria-label="Close"
+                >
                   <Image
                     src={'/assets/crossIcon.png'}
-                    height={40}
-                    width={40}
-                    alt="*"
+                    height={24}
+                    width={24}
+                    alt=""
                   />
                 </button>
               </div>
+              <div style={{ padding: 16 }}>
               <Elements stripe={stripePromise}>
                 <AddCardDetails
-                  //selectedPlan={selectedPlan}
-                  // stop={stop}
-                  // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={''}
-                  // fromAdmin={true}
-                  // selectedUser={selectedUSer}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
           </div>
         </Box>
+        </ScaleFadeTransition>
       </Modal>
     </div>
   )

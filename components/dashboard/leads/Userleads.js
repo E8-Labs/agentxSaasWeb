@@ -31,7 +31,7 @@ import moment from 'moment'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fromJSON } from 'postcss'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import {
   Popover as ShadPopover,
@@ -64,7 +64,7 @@ import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetailsCN from './extras/LeadDetailsCN'
-import { Check, Trash } from 'lucide-react'
+import { Check, Download, Phone, Settings2, Trash } from 'lucide-react'
 import LeadDetails from './extras/LeadDetails'
 import {
   DropdownMenu,
@@ -164,6 +164,26 @@ const Userleads = ({
 
   const requestVersion = useRef(0)
   const isFilteringRef = useRef(false) // Track if filtering is in progress
+  const headerTableScrollRef = useRef(null)
+  const scrollableDivRef = useRef(null)
+  const tableScrollSyncingRef = useRef(false)
+
+  const syncTableScrollHeaderToBody = useCallback(() => {
+    if (tableScrollSyncingRef.current) return
+    tableScrollSyncingRef.current = true
+    const headerEl = headerTableScrollRef.current
+    const bodyEl = scrollableDivRef.current
+    if (headerEl && bodyEl) bodyEl.scrollLeft = headerEl.scrollLeft
+    requestAnimationFrame(() => { tableScrollSyncingRef.current = false })
+  }, [])
+  const syncTableScrollBodyToHeader = useCallback(() => {
+    if (tableScrollSyncingRef.current) return
+    tableScrollSyncingRef.current = true
+    const headerEl = headerTableScrollRef.current
+    const bodyEl = scrollableDivRef.current
+    if (headerEl && bodyEl) headerEl.scrollLeft = bodyEl.scrollLeft
+    requestAnimationFrame(() => { tableScrollSyncingRef.current = false })
+  }, [])
 
   const [filtersSelected, setFiltersSelected] = useState([])
 
@@ -221,6 +241,30 @@ const Userleads = ({
   const [editSmartListLoader, setEditSmartListLoader] = useState(false)
   const [showEditSmartList, setShowEditSmartList] = useState(false)
   const [selectedSmartListForEdit, setSelectedSmartListForEdit] = useState(null)
+
+  // Inline rename for sheet tab name
+  const [editingSheetId, setEditingSheetId] = useState(null)
+  const [editingSheetName, setEditingSheetName] = useState('')
+  const sheetClickTimeoutRef = useRef(null)
+  const inlineSheetNameInputRef = useRef(null)
+
+  useEffect(() => {
+    if (editingSheetId && inlineSheetNameInputRef.current) {
+      const el = inlineSheetNameInputRef.current
+      el.focus()
+      el.select()
+      const rafId = requestAnimationFrame(() => {
+        el.select()
+      })
+      const tId = setTimeout(() => {
+        el.select()
+      }, 0)
+      return () => {
+        cancelAnimationFrame(rafId)
+        clearTimeout(tId)
+      }
+    }
+  }, [editingSheetId])
 
   //code for passing columns
   const [Columns, setColumns] = useState(null)
@@ -985,6 +1029,65 @@ const Userleads = ({
     }
   }
 
+  const saveInlineSheetName = async (item, newName) => {
+    const trimmed = (newName ?? '').trim()
+    if (!trimmed) {
+      setEditingSheetId(null)
+      setEditingSheetName('')
+      return
+    }
+    if (trimmed === (item.sheetName ?? '').trim()) {
+      setEditingSheetId(null)
+      setEditingSheetName('')
+      return
+    }
+    try {
+      const localData = localStorage.getItem('User')
+      const AuthToken = localData ? JSON.parse(localData).token : null
+      if (!AuthToken) {
+        setSnackMessage('Not authenticated')
+        setMessageType(SnackbarTypes.Error)
+        setShowSnackMessage(true)
+        return
+      }
+      const columns = (item.columns && Array.isArray(item.columns))
+        ? item.columns.map((col) => (col && typeof col === 'object' && 'columnName' in col ? col.columnName : String(col)))
+        : []
+      const ApiData = {
+        sheetName: trimmed,
+        columns,
+        inbound: item.type === 'inbound',
+        enrich: item.enrich ?? false,
+        smartListId: item.id,
+      }
+      const response = await axios.put(Apis.updateSmartList, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true && response?.data?.data) {
+        const updated = response.data.data
+        setSheetsList((prev) =>
+          prev.map((s) => (s.id === item.id ? { ...s, sheetName: updated.sheetName ?? trimmed } : s)),
+        )
+        setEditingSheetId(null)
+        setEditingSheetName('')
+        setSnackMessage('List name updated')
+        setMessageType(SnackbarTypes.Success)
+        setShowSnackMessage(true)
+      } else {
+        setSnackMessage(response?.data?.message || 'Failed to update list name')
+        setMessageType(SnackbarTypes.Error)
+        setShowSnackMessage(true)
+      }
+    } catch (error) {
+      setSnackMessage(error?.response?.data?.message || 'Failed to update list name')
+      setMessageType(SnackbarTypes.Error)
+      setShowSnackMessage(true)
+    }
+  }
+
   // function to handle select data change
   const handleFromDateChange = (date) => {
     setSelectedFromDate(date || null)
@@ -1431,8 +1534,39 @@ const Userleads = ({
   //     }
   // };
 
+  /** Highlights the first substring in text that matches the search query (case-insensitive). */
+  const highlightSearchMatch = (text, query) => {
+    if (text == null || text === '') return '-'
+    const str = String(text)
+    const q = String(query ?? '').trim()
+    if (!q) return str
+
+    const lowerStr = str.toLowerCase()
+    const lowerQ = q.toLowerCase()
+    const index = lowerStr.indexOf(lowerQ)
+
+    if (index === -1) {
+      return str
+    }
+
+    const before = str.slice(0, index)
+    const match = str.slice(index, index + q.length)
+    const after = str.slice(index + q.length)
+
+    return (
+      <>
+        {before}
+        <mark className="bg-brand-primary/20 rounded px-0.5 font-medium">
+          {match}
+        </mark>
+        {after}
+      </>
+    )
+  }
+
   const getColumnData = (column, item) => {
     const { title } = column
+    const searchQuery = searchLead ? String(searchLead).trim() : ''
     let canShowSelected = false
     if (selectedAll) {
       //check if item.id is in the toggle list or not
@@ -1457,30 +1591,15 @@ const Userleads = ({
       case 'Name':
         // //console.log;
         return (
-          <div>
-            <div className="w-full flex flex-row items-center gap-2 truncate">
-              {canShowSelected ? (
-                <button
-                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
-                  onClick={() => {
-                    handleToggleClick(item.id)
-                  }}
-                >
-                  <Image className=" object-contain pb-0.5"
-                    src={'/assets/whiteTick.png'}
-                    height={10}
-                    width={10}
-                    alt="*"
-                  />
-                </button>
-              ) : (
-                <Checkbox
-                  className="h-4 w-4 flex-shrink-0 border-2 border-muted"
-                  onClick={() => handleToggleClick(item.id)}
-                />
-              )}
+          <div className="text-[14px] font-normal">
+            <div className="w-full flex flex-row items-center gap-3 truncate">
+              <Checkbox
+                className="checkbox-leads flex-shrink-0"
+                checked={canShowSelected}
+                onCheckedChange={() => handleToggleClick(item.id)}
+              />
               <div
-                className="h-[32px] w-[32px] bg-black cursor-pointer rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
+                className="h-[32px] w-[32px] min-h-[32px] min-w-[32px] flex-shrink-0 aspect-square rounded-[50%] bg-black cursor-pointer flex flex-row items-center justify-center text-white text-[14px] font-normal break-words overflow-hidden text-ellipsis uppercase"
                 onClick={() => {
                   setSelectedLeadsDetails(item) // Pass selected lead data
                   setNoteDetails(item.notes)
@@ -1488,10 +1607,10 @@ const Userleads = ({
                   setColumns(column)
                 }}
               >
-                {item.firstName.slice(0, 1)}
+                {(item.firstName || '').slice(0, 1).toUpperCase()}
               </div>
               <div
-                className="w-[80%] truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
+                className="w-[80%] truncate cursor-pointer break-words overflow-hidden text-ellipsis text-[14px] font-normal"
                 onClick={() => {
                   setSelectedLeadsDetails(item) // Pass selected lead data
                   setNoteDetails(item.notes)
@@ -1499,7 +1618,12 @@ const Userleads = ({
                   setColumns(column)
                 }}
               >
-                {item.firstName} {item.lastName}
+                {searchQuery
+                  ? highlightSearchMatch(
+                      [item.firstName, item.lastName].filter(Boolean).join(' ') || '-',
+                      searchQuery,
+                    )
+                  : `${item.firstName || ''} ${item.lastName || ''}`.trim() || '-'}
               </div>
             </div>
           </div>
@@ -1507,14 +1631,16 @@ const Userleads = ({
       case 'Phone':
         // //console.log;
         return (
-          <button onClick={() => handleToggleClick(item.id)}>
-            {item.phone ? item.phone : '-'}
+          <button onClick={() => handleToggleClick(item.id)} className="text-[14px] font-normal border-none bg-transparent p-0">
+            {searchQuery && item.phone
+              ? highlightSearchMatch(item.phone, searchQuery)
+              : item.phone || '-'}
           </button>
         )
       case 'Stage':
         // //console.log;
         return (
-          <button onClick={() => handleToggleClick(item.id)}>
+          <button onClick={() => handleToggleClick(item.id)} className="text-[14px] font-normal border-none bg-transparent p-0">
             {item.stage ? item.stage.stageTitle : 'No Stage'}
           </button>
         )
@@ -1524,7 +1650,7 @@ const Userleads = ({
         // //console.log;
         return (
           <button
-            className="underline text-brand-primary"
+            className="underline text-brand-primary text-[14px] font-normal border-none bg-transparent p-0"
             onClick={() => {
               // //console.log;
               setSelectedLeadsDetails(item) // Pass selected lead data
@@ -1542,14 +1668,17 @@ const Userleads = ({
         if (typeof value === 'object' && value !== null) {
           value = JSON.stringify(value)
         }
+        const displayValue = value ?? '-'
         return (
           <div
-            className="cursor-pointer  break-words overflow-hidden text-ellipsis"
+            className="cursor-pointer break-words overflow-hidden text-ellipsis text-[14px] font-normal"
             onClick={() => {
               handleToggleClick(item.id)
             }}
           >
-            {value || '-'}
+            {searchQuery && displayValue !== '-'
+              ? highlightSearchMatch(displayValue, searchQuery)
+              : displayValue}
           </div>
         )
     }
@@ -1839,8 +1968,8 @@ const Userleads = ({
       fontSize: 17,
     },
     paragraph: {
-      fontWeight: '500',
-      fontSize: 15,
+      fontWeight: '400',
+      fontSize: 14,
     },
     modalsStyle: {
       height: 'auto',
@@ -1980,7 +2109,7 @@ const Userleads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center bg-white h-auto max-h-screen overflow-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
         (<div className="w-screen">
           <LeadLoading />
@@ -1993,11 +2122,12 @@ const Userleads = ({
             message={snackMessage}
             type={messageType}
           />
-          <StandardHeader
-            titleContent={
-              <div className="flex flex-row items-center gap-2">
-                <TypographyH3>Leads</TypographyH3>
-                {reduxUser?.currentUsage?.maxLeads &&
+          <div className="sticky top-0 z-20 flex-shrink-0 bg-white w-full" style={{ borderBottom: '1px solid #eaeaea' }}>
+            <StandardHeader
+              titleContent={
+                <div className="flex flex-row items-center gap-2">
+                  <TypographyH3>Leads</TypographyH3>
+                  {reduxUser?.currentUsage?.maxLeads &&
                   reduxUser?.planCapabilities?.maxLeads < 10000000 &&
                   reduxUser?.plan?.planId != null && (
                     <div
@@ -2010,56 +2140,16 @@ const Userleads = ({
                       {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads) || 0} used`}
                     </div>
                   )}
-              </div>
-            }
-            showTasks={true}
-            rightContent={
-              <button
-                style={{
-                  backgroundColor:
-                    selectedLeadsList.length > 0 || selectedAll
-                      ? 'hsl(var(--brand-primary))'
-                      : '',
-                  color:
-                    selectedLeadsList.length > 0 || selectedAll
-                      ? 'white'
-                      : '#000000',
-                }}
-                className="flex flex-row items-center gap-4 h-[40px] rounded-lg bg-[#33333315] w-[189px] justify-center"
-                onClick={() => {
-                  if (userLocalDetails?.plan) {
-                    setAssignLeadModal(true)
-                  } else {
-                    setSnackMessage('Add payment method to continue')
-                    setShowSnackMessage(true)
-                    setMessageType(SnackbarTypes.Warning)
-                  }
-                }}
-                disabled={!(selectedLeadsList.length > 0 || selectedAll)}
-              >
-                {selectedLeadsList.length > 0 || selectedAll ? (
-                  <Image
-                    src={'/assets/callBtnFocus.png'}
-                    height={17}
-                    width={17}
-                    alt="*"
-                  />
-                ) : (
-                  <Image
-                    src={'/assets/callBtn.png'}
-                    height={17}
-                    width={17}
-                    alt="*"
-                  />
-                )}
-                <TypographyH4>Start Campaign</TypographyH4>
-              </button>
-            }
-          />
+                </div>
+              }
+              showTasks={true}
+            />
+          </div>
 
-          <div className="w-[95%] pe-12 mt-2">
-            <div>
-              <div className="flex flex-row items-center justify-end">
+          <div className="w-[98%] mx-auto bg-transparent m-0 p-0 h-auto">
+            <div className="pt-0 bg-transparent flex flex-col gap-0.5 h-auto">
+              {(hasExportPermission || selectedLeadsList.length > 0 || selectedAll) && (
+              <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
                 <div className="flex flex-row items-center gap-6">
                   {/* <div className='flex flex-row items-center gap-2'>
                                         <Image src={"/assets/buyLeadIcon.png"} height={24} width={24} alt='*' />
@@ -2142,12 +2232,14 @@ const Userleads = ({
                   </Modal>*/}
                 </div>
               </div>
-              <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-                <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[70%]">
-                  <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
+              )}
+              <div className="sticky top-[65px] z-10 flex flex-col flex-shrink-0 bg-white w-full animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ gap: 2 }}>
+              <div className="flex flex-row items-center justify-between w-full min-w-0 overflow-hidden px-3 py-3 h-auto border-0" style={{ border: 'none' }}>
+                <div className="flex flex-row items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                  <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
                     <input
-                      style={styles.paragraph}
-                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
+                      style={{ ...styles.paragraph, fontWeight: 400 }}
+                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full text-[14px] text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
                       placeholder="Search by name, email or phone"
                       value={searchLead}
                       onChange={(e) => {
@@ -2157,31 +2249,33 @@ const Userleads = ({
                         handleSearchChange(value)
                       }}
                     />
-                    <button className="outline-none border-none">
+                    <button className="outline-none border-none" type="button">
                       <Image
                         src={'/assets/searchIcon.png'}
-                        height={24}
-                        width={24}
-                        alt="*"
+                        height={18}
+                        width={18}
+                        alt="Search"
                       />
                     </button>
                   </div>
                   <button
-                    className="outline-none flex-shrink-0"
+                    className="relative outline-none flex-shrink-0 flex flex-row items-center gap-2 px-3 h-10 rounded-lg border border-transparent bg-[#F9FAFB] hover:bg-white hover:border-[#E5E7EB] active:scale-[0.98] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                     onClick={() => {
                       setShowFilterModal(true)
                     }}
                   >
-                    <Image
-                      src={'/assets/filterIcon.png'}
-                      height={16}
-                      width={16}
-                      alt="*"
-                    />
+                    <Settings2 size={18} className="flex-shrink-0" aria-hidden />
+                    <span className="text-[14px] font-normal">Filter</span>
+                    {filtersSelected.length > 0 && (
+                      <span
+                        className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-brand-primary"
+                        aria-hidden
+                      />
+                    )}
                   </button>
                   {/* Show filters here in a row*/}
                   <div
-                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[65%]"
+                    className="flex flex-row items-center gap-2 flex-shrink-0 overflow-auto w-[65%]"
                     style={{
                       scrollbarColor: '#00000000',
                       scrollbarWidth: 'none',
@@ -2192,8 +2286,13 @@ const Userleads = ({
                       return (
                         <div className="flex-shrink-0" key={filter.key + index}>
                           <div
-                            className="px-4 py-2 bg-brand-primary/10 text-brand-primary  flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
-                            style={{ fontWeight: '500', fontSize: 15 }}
+                            className="px-2 h-10 flex-shrink-0 rounded-lg flex flex-row items-center gap-1"
+                            style={{
+                              fontWeight: 400,
+                              fontSize: 14,
+                              color: 'rgba(0,0,0,0.8)',
+                              backgroundColor: 'rgba(0,0,0,0.05)',
+                            }}
                           >
                             {getFilterTitle(filter)}
                             <button
@@ -2254,104 +2353,60 @@ const Userleads = ({
                   </div>
                 </div>
 
-                <div className="flex flex-row items-center justify-end gap-2 w-[30%]">
+                <div className="flex flex-row items-center justify-end gap-2 w-auto flex-shrink-0 text-[14px] font-normal">
                   {hasExportPermission && (
                     exportLoading ? (
                       <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     ) : (
                       <button
-                        className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
-                        style={{ fontWeight: 400, fontSize: 14 }}
+                        className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0"
+                        style={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                          backgroundColor: '#f7f7f7',
+                          borderRadius: 8,
+                        }}
                         onClick={() => {
                           handleExportLeads()
                         }}
                         disabled={exportLoading}
                       >
-                        <div className="transition-colors duration-150">
-                          Export
-                        </div>
-                        <Image
-                          src={'/otherAssets/exportIcon.png'}
-                          height={24}
-                          width={24}
-                          alt="Export"
-                          className="group-hover:hidden block transition-opacity duration-150"
-                        />
-                        <Image
-                          src={'/otherAssets/exportIconPurple.png'}
-                          height={24}
-                          width={24}
-                          alt="Export"
-                          className="hidden group-hover:block transition-opacity duration-150"
-                        />
+                        <Download size={18} className="flex-shrink-0" aria-hidden />
+                        <span className="text-[14px]">Export</span>
                       </button>
                     )
                   )}
+                  <button
+                    style={{
+                      fontWeight: 400,
+                      fontSize: 14,
+                      backgroundColor:
+                        selectedLeadsList.length > 0 || selectedAll
+                          ? 'hsl(var(--brand-primary))'
+                          : '#f7f7f7',
+                      color:
+                        selectedLeadsList.length > 0 || selectedAll
+                          ? 'white'
+                          : undefined,
+                      borderRadius: 8,
+                    }}
+                    className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 hover:opacity-90"
+                    onClick={() => {
+                      if (userLocalDetails?.plan) {
+                        setAssignLeadModal(true)
+                      } else {
+                        setSnackMessage('Add payment method to continue')
+                        setShowSnackMessage(true)
+                        setMessageType(SnackbarTypes.Warning)
+                      }
+                    }}
+                    disabled={!(selectedLeadsList.length > 0 || selectedAll)}
+                  >
+                    <Phone size={18} strokeWidth={2} className="flex-shrink-0" aria-hidden />
+                    <span className="text-[14px]">Start Campaign</span>
+                  </button>
 
-                  {selectedLeadsList.length >= 0 && (
-                    <div>
-                      {selectedAll ? (
-                        <div>
-                          <div className="flex flex-row items-center gap-2">
-                            <button
-                              className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
-                              onClick={() => {
-                                setSelectedLeadsList([])
-                                setSelectedAll(false)
-                              }}
-                            >
-                              <Image
-                                src={'/assets/whiteTick.png'}
-                                height={10}
-                                width={10}
-                                alt="*"
-                              />
-                            </button>
-                            <div
-                              style={{
-                                fontSize: '15',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              Select All
-                            </div>
-
-                            <div
-                              className="text-brand-primary"
-                              style={{
-                                fontSize: '15',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {/* {LeadsList.length} */}
-                              {getLeadSelectedCount()}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row items-center gap-2">
-                          <button
-                            className="h-[20px] w-[20px] rounded outline-none"
-                            style={{
-                              border: '3px solid #00000070',
-                            }}
-                            onClick={() => {
-                              //if select all then in the selectedLeads, we include the leads that are excluded
-                              //if selected all is false then in selected Leads we include the included leads
-                              setSelectedLeadsList([]) // setToggleClick(FilterLeads.map((item) => item.id));
-                              //LeadsList.map((item) => item.id)
-                              setSelectedAll(true)
-                            }}
-                          ></button>
-                          <div style={{ fontSize: '15', fontWeight: '600' }}>
-                            Select All
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Select All checkbox moved to Name column header in table */}
 
                   {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
                                         <span>
@@ -2365,18 +2420,19 @@ const Userleads = ({
               {/* Hide sheets list when searching across all sheets */}
               {!(searchLead && String(searchLead).trim()) && (
               <div
-                className="flex flex-row items-center mt-8 gap-2"
-                style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+                className="flex flex-row items-center gap-2 text-[14px] font-normal border-b px-3"
+                style={{ ...styles.paragraph, borderColor: '#eaeaea' }}
               >
                 <div
-                  className="flex flex-row items-center gap-2 w-full"
+                  className="flex flex-row items-center w-full min-h-[46px]"
                   style={{
                     ...styles.paragraph,
                     overflowY: 'hidden',
-                    scrollbarWidth: 'none', // For Firefox
-                    msOverflowStyle: 'none', // For Internet Explorer and Edge
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    fontSize: 14,
+                    fontWeight: 400,
+                    gap: 2,
                   }}
                 >
                   <style jsx>
@@ -2390,50 +2446,85 @@ const Userleads = ({
                     return (
                       <div
                         key={index}
-                        className="flex flex-row items-center gap-1 px-3"
+                        className={`group flex flex-row items-center gap-3 px-2 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98] ${editingSheetId === item.id ? 'flex-shrink-0' : ''}`}
                         style={{
                           borderBottom:
                             SelectedSheetId === item.id
                               ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
-                          whiteSpace: 'nowrap', // Prevent text wrapping
+                          whiteSpace: 'nowrap',
                         }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                       >
-                        <button
-                          style={styles.paragraph}
-                          className="outline-none w-full"
-                          onClick={() => {
-                            setSearchLead('')
-                            // Update ref immediately to prevent flash
-                            sheetIndexSelected.current = index
-                            // Clear leads immediately to prevent race condition
-                            setLeadsList([])
-                            setFilterLeads([])
-                            setLeadColumns([])
-                            // Clear loading state immediately to prevent showing old loading state
-                            setMoreLeadsLoader(false)
-                            setSheetsLoader(false)
-                            setInitialLoader(false)
-                            // Reset filtering flag to allow new request to start
-                            isFilteringRef.current = false
-                            // Invalidate any pending requests by incrementing request version
-                            requestVersion.current++
-                            // Reset pagination
-                            setNextCursorValue(0)
-                            setHasMore(true)
-                            // Update selected sheet
-                            setSelectedSheetId(item.id)
-                            setParamsInSearchBar(index)
-                            setSelectedLeadsList([])
-                            setSelectedAll(false)
-                            //   getLeads(item, 0);
-                          }}
-                        >
-                          {item.sheetName}
-                        </button>
+                        {editingSheetId === item.id ? (
+                          <input
+                            type="text"
+                            value={editingSheetName}
+                            onChange={(e) => setEditingSheetName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                saveInlineSheetName(item, editingSheetName)
+                              } else if (e.key === 'Escape') {
+                                setEditingSheetId(null)
+                                setEditingSheetName('')
+                                e.target.blur()
+                              }
+                            }}
+                            onBlur={() => saveInlineSheetName(item, editingSheetName)}
+                            onDoubleClick={(e) => e.stopPropagation()}
+                            ref={inlineSheetNameInputRef}
+                            style={{
+                              fontWeight: 400,
+                              fontSize: 14,
+                              opacity: 0.8,
+                              width: `${Math.max((editingSheetName || '').length + 1, 8)}ch`,
+                              minWidth: '8ch',
+                              border: 'none',
+                              borderBottom: '1px dotted rgba(0,0,0,0.7)',
+                              borderRadius: 0,
+                            }}
+                            className="outline-none text-left bg-transparent px-0 py-0 min-w-0"
+                          />
+                        ) : (
+                          <button
+                            style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}
+                            className="outline-none w-full text-left"
+                            onClick={() => {
+                              if (sheetClickTimeoutRef.current) clearTimeout(sheetClickTimeoutRef.current)
+                              sheetClickTimeoutRef.current = setTimeout(() => {
+                                sheetClickTimeoutRef.current = null
+                                setSearchLead('')
+                                sheetIndexSelected.current = index
+                                setLeadsList([])
+                                setFilterLeads([])
+                                setLeadColumns([])
+                                setMoreLeadsLoader(false)
+                                setSheetsLoader(false)
+                                setInitialLoader(false)
+                                isFilteringRef.current = false
+                                requestVersion.current++
+                                setNextCursorValue(0)
+                                setHasMore(true)
+                                setSelectedSheetId(item.id)
+                                setParamsInSearchBar(index)
+                                setSelectedLeadsList([])
+                                setSelectedAll(false)
+                              }, 200)
+                            }}
+                            onDoubleClick={(e) => {
+                              e.stopPropagation()
+                              if (sheetClickTimeoutRef.current) {
+                                clearTimeout(sheetClickTimeoutRef.current)
+                                sheetClickTimeoutRef.current = null
+                              }
+                              setEditingSheetId(item.id)
+                              setEditingSheetName(item.sheetName ?? '')
+                            }}
+                          >
+                            {item.sheetName}
+                          </button>
+                        )}
                         <DropdownMenu
                           open={dropdownOpen[item.id] || false}
                           onOpenChange={(open) => {
@@ -2448,7 +2539,7 @@ const Userleads = ({
                         >
                           <DropdownMenuTrigger asChild>
                             <button
-                              className="outline-none"
+                              className={`outline-none transition-opacity duration-150 ${(dropdownOpen[item.id] || SelectedSheetId === item.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                               onClick={() => {
                                 handleShowPopup(item)
                               }}
@@ -2517,9 +2608,13 @@ const Userleads = ({
                   })}
                 </div>
                 <button
-                  className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
-                  style={styles.paragraph}
-                  // onClick={() => { setShowAddNewSheetModal(true) }}
+                  className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 flex-shrink-0 whitespace-nowrap"
+                  style={{
+                    fontWeight: 400,
+                    fontSize: 14,
+                    backgroundColor: '#f7f7f7',
+                    borderRadius: 8,
+                  }}
                   onClick={() => {
                     if (uploading) {
                       setSnackMessage(
@@ -2539,17 +2634,99 @@ const Userleads = ({
                     }
                   }}
                 >
-                  <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
-                  <span>New Leads</span>
+                  <Plus size={18} color="hsl(var(--brand-primary))" weight="bold" className="flex-shrink-0" aria-hidden />
+                  <span className="text-[14px]">New Leads</span>
                 </button>
               </div>
               )}
 
+              {LeadsList.length > 0 && (
+              <div
+                ref={headerTableScrollRef}
+                onScroll={syncTableScrollHeaderToBody}
+                className="overflow-x-auto overflow-y-hidden w-full"
+                style={{ scrollbarWidth: 'thin' }}
+              >
+              <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
+                <colgroup>
+                  {leadColumns.map((col, i) => (
+                    <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
+                  ))}
+                </colgroup>
+                <thead>
+                  <tr style={{ fontWeight: '500' }}>
+                    {leadColumns.map((column, index) => {
+                      const isMoreColumn = column.title === 'More'
+                      const isNameColumn = column.title === 'Name'
+                      const columnWidth = isMoreColumn ? '100px' : isNameColumn ? '254px' : '150px'
+                      return (
+                        <th
+                          key={index}
+                          className={`border-none px-4 py-2 text-left uppercase text-[14px] font-normal ${isMoreColumn ? 'sticky right-0 bg-white' : ''}`}
+                          style={{
+                            color: 'rgba(0,0,0,0.6)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            zIndex: isMoreColumn ? 1 : 'auto',
+                            width: columnWidth,
+                            minWidth: columnWidth,
+                            maxWidth: columnWidth,
+                          }}
+                        >
+                          {isNameColumn ? (
+                            <div className="flex flex-row items-center gap-2">
+                              <Checkbox
+                                className="checkbox-leads flex-shrink-0"
+                                checked={selectedAll}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedLeadsList([])
+                                    setSelectedAll(true)
+                                  } else {
+                                    setSelectedLeadsList([])
+                                    setSelectedAll(false)
+                                  }
+                                }}
+                              />
+                              <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
+                              {(selectedLeadsList.length > 0 || selectedAll) && (
+                                <span
+                                  className="ml-auto flex-shrink-0"
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: 12,
+                                    fontWeight: 500,
+                                    color: 'hsl(var(--brand-primary))',
+                                    backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                    borderRadius: 8,
+                                  }}
+                                >
+                                  {getLeadSelectedCount()} {getLeadSelectedCount() === 1 ? 'lead' : 'leads'}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            (column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()
+                          )}
+                        </th>
+                      )
+                    })}
+                  </tr>
+                </thead>
+              </table>
+              </div>
+              )}
+
+              </div>
+
               {LeadsList.length > 0 ? (
                 <div
-                  className="h-[70svh] overflow-auto pb-[100px] mt-6"
+                  ref={scrollableDivRef}
+                  onScroll={syncTableScrollBodyToHeader}
+                  className="flex-1 min-h-0 overflow-auto pb-[100px] mt-6 bg-transparent"
                   id="scrollableDiv1"
-                  style={{ scrollbarWidth: 'none' }}
+                  style={{ scrollbarWidth: 'none', backgroundColor: 'transparent' }}
                 >
                   <InfiniteScroll
                     className="flex flex-col w-full"
@@ -2560,7 +2737,7 @@ const Userleads = ({
                           paddingTop: '10px',
                           fontWeight: '400',
                           fontFamily: 'inter',
-                          fontSize: 16,
+                          fontSize: 12,
                           color: '#00000060',
                         }}
                       >
@@ -2586,35 +2763,23 @@ const Userleads = ({
                     }
                     style={{ overflow: 'unset' }}
                   >
-                    <table className="table-auto w-full border-collapse border border-none">
-                      <thead>
-                        <tr style={{ fontWeight: '500' }}>
-                          {leadColumns.map((column, index) => {
-                            const isMoreColumn = column.title === 'More'
-                            const columnWidth = isMoreColumn ? '200px' : '150px'
-                            return (
-                              <th
-                                key={index}
-                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn ? 'sticky right-0 bg-white' : ''
-                                  }`}
-                                style={{
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  zIndex: isMoreColumn ? 1 : 'auto',
-                                  maxWidth: columnWidth,
-                                }}
-                              >
-                                {column.title.charAt(0).toUpperCase() +
-                                  column.title.slice(1)}
-                              </th>
-                            )
-                          })}
-                        </tr>
-                      </thead>
+                    <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
+                      <colgroup>
+                        {leadColumns.map((col, i) => (
+                          <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
+                        ))}
+                      </colgroup>
                       <tbody>
                         {FilterLeads.map((item, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
+                          <tr
+                            key={index}
+                            className="hover:bg-gray-50"
+                            style={{
+                              paddingTop: 12,
+                              paddingBottom: 12,
+                              borderBottom: '1px solid #eaeaea',
+                            }}
+                          >
                             {leadColumns.map((column, colIndex) => (
                               <td
                                 key={colIndex}
@@ -2719,15 +2884,15 @@ const Userleads = ({
                           <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
                             <PopoverTrigger asChild>
                               <button
-                                style={{ border: '1px solid #00000020' }}
-                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
+                                type="button"
+                                className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                               >
                                 <p>
                                   {selectedFromDate
                                     ? selectedFromDate.toDateString()
                                     : 'Select Date'}
                                 </p>
-                                <CalendarDots weight="regular" size={25} />
+                                <CalendarDots weight="regular" size={20} aria-hidden />
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
@@ -2759,15 +2924,15 @@ const Userleads = ({
                           <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
                             <PopoverTrigger asChild>
                               <button
-                                style={{ border: '1px solid #00000020' }}
-                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
+                                type="button"
+                                className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                               >
                                 <p>
                                   {selectedToDate
                                     ? selectedToDate.toDateString()
                                     : 'Select Date'}
                                 </p>
-                                <CalendarDots weight="regular" size={25} />
+                                <CalendarDots weight="regular" size={20} aria-hidden />
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
@@ -2986,10 +3151,10 @@ const Userleads = ({
                       )}
                     </div>
 
-                    <div className="flex flex-row items-center w-full justify-between m-0 p-4 h-auto bg-white">
+                    <div className="flex flex-row items-center w-full justify-between gap-3 m-0 p-4 h-auto bg-white border-t border-[#eaeaea]">
                       <button
-                        className="outline-none w-[105px]"
-                        style={{ fontSize: 16.8, fontWeight: '600' }}
+                        type="button"
+                        className="h-10 px-4 rounded-lg text-[14px] font-medium bg-white border border-[#eaeaea] text-foreground hover:bg-muted/50 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                         onClick={() => {
                           resetFilters()
                         }}
@@ -2997,19 +3162,12 @@ const Userleads = ({
                         Reset
                       </button>
                       {sheetsLoader ? (
-                        <CircularProgress size={25} sx={{ color: '#7902DF' }} />
+                        <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
                       ) : (
                         <button
-                          className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
-                          style={{
-                            fontSize: 16.8,
-                            fontWeight: '600',
-                            // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
-                          }}
+                          type="button"
+                          className="flex items-center justify-center h-10 w-[140px] rounded-lg text-[14px] font-medium bg-brand-primary text-white hover:bg-brand-primary/90 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
                           onClick={() => {
-                            //////console.log;
-                            // setLeadsList([]);
-                            // setFilterLeads([]);
                             setShowFilterModal(false)
                             setFiltersFromSelection()
                             setNextCursorValue('')

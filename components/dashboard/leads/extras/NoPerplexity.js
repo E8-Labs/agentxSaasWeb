@@ -91,7 +91,7 @@ function NoPerplexity({
 
       <TypographyTitle>Enrich Leads</TypographyTitle>
 
-      <TypographyBodyMedium className="w-[30vw] text-center">
+      <TypographyBodyMedium className="w-[30vw] text-center text-black/80">
         {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
       </TypographyBodyMedium>
 
@@ -136,7 +136,7 @@ function NoPerplexity({
         <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
       ) : (
         <button
-          className="h-[53px] p-3 flex flex-row gap-2 rounded-lg bg-brand-primary items-center justify-center text-white"
+          className="start-campaign-glow h-[40px] px-3 flex flex-row gap-2 rounded-lg bg-brand-primary items-center justify-center text-white"
           onClick={() => {
             if (userLocalData?.cards?.length == 0) {
               setShowAddCard(true)

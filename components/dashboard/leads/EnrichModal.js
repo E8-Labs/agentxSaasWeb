@@ -3,7 +3,7 @@ import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import axios from 'axios'
 
@@ -13,6 +13,60 @@ import { getUserLocalData } from '@/components/constants/constants'
 import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
+
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      if (stage !== 'entered') {
+        setStage('entering')
+        onEnter?.()
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = requestAnimationFrame(() => setStage('entered'))
+        })
+      }
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, onEnter, onExited, stage, timeout])
+
+  let style = {
+    transition: `opacity ${timeout}ms ease-out, transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+    opacity: 0,
+    transform: 'scale(0.95)',
+  }
+
+  if (stage === 'entering' || stage === 'entered') {
+    style = { ...style, opacity: 1, transform: 'scale(1)' }
+  } else if (stage === 'exiting') {
+    style = { ...style, opacity: 0, transform: 'scale(0.95)' }
+  }
+
+  if (stage === 'exited' && !inProp) {
+    return null
+  }
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+      <div style={style}>{children}</div>
+    </div>
+  )
+}
 
 export default function EnrichModal({
   showenrichModal,
@@ -195,10 +249,9 @@ export default function EnrichModal({
         // onClose={() => setShowAddLeadModal(false)}
         closeAfterTransition
         BackdropProps={{
-          timeout: 1000,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
+            backgroundColor: '#00000099',
           },
         }}
       >
@@ -215,17 +268,25 @@ export default function EnrichModal({
             transform: 'translateY(-50%)',
           }}
         >
-          <div className="flex flex-row justify-center w-full ">
+          <div className="flex flex-row justify-center w-full">
             <div
-              className="w-full py-10"
+              className="w-full flex flex-col gap-3 overflow-hidden rounded-[12px] bg-white border border-[#eaeaea]"
               style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-                height: 'auto',
+                boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                padding: 2,
+                margin: 0,
+                width: 400,
+                maxWidth: '100%',
               }}
             >
-              <div className="flex flex-row justify-between w-full">
+              <div
+                className="flex flex-row justify-between w-full"
+                style={{
+                  padding: '12px 16px',
+                  height: 'auto',
+                  borderBottom: '1px solid #eaeaea',
+                }}
+              >
                 <div style={{ fontSize: 18, fontWeight: '700' }}>
                   Lead Insight
                 </div>
@@ -236,11 +297,14 @@ export default function EnrichModal({
                 />
               </div>
 
-              <div className="w-full flex flex-col items-center justify-center mt-[20px] gap-4">
+              <div
+                className="w-full flex flex-col items-center justify-center gap-4"
+                style={{ margin: 0, paddingLeft: 16, paddingRight: 16 }}
+              >
                 <Image
                   src={'/svgIcons/sparkles.svg'}
-                  height={37}
-                  width={37}
+                  height={33}
+                  width={33}
                   alt="*"
                 />
 
@@ -402,45 +466,47 @@ export default function EnrichModal({
 
                 <div
                   style={{
-                    fontSize: 15,
-                    fontWeight: '500',
-                    width: '30vw',
+                    fontSize: 14,
+                    fontWeight: 400,
+                    width: '100%',
                     textAlign: 'center',
                   }}
                 >
                   {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
                 </div>
+              </div>
 
-                <div className="flex flex-row items-center justify-between w-[60%]">
-                  {Loader ? (
-                    <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                  ) : (
-                    <button
-                      className="h-[53px] flex w-[45%] text-[#000000]  text-[16px] hover:text-brand-primary py-3 rounded-lg
-                     items-center justify-center border rounded-lg"
-                      style={{}}
-                      onClick={() => {
-                        // handleAddLead(false)
-                        handleEnrichFalse()
-                      }}
-                    >
-                      Not Interested
-                    </button>
-                  )}
-
+              <div
+                className="flex flex-row items-center justify-between w-full"
+                style={{ padding: '12px 16px' }}
+              >
+                {Loader ? (
+                  <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                ) : (
                   <button
-                    className="h-[53px] text-[16px] w-[143px] rounded-lg bg-brand-primary items-center justify-center text-white"
+                    type="button"
+                    className="flex items-center gap-1 h-[40px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]"
                     onClick={() => {
-                      if (userData?.user?.cards?.length === 0) {
-                        setShowAddCard(true)
-                      } else {
-                        setShowenrichConfirmModal(true)
-                      }
+                      handleEnrichFalse()
                     }}
                   >
-                    Enrich Lead
+                    Not Interested
                   </button>
-                </div>
+                )}
+
+                <button
+                  type="button"
+                  className="flex items-center justify-center h-[40px] rounded-lg bg-brand-primary px-4 text-sm font-medium text-white hover:opacity-90 transition-colors duration-150 active:scale-[0.98]"
+                  onClick={() => {
+                    if (userData?.user?.cards?.length === 0) {
+                      setShowAddCard(true)
+                    } else {
+                      setShowenrichConfirmModal(true)
+                    }
+                  }}
+                >
+                  Enrich Lead
+                </button>
               </div>
             </div>
           </div>

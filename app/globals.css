@@ -149,6 +149,149 @@ input[type="date"]::-moz-datetime-edit-year-field {
     100% { background-position: -200% 0; }
   }
 
+  /* Leads: Start Campaign button – glowing when enabled (60% opacity) */
+  .start-campaign-glow {
+    box-shadow: 0 0 20px hsl(var(--brand-primary) / 0.6), 0 0 40px hsl(var(--brand-primary) / 0.6);
+    transition: box-shadow 0.3s ease;
+  }
+  .start-campaign-glow:hover {
+    box-shadow: 0 0 24px hsl(var(--brand-primary) / 0.6), 0 0 48px hsl(var(--brand-primary) / 0.6);
+  }
+
+  /* Checkbox (Leads / Userleads): Firecrawl-style – soft primary shadow when checked, animated */
+  .checkbox-primary-shadow {
+    box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.2),
+      0 2px 8px hsl(var(--brand-primary) / 0.15),
+      0 4px 12px hsl(var(--brand-primary) / 0.08);
+    transition: box-shadow 0.2s ease-out;
+  }
+
+  /* Userleads / Leads: consistent checkbox size in all states (no scale on press) */
+  .checkbox-leads {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    border-radius: 4px;
+    transition: border-color 0.2s ease-out, background-color 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+  .checkbox-leads:active {
+    transform: none;
+  }
+
+  /* Start campaign modals & Leads page: firecrawl-style inputs (hover + focus) */
+  .start-campaign-input {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    outline: none;
+  }
+  .start-campaign-input::placeholder {
+    color: #9CA3AF;
+    font-weight: 400;
+  }
+  .start-campaign-input:hover {
+    border-color: #D1D5DB;
+    background-color: #F9FAFB;
+  }
+  .start-campaign-input:focus {
+    border-color: hsl(var(--brand-primary));
+    box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.2);
+  }
+  .start-campaign-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .start-campaign-input:active {
+    transition-duration: 0.1s;
+  }
+
+  /* Section labels in start campaign modals */
+  .start-campaign-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    letter-spacing: -0.01em;
+    height: 28px;
+  }
+
+  /* Userleads page: search and other inputs hover/active */
+  .search-input-wrapper {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+  }
+  .search-input-wrapper:hover {
+    border-color: #D1D5DB;
+    background-color: #F9FAFB;
+  }
+  .search-input-wrapper:focus-within {
+    border-color: hsl(var(--brand-primary)) !important;
+    box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.2);
+    outline: none;
+  }
+  .search-input-wrapper:active {
+    transition-duration: 0.1s;
+  }
+
+  /* Date picker popper: firecrawl-style drop entry (slide from bottom + fade) */
+  @keyframes date-picker-drop-entry {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes date-picker-drop-exit {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+
+  /* Airbnb-style 3-dot loader (e.g. Leads upload modal) */
+  .loader-dots-three {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .loader-dots-three span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: hsl(var(--brand-primary));
+    animation: loader-dot-bounce 0.6s ease-in-out infinite alternate;
+  }
+  .loader-dots-three span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .loader-dots-three span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  @keyframes loader-dot-bounce {
+    from {
+      transform: translateY(0);
+      opacity: 0.6;
+    }
+    to {
+      transform: translateY(-6px);
+      opacity: 1;
+    }
+  }
+
   /* Prevent any black space at top - ensure body and html are white */
   html, body {
     background-color: #ffffff !important;

@@ -12,11 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 import Tooltip from '@mui/material/Tooltip'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { CalendarDots, CaretLeft } from '@phosphor-icons/react'
+import { CalendarDots, CaretLeft, Info } from '@phosphor-icons/react'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
@@ -36,12 +32,14 @@ import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
 import { getAgentImage } from '@/utilities/agentUtilities'
 import { GetTimezone } from '@/utilities/utility'
 
+import { Checkbox } from '@/components/ui/checkbox'
+
+import { DateAndTimeFields } from './DateAndTimeFields'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../AgentSelectSnackMessage'
 import AllowSmartRefillPopup from '../AllowSmartRefillPopup'
 import DncConfirmationPopup from '../DncConfirmationPopup'
-import { CalendarDays, PhoneCall } from 'lucide-react'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -122,7 +120,7 @@ const AssignLead = ({
   const [isFocustedCustomLeads, setisFocustedCustomLeads] = useState('')
   const [selectedFromDate, setSelectedFromDate] = useState(null)
   const [showFromDatePicker, setShowFromDatePicker] = useState(false)
-  const [selectedDateTime, setSelectedDateTime] = useState(dayjs())
+  const [selectedDateTime, setSelectedDateTime] = useState(() => dayjs().startOf('day'))
   const [CallNow, setCallNow] = useState('')
   const [CallLater, setCallLater] = useState(false)
 
@@ -382,7 +380,7 @@ const AssignLead = ({
       } else {
         // //console.log;
         if (!errorMessage) {
-          setErrTitle('Pipeline Conflict')
+          setErrTitle('Pipeline Confilict')
           setErrorMessage(
             'You can’t assign leads to agents in different pipelines',
           )
@@ -653,16 +651,17 @@ const AssignLead = ({
 
   const styles = {
     heading: {
-      fontWeight: '600',
-      fontSize: 17,
+      fontWeight: '400',
+      fontSize: 16,
     },
     paragraph: {
       fontWeight: '500',
-      fontSize: 12,
+      fontSize: 14,
     },
     paragraph2: {
-      fontWeight: '500',
-      fontSize: 12,
+      fontWeight: '400',
+      fontSize: 14,
+      color: 'rgba(0,0,0,0.8)',
     },
     title: {
       fontWeight: '500',
@@ -682,7 +681,7 @@ const AssignLead = ({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col" style={{ gap: 2 }}>
       <AgentSelectSnackMessage
         message={errorMessage}
         title={errTitle}
@@ -714,36 +713,56 @@ const AssignLead = ({
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
         />
       )}
-      {/* Snackbar for invalid time */}
-      <div className="flex flex-row items-center justify-between mt-4">
-        <div style={{ fontSize: 24, fontWeight: '700' }}>Select your Agent</div>
-        <div className="flex flex-row items-center gap-2">
-          <div style={{ ...styles.paragraph, color: brandPrimaryColor }}>
-            {getLeadSelectedCount()} Contacts Selected
-          </div>
-          <CloseBtn onClick={handleCloseAssignLeadModal} />
-        </div>
-      </div>
-      <div
-        className="mt-2"
-        style={styles.paragraph2}
-        onClick={() => {
-          // setLastStepModal(true);
-        }}
-      >
-        Only outbound agents assigned to a stage can be selected.
-      </div>
-      {initialLoader ? (
-        <div className="w-full flex flex-row justify-center mt-4">
-          <CircularProgress size={30} />
-        </div>
-      ) : (
+      {/* Title + content wrapper */}
+      <div className="flex flex-col flex-1 min-h-0" style={{ padding: 0, borderRadius: 16 }}>
+        <div className="flex flex-col w-full flex-1 min-h-0" style={{ padding: 0, gap: 1 }}>
         <div
-          className="relative max-h-[50vh] overflow-y-auto"
-          style={{ scrollbarWidth: 'none' }}
-          id="scrollableAgentDiv"
+          className="flex flex-col"
+          style={{ borderBottom: '1px solid #eaeaea' }}
         >
-          <InfiniteScroll
+          <div
+            className="flex flex-row items-center justify-between w-full"
+            style={{ padding: 16, borderBottom: '1px solid #eaeaea', minHeight: 66 }}
+          >
+            <div className="flex flex-col items-start" style={{ gap: 2 }}>
+              <div className="start-campaign-label" style={{ fontSize: 18, fontWeight: 600, color: '#111827', letterSpacing: '-0.01em' }}>
+                Select your <span style={{ color: 'hsl(var(--brand-primary))' }}>Agent</span>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 400, color: '#374151' }}>
+                {getLeadSelectedCount()} Contacts Selected
+              </div>
+            </div>
+            <CloseBtn onClick={handleCloseAssignLeadModal} />
+        </div>
+        </div>
+        {initialLoader ? (
+          <div className="w-full flex flex-row justify-center mt-4" style={{ padding: 16 }}>
+            <CircularProgress size={30} />
+          </div>
+        ) : (
+          <div
+            className="relative flex-1 min-h-0 overflow-y-auto max-h-[400px]"
+            style={{ scrollbarWidth: 'none', paddingLeft: 16, paddingRight: 16, paddingTop: 16, paddingBottom: 16 }}
+            id="scrollableAgentDiv"
+          >
+            <div
+              className="mt-2 pb-2"
+              style={{
+                ...styles.paragraph2,
+                fontWeight: 400,
+                fontSize: 14,
+                height: 'auto',
+                padding: 12,
+                borderRadius: 8,
+                margin: 0,
+                backgroundColor: '#FEF4E4',
+                border: '1px solid #E49024',
+                color: '#000000',
+              }}
+            >
+              Only outbound agents assigned to a stage can be selected.
+            </div>
+            <InfiniteScroll
             dataLength={agentsList.length}
             next={() => {
               getAgents({ initialoaderStatus: false })
@@ -762,7 +781,7 @@ const AssignLead = ({
                   paddingTop: '10px',
                   fontWeight: '400',
                   fontFamily: 'inter',
-                  fontSize: 16,
+                  fontSize: 14,
                   color: '#00000060',
                 }}
               >
@@ -796,7 +815,7 @@ const AssignLead = ({
                             <i
                               className="text-red"
                               style={{
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: '600',
                               }}
                             >
@@ -814,17 +833,23 @@ const AssignLead = ({
               return (
                 <button
                   key={index}
+                  type="button"
                   disabled={checkNostageAndInboundAgent(item)}
-                  className={`rounded-xl p-2 mt-4 w-full outline-none ${checkNostageAndInboundAgent(item) ? 'bg-[#00000020]' : ''}`} //
+                  className={`rounded-lg mt-3 w-full outline-none flex flex-col active:scale-[0.98] transition-all duration-200 border ${checkNostageAndInboundAgent(item) ? 'bg-[#F9FAFB] opacity-60' : 'hover:border-[#D1D5DB] hover:bg-[#F9FAFB]'}`}
                   style={{
+                    gap: 4,
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    paddingLeft: 16,
+                    paddingRight: 16,
                     border: SelectedAgents.some((a) => a.id === item.id)
                       ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000020',
+                      : '1px solid #E5E7EB',
                     backgroundColor: SelectedAgents.some(
                       (a) => a.id === item.id,
                     )
-                      ? `${brandPrimaryColor}08`
-                      : '',
+                      ? 'hsl(var(--brand-primary) / 0.06)'
+                      : '#FFFFFF',
                   }}
                   onClick={() => {
                     // console.log("Selected item is", item);
@@ -849,37 +874,62 @@ const AssignLead = ({
                     }
                   }}
                 >
-                  <div className="flex flex-row items-center justify-between pt-2">
-                    <div className="flex flex-row items-center gap-2">
-                      {getAgentImage(item)}
-                      <span style={styles.heading}>
-                        {GetOutboundAgent(item)
-                          ?.name?.slice(0, 1)
-                          ?.toUpperCase()}
-                        {GetOutboundAgent(item)?.name?.slice(1)}
-                        {/*item?.name?.slice(0, 1)?.toUpperCase()}
-                        {item?.name?.slice(1)*/}
-                      </span>
+                  <div
+                    className="flex flex-row items-center justify-between"
+                    style={{ paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0 }}
+                  >
+                    <div className="flex flex-row items-center" style={{ gap: 12 }}>
+                      <div
+                        style={{
+                          width: 58,
+                          height: 58,
+                          borderRadius: '50%',
+                          border: '2px solid white',
+                          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.08)',
+                          backgroundColor: 'white',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <div style={{ transform: 'scale(0.748)', transformOrigin: 'center' }}>
+                          {getAgentImage(item)}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-start text-left" style={{ gap: 2 }}>
+                        <span style={{ ...styles.heading, fontSize: 16 }}>
+                          {GetOutboundAgent(item)
+                            ?.name?.slice(0, 1)
+                            ?.toUpperCase()}
+                          {GetOutboundAgent(item)?.name?.slice(1)}
+                        </span>
+                        <div
+                          style={{
+                            fontWeight: '500',
+                            fontSize: 14,
+                            color: 'rgba(0,0,0,0.8)',
+                          }}
+                        >
+                          {item.agents[0]?.agentRole}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex flex-col items-end">
                       <div>{noNumberWarning(item)}</div>
-                      <div
-                        style={{
-                          fontWeight: '500',
-                          fontSize: 12,
-                        }}
-                      >
-                        {item.agents[0]?.agentRole}
-                      </div>
                     </div>
                   </div>
                   <div
-                    className="flex flex-row items-center gap-2 mt-6 pb-2 w-full overflow-auto"
+                    className="flex flex-row items-center gap-2 w-full overflow-auto"
                     style={{
-                      ...styles.paragraph,
+                      fontWeight: 400,
+                      fontSize: 14,
+                      height: 'auto',
+                      paddingTop: 2,
+                      paddingBottom: 2,
                       overflowY: 'hidden',
-                      scrollbarWidth: 'none', // For Firefox
-                      msOverflowStyle: 'none', // For Internet Explorer and Edge
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none',
                     }}
                   >
                     <style jsx>
@@ -891,9 +941,9 @@ const AssignLead = ({
                     </style>
                     <div
                       className="flex-shrink-0 flex flex-row items-center gap-1"
-                      style={styles.paragraph}
+                      style={{ fontWeight: 400, fontSize: 14 }}
                     >
-                      <span style={{ color: brandPrimaryColor }}>Active in | </span>{' '}
+                      <span style={{ color: brandPrimaryColor, fontWeight: 400, fontSize: 14 }}>Active in | </span>{' '}
                       {item.pipeline?.title || 'No Pipeline'}
                     </div>
 
@@ -904,8 +954,8 @@ const AssignLead = ({
                       >
                         {item.stages.map((item, index) => (
                           <div
-                            className="px-3 py-1 rounded-3xl border"
-                            style={styles.paragraph}
+                            className="px-3 py-1 border"
+                            style={{ fontWeight: 400, fontSize: 14, borderRadius: 8 }}
                             key={index}
                           >
                             {item.stageTitle}
@@ -914,8 +964,8 @@ const AssignLead = ({
                       </div>
                     ) : (
                       <div
-                        className="px-3 py-1 rounded-3xl border"
-                        style={styles.paragraph}
+                        className="px-3 py-1 border"
+                        style={{ fontWeight: 400, fontSize: 14, borderRadius: 8 }}
                       >
                         No Stage
                       </div>
@@ -926,25 +976,23 @@ const AssignLead = ({
             })}
           </InfiniteScroll>
         </div>
-      )}
-      <div>
+        )}
+      </div>
+      <div className="flex items-center justify-center px-4 pb-4 pt-1">
         <button
-          className="rounded-lg mt-4 w-full h-[50px]"
-          style={{
-            ...styles.heading,
-            backgroundColor: ShouldContinue ? '#00000020' : brandPrimaryColor,
-            color: ShouldContinue ? '#00000080' : 'white',
-          }} //onClick={handleAssigLead}
+          type="button"
+          className={`w-full max-w-[96%] h-12 rounded-lg text-base font-semibold transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98] disabled:pointer-events-none ${!ShouldContinue ? 'bg-brand-primary text-white hover:bg-brand-primary/90 hover:shadow-[0_2px_8px_hsl(var(--brand-primary)/0.3)]' : 'bg-black/[0.08] text-black/50'}`}
+          style={{ marginTop: 16, marginBottom: 16, paddingTop: 12, paddingBottom: 12 }}
           disabled={ShouldContinue}
           onClick={() => {
             const A = agentsList
             localStorage.setItem('AssignLeadAgents', JSON.stringify(A))
             handleContinue({ SelectedAgents, agentsList })
-            // setLastStepModal(true);
           }}
         >
           Continue
         </button>
+      </div>
       </div>
       {/* last step modal 
 
@@ -1035,7 +1083,10 @@ const AssignLead = ({
                     {getLeadSelectedCount()} Contacts Selected
                   </div>
 
-                  <div className="flex flex-row items-center  -mt-2">
+                  <div
+                    className="flex flex-row items-center justify-between"
+                    style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.05)' }}
+                  >
                     <Tooltip
                       title="If the lead has given consent, no need to run against DNC"
                       arrow
@@ -1068,7 +1119,11 @@ const AssignLead = ({
                         Check DNC List
                       </div>
                     </Tooltip>
-
+                    <Info
+                      size={16}
+                      style={{ color: 'rgba(0,0,0,0.7)', flexShrink: 0 }}
+                      aria-hidden
+                    />
                     <Switch
                       checked={isDncChecked}
                       // color="#7902DF"
@@ -1094,22 +1149,21 @@ const AssignLead = ({
                 </div>
               </div>
 
-              <div className="mt-4" style={styles.heading}>
+              <div className="mt-4 start-campaign-label">
                 Drip per day
               </div>
 
-              <div className="flex flex-row items-center gap-8 mt-4">
+              <div className="flex flex-col items-stretch gap-4 mt-4">
                 <input
-                  className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
+                  className="w-full flex flex-row items-center start-campaign-input"
                   style={{
-                    border: `${
-                      isFocustedCustomLeads
-                        ? `2px solid ${brandPrimaryColor}`
-                        : '1px solid #00000040'
-                    }`,
-                    height: '50px',
+                    height: '40px',
+                    borderColor: isFocustedCustomLeads ? brandPrimaryColor : undefined,
+                    borderWidth: isFocustedCustomLeads ? 2 : undefined,
+                    boxShadow: isFocustedCustomLeads ? `0 0 0 2px ${brandPrimaryColor}20` : undefined,
                   }}
                   value={customLeadsToSend}
+                  disabled={!!NoOfLeadsToSend}
                   onFocus={() => {
                     setNoOfLeadsToSend('')
                     setisFocustedCustomLeads(true)
@@ -1121,36 +1175,45 @@ const AssignLead = ({
                   }}
                   placeholder="Ex: 100"
                 />
-                <button
-                  className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
+                <label
+                  className="w-full flex flex-row items-center gap-3 rounded-lg cursor-pointer border border-[#E5E7EB] bg-white transition-colors duration-200 hover:border-[#D1D5DB] hover:bg-[#F9FAFB]"
                   style={{
-                    border: NoOfLeadsToSend
-                      ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000040',
-                    height: '50px',
-                  }}
-                  onClick={() => {
-                    setNoOfLeadsToSend(totalLeads)
-                    setCustomLeadsToSend('')
-                    setisFocustedCustomLeads(false)
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                    paddingLeft: 12,
+                    paddingRight: 12,
                   }}
                 >
-                  All {getLeadSelectedCount()}
-                </button>
+                  <Checkbox
+                    checked={!!NoOfLeadsToSend}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setNoOfLeadsToSend(totalLeads)
+                        setCustomLeadsToSend('')
+                        setisFocustedCustomLeads(false)
+                      } else {
+                        setNoOfLeadsToSend('')
+                      }
+                    }}
+                  />
+                  <span>Select All {getLeadSelectedCount()}</span>
+                </label>
               </div>
 
-              <div className="mt-4" style={styles.heading}>
+              <div className="mt-4 start-campaign-label">
                 When to start calling?
               </div>
 
-              <div className="flex flex-row items-center gap-8 mt-4">
+              <div className="flex flex-row items-center gap-4 mt-4">
                 <button
-                  className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
+                  type="button"
+                  className="w-1/2 flex flex-col justify-between items-start p-4 rounded-lg border transition-all duration-200 hover:border-[#D1D5DB]"
                   style={{
                     border: CallNow
                       ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000040',
+                      : '1px solid #E5E7EB',
                     height: '119px',
+                    backgroundColor: CallNow ? 'hsl(var(--brand-primary) / 0.02)' : '#FFFFFF',
                   }}
                   onClick={() => {
                     setHasUserSelectedDate(false)
@@ -1175,31 +1238,33 @@ const AssignLead = ({
                     // handleDateTimerDifference();
                   }}
                 >
-                  {/*<Image
+                  <Image
                     src={'/assets/callBtn.png'}
                     height={24}
                     width={24}
                     alt="*"
-                  />*/}
-                  <PhoneCall size={32} weight="900" />
+                  />
                   <div style={styles.title}>Start Now</div>
                 </button>
                 <div className="w-1/2">
                   <button
-                    className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
+                    type="button"
+                    className="w-full flex flex-col items-start justify-between p-4 rounded-lg border transition-all duration-200 hover:border-[#D1D5DB] bg-white"
                     style={{
                       border: CallLater
                         ? `2px solid ${brandPrimaryColor}`
-                        : '1px solid #00000040',
+                        : '1px solid #E5E7EB',
                       height: '119px',
                     }}
                     onClick={() => {
                       setShowFromDatePicker(!showFromDatePicker)
                       setCallNow('')
                       setCallLater(true)
+                      setSelectedDateTime(dayjs().startOf('day'))
+                      setHasUserSelectedDate(true)
                     }}
                   >
-                    <CalendarDays size={32} weight="900" />
+                    <CalendarDots size={32} weight="bold" />
                     <div style={styles.title}>Schedule</div>
                   </button>
                   {/* <div>
@@ -1238,100 +1303,27 @@ const AssignLead = ({
                           className="w-full flex flex-row justify-center"
                           style={{
                             backgroundColor: '#ffffff',
-                            padding: 20,
-                            borderRadius: '13px',
+                            padding: 24,
+                            borderRadius: 12,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.08)',
+                            border: '1px solid #eaeaea',
                           }}
                         >
                           <div>
-                            {/* <Calendar
-                                                              onChange={handleFromDateChange}
-                                                              value={selectedFromDate}
-                                                              locale="en-US"
-                                                              onClose={() => { setShowFromDatePicker(false) }}
-                                                          /> */}
                             <div className="text-center text-xl font-bold">
-                              Select date and time to shedule call
+                              Select date and time to schedule call
                             </div>
-                            <div className="w-full mt-4 flex flex-row justify-center">
-                              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateTimePicker
-                                  // label="Select date and time"
-                                  minDateTime={dayjs().tz(userProfile.timeZone)}
-                                  //   value={value}
-                                  slotProps={{
-                                    digitalClockSectionItem: {
-                                      sx: {
-                                        '&.Mui-selected': {
-                                          backgroundColor: `${brandPrimaryColor} !important`,
-                                          color: '#fff !important',
-                                        },
-                                        '&.Mui-selected:hover': {
-                                          backgroundColor: `${brandPrimaryColor} !important`,
-                                          color: '#fff !important',
-                                        },
-                                      },
-                                    },
-                                    desktopPaper: {
-                                      sx: {
-                                        '& .MuiMultiSectionDigitalClockSection-root': {
-                                          scrollbarWidth: 'none',
-                                          msOverflowStyle: 'none',
-                                          '&::-webkit-scrollbar': { display: 'none' },
-                                        },
-                                      },
-                                    },
-                                  }}
-                                  sx={{
-                                    '& .MuiPickersDay-root.Mui-selected': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                      color: 'white !important',
-                                    },
-                                    '& .MuiPickersDay-root:hover': {
-                                      backgroundColor: `${brandPrimaryColor}CC !important`,
-                                    },
-                                    '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
-                                      color: '#333 !important',
-                                    },
-                                    '& .MuiClock-pin': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                    },
-                                    '& .MuiClockPointer-root': {
-                                      backgroundColor: `${brandPrimaryColor} !important`,
-                                    },
-                                    '& .MuiClockPointer-thumb': {
-                                      borderColor: `${brandPrimaryColor} !important`,
-                                    },
-                                  }}
-                                  onChange={handleDateChange}
-                                  renderInput={(params) => (
-                                    <input
-                                      {...params.inputProps}
-                                      style={{
-                                        border: 'none', // Disable border
-                                        outline: 'none',
-                                        padding: '8px',
-                                        backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
-                                      }}
-                                      onFocus={(e) => {
-                                        e.target.style.border = 'none' // Ensure no border on focus
-                                        e.target.style.outline = 'none' // Ensure no outline on focus
-                                      }}
-                                      onBlur={(e) => {
-                                        e.target.style.border = 'none' // Reset border on blur
-                                        e.target.style.outline = 'none' // Reset outline on blur
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.target.style.border = 'none' // Remove border on hover
-                                        e.target.style.outline = 'none' // Remove outline on hover
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.style.border = 'none' // Reset border on hover out
-                                        e.target.style.outline = 'none' // Reset outline on hover out
-                                      }}
-                                    />
-                                  )}
-                                />
-                              </LocalizationProvider>
+                            <div className="w-full mt-4 flex flex-row justify-center max-w-md">
+                              <DateAndTimeFields
+                                value={selectedDateTime}
+                                onChange={handleDateChange}
+                                minDate={
+                                  userProfile?.timeZone
+                                    ? dayjs().tz(userProfile.timeZone)
+                                    : dayjs()
+                                }
+                                error={false}
+                              />
                             </div>
                             <div className="w-full flex flex-row justify-center mt-6">
                               <button
@@ -1352,123 +1344,18 @@ const AssignLead = ({
                 </div>
               </div>
 
-              {CallLater && (
-                <div>
-                  <div
-                    className="mt-4"
-                    style={{
-                      fontWeight: '500',
-                      fontsize: 12,
-                      color: '#00000050',
-                    }}
-                  >
-                    Select date & time
-                  </div>
-                  <div className="mt-2">
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                        // label="Select date and time"
-                        // minDateTime={dayjs()}
-                        //   value={value}
-                        minDate={dayjs()}
-                        onChange={handleDateChange}
-                        slotProps={{
-                          textField: {
-                            variant: 'outlined',
-                            sx: {
-                              '& .MuiOutlinedInput-root': {
-                                borderRadius: '10px',
-                                '& fieldset': {
-                                  borderColor: hasUserSelectedDate
-                                    ? brandPrimaryColor
-                                    : '#00000050',
-                                  borderWidth: '2px',
-                                },
-                                '&:hover fieldset': {
-                                  borderColor: hasUserSelectedDate
-                                    ? brandPrimaryColor
-                                    : '#00000050',
-                                },
-                                '&.Mui-focused fieldset': {
-                                  borderColor: hasUserSelectedDate
-                                    ? brandPrimaryColor
-                                    : '#00000050',
-                                },
-                              },
-                            },
-                          },
-                          digitalClockSectionItem: {
-                            sx: {
-                              '&.Mui-selected': {
-                                backgroundColor: `${brandPrimaryColor} !important`,
-                                color: '#fff !important',
-                              },
-                              '&.Mui-selected:hover': {
-                                backgroundColor: `${brandPrimaryColor} !important`,
-                                color: '#fff !important',
-                              },
-                            },
-                          },
-                          desktopPaper: {
-                            sx: {
-                              '& .MuiMultiSectionDigitalClockSection-root': {
-                                scrollbarWidth: 'none',
-                                msOverflowStyle: 'none',
-                                '&::-webkit-scrollbar': { display: 'none' },
-                              },
-                            },
-                          },
-                        }}
-                        sx={{
-                          '& .MuiPickersDay-root.Mui-selected': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                            color: 'white !important',
-                          },
-                          '& .MuiPickersDay-root:hover': {
-                            backgroundColor: `${brandPrimaryColor}CC !important`,
-                          },
-                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)': {
-                            color: '#333 !important',
-                          },
-                          '& .MuiClock-pin': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                          },
-                          '& .MuiClockPointer-root': {
-                            backgroundColor: `${brandPrimaryColor} !important`,
-                          },
-                          '& .MuiClockPointer-thumb': {
-                            borderColor: `${brandPrimaryColor} !important`,
-                          },
-                        }}
-                        renderInput={(params) => (
-                          <input
-                            {...params.inputProps}
-                            style={{
-                              border: 'none',
-                              outline: 'none',
-                              padding: '8px',
-                              backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
-                            }}
-                            onFocus={(e) => {
-                              e.target.style.border = 'none' // Ensure no border on focus
-                              e.target.style.outline = 'none' // Ensure no outline on focus
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.border = 'none' // Reset border on blur
-                              e.target.style.outline = 'none' // Reset outline on blur
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.border = 'none' // Remove border on hover
-                              e.target.style.outline = 'none' // Remove outline on hover
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.border = 'none' // Reset border on hover out
-                              e.target.style.outline = 'none' // Reset outline on hover out
-                            }}
-                          />
-                        )}
-                      />
-                    </LocalizationProvider>
+{CallLater && (
+                <div className="px-4">
+                  <div className="mt-4 start-campaign-label">
+                  Select date & time
+                </div>
+                  <div className="mt-2 w-full">
+                    <DateAndTimeFields
+                      value={selectedDateTime}
+                      onChange={handleDateChange}
+                      minDate={dayjs()}
+                      error={isDisabled}
+                    />
                   </div>
                 </div>
               )}

@@ -16,7 +16,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { CalendarDots, CaretLeft } from '@phosphor-icons/react'
+import { CalendarDots, CaretLeft, Info } from '@phosphor-icons/react'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
@@ -32,6 +32,8 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import Apis from '@/components/apis/Apis'
 import { SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi'
 import { getAgentImage } from '@/utilities/agentUtilities'
+
+import { Checkbox } from '@/components/ui/checkbox'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -1026,7 +1028,10 @@ const AssignLead = ({
                     {getLeadSelectedCount()} Contacts Selected
                   </div>
 
-                  <div className="flex flex-row items-center  -mt-2">
+                  <div
+                    className="flex flex-row items-center justify-between"
+                    style={{ padding: 12, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.05)' }}
+                  >
                     <Tooltip
                       title="If the lead has given consent, no need to run against DNC"
                       arrow
@@ -1059,7 +1064,11 @@ const AssignLead = ({
                         Check DNC List
                       </div>
                     </Tooltip>
-
+                    <Info
+                      size={16}
+                      style={{ color: 'rgba(0,0,0,0.7)', flexShrink: 0 }}
+                      aria-hidden
+                    />
                     <Switch
                       checked={isDncChecked}
                       // color="#7902DF"
@@ -1089,18 +1098,21 @@ const AssignLead = ({
                 Drip per day
               </div>
 
-              <div className="flex flex-row items-center gap-8 mt-4">
+              <div className="flex flex-col items-stretch gap-4 mt-4">
                 <input
-                  className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
+                  className="w-full flex flex-row items-center rounded-lg otline-none focus:ring-0"
                   style={{
                     border: `${
                       isFocustedCustomLeads
                         ? `2px solid ${brandPrimaryColor}`
                         : '1px solid #00000040'
                     }`,
-                    height: '50px',
+                    height: '40px',
+                    paddingLeft: 12,
+                    paddingRight: 12,
                   }}
                   value={customLeadsToSend}
+                  disabled={!!NoOfLeadsToSend}
                   onFocus={() => {
                     setNoOfLeadsToSend('')
                     setisFocustedCustomLeads(true)
@@ -1112,22 +1124,30 @@ const AssignLead = ({
                   }}
                   placeholder="Ex: 100"
                 />
-                <button
-                  className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
+                <label
+                  className="w-full flex flex-row items-center gap-3 rounded-lg cursor-pointer"
                   style={{
-                    border: NoOfLeadsToSend
-                      ? `2px solid ${brandPrimaryColor}`
-                      : '1px solid #00000040',
-                    height: '50px',
-                  }}
-                  onClick={() => {
-                    setNoOfLeadsToSend(totalLeads)
-                    setCustomLeadsToSend('')
-                    setisFocustedCustomLeads(false)
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    paddingLeft: 12,
+                    paddingRight: 12,
+                    backgroundColor: '#ffffff',
                   }}
                 >
-                  All {getLeadSelectedCount()}
-                </button>
+                  <Checkbox
+                    checked={!!NoOfLeadsToSend}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setNoOfLeadsToSend(totalLeads)
+                        setCustomLeadsToSend('')
+                        setisFocustedCustomLeads(false)
+                      } else {
+                        setNoOfLeadsToSend('')
+                      }
+                    }}
+                  />
+                  <span>Select All {getLeadSelectedCount()}</span>
+                </label>
               </div>
 
               <div className="mt-4" style={styles.heading}>
@@ -1136,12 +1156,13 @@ const AssignLead = ({
 
               <div className="flex flex-row items-center gap-8 mt-4">
                 <button
-                  className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
+                  className="w-1/2 flex flex-col justify-between items-start p-4 rounded-lg"
                   style={{
                     border: CallNow
                       ? `2px solid ${brandPrimaryColor}`
                       : '1px solid #00000040',
                     height: '119px',
+                    backgroundColor: CallNow ? 'hsl(var(--brand-primary) / 0.02)' : undefined,
                   }}
                   onClick={() => {
                     setHasUserSelectedDate(false)
@@ -1177,7 +1198,7 @@ const AssignLead = ({
                 </button>
                 <div className="w-1/2">
                   <button
-                    className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
+                    className="w-full flex flex-col items-start justify-between p-4 rounded-lg"
                     style={{
                       border: CallLater
                         ? `2px solid ${brandPrimaryColor}`
