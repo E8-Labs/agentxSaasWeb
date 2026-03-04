@@ -336,7 +336,7 @@ const AddEditTutorials = ({
               </div>
             ) : (
               <button
-                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-purple text-white hover:bg-purple-700'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
+                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-primary/50'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
                 onClick={handleSaveClick}
                 disabled={isDisabled || isLoading}
               >
