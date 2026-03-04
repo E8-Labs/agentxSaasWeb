@@ -299,6 +299,31 @@ select:focus {
   background: #9ca3af;
 }
 
+/* Pipeline horizontal scroll: thin visible scrollbar (overflow-x) */
+.pipeline-horizontal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--brand-primary, 270 75% 50%) / 0.7) hsl(0 0% 96%);
+}
+
+.pipeline-horizontal-scroll::-webkit-scrollbar {
+  height: 10px;
+  width: 6px;
+}
+
+.pipeline-horizontal-scroll::-webkit-scrollbar-track {
+  background: hsl(0 0% 96%);
+  border-radius: 5px;
+}
+
+.pipeline-horizontal-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--brand-primary, 270 75% 50%) / 0.7);
+  border-radius: 5px;
+}
+
+.pipeline-horizontal-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--brand-primary, 270 75% 50%));
+}
+
 /* Link color fixes */
 a {
   color: inherit;
