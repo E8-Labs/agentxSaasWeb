@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2 } from 'lucide-react'
@@ -19,7 +19,7 @@ import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import Image from 'next/image'
-import MessageComposerTabCN from './MessageComposerTabCN'
+import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
 
 // Tab icon for consolidated Messenger/Instagram: uses fb_message_icon PNG (accepts size/style like Lucide)
@@ -230,6 +230,7 @@ const MessageComposer = ({
   const commentEditorRef = useRef(null)
   const commentEditorContainerRef = useRef(null)
   const composerContentRef = useRef(null)
+  const previousContentHeightRef = useRef(null)
   const [contentHeight, setContentHeight] = useState('auto')
   const [isTransitioning, setIsTransitioning] = useState(false)
 
@@ -366,8 +367,8 @@ const MessageComposer = ({
     else if (isMessenger) setComposerMode('facebook')
   }, [selectedThread?.id, selectedThread?.threadType, selectedThread?.lead?.instagramPsid, selectedThread?.lead?.messengerPsid])
 
-  // Smooth height transition when switching tabs
-  useEffect(() => {
+  // Smooth height transition when switching tabs: use previous content height as "from", then animate to new height.
+  useLayoutEffect(() => {
     if (!isExpanded || !composerContentRef.current) {
       setContentHeight('auto')
       setIsTransitioning(false)
@@ -376,66 +377,40 @@ const MessageComposer = ({
 
     const element = composerContentRef.current
     let timeoutId = null
-    let rafId1 = null
-    let rafId2 = null
+    let rafId = null
 
-    // Get the current height before any changes
-    const currentHeight = element.scrollHeight
+    // Use stored previous height as "from" (so we animate from old content height). Fallback to current scrollHeight if none.
+    const fromHeight = previousContentHeightRef.current != null && previousContentHeightRef.current > 0
+      ? previousContentHeightRef.current
+      : element.scrollHeight
 
-    // Set explicit height immediately to lock current height
-    setContentHeight(`${currentHeight}px`)
-
-    // Force a reflow to ensure the height is set
-    void element.offsetHeight
-
-    // Enable transition AFTER setting the initial height
+    setContentHeight(`${fromHeight}px`)
     setIsTransitioning(true)
 
-    // Wait for React to render the new content
-    // Use multiple requestAnimationFrame calls to ensure DOM has fully updated
-    rafId1 = requestAnimationFrame(() => {
-      rafId2 = requestAnimationFrame(() => {
-        // Force another reflow
-        void element.offsetHeight
+    rafId = requestAnimationFrame(() => {
+      const newHeight = composerContentRef.current ? composerContentRef.current.scrollHeight : fromHeight
+      setContentHeight(`${newHeight}px`)
 
-        // One more frame to ensure content is rendered
-        requestAnimationFrame(() => {
-          // Measure new content height after mode change
-          const newHeight = element.scrollHeight
-
-          // Only animate if heights are different (with small threshold for rounding)
-          if (Math.abs(newHeight - currentHeight) > 1) {
-            // Animate to new height
-            setContentHeight(`${newHeight}px`)
-
-            // Reset to auto after transition completes
-            timeoutId = setTimeout(() => {
-              if (composerContentRef.current) {
-                setContentHeight('auto')
-              }
-              setIsTransitioning(false)
-            }, 350) // Slightly longer than transition duration
-          } else {
-            // Heights are the same, no transition needed
-            setContentHeight('auto')
-            setIsTransitioning(false)
-          }
-        })
-      })
+      timeoutId = setTimeout(() => {
+        if (composerContentRef.current) {
+          setContentHeight('auto')
+        }
+        setIsTransitioning(false)
+      }, 350)
     })
 
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-      if (rafId1) {
-        cancelAnimationFrame(rafId1)
-      }
-      if (rafId2) {
-        cancelAnimationFrame(rafId2)
-      }
+      if (timeoutId) clearTimeout(timeoutId)
+      if (rafId) cancelAnimationFrame(rafId)
     }
   }, [composerMode, isExpanded])
+
+  // Persist current content height when not transitioning, so the transition effect can use it as "from" on next mode change.
+  useLayoutEffect(() => {
+    if (!isTransitioning && composerContentRef.current) {
+      previousContentHeightRef.current = composerContentRef.current.scrollHeight
+    }
+  }, [composerMode, isExpanded, isTransitioning])
 
   // Fetch team members for @ mentions
   useEffect(() => {
@@ -1365,91 +1340,71 @@ const MessageComposer = ({
   }
 
   return (
-    <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+    <div className="m-0 px-0.5 w-full rounded-lg bg-white overflow-hidden border-t border-[#eaeaea] transition-[height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
       <div className="w-full px-3 py-3 flex flex-col gap-1">
-        <div className="flex items-center justify-between border-b m-0 gap-1 py-1">
-          <div className="flex items-center gap-2 pb-1 h-8">
-            <MessageComposerTabCN
-              icon={MessageSquareDot}
-              label="Text"
-              isActive={composerMode === 'sms'}
-              onClick={() => {
-                // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
-                if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
-                  const plainText = stripHTML(composerData.emailBody)
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || '',
-                    smsBody: plainText.substring(0, SMS_CHAR_LIMIT) // Ensure it doesn't exceed SMS limit
-                  }))
-                } else {
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
-                  }))
-                }
-                setComposerMode('sms')
-                fetchPhoneNumbers()
-                setIsExpanded(true)
-              }}
-            />
-            <MessageComposerTabCN
-              icon={Mail}
-              label="Email"
-              isActive={composerMode === 'email'}
-              onClick={() => {
-                // When switching to Email, preserve email body if it exists, otherwise convert SMS text to HTML
-                if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
-                  // Convert plain text SMS to HTML format for email
-                  const htmlBody = composerData.smsBody.replace(/\n/g, '<br>')
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverEmail || selectedThread?.lead?.email || '',
-                    emailBody: htmlBody
-                  }))
-                } else {
-                  setComposerData((prev) => ({
-                    ...prev,
-                    to: selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
-                  }))
-                }
-                setComposerMode('email')
-                setIsExpanded(true)
-                // Only fetch if accounts are empty, otherwise the effect in Messages.js will restore selection
-                if (emailAccounts.length === 0) {
-                  fetchEmailAccounts()
-                }
-              }}
-            />
-            <MessageComposerTabCN
-              icon={MessageSquare}
-              label="Comment"
-              isActive={composerMode === 'comment'}
-              onClick={() => {
-                setComposerMode('comment')
-                setIsExpanded(true)
-              }}
-            />
-            {(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Development' || (selectedUser?.id ?? getUserLocalData()?.user?.id) == 155) && (
-              <MessageComposerTabCN
-                icon={MessengerTabIcon}
-                label="FB/IG DM"
-                isActive={composerMode === 'facebook' || composerMode === 'instagram'}
-                onClick={() => {
-                  // Prefer Instagram when thread or linked lead has Instagram PSID (so input enables for linked IG conversations)
+        <div className="flex items-center justify-between border-b border-black/[0.06] m-0 gap-1 py-1">
+          <div className="flex items-center gap-2 pb-1">
+            <ToggleGroupCN
+              height="h-[40px] py-1"
+              roundedness="rounded-lg"
+              options={[
+                { label: 'Text', value: 'sms', icon: MessageSquareDot },
+                { label: 'Email', value: 'email', icon: Mail },
+                { label: 'Comment', value: 'comment', icon: MessageSquare },
+                ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
+                  ? [{ label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }]
+                  : []),
+              ]}
+              value={composerMode === 'instagram' ? 'facebook' : composerMode}
+              onChange={(value) => {
+                if (value === 'sms') {
+                  if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
+                    const plainText = stripHTML(composerData.emailBody)
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || '',
+                      smsBody: plainText.substring(0, SMS_CHAR_LIMIT)
+                    }))
+                  } else {
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
+                    }))
+                  }
+                  setComposerMode('sms')
+                  fetchPhoneNumbers()
+                } else if (value === 'email') {
+                  if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
+                    const htmlBody = composerData.smsBody.replace(/\n/g, '<br>')
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverEmail || selectedThread?.lead?.email || '',
+                      emailBody: htmlBody
+                    }))
+                  } else {
+                    setComposerData((prev) => ({
+                      ...prev,
+                      to: selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
+                    }))
+                  }
+                  setComposerMode('email')
+                  if (emailAccounts.length === 0) fetchEmailAccounts()
+                } else if (value === 'comment') {
+                  setComposerMode('comment')
+                } else if (value === 'facebook') {
                   const useInstagram = selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid
                   setComposerMode(useInstagram ? 'instagram' : 'facebook')
-                  setIsExpanded(true)
-                }}
-              />
-            )}
+                }
+                setIsExpanded(true)
+              }}
+            />
           </div>
 
           <div className="flex items-center gap-2">
 
             {composerMode === 'email' && (
 
-              <div className="flex items-center border-[0.5px] border-gray-200 rounded-lg">
+              <div className="flex items-center border border-black/[0.06] rounded-lg">
                 <SplitButtonCN buttons={[{
                   label: 'Cc',
                   isSelected: showCC,
@@ -1548,14 +1503,13 @@ const MessageComposer = ({
                   }
                 }}
                 placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
-                className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                style={{ height: '42px' }}
+                className="flex-1"
               />
               <button
                 onClick={handleSendSocial}
                 disabled={!(composerData.socialBody ?? '').trim() || sendingSocialMessage}
                 className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                style={{ height: '42px' }}
+                style={{ height: '40px' }}
               >
                 {sendingSocialMessage ? <CircularProgress size={20} color="inherit" sx={{ display: 'block' }} /> : <PaperPlaneTilt size={20} weight="fill" />}
               </button>
@@ -1602,8 +1556,7 @@ const MessageComposer = ({
                 }
               }}
               placeholder={composerMode === 'comment' ? 'Type a comment...' : 'Type your message...'}
-              className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-              style={{ height: '42px' }}
+              className="flex-1"
             />
             <button
               onClick={composerMode === 'comment' ? handleSendComment : handleSendMessage}
@@ -1616,7 +1569,7 @@ const MessageComposer = ({
                     (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
               }
               className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              style={{ height: '42px' }}
+              style={{ height: '40px' }}
             >
               <PaperPlaneTilt size={20} weight="fill" />
             </button>
@@ -1644,7 +1597,7 @@ const MessageComposer = ({
                     {isMessengerReply ? 'Reply in Messenger' : 'Reply in Instagram'}
                   </label>
                 </div>
-                <div className="border border-brand-primary/20 rounded-lg bg-white">
+                <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
                     ref={socialRichTextEditorRef}
                     value={socialBodyToEditorValue(composerData.socialBody ?? '')}
@@ -1683,7 +1636,7 @@ const MessageComposer = ({
                 </div>
 
                 {/* Comment Input with Formatting Toolbar */}
-                <div ref={commentEditorContainerRef} className="relative border border-brand-primary/20 rounded-lg bg-white">
+                <div ref={commentEditorContainerRef} className="relative border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
                     ref={commentEditorRef}
                     value={commentBody}
@@ -1740,7 +1693,7 @@ const MessageComposer = ({
                   {showMentionDropdown && filteredTeamMembers.length > 0 && (
                     <div
                       ref={mentionDropdownRef}
-                      className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px]"
+                      className="fixed z-50 bg-white border border-black/[0.06] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-h-60 overflow-auto min-w-[200px]"
                       style={{
                         top: `${mentionPosition.top}px`,
                         left: `${mentionPosition.left}px`,
@@ -1786,7 +1739,7 @@ const MessageComposer = ({
             ) : (
               <>
                 <div className="flex items-center gap-2 m-0 px-1">
-                  <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                  <div className="flex border border-black/[0.06] rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center gap-2 flex-1 h-[40px] px-3 bg-white transition-all duration-150">
                     <label className="text-sm text-[#737373] font-medium whitespace-nowrap">From:</label>
                     {composerMode === 'sms' ? (
                       <div className="flex-1 relative min-w-0" ref={phoneDropdownRef}>
@@ -1803,7 +1756,7 @@ const MessageComposer = ({
                           <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         </button>
                         {phoneDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto animate-in slide-in-from-bottom-2 duration-200 ease-out">
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-black/[0.06] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-h-60 overflow-auto animate-dropdown-below-enter">
                             {phoneNumbers.length === 0 ? (
                               <div className="p-3">
                                 <button
@@ -1867,8 +1820,7 @@ const MessageComposer = ({
                         {emailAccounts.length === 0 ? (
                           <button
                             onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
-                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-                            style={{ height: '42px' }}
+                            className="w-full px-3 py-2 h-[40px] border border-black/[0.06] rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-all duration-150 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary bg-white"
                           >
                             Connect Email
                           </button>
@@ -1892,7 +1844,7 @@ const MessageComposer = ({
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
                             {emailDropdownOpen && (
-                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 animate-in slide-in-from-bottom-2 duration-200 ease-out">
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-black/[0.06] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-h-60 animate-dropdown-below-enter">
                                 <div className="max-h-44 overflow-y-auto">
                                   {emailAccounts.map((account) => {
                                     const gmailError = getGmailWatchErrorInfo(account)
@@ -1987,7 +1939,7 @@ const MessageComposer = ({
                       <div className="flex items-start gap-4 m-0 px-1">
                         {showCC && (
                           <div className="flex items-start gap-2 flex-1 w-full">
-                            <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                            <div className="flex border border-black/[0.06] rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center gap-2 flex-1 min-h-[40px] px-3 bg-white transition-all duration-150">
                               <label className="text-sm font-medium whitespace-nowrap text-[#737373]">Cc:</label>
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
@@ -2033,7 +1985,7 @@ const MessageComposer = ({
                         )}
                         {showBCC && (
                           <div className="flex items-start gap-2 flex-1 w-full">
-                            <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                            <div className="flex border border-black/[0.06] rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center gap-2 flex-1 min-h-[40px] px-3 bg-white transition-all duration-150">
                               <label className="text-sm font-medium whitespace-nowrap text-[#737373]">Bcc:</label>
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
@@ -2081,8 +2033,8 @@ const MessageComposer = ({
                     )}
 
                     <div className="flex items-center gap-2 m-0 px-1">
-                      <div className={cn("flex rounded-lg focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary items-center flex-1 bg-white", subjectVariablesDropdownOpen ? "border-0" : "border-[0.5px] border-gray-200")}>
-                        <div className="flex items-center gap-2 flex-1 px-3">
+                      <div className={cn("flex rounded-lg focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary items-center flex-1 bg-white transition-all duration-150", subjectVariablesDropdownOpen ? "border-0" : "border border-black/[0.06]")}>
+                        <div className="flex items-center gap-2 flex-1 px-3 h-[40px]">
                           <label className="text-sm text-[#737373] font-medium whitespace-nowrap">Subject:</label>
                           <input
                             type="text"
@@ -2094,7 +2046,7 @@ const MessageComposer = ({
                         </div>
                         {/* Divider */}
                         {uniqueColumns && uniqueColumns.length > 0 && (
-                          <div className="w-[0.5px] h-[36px]  bg-gray-200 flex-shrink-0"></div>
+                          <div className="w-[0.5px] h-[40px] bg-black/[0.08] flex-shrink-0"></div>
                         )}
                         {/* Variables dropdown */}
                         {uniqueColumns && uniqueColumns.length > 0 && (
@@ -2111,7 +2063,7 @@ const MessageComposer = ({
                               <CaretDown size={16} className="text-gray-400" />
                             </button>
                             {subjectVariablesDropdownOpen && (
-                              <div className="absolute z-50 right-0 mt-1 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-top-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px]">
+                              <div className="absolute z-50 right-0 mt-1 px-2 py-0 bg-white rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] animate-dropdown-below-enter max-h-60 overflow-hidden min-w-[200px]">
                                 <div
                                   ref={subjectVarListRef}
                                   className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
@@ -2296,14 +2248,14 @@ const MessageComposer = ({
                                   onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
                                   className={cn(
                                   "px-3 py-2 w-32 border-l-[0.5px] flex items-center justify-between gap-2 text-sm text-gray-700 transition-colors rounded-[12px]",
-                                  variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-gray-200 border-gray-200 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary"
+                                  variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-black/[0.06] hover:bg-black/[0.02] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary"
                                 )}
                                 >
                                   <span>Variables</span>
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {variablesDropdownOpen && (
-                                  <div className="absolute bottom-full left-0 mb-2 px-2 py-0 bg-white rounded-2xl border border-[#eaeaea] shadow-[0_8px_30px_rgba(0,0,0,0.12)] animate-in slide-in-from-bottom-2 duration-200 ease-out max-h-60 overflow-hidden min-w-[200px] z-50">
+                                  <div className="absolute bottom-full left-0 mb-2 px-2 py-0 bg-white rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] animate-dropdown-below-enter max-h-60 overflow-hidden min-w-[200px] z-50">
                                     <div
                                       ref={bodyVarListRef}
                                       className="relative flex flex-col py-0"
@@ -2367,6 +2319,84 @@ const MessageComposer = ({
                               <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                             </button>
 
+                            {/* Templates Dropdown */}
+                            {showTemplatesDropdown && (
+                              <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] animate-dropdown-below-enter max-h-[312px] overflow-hidden z-[100]">
+                                {templatesLoading ? (
+                                  <div className="p-4 text-center">
+                                    <CircularProgress size={20} />
+                                  </div>
+                                ) : templates.length === 0 ? (
+                                  <div className="p-4 text-center text-sm text-gray-500">
+                                    No templates found
+                                  </div>
+                                ) : (
+                                  <div
+                                    ref={templateListRef}
+                                    className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                    onMouseLeave={() => setTemplateHoveredKey(null)}
+                                  >
+                                    {templatePillStyle.height > 0 && (
+                                      <div
+                                        className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                                        style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
+                                        aria-hidden
+                                      />
+                                    )}
+                                    {templates.map((template, idx) => {
+                                      const key = template.id || template.templateId || idx
+                                      return (
+                                        <Tooltip
+                                          key={key}
+                                          title={template.subject}
+                                          arrow
+                                          placement="right"
+                                          componentsProps={{
+                                            tooltip: {
+                                              sx: {
+                                                backgroundColor: '#ffffff',
+                                                color: '#333',
+                                                fontSize: '16px',
+                                                fontWeight: '500',
+                                                padding: '10px 15px',
+                                                borderRadius: '8px',
+                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                              },
+                                            },
+                                            arrow: {
+                                              sx: { color: '#ffffff' },
+                                            },
+                                          }}
+                                        >
+                                          <button
+                                            ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
+                                            onMouseEnter={() => setTemplateHoveredKey(key)}
+                                            onClick={() => handleTemplateSelect(template)}
+                                            className="group w-full flex flex-row items-center justify-between px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
+                                          >
+                                            <div className="font-medium text-gray-900 truncate">
+                                              {template.templateName || 'Untitled Template'}
+                                            </div>
+                                            {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                                              <CircularProgress size={16} />
+                                            ) : (
+                                              <button
+                                                type="button"
+                                                onClick={(e) => handleDeleteTemplate(template, e)}
+                                                className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                                                title="Delete template"
+                                              >
+                                                <Trash2 size={16} className="text-black/80" />
+                                              </button>
+                                            )}
+                                          </button>
+                                        </Tooltip>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                             <div className="flex items-center gap-2 ">
                             {/* Character count: SMS only (plain text length); email branch so this is for consistency if mode toggles */}
@@ -2526,13 +2556,13 @@ const MessageComposer = ({
                                 <button
                                   type="button"
                                   onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
-                                  className="px-3 py-2 w-32 border-gray-200 border-l-[0.5px] border-gray-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                  className="px-3 py-2 w-32 border-l border-black/[0.06] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-black/[0.02] transition-colors"
                                 >
                                   <span>Variables</span>
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {variablesDropdownOpen && (
-                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[200px] z-50">
+                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-black/[0.06] rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-h-60 overflow-auto min-w-[200px] z-50 animate-dropdown-below-enter">
                                     {uniqueColumns.map((variable, index) => {
                                       const displayText = variable.startsWith('{') && variable.endsWith('}')
                                         ? variable
@@ -2579,6 +2609,84 @@ const MessageComposer = ({
                             <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                           </button>
 
+                          {/* Templates Dropdown */}
+                          {showTemplatesDropdown && (
+                            <div className="absolute bottom-full left-0 mb-2 w-64 px-2 py-0 bg-white rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] animate-dropdown-below-enter max-h-[312px] overflow-hidden z-[100]">
+                              {templatesLoading ? (
+                                <div className="p-4 text-center">
+                                  <CircularProgress size={20} />
+                                </div>
+                              ) : templates.length === 0 ? (
+                                <div className="p-4 text-center text-sm text-gray-500">
+                                  No templates found
+                                </div>
+                              ) : (
+                                <div
+                                  ref={templateListRef}
+                                  className="relative flex flex-col py-0 max-h-[312px] overflow-auto"
+                                  onMouseLeave={() => setTemplateHoveredKey(null)}
+                                >
+                                  {templatePillStyle.height > 0 && (
+                                    <div
+                                      className="absolute left-2 right-2 rounded-lg bg-black/[0.02] pointer-events-none transition-[top,height] duration-150 ease-out z-0"
+                                      style={{ top: templatePillStyle.top, height: templatePillStyle.height }}
+                                      aria-hidden
+                                    />
+                                  )}
+                                  {templates.map((template, idx) => {
+                                    const key = template.id || template.templateId || idx
+                                    return (
+                                      <Tooltip
+                                        key={key}
+                                        title={template.content}
+                                        arrow
+                                        placement="right"
+                                        componentsProps={{
+                                          tooltip: {
+                                            sx: {
+                                              backgroundColor: '#ffffff',
+                                              color: '#333',
+                                              fontSize: '16px',
+                                              fontWeight: '500',
+                                              padding: '10px 15px',
+                                              borderRadius: '8px',
+                                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                            },
+                                          },
+                                          arrow: {
+                                            sx: { color: '#ffffff' },
+                                          },
+                                        }}
+                                      >
+                                        <button
+                                          ref={(el) => { if (el) templateOptionRefs.current[key] = el }}
+                                          onMouseEnter={() => setTemplateHoveredKey(key)}
+                                          onClick={() => handleTemplateSelect(template)}
+                                          className="group flex items-center justify-between gap-2 w-full px-2 py-2 text-left text-sm transition-transform duration-150 ease-out active:scale-[0.98] relative z-[1]"
+                                        >
+                                          <div className="font-medium text-gray-900 truncate">
+                                            {template.templateName || 'Untitled Template'}
+                                          </div>
+                                          {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                                            <CircularProgress size={16} />
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => handleDeleteTemplate(template, e)}
+                                              className="flex-shrink-0 p-1 rounded transition-colors opacity-0 group-hover:opacity-100"
+                                              title="Delete template"
+                                            >
+                                              <Trash2 size={16} className="text-black/80" />
+                                            </button>
+                                          )}
+                                        </button>
+                                      </Tooltip>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           {/* Character Count (plain text length for SMS) */}

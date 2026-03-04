@@ -100,7 +100,7 @@ const AssignDropdownCn = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1"
+        className="z-[2000] w-64 rounded-lg border border-black/[0.06] bg-white text-foreground shadow-[0_4px_20px_rgba(0,0,0,0.08)] px-1"
       >
         <DropdownMenuRadioGroup
           value={

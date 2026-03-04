@@ -103,10 +103,24 @@ import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
 import { isPlanActive } from '@/components/userPlans/UserPlanServices'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
   const { user: reduxUser, setUser: setReduxUser } = useUser()
+
+  const {
+    canCreateAgent,
+    allowVoicemail,
+    allowToolsAndActions,
+    allowKnowledgeBases,
+    allowLiveCallTransfer,
+    isFeatureAllowed,
+    getUpgradeMessage,
+    isFreePlan,
+    currentAgents,
+    maxAgents,
+  } = usePlanCapabilities(selectedUser)
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'

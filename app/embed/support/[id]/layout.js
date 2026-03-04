@@ -9,10 +9,11 @@ export default function EmbedLayout({ children }) {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-          body {
+          html, body {
             margin: 0 !important;
             padding: 0 !important;
             background: transparent !important;
+            background-color: transparent !important;
             overflow: hidden !important;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
           }

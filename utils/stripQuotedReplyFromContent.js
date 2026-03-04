@@ -32,3 +32,5 @@ export function stripQuotedReplyFromContent(content) {
   // Trim trailing <br>, newlines, and whitespace
   return result.replace(/(<br\s*\/?>|\r\n|\n|\r)+\s*$/gi, '').trim()
 }
+
+export default stripQuotedReplyFromContent

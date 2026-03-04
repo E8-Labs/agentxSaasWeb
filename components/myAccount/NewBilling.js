@@ -1552,7 +1552,7 @@ function NewBilling() {
                         <div className="flex items-center gap-4">
                           <RadioGroupItem
                             value={item.id?.toString() || ''}
-                            className="h-5 w-5 border-2 data-[state=checked]:bg-purple data-[state=checked]:border-purple"
+                            className="h-5 w-5"
                           />
                           {/* Card Details */}
                           <div className="flex flex-col items-start">

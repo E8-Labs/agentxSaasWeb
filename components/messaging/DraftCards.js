@@ -4,8 +4,7 @@ import React, { useState } from 'react'
 import { X, MessageSquare, Mail, Loader2 } from 'lucide-react'
 import { stripQuotedReplyFromContent } from '@/utils/stripQuotedReplyFromContent'
 import { simpleMarkdownToHtml, sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
-
-import { plainTextWithBoldToHTML } from '@/utilities/textUtils'
+import { cn } from '@/lib/utils'
 
 /**
  * DraftCards component - displays AI-generated draft responses as horizontal scrolling cards
@@ -82,8 +81,8 @@ const DraftCards = ({
   }
 
   const wrapperClass = inlineInChat
-    ? 'px-4 pt-3 border-t border-gray-100 bg-gray-50/50'
-    : 'px-4 pt-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto'
+    ? 'px-4 py-4 border-t border-gray-100 bg-gray-50/50'
+    : 'px-4 py-4 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto'
 
   return (
     <div className={wrapperClass}>
@@ -97,7 +96,7 @@ const DraftCards = ({
 
       {/* Draft cards - horizontal scrolling; single draft is full width */}
       {!loading && drafts.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        <div className="flex gap-2 overflow-x-auto overflow-y-visible scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent max-w-[900px] mx-auto p-6">
           {drafts.map((draft) => {
             const isSelected = selectedDraftId === draft.id
             const isExpanded = expandedDraftId === draft.id
@@ -109,55 +108,64 @@ const DraftCards = ({
               <div
                 key={draft.id}
                 onClick={() => handleCardClick(draft)}
-                className={`
-                  rounded-xl p-3 cursor-pointer transition-all duration-200
-                  border
-                  ${isSingleDraft ? 'w-full min-w-full' : 'flex-shrink-0 max-w-[49%]'}
-                  ${isSelected
-                    ? 'border-brand-primary bg-brand-primary/[0.08] shadow-md'
-                    : 'border-gray-200 bg-white hover:border-brand-primary/70 hover:shadow-sm'
-                  }
-                `}
+                className={cn(
+                  'rounded-lg cursor-pointer transition-all duration-200 overflow-hidden border bg-black/[0.02]',
+                  isSingleDraft ? 'w-full min-w-full' : 'flex-shrink-0 max-w-[49%]',
+                  isSelected
+                    ? 'border-brand-primary bg-brand-primary/[0.02]'
+                    : 'border-black/[0.06] hover:border-brand-primary/70'
+                )}
               >
-                {/* Header with title and discard button */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                {/* Header: icon + title + close (Firecrawl-style card header) */}
+                <div
+                  className="flex items-center justify-between px-4 py-3 border-b border-black/[0.06] bg-transparent"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
                     {getMessageIcon(draft.messageType)}
-                    <span className="text-sm font-semibold text-brand-primary">
+                    <span className="text-[14px] font-semibold text-foreground truncate">
                       {getDraftLabel(draft)}
                     </span>
                   </div>
                   <button
+                    type="button"
                     onClick={(e) => handleDiscardClick(e, draft.id)}
-                    className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                    className="flex-shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-black/[0.04] transition-colors"
                     title="Discard this draft"
+                    aria-label="Discard this draft"
                   >
-                    <X size={16} />
+                    <X size={16} strokeWidth={2} />
                   </button>
                 </div>
 
-                {/* Email subject (if applicable) */}
-                {draft.messageType === 'email' && draft.subject && (
-                  <div className="text-sm text-gray-500 truncate">
-                    <span className="font-medium">Subject:</span> {draft.subject}
+                {/* Body: subject (if email) + content; height animates when expanding/collapsing */}
+                <div
+                  className="overflow-hidden transition-[max-height] duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                  style={{ maxHeight: needsReadMore && !isExpanded ? 160 : 1200 }}
+                >
+                  <div className="px-4 py-3 bg-transparent">
+                    {draft.messageType === 'email' && draft.subject && (
+                      <div className="text-[13px] text-muted-foreground truncate mb-2">
+                        <span className="font-medium text-foreground">Subject:</span> {draft.subject}
+                      </div>
+                    )}
+                    <div className="text-[14px] text-foreground leading-relaxed m-0 prose prose-sm max-w-none [&_a]:text-brand-primary [&_a]:underline [&_strong]:font-bold [&_p]:my-0 [&_p]:leading-relaxed">
+                      <div
+                        className={!isExpanded && needsReadMore ? 'overflow-hidden' : ''}
+                        style={!isExpanded && needsReadMore ? { maxHeight: '4.5em' } : undefined}
+                        dangerouslySetInnerHTML={{ __html: formattedHtml }}
+                      />
+                      {needsReadMore && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleReadMore(e, draft.id)}
+                          className="mt-1.5 text-brand-primary font-medium hover:underline text-[13px]"
+                        >
+                          {isExpanded ? 'Show Less' : 'Read More'}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                {/* Draft content - HTML + markdown formatted */}
-                <div className="text-sm text-gray-700 leading-relaxed m-0 prose prose-sm max-w-none [&_a]:text-brand-primary [&_a]:underline [&_strong]:font-bold">
-                  <div
-                    className={!isExpanded && needsReadMore ? 'overflow-hidden' : ''}
-                    style={!isExpanded && needsReadMore ? { maxHeight: '4.5em' } : undefined}
-                    dangerouslySetInnerHTML={{ __html: formattedHtml }}
-                  />
-                  {needsReadMore && (
-                    <button
-                      onClick={(e) => handleReadMore(e, draft.id)}
-                      className="mt-1 text-brand-primary font-medium hover:underline text-sm"
-                    >
-                      {isExpanded ? 'Show Less' : 'Read More'}
-                    </button>
-                  )}
                 </div>
               </div>
             )

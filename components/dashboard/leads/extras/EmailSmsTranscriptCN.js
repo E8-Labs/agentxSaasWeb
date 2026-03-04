@@ -49,7 +49,7 @@ const EmailSmsTranscriptCN = ({ item }) => {
   })()
 
   return (
-    <div className="flex flex-col items-start gap-2 text-sm">
+    <div className="flex flex-col items-start gap-2 text-sm p-3 rounded-lg bg-white">
       {item.sentSubject && (
         <div className="flex flex-row items-center gap-1 w-full min-w-0 mb-2">
           <TypographyBodySemibold className="text-muted-foreground shrink-0">
