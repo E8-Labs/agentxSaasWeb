@@ -2343,7 +2343,7 @@ const Pipeline1 = () => {
   }
 
   return (
-    <div className="w-full flex flex-col items-start h-screen">
+    <div className="w-full flex flex-col items-start h-full min-h-0 flex-1">
       {initialLoader ? (
         <div className="w-screen">
           <PipelineLoading />
@@ -2598,24 +2598,24 @@ const Pipeline1 = () => {
           {pipelineDetailLoader ? (
             <PipelineLoading fullScreen={false} />
           ) : (
-            <div className="flex flex-col items-center w-full">
+            <div className="flex flex-col items-center w-full flex-1 min-h-0 overflow-hidden">
               <div
-                className="w-[99%] flex flex-col items-start overflow-x-auto h-[99svh] mt-4
-            scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-            "
+                className="pipeline-horizontal-scroll w-[99%] flex flex-col items-start overflow-x-scroll overflow-y-auto flex-1 min-h-0 mt-4"
+                style={{ scrollbarWidth: 'thin' }}
               >
                 <div className="flex flex-row items-center gap-4"></div>
 
-                <div className="flex flex-row items-start gap-2 h-full">
-                  <div className="flex flex-row items-start gap-4 h-full">
+                <div className="flex flex-row items-start gap-2 h-full min-w-0">
+                  <div className="flex flex-row items-start gap-4 h-full flex-shrink-0">
                     {StagesList?.map((stage, index) => (
                       <div
                         key={index}
                         style={{
                           width: '350px',
+                          minWidth: '350px',
                           backgroundColor: `${stage.defaultColor}05` //bg-[#00000005]
                         }}
-                        className={`flex flex-col items-start h-full min-h-full gap-3 rounded-xl p-4`}
+                        className={`flex flex-col items-start h-full min-h-full gap-3 rounded-xl p-4 flex-shrink-0`}
                       >
                         {/* Display the stage */}
                         <div className="flex flex-row items-center w-full justify-between pb-4 border-b border-gray-200">

@@ -220,6 +220,8 @@ const NewMessageModal = ({
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
+  // When editing, only apply editingRow's account/phone once so user can change email/phone
+  const appliedEditingRowAccountRef = useRef(false)
   const leadSearchRef = useRef(null)
   const templatesDropdownRef = useRef(null)
   const attachmentDropdownRef = useRef(null)
@@ -450,26 +452,34 @@ const NewMessageModal = ({
     }
   }, [isPipelineMode, isEditing, editingRow, open, selectedMode, selectedUser])
 
-  // Set account/phone when they're loaded and we're editing
+  // Reset "applied editing row account" when modal closes so next open we apply again
   useEffect(() => {
-    if (isPipelineMode && isEditing && editingRow && open) {
-      if (selectedMode === 'email' && editingRow.emailAccountId && emailAccounts.length > 0) {
-        const accountId = editingRow.emailAccountId.toString()
-        const account = emailAccounts.find((a) => a.id === parseInt(accountId))
-        if (account && selectedEmailAccount !== accountId) {
-          setSelectedEmailAccount(accountId)
-          setSelectedEmailAccountObj(account)
-        }
-      } else if (selectedMode === 'sms' && editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
-        const phoneId = editingRow.smsPhoneNumberId.toString()
-        const phone = phoneNumbers.find((p) => p.id === parseInt(phoneId))
-        if (phone && selectedPhoneNumber !== phoneId) {
-          setSelectedPhoneNumber(phoneId)
-          setSelectedPhoneNumberObj(phone)
-        }
+    if (!open) {
+      appliedEditingRowAccountRef.current = false
+    }
+  }, [open])
+
+  // Set account/phone once when modal opens for editing (so user can then change email/phone)
+  useEffect(() => {
+    if (!isPipelineMode || !isEditing || !editingRow || !open || appliedEditingRowAccountRef.current) return
+    if (selectedMode === 'email' && editingRow.emailAccountId && emailAccounts.length > 0) {
+      const accountId = editingRow.emailAccountId.toString()
+      const account = emailAccounts.find((a) => a.id === parseInt(accountId))
+      if (account) {
+        setSelectedEmailAccount(accountId)
+        setSelectedEmailAccountObj(account)
+        appliedEditingRowAccountRef.current = true
+      }
+    } else if (selectedMode === 'sms' && editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
+      const phoneId = editingRow.smsPhoneNumberId.toString()
+      const phone = phoneNumbers.find((p) => p.id === parseInt(phoneId))
+      if (phone) {
+        setSelectedPhoneNumber(phoneId)
+        setSelectedPhoneNumberObj(phone)
+        appliedEditingRowAccountRef.current = true
       }
     }
-  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, emailAccounts, phoneNumbers, selectedEmailAccount, selectedPhoneNumber])
+  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, emailAccounts, phoneNumbers])
 
   // Search leads using the messaging search endpoint
   const searchLeads = async (searchTerm = '') => {
