@@ -6,13 +6,15 @@ import {
   CardContent,
   CircularProgress,
   IconButton,
+  Menu,
+  MenuItem,
   Typography,
 } from '@mui/material'
 import axios from 'axios'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
-import AddRoundedIcon from '@mui/icons-material/AddRounded'
-import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded'
+import { useRouter } from 'next/navigation'
+import React, { useCallback, useEffect, useState } from 'react'
+import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded'
 
 import Apis from '@/components/apis/Apis'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
@@ -47,34 +49,78 @@ function industryLabel(industry) {
 }
 
 export default function AgencyTemplatesList() {
+  const router = useRouter()
   const [templates, setTemplates] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
+
+  const fetchTemplates = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const res = await axios.get(Apis.getTemplates, {
+        headers: { Authorization: 'Bearer ' + AuthToken() },
+      })
+      if (res?.data?.status && res?.data?.data?.agencyTemplates) {
+        setTemplates(res.data.data.agencyTemplates)
+      } else {
+        setTemplates([])
+      }
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || err?.message || 'Failed to load templates',
+      )
+      setTemplates([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const res = await axios.get(Apis.getTemplates, {
-          headers: { Authorization: 'Bearer ' + AuthToken() },
-        })
-        if (res?.data?.status && res?.data?.data?.agencyTemplates) {
-          setTemplates(res.data.data.agencyTemplates)
-        } else {
-          setTemplates([])
-        }
-      } catch (err) {
-        setError(
-          err?.response?.data?.message || err?.message || 'Failed to load templates',
-        )
-        setTemplates([])
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchTemplates()
-  }, [])
+  }, [fetchTemplates])
+
+  const menuOpen = Boolean(menuAnchorEl)
+
+  const handleMenuOpen = (event, template) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setMenuAnchorEl(event.currentTarget)
+    setSelectedTemplate(template)
+  }
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null)
+    setSelectedTemplate(null)
+  }
+
+  const handleEdit = () => {
+    if (!selectedTemplate) return
+    handleMenuClose()
+    router.push(`/create-template?templateId=${selectedTemplate.agentTemplateId}`)
+  }
+
+  const handleDelete = async () => {
+    if (!selectedTemplate) return
+    const id = selectedTemplate.agentTemplateId
+    if (!window.confirm(`Delete template "${selectedTemplate.name || 'Unnamed'}"?`)) return
+    setDeletingId(id)
+    handleMenuClose()
+    try {
+      await axios.delete(`${Apis.getTemplates}/${id}`, {
+        headers: { Authorization: 'Bearer ' + AuthToken() },
+      })
+      await fetchTemplates()
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to delete template'
+      window.alert(msg)
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -90,28 +136,28 @@ export default function AgencyTemplatesList() {
     )
   }
 
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography sx={{ color: '#b91c1c', fontSize: '0.9375rem' }}>
-          {error}
-        </Typography>
-      </Box>
-    )
-  }
+  // if (error) {
+  //   return (
+  //     <Box sx={{ p: 3 }}>
+  //       <Typography sx={{ color: '#b91c1c', fontSize: '0.9375rem' }}>
+  //         {error}
+  //       </Typography>
+  //     </Box>
+  //   )
+  // }
 
   return (
     <Box
       sx={{
-        p: 3,
-        maxWidth: 1200,
+        py: 3,
         mx: 'auto',
       }}
     >
       <Box
         sx={{
-          pb: 3,
-          mb: 3,
+          pb: 2,
+          mb: 2,
+          px: 3,
           borderBottom: '1px solid rgba(0,0,0,0.08)',
         }}
       >
@@ -131,70 +177,11 @@ export default function AgencyTemplatesList() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
           gap: 2.5,
+          px: 3
         }}
       >
-        {/* New card Figma 24207-80562 */}
-        {/* New Template card - always first (Figma: node 24207-80562) */}
-        <Link href="/create-template" style={{ textDecoration: 'none' }}>
-          <Card
-            elevation={0}
-            sx={{
-              borderRadius: '3.688px',
-              boxShadow: 'none',
-              border: '0.738px solid rgba(21,21,21,0.1)',
-              bgcolor: newCardBg,
-              minHeight: 260,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
-              '&:hover': {
-                boxShadow: cardShadowHover,
-                borderColor: 'rgba(21,21,21,0.15)',
-              },
-            }}
-          >
-            <CardContent sx={{ textAlign: 'center', py: 5, width: '100%' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 1.5,
-                  mx: 'auto',
-                }}
-              >
-                <Typography
-                  component="span"
-                  sx={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '3rem',
-                    fontWeight: 300,
-                    lineHeight: 1,
-                    color: textPrimary,
-                  }}
-                >
-                  +
-                </Typography>
-                <Typography
-                  sx={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    lineHeight: 'normal',
-                    color: textPrimary,
-                  }}
-                >
-                  New Template
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Link>
-
         {/* Template cards (Figma: node 24207-80889) */}
         {templates.map((t) => {
           const status = t.status || 'Draft'
@@ -221,11 +208,11 @@ export default function AgencyTemplatesList() {
                 <Box
                   sx={{
                     bgcolor: newCardBg,
-                    borderBottom: borderSubtle,
+                    // borderBottom: borderSubtle,
                     px: 1,
                     py: 1,
                     position: 'relative',
-                    minHeight: 120,
+                    minHeight: 180,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -307,24 +294,51 @@ export default function AgencyTemplatesList() {
                       </Box>
                     </Box>
                     <IconButton
-                      size="small"
-                      sx={{ color: textPrimary, mt: -0.25, mr: -0.5 }}
+                      size="medium"
+                      sx={{ color: textPrimary, mt: -1, mr: -0.5 }}
                       aria-label="More actions"
+                      aria-haspopup="true"
+                      aria-expanded={menuOpen ? 'true' : undefined}
+                      aria-controls={menuOpen ? 'template-actions-menu' : undefined}
+                      onClick={(e) => handleMenuOpen(e, t)}
                     >
-                      <MoreVertRoundedIcon fontSize="small" />
+                      <MoreHorizRoundedIcon fontSize="medium" />
                     </IconButton>
+                    <Menu
+                      id="template-actions-menu"
+                      anchorEl={menuAnchorEl}
+                      open={menuOpen}
+                      onClose={handleMenuClose}
+                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                      PaperProps={{
+                        sx: {
+                          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                          borderRadius: '8px',
+                          minWidth: 120,
+                        },
+                      }}
+                    >
+                      <MenuItem onClick={handleEdit}>Edit</MenuItem>
+                      <MenuItem
+                        onClick={handleDelete}
+                        disabled={deletingId === selectedTemplate?.agentTemplateId}
+                      >
+                        {deletingId === selectedTemplate?.agentTemplateId ? 'Deleting…' : 'Delete'}
+                      </MenuItem>
+                    </Menu>
                   </Box>
                   {/* Avatar with gradient */}
                   <Box
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: 100,
+                      height: 100,
                       borderRadius: '50%',
                       background: 'radial-gradient(circle at 30% 30%, #e0e7ff 0%, #fce7f3 50%, #e0f2fe 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      mt: 3,
+                      mt: 4,
                       flexShrink: 0,
                     }}
                   >
@@ -340,7 +354,7 @@ export default function AgencyTemplatesList() {
                       lineHeight: '16px',
                       letterSpacing: '-0.06px',
                       color: textPrimary,
-                      mt: 0.5,
+                      mt: 2,
                     }}
                   >
                     0 sub accounts
@@ -383,7 +397,7 @@ export default function AgencyTemplatesList() {
                     gap: 0.5,
                     px: 1.5,
                     pt: 1.25,
-                    pb: 2,
+                    // pb: 2,
                     mt: 'auto',
                   }}
                 >
@@ -470,6 +484,66 @@ export default function AgencyTemplatesList() {
             </Card>
           )
         })}
+
+        {/* New card Figma 24207-80562 */}
+        {/* New Template card - always first (Figma: node 24207-80562) */}
+        <Link href="/create-template" style={{ textDecoration: 'none' }}>
+          <Card
+            elevation={0}
+            sx={{
+              borderRadius: '8px',
+              boxShadow: 'none',
+              border: '0.738px solid rgba(21,21,21,0.1)',
+              bgcolor: newCardBg,
+              minHeight: 297,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+              '&:hover': {
+                boxShadow: cardShadowHover,
+                borderColor: 'rgba(21,21,21,0.15)',
+              },
+            }}
+          >
+            <CardContent sx={{ textAlign: 'center', py: 5, width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  mx: 'auto',
+                }}
+              >
+                <Typography
+                  component="span"
+                  sx={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '3rem',
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    color: textPrimary,
+                  }}
+                >
+                  +
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    lineHeight: 'normal',
+                    color: textPrimary,
+                  }}
+                >
+                  New Template
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Link>
       </Box>
     </Box>
   )

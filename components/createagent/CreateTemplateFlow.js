@@ -27,6 +27,7 @@ import { SellerKycsQuestions } from '@/constants/Kycs'
 import { PersistanceKeys } from '@/constants/Constants'
 import Apis from '@/components/apis/Apis'
 import CreateTemplatePreviewCard from './CreateTemplatePreviewCard'
+import { MoreHoriz } from '@mui/icons-material'
 
 const STEP_NAMES = [
   'Get Started',
@@ -90,12 +91,14 @@ export default function CreateTemplateFlow({ onSaved }) {
   const [objectionDraftDescription, setObjectionDraftDescription] = useState('')
   const [objectionMenuAnchor, setObjectionMenuAnchor] = useState(null)
   const [objectionMenuIndex, setObjectionMenuIndex] = useState(null)
+  const [objectionEditingIndex, setObjectionEditingIndex] = useState(null)
   const [guardrails, setGuardrails] = useState([])
   const [guardrailsAddingInline, setGuardrailsAddingInline] = useState(false)
   const [guardrailDraftTitle, setGuardrailDraftTitle] = useState('')
   const [guardrailDraftDescription, setGuardrailDraftDescription] = useState('')
   const [guardrailMenuAnchor, setGuardrailMenuAnchor] = useState(null)
   const [guardrailMenuIndex, setGuardrailMenuIndex] = useState(null)
+  const [guardrailEditingIndex, setGuardrailEditingIndex] = useState(null)
   const [templateCreated, setTemplateCreated] = useState(false)
 
   const totalSteps = 6
@@ -126,21 +129,21 @@ export default function CreateTemplateFlow({ onSaved }) {
 
   const buildPayload = useCallback(() => {
     const kycs = []
-    ;[
-      { list: kycNeeds, category: 'Needs' },
-      { list: kycMotivation, category: 'Motivation' },
-      { list: kycUrgency, category: 'Urgency' },
-    ].forEach(({ list, category }) => {
-      (list || []).forEach((item) => {
-        if (item?.question?.trim() && item.selected !== false) {
-          kycs.push({
-            question: item.question.trim(),
-            type: 'seller',
-            category,
-          })
-        }
+      ;[
+        { list: kycNeeds, category: 'Needs' },
+        { list: kycMotivation, category: 'Motivation' },
+        { list: kycUrgency, category: 'Urgency' },
+      ].forEach(({ list, category }) => {
+        (list || []).forEach((item) => {
+          if (item?.question?.trim() && item.selected !== false) {
+            kycs.push({
+              question: item.question.trim(),
+              type: 'seller',
+              category,
+            })
+          }
+        })
       })
-    })
     const promptOutbound = {
       greeting: greeting || '',
       callScript: callScript || '',
@@ -267,20 +270,41 @@ export default function CreateTemplateFlow({ onSaved }) {
     setKycNewQuestionDraft('')
   }
 
-  const addObjection = () => setObjectionsAddingInline(true)
+  const addObjection = () => {
+    setObjectionEditingIndex(null)
+    setObjectionsAddingInline(true)
+  }
   const cancelObjectionInline = () => {
     setObjectionsAddingInline(false)
     setObjectionDraftTitle('')
     setObjectionDraftDescription('')
+    setObjectionEditingIndex(null)
   }
   const saveObjectionNew = () => {
     const title = objectionDraftTitle.trim()
     const description = objectionDraftDescription.trim()
     if (!title) return
-    setObjections((prev) => [...prev, { title, description }])
+    if (objectionEditingIndex !== null) {
+      setObjections((prev) =>
+        prev.map((o, i) => (i === objectionEditingIndex ? { title, description } : o)),
+      )
+      setObjectionEditingIndex(null)
+    } else {
+      setObjections((prev) => [...prev, { title, description }])
+    }
     setObjectionDraftTitle('')
     setObjectionDraftDescription('')
     setObjectionsAddingInline(false)
+  }
+  const startEditObjection = (index) => {
+    const obj = objections[index]
+    if (!obj) return
+    setObjectionMenuAnchor(null)
+    setObjectionMenuIndex(null)
+    setObjectionDraftTitle(obj.title || '')
+    setObjectionDraftDescription(obj.description || '')
+    setObjectionEditingIndex(index)
+    setObjectionsAddingInline(true)
   }
   const removeObjection = (index) => {
     setObjections((prev) => prev.filter((_, i) => i !== index))
@@ -288,20 +312,41 @@ export default function CreateTemplateFlow({ onSaved }) {
     setObjectionMenuIndex(null)
   }
 
-  const addGuardrail = () => setGuardrailsAddingInline(true)
+  const addGuardrail = () => {
+    setGuardrailEditingIndex(null)
+    setGuardrailsAddingInline(true)
+  }
   const cancelGuardrailInline = () => {
     setGuardrailsAddingInline(false)
     setGuardrailDraftTitle('')
     setGuardrailDraftDescription('')
+    setGuardrailEditingIndex(null)
   }
   const saveGuardrailNew = () => {
     const title = guardrailDraftTitle.trim()
     const description = guardrailDraftDescription.trim()
     if (!title) return
-    setGuardrails((prev) => [...prev, { title, description }])
+    if (guardrailEditingIndex !== null) {
+      setGuardrails((prev) =>
+        prev.map((g, i) => (i === guardrailEditingIndex ? { title, description } : g)),
+      )
+      setGuardrailEditingIndex(null)
+    } else {
+      setGuardrails((prev) => [...prev, { title, description }])
+    }
     setGuardrailDraftTitle('')
     setGuardrailDraftDescription('')
     setGuardrailsAddingInline(false)
+  }
+  const startEditGuardrail = (index) => {
+    const g = guardrails[index]
+    if (!g) return
+    setGuardrailMenuAnchor(null)
+    setGuardrailMenuIndex(null)
+    setGuardrailDraftTitle(g.title || '')
+    setGuardrailDraftDescription(g.description || '')
+    setGuardrailEditingIndex(index)
+    setGuardrailsAddingInline(true)
   }
   const removeGuardrail = (index) => {
     setGuardrails((prev) => prev.filter((_, i) => i !== index))
@@ -355,806 +400,828 @@ export default function CreateTemplateFlow({ onSaved }) {
           <>
             <Box sx={{ flex: 1, overflow: 'auto', px: 4, pb: 2, justifyContent: 'center', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '' }}>
-              <Typography
-                sx={{
-                  fontSize: '1.5rem',
-                  fontWeight: 700,
-                  color: '#151515',
-                  textAlign: 'center',
-                  mt: 2,
-                }}
-              >
-                Create your AI agent template
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 11,
-                  color: 'rgba(0,0,0,0.7)',
-                  textAlign: 'center',
-                  mt: 0.5,
-                  mb: 3,
-                }}
-              >
-                <p>The agent you create can be added to subaccounts as</p>
-                <p>a template or published to the marketplace.</p>
-              </Typography>
-
-              <Box
-                sx={{
-                  overflow: 'hidden',
-                  width: '100%',
-                  maxWidth: 560,
-                  mx: 'auto',
-                  backgroundColor: ''
-                }}
-              >
-                <Box
+                <Typography
                   sx={{
-                    display: 'flex',
-                    width: '100%',
-                    transition: 'transform 0.35s ease-out',
-                    transform: `translateX(-${step * 100}%)`,
+                    fontSize: '1.5rem',
+                    fontWeight: 700,
+                    color: '#151515',
+                    textAlign: 'center',
+                    mt: 2,
                   }}
                 >
-                  {/* Step 0: Get Started */}
-                  <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                    <Box sx={cardStyle}>
-                      <Typography
-                        sx={{
-                          fontSize: 18,
-                          fontWeight: 600,
-                          color: '#151515',
-                          textAlign: 'center',
-                          mb: 3,
-                        }}
-                      >
-                        Get Started
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                        <Box>
-                          <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
-                            Agent Type
-                          </Typography>
-                          <FormControl fullWidth sx={{ mt: 1 }}>
-                            <Select
-                              value={industry}
-                              onChange={(e) => setIndustry(e.target.value)}
-                              displayEmpty
-                              IconComponent={ChevronDown}
-                              renderValue={(val) => {
-                                if (!val) return 'Select'
-                                const opt = UserTypeOptions.find((o) => o.userType === val)
-                                return opt ? (
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                    {opt.icon && (
-                                      <Image
-                                        src={opt.icon}
-                                        alt={opt.title}
-                                        width={24}
-                                        height={24}
-                                        style={{ borderRadius: 4, objectFit: 'cover' }}
-                                      />
-                                    )}
-                                    <span>{opt.title}</span>
-                                  </Box>
-                                ) : (
-                                  val
-                                )
-                              }}
-                              sx={{
-                                ...inputStyleObj,
-                                minHeight: 48,
-                                borderRadius: '7px',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: 'rgba(0,0,0,0.1)',
-                                  borderWidth: 0.5,
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: 'rgba(0,0,0,0.15)',
-                                },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: 'hsl(var(--brand-primary, 270 75% 50%))',
-                                  borderWidth: 0.5,
-                                },
-                              }}
-                            >
-                              <MenuItem value="">
-                                <ListItemText primary="Select" />
-                              </MenuItem>
-                              {UserTypeOptions.map((opt) => (
-                                <MenuItem key={opt.id} value={opt.userType}>
-                                  <ListItemIcon sx={{ minWidth: 36 }}>
-                                    {opt.icon && (
-                                      <Image
-                                        src={opt.icon}
-                                        alt={opt.title}
-                                        width={28}
-                                        height={28}
-                                        style={{ borderRadius: 4, objectFit: 'cover' }}
-                                      />
-                                    )}
-                                  </ListItemIcon>
-                                  <ListItemText primary={opt.title} />
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </Box>
-                        <Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-                            <Typography sx={{ ...labelStyle, color: '#151515' }}>
-                              Agent&apos;s Name
-                            </Typography>
-                            <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
-                              {name.length}/20
-                            </Typography>
-                          </Box>
-                          <Input
-                            placeholder="Type here"
-                            value={name}
-                            onChange={(e) => setName(e.target.value.slice(0, 20))}
-                            maxLength={20}
-                            className={inputClassName}
-                            style={{ ...inputStyleObj, marginTop: '8px' }}
-                          />
-                        </Box>
-                        <Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-                            <Typography sx={{ ...labelStyle, color: '#151515' }}>
-                              Agent&apos;s Role
-                            </Typography>
-                            <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
-                              {agentRole.length}/20
-                            </Typography>
-                          </Box>
-                          <Input
-                            placeholder="Type here"
-                            value={agentRole}
-                            onChange={(e) => setAgentRole(e.target.value.slice(0, 20))}
-                            maxLength={20}
-                            className={inputClassName}
-                            style={{ ...inputStyleObj, marginTop: '8px' }}
-                          />
-                        </Box>
-                        <Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-                            <Typography sx={{ ...labelStyle, color: '#151515' }}>
-                              Description
-                            </Typography>
-                            <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
-                              {description.length}/120
-                            </Typography>
-                          </Box>
-                          <Textarea
-                            placeholder="Type here"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value.slice(0, 120))}
-                            maxLength={120}
-                            rows={3}
-                            className={inputClassName}
-                            style={{ ...inputStyleObj, marginTop: '8px', minHeight: 80 }}
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
+                  Create your AI agent template
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    color: 'rgba(0,0,0,0.7)',
+                    textAlign: 'center',
+                    mt: 0.5,
+                    mb: 3,
+                  }}
+                >
+                  <p>The agent you create can be added to subaccounts as</p>
+                  <p>a template or published to the marketplace.</p>
+                </Typography>
 
-                  {/* Step 1: Objective */}
-                  <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                    <Box sx={cardStyle}>
-                      <Typography
-                        sx={{
-                          fontSize: 18,
-                          fontWeight: 600,
-                          color: '#151515',
-                          textAlign: 'center',
-                          mb: 3,
-                        }}
-                      >
-                        Objective
-                      </Typography>
-                      <Typography sx={{ fontSize: 14, color: '#151515', mb: 1 }}>
-                        What&apos;s the main objective?
-                      </Typography>
-                      <Textarea
-                        placeholder="Type here"
-                        value={objective}
-                        onChange={(e) => setObjective(e.target.value)}
-                        rows={5}
-                        className={inputClassName}
-                        style={{ ...inputStyleObj, marginTop: '8px', minHeight: 120 }}
-                      />
-                    </Box>
-                  </Box>
-
-                  {/* Step 2: KYC */}
-                  <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                    <Box sx={cardStyle}>
-                      <Typography
-                        sx={{
-                          fontSize: 18,
-                          fontWeight: 600,
-                          color: '#151515',
-                          mb: 2,
-                        }}
-                      >
-                        What would you like to ask customers?
-                      </Typography>
-                      <Box sx={{ display: 'flex', gap: 0, borderBottom: '1px solid #e5e7eb', mb: 2 }}>
-                        {KYC_CATEGORIES.map((cat) => (
-                          <Button
-                            key={cat.key}
-                            onClick={() => {
-                              setActiveKycTab(cat.label)
-                              cancelKycInline()
-                            }}
-                            sx={{
-                              textTransform: 'none',
-                              fontSize: 14,
-                              fontWeight: 500,
-                              color: activeKycTab === cat.label ? 'hsl(var(--brand-primary, 270 75% 50%))' : '#6b7280',
-                              borderBottom: activeKycTab === cat.label ? '2px solid' : 'none',
-                              borderColor: 'hsl(var(--brand-primary, 270 75% 50%))',
-                              borderRadius: 0,
-                              px: 2,
-                              py: 1,
-                            }}
-                          >
-                            {cat.label}
-                          </Button>
-                        ))}
-                      </Box>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                        {(getKycList() || []).map((item, index) => {
-                          const selected = item.selected !== false
-                          return (
-                            <Box
-                              key={item.id || index}
-                              onClick={() => toggleKycSelected(index)}
-                              role="button"
-                              tabIndex={0}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault()
-                                  toggleKycSelected(index)
-                                }
-                              }}
-                              sx={{
-                                border: selected
-                                  ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
-                                  : '0.5px solid rgba(0,0,0,0.1)',
-                                borderRadius: 1.5,
-                                p: 1.5,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: 1,
-                                bgcolor: selected ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.08)' : '#fff',
-                                cursor: 'pointer',
-                                '&:hover': { bgcolor: selected ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.12)' : 'rgba(0,0,0,0.02)' },
-                              }}
-                            >
-                              <Typography sx={{ fontSize: 15, fontWeight: 400, color: '#151515', flex: 1 }}>
-                                {item.question || ''}
-                              </Typography>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                {selected ? (
-                                  <Check sx={{ color: 'hsl(var(--brand-primary, 270 75% 50%))', fontSize: 22 }} />
-                                ) : (
-                                  <RadioButtonUnchecked sx={{ color: '#9ca3af', fontSize: 22 }} />
-                                )}
-                                <IconButton
-                                  size="small"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setKycMenuAnchor(e.currentTarget)
-                                    setKycMenuIndex(index)
-                                  }}
-                                  sx={{ color: '#6b7280', p: 0.5 }}
-                                >
-                                  <MoreVert fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            </Box>
-                          )
-                        })}
-                      </Box>
-                      <Menu
-                        anchorEl={kycMenuAnchor}
-                        open={Boolean(kycMenuAnchor)}
-                        onClose={() => { setKycMenuAnchor(null); setKycMenuIndex(null) }}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                      >
-                        <MenuItem
-                          onClick={() => {
-                            if (kycMenuIndex !== null) removeKycQuestion(kycMenuIndex)
-                            setKycMenuAnchor(null)
-                            setKycMenuIndex(null)
-                          }}
-                          sx={{ color: '#EA4335', fontSize: 14 }}
-                        >
-                          Delete
-                        </MenuItem>
-                      </Menu>
-                      {!kycAddingInline ? (
-                        <Button
-                          onClick={() => setKycAddingInline(true)}
+                <Box
+                  sx={{
+                    overflow: 'hidden',
+                    width: '100%',
+                    maxWidth: 560,
+                    mx: 'auto',
+                    backgroundColor: ''
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      width: '100%',
+                      transition: 'transform 0.35s ease-out',
+                      transform: `translateX(-${step * 100}%)`,
+                    }}
+                  >
+                    {/* Step 0: Get Started */}
+                    <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
+                      <Box sx={cardStyle}>
+                        <Typography
                           sx={{
-                            textTransform: 'none',
-                            color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                            fontSize: 18,
                             fontWeight: 600,
-                            mt: 1.5,
-                            p: 0,
+                            color: '#151515',
+                            textAlign: 'center',
+                            mb: 3,
                           }}
                         >
-                          Add New
-                        </Button>
-                      ) : (
-                        <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
-                          <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
-                            What&apos;s the question?
-                          </Typography>
-                          <Input
-                            placeholder="Ex: What's your name?"
-                            value={kycNewQuestionDraft}
-                            onChange={(e) => setKycNewQuestionDraft(e.target.value.replace(/[{}\[\]<>]/g, ''))}
-                            className={inputClassName}
-                            style={{ ...inputStyleObj, marginTop: '8px' }}
-                          />
-                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
-                            <Button
-                              onClick={cancelKycInline}
-                              sx={{
-                                textTransform: 'none',
-                                color: '#EA4335',
-                                fontWeight: 500,
-                                '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              variant="contained"
-                              onClick={saveKycNewQuestion}
-                              disabled={!kycNewQuestionDraft.trim()}
-                              sx={{
-                                textTransform: 'none',
-                                fontWeight: 600,
-                                bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
-                                '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
-                              }}
-                            >
-                              Save
-                            </Button>
+                          Get Started
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                          <Box>
+                            <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
+                              Agent Type
+                            </Typography>
+                            <FormControl fullWidth sx={{ mt: 1 }}>
+                              <Select
+                                value={industry}
+                                onChange={(e) => setIndustry(e.target.value)}
+                                displayEmpty
+                                IconComponent={ChevronDown}
+                                renderValue={(val) => {
+                                  if (!val) return 'Select'
+                                  const opt = UserTypeOptions.find((o) => o.userType === val)
+                                  return opt ? (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                      {opt.icon && (
+                                        <Image
+                                          src={opt.icon}
+                                          alt={opt.title}
+                                          width={24}
+                                          height={24}
+                                          style={{ borderRadius: 4, objectFit: 'cover' }}
+                                        />
+                                      )}
+                                      <span>{opt.title}</span>
+                                    </Box>
+                                  ) : (
+                                    val
+                                  )
+                                }}
+                                sx={{
+                                  ...inputStyleObj,
+                                  minHeight: 48,
+                                  borderRadius: '7px',
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'rgba(0,0,0,0.1)',
+                                    borderWidth: 0.5,
+                                  },
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'rgba(0,0,0,0.15)',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                    borderWidth: 0.5,
+                                  },
+                                }}
+                              >
+                                <MenuItem value="">
+                                  <ListItemText primary="Select" />
+                                </MenuItem>
+                                {UserTypeOptions.map((opt) => (
+                                  <MenuItem key={opt.id} value={opt.userType}>
+                                    <ListItemIcon sx={{ minWidth: 36 }}>
+                                      {opt.icon && (
+                                        <Image
+                                          src={opt.icon}
+                                          alt={opt.title}
+                                          width={28}
+                                          height={28}
+                                          style={{ borderRadius: 4, objectFit: 'cover' }}
+                                        />
+                                      )}
+                                    </ListItemIcon>
+                                    <ListItemText primary={opt.title} />
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </Box>
+                          <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
+                              <Typography sx={{ ...labelStyle, color: '#151515' }}>
+                                Agent&apos;s Name
+                              </Typography>
+                              <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
+                                {name.length}/20
+                              </Typography>
+                            </Box>
+                            <Input
+                              placeholder="Type here"
+                              value={name}
+                              onChange={(e) => setName(e.target.value.slice(0, 20))}
+                              maxLength={20}
+                              className={inputClassName}
+                              style={{ ...inputStyleObj, marginTop: '8px' }}
+                            />
+                          </Box>
+                          <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
+                              <Typography sx={{ ...labelStyle, color: '#151515' }}>
+                                Agent&apos;s Role
+                              </Typography>
+                              <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
+                                {agentRole.length}/20
+                              </Typography>
+                            </Box>
+                            <Input
+                              placeholder="Type here"
+                              value={agentRole}
+                              onChange={(e) => setAgentRole(e.target.value.slice(0, 20))}
+                              maxLength={20}
+                              className={inputClassName}
+                              style={{ ...inputStyleObj, marginTop: '8px' }}
+                            />
+                          </Box>
+                          <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
+                              <Typography sx={{ ...labelStyle, color: '#151515' }}>
+                                Description
+                              </Typography>
+                              <Typography sx={{ fontSize: 12, color: '#6b7280' }}>
+                                {description.length}/120
+                              </Typography>
+                            </Box>
+                            <Textarea
+                              placeholder="Type here"
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value.slice(0, 120))}
+                              maxLength={120}
+                              rows={3}
+                              className={inputClassName}
+                              style={{ ...inputStyleObj, marginTop: '8px', minHeight: 80 }}
+                            />
                           </Box>
                         </Box>
-                      )}
-                    </Box>
-                  </Box>
-
-                  {/* Step 3: Script */}
-                  <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                    <Box sx={cardStyle}>
-                      <Typography
-                        sx={{
-                          fontSize: 18,
-                          fontWeight: 600,
-                          color: '#151515',
-                          textAlign: 'center',
-                          mb: 3,
-                        }}
-                      >
-                        Script
-                      </Typography>
-                      <Box sx={{ mb: 2 }}>
-                        <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
-                          Greetings
-                        </Typography>
-                        <Input
-                          placeholder="Type here"
-                          value={greeting}
-                          onChange={(e) => setGreeting(e.target.value)}
-                          className={inputClassName}
-                          style={{ ...inputStyleObj, marginTop: '8px' }}
-                        />
                       </Box>
-                      <Box>
-                        <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
-                          Script
+                    </Box>
+
+                    {/* Step 1: Objective */}
+                    <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
+                      <Box sx={cardStyle}>
+                        <Typography
+                          sx={{
+                            fontSize: 18,
+                            fontWeight: 600,
+                            color: '#151515',
+                            textAlign: 'center',
+                            mb: 3,
+                          }}
+                        >
+                          Objective
+                        </Typography>
+                        <Typography sx={{ fontSize: 14, color: '#151515', mb: 1 }}>
+                          What&apos;s the main objective?
                         </Typography>
                         <Textarea
                           placeholder="Type here"
-                          value={callScript}
-                          onChange={(e) => setCallScript(e.target.value)}
-                          rows={6}
+                          value={objective}
+                          onChange={(e) => setObjective(e.target.value)}
+                          rows={5}
                           className={inputClassName}
-                          style={{ ...inputStyleObj, marginTop: '8px', minHeight: 140 }}
+                          style={{ ...inputStyleObj, marginTop: '8px', minHeight: 120 }}
                         />
                       </Box>
                     </Box>
-                  </Box>
 
-                  {/* Step 4: Objections */}
-                  <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                    <Box sx={cardStyle}>
-                      <Typography
-                        sx={{
-                          fontSize: 18,
-                          fontWeight: 600,
-                          color: '#151515',
-                          textAlign: 'center',
-                          mb: 2,
-                        }}
-                      >
-                        Objections
-                      </Typography>
-                      {objections.length === 0 && !objectionsAddingInline ? (
-                        <Box sx={{ textAlign: 'center', py: 0, pt: 0 }}>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              mb: 0,
-                              lineHeight: 0,
-                            }}
-                          >
-                            <Box
-                              component="img"
-                              src="/svgIcons/OLD AGENTX UI/no_objections_image.png"
-                              alt="No objections"
-                              sx={{
-                                width: 250,
-                                maxWidth: 250,
-                                height: 'auto',
-                                objectFit: 'contain',
-                                filter: 'grayscale(100%)',
-                                display: 'block',
+                    {/* Step 2: KYC */}
+                    <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
+                      <Box sx={cardStyle}>
+                        <Typography
+                          sx={{
+                            fontSize: 18,
+                            fontWeight: 600,
+                            color: '#151515',
+                            mb: 2,
+                          }}
+                        >
+                          What would you like to ask customers?
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 0, borderBottom: '1px solid #e5e7eb', mb: 2 }}>
+                          {KYC_CATEGORIES.map((cat) => (
+                            <Button
+                              key={cat.key}
+                              onClick={() => {
+                                setActiveKycTab(cat.label)
+                                cancelKycInline()
                               }}
-                            />
-                          </Box>
-                          <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0, mt: -5.5 }}>
-                            No Objections
-                          </Typography>
-                          <Box sx={{ fontSize: 14, color: '#6b7280', mb: 0.5, mx: 'auto', maxWidth: 380 }}>
-                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
-                              Create common objections for this AI agent 
-                            </Typography>
-                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
-                            to handle during its conversations
-                            </Typography>
-                          </Box>
+                              sx={{
+                                textTransform: 'none',
+                                fontSize: 14,
+                                fontWeight: 500,
+                                color: activeKycTab === cat.label ? 'hsl(var(--brand-primary, 270 75% 50%))' : '#6b7280',
+                                borderBottom: activeKycTab === cat.label ? '2px solid' : 'none',
+                                borderColor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                borderRadius: 0,
+                                px: 2,
+                                py: 1,
+                              }}
+                            >
+                              {cat.label}
+                            </Button>
+                          ))}
+                        </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                          {(getKycList() || []).map((item, index) => {
+                            const selected = item.selected !== false
+                            return (
+                              <Box
+                                key={item.id || index}
+                                onClick={() => toggleKycSelected(index)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault()
+                                    toggleKycSelected(index)
+                                  }
+                                }}
+                                sx={{
+                                  border: selected
+                                    ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
+                                    : '0.5px solid rgba(0,0,0,0.1)',
+                                  borderRadius: 1.5,
+                                  p: 1.5,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  gap: 1,
+                                  bgcolor: selected ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.08)' : '#fff',
+                                  cursor: 'pointer',
+                                  '&:hover': { bgcolor: selected ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.12)' : 'rgba(0,0,0,0.02)' },
+                                }}
+                              >
+                                <Typography sx={{ fontSize: 15, fontWeight: 400, color: '#151515', flex: 1 }}>
+                                  {item.question || ''}
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  {selected ? (
+                                    <Check sx={{ color: 'hsl(var(--brand-primary, 270 75% 50%))', fontSize: 22 }} />
+                                  ) : (
+                                    <RadioButtonUnchecked sx={{ color: '#9ca3af', fontSize: 22 }} />
+                                  )}
+                                  <IconButton
+                                    size="medium"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setKycMenuAnchor(e.currentTarget)
+                                      setKycMenuIndex(index)
+                                    }}
+                                    sx={{ color: '#6b7280', p: 0.5 }}
+                                  >
+                                    <MoreHoriz fontSize="medium" />
+                                  </IconButton>
+                                </Box>
+                              </Box>
+                            )
+                          })}
+                        </Box>
+                        <Menu
+                          anchorEl={kycMenuAnchor}
+                          open={Boolean(kycMenuAnchor)}
+                          onClose={() => { setKycMenuAnchor(null); setKycMenuIndex(null) }}
+                          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              if (kycMenuIndex !== null) removeKycQuestion(kycMenuIndex)
+                              setKycMenuAnchor(null)
+                              setKycMenuIndex(null)
+                            }}
+                            sx={{ color: '#EA4335', fontSize: 14 }}
+                          >
+                            Delete
+                          </MenuItem>
+                        </Menu>
+                        {!kycAddingInline ? (
                           <Button
-                            onClick={addObjection}
+                            onClick={() => setKycAddingInline(true)}
                             sx={{
                               textTransform: 'none',
                               color: 'hsl(var(--brand-primary, 270 75% 50%))',
                               fontWeight: 600,
+                              mt: 1.5,
                               p: 0,
-                              minHeight: 'auto',
                             }}
                           >
-                            + Add New
+                            Add New
                           </Button>
-                        </Box>
-                      ) : (
-                        <>
-                          {objections.length > 0 && (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
-                              {objections.map((obj, index) => (
-                                <Box
-                                  key={index}
-                                  sx={{
-                                    border: '0.5px solid rgba(0,0,0,0.1)',
-                                    borderRadius: 1.5,
-                                    p: 1.5,
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    justifyContent: 'space-between',
-                                    gap: 1,
-                                    bgcolor: '#fff',
-                                  }}
-                                >
-                                  <Box sx={{ flex: 1 }}>
-                                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#151515', mb: 0.5 }}>
-                                      {obj.title || ''}
-                                    </Typography>
-                                    {obj.description ? (
-                                      <Typography sx={{ fontSize: 14, fontWeight: 400, color: '#6b7280' }}>
-                                        {obj.description}
-                                      </Typography>
-                                    ) : null}
-                                  </Box>
-                                  <IconButton
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setObjectionMenuAnchor(e.currentTarget)
-                                      setObjectionMenuIndex(index)
-                                    }}
-                                    sx={{ color: '#6b7280', p: 0.5 }}
-                                  >
-                                    <MoreVert fontSize="small" />
-                                  </IconButton>
-                                </Box>
-                              ))}
+                        ) : (
+                          <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
+                            <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
+                              What&apos;s the question?
+                            </Typography>
+                            <Input
+                              placeholder="Ex: What's your name?"
+                              value={kycNewQuestionDraft}
+                              onChange={(e) => setKycNewQuestionDraft(e.target.value.replace(/[{}\[\]<>]/g, ''))}
+                              className={inputClassName}
+                              style={{ ...inputStyleObj, marginTop: '8px' }}
+                            />
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                              <Button
+                                onClick={cancelKycInline}
+                                sx={{
+                                  textTransform: 'none',
+                                  color: '#EA4335',
+                                  fontWeight: 500,
+                                  '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                variant="contained"
+                                onClick={saveKycNewQuestion}
+                                disabled={!kycNewQuestionDraft.trim()}
+                                sx={{
+                                  textTransform: 'none',
+                                  fontWeight: 600,
+                                  bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
+                                }}
+                              >
+                                Save
+                              </Button>
                             </Box>
-                          )}
-                          {!objectionsAddingInline ? (
-                            <Button
-                              onClick={addObjection}
-                              sx={{
-                                textTransform: 'none',
-                                color: 'hsl(var(--brand-primary, 270 75% 50%))',
-                                fontWeight: 600,
-                                mt: objections.length > 0 ? 0 : 0,
-                              }}
-                            >
-                              + Add New
-                            </Button>
-                          ) : (
-                            <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
-                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
-                                Title
-                              </Typography>
-                              <Input
-                                placeholder="Add title"
-                                value={objectionDraftTitle}
-                                onChange={(e) => setObjectionDraftTitle(e.target.value)}
-                                className={inputClassName}
-                                style={{ ...inputStyleObj, marginTop: '8px' }}
-                              />
-                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75, mt: 1.5 }}>
-                                Response
-                              </Typography>
-                              <Textarea
-                                placeholder="Add description"
-                                value={objectionDraftDescription}
-                                onChange={(e) => setObjectionDraftDescription(e.target.value)}
-                                rows={3}
-                                className={inputClassName}
-                                style={{ ...inputStyleObj, marginTop: '8px' }}
-                              />
-                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
-                                <Button
-                                  onClick={cancelObjectionInline}
-                                  sx={{
-                                    textTransform: 'none',
-                                    color: '#EA4335',
-                                    fontWeight: 500,
-                                    '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  onClick={saveObjectionNew}
-                                  disabled={!objectionDraftTitle.trim()}
-                                  sx={{
-                                    textTransform: 'none',
-                                    fontWeight: 600,
-                                    bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
-                                    '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
-                                  }}
-                                >
-                                  Save
-                                </Button>
-                              </Box>
-                            </Box>
-                          )}
-                        </>
-                      )}
-                      <Menu
-                        anchorEl={objectionMenuAnchor}
-                        open={Boolean(objectionMenuAnchor)}
-                        onClose={() => { setObjectionMenuAnchor(null); setObjectionMenuIndex(null) }}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                      >
-                        <MenuItem
-                          onClick={() => {
-                            if (objectionMenuIndex !== null) removeObjection(objectionMenuIndex)
-                          }}
-                          sx={{ color: '#EA4335', fontSize: 14 }}
-                        >
-                          Delete
-                        </MenuItem>
-                      </Menu>
+                          </Box>
+                        )}
+                      </Box>
                     </Box>
-                  </Box>
 
-                  {/* Step 5: Guardrails */}
-                  <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                    <Box sx={cardStyle}>
-                      <Typography
-                        sx={{
-                          fontSize: 18,
-                          fontWeight: 600,
-                          color: '#151515',
-                          textAlign: 'center',
-                          mb: 2,
-                        }}
-                      >
-                        Guardrails
-                      </Typography>
-                      {guardrails.length === 0 && !guardrailsAddingInline ? (
-                        <Box sx={{ textAlign: 'center', py: 0, pt: 0 }}>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              mb: 0,
-                              lineHeight: 0,
-                            }}
-                          >
-                            <Box
-                              component="img"
-                              src="/svgIcons/OLD AGENTX UI/no_guardrails_image.png"
-                              alt="No guardrails"
-                              sx={{
-                                width: 250,
-                                maxWidth: 250,
-                                height: 'auto',
-                                objectFit: 'contain',
-                                filter: 'grayscale(100%)',
-                                display: 'block',
-                              }}
-                            />
-                          </Box>
-                          <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0, mt: -5.5 }}>
-                            No Guardrails
+                    {/* Step 3: Script */}
+                    <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
+                      <Box sx={cardStyle}>
+                        <Typography
+                          sx={{
+                            fontSize: 18,
+                            fontWeight: 600,
+                            color: '#151515',
+                            textAlign: 'center',
+                            mb: 3,
+                          }}
+                        >
+                          Script
+                        </Typography>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
+                            Greetings
                           </Typography>
-                          <Box sx={{ fontSize: 14, color: '#6b7280', mb: 0.5, mx: 'auto', maxWidth: 380 }}>
-                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
-                              Create guardrails for this AI agent to stay within
-                            </Typography>
-                            <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
-                              boundaries
-                            </Typography>
-                          </Box>
-                          <Button
-                            onClick={addGuardrail}
-                            sx={{
-                              textTransform: 'none',
-                              color: 'hsl(var(--brand-primary, 270 75% 50%))',
-                              fontWeight: 600,
-                              p: 0,
-                              minHeight: 'auto',
-                            }}
-                          >
-                            + Add New
-                          </Button>
+                          <Input
+                            placeholder="Type here"
+                            value={greeting}
+                            onChange={(e) => setGreeting(e.target.value)}
+                            className={inputClassName}
+                            style={{ ...inputStyleObj, marginTop: '8px' }}
+                          />
                         </Box>
-                      ) : (
-                        <>
-                          {guardrails.length > 0 && (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
-                              {guardrails.map((gr, index) => (
-                                <Box
-                                  key={index}
-                                  sx={{
-                                    border: '0.5px solid rgba(0,0,0,0.1)',
-                                    borderRadius: 1.5,
-                                    p: 1.5,
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    justifyContent: 'space-between',
-                                    gap: 1,
-                                    bgcolor: '#fff',
-                                  }}
-                                >
-                                  <Box sx={{ flex: 1 }}>
-                                    <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#151515', mb: 0.5 }}>
-                                      {gr.title || ''}
-                                    </Typography>
-                                    {gr.description ? (
-                                      <Typography sx={{ fontSize: 14, fontWeight: 400, color: '#6b7280' }}>
-                                        {gr.description}
-                                      </Typography>
-                                    ) : null}
-                                  </Box>
-                                  <IconButton
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setGuardrailMenuAnchor(e.currentTarget)
-                                      setGuardrailMenuIndex(index)
-                                    }}
-                                    sx={{ color: '#6b7280', p: 0.5 }}
-                                  >
-                                    <MoreVert fontSize="small" />
-                                  </IconButton>
-                                </Box>
-                              ))}
-                            </Box>
-                          )}
-                          {!guardrailsAddingInline ? (
-                            <Button
-                              onClick={addGuardrail}
+                        <Box>
+                          <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#151515', mb: 0.75 }}>
+                            Script
+                          </Typography>
+                          <Textarea
+                            placeholder="Type here"
+                            value={callScript}
+                            onChange={(e) => setCallScript(e.target.value)}
+                            rows={6}
+                            className={inputClassName}
+                            style={{ ...inputStyleObj, marginTop: '8px', minHeight: 140 }}
+                          />
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Step 4: Objections */}
+                    <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
+                      <Box sx={cardStyle}>
+                        <Typography
+                          sx={{
+                            fontSize: 18,
+                            fontWeight: 600,
+                            color: '#151515',
+                            textAlign: 'center',
+                            mb: 2,
+                          }}
+                        >
+                          Objections
+                        </Typography>
+                        {objections.length === 0 && !objectionsAddingInline ? (
+                          <Box sx={{ textAlign: 'center', py: 0, pt: 0 }}>
+                            <Box
                               sx={{
-                                textTransform: 'none',
-                                color: 'hsl(var(--brand-primary, 270 75% 50%))',
-                                fontWeight: 600,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                mb: 0,
+                                lineHeight: 0,
+                                zIndex: 0,
                               }}
                             >
-                              + Add New
-                            </Button>
-                          ) : (
-                            <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
-                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
-                                Title
-                              </Typography>
-                              <Input
-                                placeholder="Add title"
-                                value={guardrailDraftTitle}
-                                onChange={(e) => setGuardrailDraftTitle(e.target.value)}
-                                className={inputClassName}
-                                style={{ ...inputStyleObj, marginTop: '8px' }}
+                              <Box
+                                component="img"
+                                src="/svgIcons/OLD AGENTX UI/no_objections_image.png"
+                                alt="No objections"
+                                sx={{
+                                  width: 250,
+                                  maxWidth: 250,
+                                  height: 'auto',
+                                  objectFit: 'contain',
+                                  filter: 'grayscale(100%)',
+                                  display: 'block',
+                                }}
                               />
-                              <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75, mt: 1.5 }}>
-                                Description
-                              </Typography>
-                              <Textarea
-                                placeholder="Add description"
-                                value={guardrailDraftDescription}
-                                onChange={(e) => setGuardrailDraftDescription(e.target.value)}
-                                rows={3}
-                                className={inputClassName}
-                                style={{ ...inputStyleObj, marginTop: '8px' }}
-                              />
-                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
-                                <Button
-                                  onClick={cancelGuardrailInline}
-                                  sx={{
-                                    textTransform: 'none',
-                                    color: '#EA4335',
-                                    fontWeight: 500,
-                                    '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  onClick={saveGuardrailNew}
-                                  disabled={!guardrailDraftTitle.trim()}
-                                  sx={{
-                                    textTransform: 'none',
-                                    fontWeight: 600,
-                                    bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
-                                    '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
-                                  }}
-                                >
-                                  Save
-                                </Button>
-                              </Box>
                             </Box>
-                          )}
-                        </>
-                      )}
-                      <Menu
-                        anchorEl={guardrailMenuAnchor}
-                        open={Boolean(guardrailMenuAnchor)}
-                        onClose={() => { setGuardrailMenuAnchor(null); setGuardrailMenuIndex(null) }}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                      >
-                        <MenuItem
-                          onClick={() => {
-                            if (guardrailMenuIndex !== null) removeGuardrail(guardrailMenuIndex)
-                          }}
-                          sx={{ color: '#EA4335', fontSize: 14 }}
+                            <div style={{ zIndex: 1000, position: 'relative', marginTop: '-70px' }}>
+                              <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0, mt: -5.5 }}>
+                                No Objections
+                              </Typography>
+                              <Box sx={{ fontSize: 14, color: '#6b7280', mb: 0.5, mx: 'auto', maxWidth: 380 }}>
+                                <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                                  Create common objections for this AI agent
+                                </Typography>
+                                <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                                  to handle during its conversations
+                                </Typography>
+                              </Box>
+                              <Button
+                                onClick={addObjection}
+                                sx={{
+                                  textTransform: 'none',
+                                  color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  fontWeight: 600,
+                                  p: 0,
+                                  minHeight: 'auto',
+                                }}
+                              >
+                                + Add New
+                              </Button>
+                            </div>
+                          </Box>
+                        ) : (
+                          <>
+                            {objections.length > 0 && (
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
+                                {objections.map((obj, index) => (
+                                  <Box
+                                    key={index}
+                                    sx={{
+                                      border: '0.5px solid rgba(0,0,0,0.1)',
+                                      borderRadius: 1.5,
+                                      p: 1.5,
+                                      display: 'flex',
+                                      alignItems: 'flex-start',
+                                      justifyContent: 'space-between',
+                                      gap: 1,
+                                      bgcolor: '#fff',
+                                    }}
+                                  >
+                                    <Box sx={{ flex: 1 }}>
+                                      <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#151515', mb: 0.5 }}>
+                                        {obj.title || ''}
+                                      </Typography>
+                                      {obj.description ? (
+                                        <Typography sx={{ fontSize: 14, fontWeight: 400, color: '#6b7280' }}>
+                                          {obj.description}
+                                        </Typography>
+                                      ) : null}
+                                    </Box>
+                                    <IconButton
+                                      size="medium"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setObjectionMenuAnchor(e.currentTarget)
+                                        setObjectionMenuIndex(index)
+                                      }}
+                                      sx={{ color: '#6b7280', p: 0.5 }}
+                                    >
+                                      <MoreHoriz fontSize="medium" />
+                                    </IconButton>
+                                  </Box>
+                                ))}
+                              </Box>
+                            )}
+                            {!objectionsAddingInline ? (
+                              <Button
+                                onClick={addObjection}
+                                sx={{
+                                  textTransform: 'none',
+                                  color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  fontWeight: 600,
+                                  mt: objections.length > 0 ? 0 : 0,
+                                }}
+                              >
+                                + Add New
+                              </Button>
+                            ) : (
+                              <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
+                                <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
+                                  Title
+                                </Typography>
+                                <Input
+                                  placeholder="Add title"
+                                  value={objectionDraftTitle}
+                                  onChange={(e) => setObjectionDraftTitle(e.target.value)}
+                                  className={inputClassName}
+                                  style={{ ...inputStyleObj, marginTop: '8px' }}
+                                />
+                                <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75, mt: 1.5 }}>
+                                  Response
+                                </Typography>
+                                <Textarea
+                                  placeholder="Add description"
+                                  value={objectionDraftDescription}
+                                  onChange={(e) => setObjectionDraftDescription(e.target.value)}
+                                  rows={3}
+                                  className={inputClassName}
+                                  style={{ ...inputStyleObj, marginTop: '8px' }}
+                                />
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                                  <Button
+                                    onClick={cancelObjectionInline}
+                                    sx={{
+                                      textTransform: 'none',
+                                      color: '#EA4335',
+                                      fontWeight: 500,
+                                      '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    variant="contained"
+                                    onClick={saveObjectionNew}
+                                    disabled={!objectionDraftTitle.trim()}
+                                    sx={{
+                                      textTransform: 'none',
+                                      fontWeight: 600,
+                                      bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                      '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
+                                    }}
+                                  >
+                                    {objectionEditingIndex !== null ? 'Update' : 'Save'}
+                                  </Button>
+                                </Box>
+                              </Box>
+                            )}
+                          </>
+                        )}
+                        <Menu
+                          anchorEl={objectionMenuAnchor}
+                          open={Boolean(objectionMenuAnchor)}
+                          onClose={() => { setObjectionMenuAnchor(null); setObjectionMenuIndex(null) }}
+                          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                         >
-                          Delete
-                        </MenuItem>
-                      </Menu>
+                          <MenuItem
+                            onClick={() => {
+                              if (objectionMenuIndex !== null) startEditObjection(objectionMenuIndex)
+                            }}
+                            sx={{ fontSize: 14 }}
+                          >
+                            Edit
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              if (objectionMenuIndex !== null) removeObjection(objectionMenuIndex)
+                            }}
+                            sx={{ color: '#EA4335', fontSize: 14 }}
+                          >
+                            Delete
+                          </MenuItem>
+                        </Menu>
+                      </Box>
+                    </Box>
+
+                    {/* Step 5: Guardrails */}
+                    <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
+                      <Box sx={cardStyle}>
+                        <Typography
+                          sx={{
+                            fontSize: 18,
+                            fontWeight: 600,
+                            color: '#151515',
+                            textAlign: 'center',
+                            mb: 2,
+                          }}
+                        >
+                          Guardrails
+                        </Typography>
+                        {guardrails.length === 0 && !guardrailsAddingInline ? (
+                          <Box sx={{ textAlign: 'center', py: 0, pt: 0 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                mb: 0,
+                                lineHeight: 0,
+                                zIndex: 0,
+                              }}
+                            >
+                              <Box
+                                component="img"
+                                src="/svgIcons/OLD AGENTX UI/no_guardrails_image.png"
+                                alt="No guardrails"
+                                sx={{
+                                  width: 250,
+                                  maxWidth: 250,
+                                  height: 'auto',
+                                  objectFit: 'contain',
+                                  filter: 'grayscale(100%)',
+                                  display: 'block',
+                                }}
+                              />
+                            </Box>
+                            <div style={{ zIndex: 1000, position: 'relative', marginTop: '-70px' }}>
+                              <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#151515', mb: 0, mt: -5.5 }}>
+                                No Guardrails
+                              </Typography>
+                              <Box sx={{ fontSize: 14, color: '#6b7280', mb: 0.5, mx: 'auto', maxWidth: 380 }}>
+                                <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                                  Create guardrails for this AI agent to stay within
+                                </Typography>
+                                <Typography component="span" sx={{ fontSize: 14, color: '#6b7280', display: 'block' }}>
+                                  boundaries
+                                </Typography>
+                              </Box>
+                              <Button
+                                onClick={addGuardrail}
+                                sx={{
+                                  textTransform: 'none',
+                                  color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  fontWeight: 600,
+                                  p: 0,
+                                  minHeight: 'auto',
+                                }}
+                              >
+                                + Add New
+                              </Button>
+                            </div>
+                          </Box>
+                        ) : (
+                          <>
+                            {guardrails.length > 0 && (
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
+                                {guardrails.map((gr, index) => (
+                                  <Box
+                                    key={index}
+                                    sx={{
+                                      border: '0.5px solid rgba(0,0,0,0.1)',
+                                      borderRadius: 1.5,
+                                      p: 1.5,
+                                      display: 'flex',
+                                      alignItems: 'flex-start',
+                                      justifyContent: 'space-between',
+                                      gap: 1,
+                                      bgcolor: '#fff',
+                                    }}
+                                  >
+                                    <Box sx={{ flex: 1 }}>
+                                      <Typography sx={{ fontSize: 15, fontWeight: 600, color: '#151515', mb: 0.5 }}>
+                                        {gr.title || ''}
+                                      </Typography>
+                                      {gr.description ? (
+                                        <Typography sx={{ fontSize: 14, fontWeight: 400, color: '#6b7280' }}>
+                                          {gr.description}
+                                        </Typography>
+                                      ) : null}
+                                    </Box>
+                                    <IconButton
+                                      size="medium"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setGuardrailMenuAnchor(e.currentTarget)
+                                        setGuardrailMenuIndex(index)
+                                      }}
+                                      sx={{ color: '#6b7280', p: 0.5 }}
+                                    >
+                                      <MoreHoriz fontSize="medium" />
+                                    </IconButton>
+                                  </Box>
+                                ))}
+                              </Box>
+                            )}
+                            {!guardrailsAddingInline ? (
+                              <Button
+                                onClick={addGuardrail}
+                                sx={{
+                                  textTransform: 'none',
+                                  color: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                + Add New
+                              </Button>
+                            ) : (
+                              <Box sx={{ mt: 2, p: 2, border: '0.5px solid rgba(0,0,0,0.1)', borderRadius: 1.5, bgcolor: '#fafafa' }}>
+                                <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75 }}>
+                                  Title
+                                </Typography>
+                                <Input
+                                  placeholder="Add title"
+                                  value={guardrailDraftTitle}
+                                  onChange={(e) => setGuardrailDraftTitle(e.target.value)}
+                                  className={inputClassName}
+                                  style={{ ...inputStyleObj, marginTop: '8px' }}
+                                />
+                                <Typography sx={{ ...labelStyle, color: '#151515', mb: 0.75, mt: 1.5 }}>
+                                  Description
+                                </Typography>
+                                <Textarea
+                                  placeholder="Add description"
+                                  value={guardrailDraftDescription}
+                                  onChange={(e) => setGuardrailDraftDescription(e.target.value)}
+                                  rows={3}
+                                  className={inputClassName}
+                                  style={{ ...inputStyleObj, marginTop: '8px' }}
+                                />
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                                  <Button
+                                    onClick={cancelGuardrailInline}
+                                    sx={{
+                                      textTransform: 'none',
+                                      color: '#EA4335',
+                                      fontWeight: 500,
+                                      '&:hover': { bgcolor: 'rgba(234,67,53,0.08)' },
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    variant="contained"
+                                    onClick={saveGuardrailNew}
+                                    disabled={!guardrailDraftTitle.trim()}
+                                    sx={{
+                                      textTransform: 'none',
+                                      fontWeight: 600,
+                                      bgcolor: 'hsl(var(--brand-primary, 270 75% 50%))',
+                                      '&:hover': { bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9)' },
+                                    }}
+                                  >
+                                    {guardrailEditingIndex !== null ? 'Update' : 'Save'}
+                                  </Button>
+                                </Box>
+                              </Box>
+                            )}
+                          </>
+                        )}
+                        <Menu
+                          anchorEl={guardrailMenuAnchor}
+                          open={Boolean(guardrailMenuAnchor)}
+                          onClose={() => { setGuardrailMenuAnchor(null); setGuardrailMenuIndex(null) }}
+                          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              if (guardrailMenuIndex !== null) startEditGuardrail(guardrailMenuIndex)
+                            }}
+                            sx={{ fontSize: 14 }}
+                          >
+                            Edit
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              if (guardrailMenuIndex !== null) removeGuardrail(guardrailMenuIndex)
+                            }}
+                            sx={{ color: '#EA4335', fontSize: 14 }}
+                          >
+                            Delete
+                          </MenuItem>
+                        </Menu>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
-              </Box>
               </Box>
             </Box>
 
