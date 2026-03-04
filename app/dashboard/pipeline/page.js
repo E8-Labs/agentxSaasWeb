@@ -39,7 +39,10 @@ const Page = ({ params }) => {
     backgroundPosition: 'center',
     width: '100%',
     height: '100svh',
-    overflow: 'hidden',
+    minHeight: '100svh',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
   }
 
   return (
@@ -63,7 +66,7 @@ const Page = ({ params }) => {
         <Suspense>
           <div
             style={backgroundImage}
-            className="overflow-y-none flex flex-row justify-center items-center"
+            className="flex flex-row justify-center items-center flex-1 min-h-0"
           >
             <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
           </div>

@@ -61,12 +61,19 @@ const AgencySupportWidget = ({
       url: PersistanceKeys.AgencySupportTicketUrl,
     },
     {
-      id: 5,
-      label: 'Speak to a Geek',
-      image: '/svgIcons/askSkyBlack.svg',
-      image2: '/svgIcons/askSkyBlue.svg',
-      url: null, // Will trigger AI support
+      id: 6,
+      label: 'Support Webinar',
+      image: '/svgIcons/supportBlack.svg',
+      image2: '/svgIcons/supportBlue.svg',
+      url: PersistanceKeys.AgencySupportWebinarUrl,
     },
+    // {
+    //   id: 5,
+    //   label: 'Speak to a Geek',
+    //   image: '/svgIcons/askSkyBlack.svg',
+    //   image2: '/svgIcons/askSkyBlue.svg',
+    //   url: null, // Will trigger AI support
+    // },
   ])
 
   useEffect(() => {
@@ -281,11 +288,11 @@ const AgencySupportWidget = ({
                     >
                       {item.label}
                     </div>
-                    {(item.id === 5 || item.label === 'Speak to a Geek') && (
+                    {/*(item.id === 5 || item.label === 'Speak to a Geek') && (
                       <div className="px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300] ml-5">
                         AI
                       </div>
-                    )}
+                    )*/}
                   </button>
                 </div>
               ))}

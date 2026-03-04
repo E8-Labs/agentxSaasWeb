@@ -2480,7 +2480,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           containerClass="phone-input-container"
                           className="outline-none bg-white focus:ring-0"
                           country={'us'} // Default country
-                          onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US and Canada only
+                          onlyCountries={['us', 'ca', 'mx', 'sv', 'ec', 'gb', 'au']}
                           disableDropdown={false} // Enable dropdown to switch between US/CA
                           countryCodeEditable={false}
                           disableCountryCode={false}
