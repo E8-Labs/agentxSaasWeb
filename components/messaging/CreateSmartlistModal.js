@@ -188,23 +188,6 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
     }
   }
 
-  const styles = {
-    modalsStyle: {
-      height: 'auto',
-      bgcolor: 'transparent',
-      mx: 'auto',
-      my: '50vh',
-      transform: 'translateY(-50%)',
-      borderRadius: 2,
-      border: 'none',
-      outline: 'none',
-    },
-    paragraph: {
-      fontSize: 15,
-      fontWeight: '500',
-    },
-  }
-
   return (
     <Modal
       open={open}
@@ -236,13 +219,13 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
         },
       }}
       BackdropProps={{
+        timeout: 250,
         sx: {
           zIndex: 9999,
-          backgroundColor: '#00000020',
+          backgroundColor: '#00000099',
           pointerEvents: 'auto',
         },
         onClick: (e) => {
-          // Only close modal on backdrop click
           if (e.target === e.currentTarget) {
             onClose()
           }
@@ -251,23 +234,19 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
     >
       <Box
         ref={modalRef}
-        className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-auto overflow-hidden rounded-3xl"
+        className="w-full max-w-[440px] flex flex-col bg-white overflow-hidden rounded-[12px]"
         data-modal-content="create-smartlist"
         sx={{
           position: 'absolute',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          height: 'auto',
-          bgcolor: 'white',
-          borderRadius: 2,
-          border: 'none',
-          outline: 'none',
-          scrollbarWidth: 'none',
-          zIndex: 10000, // Higher than backdrop (9999) to appear on top
+          boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+          border: '1px solid #eaeaea',
+          zIndex: 10000,
           maxHeight: '90vh',
           pointerEvents: 'auto',
-          isolation: 'isolate', // Create new stacking context
+          isolation: 'isolate',
           '& input': {
             cursor: 'text',
             WebkitUserSelect: 'text',
@@ -276,200 +255,141 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
           '&::-webkit-scrollbar': {
             display: 'none',
           },
+          scrollbarWidth: 'none',
         }}
       >
+        {/* Header */}
         <div
-          className="w-full flex flex-col items-center h-full justify-between"
-          style={{
-            backgroundColor: 'white',
-          }}
+          className="flex flex-row items-center justify-between w-full"
+          style={{ padding: 16, borderBottom: '1px solid #eaeaea', minHeight: 66 }}
         >
-          <div className="w-full">
-            <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
-              <div style={{ fontWeight: '500', fontSize: 15 }}>{isEditSmartList ? "Edit SmartList" : "New SmartList"}</div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onClose()
-                }}
-                style={{ pointerEvents: 'auto' }}
-              >
-                <Image
-                  src={'/assets/crossIcon.png'}
-                  height={40}
-                  width={40}
-                  alt="*"
-                />
-              </button>
-            </div>
-
-            <div className="px-4 w-full">
-              <div className="flex flex-row items-end justify-between mt-6 gap-2">
-                <span style={styles.paragraph}>List Name</span>
-
-                <div className="flex flex-col items-end ">
-                  {
-                    showInbound && (
-
-                      <div className="">
-                        <span>Inbound?</span>
-                        <Switch
-                          checked={isInbound}
-                          onChange={(event) => {
-                            setIsInbound(event.target.checked)
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                          }}
-                          sx={{
-                            pointerEvents: 'auto',
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: 'hsl(var(--brand-primary))',
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: 'hsl(var(--brand-primary))',
-                            },
-                          }}
-                        />
-                      </div>
-                    )
-                  }
-                </div>
-              </div>
-              <div className="mt-4">
-                <input
-                  type="text"
-                  value={newSheetName}
-                  onChange={(e) => {
-                    setNewSheetName(e.target.value)
-                  }}
-                  onFocus={(e) => {
-                    // Ensure input can receive focus
-                    e.target.focus()
-                  }}
-                  placeholder="Enter list name"
-                  className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-3"
-                  style={{
-                    ...styles.paragraph,
-                    border: '1px solid #00000020',
-                  }}
-                  autoFocus={false}
-                />
-              </div>
-              <div>
-                <div className="mt-8" style={styles.paragraph}>
-                  Create Columns
-                </div>
-                <div
-                  className="max-h-[29vh] overflow-auto mt-2"
-                  style={{
-                    scrollbarWidth: 'none',
-                  }}
-                >
-                  {inputs.map((input, index) => (
-                    <div
-                      key={input.id}
-                      className="w-full flex flex-row items-center gap-4 mt-4"
-                    >
-                      <input
-                        type="text"
-                        className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
-                        style={{
-                          ...styles.paragraph,
-                          width: '95%',
-                          borderColor: '#00000020',
-                        }}
-                        placeholder={`Column Name`}
-                        value={input.value}
-                        readOnly={isEditSmartList ? false : index < 3}
-                        disabled={isEditSmartList ? false : index < 3}
-                        tabIndex={isEditSmartList ? 0 : index < 3 ? -1 : 0}
-                        onChange={(e) => {
-                          if (isEditSmartList ? true : index > 2) {
-                            handleInputChange(input.id, e.target.value)
-                          }
-                        }}
-                        onFocus={(e) => {
-                          // Ensure input can receive focus
-                          if (isEditSmartList ? true : index > 2) {
-                            e.target.focus()
-                          }
-                        }}
-                      />
-                      <div style={{ width: '5%' }}>
-                        {(isEditSmartList ? true : index > 2) && (
-                          <button
-                            className="outline-none border-none"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDelete(input.id)
-                            }}
-                            style={{ pointerEvents: 'auto' }}
-                          >
-                            <Image
-                              src={'/assets/blackBgCross.png'}
-                              height={20}
-                              width={20}
-                              alt="*"
-                            />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {/* Dummy element for scrolling */}
-                  <div ref={bottomRef}></div>
-                </div>
-                <div style={{ height: '50px' }}>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleAddInput()
-                    }}
-                    className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
-                    style={{
-                      ...styles.paragraph,
-                      pointerEvents: 'auto',
-                    }}
-                  >
-                    New Column
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div
+            className="start-campaign-label"
+            style={{ fontSize: 18, fontWeight: 600, color: '#111827', letterSpacing: '-0.01em' }}
+          >
+            {isEditSmartList ? 'Edit SmartList' : 'New SmartList'}
           </div>
+          <CloseBtn onClick={onClose} />
+        </div>
 
-          <div className="w-full pb-8 mt-4">
-            {showaddCreateListLoader ? (
-              <div className="flex flex-row items-center justify-center w-full h-[50px]">
-                <CircularProgress size={25} />
+        <div className="flex flex-col flex-1 overflow-y-auto px-0 py-4">
+          {/* List Name row: label left, Inbound toggle right */}
+          <div className="flex flex-row items-center justify-between gap-4 mb-2 py-0 bg-white">
+            <label className="start-campaign-label block">List Name</label>
+            {showInbound && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="start-campaign-label text-[14px]">Inbound?</span>
+                <Switch
+                  checked={isInbound}
+                  onChange={(event) => setIsInbound(event.target.checked)}
+                  onClick={(e) => e.stopPropagation()}
+                  sx={{
+                    pointerEvents: 'auto',
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: 'hsl(var(--brand-primary))',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: 'hsl(var(--brand-primary))',
+                    },
+                  }}
+                />
               </div>
-            ) : (
-              <button
-                className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-btngray text-gray-600 cursor-not-allowed'
-                  }`}
-                style={{
-                  fontWeight: '600',
-                  fontSize: 16.8,
-                  pointerEvents: 'auto',
-                }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (isEditSmartList) {
-                    handleEditSmartList()
-                  } else {
-                    handleAddSheetNewList()
-                  }
-                  // handleAddSheetNewList()
-                }}
-                disabled={newSheetName == null || newSheetName === ''}
-              >
-                {isEditSmartList ? 'Update List' : 'Create List'}
-              </button>
             )}
           </div>
+          <input
+            type="text"
+            value={newSheetName}
+            onChange={(e) => setNewSheetName(e.target.value)}
+            placeholder="Enter list name"
+            className="start-campaign-input w-full h-[42px] rounded-lg"
+            autoFocus={false}
+          />
+
+          {/* Create Columns */}
+          <div className="mt-6">
+            <div className="start-campaign-label mb-3">Create Columns</div>
+            <div className="max-h-[29vh] overflow-auto space-y-3" style={{ scrollbarWidth: 'none' }}>
+              {inputs.map((input, index) => (
+                <div key={input.id} className="flex flex-row items-center gap-2 w-full">
+                  <input
+                    type="text"
+                    className="start-campaign-input flex-1 min-w-0 h-[42px] rounded-lg"
+                    placeholder="Column Name"
+                    value={input.value}
+                    readOnly={!isEditSmartList && index < 3}
+                    disabled={!isEditSmartList && index < 3}
+                    tabIndex={isEditSmartList || index > 2 ? 0 : -1}
+                    onChange={(e) => {
+                      if (isEditSmartList || index > 2) {
+                        handleInputChange(input.id, e.target.value)
+                      }
+                    }}
+                  />
+                  {(isEditSmartList || index > 2) && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDelete(input.id)
+                      }}
+                      className="flex-shrink-0 rounded-lg p-2 hover:bg-black/5 transition-colors duration-150 outline-none border-none"
+                      style={{ pointerEvents: 'auto' }}
+                      aria-label="Remove column"
+                    >
+                      <Image
+                        src="/assets/blackBgCross.png"
+                        height={20}
+                        width={20}
+                        alt=""
+                      />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <div ref={bottomRef} />
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleAddInput()
+              }}
+              className="mt-3 text-[14px] font-medium text-brand-primary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 rounded-lg py-1"
+              style={{ pointerEvents: 'auto' }}
+            >
+              New Column
+            </button>
+          </div>
+        </div>
+
+        {/* Footer: Create List */}
+        <div className="w-full px-4 pb-4 pt-2 border-t border-black/[0.06]">
+          {showaddCreateListLoader ? (
+            <div className="flex flex-row items-center justify-center w-full h-12">
+              <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={`h-12 rounded-lg w-full text-base font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98] ${
+                newSheetName?.trim()
+                  ? 'bg-brand-primary text-white hover:bg-brand-primary/90 hover:shadow-[0_2px_8px_hsl(var(--brand-primary)/0.3)]'
+                  : 'bg-muted text-muted-foreground cursor-not-allowed'
+              }`}
+              style={{ pointerEvents: 'auto', textTransform: 'none' }}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (isEditSmartList) {
+                  handleEditSmartList()
+                } else {
+                  handleAddSheetNewList()
+                }
+              }}
+              disabled={!newSheetName?.trim()}
+            >
+              {isEditSmartList ? 'Update List' : 'Create List'}
+            </button>
+          )}
         </div>
       </Box>
     </Modal>

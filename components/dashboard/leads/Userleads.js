@@ -2146,7 +2146,7 @@ const Userleads = ({
             />
           </div>
 
-          <div className="w-[88%] max-w-[1500px] mx-auto bg-transparent m-0 p-0 h-auto">
+          <div className="w-[98%] mx-auto bg-transparent m-0 p-0 h-auto">
             <div className="pt-0 bg-transparent flex flex-col gap-0.5 h-auto">
               {(hasExportPermission || selectedLeadsList.length > 0 || selectedAll) && (
               <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
@@ -2424,7 +2424,7 @@ const Userleads = ({
                 style={{ ...styles.paragraph, borderColor: '#eaeaea' }}
               >
                 <div
-                  className="flex flex-row items-center w-full min-h-[40px]"
+                  className="flex flex-row items-center w-full min-h-[46px]"
                   style={{
                     ...styles.paragraph,
                     overflowY: 'hidden',
@@ -2446,7 +2446,7 @@ const Userleads = ({
                     return (
                       <div
                         key={index}
-                        className={`group flex flex-row items-center gap-3 px-2 h-[40px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98] ${editingSheetId === item.id ? 'flex-shrink-0' : ''}`}
+                        className={`group flex flex-row items-center gap-3 px-2 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98] ${editingSheetId === item.id ? 'flex-shrink-0' : ''}`}
                         style={{
                           borderBottom:
                             SelectedSheetId === item.id

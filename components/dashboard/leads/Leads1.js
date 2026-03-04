@@ -1672,7 +1672,7 @@ const Leads1 = () => {
                   padding: 0,
                   borderRadius: '13px',
                   height: 'auto',
-                  minHeight: 700,
+                  maxHeight: '80svh',
                   gap: 12,
                   fontSize: 14,
                 }}
@@ -1706,17 +1706,19 @@ const Leads1 = () => {
                     </div>
                   </div>
                 ) : (
-                <div className="flex flex-col" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingLeft: 16, paddingRight: 16 }}>
+                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingTop: 12, paddingLeft: 16, paddingRight: 16 }}>
+                <div className="flex flex-row items-start" style={{ gap: 12, paddingLeft: 0, paddingRight: 0 }}>
+                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12 }}>
                 <div
                   className="flex flex-row items-center justify-between gap-2"
                   style={{
-                    padding: 12,
+                    padding: 0,
                     fontSize: 14,
-                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    backgroundColor: '#ffffff',
                     borderRadius: 8,
                   }}
                 >
-                  <span style={{ fontSize: 14, fontWeight: 400 }}>List Name</span>{' '}
+                  <span className="start-campaign-label">List Name</span>{' '}
                   <div className="flex flex-row items-center gap-2 ">
                     <Tooltip
                       title="Our AI will search the web to pull all current data on your leads."
@@ -1748,7 +1750,9 @@ const Leads1 = () => {
                           src={'/svgIcons/infoIcon.svg'}
                           height={16}
                           width={16}
-                          alt="*"
+                          alt=""
+                          className="hidden"
+                          aria-hidden
                           style={{ filter: 'brightness(0)' }}
                         />
                       </div>
@@ -1764,46 +1768,68 @@ const Leads1 = () => {
                         }
                       }}
                       sx={{
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: 'hsl(var(--brand-primary))',
+                        width: 44,
+                        height: 24,
+                        padding: 0,
+                        '& .MuiSwitch-switchBase': {
+                          padding: 0,
+                          margin: '2px',
+                          transitionDuration: '250ms',
+                          '&.Mui-checked': {
+                            transform: 'translateX(20px)',
+                            color: '#fff',
+                            '& + .MuiSwitch-track': {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                              opacity: 1,
+                              border: 'none',
+                            },
+                          },
                         },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                        {
-                          backgroundColor: 'hsl(var(--brand-primary))',
+                        '& .MuiSwitch-thumb': {
+                          boxSizing: 'border-box',
+                          width: 20,
+                          height: 20,
+                          borderRadius: '50%',
+                          backgroundColor: '#fff',
+                          boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+                          transition: 'background-color 250ms, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        },
+                        '& .MuiSwitch-track': {
+                          borderRadius: 12,
+                          backgroundColor: '#e0e0e0',
+                          opacity: 1,
+                          transition: 'background-color 250ms, opacity 250ms',
                         },
                       }}
                     />
                   </div>
                 </div>
 
-                <div className="w-full" style={styles.subHeadingStyle}>
+                <div className="w-full">
                   <input
-                    className="outline-none rounded-lg p-2 w-full"
-                    style={{
-                      borderColor: '#00000020',
-                    }}
+                    className="start-campaign-input w-full h-[42px]"
                     value={sheetName} // Only show the base name in the input.split(".")[0]
-                    // onChange={handleSheetNameChange}
                     onChange={(e) => {
                       const value = e.target.value
-                      ////////console.log;
                       setSheetName(value)
                     }}
                     placeholder="Enter sheet name"
                   />
                 </div>
+                </div>
 
-                <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
-                  <div style={{ fontSize: 14, fontWeight: 400 }}>
+                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12, padding: 0 }}>
+                  <div className="start-campaign-label">
                     Create a tag for leads
                   </div>
                   <div>
-                    <TagsInput setTags={setTagsValue} />
+                    <TagsInput setTags={setTagsValue} controlHeight={40} />
                   </div>
+                </div>
                 </div>
 
                 <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
-                  <div style={styles.paragraph}>
+                  <div className="start-campaign-label">
                     Match columns in your file to column fields
                   </div>
                   {NewColumnsObtained && NewColumnsObtained.length > 0 && (
@@ -1897,7 +1923,7 @@ const Leads1 = () => {
                                   : ''}
                               </td>
                               <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
-                                <div className="border rounded p-2 flex flex-row items-center" style={{ borderRadius: 8, height: 40 }}>
+                                <div className="search-input-wrapper rounded-lg p-2 flex flex-row items-center" style={{ borderRadius: 8, height: 40 }}>
                                   <button
                                     type="button"
                                     className="flex flex-row items-center justify-between w-full outline-none h-[40px]"
@@ -2268,16 +2294,15 @@ const Leads1 = () => {
                 >
                   Add Column
                 </div>
-                <div className="mt-2" style={styles.subHeadingStyle}>
+                <div className="mt-2 start-campaign-label">
                   Column Name
                 </div>
 
                 <input
                   ref={addColRef}
                   type="text"
-                  className="border outline-none rounded p-2 mt-2 w-full focus:ring-0"
+                  className="start-campaign-input w-full h-[42px] mt-2"
                   value={updateColumnValue}
-                  // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
                   onChange={(e) => {
                     const regex = /^[a-zA-Z0-9_ ]*$/ // Allow only alphabets
                     if (regex.test(e.target.value)) {
@@ -2285,7 +2310,6 @@ const Leads1 = () => {
                     }
                   }}
                   placeholder="Type here..."
-                  style={{ border: '1px solid #00000020' }}
                 />
 
                 <button

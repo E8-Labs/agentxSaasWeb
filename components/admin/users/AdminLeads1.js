@@ -1585,7 +1585,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   Leads
                 </div>
 
-                <div className="flex flex-row items-center justify-between gap-2 mt-8">
+                <div className="flex flex-col gap-2 mt-8">
+                <div className="flex flex-row items-center justify-between gap-2">
                   <span style={styles.subHeadingStyle}>List Name</span>{' '}
                   <div className="flex flex-row items-center gap-2 ">
                     <Switch
@@ -1642,18 +1643,22 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                           src={'/svgIcons/infoIcon.svg'}
                           height={16}
                           width={16}
-                          alt="*"
+                          alt=""
+                          className="hidden"
+                          aria-hidden
                         />
                       </div>
                     </Tooltip>
                   </div>
                 </div>
 
-                <div className="w-full mt-4" style={styles.subHeadingStyle}>
+                <div className="w-full" style={styles.subHeadingStyle}>
                   <input
                     className="outline-none rounded-lg p-2 w-full"
                     style={{
                       borderColor: '#00000020',
+                      fontSize: 14,
+                      fontWeight: 400,
                     }}
                     value={sheetName} // Only show the base name in the input.split(".")[0]
                     // onChange={handleSheetNameChange}
@@ -1664,6 +1669,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     }}
                     placeholder="Enter sheet name"
                   />
+                </div>
                 </div>
 
                 <div style={{ fontWeight: '500', fontSize: 15, marginTop: 20 }}>
