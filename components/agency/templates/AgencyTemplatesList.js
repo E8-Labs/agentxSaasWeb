@@ -389,7 +389,7 @@ export default function AgencyTemplatesList() {
                   </Typography>
                 </Box>
 
-                {/* KPIs: Leads, Booked, Credits */}
+                {/* KPIs: Leads (unique called), Booked, Calls */}
                 <Box
                   sx={{
                     display: 'grid',
@@ -424,7 +424,7 @@ export default function AgencyTemplatesList() {
                         color: textPrimary,
                       }}
                     >
-                      {t.leads != null ? t.leads : '—'}
+                      {t.uniqueLeadsCalled != null ? t.uniqueLeadsCalled : '—'}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
@@ -464,7 +464,7 @@ export default function AgencyTemplatesList() {
                         color: textMuted,
                       }}
                     >
-                      Credits
+                      Calls
                     </Typography>
                     <Typography
                       sx={{
@@ -476,7 +476,7 @@ export default function AgencyTemplatesList() {
                         color: textPrimary,
                       }}
                     >
-                      {t.credits != null ? t.credits : '—'}
+                      {t.calls != null ? t.calls : '—'}
                     </Typography>
                   </Box>
                 </Box>
