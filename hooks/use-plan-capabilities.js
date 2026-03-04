@@ -66,16 +66,18 @@ export const usePlanCapabilities = (selectedUser) => {
   const isFreePlan = () => {
     if (!plan) return true
 
-    // More comprehensive free plan detection
-    // Check plan type first, then capabilities, then price as fallback
-    const planType = plan?.type?.toLowerCase()
-    if (planType?.includes('free')) return true
+    const planType = (plan?.type ?? '').toString().toLowerCase()
+    const planTitle = (plan?.title ?? '').toString().toLowerCase()
+
+    // Explicit free: type or title contains "free", or price is 0 (takes precedence over grandfathered capabilities)
+    if (planType.includes('free') || planTitle.includes('free') || plan.price === 0) {
+      return true
+    }
 
     // If user has more than 1 agent capability, it's likely not free
     if (planCapabilities?.maxAgents > 1) return false
 
-    // Fallback to price check
-    return plan.price === 0
+    return false
   }
 
   // Get upgrade message for features

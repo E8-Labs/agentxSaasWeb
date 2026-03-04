@@ -125,6 +125,7 @@ module.exports = {
       },
       boxShadow: {
         custom: '0px 4px 31.5px rgba(121, 2, 223, 0.04)',
+        'brand-glow': '0 0 0 1px hsl(var(--brand-primary, 270 75% 50%) / 0.12), 0 4px 24px hsl(var(--brand-primary, 270 75% 50%) / 0.22)',
       },
       keyframes: {
         modalEntry: {

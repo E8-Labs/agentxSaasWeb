@@ -102,8 +102,8 @@ import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
-import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import { isPlanActive } from '@/components/userPlans/UserPlanServices'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
@@ -3863,6 +3863,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     open={showDuplicateConfirmationPopup}
                     handleClose={() => setShowDuplicateConfirmationPopup(false)}
                     handleDuplicate={shouldDuplicateAgent}
+                    // handleDuplicate={handleDuplicate}
                   />
                   {/* GPT Button */}
 
@@ -6340,7 +6341,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           setShowMoreAgentsPopup(false)
           // Execute action after a small delay
           setTimeout(() => {
-            if (moreAgentsPopupType === 'newagent') {
+            // handleDuplicate();
+            if (moreAgentsPopupType === 'duplicate') {
+              handleDuplicate()
+            } else if (moreAgentsPopupType === 'newagent') {
               handleAddAgentByMoreAgentsPopup()
             } else {
               handleAddAgentByMoreAgentsPopup()

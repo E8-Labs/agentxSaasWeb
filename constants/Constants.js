@@ -35,6 +35,9 @@ export const PersistanceKeys = {
   //stores agents list for messaging
   agentsListForMessaging: 'assignx_messages_agents_list',
 
+  // last selected email account in NewMessageModal (for "From" when composing email)
+  LastUsedEmailAccountId: 'assignx_lastUsedEmailAccountId',
+
   //vapi-widget call popup
   showVapiModal: 'showVapiModal',
 
@@ -63,7 +66,7 @@ export const PersistanceKeys = {
   ExternalCalendarLink: process.env.NEXT_PUBLIC_REACT_APP_ExternalCalendarLink,
   SupportWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_SupportWebinarUrl,
   ResourceHubUrl: process.env.NEXT_PUBLIC_REACT_APP_ResourceHubUrl,
-  FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl,
+  FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl || "https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx",
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
   // Agency Support URLs
@@ -71,6 +74,7 @@ export const PersistanceKeys = {
   AgencyPartnerUrl: 'https://set.myagentx.com/widget/bookings/assignx-gameplan-session',
   AgencyBillingSupportUrl: 'https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D',
   AgencySupportTicketUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
+  AgencySupportWebinarUrl: 'https://www.google.com/url?q=https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx&sa=D&source=docs&ust=1772560308932327&usg=AOvVaw1ib2CP_FD0_B0_tRZc6QyE',
   // Default Script Builder URL (used when agency has not set a custom one for subaccounts)
   DefaultScriptBuilderUrl: 'https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder',
   // Main User URLs

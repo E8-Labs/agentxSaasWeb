@@ -76,7 +76,7 @@ const EmbedModal = ({
 
       let apiUrl = `${Apis.getSheets}`   //?type=manual
       if (selectedUser?.id) {
-        apiUrl += `&userId=${selectedUser.id}`
+        apiUrl += `?userId=${selectedUser.id}`
       }
 
       const response = await axios.get(apiUrl, {

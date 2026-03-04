@@ -221,6 +221,8 @@ const NewMessageModal = ({
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
+  // When editing, only apply editingRow's account/phone once so user can change email/phone
+  const appliedEditingRowAccountRef = useRef(false)
   const leadSearchRef = useRef(null)
   const templatesDropdownRef = useRef(null)
   const attachmentDropdownRef = useRef(null)
@@ -451,26 +453,34 @@ const NewMessageModal = ({
     }
   }, [isPipelineMode, isEditing, editingRow, open, selectedMode, selectedUser])
 
-  // Set account/phone when they're loaded and we're editing
+  // Reset "applied editing row account" when modal closes so next open we apply again
   useEffect(() => {
-    if (isPipelineMode && isEditing && editingRow && open) {
-      if (selectedMode === 'email' && editingRow.emailAccountId && emailAccounts.length > 0) {
-        const accountId = editingRow.emailAccountId.toString()
-        const account = emailAccounts.find((a) => a.id === parseInt(accountId))
-        if (account && selectedEmailAccount !== accountId) {
-          setSelectedEmailAccount(accountId)
-          setSelectedEmailAccountObj(account)
-        }
-      } else if (selectedMode === 'sms' && editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
-        const phoneId = editingRow.smsPhoneNumberId.toString()
-        const phone = phoneNumbers.find((p) => p.id === parseInt(phoneId))
-        if (phone && selectedPhoneNumber !== phoneId) {
-          setSelectedPhoneNumber(phoneId)
-          setSelectedPhoneNumberObj(phone)
-        }
+    if (!open) {
+      appliedEditingRowAccountRef.current = false
+    }
+  }, [open])
+
+  // Set account/phone once when modal opens for editing (so user can then change email/phone)
+  useEffect(() => {
+    if (!isPipelineMode || !isEditing || !editingRow || !open || appliedEditingRowAccountRef.current) return
+    if (selectedMode === 'email' && editingRow.emailAccountId && emailAccounts.length > 0) {
+      const accountId = editingRow.emailAccountId.toString()
+      const account = emailAccounts.find((a) => a.id === parseInt(accountId))
+      if (account) {
+        setSelectedEmailAccount(accountId)
+        setSelectedEmailAccountObj(account)
+        appliedEditingRowAccountRef.current = true
+      }
+    } else if (selectedMode === 'sms' && editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
+      const phoneId = editingRow.smsPhoneNumberId.toString()
+      const phone = phoneNumbers.find((p) => p.id === parseInt(phoneId))
+      if (phone) {
+        setSelectedPhoneNumber(phoneId)
+        setSelectedPhoneNumberObj(phone)
+        appliedEditingRowAccountRef.current = true
       }
     }
-  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, emailAccounts, phoneNumbers, selectedEmailAccount, selectedPhoneNumber])
+  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, emailAccounts, phoneNumbers])
 
   // Search leads using the messaging search endpoint
   const searchLeads = async (searchTerm = '') => {
@@ -589,10 +599,18 @@ const NewMessageModal = ({
       })
 
       if (response.data?.status && response.data?.data) {
-        setEmailAccounts(response.data.data)
-        if (response.data.data.length > 0) {
-          setSelectedEmailAccount(response.data.data[0].id)
-          setSelectedEmailAccountObj(response.data.data[0])
+        const accounts = response.data.data
+        setEmailAccounts(accounts)
+        if (accounts.length > 0) {
+          const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedEmailAccountId) : null
+          const lastUsedAccount = lastUsedId ? accounts.find((a) => a.id.toString() === lastUsedId || a.id === parseInt(lastUsedId, 10)) : null
+          if (lastUsedAccount) {
+            setSelectedEmailAccount(lastUsedAccount.id.toString())
+            setSelectedEmailAccountObj(lastUsedAccount)
+          } else {
+            setSelectedEmailAccount(accounts[0].id.toString())
+            setSelectedEmailAccountObj(accounts[0])
+          }
         }
       }
     } catch (error) {
@@ -1687,6 +1705,11 @@ const NewMessageModal = ({
         })
       }
 
+      // Remember last used email account for next time user opens new email message
+      if (successCount > 0 && selectedMode === 'email' && selectedEmailAccount && typeof window !== 'undefined') {
+        localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, selectedEmailAccount)
+      }
+
       // Always create template - type depends on "Save as template" checkbox
       if (successCount > 0) {
         console.log('✅ [Normal Send Mode] Reached template creation section')
@@ -2111,8 +2134,12 @@ const NewMessageModal = ({
                                             type="button"
                                             onClick={() => {
                                               const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                              setSelectedEmailAccount(account.id.toString())
+                                                const idStr = account.id.toString()
+                                              setSelectedEmailAccount(idStr)
                                               setSelectedEmailAccountObj(accountObj)
+                                                if (typeof window !== 'undefined') {
+                                                  localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, idStr)
+                                                }
                                               setEmailDropdownOpen(false)
                                             }}
                                             className={cn(
@@ -3184,8 +3211,12 @@ const NewMessageModal = ({
         showEmailTempPopup={false}
         setSelectedGoogleAccount={(account) => {
           if (account) {
-            setSelectedEmailAccount(account.id)
+            const idStr = account.id?.toString?.() ?? String(account.id)
+            setSelectedEmailAccount(idStr)
             setSelectedEmailAccountObj(account)
+            if (typeof window !== 'undefined' && idStr) {
+              localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, idStr)
+            }
             setEmailAccounts((prev) => {
               const exists = prev.find((a) => a.id === account.id)
               if (exists) return prev

@@ -98,6 +98,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     return null
   }
 
+  // Normalize integration provider to 'openai' | 'google' | 'anthropic'
+  const providerFor = (int) =>
+    int?.provider === 'google' ? 'google' : int?.provider === 'anthropic' ? 'anthropic' : 'openai'
+
   // Helper function to mask API key (show last 6 chars, rest as stars) - used only when server sends raw key (legacy)
   const maskApiKey = (key) => {
     if (!key || key.length === 0) return ''
@@ -116,19 +120,20 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     }
   }, [open, selectedUser])
 
-  // Sync API key display from integrations: use selected aiIntegrationId, or first integration when none is set (so key always shows when user has one)
+  // Sync API key display from integrations: resolve by selectedProvider so each provider keeps its own key
   useEffect(() => {
     if (!open || isEditingApiKey || loading) return
-    if (aiIntegrations.length === 0) return
 
-    const existingIntegration = settings.aiIntegrationId
-      ? aiIntegrations.find((int) => int.id === settings.aiIntegrationId)
-      : aiIntegrations[0]
-    if (!existingIntegration) return
+    const existingIntegration = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
+    if (!existingIntegration) {
+      setExistingIntegrationId(null)
+      setStoredApiKeyMasked('')
+      setExistingApiKey('')
+      setApiKey('••••••••••••••••••••••••••••••••')
+      return
+    }
 
     setExistingIntegrationId(existingIntegration.id)
-    const provider = existingIntegration.provider === 'google' ? 'google' : existingIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
-    setSelectedProvider(provider)
     const masked = existingIntegration.apiKeyMasked || ''
     const legacyRaw = existingIntegration.apiKey || ''
     if (masked) {
@@ -140,7 +145,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     } else {
       setApiKey('••••••••••••••••••••••••••••••••')
     }
-  }, [settings.aiIntegrationId, aiIntegrations, isEditingApiKey, loading, open])
+  }, [selectedProvider, aiIntegrations, isEditingApiKey, loading, open])
 
   // Agent Meter: compute bubble position from actual track width so bubble/arrow align with thumb (18px thumb)
   const THUMB_PX = 18
@@ -277,32 +282,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
       if (response.data?.status && Array.isArray(response.data?.data)) {
         setAiIntegrations(response.data.data)
-
-        // Check if there's an existing integration
-        if (response.data.data.length > 0) {
-          // Use the integration ID from settings if available, otherwise use the first one
-          const targetIntegrationId = settings.aiIntegrationId || response.data.data[0]?.id
-          const existingIntegration = response.data.data.find(
-            (int) => int.id === targetIntegrationId
-          )
-
-          if (existingIntegration) {
-            setExistingIntegrationId(existingIntegration.id)
-            const provider = existingIntegration.provider === 'google' ? 'google' : existingIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
-            setSelectedProvider(provider)
-            const masked = existingIntegration.apiKeyMasked || ''
-            const legacyRaw = existingIntegration.apiKey || ''
-            if (masked && !isEditingApiKey && apiKey === '') {
-              setStoredApiKeyMasked(masked)
-              setApiKey(masked)
-            } else if (legacyRaw && !isEditingApiKey && apiKey === '') {
-              if (!existingApiKey) setExistingApiKey(legacyRaw)
-              setApiKey(maskApiKey(legacyRaw))
-            } else if (!isEditingApiKey && apiKey === '' && !masked && !legacyRaw) {
-              setApiKey('••••••••••••••••••••••••••••••••')
-            }
-          }
-        }
+        // Sync effect will set existingIntegrationId and key from integration matching selectedProvider
       }
     } catch (error) {
       console.error('Error fetching AI integrations:', error)
@@ -350,9 +330,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         }
       }
 
-      let integrationId = settings.aiIntegrationId
+      const integrationForSelected = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
+      let integrationId = integrationForSelected?.id ?? settings.aiIntegrationId
 
-      // If API key is provided and it's not the masked version or placeholder, create or update the integration
+      // If API key is provided and it's not the masked version or placeholder, create or update the integration for this provider only
       const trimmedApiKey = apiKey.trim()
       const isMaskedKey = (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
         (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
@@ -361,12 +342,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
       if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
         try {
           if (existingIntegrationId) {
-            // Update existing integration
+            // Update existing integration for this provider (send only apiKey so provider is not overwritten)
             const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
             const updateResponse = await axios.put(
               updateUrl,
               {
-                provider: selectedProvider,
                 apiKey: trimmedApiKey,
               },
               {
@@ -414,6 +394,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               setStoredApiKeyMasked(newMasked)
               setApiKey(newMasked)
               setSettings(prev => ({ ...prev, aiIntegrationId: integrationId }))
+              await fetchAiIntegrations()
             } else {
               throw new Error(createResponse.data?.message || 'Failed to save API key')
             }
@@ -973,56 +954,56 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       </label>
                     </RadioGroup>
 
-                    <p className="text-[14px] text-muted-foreground">
-                      {selectedProvider === 'google'
-                        ? 'Add Gemini API key to enable AI text + email + chat.'
-                        : selectedProvider === 'anthropic'
-                          ? 'Add Anthropic API key to enable AI text + email + chat.'
-                          : 'Add ChatGPT API key to enable AI text + email + chat.'}
-                    </p>
-                    <Input
-                      type={isEditingApiKey ? "password" : "text"}
-                      placeholder={
-                        existingIntegrationId
-                          ? 'Enter new API key to update'
-                          : selectedProvider === 'google'
-                            ? 'Enter your Gemini API key'
-                            : selectedProvider === 'anthropic'
-                              ? 'Enter your Anthropic API key'
-                              : 'Enter your OpenAI API key'
-                      }
-                      value={apiKey}
-                      onChange={(e) => {
-                        const newValue = e.target.value
-                        const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
-                        const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
-                        const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
-                        if (!isEditingApiKey && (isPlaceholder || isMaskedDisplay || (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))) {
-                          setIsEditingApiKey(true)
-                          setApiKey(newValue)
-                        } else {
-                          setApiKey(newValue)
+                      <p className="text-sm text-gray-600">
+                        {selectedProvider === 'google'
+                          ? 'Add Gemini API key to enable AI text + email + chat.'
+                          : selectedProvider === 'anthropic'
+                            ? 'Add Anthropic API key to enable AI text + email + chat.'
+                            : 'Add ChatGPT API key to enable AI text + email + chat.'}
+                      </p>
+                      <Input
+                        type={isEditingApiKey ? "password" : "text"}
+                        placeholder={
+                          existingIntegrationId
+                            ? 'Enter new API key to update'
+                            : selectedProvider === 'google'
+                              ? 'Enter your Gemini API key'
+                              : selectedProvider === 'anthropic'
+                                ? 'Enter your Anthropic API key'
+                                : 'Enter your OpenAI API key'
                         }
-                        setApiKeyError('')
-                      }}
-                      onBlur={() => {
-                        if (!apiKey.trim()) {
-                          setIsEditingApiKey(false)
-                          if (storedApiKeyMasked) {
-                            setApiKey(storedApiKeyMasked)
-                          } else if (existingApiKey) {
-                            setApiKey(maskApiKey(existingApiKey))
-                          } else if (existingIntegrationId) {
-                            setApiKey('••••••••••••••••••••••••••••••••')
+                        value={apiKey}
+                        onChange={(e) => {
+                          const newValue = e.target.value
+                          const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
+                          const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
+                          const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
+                          if (!isEditingApiKey && (isPlaceholder || isMaskedDisplay || (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))) {
+                            setIsEditingApiKey(true)
+                            setApiKey(newValue)
+                          } else {
+                            setApiKey(newValue)
                           }
-                        }
-                      }}
-                      className="w-full"
-                    />
-                    {apiKeyError && (
-                      <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
-                    )}
-                  </div>
+                          setApiKeyError('')
+                        }}
+                        onBlur={() => {
+                          if (!apiKey.trim()) {
+                            setIsEditingApiKey(false)
+                            if (storedApiKeyMasked) {
+                              setApiKey(storedApiKeyMasked)
+                            } else if (existingApiKey) {
+                              setApiKey(maskApiKey(existingApiKey))
+                            } else if (existingIntegrationId) {
+                              setApiKey('••••••••••••••••••••••••••••••••')
+                            }
+                          }
+                        }}
+                        className={cn('h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary')}
+                      />
+                      {apiKeyError && (
+                        <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                      )}
+                    </div>
 
                   {/* Set Reply Delay + Save as Draft Section */}
                   <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
