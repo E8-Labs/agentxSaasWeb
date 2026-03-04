@@ -64,9 +64,9 @@ export const PersistanceKeys = {
     process.env.NEXT_PUBLIC_REACT_APP_GlobalConsultationUrl,
   GlobalWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalWebinarUrl,
   ExternalCalendarLink: process.env.NEXT_PUBLIC_REACT_APP_ExternalCalendarLink,
-  SupportWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_SupportWebinarUrl,
+  SupportWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_SupportWebinarUrl || "https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx",
   ResourceHubUrl: process.env.NEXT_PUBLIC_REACT_APP_ResourceHubUrl,
-  FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl || "https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx",
+  FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl , //|| "https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx"
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
   // Agency Support URLs

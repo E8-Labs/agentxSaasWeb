@@ -1236,7 +1236,7 @@ const AgencyAddCard = ({
 
               {/* Add card input fields */}
               {
-                showAddCardForm ? (
+                !getCardsLoader && (cards.length === 0 || showAddCardForm) ? (
                   <div className="w-full">
                     <div className="flex w-full flex-col items-start mt-4">
                       <div
