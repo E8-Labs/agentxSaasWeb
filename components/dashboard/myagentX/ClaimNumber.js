@@ -51,20 +51,20 @@ const ClaimNumber = ({
   useEffect(() => {
 
     const checkIsFromAdminOrAgency = async () => {
-    const localData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-    if (localData) {
-      const data = JSON.parse(localData)
-      // setIsFromAgencyOrAdmin(data);
-      // console.log("Data of isFromAdminOrAgency is", data);
-      // console.log("Data of selected user from dialer modal is", selectedUSer);
-      const id = data?.subAccountData?.id ? data.subAccountData.id : selectedUSer?.id;
-      const subUserProfile = await AdminGetProfileDetails(
-        id,
-      )
-      setIsFromAdminOrAgency(subUserProfile)
+      const localData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (localData) {
+        const data = JSON.parse(localData)
+        // setIsFromAgencyOrAdmin(data);
+        // console.log("Data of isFromAdminOrAgency is", data);
+        // console.log("Data of selected user from dialer modal is", selectedUSer);
+        const id = data?.subAccountData?.id ? data.subAccountData.id : selectedUSer?.id;
+        const subUserProfile = await AdminGetProfileDetails(
+          id,
+        )
+        setIsFromAdminOrAgency(subUserProfile)
+      }
     }
-  }
-  checkIsFromAdminOrAgency()
+    checkIsFromAdminOrAgency()
   }, [showClaimPopup])
 
   //code to select Purchase number
@@ -97,8 +97,6 @@ const ClaimNumber = ({
         AuthToken = UserDetails.token
       }
 
-      // //console.log;
-
       if (agentDetails) {
         // //console.log;
         const agentData = JSON.parse(agentDetails)
@@ -116,10 +114,12 @@ const ClaimNumber = ({
       }
 
       if (selectedUSer || isFromAdminOrAgency) {
-        formData.append('userId', selectedUSer?.id || isFromAdminOrAgency?.subAccountData?.id)
+        formData.append('userId', selectedUSer?.id || isFromAdminOrAgency?.subAccountData?.id || isFromAdminOrAgency?.id)
       }
 
-      for (let [key, value] of formData.entries()) { }
+      for (let [key, value] of formData.entries()) {
+        console.log("key in formData is", key,  value);
+      }
 
       //for testing
       // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
@@ -289,7 +289,7 @@ const ClaimNumber = ({
             // //backdropFilter: "blur(20px)",
           },
         }}
-       
+
       >
         <Box
           className="lg:w-8/12 sm:w-full w-8/12"
@@ -561,12 +561,12 @@ const ClaimNumber = ({
                   isFreePlan={
                     selectedUSer || isFromAdminOrAgency
                       ? (() => {
-                          const plan = isFromAdminOrAgency?.plan
-                          if (!plan) return false
-                          const type = plan?.type?.toLowerCase?.() || plan?.planType?.toLowerCase?.() || ''
-                          const title = plan?.title?.toLowerCase?.() || ''
-                          return type.includes('free') || title.includes('free') || plan?.price === 0
-                        })()
+                        const plan = isFromAdminOrAgency?.plan
+                        if (!plan) return false
+                        const type = plan?.type?.toLowerCase?.() || plan?.planType?.toLowerCase?.() || ''
+                        const title = plan?.title?.toLowerCase?.() || ''
+                        return type.includes('free') || title.includes('free') || plan?.price === 0
+                      })()
                       : currentUserIsFreePlan
                   }
                 />
