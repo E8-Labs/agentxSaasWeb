@@ -65,7 +65,7 @@ import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetailsCN from './extras/LeadDetailsCN'
-import { Check, Download, Phone, Settings2, Trash } from 'lucide-react'
+import { Check, Download, ListFilter, Phone, Settings2, Trash, UserPlus } from 'lucide-react'
 import LeadDetails from './extras/LeadDetails'
 import {
   DropdownMenu,
@@ -82,6 +82,9 @@ import { getUniqueTags as fetchUniqueTags, getUniqueTagsList } from '@/component
 
 const Userleads = ({
   handleShowAddLeadModal,
+  onOpenUploadLeads,
+  onOpenCreateSmartlist,
+  onOpenNewContact,
   handleShowUserLeads,
   newListAdded,
   shouldSet,
@@ -2666,36 +2669,65 @@ const Userleads = ({
                         )
                       })}
                     </div>
-                    <button
-                      className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 flex-shrink-0 whitespace-nowrap"
-                      style={{
-                        fontWeight: 400,
-                        fontSize: 14,
-                        backgroundColor: '#f7f7f7',
-                        borderRadius: 8,
-                      }}
-                      onClick={() => {
-                        if (uploading) {
-                          setSnackMessage(
-                            'Please wait. Another Lead upload is in progress.',
-                          )
-                          setShowSnackMessage(true)
-                          setMessageType(SnackbarTypes.Warning)
-                          return
-                        }
-                        if (
-                          user?.planCapabilities.maxLeads >
-                          user?.currentUsage.maxLeads
-                        ) {
-                          handleShowAddLeadModal(true)
-                        } else {
-                          setShowUpgradeModal(true)
-                        }
-                      }}
-                    >
-                      <Plus size={18} color="hsl(var(--brand-primary))" weight="bold" className="flex-shrink-0" aria-hidden />
-                      <span className="text-[14px]">New Leads</span>
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 flex-shrink-0 whitespace-nowrap outline-none"
+                          style={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                            backgroundColor: '#f7f7f7',
+                            borderRadius: 8,
+                          }}
+                          aria-haspopup="menu"
+                          aria-label="New leads options"
+                        >
+                          <Plus size={18} color="hsl(var(--brand-primary))" weight="bold" className="flex-shrink-0" aria-hidden />
+                          <span className="text-[14px]">New Leads</span>
+                          <CaretDown size={14} className="flex-shrink-0 text-primary" aria-hidden />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" side="bottom" avoidCollisions={false} className="min-w-[180px]">
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            if (uploading) {
+                              setSnackMessage(
+                                'Please wait. Another Lead upload is in progress.',
+                              )
+                              setShowSnackMessage(true)
+                              setMessageType(SnackbarTypes.Warning)
+                              return
+                            }
+                            if (
+                              user?.planCapabilities?.maxLeads >
+                              user?.currentUsage?.maxLeads
+                            ) {
+                              onOpenUploadLeads?.()
+                            } else {
+                              setShowUpgradeModal(true)
+                            }
+                          }}
+                          className="flex flex-row items-center gap-2 cursor-pointer"
+                        >
+                          <UserPlus size={22} className="text-primary shrink-0" aria-hidden />
+                          <span>Upload Leads</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => onOpenCreateSmartlist?.()}
+                          className="flex flex-row items-center gap-2 cursor-pointer"
+                        >
+                          <ListFilter size={22} className="text-primary shrink-0" aria-hidden />
+                          <span>Create Smartlist</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => onOpenNewContact?.()}
+                          className="flex flex-row items-center gap-2 cursor-pointer"
+                        >
+                          <Plus size={22} className="text-primary" aria-hidden />
+                          <span>New Contact</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
 

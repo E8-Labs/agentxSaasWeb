@@ -1366,6 +1366,9 @@ const Leads1 = () => {
             <div className="h-screen w-full">
               <Userleads
                 handleShowAddLeadModal={handleShowAddLeadModal}
+                onOpenUploadLeads={() => setShowAddLeadModal(true)}
+                onOpenCreateSmartlist={() => setShowAddNewSheetModal(true)}
+                onOpenNewContact={() => setShowNewContactDrawer(true)}
                 handleShowUserLeads={handleShowUserLeads}
                 newListAdded={userLeads}
                 shouldSet={setData}

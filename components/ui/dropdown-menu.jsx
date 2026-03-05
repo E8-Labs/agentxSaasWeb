@@ -102,7 +102,7 @@ DropdownMenuSubContent.displayName =
   DropdownMenuPrimitive.SubContent.displayName
 
 const DropdownMenuContent = React.forwardRef(
-  ({ className, sideOffset = 4, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
+  ({ className, sideOffset = 4, avoidCollisions, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
     const contentRef = React.useRef(null)
     const setRef = React.useCallback(
       (el) => {
@@ -121,6 +121,7 @@ const DropdownMenuContent = React.forwardRef(
       <DropdownMenuPrimitive.Content
         ref={setRef}
         sideOffset={sideOffset}
+        avoidCollisions={avoidCollisions}
         className={cn(
           'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
