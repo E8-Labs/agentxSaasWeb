@@ -1573,17 +1573,46 @@ const Userleads = ({
     document.body.style.webkitUserSelect = 'none'
   }, [])
 
-  const handleSheetsDragEnd = useCallback((result) => {
-    document.body.style.userSelect = ''
-    document.body.style.webkitUserSelect = ''
-    const { source, destination } = result
-    if (!destination || source.index === destination.index) return
+  const handleSheetsDragEnd = useCallback(
+    async (result) => {
+      document.body.style.userSelect = ''
+      document.body.style.webkitUserSelect = ''
+      const { source, destination } = result
+      if (!destination || source.index === destination.index) return
 
-    const reordered = Array.from(SheetsList)
-    const [moved] = reordered.splice(source.index, 1)
-    reordered.splice(destination.index, 0, moved)
-    setSheetsList(reordered)
-  }, [SheetsList])
+      const reordered = Array.from(SheetsList)
+      const [moved] = reordered.splice(source.index, 1)
+      reordered.splice(destination.index, 0, moved)
+      const sheetIds = reordered.map((s) => s.id).filter((id) => id != null)
+
+      setSheetsList(reordered)
+
+      try {
+        const localData = localStorage.getItem('User')
+        const AuthToken = localData ? JSON.parse(localData).token : null
+        if (!AuthToken) {
+          setSheetsList(SheetsList)
+          setSnackMessage('Please sign in again to save order')
+          setMessageType(SnackbarTypes.error)
+          setShowSnackMessage(true)
+          return
+        }
+        await axios.put(Apis.reorderSheets, { sheetIds }, {
+          headers: {
+            Authorization: 'Bearer ' + AuthToken,
+            'Content-Type': 'application/json',
+          },
+        })
+      } catch (err) {
+        setSheetsList(SheetsList)
+        const msg = err?.response?.data?.message || err?.message || 'Failed to save list order'
+        setSnackMessage(msg)
+        setMessageType(SnackbarTypes.error)
+        setShowSnackMessage(true)
+      }
+    },
+    [SheetsList],
+  )
 
   const getColumnData = (column, item) => {
     const { title } = column
