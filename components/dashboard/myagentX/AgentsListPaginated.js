@@ -1,5 +1,6 @@
 import { Box, Modal, Popover } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
+import { AlertTriangle } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -313,37 +314,37 @@ const AgentsListPaginated = ({
           }
           style={{ overflow: 'unset' }}
         >
-          <div className="flex flex-col gap-4 px-10">
+          <div className="flex flex-col gap-3 px-10">
             {agentsListSeparated.map((item, index) => (
               <div
                 key={index}
-                className="w-full px-10 py-2"
+                className="group w-full p-3 flex flex-col gap-3 items-start"
                 style={{
                   borderWidth: 1,
                   borderColor: '#00000007',
-                  backgroundColor: '#FBFCFF',
-                  borderRadius: 20,
+                  backgroundColor: '#F9F9F9',
+                  borderRadius: 12,
                 }}
               >
-                <div className="w-full flex flex-row items-center justify-between">
-                  <div className="flex flex-row gap-5 items-center">
-                    <div className="flex flex-row items-end">
+                <div className="w-full flex flex-row items-start justify-between">
+                  <div className="flex flex-row gap-5 items-center flex-1 min-w-0">
+                    <div className="flex flex-row items-center justify-center w-[100px] h-[100px] bg-white rounded-[12px]">
                       {selectedImages[index] ? (
                         <Image
                           src={selectedImages[index]}
-                          height={70}
-                          width={70}
+                          height={72}
+                          width={72}
                           alt="Profile"
                           style={{
                             borderRadius: '50%',
                             objectFit: 'cover',
-                            height: '60px',
-                            width: '60px',
+                            height: '72px',
+                            width: '72px',
                           }}
                         />
                       ) : (
 
-                          getAgentsListImage(item, 60, 60,from ="agentsList")
+                          getAgentsListImage(item, 72, 72,from ="agentsList")
                       )}
                       <input
                         type="file"
@@ -354,32 +355,36 @@ const AgentsListPaginated = ({
                         style={{ display: 'none' }}
                       />
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <div className="flex flex-row gap-3 items-center">
-                        <button onClick={() => handleShowDrawer(item)}>
-                          <div
-                            style={{
-                              fontSize: 24,
-                              fontWeight: '600',
-                              color: '#000',
+                    <div className="flex flex-col gap-1 w-full">
+                      <div className="flex flex-col gap-1 items-start w-full">
+                        <div className="flex flex-row items-center gap-2">
+                          <button onClick={() => handleShowDrawer(item)}>
+                            <div
+                              style={{
+                                fontSize: 24,
+                                fontWeight: '600',
+                                color: '#000',
+                              }}
+                            >
+                              {formatName(item)}
+                            </div>
+                          </button>
+                          <div className="opacity-0 group-hover:opacity-100 scale-[0.8] group-hover:scale-100 transition-all duration-200 ease-out origin-left">
+                          <button
+                            onClick={() => {
+                              setShowRenameAgentPopup(true)
+                              setSelectedRenameAgent(item)
+                              setRenameAgent(item.name)
                             }}
                           >
-                            {formatName(item)}
-                          </div>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowRenameAgentPopup(true)
-                            setSelectedRenameAgent(item)
-                            setRenameAgent(item.name)
-                          }}
-                        >
-                          {renderBrandedIcon('/svgIcons/editPen.svg', 24, 24)}
-                        </button>
+                            {renderBrandedIcon('/svgIcons/editPen.svg', 14, 14)}
+                          </button>
+                        </div>
+                        </div>
                         <div
                           style={{
-                            fontSize: 12,
-                            fontWeight: '600',
+                            fontSize: 14,
+                            fontWeight: 400,
                             color: '#00000080',
                           }}
                           className="flex flex-row items-center gap-1"
@@ -410,8 +415,15 @@ const AgentsListPaginated = ({
                         </div>
                       </div>
                       <div
-                        className="flex flex-row gap-3 items-center text-brand-primary"
-                        style={{ fontSize: 15, fontWeight: '500' }}
+                        className="flex flex-row gap-3 items-center"
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 400,
+                          color: 'rgba(0,0,0,0.8)',
+                          textDecoration: 'underline',
+                          textDecorationStyle: 'dotted',
+                          textDecorationColor: 'rgba(0,0,0,0.4)',
+                        }}
                       >
                         <button
                           onClick={() => {
@@ -442,30 +454,21 @@ const AgentsListPaginated = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-row items-start gap-8">
-                    {!item.phoneNumber && (
-                      <div className="flex flex-row items-center gap-2 -mt-1">
-                        <Image
-                          src={'/assets/warningFill.png'}
-                          height={18}
-                          width={18}
-                          alt="*"
-                        />
-                        <p>
-                          <i
-                            className="text-red"
-                            style={{
-                              fontSize: 12,
-                              fontWeight: '600',
-                            }}
-                          >
-                            No phone number assigned
-                          </i>
-                        </p>
-                      </div>
-                    )}
+                  <div className="flex flex-col items-end justify-start gap-2 self-end text-right h-full">
+                    <div className="relative inline-block">
+                      {!item.phoneNumber && (
+                        <div
+                          className="absolute -right-1 -top-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-red-500"
+                          aria-hidden
+                        >
+                          <AlertTriangle
+                            size={16}
+                            className="text-white"
+                          />
+                        </div>
+                      )}
                     <button
-                      className="bg-brand-primary px-4 py-2 rounded-lg text-white"
+                      className="bg-brand-primary px-4 py-2 rounded-lg text-white relative"
                       onClick={() => {
                         if (!item.phoneNumber) {
                           setShowWarningModal(item)
@@ -524,7 +527,7 @@ const AgentsListPaginated = ({
                     >
                       <div
                         style={{
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: '600',
                           color: '#fff',
                         }}
@@ -532,11 +535,33 @@ const AgentsListPaginated = ({
                         Test AI
                       </div>
                     </button>
+                    </div>
+                    {!item.phoneNumber && (
+                      <div className="flex flex-row items-center gap-2 w-full">
+                        <Image
+                          src={'/assets/warningFill.png'}
+                          height={18}
+                          width={18}
+                          alt="*"
+                        />
+                        <p>
+                          <span
+                            className="text-red"
+                            style={{
+                              fontSize: 12,
+                              fontWeight: '600',
+                            }}
+                          >
+                            No phone number assigned
+                          </span>
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="w-9.12 bg-white p-6 rounded-2xl mb-4 mt-5">
-                  <div className="w-full flex flex-row items-center justify-between">
+                <div className="w-full bg-white px-4 py-3 rounded-lg text-sm">
+                  <div className="w-full flex flex-row items-center justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => {
@@ -547,7 +572,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -568,7 +593,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -589,7 +614,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -610,7 +635,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -638,7 +663,7 @@ const AgentsListPaginated = ({
                         iconColor="text-orange-500"
                       />
                     </button> */}
-                    <div className="flex flex-col items-start gap-2">
+                    <div className="flex-1 min-w-0 flex flex-col items-start gap-2 p-3 w-full">
                       <AgentInfoCard
                         name="Time"
                         value={
@@ -731,7 +756,7 @@ export const WarningModal = ({
                 alt="*"
               />
               <p>
-                <i
+                <span
                   className="text-red"
                   style={{
                     fontSize: 16,
@@ -739,7 +764,7 @@ export const WarningModal = ({
                   }}
                 >
                   No phone number assigned
-                </i>
+                </span>
               </p>
             </div>
           </div>
