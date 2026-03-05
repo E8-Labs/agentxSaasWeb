@@ -138,6 +138,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [replyToMessage, setReplyToMessage] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
+  // Per-tab cache: key = userId-apiFilter-search-teamIds. Restore when switching tabs, then refetch in background.
+  const threadsCacheRef = useRef({})
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
   const [showMessagingRequestModal, setShowMessagingRequestModal] = useState(false)
@@ -642,13 +644,27 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     ) => {
       const requestId = ++threadsRequestIdRef.current
       const isSearch = searchQuery && searchQuery.trim()
+      const apiFilter = filter === 'shortlisted' ? 'all' : filter
+      const cacheKey = `${selectedUser?.id ?? 'self'}-${apiFilter}-${(searchQuery || '').trim()}-${(teamMemberIdsFilter || []).join(',')}`
+
       try {
         if (append) {
           setLoadingMoreThreads(true)
         } else {
-          setLoading(true)
-          if (isSearch) {
-            setSearchLoading(true)
+          // Restore from cache when switching tabs (no search) so UI shows immediately, then we refetch
+          const cached = threadsCacheRef.current[cacheKey]
+          if (!isSearch && cached?.threads?.length) {
+            setThreads(cached.threads)
+            setAllThreadsCount(cached.allCount ?? 0)
+            setUnrepliedCountFromApi(cached.unrepliedCount ?? 0)
+            setThreadsOffset(cached.offset ?? 0)
+            threadsOffsetRef.current = cached.offset ?? 0
+            setHasMoreThreads(cached.hasMore ?? false)
+            setLoading(false)
+            setSearchLoading(false)
+          } else {
+            setLoading(true)
+            if (isSearch) setSearchLoading(true)
           }
           if (isSearch) {
             setThreads([])
@@ -696,10 +712,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (requestId !== threadsRequestIdRef.current) {
           return
         }
-        setAllThreadsCount(response?.data?.allThreadCount ?? 0)
-        setUnrepliedCountFromApi(response?.data?.unrepliedCount ?? 0)
+        const allCount = response?.data?.allThreadCount ?? 0
+        const unrepliedCount = response?.data?.unrepliedCount ?? 0
+        setAllThreadsCount(allCount)
+        setUnrepliedCountFromApi(unrepliedCount)
         if (response.data?.status && Array.isArray(response.data?.data)) {
-          console.log('threads response.data.data', response)
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
             const dateB = new Date(b.lastMessageAt || b.createdAt)
@@ -718,6 +735,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             setThreads(sortedThreads)
             setThreadsOffset(sortedThreads.length)
             setHasMoreThreads(sortedThreads.length >= limit)
+            // Cache first page so switching tabs can show it immediately
+            threadsCacheRef.current[cacheKey] = {
+              threads: sortedThreads,
+              allCount,
+              unrepliedCount,
+              offset: sortedThreads.length,
+              hasMore: sortedThreads.length >= limit,
+            }
           }
         } else {
           if (!append) {
