@@ -20,6 +20,8 @@ const Apis = {
   LogIn: `${BasePath}api/user/login`,
   defaultData: `${BasePath}api/data/loadDefaualtData`,
   buildAgent: `${BasePath}api/agent/buildAgent`,
+  getTemplates: `${BasePath}api/agent/templates`,
+  createTemplate: `${BasePath}api/agent/templates`,
   DelAgent: `${BasePath}api/agent/deleteAgent`,
   findPhoneNumber: `${BasePath}api/agent/findPhoneNumbers`,
   purchaseNumber: `${BasePath}api/agent/purchasePhone`,

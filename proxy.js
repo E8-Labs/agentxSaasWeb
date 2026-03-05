@@ -560,6 +560,7 @@ export async function proxy(request) {
   // ✅ UPDATE: Skip redirect enforcement for certain paths (so logged-in users can view these without being sent to dashboard)
   if (
     pathname.startsWith('/createagent') ||
+    pathname.startsWith('/create-template') ||
     pathname.startsWith('/pipeline') ||
     pathname.startsWith('/plan') ||
     pathname.startsWith('/web-agent') ||
@@ -678,6 +679,7 @@ export const config = {
     // Existing routes
     '/agency', // exact /agency
     '/createagent/:path*',
+    '/create-template/:path*',
     '/pipeline/:path*',
     '/sellerkycquestions/:path*',
     '/buyerkycquestions/:path*',
