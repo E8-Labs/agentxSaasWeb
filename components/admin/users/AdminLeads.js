@@ -1236,38 +1236,24 @@ const AdminLeads = ({
   //     }
   // };
 
-  const handleLeadsDragStart = useCallback(() => {
+  const handleSheetsDragStart = useCallback(() => {
     document.body.style.userSelect = 'none'
     document.body.style.webkitUserSelect = 'none'
   }, [])
 
-  const handleLeadsDragEnd = useCallback((result) => {
+  const handleSheetsDragEnd = useCallback((result) => {
     document.body.style.userSelect = ''
     document.body.style.webkitUserSelect = ''
     const { source, destination } = result
     if (!destination || source.index === destination.index) return
 
-    const reordered = Array.from(FilterLeads)
+    const reordered = Array.from(SheetsList)
     const [moved] = reordered.splice(source.index, 1)
     reordered.splice(destination.index, 0, moved)
+    setSheetsList(reordered)
+  }, [SheetsList])
 
-    setFilterLeads(reordered)
-    setLeadsList((prev) => {
-      const reorderedIds = reordered.map((l) => l.id)
-      return prev
-        .slice()
-        .sort((a, b) => {
-          const aIdx = reorderedIds.indexOf(a.id)
-          const bIdx = reorderedIds.indexOf(b.id)
-          if (aIdx === -1 && bIdx === -1) return 0
-          if (aIdx === -1) return 1
-          if (bIdx === -1) return -1
-          return aIdx - bIdx
-        })
-    })
-  }, [FilterLeads])
-
-  const getColumnData = (column, item, dragHandleProps = null) => {
+  const getColumnData = (column, item) => {
     const { title } = column
 
     // //////console.log;
@@ -1277,21 +1263,6 @@ const AdminLeads = ({
       case 'Name':
         return (
           <div className='flex flex-row items-center gap-2'>
-            <div
-              className="flex-shrink-0 inline-flex cursor-grab active:cursor-grabbing touch-none p-0.5 -m-0.5"
-              aria-label="Drag to reorder lead"
-              role="button"
-              tabIndex={0}
-              {...(dragHandleProps || {})}
-            >
-              <Image
-                src={'/assets/list.png'}
-                height={6}
-                width={16}
-                alt=""
-                draggable={false}
-              />
-            </div>
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {toggleClick.includes(item.id) ? (
                 <button
@@ -2103,66 +2074,99 @@ const AdminLeads = ({
             {/* Hide sheets list when searching across all sheets */}
             {!(searchLead && String(searchLead).trim()) && (
               <div
-                className="flex flex-row items-center mt-8 gap-2"
-                style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+                className="flex flex-row items-center mt-8 gap-2 select-none"
+                style={{ ...styles.paragraph, userSelect: 'none', WebkitUserSelect: 'none' }}
               >
-                <div
-                  className="flex flex-row items-center gap-2 w-full"
-                  style={{
-                    ...styles.paragraph,
-                    overflowY: 'hidden',
-                    scrollbarWidth: 'none', // For Firefox
-                    msOverflowStyle: 'none', // For Internet Explorer and Edge
-                  }}
-                >
-                  <style jsx>
-                    {`
-                    div::-webkit-scrollbar {
-                      display: none; /* For Chrome, Safari, and Opera */
-                    }
-                  `}
-                  </style>
-                  {SheetsList.map((item, index) => {
-                    return (
+                <DragDropContext onDragStart={handleSheetsDragStart} onDragEnd={handleSheetsDragEnd}>
+                  <Droppable droppableId="admin-sheets-list" direction="horizontal">
+                    {(droppableProvided) => (
                       <div
-                        key={index}
-                        className="flex flex-row items-center gap-1 px-3"
+                        ref={droppableProvided.innerRef}
+                        {...droppableProvided.droppableProps}
+                        className="flex flex-row items-center gap-2 w-full min-h-[46px]"
                         style={{
-                          borderBottom:
-                            SelectedSheetId === item.id
-                              ? '2px solid hsl(var(--brand-primary))'
-                              : '',
-                          color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
-                          whiteSpace: 'nowrap', // Prevent text wrapping
+                          ...styles.paragraph,
+                          overflowY: 'hidden',
+                          overflowX: 'auto',
+                          scrollbarWidth: 'none',
+                          msOverflowStyle: 'none',
+                          flexWrap: 'nowrap',
                         }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
                       >
-                        <button
-                          style={styles.paragraph}
-                          className="outline-none w-full"
-                          onClick={() => {
-                            setSearchLead('')
-                            setSelectedSheetId(item.id)
-                            setToggleClick([])
-                            //   getLeads(item, 0);
-                          }}
-                        >
-                          {item.sheetName}
-                        </button>
-                        <button
-                          className="outline-none"
-                          aria-describedby={id}
-                          variant="contained"
-                          onClick={(event) => {
-                            handleShowPopup(event, item)
-                          }}
-                        >
-                          <DotsThree weight="bold" size={25} color="black" />
-                        </button>
-                        <Popover
+                        <style jsx>
+                          {`
+                            div::-webkit-scrollbar {
+                              display: none;
+                            }
+                          `}
+                        </style>
+                        {SheetsList.map((item, index) => (
+                          <Draggable
+                            key={item.id ?? `sheet-${index}`}
+                            draggableId={String(item.id ?? `sheet-${index}`)}
+                            index={index}
+                          >
+                            {(draggableProvided, snapshot) => (
+                              <div
+                                ref={draggableProvided.innerRef}
+                                {...draggableProvided.draggableProps}
+                                className="flex flex-row items-center gap-3 flex-shrink-0 px-3 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 select-none"
+                                style={{
+                                  ...draggableProvided.draggableProps.style,
+                                  borderBottom:
+                                    SelectedSheetId === item.id
+                                      ? '2px solid hsl(var(--brand-primary))'
+                                      : '',
+                                  color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
+                                  whiteSpace: 'nowrap',
+                                  userSelect: 'none',
+                                  WebkitUserSelect: 'none',
+                                  touchAction: 'none',
+                                  ...(snapshot.isDragging
+                                    ? {
+                                        backgroundColor: 'hsl(var(--background))',
+                                        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                        borderRadius: 8,
+                                        zIndex: 1,
+                                      }
+                                    : {}),
+                                }}
+                              >
+                                <div
+                                  className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none p-1 -m-1"
+                                  aria-label="Drag to reorder sheet"
+                                  {...draggableProvided.dragHandleProps}
+                                >
+                                  <Image
+                                    src="/assets/list.png"
+                                    height={6}
+                                    width={16}
+                                    alt=""
+                                    draggable={false}
+                                  />
+                                </div>
+                                <button
+                                  style={styles.paragraph}
+                                  className="outline-none w-full text-left"
+                                  onClick={() => {
+                                    setSearchLead('')
+                                    setSelectedSheetId(item.id)
+                                    setToggleClick([])
+                                  }}
+                                >
+                                  {item.sheetName}
+                                </button>
+                                <button
+                                  className="outline-none flex-shrink-0"
+                                  aria-describedby={id}
+                                  variant="contained"
+                                  onClick={(event) => {
+                                    handleShowPopup(event, item)
+                                  }}
+                                >
+                                  <DotsThree weight="bold" size={25} color="black" />
+                                </button>
+                                <Popover
                           id={id}
                           open={open}
                           anchorEl={anchorEl}
@@ -2211,14 +2215,18 @@ const AdminLeads = ({
                             )}
                           </div>
                         </Popover>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {droppableProvided.placeholder}
                       </div>
-                    )
-                  })}
-                </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
                 <button
                   className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
                   style={styles.paragraph}
-                  // onClick={() => { setShowAddNewSheetModal(true) }}
                   onClick={() => {
                     handleShowAddLeadModal(true)
                   }}
@@ -2284,8 +2292,7 @@ const AdminLeads = ({
                       </div>
                     )}
 
-                    <DragDropContext onDragStart={handleLeadsDragStart} onDragEnd={handleLeadsDragEnd}>
-                      <InfiniteScroll
+                    <InfiniteScroll
                         isLoading={moreLeadsLoader || sheetsLoader}
                         hasMore={hasMore}
                         root={leadsScrollRoot}
@@ -2336,73 +2343,30 @@ const AdminLeads = ({
                                 })}
                               </tr>
                             </thead>
+                            <tbody>
+                              {FilterLeads.map((item, index) => (
+                                <tr key={item.id ?? index} className="hover:bg-gray-50">
+                                  {leadColumns.map((column, colIndex) => (
+                                    <td
+                                      key={colIndex}
+                                      className={`border-none px-4 py-2 ${column.title === 'More'
+                                        ? 'sticky right-0 bg-white'
+                                        : ''
+                                        }`}
+                                      style={{
+                                        whiteSpace: 'nowrap',
+                                        zIndex:
+                                          column.title === 'More' ? 1 : 'auto',
+                                        width: '200px',
+                                      }}
+                                    >
+                                      {getColumnData(column, item)}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
                           </table>
-                          <Droppable droppableId="admin-leads-list">
-                            {(droppableProvided) => (
-                              <div
-                                ref={droppableProvided.innerRef}
-                                {...droppableProvided.droppableProps}
-                                className="flex flex-col"
-                              >
-                                {FilterLeads.map((item, index) => (
-                                  <Draggable
-                                    key={item.id ?? `lead-${index}`}
-                                    draggableId={String(item.id ?? `lead-${index}`)}
-                                    index={index}
-                                  >
-                                    {(draggableProvided, snapshot) => (
-                                      <div
-                                        ref={draggableProvided.innerRef}
-                                        {...draggableProvided.draggableProps}
-                                        className="flex flex-row items-stretch hover:bg-gray-50 border-b border-[#eaeaea] transition-shadow select-none"
-                                        style={{
-                                          ...draggableProvided.draggableProps.style,
-                                          paddingTop: 12,
-                                          paddingBottom: 12,
-                                          userSelect: 'none',
-                                          WebkitUserSelect: 'none',
-                                          ...(snapshot.isDragging
-                                            ? {
-                                                backgroundColor: 'hsl(var(--background))',
-                                                boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                                                borderRadius: 8,
-                                                zIndex: 1,
-                                              }
-                                            : {}),
-                                        }}
-                                      >
-                                        {leadColumns.map((column, colIndex) => {
-                                          const colWidth = column.title === 'More' ? '200px' : '150px'
-                                          return (
-                                            <div
-                                              key={colIndex}
-                                              className={`flex-shrink-0 px-4 py-2 max-w-[330px] whitespace-nowrap overflow-hidden text-ellipsis flex items-center ${column.title === 'More'
-                                                ? `sticky right-0 shadow-[-8px_0_8px_-2px_rgba(0,0,0,0.04)] ${snapshot.isDragging ? 'bg-inherit' : 'bg-white'}`
-                                                : ''
-                                                }`}
-                                              style={{
-                                                width: colWidth,
-                                                minWidth: colWidth,
-                                                maxWidth: colWidth,
-                                                zIndex: column.title === 'More' ? 1 : 'auto',
-                                              }}
-                                            >
-                                              {getColumnData(
-                                                column,
-                                                item,
-                                                column.title === 'Name' ? draggableProvided.dragHandleProps : null
-                                              )}
-                                            </div>
-                                          )
-                                        })}
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {droppableProvided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
                         </div>
 
                       {moreLeadsLoader && (
@@ -2454,7 +2418,6 @@ const AdminLeads = ({
                       {/* sentinel (must be the last child) */}
                       <div aria-hidden="true" className="h-px w-full" />
                     </InfiniteScroll>
-                    </DragDropContext>
                   </div>
                 ) : (
                   <div
