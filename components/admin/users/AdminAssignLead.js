@@ -933,8 +933,36 @@ const AdminAssignLead = ({
                 </div>
               </div>
 
-              <div className="mt-4" style={styles.heading}>
-                Drip per day
+              <div className="flex flex-row items-center justify-between mt-4 w-full">
+                <div style={styles.heading}>
+                  Drip per day
+                </div>
+                <div>
+                  <label
+                    className="w-full flex flex-row items-center gap-3 rounded-lg cursor-pointer"
+                    style={{
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                      paddingLeft: 12,
+                      paddingRight: 12,
+                      backgroundColor: '#ffffff',
+                    }}
+                  >
+                    <Checkbox
+                      checked={!!NoOfLeadsToSend}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setNoOfLeadsToSend(totalLeads)
+                          setCustomLeadsToSend('')
+                          setisFocustedCustomLeads(false)
+                        } else {
+                          setNoOfLeadsToSend('')
+                        }
+                      }}
+                    />
+                    <span>Select All {getLeadSelectedCount()}</span>
+                  </label>
+                </div>
               </div>
 
               <div className="flex flex-col items-stretch gap-4 mt-4">
@@ -962,30 +990,6 @@ const AdminAssignLead = ({
                   }}
                   placeholder="Ex: 100"
                 />
-                <label
-                  className="w-full flex flex-row items-center gap-3 rounded-lg cursor-pointer"
-                  style={{
-                    paddingTop: 8,
-                    paddingBottom: 8,
-                    paddingLeft: 12,
-                    paddingRight: 12,
-                    backgroundColor: '#ffffff',
-                  }}
-                >
-                  <Checkbox
-                    checked={!!NoOfLeadsToSend}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setNoOfLeadsToSend(totalLeads)
-                        setCustomLeadsToSend('')
-                        setisFocustedCustomLeads(false)
-                      } else {
-                        setNoOfLeadsToSend('')
-                      }
-                    }}
-                  />
-                  <span>Select All {getLeadSelectedCount()}</span>
-                </label>
               </div>
 
               <div className="mt-4" style={styles.heading}>

@@ -4735,6 +4735,11 @@ const Pipeline1 = () => {
                 backgroundColor: '#00000099',
               },
             }}
+            filterTeamMembers={filterTeamMembers} 
+            selectedTeamMemberIds={selectedTeamMemberIds}
+            onToggleMember={handleTeamMemberFilterToggle}
+            onApply={handleApplyFilter}
+            // selectedUser={user}
           >
             <Box
               className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
