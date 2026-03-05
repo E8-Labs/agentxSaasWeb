@@ -70,6 +70,7 @@ const AgentsListPaginated = ({
   agencyUser,
   initialLoader,
   selectedUser,
+  scrollableTarget = 'scrollableAgentDiv',
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
@@ -182,10 +183,11 @@ const AgentsListPaginated = ({
     setHoveredIndexAddress(null)
   }
 
+  const usePageScroll = scrollableTarget !== 'scrollableAgentDiv'
   return (
     <div
-      className={`${agencyUser ? 'h-[70vh]' : from === 'Admin' || from === 'agency' ? 'h-[62svh]' : agentsListSeparated.length > 0 ? 'h-[75svh]' : 'h-[90svh]'} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && 'pt-10'} ${agencyUser ? '' : from === 'Admin' || from === 'agency' ? '' : 'pb-12'}`}
-      style={{ scrollbarWidth: 'none' }}
+      className={`w-full ${usePageScroll ? 'min-h-0 h-auto' : `${agencyUser ? 'h-[70vh]' : from === 'Admin' || from === 'agency' ? 'h-[62svh]' : agentsListSeparated.length > 0 ? 'h-[75svh]' : 'h-[90svh]'} overflow-auto`} ${!initialLoader && agentsListSeparated.length > 0 && 'pt-2'} ${agencyUser ? '' : from === 'Admin' || from === 'agency' ? '' : 'pb-12'}`}
+      style={usePageScroll ? {} : { scrollbarWidth: 'none' }}
       id="scrollableAgentDiv"
     >
       <Popover
@@ -277,7 +279,7 @@ const AgentsListPaginated = ({
           dataLength={agentsListSeparated.length}
           next={fetchMoreAgents}
           hasMore={hasMoreAgents}
-          scrollableTarget="scrollableAgentDiv"
+          scrollableTarget={scrollableTarget}
           loader={
             <div className="w-full flex justify-center mt-4">
               {paginationLoader ? (
@@ -314,15 +316,14 @@ const AgentsListPaginated = ({
           }
           style={{ overflow: 'unset' }}
         >
-          <div className="flex flex-col gap-3 px-10">
+          <div className="flex flex-col gap-3 px-10 w-[98%] max-w-[1028px] m-auto">
             {agentsListSeparated.map((item, index) => (
               <div
                 key={index}
-                className="group w-full p-3 flex flex-col gap-3 items-start"
+                className="group w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start"
                 style={{
-                  borderWidth: 1,
-                  borderColor: '#00000007',
-                  backgroundColor: '#F9F9F9',
+                  border: '1px solid rgba(0, 0, 0, 0.08)',
+                  backgroundColor: '#ffffff',
                   borderRadius: 12,
                 }}
               >
@@ -560,7 +561,10 @@ const AgentsListPaginated = ({
                   </div>
                 </div>
 
-                <div className="w-full bg-white px-4 py-3 rounded-lg text-sm">
+                <div
+                  className="w-full bg-white px-4 py-3 rounded-lg text-sm"
+                  style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)' }}
+                >
                   <div className="w-full flex flex-row items-start justify-between gap-3">
                     <button
                       type="button"
@@ -572,14 +576,14 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
                         name="Calls"
                         value={<div>{item.calls || '-'}</div>}
                         iconComponent={<Zap size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                         iconColor="text-brand-primary"
                       />
                     </button>
@@ -593,14 +597,14 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
                         name="Convos"
                         value={<div>{item.callsGt10 || '-'}</div>}
                         iconComponent={<MessageCircleMore size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                         iconColor="text-brand-primary"
                       />
                     </button>
@@ -614,14 +618,14 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
                         name="Hot Leads"
                         value={item.hotleads || '-'}
                         iconComponent={<Zap size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                         iconColor="text-brand-primary"
                       />
                     </button>
@@ -635,14 +639,14 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border-0 bg-transparent p-3 w-full rounded-lg"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
                         name="Booked Meetings"
                         value={item.booked || '-'}
                         iconComponent={<Calendar size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                         iconColor="text-brand-primary"
                       />
                     </button>

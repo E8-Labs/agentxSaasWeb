@@ -3981,7 +3981,7 @@ function Page() {
           </div>
         }
       >
-        <div className="w-full flex flex-col items-center bg-white" style={{ backgroundColor: '#ffffff', minHeight: '100vh', width: '100%' }}>
+        <div className="flex h-full w-full min-h-0 flex-col items-center bg-white" style={{ backgroundColor: '#ffffff', width: '100%' }}>
           {/* Success snack bar */}
           <div>
             <AgentSelectSnackMessage
@@ -4010,7 +4010,8 @@ function Page() {
               }
             />
           </div>
-          <StandardHeader
+          <div className="w-full flex-shrink-0">
+            <StandardHeader
             titleContent={
               <div className="flex flex-row items-center gap-3">
                 <TypographyH3
@@ -4109,10 +4110,14 @@ function Page() {
               </div>
             }
           />
-          <div className="w-9/12 items-center " style={{}}>
+          </div>
+          <div
+            id="agentsPageScrollContent"
+            className={`flex min-h-0 flex-1 flex-col overflow-auto w-full items-center ${agentsListSeparated.length > 0 ? 'pb-[170px]' : ''}`}
+          >
             {/* code for agents list */}
             {initialLoader ? (
-              <div className="h-[70vh] flex flex-row justify-center gap-4">
+              <div className="flex flex-1 flex-row justify-center gap-4 py-8">
                 {/*<CircularProgress size={45} />*/}
                 <MyAgentXLoader />
               </div>
@@ -4153,20 +4158,19 @@ function Page() {
                 canGetMore={canGetMore}
                 paginationLoader={paginationLoader}
                 initialLoader={initialLoader}
+                scrollableTarget="agentsPageScrollContent"
               />
             )}
+          </div>
 
-            {/* code to add new agent */}
-            {agentsListSeparated.length > 0 && (
+          {/* Add New Agent bar - fixed to bottom, above scrollable content */}
+          {agentsListSeparated.length > 0 && (
+            <div className="fixed bottom-0 left-[250px] right-0 z-10 w-full p-4 bg-white" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
               <div
-                className="w-full py-6 flex justify-center items-center h-[70px] cursor-pointer"
-                href=""
-                prefetch={true}
+                className="agents-add-new-bar-inner w-full max-w-[1028px] py-6 flex justify-center items-center min-h-[70px] cursor-pointer flex-shrink-0"
                 style={{
-                  // marginTop: 40,
                   border: '1px dashed hsl(var(--brand-primary))',
                   borderRadius: '10px',
-                  // borderColor: '#7902DF',
                   boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
                   backgroundColor: '#FBFCFF',
                 }}
@@ -4183,8 +4187,8 @@ function Page() {
                   <Plus weight="bold" size={22} /> Add New Agent
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
           {/* Modal to rename the agent */}
           <Modal
             open={showRenameAgentPopup}

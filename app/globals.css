@@ -292,6 +292,31 @@ input[type="date"]::-moz-datetime-edit-year-field {
     }
   }
 
+  /* Border beam: rotating gradient border (e.g. agent avatar) */
+  @property --border-beam-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  .border-beam {
+    --border-beam-angle: 0deg;
+    padding: 2px;
+    border-radius: 14px;
+    background: conic-gradient(
+      from var(--border-beam-angle),
+      hsl(var(--brand-primary)),
+      hsl(var(--brand-primary) / 0.6),
+      hsl(var(--brand-primary) / 0.3),
+      hsl(var(--brand-primary))
+    );
+    animation: border-beam-spin 2.5s linear infinite;
+  }
+  @keyframes border-beam-spin {
+    to {
+      --border-beam-angle: 360deg;
+    }
+  }
+
   /* Prevent any black space at top - ensure body and html are white */
   html, body {
     background-color: #ffffff !important;
@@ -937,4 +962,9 @@ background-color: hsl(var(--brand-primary)) !important;
   border-top: 9px solid hsl(var(--brand-primary));
   margin-top: 0px;
   flex-shrink: 0;
+}
+
+/* Agents page: enforce margin auto on Add New Agent button (overrides any 366px etc.) */
+.agents-add-new-bar-inner {
+  margin: auto !important;
 }
