@@ -1568,36 +1568,22 @@ const Userleads = ({
     )
   }
 
-  const handleLeadsDragStart = useCallback(() => {
+  const handleSheetsDragStart = useCallback(() => {
     document.body.style.userSelect = 'none'
     document.body.style.webkitUserSelect = 'none'
   }, [])
 
-  const handleLeadsDragEnd = useCallback((result) => {
+  const handleSheetsDragEnd = useCallback((result) => {
     document.body.style.userSelect = ''
     document.body.style.webkitUserSelect = ''
     const { source, destination } = result
     if (!destination || source.index === destination.index) return
 
-    const reordered = Array.from(FilterLeads)
+    const reordered = Array.from(SheetsList)
     const [moved] = reordered.splice(source.index, 1)
     reordered.splice(destination.index, 0, moved)
-
-    setFilterLeads(reordered)
-    setLeadsList((prev) => {
-      const reorderedIds = reordered.map((l) => l.id)
-      return prev
-        .slice()
-        .sort((a, b) => {
-          const aIdx = reorderedIds.indexOf(a.id)
-          const bIdx = reorderedIds.indexOf(b.id)
-          if (aIdx === -1 && bIdx === -1) return 0
-          if (aIdx === -1) return 1
-          if (bIdx === -1) return -1
-          return aIdx - bIdx
-        })
-    })
-  }, [FilterLeads])
+    setSheetsList(reordered)
+  }, [SheetsList])
 
   const getColumnData = (column, item) => {
     const { title } = column
@@ -1628,18 +1614,6 @@ const Userleads = ({
         return (
           <div className="text-[14px] font-normal">
             <div className="w-full flex flex-row items-center gap-3 truncate">
-              <span
-                className="flex-shrink-0 inline-flex pointer-events-none select-none"
-                aria-hidden
-              >
-                <Image
-                  src={'/assets/list.png'}
-                  height={6}
-                  width={16}
-                  alt=""
-                  draggable={false}
-                />
-              </span>
               <Checkbox
                 className="checkbox-leads flex-shrink-0"
                 checked={canShowSelected}
@@ -2156,7 +2130,7 @@ const Userleads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center bg-white min-h-screen overflow-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="w-full flex flex-col items-center bg-white min-h-screen h-screen overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
         (<div className="w-screen">
           <LeadLoading />
@@ -2212,8 +2186,8 @@ const Userleads = ({
             />
           </div>
 
-          <div className="w-[98%] mx-auto bg-transparent m-0 p-0 h-auto">
-            <div className="pt-0 bg-transparent flex flex-col gap-0.5 h-auto">
+          <div className="w-[98%] mx-auto bg-transparent m-0 p-0 flex-1 min-h-0 flex flex-col">
+            <div className="pt-0 bg-transparent flex flex-col gap-0.5 flex-1 min-h-0">
               {(hasExportPermission || selectedLeadsList.length > 0 || selectedAll) && (
                 <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
                   <div className="flex flex-row items-center gap-6">
@@ -2486,36 +2460,71 @@ const Userleads = ({
                 {/* Hide sheets list when searching across all sheets */}
                 {!(searchLead && String(searchLead).trim()) && (
                   <div
-                    className="flex flex-row items-center gap-2 text-[14px] font-normal border-b px-3"
-                    style={{ ...styles.paragraph, borderColor: '#eaeaea' }}
+                    className="flex flex-row items-center gap-2 text-[14px] font-normal border-b px-3 select-none"
+                    style={{ ...styles.paragraph, borderColor: '#eaeaea', userSelect: 'none', WebkitUserSelect: 'none' }}
                   >
-                    <div
-                      className="sheets-tabs-scroll-hide flex flex-row items-center w-full min-h-[46px]"
-                      style={{
-                        ...styles.paragraph,
-                        overflowY: 'hidden',
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
-                        fontSize: 14,
-                        fontWeight: 400,
-                        gap: 2,
-                      }}
-                    >
-                      {SheetsList.map((item, index) => {
-                        return (
+                    <DragDropContext onDragStart={handleSheetsDragStart} onDragEnd={handleSheetsDragEnd}>
+                      <Droppable droppableId="sheets-list" direction="horizontal">
+                        {(droppableProvided) => (
                           <div
-                            key={index}
-                            className={`group flex flex-row items-center gap-3 px-2 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98] ${editingSheetId === item.id ? 'flex-shrink-0' : ''}`}
+                            ref={droppableProvided.innerRef}
+                            {...droppableProvided.droppableProps}
+                            className="sheets-tabs-scroll-hide flex flex-row items-center w-full min-h-[46px]"
                             style={{
-                              borderBottom:
-                                SelectedSheetId === item.id
-                                  ? '2px solid hsl(var(--brand-primary))'
-                                  : '',
-                              color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
-                              whiteSpace: 'nowrap',
+                              ...styles.paragraph,
+                              overflowY: 'hidden',
+                              scrollbarWidth: 'none',
+                              msOverflowStyle: 'none',
+                              fontSize: 14,
+                              fontWeight: 400,
+                              gap: 2,
                             }}
                           >
-                            {editingSheetId === item.id ? (
+                            {SheetsList.map((item, index) => (
+                              <Draggable
+                                key={item.id ?? `sheet-${index}`}
+                                draggableId={String(item.id ?? `sheet-${index}`)}
+                                index={index}
+                              >
+                                {(draggableProvided, snapshot) => (
+                                  <div
+                                    ref={draggableProvided.innerRef}
+                                    {...draggableProvided.draggableProps}
+                                    {...draggableProvided.dragHandleProps}
+                                    className={`group flex flex-row items-center gap-3 flex-shrink-0 px-2 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 cursor-grab active:cursor-grabbing select-none ${editingSheetId === item.id ? '' : ''}`}
+                                    style={{
+                                      ...draggableProvided.draggableProps.style,
+                                      borderBottom:
+                                        SelectedSheetId === item.id
+                                          ? '2px solid hsl(var(--brand-primary))'
+                                          : '',
+                                      color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
+                                      whiteSpace: 'nowrap',
+                                      userSelect: 'none',
+                                      WebkitUserSelect: 'none',
+                                      ...(snapshot.isDragging
+                                        ? {
+                                            backgroundColor: 'hsl(var(--background))',
+                                            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                            borderRadius: 8,
+                                            zIndex: 1,
+                                          }
+                                        : {}),
+                                    }}
+                                  >
+                                    <span
+                                      className="flex-shrink-0 inline-flex pointer-events-none"
+                                      aria-hidden
+                                    >
+                                      <Image
+                                        src="/assets/list.png"
+                                        height={6}
+                                        width={16}
+                                        alt=""
+                                        draggable={false}
+                                      />
+                                    </span>
+                                    {editingSheetId === item.id ? (
                               <input
                                 type="text"
                                 value={editingSheetName}
@@ -2665,10 +2674,15 @@ const Userleads = ({
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {droppableProvided.placeholder}
                           </div>
-                        )
-                      })}
-                    </div>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -2812,11 +2826,10 @@ const Userleads = ({
               </div>
 
               {LeadsList.length > 0 ? (
-                <DragDropContext onDragStart={handleLeadsDragStart} onDragEnd={handleLeadsDragEnd}>
                   <div
                     ref={scrollableDivRef}
                     onScroll={syncTableScrollBodyToHeader}
-                    className="leads-table-body-scroll flex-1 min-h-0 overflow-x-scroll overflow-y-auto pb-[100px] mt-6 bg-transparent"
+                    className="leads-table-body-scroll flex-1 min-h-0 overflow-x-scroll overflow-y-auto pb-[100px] mt-6 bg-transparent max-h-[calc(100svh-280px)]"
                     id="scrollableDiv1"
                     style={{
                       scrollbarWidth: 'thin',
@@ -2859,77 +2872,44 @@ const Userleads = ({
                     }
                     style={{ overflow: 'unset' }}
                   >
-                    <div
-                      className="table-auto w-full border-collapse border-none"
-                      style={{ minWidth: 'max-content' }}
-                    >
-                      <Droppable droppableId="leads-list">
-                        {(droppableProvided) => (
-                          <div
-                            ref={droppableProvided.innerRef}
-                            {...droppableProvided.droppableProps}
-                            className="flex flex-col"
+                    <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
+                      <colgroup>
+                        {leadColumns.map((col, i) => (
+                          <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
+                        ))}
+                      </colgroup>
+                      <tbody>
+                        {FilterLeads.map((item, index) => (
+                          <tr
+                            key={item.id ?? index}
+                            className="hover:bg-gray-50"
+                            style={{
+                              paddingTop: 12,
+                              paddingBottom: 12,
+                              borderBottom: '1px solid #eaeaea',
+                            }}
                           >
-                            {FilterLeads.map((item, index) => (
-                              <Draggable
-                                key={item.id ?? `lead-${index}`}
-                                draggableId={String(item.id ?? `lead-${index}`)}
-                                index={index}
+                            {leadColumns.map((column, colIndex) => (
+                              <td
+                                key={colIndex}
+                                className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === 'More'
+                                  ? 'sticky right-0 bg-white'
+                                  : ''
+                                  }`}
+                                style={{
+                                  whiteSpace: 'nowrap',
+                                  zIndex: column.title === 'More' ? 1 : 'auto',
+                                }}
                               >
-                                {(draggableProvided, snapshot) => (
-                                  <div
-                                    ref={draggableProvided.innerRef}
-                                    {...draggableProvided.draggableProps}
-                                    {...draggableProvided.dragHandleProps}
-                                    className="flex flex-row items-stretch cursor-grab active:cursor-grabbing hover:bg-gray-50 border-b border-[#eaeaea] transition-shadow select-none"
-                                    style={{
-                                      ...draggableProvided.draggableProps.style,
-                                      paddingTop: 12,
-                                      paddingBottom: 12,
-                                      userSelect: 'none',
-                                      WebkitUserSelect: 'none',
-                                      ...(snapshot.isDragging
-                                        ? {
-                                            backgroundColor: 'hsl(var(--background))',
-                                            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                                            borderRadius: 8,
-                                            zIndex: 1,
-                                          }
-                                        : {}),
-                                    }}
-                                  >
-                                    {leadColumns.map((column, colIndex) => {
-                                      const colWidth = column.title === 'More' ? '100px' : column.title === 'Name' ? '254px' : '150px'
-                                      return (
-                                        <div
-                                          key={colIndex}
-                                          className={`flex-shrink-0 px-4 py-2 max-w-[330px] whitespace-nowrap overflow-hidden text-ellipsis flex items-center ${column.title === 'More'
-                                            ? `sticky right-0 shadow-[-8px_0_8px_-2px_rgba(0,0,0,0.04)] ${snapshot.isDragging ? 'bg-inherit' : 'bg-white'}`
-                                            : ''
-                                            }`}
-                                          style={{
-                                            width: colWidth,
-                                            minWidth: colWidth,
-                                            maxWidth: colWidth,
-                                            zIndex: column.title === 'More' ? 1 : 'auto',
-                                          }}
-                                        >
-                                          {getColumnData(column, item)}
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </Draggable>
+                                {getColumnData(column, item)}
+                              </td>
                             ))}
-                            {droppableProvided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </div>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </InfiniteScroll>
                 </div>
-                </DragDropContext>
               ) : showNoLeadsLabel ? (
                 <div className="text-xl text-center mt-8 font-bold text-[22px]">
                   No leads found
