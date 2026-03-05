@@ -1,6 +1,6 @@
 import { Box, Modal, Popover } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Calendar, Hourglass, MessageCircleMore, Zap } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -326,7 +326,7 @@ const AgentsListPaginated = ({
                   borderRadius: 12,
                 }}
               >
-                <div className="w-full flex flex-row items-start justify-between">
+                <div className="w-full flex flex-row items-start justify-between h-full min-h-0 flex-1">
                   <div className="flex flex-row gap-5 items-center flex-1 min-w-0">
                     <div className="flex flex-row items-center justify-center w-[100px] h-[100px] bg-white rounded-[12px]">
                       {selectedImages[index] ? (
@@ -377,7 +377,7 @@ const AgentsListPaginated = ({
                               setRenameAgent(item.name)
                             }}
                           >
-                            {renderBrandedIcon('/svgIcons/editPen.svg', 14, 14)}
+                            {renderBrandedIcon('/svgIcons/editPen.svg', 20, 20)}
                           </button>
                         </div>
                         </div>
@@ -454,7 +454,7 @@ const AgentsListPaginated = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end justify-start gap-2 self-end text-right h-full">
+                  <div className="flex flex-col items-end justify-start gap-2 self-end text-right h-full min-h-[100px] pt-2">
                     <div className="relative inline-block">
                       {!item.phoneNumber && (
                         <div
@@ -561,7 +561,7 @@ const AgentsListPaginated = ({
                 </div>
 
                 <div className="w-full bg-white px-4 py-3 rounded-lg text-sm">
-                  <div className="w-full flex flex-row items-center justify-between gap-3">
+                  <div className="w-full flex flex-row items-start justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => {
@@ -578,9 +578,9 @@ const AgentsListPaginated = ({
                       <AgentInfoCard
                         name="Calls"
                         value={<div>{item.calls || '-'}</div>}
-                        icon="/svgIcons/selectedCallIcon.svg"
-                        bgColor="bg-blue-100"
-                        iconColor="text-blue-500"
+                        iconComponent={<Zap size={18} />}
+                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
+                        iconColor="text-brand-primary"
                       />
                     </button>
                     <button
@@ -599,8 +599,8 @@ const AgentsListPaginated = ({
                       <AgentInfoCard
                         name="Convos"
                         value={<div>{item.callsGt10 || '-'}</div>}
-                        icon="/svgIcons/convosIcon2.svg"
-                        bgColor="bg-brand-primary/10"
+                        iconComponent={<MessageCircleMore size={18} />}
+                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
                         iconColor="text-brand-primary"
                       />
                     </button>
@@ -620,9 +620,9 @@ const AgentsListPaginated = ({
                       <AgentInfoCard
                         name="Hot Leads"
                         value={item.hotleads || '-'}
-                        icon="/otherAssets/hotLeadsIcon2.png"
-                        bgColor="bg-orange-100"
-                        iconColor="text-orange-500"
+                        iconComponent={<Zap size={18} />}
+                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
+                        iconColor="text-brand-primary"
                       />
                     </button>
                     <button
@@ -641,9 +641,9 @@ const AgentsListPaginated = ({
                       <AgentInfoCard
                         name="Booked Meetings"
                         value={item.booked || '-'}
-                        icon="/otherAssets/greenCalenderIcon.png"
-                        bgColor="green"
-                        iconColor="text-orange-500"
+                        iconComponent={<Calendar size={18} />}
+                        iconWrapperClassName="w-10 h-10 rounded-lg bg-brand-primary/10"
+                        iconColor="text-brand-primary"
                       />
                     </button>
                     {/* <button
@@ -675,7 +675,7 @@ const AgentsListPaginated = ({
                               : '-'}
                           </div>
                         }
-                        icon="/otherAssets/minsCounter.png"
+                        iconComponent={<Hourglass size={18} />}
                         bgColor="green"
                         iconColor="text-orange-500"
                       />

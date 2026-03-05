@@ -1,8 +1,25 @@
 import Image from 'next/image'
 
-const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
-  // Render icon with branding using mask-image approach (same logic as NotificationsDrawer.js)
+const ICON_SIZE = 18
+
+const AgentInfoCard = ({ name, value, icon, iconComponent, bgColor, iconColor, iconWrapperClassName }) => {
+  // When iconComponent (e.g. Lucide icon) is provided, render it at 18px; optional wrapper for container styling
   const renderIcon = () => {
+    if (iconComponent) {
+      const iconEl = (
+        <div className={iconColor ? `flex shrink-0 ${iconColor}` : 'flex shrink-0 text-foreground'} style={{ width: ICON_SIZE, height: ICON_SIZE }}>
+          {iconComponent}
+        </div>
+      )
+      if (iconWrapperClassName) {
+        return (
+          <div className={`flex items-center justify-center ${iconWrapperClassName}`}>
+            {iconEl}
+          </div>
+        )
+      }
+      return iconEl
+    }
     if (typeof window === 'undefined') {
       return <Image src={icon} height={24} width={24} alt="icon" />
     }
