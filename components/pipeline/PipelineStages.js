@@ -1304,8 +1304,20 @@ const PipelineStages = ({
                                         key={row.id}
                                         className="flex flex-row items-center justify-center mb-2"
                                       >
+                                        {/*<div className="w-[16px]">
+                                          {rowIndex > 0 && (
+                                            <div className="outline-none mt-2">
+                                              <Image
+                                                src={'/assets/list.png'}
+                                                height={6}
+                                                width={16}
+                                                alt="*"
+                                              />
+                                            </div>
+                                          )}
+                                        </div>*/}
                                         <div
-                                          className="mt-2"
+                                          className="mt-2 ms-2"
                                           style={styles.headingStyle}
                                         >
                                           Wait

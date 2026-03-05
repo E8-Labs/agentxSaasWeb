@@ -444,7 +444,8 @@ const PipelineAndStage = ({
               fontSize: 15,
             }}
             onClick={() => {
-              handleUpdateCadence()
+              setShowConfirmationPopup(true)
+              // handleUpdateCadence()
             }}
           >
             Update

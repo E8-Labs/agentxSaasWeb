@@ -38,6 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { pipeline } from 'zod'
 
@@ -1564,6 +1565,37 @@ const Userleads = ({
     )
   }
 
+  const handleLeadsDragStart = useCallback(() => {
+    document.body.style.userSelect = 'none'
+    document.body.style.webkitUserSelect = 'none'
+  }, [])
+
+  const handleLeadsDragEnd = useCallback((result) => {
+    document.body.style.userSelect = ''
+    document.body.style.webkitUserSelect = ''
+    const { source, destination } = result
+    if (!destination || source.index === destination.index) return
+
+    const reordered = Array.from(FilterLeads)
+    const [moved] = reordered.splice(source.index, 1)
+    reordered.splice(destination.index, 0, moved)
+
+    setFilterLeads(reordered)
+    setLeadsList((prev) => {
+      const reorderedIds = reordered.map((l) => l.id)
+      return prev
+        .slice()
+        .sort((a, b) => {
+          const aIdx = reorderedIds.indexOf(a.id)
+          const bIdx = reorderedIds.indexOf(b.id)
+          if (aIdx === -1 && bIdx === -1) return 0
+          if (aIdx === -1) return 1
+          if (bIdx === -1) return -1
+          return aIdx - bIdx
+        })
+    })
+  }, [FilterLeads])
+
   const getColumnData = (column, item) => {
     const { title } = column
     const searchQuery = searchLead ? String(searchLead).trim() : ''
@@ -1593,6 +1625,18 @@ const Userleads = ({
         return (
           <div className="text-[14px] font-normal">
             <div className="w-full flex flex-row items-center gap-3 truncate">
+              <span
+                className="flex-shrink-0 inline-flex pointer-events-none select-none"
+                aria-hidden
+              >
+                <Image
+                  src={'/assets/list.png'}
+                  height={6}
+                  width={16}
+                  alt=""
+                  draggable={false}
+                />
+              </span>
               <Checkbox
                 className="checkbox-leads flex-shrink-0"
                 checked={canShowSelected}
@@ -2736,18 +2780,19 @@ const Userleads = ({
               </div>
 
               {LeadsList.length > 0 ? (
-                <div
-                  ref={scrollableDivRef}
-                  onScroll={syncTableScrollBodyToHeader}
-                  className="leads-table-body-scroll flex-1 min-h-0 overflow-x-scroll overflow-y-auto pb-[100px] mt-6 bg-transparent"
-                  id="scrollableDiv1"
-                  style={{
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: 'hsl(var(--brand-primary)) hsl(var(--brand-primary) / 0.12)',
-                    backgroundColor: 'transparent',
-                  }}
-                >
-                  <InfiniteScroll
+                <DragDropContext onDragStart={handleLeadsDragStart} onDragEnd={handleLeadsDragEnd}>
+                  <div
+                    ref={scrollableDivRef}
+                    onScroll={syncTableScrollBodyToHeader}
+                    className="leads-table-body-scroll flex-1 min-h-0 overflow-x-scroll overflow-y-auto pb-[100px] mt-6 bg-transparent"
+                    id="scrollableDiv1"
+                    style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: 'hsl(var(--brand-primary)) hsl(var(--brand-primary) / 0.12)',
+                      backgroundColor: 'transparent',
+                    }}
+                  >
+                    <InfiniteScroll
                     className="flex flex-col w-full"
                     endMessage={
                       <p
@@ -2782,45 +2827,77 @@ const Userleads = ({
                     }
                     style={{ overflow: 'unset' }}
                   >
-                    <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
-                      <colgroup>
-                        {leadColumns.map((col, i) => (
-                          <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
-                        ))}
-                      </colgroup>
-                      <tbody>
-                        {FilterLeads.map((item, index) => (
-                          <tr
-                            key={index}
-                            className="hover:bg-gray-50"
-                            style={{
-                              paddingTop: 12,
-                              paddingBottom: 12,
-                              borderBottom: '1px solid #eaeaea',
-                            }}
+                    <div
+                      className="table-auto w-full border-collapse border-none"
+                      style={{ minWidth: 'max-content' }}
+                    >
+                      <Droppable droppableId="leads-list">
+                        {(droppableProvided) => (
+                          <div
+                            ref={droppableProvided.innerRef}
+                            {...droppableProvided.droppableProps}
+                            className="flex flex-col"
                           >
-                            {leadColumns.map((column, colIndex) => (
-                              <td
-                                key={colIndex}
-                                className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === 'More'
-                                  ? 'sticky right-0 bg-white'
-                                  : ''
-                                  }`}
-                                style={{
-                                  whiteSpace: 'nowrap',
-                                  zIndex: column.title === 'More' ? 1 : 'auto',
-                                  // width: "200px",
-                                }}
+                            {FilterLeads.map((item, index) => (
+                              <Draggable
+                                key={item.id ?? `lead-${index}`}
+                                draggableId={String(item.id ?? `lead-${index}`)}
+                                index={index}
                               >
-                                {getColumnData(column, item)}
-                              </td>
+                                {(draggableProvided, snapshot) => (
+                                  <div
+                                    ref={draggableProvided.innerRef}
+                                    {...draggableProvided.draggableProps}
+                                    {...draggableProvided.dragHandleProps}
+                                    className="flex flex-row items-stretch cursor-grab active:cursor-grabbing hover:bg-gray-50 border-b border-[#eaeaea] transition-shadow select-none"
+                                    style={{
+                                      ...draggableProvided.draggableProps.style,
+                                      paddingTop: 12,
+                                      paddingBottom: 12,
+                                      userSelect: 'none',
+                                      WebkitUserSelect: 'none',
+                                      ...(snapshot.isDragging
+                                        ? {
+                                            backgroundColor: 'hsl(var(--background))',
+                                            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                            borderRadius: 8,
+                                            zIndex: 1,
+                                          }
+                                        : {}),
+                                    }}
+                                  >
+                                    {leadColumns.map((column, colIndex) => {
+                                      const colWidth = column.title === 'More' ? '100px' : column.title === 'Name' ? '254px' : '150px'
+                                      return (
+                                        <div
+                                          key={colIndex}
+                                          className={`flex-shrink-0 px-4 py-2 max-w-[330px] whitespace-nowrap overflow-hidden text-ellipsis flex items-center ${column.title === 'More'
+                                            ? `sticky right-0 shadow-[-8px_0_8px_-2px_rgba(0,0,0,0.04)] ${snapshot.isDragging ? 'bg-inherit' : 'bg-white'}`
+                                            : ''
+                                            }`}
+                                          style={{
+                                            width: colWidth,
+                                            minWidth: colWidth,
+                                            maxWidth: colWidth,
+                                            zIndex: column.title === 'More' ? 1 : 'auto',
+                                          }}
+                                        >
+                                          {getColumnData(column, item)}
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </Draggable>
                             ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                            {droppableProvided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
                   </InfiniteScroll>
                 </div>
+                </DragDropContext>
               ) : showNoLeadsLabel ? (
                 <div className="text-xl text-center mt-8 font-bold text-[22px]">
                   No leads found
