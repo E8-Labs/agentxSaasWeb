@@ -1243,7 +1243,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                             item.id === settingToggleClick
                               ? 'hsl(var(--brand-primary))'
                               : '',
-                          marginLeft: item.id === 2 ? 10 : 0,
+                          // marginLeft: item.id === 2 ? 10 : 0,
                           borderBottom:
                             item.id === settingToggleClick
                               ? '2px solid hsl(var(--brand-primary))'
