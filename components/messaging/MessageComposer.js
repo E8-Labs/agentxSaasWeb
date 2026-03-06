@@ -1515,65 +1515,65 @@ const MessageComposer = ({
               </button>
             </div>
           ) : (
-          <div className="mt-2 flex items-center gap-2">
-            <Input
-              value={
-                composerMode === 'sms'
-                  ? stripHTML(composerData.smsBody)
-                  : composerMode === 'comment'
-                    ? stripHTML(commentBody)
-                    : stripHTML(composerData.emailBody)
-              }
-              onChange={(e) => {
-                if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
-                  setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
-                } else if (composerMode === 'email') {
-                  // Convert plain text to HTML for email
-                  const htmlBody = e.target.value.replace(/\n/g, '<br>')
-                  setComposerData((prev) => ({ ...prev, emailBody: htmlBody }))
-                } else if (composerMode === 'comment') {
-                  const htmlBody = e.target.value.replace(/\n/g, '<br>')
-                  setCommentBody(htmlBody)
+            <div className="mt-2 flex items-center gap-2">
+              <Input
+                value={
+                  composerMode === 'sms'
+                    ? stripHTML(composerData.smsBody)
+                    : composerMode === 'comment'
+                      ? stripHTML(commentBody)
+                      : stripHTML(composerData.emailBody)
                 }
-              }}
-              onFocus={() => setIsExpanded(true)}
-              onClick={() => setIsExpanded(true)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  if (composerMode === 'comment') {
-                    if (hasTextContent(commentBody) && selectedThread?.leadId) {
-                      handleSendComment()
-                    }
-                  } else {
-                    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-                    if (hasTextContent(messageBody) &&
-                      ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
-                        (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
-                      handleSendMessage()
+                onChange={(e) => {
+                  if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
+                    setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
+                  } else if (composerMode === 'email') {
+                    // Convert plain text to HTML for email
+                    const htmlBody = e.target.value.replace(/\n/g, '<br>')
+                    setComposerData((prev) => ({ ...prev, emailBody: htmlBody }))
+                  } else if (composerMode === 'comment') {
+                    const htmlBody = e.target.value.replace(/\n/g, '<br>')
+                    setCommentBody(htmlBody)
+                  }
+                }}
+                onFocus={() => setIsExpanded(true)}
+                onClick={() => setIsExpanded(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    if (composerMode === 'comment') {
+                      if (hasTextContent(commentBody) && selectedThread?.leadId) {
+                        handleSendComment()
+                      }
+                    } else {
+                      const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+                      if (hasTextContent(messageBody) &&
+                        ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
+                          (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
+                        handleSendMessage()
+                      }
                     }
                   }
+                }}
+                placeholder={composerMode === 'comment' ? 'Type a comment...' : 'Type your message...'}
+                className="flex-1"
+              />
+              <button
+                onClick={composerMode === 'comment' ? handleSendComment : handleSendMessage}
+                disabled={
+                  composerMode === 'comment'
+                    ? (sendingComment || !hasTextContent(commentBody) || !selectedThread?.leadId)
+                    : (sendingMessage ||
+                      !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
+                      (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
+                      (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
                 }
-              }}
-              placeholder={composerMode === 'comment' ? 'Type a comment...' : 'Type your message...'}
-              className="flex-1"
-            />
-            <button
-              onClick={composerMode === 'comment' ? handleSendComment : handleSendMessage}
-              disabled={
-                composerMode === 'comment'
-                  ? (sendingComment || !hasTextContent(commentBody) || !selectedThread?.leadId)
-                  : (sendingMessage ||
-                    !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
-                    (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
-                    (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
-              }
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              style={{ height: '40px' }}
-            >
-              <PaperPlaneTilt size={20} weight="fill" />
-            </button>
-          </div>
+                className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                style={{ height: '40px' }}
+              >
+                <PaperPlaneTilt size={20} weight="fill" />
+              </button>
+            </div>
           )
         ) : (
           <div
@@ -1594,7 +1594,8 @@ const MessageComposer = ({
               <div className="mt-2">
                 <div className="mb-2">
                   <label className="text-sm font-semibold text-foreground">
-                    {isMessengerReply ? 'Reply in Messenger' : 'Reply in Instagram'}
+                    {/*isMessengerReply ? 'Send a DM' : 'Reply in Instagram'}*/}
+                    Send a DM
                   </label>
                 </div>
                 <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
@@ -1602,7 +1603,7 @@ const MessageComposer = ({
                     ref={socialRichTextEditorRef}
                     value={socialBodyToEditorValue(composerData.socialBody ?? '')}
                     onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
-                    placeholder="Type your message..."
+                    placeholder="Write your DM here..."   //"Type your message..."
                     availableVariables={[]}
                     toolbarPosition="bottom"
                     customToolbarElement={
@@ -1641,7 +1642,7 @@ const MessageComposer = ({
                     ref={commentEditorRef}
                     value={commentBody}
                     onChange={handleCommentChange}
-                    placeholder="Use @ to mention a teammate. Comments are only visible to your team."
+                    placeholder="Write your DM here"   //"Use @ to mention a teammate. Comments are only visible to your team."
                     availableVariables={[]}
                     toolbarPosition="bottom"
                     customToolbarElement={
@@ -1849,61 +1850,61 @@ const MessageComposer = ({
                                   {emailAccounts.map((account) => {
                                     const gmailError = getGmailWatchErrorInfo(account)
                                     return (
-                                    <div
-                                      key={account.id}
-                                      className="group relative w-full"
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setSelectedEmailAccount(account.id.toString())
-                                          setEmailDropdownOpen(false)
-                                        }}
-                                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                          }`}
+                                      <div
+                                        key={account.id}
+                                        className="group relative w-full"
                                       >
-                                        <div className="flex items-center justify-between">
-                                          <span>{account.email || account.name || account.displayName}</span>
-                                          <div className="flex items-center gap-2">
-                                            {account.provider && (
-                                              <span className="text-xs text-gray-500">
-                                                {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                              </span>
-                                            )}
-                                            {/* Delete icon - visible on hover */}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedEmailAccount(account.id.toString())
+                                            setEmailDropdownOpen(false)
+                                          }}
+                                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                            }`}
+                                        >
+                                          <div className="flex items-center justify-between">
+                                            <span>{account.email || account.name || account.displayName}</span>
+                                            <div className="flex items-center gap-2">
+                                              {account.provider && (
+                                                <span className="text-xs text-gray-500">
+                                                  {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                                </span>
+                                              )}
+                                              {/* Delete icon - visible on hover */}
+                                              <button
+                                                type="button"
+                                                onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                                disabled={deletingEmailAccountId === account.id}
+                                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                                title="Delete email account"
+                                              >
+                                                {deletingEmailAccountId === account.id ? (
+                                                  <CircularProgress size={14} />
+                                                ) : (
+                                                  <Trash2 size={14} />
+                                                )}
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </button>
+                                        {gmailError && (
+                                          <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
+                                            <span>{gmailError.shortLabel}</span>
                                             <button
                                               type="button"
-                                              onClick={(e) => handleDeleteEmailAccount(account, e)}
-                                              disabled={deletingEmailAccountId === account.id}
-                                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
-                                              title="Delete email account"
+                                              onClick={(e) => {
+                                                e.stopPropagation()
+                                                if (onOpenAuthPopup) onOpenAuthPopup()
+                                                setEmailDropdownOpen(false)
+                                              }}
+                                              className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
                                             >
-                                              {deletingEmailAccountId === account.id ? (
-                                                <CircularProgress size={14} />
-                                              ) : (
-                                                <Trash2 size={14} />
-                                              )}
+                                              Reconnect
                                             </button>
                                           </div>
-                                        </div>
-                                      </button>
-                                      {gmailError && (
-                                        <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
-                                          <span>{gmailError.shortLabel}</span>
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation()
-                                              if (onOpenAuthPopup) onOpenAuthPopup()
-                                              setEmailDropdownOpen(false)
-                                            }}
-                                            className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
-                                          >
-                                            Reconnect
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
+                                        )}
+                                      </div>
                                     )
                                   })}
                                 </div>
@@ -2055,9 +2056,9 @@ const MessageComposer = ({
                               type="button"
                               onClick={() => setSubjectVariablesDropdownOpen(!subjectVariablesDropdownOpen)}
                               className={cn(
-                              "px-3 py-2 w-32 flex items-center justify-between text-sm text-gray-700 transition-colors rounded-[12px]",
-                              subjectVariablesDropdownOpen ? "bg-black/[0.02] border-0" : "hover:bg-gray-50"
-                            )}
+                                "px-3 py-2 w-32 flex items-center justify-between text-sm text-gray-700 transition-colors rounded-[12px]",
+                                subjectVariablesDropdownOpen ? "bg-black/[0.02] border-0" : "hover:bg-gray-50"
+                              )}
                             >
                               <span>Variables</span>
                               <CaretDown size={16} className="text-gray-400" />
@@ -2247,9 +2248,9 @@ const MessageComposer = ({
                                   type="button"
                                   onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
                                   className={cn(
-                                  "px-3 py-2 w-32 border-l-[0.5px] flex items-center justify-between gap-2 text-sm text-gray-700 transition-colors rounded-[12px]",
-                                  variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-black/[0.06] hover:bg-black/[0.02] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary"
-                                )}
+                                    "px-3 py-2 w-32 border-l-[0.5px] flex items-center justify-between gap-2 text-sm text-gray-700 transition-colors rounded-[12px]",
+                                    variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-black/[0.06] hover:bg-black/[0.02] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary"
+                                  )}
                                 >
                                   <span>Variables</span>
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
@@ -2398,7 +2399,7 @@ const MessageComposer = ({
                               </div>
                             )}
                           </div>
-                            <div className="flex items-center gap-2 ">
+                          <div className="flex items-center gap-2 ">
                             {/* Character count: SMS only (plain text length); email branch so this is for consistency if mode toggles */}
                             <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
 

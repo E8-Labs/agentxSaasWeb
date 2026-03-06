@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star, Settings, Sparkles } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -447,13 +447,18 @@ const ThreadsList = ({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="p-1 rounded hover:bg-black/5 transition-colors"
+                className="p-1 rounded hover:bg-black/5 transition-colors text-[hsl(var(--brand-primary))]"
                 style={{ borderRadius: 4 }}
                 onClick={() => {
                   onOpenMessageSettings()
                 }}
+                aria-label="Communication Settings"
               >
-                <Image src="/communcationSetting.png" width={24} height={24} alt="Communication Settings" />
+                <span className="relative inline-flex shrink-0" aria-hidden>
+                  <Settings size={18} strokeWidth={2} />
+                  <Sparkles size={8} className="absolute -top-1.5 left-4" strokeWidth={2} />
+                  <Sparkles size={4} className="absolute top-2 left-5" strokeWidth={2} />
+                </span>
               </button>
             </TooltipTrigger>
             <TooltipContent side="bottom">Communication Settings</TooltipContent>
