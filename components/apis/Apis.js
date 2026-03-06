@@ -46,6 +46,7 @@ const Apis = {
   deleteLeadEmails: `${BasePath}api/leads/deleteLeadEmails`,
   searchLeadsForMessaging: `${BasePath}api/leads/searchLeadsForMessaging`,
   getSheets: `${BasePath}api/leads/getSheets`,
+  reorderSheets: `${BasePath}api/leads/reorderSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
   attachSmartList: `${BasePath}api/agent/attachSmartList`,
   assignLeadToPipeLine: `${BasePath}api/pipeline/assignLeadsToPipeline`,

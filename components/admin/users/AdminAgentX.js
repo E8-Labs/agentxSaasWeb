@@ -5246,7 +5246,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         <div
                           style={{
                             fontSize: 15,
-                            fontWeight: '500',
+                            // fontWeight: '500',
                             color: '#000',
                           }}
                         >

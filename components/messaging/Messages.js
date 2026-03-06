@@ -67,6 +67,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const THREADS_PAGE_SIZE = 50
   const [threads, setThreads] = useState([])
   const [allThreadsCount, setAllThreadsCount] = useState(null)
+  const [unrepliedCountFromApi, setUnrepliedCountFromApi] = useState(0)
   const [threadsOffset, setThreadsOffset] = useState(0)
   const [hasMoreThreads, setHasMoreThreads] = useState(true)
   const [loadingMoreThreads, setLoadingMoreThreads] = useState(false)
@@ -137,6 +138,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [replyToMessage, setReplyToMessage] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
+  // Per-tab cache: key = userId-apiFilter-search-teamIds. Restore when switching tabs, then refetch in background.
+  const threadsCacheRef = useRef({})
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
   const [showMessagingRequestModal, setShowMessagingRequestModal] = useState(false)
@@ -629,7 +632,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     threadsOffsetRef.current = threadsOffset
   }, [threadsOffset])
 
-  // Fetch threads (offset/limit for pagination; append=true loads next page)
+  // Fetch threads (offset/limit for pagination; append=true loads next page). filter: 'all' | 'unreplied' | 'shortlisted' (shortlisted still uses API filter=all and filters on client)
   const fetchThreads = useCallback(
     async (
       searchQuery = '',
@@ -637,16 +640,31 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       offset = 0,
       limit = THREADS_PAGE_SIZE,
       append = false,
+      filter = 'all',
     ) => {
       const requestId = ++threadsRequestIdRef.current
       const isSearch = searchQuery && searchQuery.trim()
+      const apiFilter = filter === 'shortlisted' ? 'all' : filter
+      const cacheKey = `${selectedUser?.id ?? 'self'}-${apiFilter}-${(searchQuery || '').trim()}-${(teamMemberIdsFilter || []).join(',')}`
+
       try {
         if (append) {
           setLoadingMoreThreads(true)
         } else {
-          setLoading(true)
-          if (isSearch) {
-            setSearchLoading(true)
+          // Restore from cache when switching tabs (no search) so UI shows immediately, then we refetch
+          const cached = threadsCacheRef.current[cacheKey]
+          if (!isSearch && cached?.threads?.length) {
+            setThreads(cached.threads)
+            setAllThreadsCount(cached.allCount ?? 0)
+            setUnrepliedCountFromApi(cached.unrepliedCount ?? 0)
+            setThreadsOffset(cached.offset ?? 0)
+            threadsOffsetRef.current = cached.offset ?? 0
+            setHasMoreThreads(cached.hasMore ?? false)
+            setLoading(false)
+            setSearchLoading(false)
+          } else {
+            setLoading(true)
+            if (isSearch) setSearchLoading(true)
           }
           if (isSearch) {
             setThreads([])
@@ -667,6 +685,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const token = userData.token
 
         const params = { offset, limit }
+        if (filter === 'unreplied') {
+          params.filter = 'unreplied'
+        } else {
+          params.filter = 'all'
+        }
         if (searchQuery && searchQuery.trim()) {
           params.search = searchQuery.trim()
         }
@@ -689,9 +712,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (requestId !== threadsRequestIdRef.current) {
           return
         }
-        setAllThreadsCount(response?.data?.allThreadCount || 0)
+        const allCount = response?.data?.allThreadCount ?? 0
+        const unrepliedCount = response?.data?.unrepliedCount ?? 0
+        setAllThreadsCount(allCount)
+        setUnrepliedCountFromApi(unrepliedCount)
         if (response.data?.status && Array.isArray(response.data?.data)) {
-          console.log('threads response.data.data', response)
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
             const dateB = new Date(b.lastMessageAt || b.createdAt)
@@ -710,6 +735,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             setThreads(sortedThreads)
             setThreadsOffset(sortedThreads.length)
             setHasMoreThreads(sortedThreads.length >= limit)
+            // Cache first page so switching tabs can show it immediately
+            threadsCacheRef.current[cacheKey] = {
+              threads: sortedThreads,
+              allCount,
+              unrepliedCount,
+              offset: sortedThreads.length,
+              hasMore: sortedThreads.length >= limit,
+            }
           }
         } else {
           if (!append) {
@@ -804,8 +837,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const loadMoreThreads = useCallback(() => {
     if (loadingMoreThreads || !hasMoreThreads || loading) return
     const offset = threadsOffsetRef.current
-    fetchThreads(searchValue || '', appliedTeamMemberIds, offset, THREADS_PAGE_SIZE, true)
-  }, [loadingMoreThreads, hasMoreThreads, loading, fetchThreads, searchValue, appliedTeamMemberIds])
+    fetchThreads(searchValue || '', appliedTeamMemberIds, offset, THREADS_PAGE_SIZE, true, filterType)
+  }, [loadingMoreThreads, hasMoreThreads, loading, fetchThreads, searchValue, appliedTeamMemberIds, filterType])
 
   // Fetch messages for a thread
   const fetchMessages = useCallback(
@@ -827,18 +860,18 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         let actualOffset = offset
 
-        // For initial load, fetch a larger batch to get the most recent messages
+        // For initial load, fetch a larger batch (includes sibling threads when same phone/email)
         if (!append && offset === null) {
-          // Fetch a large batch to get the most recent messages
-          // We'll take the last 30 from the fetched batch
           const params = {
-            limit: 500, // Fetch a large batch to ensure we get recent messages
+            limit: 500,
             offset: 0,
+            includeSiblingThreads: true, // merge messages from other threads with same phone/email
           }
-          // Add userId if viewing subaccount from admin/agency
           if (selectedUser?.id) {
             params.userId = selectedUser.id
           }
+
+          console.log('[Messages] fetchMessages initial load', { threadId, params })
 
           const response = await axios.get(
             `${Apis.getMessagesForThread}/${threadId}/messages`,
@@ -853,11 +886,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
           if (response.data?.status && response.data?.data) {
             const allMessages = response.data.data
-            console.log('allMessages', allMessages)
-            // Take the last N messages (most recent)
-            const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
-            // Offset of the oldest message we're showing (so next "load older" fetches before this)
+            // Show full merged timeline (backend returns sibling messages in chronological order)
+            const fetchedMessages = allMessages
             const oldestMessageOffset = Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
+
+            console.log('[Messages] fetchMessages initial result', {
+              threadId,
+              requestedLimit: params.limit,
+              receivedCount: allMessages.length,
+              setInState: fetchedMessages.length,
+            })
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
@@ -902,8 +940,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const params = {
           limit: MESSAGES_PER_PAGE,
           offset: actualOffset,
+          includeSiblingThreads: true,
         }
-        // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           params.userId = selectedUser.id
         }
@@ -954,7 +992,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             // Check if there are more older messages
             setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
-            // Set messages (newest at bottom)
+            // Non-initial, non-append path (e.g. load with offset 0) — replaces full list
+            console.log('[Messages] fetchMessages replace path', {
+              threadId,
+              append: false,
+              offset: actualOffset,
+              setInState: fetchedMessages.length,
+            })
             setMessages(fetchedMessages)
 
             // Update latest message ID ref
@@ -1286,16 +1330,21 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           return
         }
 
-        // Fetch the latest messages (just the most recent ones to check for new messages)
-        // Fetch a larger batch to ensure we get the most recent messages, then take the last ones
+        // Fetch the latest messages (merged with siblings) to check for new messages
         const params = {
-          limit: 50, // Fetch a larger batch to ensure we get recent messages
+          limit: 100,
           offset: 0,
+          includeSiblingThreads: true,
         }
-        // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           params.userId = selectedUser.id
         }
+
+        console.log('[Messages] poll for new messages', {
+          threadId: selectedThread.id,
+          params,
+          currentLatestMessageId: currentLatestMessageId,
+        })
 
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${selectedThread.id}/messages`,
@@ -1310,6 +1359,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         if (response.data?.status && response.data?.data) {
           const allFetchedMessages = response.data.data
+
+          console.log('[Messages] poll response', {
+            threadId: selectedThread.id,
+            receivedCount: allFetchedMessages.length,
+            action: 'check for new only (do not replace list)',
+          })
 
           // Messages are returned in ascending order (oldest first), so get the last ones
           // Take the last 10 messages to check for new ones
@@ -1456,7 +1511,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         })
         if (response.data?.status && response.data?.data?.thread) {
           const linkedThread = response.data.data.thread
-          fetchThreads(searchValue || '', appliedTeamMemberIds)
+          fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
           setSelectedThread(linkedThread)
           fetchMessages(linkedThread.id, null, false)
           setSnackbar({
@@ -3272,8 +3327,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
 
     const timeoutId = setTimeout(() => {
-      // Fetch threads with search query and team member filter (only use applied filter)
-      fetchThreads(searchValue || '', appliedTeamMemberIds)
+      // Fetch threads with search query and team member filter (tab filter passed at call time)
+      fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
     }, 300) // 300ms debounce
 
     return () => clearTimeout(timeoutId)
@@ -3327,8 +3382,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     const newAppliedIds = [...selectedTeamMemberIds]
     setAppliedTeamMemberIds(newAppliedIds) // Apply the selected filters
     setShowFilterPopover(false)
-    // Pass the IDs directly instead of relying on state
-    fetchThreads(searchValue || '', newAppliedIds)
+    fetchThreads(searchValue || '', newAppliedIds, 0, THREADS_PAGE_SIZE, false, filterType)
   }
 
   // Handler to clear filter
@@ -3336,8 +3390,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     setSelectedTeamMemberIds([])
     setAppliedTeamMemberIds([])
     setShowFilterPopover(false)
-    // Pass empty array directly instead of relying on state
-    fetchThreads(searchValue || '', [])
+    fetchThreads(searchValue || '', [], 0, THREADS_PAGE_SIZE, false, filterType)
   }
 
   // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
@@ -3374,7 +3427,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           type: SnackbarTypes.Success,
         })
         // Refresh threads
-        fetchThreads(searchValue, appliedTeamMemberIds)
+        fetchThreads(searchValue, appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
         // Clear selected thread if it was deleted
         if (selectedThread?.id === threadId) {
           setSelectedThread(null)
@@ -3528,7 +3581,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           // Refresh user data if upgrade was successful
           if (upgradeResult) {
             // Optionally refresh threads or user data
-            fetchThreads(searchValue || '', appliedTeamMemberIds)
+            fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
           }
         }}
         currentFullPlan={reduxUser?.plan}
@@ -3554,38 +3607,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
               {(() => {
-                // Helper function to check if a thread is unreplied
-                // A thread is unreplied if the last message is inbound (from lead)
-                const isUnrepliedThread = (thread) => {
-                  // Check if thread has messages array
-                  if (thread.messages && thread.messages.length > 0) {
-                    // Get the most recent message (first in array if sorted by date desc)
-                    const lastMessage = thread.messages[0]
-                    return lastMessage.direction === 'inbound'
-                  }
-
-                  // If no messages array, check if thread has lastMessage property
-                  if (thread.lastMessage) {
-                    return thread.lastMessage.direction === 'inbound'
-                  }
-
-                  // If no message info, check thread direction
-                  // Default to unreplied if we can't determine (safer assumption)
-                  return thread.direction === 'inbound' || !thread.direction
-                }
-
-                // Calculate counts
-                const allCount = allThreadsCount || threads.length
-                const unrepliedCount = threads.filter(isUnrepliedThread).length
+                // All and unreplied counts come from API; starred/shortlisted count from current list (unchanged)
+                const allCount = allThreadsCount ?? 0
+                const unrepliedCount = unrepliedCountFromApi
                 const shortlistedCount = threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id)).length
 
-                // Filter threads based on filterType
-                let filteredThreads = threads
-                if (filterType === 'unreplied') {
-                  filteredThreads = threads.filter(isUnrepliedThread)
-                } else if (filterType === 'shortlisted') {
-                  filteredThreads = threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id))
-                }
+                // Only filter on frontend for shortlisted; all and unreplied are filtered by API
+                const filteredThreads =
+                  filterType === 'shortlisted'
+                    ? threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id))
+                    : threads
 
                 return (
                   <ThreadsList
@@ -3623,7 +3654,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     hasActiveFilters={hasActiveFilters}
                     selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
                     filterType={filterType}
-                    onFilterTypeChange={setFilterType}
+                    onFilterTypeChange={(newFilter) => {
+                      setFilterType(newFilter)
+                      fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, newFilter)
+                    }}
                     allCount={allCount}
                     unrepliedCount={unrepliedCount}
                     shortlistedLeadIds={shortlistedLeadIds}
@@ -3631,7 +3665,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     shortlistedCount={shortlistedCount}
                     onContactCreated={() => {
                       // Refresh threads after contact creation
-                      fetchThreads(searchValue || '', appliedTeamMemberIds)
+                      fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
                     }}
                     selectedUser={selectedUser}
                     agencyUser={agencyUser}
@@ -3669,7 +3703,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       }}
                       onThreadLinked={(linkedThread) => {
                         if (!linkedThread?.id) return
-                        fetchThreads(searchValue || '', appliedTeamMemberIds)
+                        fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
                         setSelectedThread(linkedThread)
                         fetchMessages(linkedThread.id, null, false)
                         setSnackbar({
@@ -3872,7 +3906,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       // Refresh threads after sending (even if partial success)
                       if (result.sent > 0) {
                         setTimeout(() => {
-                          fetchThreads(searchValue || "", appliedTeamMemberIds)
+                          fetchThreads(searchValue || "", appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
                         }, 1000)
                       }
                     }}
