@@ -2502,7 +2502,8 @@ const Pipeline1 = () => {
                         </div>
                       </div>
                     </button>
-                    {SelectedPipeline?.pipelineType !== 'agency_use' && (
+                    {/*SelectedPipeline?.pipelineType !== 'agency_use' && (
+                    )*/}
                       <>
                         <div className="w-full flex flex-row mt-0">
                           <button
@@ -2552,7 +2553,6 @@ const Pipeline1 = () => {
                           </button>
                         </div>
                       </>
-                    )}
 
                     <button
                       className="text-red flex flex-row items-center gap-4 mt-0 w-full py-2 px-2 h-auto outline-none"
@@ -2932,7 +2932,7 @@ const Pipeline1 = () => {
                                   </div>
                                 </button>
                               )}
-                              {!showDelBtn && SelectedPipeline?.pipelineType !== 'agency_use' && (
+                              {!showDelBtn && SelectedPipeline?.pipelineType  && (   //!== 'agency_use'
                                 <button
                                   className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
                                   onMouseEnter={(e) => {
