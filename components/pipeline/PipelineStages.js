@@ -1307,7 +1307,7 @@ const PipelineStages = ({
                                         key={row.id}
                                         className="flex flex-row items-center justify-center mb-2"
                                       >
-                                        <div className="w-[16px]">
+                                        {/*<div className="w-[16px]">
                                           {rowIndex > 0 && (
                                             <div className="outline-none mt-2">
                                               <Image
@@ -1318,7 +1318,7 @@ const PipelineStages = ({
                                               />
                                             </div>
                                           )}
-                                        </div>
+                                        </div>*/}
                                         <div
                                           className="mt-2 ms-2"
                                           style={styles.headingStyle}
