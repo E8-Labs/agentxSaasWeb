@@ -860,18 +860,18 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         let actualOffset = offset
 
-        // For initial load, fetch a larger batch to get the most recent messages
+        // For initial load, fetch a larger batch (includes sibling threads when same phone/email)
         if (!append && offset === null) {
-          // Fetch a large batch to get the most recent messages
-          // We'll take the last 30 from the fetched batch
           const params = {
-            limit: 500, // Fetch a large batch to ensure we get recent messages
+            limit: 500,
             offset: 0,
+            includeSiblingThreads: true, // merge messages from other threads with same phone/email
           }
-          // Add userId if viewing subaccount from admin/agency
           if (selectedUser?.id) {
             params.userId = selectedUser.id
           }
+
+          console.log('[Messages] fetchMessages initial load', { threadId, params })
 
           const response = await axios.get(
             `${Apis.getMessagesForThread}/${threadId}/messages`,
@@ -886,11 +886,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
           if (response.data?.status && response.data?.data) {
             const allMessages = response.data.data
-            console.log('allMessages', allMessages)
-            // Take the last N messages (most recent)
-            const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
-            // Offset of the oldest message we're showing (so next "load older" fetches before this)
+            // Show full merged timeline (backend returns sibling messages in chronological order)
+            const fetchedMessages = allMessages
             const oldestMessageOffset = Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
+
+            console.log('[Messages] fetchMessages initial result', {
+              threadId,
+              requestedLimit: params.limit,
+              receivedCount: allMessages.length,
+              setInState: fetchedMessages.length,
+            })
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
@@ -935,8 +940,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const params = {
           limit: MESSAGES_PER_PAGE,
           offset: actualOffset,
+          includeSiblingThreads: true,
         }
-        // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           params.userId = selectedUser.id
         }
@@ -987,7 +992,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             // Check if there are more older messages
             setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
-            // Set messages (newest at bottom)
+            // Non-initial, non-append path (e.g. load with offset 0) — replaces full list
+            console.log('[Messages] fetchMessages replace path', {
+              threadId,
+              append: false,
+              offset: actualOffset,
+              setInState: fetchedMessages.length,
+            })
             setMessages(fetchedMessages)
 
             // Update latest message ID ref
@@ -1319,16 +1330,21 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           return
         }
 
-        // Fetch the latest messages (just the most recent ones to check for new messages)
-        // Fetch a larger batch to ensure we get the most recent messages, then take the last ones
+        // Fetch the latest messages (merged with siblings) to check for new messages
         const params = {
-          limit: 50, // Fetch a larger batch to ensure we get recent messages
+          limit: 100,
           offset: 0,
+          includeSiblingThreads: true,
         }
-        // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           params.userId = selectedUser.id
         }
+
+        console.log('[Messages] poll for new messages', {
+          threadId: selectedThread.id,
+          params,
+          currentLatestMessageId: currentLatestMessageId,
+        })
 
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${selectedThread.id}/messages`,
@@ -1343,6 +1359,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         if (response.data?.status && response.data?.data) {
           const allFetchedMessages = response.data.data
+
+          console.log('[Messages] poll response', {
+            threadId: selectedThread.id,
+            receivedCount: allFetchedMessages.length,
+            action: 'check for new only (do not replace list)',
+          })
 
           // Messages are returned in ascending order (oldest first), so get the last ones
           // Take the last 10 messages to check for new ones
