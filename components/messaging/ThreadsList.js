@@ -516,8 +516,8 @@ const ThreadsList = ({
                         {getLeadName(thread)}
                       </div>
                       {(() => {
-                        const leadDetails = thread?.lead
-                        const teamsAssigned = leadDetails?.teamsAssigned || []
+                        const teamsAssigned = thread?.lead?.teamsAssigned || []
+                        // console.log('teamsAssigned testing is', teamsAssigned)
                         const hasAssigned = teamsAssigned.length > 0
                         if (hasAssigned) {
                           const uniqueUsers = teamsAssigned
@@ -526,58 +526,51 @@ const ThreadsList = ({
                               const userId = user.id || user.invitedUserId
                               return index === self.findIndex((u) => u && (u.id || u.invitedUserId) === userId)
                             })
+                          const firstUser = uniqueUsers[0]
+                          const moreCount = uniqueUsers.length - 1
                           return (
                             <div
-                              className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] w-[22px] min-h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm overflow-hidden"
+                              className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] min-w-[14px] min-h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm overflow-hidden"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <div className="flex items-center">
-                                {uniqueUsers.slice(0, 2).map((user, index) => (
-                                  <div
-                                    key={user?.id ?? index}
-                                    className={cn(index > 0 && '-ml-1.5')}
-                                    style={{ zIndex: uniqueUsers.length - index }}
-                                  >
-                                    {user?.thumb_profile_image ? (
-                                      <img
-                                        src={user.thumb_profile_image}
-                                        alt=""
-                                        className="w-3.5 h-3.5 rounded-full object-cover border border-white"
-                                      />
-                                    ) : (
-                                      <div className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center border border-white text-[8px] font-semibold leading-none">
-                                        {user?.name?.[0]?.toUpperCase() || '?'}
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                                {uniqueUsers.length > 2 && (
-                                  <div
-                                    className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center border border-white text-[8px] font-semibold leading-none -ml-1.5"
-                                    style={{ zIndex: 0 }}
-                                  >
-                                    +{uniqueUsers.length - 2}
-                                  </div>
+                              <div className="flex items-center gap-0.5 px-0.5">
+                                <div key={firstUser?.id ?? 0}>
+                                  {firstUser?.thumb_profile_image ? (
+                                    <img
+                                      src={firstUser.thumb_profile_image}
+                                      alt=""
+                                      className="w-3.5 h-3.5 rounded-full object-cover border border-white"
+                                    />
+                                  ) : (
+                                    <div className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center border border-white text-[8px] font-semibold leading-none">
+                                      {firstUser?.name?.[0]?.toUpperCase() || '?'}
+                                    </div>
+                                  )}
+                                </div>
+                                {moreCount > 0 && (
+                                  <span className="text-[8px] font-semibold leading-none text-muted-foreground">
+                                    +{moreCount}
+                                  </span>
                                 )}
                               </div>
                             </div>
                           )
                         }
                         const sourceType = thread.threadType || getRecentMessageType(thread)
-                        if (sourceType === 'email' || sourceType === 'messenger' || sourceType === 'instagram' || sourceType === 'sms') {
+                        if (sourceType === 'messenger' || sourceType === 'instagram' ) {    //sourceType === 'email' || || sourceType === 'sms'
                           return <PlatformIcon type={sourceType} size={10} showInBadge />
                         }
-                        return (
+                        {/*return (
                           <div className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] w-[14px] h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                            <Image
+                             <Image
                               src="/messaging/text type message icon.svg"
                               width={8}
                               height={8}
                               alt="SMS"
                               className="object-contain"
-                            />
+                            /> 
                           </div>
-                        )
+                        )*/}
                       })()}
                       {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
                         <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
