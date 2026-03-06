@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { getLeadDetails } from '../globalExtras/ThreadsListUtility'
 
 const ThreadsList = ({
   loading,
@@ -515,6 +516,53 @@ const ThreadsList = ({
                         {getLeadName(thread)}
                       </div>
                       {(() => {
+                        const leadDetails = thread?.lead
+                        const teamsAssigned = leadDetails?.teamsAssigned || []
+                        const hasAssigned = teamsAssigned.length > 0
+                        if (hasAssigned) {
+                          const uniqueUsers = teamsAssigned
+                            .filter((u) => u != null)
+                            .filter((user, index, self) => {
+                              const userId = user.id || user.invitedUserId
+                              return index === self.findIndex((u) => u && (u.id || u.invitedUserId) === userId)
+                            })
+                          return (
+                            <div
+                              className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] w-[22px] min-h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm overflow-hidden"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex items-center">
+                                {uniqueUsers.slice(0, 2).map((user, index) => (
+                                  <div
+                                    key={user?.id ?? index}
+                                    className={cn(index > 0 && '-ml-1.5')}
+                                    style={{ zIndex: uniqueUsers.length - index }}
+                                  >
+                                    {user?.thumb_profile_image ? (
+                                      <img
+                                        src={user.thumb_profile_image}
+                                        alt=""
+                                        className="w-3.5 h-3.5 rounded-full object-cover border border-white"
+                                      />
+                                    ) : (
+                                      <div className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center border border-white text-[8px] font-semibold leading-none">
+                                        {user?.name?.[0]?.toUpperCase() || '?'}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                                {uniqueUsers.length > 2 && (
+                                  <div
+                                    className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center border border-white text-[8px] font-semibold leading-none -ml-1.5"
+                                    style={{ zIndex: 0 }}
+                                  >
+                                    +{uniqueUsers.length - 2}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        }
                         const sourceType = thread.threadType || getRecentMessageType(thread)
                         if (sourceType === 'email' || sourceType === 'messenger' || sourceType === 'instagram' || sourceType === 'sms') {
                           return <PlatformIcon type={sourceType} size={10} showInBadge />
