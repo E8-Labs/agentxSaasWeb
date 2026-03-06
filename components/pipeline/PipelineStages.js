@@ -168,6 +168,9 @@ const PipelineStages = ({
   const [openTaskModal, setOpenTaskModal] = useState(false)
   // when adding task as cadence step, which stage index to add to
   const [pendingTaskStageIndex, setPendingTaskStageIndex] = useState(null)
+  // when editing an existing task step: row and stage index
+  const [editingTaskRow, setEditingTaskRow] = useState(null)
+  const [editingTaskStageIndex, setEditingTaskStageIndex] = useState(null)
 
   // useEffect(() => {
   //   console.log("targetUser key is is", targetUser)
@@ -371,8 +374,19 @@ const PipelineStages = ({
     } else if (value === 'create_task') {
       // Close add menu first to avoid focus-trap conflict with the task modal (prevents FocusTrap.js errors and hang)
       closeAddMenu(stageIndex)
-      setPendingTaskStageIndex(stageIndex)
-      setOpenTaskModal(true)
+      if (isEditing && editingRow) {
+        // Converting existing row (e.g. Make Call) to task: open modal to configure task; on save we updateRow instead of adding new
+        setEditingTaskRow(editingRow)
+        setEditingTaskStageIndex(stageIndex)
+        setPendingTaskStageIndex(null)
+        setOpenTaskModal(true)
+      } else {
+        // Adding a new task step
+        setPendingTaskStageIndex(stageIndex)
+        setEditingTaskRow(null)
+        setEditingTaskStageIndex(null)
+        setOpenTaskModal(true)
+      }
       return
     }
 
@@ -436,15 +450,13 @@ const PipelineStages = ({
       return
     }
 
-    // For 'task' type, open add menu so user can change to another action type
-    if (row.communicationType === 'task' && eventTarget) {
-      const syntheticEvent = { currentTarget: eventTarget }
-      openAddMenu(stageIndex, syntheticEvent)
-      setIsEditing(true)
-      setEditingRow(row)
-      setEditingStageIndex(stageIndex)
-      setSelectedType('task')
-      setSelectedIndex(stageIndex)
+    // For 'task' type, open task modal to edit the task step
+    if (row.communicationType === 'task') {
+      closeAddMenu(stageIndex)
+      setEditingTaskRow(row)
+      setEditingTaskStageIndex(stageIndex)
+      setPendingTaskStageIndex(null)
+      setOpenTaskModal(true)
       return
     }
 
@@ -2356,9 +2368,67 @@ const PipelineStages = ({
                   onClose={() => {
                     setOpenTaskModal(false)
                     setPendingTaskStageIndex(null)
+                    setEditingTaskRow(null)
+                    setEditingTaskStageIndex(null)
+                    setIsEditing(false)
+                    setEditingRow(null)
+                    setEditingStageIndex(null)
                   }}
                   selectedUser={targetUser?.subAccountData?.id ? targetUser?.subAccountData : targetUser}
                   cadenceStepMode={pendingTaskStageIndex !== null}
+                  initialTaskForEdit={
+                    editingTaskRow?.taskPayload
+                      ? (() => {
+                          const p = editingTaskRow.taskPayload
+                          const dueDate =
+                            p.dueDateOffsetDays != null || p.dueDateOffsetHours != null
+                              ? (() => {
+                                  const d = new Date()
+                                  d.setDate(d.getDate() + (p.dueDateOffsetDays || 0))
+                                  d.setHours(d.getHours() + (p.dueDateOffsetHours || 0))
+                                  return d
+                                })()
+                              : null
+                          return {
+                            title: p.title || '',
+                            description: p.description ?? '',
+                            status: p.status || 'todo',
+                            priority: p.priority || 'no-priority',
+                            dueDate,
+                            dueTime: '',
+                            assignedMembers: (p.assignedToUserIds || []).map((id) => ({ id })),
+                          }
+                        })()
+                      : null
+                  }
+                  onUpdateCadenceStep={
+                    editingTaskRow != null && updateRow
+                      ? (formData) => {
+                          const payload = {
+                            title: formData.title?.trim() || 'Task',
+                            description: formData.description ?? '',
+                            status: formData.status || 'todo',
+                            priority: formData.priority || 'no-priority',
+                            assignedToUserIds: Array.isArray(formData.assignedTo) ? formData.assignedTo : [],
+                          }
+                          if (formData.dueDate) {
+                            const due = new Date(formData.dueDate)
+                            const now = new Date()
+                            const diffMs = due.getTime() - now.getTime()
+                            payload.dueDateOffsetDays = Math.max(0, Math.floor(diffMs / (24 * 60 * 60 * 1000)))
+                            payload.dueDateOffsetHours = Math.max(0, Math.round((diffMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)))
+                          }
+                          updateRow(editingTaskStageIndex, editingTaskRow.id, {
+                            communicationType: 'task',
+                            taskPayload: payload,
+                          })
+                          setOpenTaskModal(false)
+                          setPendingTaskStageIndex(null)
+                          setEditingTaskRow(null)
+                          setEditingTaskStageIndex(null)
+                        }
+                      : undefined
+                  }
                   onAddAsCadenceStep={(formData) => {
                     const payload = {
                       title: formData.title?.trim() || 'Task',

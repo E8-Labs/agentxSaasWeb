@@ -18,7 +18,7 @@ import { TypographyBody } from './TypographyCN'
  * Pill-shaped multi-select dropdown for assigning team members.
  * options: [{ id, label, avatar, selected }]
  */
-const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle, contentClassName }) => {
+const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle, contentClassName, dropdown_Menu_Label = "Assign" }) => {
   const [open, setOpen] = useState(false)
   
   const selectedCount = useMemo(
@@ -117,7 +117,7 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle, conte
         }}
       >
         <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
-          Assign agents
+          {dropdown_Menu_Label}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {options.length ? (
