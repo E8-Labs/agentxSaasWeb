@@ -1099,15 +1099,16 @@ const PipelineStages = ({
               provided.innerRef(el)
               droppableContainerRef.current = el
             }}
+            className="h-[57svh] overflow-y-auto pb-36 2xl:pb-24"
             style={{
-              maxHeight: '100vh',
+              // maxHeight: '100vh',
               // overflowY: "auto",
               // borderRadius: "8px",
               // padding: "10px",
               border: 'none',
               scrollbarWidth: 'none',
-              marginTop: 20,
-              paddingBottom: '80px',
+              paddingTop: 20,
+              // paddingBottom: '80px',
             }}
           >
             {pipelineStages.map((item, index) => (
@@ -1121,7 +1122,6 @@ const PipelineStages = ({
                   <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
-                    {...provided.dragHandleProps}
                     style={{
                       ...provided.draggableProps.style,
                       // border: "1px solid red",
@@ -1151,14 +1151,19 @@ const PipelineStages = ({
                       message={errorMessage}
                       type={SnackbarTypes.Error}
                     />
-                    <div className="w-[5%]">
+                    <div className="w-[5%] h-auto">
                       {index > 0 && (
-                        <div className="outline-none mt-2">
+                        <div
+                          className="outline-none mt-2 cursor-grab active:cursor-grabbing"
+                          {...provided.dragHandleProps}
+                          role="button"
+                          aria-label="Drag to reorder stage"
+                        >
                           <Image
                             src={'/assets/list.png'}
                             height={6}
                             width={16}
-                            alt="*"
+                            alt="Drag handle"
                           />
                         </div>
                       )}
@@ -1297,14 +1302,12 @@ const PipelineStages = ({
                                       referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
                                     }
 
-                                    console.log('rowWithReferencePoint testing is', row)
-
                                     return (
                                       <div
                                         key={row.id}
                                         className="flex flex-row items-center justify-center mb-2"
                                       >
-                                        {/*<div className="w-[16px]">
+                                        <div className="w-[16px]">
                                           {rowIndex > 0 && (
                                             <div className="outline-none mt-2">
                                               <Image
@@ -1315,7 +1318,7 @@ const PipelineStages = ({
                                               />
                                             </div>
                                           )}
-                                        </div>*/}
+                                        </div>
                                         <div
                                           className="mt-2 ms-2"
                                           style={styles.headingStyle}
@@ -1548,7 +1551,6 @@ const PipelineStages = ({
 
                                                   <button
                                                     onClick={(e) => {
-                                                      console.log('row clicked', row)
                                                       e.stopPropagation()
                                                       handleEditRow(index, row, e)
                                                     }}
@@ -1865,7 +1867,6 @@ const PipelineStages = ({
                           </div>
                         )}
                       </div>
-
                       {index > 0 &&
                         !isInboundAgent &&
                         !(item.identifier === 'booked' || (item.identifier === 'account_created' || item.identifier === 'on_trial' || item.identifier === 'paying' || item.identifier === 'cancelled')) && (
