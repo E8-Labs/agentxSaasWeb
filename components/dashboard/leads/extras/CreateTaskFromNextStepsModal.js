@@ -29,7 +29,10 @@ const CreateTaskFromNextStepsModal = ({
   onTaskCreated = null,
   cadenceStepMode = false,
   onAddAsCadenceStep = null,
+  initialTaskForEdit = null,
+  onUpdateCadenceStep = null,
 }) => {
+  const isEditingCadenceTask = Boolean(onUpdateCadenceStep)
   const [teamMembers, setTeamMembers] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isValidForm, setIsValidForm] = useState(false)
@@ -80,8 +83,17 @@ const CreateTaskFromNextStepsModal = ({
     }
   }, [open, fetchTeamMembers])
 
-  // Handle task creation (or add as cadence step when cadenceStepMode)
+  // Handle task creation (or add/update as cadence step when cadenceStepMode or editing)
   const handleSubmit = async (taskData) => {
+    if (isEditingCadenceTask && onUpdateCadenceStep) {
+      if (!taskData.title?.trim()) {
+        toast.error('Title is required')
+        return false
+      }
+      onUpdateCadenceStep(taskData)
+      onClose()
+      return
+    }
     if (cadenceStepMode && onAddAsCadenceStep) {
       if (!taskData.title?.trim()) {
         toast.error('Title is required')
@@ -125,10 +137,13 @@ const CreateTaskFromNextStepsModal = ({
   // Format next steps for description
   const formattedDescription = nextSteps ? formatNextStepsForDescription(nextSteps) : ''
 
-  // When opened from team member context (e.g. activity drawer), pre-select that team member in Assign dropdown
-  const defaultAssignees = selectedUser
-    ? [selectedUser.invitedUserId || selectedUser.invitedUser?.id || selectedUser.id].filter(Boolean)
-    : []
+  // When opened from team member context (e.g. activity drawer), pre-select that team member in Assign dropdown (when editing, use task's assignedMembers)
+  const defaultAssignees =
+    initialTaskForEdit?.assignedMembers?.length
+      ? initialTaskForEdit.assignedMembers.map((m) => m.id)
+      : selectedUser
+        ? [selectedUser.invitedUserId || selectedUser.invitedUser?.id || selectedUser.id].filter(Boolean)
+        : []
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -145,7 +160,7 @@ const CreateTaskFromNextStepsModal = ({
           style={{ borderColor: '#eaeaea' }}
         >
           <DialogTitle>
-            <TypographyH3>New Task</TypographyH3>
+            <TypographyH3>{isEditingCadenceTask ? 'Edit Task' : 'New Task'}</TypographyH3>
           </DialogTitle>
           <DialogPrimitive.Close asChild>
             <CloseBtn aria-label="Close" onClick={onClose} />
@@ -157,6 +172,7 @@ const CreateTaskFromNextStepsModal = ({
 
         <div className="flex-1 overflow-y-auto px-4 py-3">
           <TaskForm
+            task={initialTaskForEdit}
             teamMembers={teamMembers}
             onSubmit={handleSubmit}
             onCancel={onClose}
@@ -172,7 +188,7 @@ const CreateTaskFromNextStepsModal = ({
             selectedUser={selectedUser}
             elevatedZIndex={elevatedZIndex}
             defaultAssignees={defaultAssignees.length > 0 ? defaultAssignees : undefined}
-            requireDescription={!cadenceStepMode}
+            requireDescription={!cadenceStepMode && !isEditingCadenceTask}
           />
         </div>
 
@@ -196,12 +212,14 @@ const CreateTaskFromNextStepsModal = ({
               <>
                 <span className="animate-spin">⏳</span>
 
-                Creating...
+                {isEditingCadenceTask ? 'Updating...' : 'Creating...'}
               </>
+            ) : isEditingCadenceTask ? (
+              'Update Task'
             ) : cadenceStepMode ? (
               <>
                 <span>+</span>
-                Add to Cadence
+                Add
               </>
             ) : (
               <>
