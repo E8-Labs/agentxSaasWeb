@@ -167,8 +167,7 @@ export default function PlanConfiguration({
     },
     {
       label: 'AI Emails and Texts',
-      tooltip:
-        'Allow AI actions for email and text from call transcripts and messaging (e.g. AI-drafted follow-ups).',
+      tooltip: "Allow AI to handle your incoming/outgoing emails and texts.",  // 'Allow AI actions for email and text from call transcripts and messaging (e.g. AI-drafted follow-ups).',
       stateKey: 'allowAIEmailAndText',
     },
     {
@@ -213,30 +212,30 @@ export default function PlanConfiguration({
       setLanguageTitle('English and Spanish Compatible')
       setTrialValidForDays('')
       setTrialDaysError(false)
-    setFeatures({
-      allowLanguageSelection: false,
-      toolsActions: false,
-      calendars: false,
-      liveTransfer: false,
-      ragKnowledgeBase: false,
-      embedBrowserWebhookAgent: false,
-      apiKey: false,
-      voicemail: false,
-      allowTextMessages: false,
-      allowEmails: false,
-      allowAIEmailAndText: false,
-      allowDialer: false,
-      twilio: false,
-      sendText: false,
-      allowTrial: false,
-      allowTeamSeats: false,
-      allowLeadSource: false,
-    })
-    setCustomFeatures([])
-    setAllowedFeatures([])
-    setNoOfSeats('')
-    setCostPerAdditionalSeat('')
-  }
+      setFeatures({
+        allowLanguageSelection: false,
+        toolsActions: false,
+        calendars: false,
+        liveTransfer: false,
+        ragKnowledgeBase: false,
+        embedBrowserWebhookAgent: false,
+        apiKey: false,
+        voicemail: false,
+        allowTextMessages: false,
+        allowEmails: false,
+        allowAIEmailAndText: false,
+        allowDialer: false,
+        twilio: false,
+        sendText: false,
+        allowTrial: false,
+        allowTeamSeats: false,
+        allowLeadSource: false,
+      })
+      setCustomFeatures([])
+      setAllowedFeatures([])
+      setNoOfSeats('')
+      setCostPerAdditionalSeat('')
+    }
   }, [open, isEditPlan, configurationData])
 
   // Initialize current agency plan when component opens or selectedAgency changes
