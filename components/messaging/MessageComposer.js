@@ -214,6 +214,7 @@ const MessageComposer = ({
   onOpenAuthPopup,
   onCommentAdded,
 }) => {
+
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [isExpanded, setIsExpanded] = useState(true)
   const [userData, setUserData] = useState(null)
@@ -1228,6 +1229,8 @@ const MessageComposer = ({
   const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
   const showSocialComposer = false
 
+  console.log("!HAS Facebook", hasFacebookConnection, "!has insta", hasInstagramConnection, "social sendable", sendableSocial, "isexpeded status", isExpanded)
+
   const handleSendSocial = async (e) => {
     e?.preventDefault()
     const raw = (composerData.socialBody ?? socialContent ?? '').trim()
@@ -1303,6 +1306,7 @@ const MessageComposer = ({
       const response = await axios.delete(url, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
+      console.log("Disconnect Social Response is", response);
       toast.success(platform === 'facebook' ? 'Facebook disconnected' : 'Instagram disconnected')
       onConnectionSuccess?.()
     } catch (err) {
@@ -1474,7 +1478,7 @@ const MessageComposer = ({
 
         {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
           <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
-            {!hasFacebookConnection && (
+            {!hasFacebookConnection ? (
               <div className="flex flex-col items-center gap-2">
                 <Image
                   src="/fbInsta.png"
@@ -1483,6 +1487,9 @@ const MessageComposer = ({
                   alt="Facebook"
                   className="object-contain"
                 />
+                <div style={{ fontWeight: '600', fontSize: '16px' }}>
+                  Connect Account
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Connect a Facebook page or Instagram page to send messages
                 </p>
@@ -1502,33 +1509,12 @@ const MessageComposer = ({
                   </Button>*/}
                 </div>
               </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Select a Messenger or Instagram conversation from the list to reply here.
+              </p>
             )}
-            {!hasInstagramConnection && (
-              <div className="flex flex-col items-center gap-2">
-                <Image
-                  src="/fbInsta.png"
-                  width={42}
-                  height={24}
-                  alt="Facebook"
-                  className="object-contain"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Connect a Facebook page or Instagram page to send messages
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" className="w-fit h-[36px] w-[88px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
-                    {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-                    Connect
-                  </Button>
-                  
-                  {/*<span className="text-xs text-muted-foreground">or</span>
-                  <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('instagram')} disabled={connectingOAuth}>
-                    Connect manually
-                  </Button>*/}
-                </div>
-              </div>
-            )}
-            {hasFacebookConnection && hasInstagramConnection && (
+            {hasFacebookConnection || hasInstagramConnection && (
               <p className="text-sm text-muted-foreground">
                 Select a Messenger or Instagram conversation from the list to reply here.
               </p>
