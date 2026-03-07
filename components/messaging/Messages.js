@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
@@ -64,6 +64,8 @@ function htmlToPreviewText(html) {
 
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const THREADS_PAGE_SIZE = 50
   const [threads, setThreads] = useState([])
   const [allThreadsCount, setAllThreadsCount] = useState(null)
@@ -1619,47 +1621,20 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     [selectedUser, fetchThreads, searchValue, appliedTeamMemberIds, fetchMessages],
   )
 
-  // Star/unstar message (user-specific, persisted via API)
-  const handleStarToggle = useCallback(
-    async (messageId) => {
-      if (!selectedThread?.id || !messageId) {
-        console.warn('[Messages] handleStarToggle skipped: no thread or messageId', { selectedThreadId: selectedThread?.id, messageId })
-        return
+  // Persist selected thread in URL so it survives refresh
+  const setThreadIdInUrl = useCallback(
+    (threadId) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? '')
+      if (threadId != null) {
+        params.set('threadId', String(threadId))
+      } else {
+        params.delete('threadId')
+        params.delete('messageId')
       }
-      const localData = localStorage.getItem('User')
-      if (!localData) {
-        console.warn('[Messages] handleStarToggle skipped: no User in localStorage')
-        return
-      }
-      const token = JSON.parse(localData).token
-      const url = `${Apis.getMessagesForThread}/${selectedThread.id}/messages/${messageId}/star`
-      const params = selectedUser?.id ? { userId: selectedUser.id } : {}
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-      const isStarred = starredMessageIds.has(messageId)
-      console.log('[Messages] Star API call', isStarred ? 'DELETE' : 'POST', url, params)
-      try {
-        if (isStarred) {
-          await axios.delete(url, { ...config, params })
-          setStarredMessageIds((prev) => {
-            const next = new Set(prev)
-            next.delete(messageId)
-            return next
-          })
-        } else {
-          await axios.post(url, {}, { ...config, params })
-          setStarredMessageIds((prev) => new Set([...prev, messageId]))
-        }
-      } catch (err) {
-        console.error('Star toggle failed:', err)
-        toast.error(err.response?.data?.message || err.message || (isStarred ? 'Failed to unstar' : 'Failed to star'))
-      }
+      const query = params.toString()
+      router.replace(query ? `${pathname}?${query}` : pathname)
     },
-    [selectedThread?.id, selectedUser?.id, starredMessageIds],
+    [pathname, router, searchParams]
   )
 
   // Handle thread selection
@@ -1674,6 +1649,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     if (thread.unreadCount > 0) {
       markThreadAsRead(thread.id)
     }
+    setThreadIdInUrl(thread.id)
 
     // Clear draft state when switching threads (will be refetched when messages load)
     setDrafts([])
@@ -3170,9 +3146,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (threadToSelect.unreadCount > 0) {
           markThreadAsRead(threadToSelect.id)
         }
+        setThreadIdInUrl(threadToSelect.id)
       }
     }
-  }, [threads, selectedThread, fetchMessages, markThreadAsRead, searchParams])
+  }, [threads, selectedThread, fetchMessages, markThreadAsRead, searchParams, setThreadIdInUrl])
 
   // Scroll to specific message when messages are loaded and messageId is in query params
   useEffect(() => {
@@ -3551,10 +3528,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         })
         // Refresh threads
         fetchThreads(searchValue, appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
-        // Clear selected thread if it was deleted
+        // Clear selected thread if it was deleted and remove threadId from URL
         if (selectedThread?.id === threadId) {
           setSelectedThread(null)
           setMessages([])
+          setThreadIdInUrl(null)
         }
       } else {
         setSnackbar({
@@ -3571,7 +3549,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         type: SnackbarTypes.Error,
       })
     }
-  }, [searchValue, selectedThread, fetchThreads, selectedUser])
+  }, [searchValue, selectedThread, fetchThreads, selectedUser, setThreadIdInUrl])
 
   // Setup scroll listener (re-run when thread changes so we attach after container mounts)
   useEffect(() => {
