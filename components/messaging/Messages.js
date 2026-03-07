@@ -1475,13 +1475,32 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                   return prevMessages
                 })
 
-                // Update thread unread count if needed
+                // Update thread list: preview (latest message), lastMessageAt, and unread count
+                // so the left sidebar shows the correct preview after auto-replies or any new inbound messages
+                const latestNewMessage = newMessages[newMessages.length - 1]
                 setThreads((prevThreads) =>
-                  prevThreads.map((t) =>
-                    t.id === selectedThread.id
-                      ? { ...t, unreadCount: (t.unreadCount || 0) + newMessages.length }
-                      : t
-                  )
+                  prevThreads.map((t) => {
+                    if (t.id !== selectedThread.id) return t
+                    const existingMessages = t.messages || []
+                    const newPreviewMessage = {
+                      id: latestNewMessage.id,
+                      content: latestNewMessage.content,
+                      messageType: latestNewMessage.messageType,
+                      direction: latestNewMessage.direction,
+                      createdAt: latestNewMessage.createdAt,
+                      ...(latestNewMessage.subject != null && { subject: latestNewMessage.subject }),
+                    }
+                    const newMessagesList = [
+                      newPreviewMessage,
+                      ...existingMessages.filter((m) => m.id !== latestNewMessage.id),
+                    ].slice(0, 50)
+                    return {
+                      ...t,
+                      lastMessageAt: latestNewMessage.createdAt || new Date().toISOString(),
+                      messages: newMessagesList,
+                      unreadCount: (t.unreadCount || 0) + newMessages.length,
+                    }
+                  })
                 )
               } else { }
             } else { }
