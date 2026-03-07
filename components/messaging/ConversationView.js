@@ -7,6 +7,7 @@ import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
 
 import PlatformIcon from './PlatformIcon'
+import { Star } from 'lucide-react'
 import DraftCards from './DraftCards'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -52,6 +53,8 @@ const ConversationView = ({
   onShowRequestFeature,
   onLinkToLeadFromMessage,
   linkingLeadId = null,
+  starredMessageIds = new Set(),
+  onStarToggle = null,
   drafts = [],
   draftsLoading = false,
   onSelectDraft,
@@ -460,6 +463,33 @@ const ConversationView = ({
                               />
                             )}
                         </div>
+
+                        {onStarToggle && (
+                          <TooltipProvider delayDuration={0}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onStarToggle(message.id)
+                                  }}
+                                  className="flex-shrink-0 p-1 rounded transition-colors hover:bg-black/5"
+                                  aria-label={starredMessageIds?.has(message.id) ? 'Unstar message' : 'Star message'}
+                                >
+                                  {starredMessageIds?.has(message.id) ? (
+                                    <Star size={16} className="fill-brand-primary text-brand-primary" />
+                                  ) : (
+                                    <Star size={16} className="text-gray-400" />
+                                  )}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                {starredMessageIds?.has(message.id) ? 'Unstar message' : 'Star message'}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
 
                         {isOutbound && (
                           <TooltipProvider delayDuration={0}>
