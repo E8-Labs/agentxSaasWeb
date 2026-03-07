@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star, Settings, Sparkles } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star, Settings, Sparkles, Check } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -498,74 +498,74 @@ const ThreadsList = ({
                 const leadId = thread.lead?.id
                 const isShortlisted = leadId && shortlistedLeadIds.has(leadId)
                 return (
-                <div
-                  key={thread.id}
-                  onClick={() => onSelectThread(thread)}
-                  className={cn(
-                    "relative py-4 px-3 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-none transition-transform duration-150 ease-out active:scale-[0.98]",
-                    selectedThread?.id === thread.id
-                      ? 'bg-thread-selected'
-                      : 'hover:bg-gray-50'
-                  )}
-                >
-                  {selectedThread?.id === thread.id && (
-                    <div
-                      className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r"
-                      style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
-                      aria-hidden
-                    />
-                  )}
-                  <div className="flex items-start gap-3 ">
-                    <div className="relative flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full border border-white bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
-                        {getLeadName(thread)}
-                      </div>
-                      {(() => {
-                        const teamsAssigned = thread?.lead?.teamsAssigned || []
-                        // console.log('teamsAssigned testing is', teamsAssigned)
-                        const hasAssigned = teamsAssigned.length > 0
-                        if (hasAssigned) {
-                          const uniqueUsers = teamsAssigned
-                            .filter((u) => u != null)
-                            .filter((user, index, self) => {
-                              const userId = user.id || user.invitedUserId
-                              return index === self.findIndex((u) => u && (u.id || u.invitedUserId) === userId)
-                            })
-                          const firstUser = uniqueUsers[0]
-                          const moreCount = uniqueUsers.length - 1
-                          return (
-                            <div
-                              className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] min-w-[14px] min-h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm overflow-hidden"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <div className="flex items-center gap-0.5 px-0.5">
-                                <div key={firstUser?.id ?? 0}>
-                                  {firstUser?.thumb_profile_image ? (
-                                    <img
-                                      src={firstUser.thumb_profile_image}
-                                      alt=""
-                                      className="w-3.5 h-3.5 rounded-full object-cover border border-white"
-                                    />
-                                  ) : (
-                                    <div className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center border border-white text-[8px] font-semibold leading-none">
-                                      {firstUser?.name?.[0]?.toUpperCase() || '?'}
-                                    </div>
+                  <div
+                    key={thread.id}
+                    onClick={() => onSelectThread(thread)}
+                    className={cn(
+                      "relative py-4 px-3 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-none transition-transform duration-150 ease-out active:scale-[0.98]",
+                      selectedThread?.id === thread.id
+                        ? 'bg-thread-selected'
+                        : 'hover:bg-gray-50'
+                    )}
+                  >
+                    {selectedThread?.id === thread.id && (
+                      <div
+                        className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r"
+                        style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
+                        aria-hidden
+                      />
+                    )}
+                    <div className="flex items-start gap-3 ">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full border border-white bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-sm">
+                          {getLeadName(thread)}
+                        </div>
+                        {(() => {
+                          const teamsAssigned = thread?.lead?.teamsAssigned || []
+                          // console.log('teamsAssigned testing is', teamsAssigned)
+                          const hasAssigned = teamsAssigned.length > 0
+                          if (hasAssigned) {
+                            const uniqueUsers = teamsAssigned
+                              .filter((u) => u != null)
+                              .filter((user, index, self) => {
+                                const userId = user.id || user.invitedUserId
+                                return index === self.findIndex((u) => u && (u.id || u.invitedUserId) === userId)
+                              })
+                            const firstUser = uniqueUsers[0]
+                            const moreCount = uniqueUsers.length - 1
+                            return (
+                              <div
+                                className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] min-w-[14px] min-h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="flex items-center gap-0.5 px-0.5">
+                                  <div key={firstUser?.id ?? 0}>
+                                    {firstUser?.thumb_profile_image ? (
+                                      <img
+                                        src={firstUser.thumb_profile_image}
+                                        alt=""
+                                        className="w-3.5 h-3.5 rounded-full object-cover border border-white"
+                                      />
+                                    ) : (
+                                      <div className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center border border-white text-[8px] font-semibold leading-none">
+                                        {firstUser?.name?.[0]?.toUpperCase() || '?'}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {moreCount > 0 && (
+                                    <span className="text-[8px] font-semibold leading-none text-muted-foreground">
+                                      +{moreCount}
+                                    </span>
                                   )}
                                 </div>
-                                {moreCount > 0 && (
-                                  <span className="text-[8px] font-semibold leading-none text-muted-foreground">
-                                    +{moreCount}
-                                  </span>
-                                )}
                               </div>
-                            </div>
-                          )
-                        }
-                        const sourceType = thread.threadType || getRecentMessageType(thread)
-                        if (sourceType === 'messenger' || sourceType === 'instagram' ) {    //sourceType === 'email' || || sourceType === 'sms'
-                          return <PlatformIcon type={sourceType} size={10} showInBadge />
-                        }
-                        {/*return (
+                            )
+                          }
+                          const sourceType = thread.threadType || getRecentMessageType(thread)
+                          if (sourceType === 'messenger' || sourceType === 'instagram') {    //sourceType === 'email' || || sourceType === 'sms'
+                            return <PlatformIcon type={sourceType} size={10} showInBadge />
+                          }
+                          {/*return (
                           <div className="absolute bottom-0 right-0 translate-y-[calc(50%-8px)] w-[14px] h-[14px] rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                              <Image
                               src="/messaging/text type message icon.svg"
@@ -576,133 +576,148 @@ const ThreadsList = ({
                             /> 
                           </div>
                         )*/}
-                      })()}
-                      {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
-                          <TypographyCaptionSemibold className="text-white">
-                            {formatUnreadCount(thread.unreadCount)}
-                          </TypographyCaptionSemibold>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0 flex flex-col gap-0.5 items-start">
-                      <div className="flex w-full items-center justify-between">
-                        <TypographyBody className="font-medium text-black truncate text-[14px]">
-                          {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Lead')}
-                        </TypographyBody>
-                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                          {leadId && (
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      onShortlistToggle?.(leadId)
-                                    }}
-                                    className="p-1 rounded transition-colors hover:bg-black/5"
-                                    aria-label={isShortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
-                                  >
-                                    {isShortlisted ? (
-                                      <Star size={16} className="fill-brand-primary text-brand-primary" />
-                                    ) : (
-                                      <Star size={16} className="text-gray-500" />
-                                    )}
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom">
-                                  {isShortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                          <TypographyCaption className="text-gray-500 text-[14px] leading-[18px]">
-                            {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
-                          </TypographyCaption>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button
-                                type="button"
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-1 hover:bg-gray-200 rounded transition-colors"
-                                aria-label="Thread options"
-                              >
-                                <MoreVertical size={16} className="text-gray-500" />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                              align="end"
-                              className="min-w-[160px] rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] [&_svg]:text-black"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  if (onDeleteThread && leadId) {
-                                    onDeleteThread(leadId, thread.id)
-                                  }
-                                }}
-                                className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                              >
-                                <Trash size={16} />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                      <TypographyCaption className="text-gray-500 truncate text-[14px] leading-[18px]">
-                        {(() => {
-                          const lastMessage = thread.messages?.[0]
-                          if (!lastMessage) return 'No messages yet'
-                          let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
-                          const trimmed = text.trim()
-                          if (/^\[\d+ .+\]$/.test(trimmed)) {
-                            if (/voice message/i.test(trimmed)) text = 'Voice message'
-                            else if (/image/i.test(trimmed)) text = 'Photo'
-                            else if (/video|reel/i.test(trimmed)) text = 'Video'
-                            else text = 'Attachment'
-                          }
-                          const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
-                          return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
                         })()}
-                      </TypographyCaption>
-                      {thread.lead?.pipelineStage?.stageTitle && (
-                        <div className="inline-flex w-fit items-center gap-2 px-2.5 py-1 mt-0.5 border border-gray-200 rounded-md">
-                          <TypographyCaption className="text-darkGray font-normal text-[14px] leading-[18px]">
-                            {thread.lead.pipelineStage.stageTitle}
-                          </TypographyCaption>
-                        </div>
-                      )}
-                      {/* Hot Lead Tags */}
-                      {thread.lead?.tags && thread.lead.tags.length > 0 && (
-                        <div className="flex items-center gap-2 mt-1">
-                          {thread.lead.tags.map((tag, index) => {
-                            // Check if tag is "Hot lead" or similar
-                            const isHotLead = tag.toLowerCase().includes('hot') || tag.toLowerCase().includes('lead')
-                            if (isHotLead) {
-                              return (
-                                <div
-                                  key={index}
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100"
+                        {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
+                            <TypographyCaptionSemibold className="text-white">
+                              {formatUnreadCount(thread.unreadCount)}
+                            </TypographyCaptionSemibold>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0 flex flex-col gap-0.5 items-start">
+                        <div className="flex w-full items-center justify-between">
+                          <TypographyBody className="font-medium text-black truncate text-[14px]">
+                            {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Lead')}
+                          </TypographyBody>
+                          <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                            {leadId && (
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        onShortlistToggle?.(leadId)
+                                      }}
+                                      className="p-1 rounded transition-colors hover:bg-black/5"
+                                      aria-label={isShortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
+                                    >
+                                      {isShortlisted ? (
+                                        <Star size={16} className="fill-brand-primary text-brand-primary" />
+                                      ) : (
+                                        <Star size={16} className="text-gray-500" />
+                                      )}
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="bottom">
+                                    {isShortlisted ? 'Remove from shortlist' : 'Add to shortlist'}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                            <TypographyCaption className="text-gray-500 text-[14px] leading-[18px]">
+                              {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
+                            </TypographyCaption>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                  aria-label="Thread options"
                                 >
-                                  <span>🔥</span>
-                                  <TypographyCaption className="text-gray-700">
-                                    Hot lead
-                                  </TypographyCaption>
-                                </div>
-                              )
-                            }
-                            return null
-                          })}
+                                  <MoreVertical size={16} className="text-gray-500" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="min-w-[160px] rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] [&_svg]:text-black"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {
+                                  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && filterType === "unreplied" && (
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        // if (onDeleteThread && leadId) {
+                                        //   onDeleteThread(leadId, thread.id)
+                                        // }
+                                      }}
+                                      className="flex items-center gap-2 cursor-pointer text-brand-primary focus:text-brand-primary focus:bg-red-50"
+                                    >
+                                      <Check size={16} />
+                                      Mark as replied
+                                    </DropdownMenuItem>
+                                  )}
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (onDeleteThread && leadId) {
+                                      onDeleteThread(leadId, thread.id)
+                                    }
+                                  }}
+                                  className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                                >
+                                  <Trash size={16} color="red" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </div>
-                      )}
+                        <TypographyCaption className="text-gray-500 truncate text-[14px] leading-[18px]">
+                          {(() => {
+                            const lastMessage = thread.messages?.[0]
+                            if (!lastMessage) return 'No messages yet'
+                            let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                            const trimmed = text.trim()
+                            if (/^\[\d+ .+\]$/.test(trimmed)) {
+                              if (/voice message/i.test(trimmed)) text = 'Voice message'
+                              else if (/image/i.test(trimmed)) text = 'Photo'
+                              else if (/video|reel/i.test(trimmed)) text = 'Video'
+                              else text = 'Attachment'
+                            }
+                            const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
+                            return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
+                          })()}
+                        </TypographyCaption>
+                        {thread.lead?.pipelineStage?.stageTitle && (
+                          <div className="inline-flex w-fit items-center gap-2 px-2.5 py-1 mt-0.5 border border-gray-200 rounded-md">
+                            <TypographyCaption className="text-darkGray font-normal text-[14px] leading-[18px]">
+                              {thread.lead.pipelineStage.stageTitle}
+                            </TypographyCaption>
+                          </div>
+                        )}
+                        {/* Hot Lead Tags */}
+                        {thread.lead?.tags && thread.lead.tags.length > 0 && (
+                          <div className="flex items-center gap-2 mt-1">
+                            {thread.lead.tags.map((tag, index) => {
+                              // Check if tag is "Hot lead" or similar
+                              const isHotLead = tag.toLowerCase().includes('hot') || tag.toLowerCase().includes('lead')
+                              if (isHotLead) {
+                                return (
+                                  <div
+                                    key={index}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100"
+                                  >
+                                    <span>🔥</span>
+                                    <TypographyCaption className="text-gray-700">
+                                      Hot lead
+                                    </TypographyCaption>
+                                  </div>
+                                )
+                              }
+                              return null
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
+                );
               })}
             </div>
             {loadingMoreThreads && (
