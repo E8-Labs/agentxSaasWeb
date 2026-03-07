@@ -428,14 +428,14 @@ export const PromptTagInput = ({
   return (
     <div className="" style={{ position: 'relative' }}>
       <div
-        className="flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0"
+        className="flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0 px-[2px]"
         style={{
           border: '1px solid #00000020',
           paddingRight: '10px',
         }}
       >
         <textarea
-          className="outline-none rounded-xl focus:ring-0 border-none w-full  min-h-[50px]"
+          className="outline-none rounded-xl focus:ring-0 border-none w-full min-h-[50px]"
           onClick={() => {
             setShowScriptModal(true)
           }}
@@ -447,7 +447,8 @@ export const PromptTagInput = ({
           style={{
             fontSize: '16px',
             width: '100%',
-            fontWeight: '500',
+            fontWeight: 400,
+            color: 'rgba(0,0,0,0.8)',
             fontSize: 15,
             height: isSubject
               ? '7vh'
@@ -464,7 +465,7 @@ export const PromptTagInput = ({
           // disabled={true}
         />
         {!isSubject && (
-          <div className="h-[50px] flex flex-col justify-center">
+          <div className="absolute top-1 right-1 h-[50px] flex flex-col justify-center">
             <button
               onClick={() => {
                 setShowScriptModal(true)

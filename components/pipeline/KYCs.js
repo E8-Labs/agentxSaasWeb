@@ -1,5 +1,6 @@
 import { Box, CircularProgress, Modal, Popover } from '@mui/material'
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
+import { MoreHorizontal } from 'lucide-react'
+import { CaretDown, CaretUp } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -359,11 +360,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       fontWeight: '700',
     },
     inputStyle: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '500',
     },
     dropdownMenu: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '500',
       color: '#00000070',
     },
@@ -432,13 +433,19 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
 
       /> */}
 
-      <div style={styles.headingStyle} className="mt-4">
+      <div style={styles.headingStyle} className="mt-4 py-3">
         {GetTitleForKyc()}
       </div>
-      <div className="border p-2 rounded-lg p-4 w-full mt-4">
-        <div className="flex flex-row items-center justify-between w-full">
-          <div style={styles.inputStyle}>Need</div>
+      <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+          onClick={() => setShowSellerNeedData(!showSellerNeedData)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowSellerNeedData(!showSellerNeedData); } }}
+        >
           <div className="flex flex-row items-center gap-2">
+            <div style={styles.inputStyle}>Need</div>
             <div
               className="border flex flex-row items-center justify-center"
               style={{
@@ -451,26 +458,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             >
               {SellerNeedData?.length}
             </div>
-            <button
-              onClick={() => {
-                setShowSellerNeedData(!showSellerNeedData)
-              }}
-            >
-              {showSellerNeedData ? (
-                <CaretUp size={25} weight="bold" />
-              ) : (
-                <CaretDown size={25} weight="bold" />
-              )}
-            </button>
           </div>
+          <span aria-hidden="true">
+            {showSellerNeedData ? (
+              <CaretUp size={14} weight="bold" />
+            ) : (
+              <CaretDown size={14} weight="bold" />
+            )}
+          </span>
         </div>
 
-        <div className="bg-[#98989810] p-2 mt-4">
+        <div className="bg-black/[0.02] p-2 px-3">
           {showSellerNeedData && (
             <div>
               {SellerNeedData.map((item, index) => (
                 <div key={index} className="">
-                  <div className="flex flex-row items-center justify-between ">
+                  <div className="flex flex-row items-center justify-between py-3 h-auto border-b border-[#eaeaea]">
                     <div style={styles.inputStyle}>{item.question}</div>
                     <button
                       aria-describedby={id}
@@ -478,7 +481,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         handleOpenPopover(event, item)
                       }}
                     >
-                      <DotsThree size={35} weight="bold" />
+                      <MoreHorizontal size={16} />
                     </button>
                     <Popover
                       id={id}
@@ -529,8 +532,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-brand-primary mt-4"
-            style={styles.inputStyle}
+            className="underline text-brand-primary mt-4 text-sm font-normal"
             onClick={() => {
               setOpenSellerNeeds(true)
               setAddSellerKyc(true)
@@ -541,10 +543,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         </div>
       </div>
 
-      <div className="border p-2 rounded-lg p-4 w-full mt-4">
-        <div className="flex flex-row items-center justify-between w-full">
-          <div style={styles.inputStyle}>Motivation</div>
+      <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+          onClick={() => setShowSellerMotivationData(!showSellerMotivationData)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowSellerMotivationData(!showSellerMotivationData); } }}
+        >
           <div className="flex flex-row items-center gap-2">
+            <div style={styles.inputStyle}>Motivation</div>
             <div
               className="border flex flex-row items-center justify-center"
               style={{
@@ -557,26 +565,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             >
               {SellerMotivationData?.length}
             </div>
-            <button
-              onClick={() => {
-                setShowSellerMotivationData(!showSellerMotivationData)
-              }}
-            >
-              {showSellerMotivationData ? (
-                <CaretUp size={25} weight="bold" />
-              ) : (
-                <CaretDown size={25} weight="bold" />
-              )}
-            </button>
           </div>
+          <span aria-hidden="true">
+            {showSellerMotivationData ? (
+              <CaretUp size={14} weight="bold" />
+            ) : (
+              <CaretDown size={14} weight="bold" />
+            )}
+          </span>
         </div>
 
-        <div className="mt-4 bg-[#98989810] p-2">
+        <div className="bg-black/[0.02] p-2 px-3">
           {showSellerMotivationData && (
             <div>
               {SellerMotivationData.map((item, index) => (
                 <div key={index}>
-                  <div className="flex flex-row items-center justify-between ">
+                  <div className="flex flex-row items-center justify-between py-3 h-auto border-b border-[#eaeaea]">
                     <div style={styles.inputStyle}>{item.question}</div>
                     <button
                       aria-describedby={id}
@@ -584,7 +588,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         handleOpenPopover(event, item)
                       }}
                     >
-                      <DotsThree size={35} weight="bold" />
+                      <MoreHorizontal size={16} />
                     </button>
                     <Popover
                       id={id}
@@ -635,8 +639,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-brand-primary mt-4"
-            style={styles.inputStyle}
+            className="underline text-brand-primary mt-4 text-sm font-normal"
             onClick={() => {
               setOpenSelerMotivation(true)
               setAddSellerKyc(true)
@@ -647,10 +650,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         </div>
       </div>
 
-      <div className="border p-2 rounded-lg p-4 w-full mt-4">
-        <div className="flex flex-row items-center justify-between w-full">
-          <div style={styles.inputStyle}>Urgency</div>
+      <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+          onClick={() => setShowSellerUrgencyData(!showSellerUrgencyData)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowSellerUrgencyData(!showSellerUrgencyData); } }}
+        >
           <div className="flex flex-row items-center gap-2">
+            <div style={styles.inputStyle}>Urgency</div>
             <div
               className="border flex flex-row items-center justify-center"
               style={{
@@ -663,26 +672,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             >
               {SellerUrgencyData?.length}
             </div>
-            <button
-              onClick={() => {
-                setShowSellerUrgencyData(!showSellerUrgencyData)
-              }}
-            >
-              {showSellerUrgencyData ? (
-                <CaretUp size={25} weight="bold" />
-              ) : (
-                <CaretDown size={25} weight="bold" />
-              )}
-            </button>
           </div>
+          <span aria-hidden="true">
+            {showSellerUrgencyData ? (
+              <CaretUp size={14} weight="bold" />
+            ) : (
+              <CaretDown size={14} weight="bold" />
+            )}
+          </span>
         </div>
 
-        <div className="mt-4 bg-[#98989810] p-2">
+        <div className="bg-black/[0.02] p-2 px-3">
           {showSellerUrgencyData && (
             <div>
               {SellerUrgencyData.map((item, index) => (
                 <div key={index}>
-                  <div className="flex flex-row items-center justify-between">
+                  <div className="flex flex-row items-center justify-between py-3 h-auto">
                     <div style={styles.inputStyle}>{item.question}</div>
                     <button
                       aria-describedby={id}
@@ -690,7 +695,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         handleOpenPopover(event, item)
                       }}
                     >
-                      <DotsThree size={35} weight="bold" />
+                      <MoreHorizontal size={16} />
                     </button>
                     <Popover
                       id={id}
@@ -743,8 +748,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-brand-primary mt-4"
-            style={styles.inputStyle}
+            className="underline text-brand-primary mt-4 text-sm font-normal"
             onClick={() => {
               setAddSellerKyc(true)
               setOpenSellerUrgency(true)
@@ -831,15 +835,21 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       {/* code for buyer kys */}
 
       {CanShowBuyerKycs() && (
-        <div style={styles.headingStyle} className="mt-4">
+        <div style={styles.headingStyle} className="mt-4 py-3">
           KYC - Buyer
         </div>
       )}
 
       {CanShowBuyerKycs() && (
         <>
-          <div className="border p-2 rounded-lg p-4 w-full mt-4">
-            <div className="flex flex-row items-center justify-between w-full">
+          <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+            <div
+              role="button"
+              tabIndex={0}
+              className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+              onClick={() => setShowBuyerNeedData(!showBuyerNeedData)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBuyerNeedData(!showBuyerNeedData); } }}
+            >
               <div style={styles.inputStyle}>Need</div>
               <div className="flex flex-row items-center gap-2">
                 <div
@@ -854,26 +864,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 >
                   {BuyerNeedData.length}
                 </div>
-                <button
-                  onClick={() => {
-                    setShowBuyerNeedData(!showBuyerNeedData)
-                  }}
-                >
+                <span aria-hidden="true">
                   {showBuyerNeedData ? (
-                    <CaretUp size={25} weight="bold" />
+                    <CaretUp size={14} weight="bold" />
                   ) : (
-                    <CaretDown size={25} weight="bold" />
+                    <CaretDown size={14} weight="bold" />
                   )}
-                </button>
+                </span>
               </div>
             </div>
 
-            <div className="mt-4 bg-[#98989810] p-2">
-              {showBuyerNeedData && (
+<div className="bg-black/[0.02] p-2 px-3">
+            {showBuyerNeedData && (
                 <div>
                   {BuyerNeedData.map((item, index) => (
                     <div key={index}>
-                      <div className="flex flex-row items-center justify-between">
+                      <div className="flex flex-row items-center justify-between py-3 h-auto">
                         <div>{item.question}</div>
                         <button
                           aria-describedby={buyerId}
@@ -881,7 +887,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
                         >
-                          <DotsThree size={35} weight="bold" />
+                          <MoreHorizontal size={16} />
                         </button>
                         <Popover
                           id={buyerId}
@@ -933,8 +939,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-brand-primary"
-                style={styles.inputStyle}
+                className="underline text-brand-primary text-sm font-normal"
                 onClick={() => {
                   setAddBuyerKyc(true)
                 }}
@@ -944,10 +949,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             </div>
           </div>
 
-          <div className="border p-2 rounded-lg p-4 w-full mt-4">
-            <div className="flex flex-row items-center justify-between w-full">
-              <div style={styles.inputStyle}>Motivation</div>
+          <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+            <div
+              role="button"
+              tabIndex={0}
+              className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+              onClick={() => setShowBuyerMotivationData(!showBuyerMotivationData)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBuyerMotivationData(!showBuyerMotivationData); } }}
+            >
               <div className="flex flex-row items-center gap-2">
+                <div style={styles.inputStyle}>Motivation</div>
                 <div
                   className="border flex flex-row items-center justify-center"
                   style={{
@@ -960,26 +971,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 >
                   {BuyerMotivationData.length}
                 </div>
-                <button
-                  onClick={() => {
-                    setShowBuyerMotivationData(!showBuyerMotivationData)
-                  }}
-                >
-                  {showBuyerMotivationData ? (
-                    <CaretUp size={25} weight="bold" />
-                  ) : (
-                    <CaretDown size={25} weight="bold" />
-                  )}
-                </button>
               </div>
+              <span aria-hidden="true">
+                {showBuyerMotivationData ? (
+                  <CaretUp size={14} weight="bold" />
+                ) : (
+                  <CaretDown size={14} weight="bold" />
+                )}
+              </span>
             </div>
 
-            <div className="mt-4 bg-[#98989810] p-2">
-              {showBuyerMotivationData && (
+<div className="bg-black/[0.02] p-2 px-3">
+            {showBuyerMotivationData && (
                 <div>
                   {BuyerMotivationData.map((item, index) => (
                     <div key={index}>
-                      <div className="flex flex-row items-center justify-between ">
+                      <div className="flex flex-row items-center justify-between py-3 h-auto border-b border-[#eaeaea]">
                         <div>{item.question}</div>
                         <button
                           aria-describedby={buyerId}
@@ -987,7 +994,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
                         >
-                          <DotsThree size={35} weight="bold" />
+                          <MoreHorizontal size={16} />
                         </button>
                         <Popover
                           id={buyerId}
@@ -1039,8 +1046,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-brand-primary"
-                style={styles.inputStyle}
+                className="underline text-brand-primary text-sm font-normal"
                 onClick={() => {
                   setAddBuyerKyc(true)
                   setOpenBuyerMotivation(true)
@@ -1051,10 +1057,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             </div>
           </div>
 
-          <div className="border p-2 rounded-lg p-4 w-full mt-4">
-            <div className="flex flex-row items-center justify-between w-full">
-              <div style={styles.inputStyle}>Urgency</div>
+          <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+            <div
+              role="button"
+              tabIndex={0}
+              className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+              onClick={() => setShowBuyerUrgencyData(!showBuyerUrgencyData)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBuyerUrgencyData(!showBuyerUrgencyData); } }}
+            >
               <div className="flex flex-row items-center gap-2">
+                <div style={styles.inputStyle}>Urgency</div>
                 <div
                   className="border flex flex-row items-center justify-center"
                   style={{
@@ -1067,26 +1079,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 >
                   {BuyerUrgencyData.length}
                 </div>
-                <button
-                  onClick={() => {
-                    setShowBuyerUrgencyData(!showBuyerUrgencyData)
-                  }}
-                >
-                  {showBuyerUrgencyData ? (
-                    <CaretUp size={25} weight="bold" />
-                  ) : (
-                    <CaretDown size={25} weight="bold" />
-                  )}
-                </button>
               </div>
+              <span aria-hidden="true">
+                {showBuyerUrgencyData ? (
+                  <CaretUp size={14} weight="bold" />
+                ) : (
+                  <CaretDown size={14} weight="bold" />
+                )}
+              </span>
             </div>
 
-            <div className="mt-4 bg-[#98989810] p-2">
-              {showBuyerUrgencyData && (
+<div className="bg-black/[0.02] p-2 px-3">
+            {showBuyerUrgencyData && (
                 <div>
                   {BuyerUrgencyData.map((item, index) => (
                     <div key={index}>
-                      <div className="flex flex-row items-center justify-between">
+                      <div className="flex flex-row items-center justify-between py-3 h-auto">
                         <div>{item.question}</div>
                         <button
                           aria-describedby={buyerId}
@@ -1094,7 +1102,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
                         >
-                          <DotsThree size={35} weight="bold" />
+                          <MoreHorizontal size={16} />
                         </button>
                         <Popover
                           id={buyerId}
@@ -1146,8 +1154,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-brand-primary"
-                style={styles.inputStyle}
+                className="underline text-brand-primary text-sm font-normal"
                 onClick={() => {
                   setAddBuyerKyc(true)
                   setOpenBuyerUrgency(true)

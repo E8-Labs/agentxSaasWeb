@@ -64,6 +64,7 @@ import {
   Check,
   X as XIcon,
   ArrowLeftIcon,
+  Sparkles,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -477,9 +478,8 @@ const LeadDetails = ({
     // Remove or comment out the console.log to avoid build errors
     console.log("Pipeline id ApiPath for stages list is", pipelineId);
 
-    if (pipelineId || selectedLead) {
-      // //console.log;
-      getStagesList(selectedLead)
+    if (pipelineId) {
+      getStagesList(pipelineId)
     }
     getMyteam()
   }, [selectedLead, pipelineId])
@@ -1109,9 +1109,16 @@ const LeadDetails = ({
     }, 5000)
   }
 
-  //function to get the stages list using pipelineId
+  //function to get the stages list using pipelineId (id must be a pipeline id, not a lead id)
   const getStagesList = async (id) => {
     try {
+      const pipeline_Id = id ?? pipelineId
+      if (pipeline_Id == null || pipeline_Id === '' || pipeline_Id === 'undefined') {
+        setStagesList([])
+        setStagesListLoader(false)
+        return
+      }
+
       let AuthToken = null
       setStagesListLoader(true)
       const localDetails = localStorage.getItem('User')
@@ -1120,10 +1127,6 @@ const LeadDetails = ({
         //console.log;
         AuthToken = Data.token
       }
-
-      // console.log("Selected lead is", id);
-
-      const pipeline_Id = id || pipelineId
 
       let ApiPath = `${Apis.getStagesList}?pipelineId=${pipeline_Id}&liteResource=true`
       if (selectedUser) {
@@ -2079,8 +2082,8 @@ const LeadDetails = ({
           />
         )
       }
-      <div className="flex flex-col w-full h-full py-0 px-1 rounded-xl gap-2">
-        <div className="w-full flex flex-col items-center h-full">
+      <div className="flex flex-col w-full h-full py-0 px-[2px] rounded-xl gap-2">
+        <div className="w-full flex flex-col items-center h-full px-[2px]">
 
           <div className="w-full">
             {initialLoader ? (
@@ -2093,10 +2096,11 @@ const LeadDetails = ({
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div
-                  className="flex flex-col w-full gap-0.5 px-0 rounded-[12px]"
+                  className="flex flex-col w-full gap-0.5 px-0 rounded-[12px] min-h-full h-full"
                   style={{
                     paddingTop: 2,
                     paddingBottom: 2,
+                    minHeight: '100%',
                   }}
                 >
                   {!showAsTab && !renderInline && (
@@ -2113,12 +2117,12 @@ const LeadDetails = ({
                       </button>
                     </div>
                   )}
-                  <div className="px-0">
-                    <div className="py-0 gap-1 flex flex-col">
+                  <div className="px-0 w-full">
+                    <div className="py-0 gap-1 flex flex-col w-full">
                       <div className="flex flex-row items-start justify-between mt-4 w-full">
-                        <div className="flex flex-col items-start  w-full">
+                        <div className="flex flex-col items-start w-full">
                           <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
-                            <div className="flex flex-row items-center gap-3">
+                            <div className="flex flex-row items-center gap-3 w-full">
 
                               {/* only show when showAsTab is true */}
                               {showAsTab && (
@@ -2167,8 +2171,8 @@ const LeadDetails = ({
                                     const firstName = selectedLeadsDetails?.firstName || ''
                                     const lastName = selectedLeadsDetails?.lastName || ''
                                     const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
-                                    if (fullName.length > 10) {
-                                      return fullName.slice(0, 10) + '...'
+                                    if (fullName.length > 20) {
+                                      return fullName.slice(0, 20) + '...'
                                     }
                                     return fullName
                                   })()}
@@ -2293,7 +2297,7 @@ const LeadDetails = ({
                               </div>
                             </div>
                           </div>
-                          <div className="w-full flex flex-col gap-[2px] text-sm m-0 px-4 text-[14px] font-normal [&>*]:min-h-[40px] [&>*]:m-0 [&_*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
+                          <div className="w-full flex flex-col gap-[2px] text-sm m-0 px-3 text-[14px] font-normal [&>*]:min-h-[40px] [&>*]:m-0 [&>*]:px-3 [&_*]:m-0 [&>*:empty]:hidden [&_.flex]:m-0 [&_*]:text-[14px] [&_*]:font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
                             {/* Email with edit functionality */}
 
 
@@ -2839,30 +2843,29 @@ const LeadDetails = ({
                         {
                           id: 'perplexity',
                           label: 'Insights',
-                          icon: '/svgIcons/sparkles.svg',
-                          activeIcon: '/svgIcons/sparklesPurple.svg',
-                          iconSize: 20,
+                          icon: <Sparkles className="h-[18px] w-[18px] shrink-0" />,
+                          activeIcon: <Sparkles className="h-[18px] w-[18px] shrink-0 text-brand-primary" />,
                         },
                         {
                           id: 'kyc',
                           label: 'KYC',
                           icon: '/svgIcons/unselectedKycIcon.svg',
                           activeIcon: '/svgIcons/selectedKycIcon.svg',
-                          iconSize: 24,
+                          iconSize: 18,
                         },
                         {
                           id: 'activity',
                           label: 'Activity',
                           icon: '/svgIcons/unselectedActivityIcon.svg',
                           activeIcon: '/svgIcons/selectedActivityIcon.svg',
-                          iconSize: 24,
+                          iconSize: 18,
                         },
                         {
                           id: 'notes',
                           label: 'Notes',
                           icon: '/svgIcons/unselectedNotesIcon.svg',
                           activeIcon: '/svgIcons/selectedNotesIcon.svg',
-                          iconSize: 24,
+                          iconSize: 18,
                         },
                       ]}
                       value={activeTab}
@@ -3097,7 +3100,7 @@ const LeadDetails = ({
   // If renderInline is true, render content directly without Drawer
   if (renderInline) {
     return (
-      <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
+      <div className="w-full h-full overflow-auto p-[2px]" style={{ scrollbarWidth: 'none' }}>
         {mainContent}
         {/* Warning Modal for no voice - same as Drawer branch so audio modals work from Important Calls */}
         <Modal
@@ -3235,7 +3238,7 @@ const LeadDetails = ({
   //if trying to show as tab, then render with only main content + modals (so NewMessageModal/UpgradePlan work when opened from TeamMemberActivityDrawer)
   if (showAsTab) {
     return (
-      <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
+      <div className="w-full h-full overflow-auto p-[2px]" style={{ scrollbarWidth: 'none' }}>
         {mainContent}
         {/* Unified Message Modal - must be in showAsTab branch so it mounts when opening from TeamMemberActivityDrawer */}
         {showMessageModal && (

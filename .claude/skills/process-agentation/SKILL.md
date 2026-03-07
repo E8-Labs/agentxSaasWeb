@@ -131,3 +131,7 @@ When the user says **"compose email"** (or "apply compose email"), apply the sty
 - Text inputs: `h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary`
 - Body/editor wrapper: `border border-brand-primary/20 rounded-lg bg-white`
 - Buttons: use same rounded-lg, height, and focus/active patterns as in the composer (e.g. Send button)
+
+When the user says **"accordion style"** (or "apply accordion style"), style the selected element/container like the accordion-style reference (border rounded card):
+- Outer container: `border rounded-lg p-3 w-full text-sm text-black/80 mt-3`
+- Inner content wrapper (direct child content area): `bg-black/[0.02] p-2 px-3` with `marginTop: 12` or `mt-3` as appropriate

@@ -80,6 +80,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
     /* Agency branding colors - defaults to purple (#7902DF) */
     /* These are overridden server-side in layout.js when agency colors are set */
     --brand-primary: 270 75% 50%; /* Default purple: #7902DF */
+    --brand-primary-complement: 90 75% 50%; /* Complementary hue for gradients (primary hue + 180) */
     --brand-secondary: 270 60% 60%; /* Default lighter purple variant */
   }
 
@@ -735,20 +736,22 @@ a.text-red:hover {
   transition: filter 0.2s ease-in-out;
 }
 
-/* Responsive Drawer Styles - Ensures styles work in production */
+/* Responsive Drawer Styles - Firecrawl-style panel (header/body/footer, shadow, backdrop) */
 .responsive-drawer-paper {
   width: 100% !important;
   max-width: 100vw !important;
   border-radius: 0 !important;
   margin: 0 !important;
   height: 100vh !important;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+  border-left: none !important;
 }
 
 @media (min-width: 600px) {
   .responsive-drawer-paper {
     width: 85% !important;
     max-width: 500px !important;
-    border-radius: 20px !important;
+    border-radius: 16px 0 0 16px !important;
     margin: 1% !important;
     height: 96.5vh !important;
   }

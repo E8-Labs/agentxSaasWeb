@@ -8,7 +8,7 @@ import {
   Snackbar,
   TextareaAutosize,
 } from '@mui/material'
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
+import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -347,19 +347,6 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
         type={SnackbarTypes.Error}
       />
 
-      {showTitle && (
-        <div className="flex flex-row items-center justify-between mt-4 pb-3">
-          <div style={{ fontWeight: '600', fontSize: 16.8 }}></div>
-          <button
-            className="text-brand-primary underline outline-none"
-            style={{ fontWeight: '500', fontSize: 15 }}
-            onClick={() => setShowAddObjForm(true)}
-          >
-            New Objection
-          </button>
-        </div>
-      )}
-
       {ObjectionsList.length > 0 ? (
         <div
           style={{
@@ -374,31 +361,37 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
             )
             return (
               <div
-                className="p-3 rounded-xl mt-4"
+                className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3"
                 key={index}
-                style={{ border: '1px solid #00000020' }}
               >
-                <div className="flex flex-row items-center justify-between">
-                  <div style={{ fontWeight: '600', fontSize: 15 }}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="flex flex-row items-center justify-between py-3 cursor-pointer"
+                  onClick={() => handleShowDetails(item)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleShowDetails(item)
+                    }
+                  }}
+                  aria-expanded={isExpanded}
+                >
+                  <div className="text-sm font-normal" style={{ fontSize: '14px', fontWeight: 400 }}>
                     {item.title}
                   </div>
-                  <button
-                    onClick={() => {
-                      handleShowDetails(item)
-                    }}
-                  >
+                  <span className="outline-none pointer-events-none" aria-hidden>
                     {isExpanded ? (
-                      <CaretUp size={20} />
+                      <ChevronUp size={16} />
                     ) : (
-                      <CaretDown size={20} />
+                      <ChevronDown size={16} />
                     )}
-                  </button>
+                  </span>
                 </div>
                 {isExpanded && (
-                  <div className="flex flex-row items-start justify-between">
+                  <div className="flex flex-row items-start justify-between bg-black/[0.02] p-2 px-3 mt-3">
                     <div
-                      className="mt-2 bg-gray-100 p-2"
-                      style={{ fontWeight: '500', fontSize: 15 }}
+                      style={{ fontSize: '14px', fontWeight: 400 }}
                     >
                       {item.description}
                     </div>
@@ -407,8 +400,9 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
                         onClick={(event) => {
                           handleClick(event, item)
                         }}
+                        className="flex items-center justify-center w-6 h-6 flex-shrink-0"
                       >
-                        <DotsThree weight="bold" size={35} />
+                        <MoreHorizontal size={16} />
                       </button>
                       <Popover
                         id={id}
@@ -505,6 +499,18 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {showTitle && (
+        <div className="flex flex-row items-center justify-start pb-3">
+          <button
+            className="text-brand-primary underline outline-none"
+            style={{ fontWeight: '500', fontSize: 15 }}
+            onClick={() => setShowAddObjForm(true)}
+          >
+            New Objection
+          </button>
         </div>
       )}
 

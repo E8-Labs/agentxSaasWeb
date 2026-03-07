@@ -22,8 +22,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Plus } from '@phosphor-icons/react'
-import { ArrowUpRight } from '@phosphor-icons/react'
+import { ArrowUpRight, Info, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import imageCompression from 'browser-image-compression'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
@@ -4310,110 +4309,76 @@ function Page() {
             <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
               <div className="flex flex-row justify-center w-full max-h-[80vh]">
                 <div
-                  className="sm:w-full w-full px-10 py-8 h-full"
+                  className="sm:w-full w-full p-[2px] h-full flex flex-col w-[400px]"
                   style={{
                     backgroundColor: '#ffffff',
                     scrollbarWidth: 'none',
                     borderRadius: '13px',
                   }}
                 >
-                  <div className="h-[85%] overflow-auto">
-                    <div className="flex flex-row justify-between">
-                      <div className="flex flex-row gap-3">
-                        <Image
-                          src={'/otherAssets/testAiIcon.png'}
-                          height={19}
-                          width={19}
-                          alt="icon"
-                        />
-                        <div
-                          style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
-                        >
-                          Test
-                        </div>
-
-                        {!selectedAgent?.phoneNumber && (
-                          <div className="flex flex-row items-center gap-2 -mt-1">
-                            <Image
-                              src={'/assets/warningFill.png'}
-                              height={20}
-                              width={20}
-                              alt="*"
-                            />
-                            <p>
-                              <i
-                                className="text-red"
-                                style={{
-                                  fontSize: 12,
-                                  fontWeight: '600',
-                                }}
-                              >
-                                No phone number assigned
-                              </i>
-                            </p>
-                          </div>
-                        )}
+                  <div
+                    className="flex flex-row justify-between items-center py-3 px-4 flex-shrink-0 flex-wrap gap-2"
+                    style={{ borderBottom: '1px solid #eaeaea' }}
+                  >
+                    <div className="flex flex-row items-center gap-2 flex-wrap">
+                      <div style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
+                        Tryout Test
                       </div>
+                      {!selectedAgent?.phoneNumber && (
+                        <div className="flex flex-row items-center gap-2">
+                          <Image
+                            src={'/assets/warningFill.png'}
+                            height={20}
+                            width={20}
+                            alt="*"
+                          />
+                          <p>
+                            <i
+                              className="text-red"
+                              style={{
+                                fontSize: 12,
+                                fontWeight: '600',
+                              }}
+                            >
+                              No phone number assigned
+                            </i>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <CloseBtn
+                      onClick={() => {
+                        setOpenTestAiModal(false)
+                        setName('')
+                        setPhone('')
+                        setErrorMessage('')
+                      }}
+                    />
+                  </div>
 
-                      <CloseBtn
-                        onClick={() => {
-                          // setShowRenameAgentPopup(null);
-                          setOpenTestAiModal(false)
-                          setName('')
-                          setPhone('')
-                          setErrorMessage('')
+                  <div className="h-[85%] overflow-auto flex flex-col gap-3 flex-1 min-h-0 px-4">
+                    <div className="flex flex-col gap-2">
+                      <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
+                        Who are you calling
+                      </div>
+                      <input
+                        placeholder="Name"
+                        className="w-full rounded-lg border border-[#e5e7eb] px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
+                        style={{
+                          ...styles.inputStyle,
+                        }}
+                        value={name || ''}
+                        onChange={(e) => {
+                          setName(e.target.value)
                         }}
                       />
-                      {/* <button
-                    onClick={() => {
-                      setOpenTestAiModal(false);
-                      setName("");
-                      setPhone("");
-                      setErrorMessage("");
-                    }}
-                  >
-                    <Image
-                      src={"/otherAssets/crossIcon.png"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  </button> */}
                     </div>
 
-                    <div
-                      style={{
-                        fontSize: 24,
-                        fontWeight: '700',
-                        color: '#000',
-                        marginTop: 20,
-                      }}
-                    >
-                      Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}
-                      {selectedAgent?.name.slice(1)})
-                    </div>
-
-                    <div className="pt-5" style={styles.headingStyle}>
-                      Who are you calling
-                    </div>
-                    <input
-                      placeholder="Name"
-                      className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
-                      style={{
-                        ...styles.inputStyle,
-                        border: '1px solid #00000010',
-                      }}
-                      value={name || ''}
-                      onChange={(e) => {
-                        setName(e.target.value)
-                      }}
-                    />
-
-                    <div className="pt-5" style={styles.headingStyle}>
-                      Phone Number
-                    </div>
-
-                    <div style={{ marginTop: '8px' }}>
+                    <div className="flex flex-col gap-2">
+                      <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
+                        Phone Number
+                      </div>
+                      <div style={{ position: 'relative' }}>
                       <PhoneInput
                         className="border outline-none bg-white"
                         country={'us'}
@@ -4425,8 +4390,8 @@ function Page() {
                         placeholder={
                           locationLoader ? 'Loading location ...' : 'Enter Number'
                         }
-                        // disabled={loading} // Disable input if still loading
                         style={{ borderRadius: '7px' }}
+                        containerStyle={{ position: 'relative' }}
                         inputStyle={{
                           width: '100%',
                           borderWidth: '0px',
@@ -4438,16 +4403,18 @@ function Page() {
                         buttonStyle={{
                           border: 'none',
                           backgroundColor: 'transparent',
-                          // display: 'flex',
-                          // alignItems: 'center',
-                          // justifyContent: 'center',
                         }}
                         dropdownStyle={{
                           maxHeight: '150px',
                           overflowY: 'auto',
+                          position: 'absolute',
+                          top: 'auto',
+                          bottom: '100%',
+                          marginBottom: '4px',
+                          zIndex: 9999,
                         }}
-                      // defaultMask={loading ? 'Loading...' : undefined}
                       />
+                      </div>
                     </div>
 
                     {errorMessage ? (
@@ -4470,18 +4437,16 @@ function Page() {
                     >
                       {scriptKeys?.map((key, index) => (
                         <div key={index}>
-                          <div className="pt-5" style={styles.headingStyle}>
+                          <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
                             {key[0]?.toUpperCase()}
                             {key?.slice(1)}
                           </div>
                           <input
                             placeholder="Type here"
-                            // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                            className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
+                            className={`w-full rounded-lg border border-[#e5e7eb] px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
                               }`}
                             style={{
                               ...styles.inputStyle,
-                              border: '1px solid #00000010',
                             }}
                             value={inputValues[key] || ''} // Default to empty string if no value
                             onChange={(e) => handleInputChange(key, e.target.value)}
@@ -4606,15 +4571,17 @@ function Page() {
             onClose={() => {
               handleDrawerClose()
             }}
+            transitionDuration={{ enter: 280, exit: 220 }}
             PaperProps={{
               className: 'responsive-drawer-paper',
               sx: {
-                padding: '0px', // Internal padding
-                boxShadow: 3, // Light shadow
-                backgroundColor: 'white', // Ensure it's visible
+                padding: 0,
+                backgroundColor: '#ffffff',
                 overflow: 'hidden',
                 scrollbarWidth: 'none',
-                // Keep sx props as fallback, but CSS class will override
+                border: '1px solid #eaeaea',
+                borderRight: 'none',
+                boxShadow: '-8px 0 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
                 width: {
                   xs: '100%',
                   sm: '85%',
@@ -4623,33 +4590,26 @@ function Page() {
                   xl: '40%'
                 },
                 maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' },
-                borderRadius: { xs: '0px', sm: '20px' },
-                margin: { xs: '0%', sm: '1%' },
+                borderRadius: { xs: 0, sm: '16px 0 0 16px' },
+                margin: { xs: 0, sm: '1%' },
                 height: { xs: '100vh', sm: '96.5vh' },
               },
             }}
             BackdropProps={{
-              timeout: 100,
+              timeout: 280,
               sx: {
-                backgroundColor: '#00000020',
-                // //backdropFilter: "blur(20px)",
+                backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                backdropFilter: 'blur(2px)',
               },
             }}
           >
-            <div
-              className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
-            // style={{  }}
-            >
-              <div
-                className="w-full flex flex-col h-[95%]"
-                style={{
-                  overflowY: 'auto',
-                  overflowX: 'hidden',
-                  scrollbarWidth: 'none',
-                }}
+            <div className="flex flex-col w-full h-full overflow-hidden">
+              {/* Header: agent name, actions, close */}
+              <header
+                className="flex-shrink-0 w-full flex flex-row items-center justify-between gap-3 px-4 py-3 border-b border-[#eaeaea] bg-white"
+                style={{ minHeight: 72 }}
               >
-                {/* Agent TOp Info */}
-                <div className="flex flex-row items-start justify-between w-full mt-2 ">
+                <div className="flex flex-row items-start justify-between w-full gap-4 min-w-0">
                   <div className="flex flex-row items-start justify-start mt-2 gap-4">
                     {/* Profile Image */}
                     <div className="">
@@ -5088,10 +5048,17 @@ function Page() {
                           {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
                         </button>
                       </Tooltip>
+                      <CloseBtn onClick={handleDrawerClose} />
                     </div>
                   </div>
                 </div>
+              </header>
 
+              {/* Body: scrollable content */}
+              <div
+                className="flex-1 min-h-0 overflow-y-auto w-full flex flex-col px-4 py-3"
+                style={{ scrollbarWidth: 'none' }}
+              >
                 {/* Center Stats View  */}
                 <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
                   <Card
@@ -6354,50 +6321,53 @@ function Page() {
                   ''
                 )}
               </div>
-              {/* Delete agent button */}
-              <div className="w-full flex flex-row items-center justify-end">
-                <button
-                  className="flex flex-row gap-2 items-center"
-                  onClick={() => {
-                    setDelAgentModal(true)
-                  }}
-                  style={
-                    {
-                      // // marginTop: 20,
-                      // alignSelf: "end",
-                      // position: "absolute",
-                      // bottom: "7%",
+
+              {/* Footer: primary actions */}
+              <footer className="flex-shrink-0 w-full border-t border-[#eaeaea] px-4 py-3 bg-white">
+                <div className="w-full flex flex-row items-center justify-end">
+                  <button
+                    className="flex flex-row gap-2 items-center"
+                    onClick={() => {
+                      setDelAgentModal(true)
+                    }}
+                    style={
+                      {
+                        // // marginTop: 20,
+                        // alignSelf: "end",
+                        // position: "absolute",
+                        // bottom: "7%",
+                      }
                     }
-                  }
-                >
-                  {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+                  >
+                    {/* <Image src={'/otherAssets/redDeleteIcon.png'}
                 height={24}
                 width={24}
                 alt='del'
               /> */}
 
-                  <Image
-                    src={'/otherAssets/redDeleteIcon.png'}
-                    height={24}
-                    width={24}
-                    alt="del"
-                    style={{
-                      filter: 'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
-                    }}
-                  />
+                    <Image
+                      src={'/otherAssets/redDeleteIcon.png'}
+                      height={24}
+                      width={24}
+                      alt="del"
+                      style={{
+                        filter: 'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
+                      }}
+                    />
 
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: '600',
-                      color: '#15151590',
-                      textDecorationLine: 'underline',
-                    }}
-                  >
-                    Delete Agent
-                  </div>
-                </button>
-              </div>
+                    <div
+                      style={{
+                        fontSize: 15,
+                        fontWeight: '600',
+                        color: '#15151590',
+                        textDecorationLine: 'underline',
+                      }}
+                    >
+                      Delete Agent
+                    </div>
+                  </button>
+                </div>
+              </footer>
             </div>
           </Drawer>
           {/* Code to del agent */}
@@ -6627,29 +6597,23 @@ function Page() {
             BackdropProps={{
               timeout: 100,
               sx: {
-                backgroundColor: '#00000020',
+                backgroundColor: '#00000099',
                 // //backdropFilter: "blur(20px)",
               },
             }}
           >
             <Box
-              className="w-10/12 h-[90%] sm:w-[760px] p-8 rounded-xl"
-              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+              className="w-8/12 h-[90%] sm:w-[608px] p-0 rounded-xl"
+              sx={{ ...styles.modalsStyle, backgroundColor: 'white', padding: 0 }}
             >
               <div style={{ width: '100%' }}>
-                <div className="h-[90vh]" style={{ scrollbarWidth: 'none' }}>
+                <div className="h-[90vh] text-sm gap-1 flex flex-col" style={{ scrollbarWidth: 'none', fontSize: 14 }}>
                   <div
-                    style={{
-                      height: '8%',
-                      width: '100%',
-                      direction: 'row',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
+                    className="w-full py-3 px-4 border-b flex flex-row items-center justify-between max-h-[54px]"
+                    style={{ borderBottomColor: '#eaeaea' }}
                   >
                     {/* <div style={{ width: "20%" }} /> */}
-                    <div style={{ fontWeight: '600', fontSize: 22 }}>
+                    <div style={{ fontWeight: '600', fontSize: 18 }}>
                       {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}
                       {showScriptModal?.name?.slice(1)}
                     </div>
@@ -6660,49 +6624,55 @@ function Page() {
                         justifyContent: 'end',
                       }}
                     >
-                      <button
-                        onClick={() => {
-                          handleCloseScriptModal()
-                        }}
-                        className="outline-none"
-                      >
-                        <Image
-                          src={'/assets/crossIcon.png'}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
+                      <CloseBtn
+                        onClick={handleCloseScriptModal}
+                        className="h-9 w-9 shrink-0 rounded-lg hover:bg-black/[0.06]"
+                        iconSize={12}
+                        aria-label="Close modal"
+                      />
                     </div>
                   </div>
 
                   <div
-                    className="mt-4 flex flex-row gap-6"
-                    style={{ height: '', fontWeight: '500', fontSize: 15 }}
+                    className="mt-4 flex flex-row items-center gap-6 w-full border-b border-border px-4 h-11 min-h-0"
+                    style={{ borderBottomColor: 'hsl(var(--border))', fontSize: 14 }}
+                    role="tablist"
+                    aria-label="Script sections"
                   >
                     <button
-                      className="px-2 pb-1"
+                      type="button"
+                      role="tab"
+                      aria-selected={showScript}
+                      className="flex flex-row items-center gap-2 h-11 px-1 -mb-px rounded-none border-b-2 border-transparent bg-transparent font-medium text-sm text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       style={{
-                        borderBottom: showScript && '2px solid hsl(var(--brand-primary))',
+                        borderBottomColor: showScript ? 'hsl(var(--brand-primary))' : 'transparent',
+                        color: showScript ? 'hsl(var(--brand-primary))' : undefined,
                       }}
                       onClick={handleShowScript}
                     >
                       Script
                     </button>
                     <button
-                      className="px-2 pb-1"
+                      type="button"
+                      role="tab"
+                      aria-selected={SeledtedScriptKYC}
+                      className="flex flex-row items-center gap-2 h-11 px-1 -mb-px rounded-none border-b-2 border-transparent bg-transparent font-medium text-sm text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       style={{
-                        borderBottom: SeledtedScriptKYC && '2px solid hsl(var(--brand-primary))',
+                        borderBottomColor: SeledtedScriptKYC ? 'hsl(var(--brand-primary))' : 'transparent',
+                        color: SeledtedScriptKYC ? 'hsl(var(--brand-primary))' : undefined,
                       }}
                       onClick={handleShowKycs}
                     >
                       KYC
                     </button>
                     <button
-                      className="px-2 pb-1"
+                      type="button"
+                      role="tab"
+                      aria-selected={SeledtedScriptAdvanceSetting}
+                      className="flex flex-row items-center gap-2 h-11 px-1 -mb-px rounded-none border-b-2 border-transparent bg-transparent font-medium text-sm text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       style={{
-                        borderBottom:
-                          SeledtedScriptAdvanceSetting && '2px solid hsl(var(--brand-primary))',
+                        borderBottomColor: SeledtedScriptAdvanceSetting ? 'hsl(var(--brand-primary))' : 'transparent',
+                        color: SeledtedScriptAdvanceSetting ? 'hsl(var(--brand-primary))' : undefined,
                       }}
                       onClick={handleShowAdvanceSeting}
                     >
@@ -6712,29 +6682,19 @@ function Page() {
 
                   {showScript && (
                     <div style={{ height: '73%', borderWidth: 0 }}>
-                      <div
-                        style={{
-                          height: showSaveChangesBtn ? '95%' : '100%',
-                          borderWidth: 0,
-                        }}
-                      >
-                        <div className="bg-[#00000002] p-2 mt-2">
-                          <div
-                            style={styles.inputStyle}
-                            className="flex flex-row items-center gap-2"
-                          >
-                            <Image
-                              src={'/assets/lightBulb.png'}
-                              alt="*"
-                              height={24}
-                              width={24}
-                            />{' '}
+                        <div
+                          style={{
+                            height: showSaveChangesBtn ? '95%' : '100%',
+                            borderWidth: 0,
+                          }}
+                        >
+                        <div className="flex flex-col gap-3 px-4 text-sm">
+                        <div className="rounded-[1px] border-l-4 border-brand-primary bg-primary/5 p-3 mt-2">
+                          <div className="flex flex-row items-center gap-2 text-sm font-medium text-foreground">
+                            <Info size={20} weight="fill" className="text-brand-primary flex-shrink-0" />
                             Editing Tips
                           </div>
-                          <div
-                            style={styles.inputStyle}
-                            className="flex flex-row flex-wrap gap-2"
-                          >
+                          <div className="flex flex-row flex-wrap gap-2 text-sm text-muted-foreground mt-1">
                             <div>You can use these variables:</div>
                             {/* <div className='flex flex-row items-center gap-2'> */}
                             <div
@@ -6788,12 +6748,12 @@ function Page() {
                           </div>
                         </div>
 
-                        <div className="w-full">
-                          <div className="flex">
+                        <div className="w-full flex flex-col gap-3 [&_input]:h-[40px] [&_input]:min-h-[40px] [&_input]:rounded-lg [&_input]:border [&_input]:border-[#e5e7eb] [&_input]:px-3 [&_input]:py-2.5 [&_input]:text-sm [&_input]:outline-none [&_input]:transition-colors [&_input]:focus:border-brand-primary [&_input]:focus:ring-2 [&_input]:focus:ring-brand-primary/20 [&_input]:hover:border-gray-300 [&_input]:hover:bg-gray-50/30 [&_textarea]:min-h-[40px] [&_textarea]:w-full [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-[#e5e7eb] [&_textarea]:px-3 [&_textarea]:py-2.5 [&_textarea]:text-sm [&_textarea]:font-normal [&_textarea]:text-black/80 [&_textarea]:outline-none [&_textarea]:transition-colors [&_textarea]:focus:border-brand-primary [&_textarea]:focus:ring-2 [&_textarea]:focus:ring-brand-primary/20 [&_textarea]:hover:border-gray-300">
+                          <div className="flex w-full">
                             <VideoCard
                               duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}
-                              width="60"
-                              height="40"
+                              width="120"
+                              height="120"
                               horizontal={false}
                               playVideo={() => {
                                 setIntroVideoModal(true)
@@ -6810,41 +6770,38 @@ function Page() {
                       </div> */}
 
                           <div
-                            style={{ fontSize: 24, fontWeight: '700' }}
+                            style={{ fontSize: 14, fontWeight: '700' }}
                             className="flex flex-row items-center center w-full justify-between"
                           >
                             <div>Script</div>
                           </div>
 
-                          <div className="flex flex-row items-center justify-between">
-                            <div
-                              className="mt-2"
-                              style={{ ...styles.paragraph, color: '#00000060' }}
-                            >
-                              Greeting
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-row items-center justify-between">
+                              <div
+                                className="mt-2 pt-3"
+                                style={{ fontSize: 18, color: '#000000', fontWeight: 400 }}
+                              >
+                                Greeting
+                              </div>
+
+                              <button
+                                className="flex flex-row items-center gap-1 h-[28px] rounded-lg bg-white text-brand-primary px-3 font-medium text-sm hover:opacity-90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none transition-all duration-150 [&_svg]:text-brand-primary"
+                                onClick={() => {
+                                  const scriptBuilderUrl =
+                                    reduxUser?.agencySettings?.scriptWidgetUrl ||
+                                    reduxUser?.userSettings?.scriptWidgetUrl ||
+                                    PersistanceKeys.DefaultScriptBuilderUrl
+                                  window.open(scriptBuilderUrl, '_blank')
+                                }}
+                              >
+                                Use {reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
+                                <ArrowUpRight size={14} />
+                              </button>
                             </div>
 
-                            <button
-                              className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
-                              style={{
-                                fontWeight: '500',
-                                fontSize: 15,
-                              }}
-                              onClick={() => {
-                                const scriptBuilderUrl =
-                                  reduxUser?.agencySettings?.scriptWidgetUrl ||
-                                  reduxUser?.userSettings?.scriptWidgetUrl ||
-                                  PersistanceKeys.DefaultScriptBuilderUrl
-                                window.open(scriptBuilderUrl, '_blank')
-                              }}
-                            >
-                              Use {reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
-                              <ArrowUpRight size={20} color="white" />
-                            </button>
-                          </div>
-
-                          <div className="mt-2">
-                            <GreetingTagInput
+                            <div className="mt-0">
+                              <GreetingTagInput
                               greetTag={showScriptModal?.prompt?.greeting}
                               kycsList={kycsData}
                               uniqueColumns={uniqueColumns}
@@ -6856,6 +6813,7 @@ function Page() {
                               }}
                               scrollOffset={scrollOffset}
                             />
+                            </div>
                           </div>
                           <div className="mt-4 w-full ">
                             <PromptTagInput
@@ -6881,6 +6839,7 @@ function Page() {
 
                             {/* <DynamicDropdown /> */}
                           </div>
+                        </div>
                         </div>
                       </div>
 
@@ -6917,30 +6876,53 @@ function Page() {
                   )}
 
                   {SeledtedScriptAdvanceSetting && (
-                    <div style={{ height: '80%' }}>
-                      <div className="flex flex-row items-center gap-2 mt-4">
+                    <div className="px-4" style={{ height: '80%' }}>
+                      <div
+                        className="flex flex-row items-center mt-4 rounded-xl p-1 gap-0 max-w-[400px] mx-auto h-10"
+                        style={{
+                          backgroundColor: '#F2F2F2',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                        }}
+                        role="tablist"
+                        aria-label="Objective, Guardrails, Objections"
+                      >
                         <button
-                          className="px-2 outline-none"
+                          type="button"
+                          role="tab"
+                          aria-selected={showObjectives}
+                          className="flex-1 min-w-0 h-full rounded-lg font-medium text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 transition-all"
                           style={{
-                            borderBottom: showObjectives && '2px solid hsl(var(--brand-primary))',
+                            backgroundColor: showObjectives ? '#FFFFFF' : 'transparent',
+                            color: showObjectives ? '#333333' : '#828282',
+                            boxShadow: showObjectives ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
                           }}
                           onClick={handleShowObjectives}
                         >
                           Objective
                         </button>
                         <button
-                          className="px-2 outline-none"
+                          type="button"
+                          role="tab"
+                          aria-selected={showGuardrails}
+                          className="flex-1 min-w-0 h-full rounded-lg font-medium text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 transition-all"
                           style={{
-                            borderBottom: showGuardrails && '2px solid hsl(var(--brand-primary))',
+                            backgroundColor: showGuardrails ? '#FFFFFF' : 'transparent',
+                            color: showGuardrails ? '#333333' : '#828282',
+                            boxShadow: showGuardrails ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
                           }}
                           onClick={handleShowGuardrails}
                         >
                           Guardrails
                         </button>
                         <button
-                          className="px-2 outline-none"
+                          type="button"
+                          role="tab"
+                          aria-selected={showObjection}
+                          className="flex-1 min-w-0 h-full rounded-lg font-medium text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 transition-all"
                           style={{
-                            borderBottom: showObjection && '2px solid hsl(var(--brand-primary))',
+                            backgroundColor: showObjection ? '#FFFFFF' : 'transparent',
+                            color: showObjection ? '#333333' : '#828282',
+                            boxShadow: showObjection ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
                           }}
                           onClick={handleShowObjection}
                         >
@@ -6990,10 +6972,10 @@ function Page() {
                             }}
                             placeholder="Add Objective"
                             style={{
-                              fontSize: "15px",
+                              fontSize: 14,
                               padding: "15px",
                               width: "100%",
-                              fontWeight: "500",
+                              fontWeight: 400,
                               height: "100%", // Initial height
                               maxHeight: "100%", // Maximum height before scrolling
                               overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
@@ -7055,6 +7037,7 @@ function Page() {
 
                   {SeledtedScriptKYC && (
                     <div
+                      className="px-4 flex flex-col gap-3"
                       style={{
                         height: '80%',
                         overflow: 'auto',

@@ -95,8 +95,6 @@ const AgentsListPaginated = ({
 
   const open = Boolean(actionInfoEl)
 
-  // Example fetch function (replace with your actual API call)
-
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam)
   }, [agentsListSeparatedParam])
@@ -320,7 +318,7 @@ const AgentsListPaginated = ({
             {agentsListSeparated.map((item, index) => (
               <div
                 key={index}
-                className="group w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start"
+                className="group w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start relative overflow-hidden"
                 style={{
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   backgroundColor: '#ffffff',
