@@ -74,6 +74,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const threadsOffsetRef = useRef(0)
   const [selectedThread, setSelectedThread] = useState(null)
   const [messages, setMessages] = useState([])
+  const [starredMessageIds, setStarredMessageIds] = useState(() => new Set())
   const [loading, setLoading] = useState(true)
   const [messagesLoading, setMessagesLoading] = useState(false)
   const [searchLoading, setSearchLoading] = useState(false)
@@ -904,6 +905,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
+            setStarredMessageIds(new Set(response.data?.starredMessageIds || []))
 
             // Update latest message ID ref
             if (fetchedMessages.length > 0) {
@@ -974,6 +976,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
             // Prepend older messages at the top
             setMessages((prev) => [...fetchedMessages, ...prev])
+            setStarredMessageIds((prev) => new Set([...prev, ...(response.data?.starredMessageIds || [])]))
 
             // Restore scroll position after prepending — wait for DOM to update (double rAF = after layout/paint)
             requestAnimationFrame(() => {
@@ -1000,6 +1003,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               setInState: fetchedMessages.length,
             })
             setMessages(fetchedMessages)
+            setStarredMessageIds(new Set(response.data?.starredMessageIds || []))
 
             // Update latest message ID ref
             if (fetchedMessages.length > 0) {
@@ -1540,6 +1544,42 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     [selectedUser, fetchThreads, searchValue, appliedTeamMemberIds, fetchMessages],
   )
 
+  // Star/unstar message (user-specific, persisted via API)
+  const handleStarToggle = useCallback(
+    async (messageId) => {
+      if (!selectedThread?.id || !messageId) return
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const token = JSON.parse(localData).token
+      const url = `${Apis.getMessagesForThread}/${selectedThread.id}/messages/${messageId}/star`
+      const params = selectedUser?.id ? { userId: selectedUser.id } : {}
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+      const isStarred = starredMessageIds.has(messageId)
+      try {
+        if (isStarred) {
+          await axios.delete(url, { ...config, params })
+          setStarredMessageIds((prev) => {
+            const next = new Set(prev)
+            next.delete(messageId)
+            return next
+          })
+        } else {
+          await axios.post(url, null, { ...config, params })
+          setStarredMessageIds((prev) => new Set([...prev, messageId]))
+        }
+      } catch (err) {
+        console.error('Star toggle failed:', err)
+        toast.error(err.response?.data?.message || err.message || (isStarred ? 'Failed to unstar' : 'Failed to star'))
+      }
+    },
+    [selectedThread?.id, selectedUser?.id, starredMessageIds],
+  )
+
   // Handle thread selection
   const handleThreadSelect = (thread) => {
     setSelectedThread(thread)
@@ -1547,6 +1587,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     messageOffsetRef.current = 0
     setHasMoreMessages(true)
     setMessages([])
+    setStarredMessageIds(new Set())
     fetchMessages(thread.id, null, false) // null means initial load
     if (thread.unreadCount > 0) {
       markThreadAsRead(thread.id)
@@ -3755,6 +3796,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
                           onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
                           linkingLeadId={linkingLeadId}
+                          starredMessageIds={starredMessageIds}
+                          onStarToggle={handleStarToggle}
                           drafts={drafts}
                           draftsLoading={draftsLoading}
                           onSelectDraft={handleSelectDraft}
