@@ -1448,36 +1448,56 @@ const MessageComposer = ({
         {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
           <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
             {!hasFacebookConnection && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col items-center gap-2">
+                <Image
+                  src="/fbInsta.png"
+                  width={42}
+                  height={24}
+                  alt="Facebook"
+                  className="object-contain"
+                />
                 <p className="text-sm text-muted-foreground">
-                  Connect a Facebook Page to send Messenger messages.
+                  Connect a Facebook page or Instagram page to send messages
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
-                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
-                    Connect with Facebook
+                  <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth && <Loader2 className="w-3.5 h- mr-1.5 animate-spin" />}
+                    Connect Facebook
                   </Button>
+                  <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+                    Connect Instagram
+                  </Button>
+                  {/*
                   <span className="text-xs text-muted-foreground">or</span>
                   <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('facebook')} disabled={connectingOAuth}>
                     Connect manually
-                  </Button>
+                  </Button>*/}
                 </div>
               </div>
             )}
             {!hasInstagramConnection && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col items-center gap-2">
+                <Image
+                  src="/fbInsta.png"
+                  width={42}
+                  height={24}
+                  alt="Facebook"
+                  className="object-contain"
+                />
                 <p className="text-sm text-muted-foreground">
-                  Connect an Instagram account to send messages.
+                  Connect a Facebook page or Instagram page to send messages
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
-                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
-                    Connect with Instagram
+                  <Button type="button" className="w-fit h-[36px] w-[88px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+                    Connect
                   </Button>
+                  {/*
                   <span className="text-xs text-muted-foreground">or</span>
                   <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('instagram')} disabled={connectingOAuth}>
                     Connect manually
-                  </Button>
+                  </Button>*/}
                 </div>
               </div>
             )}
