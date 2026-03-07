@@ -1278,13 +1278,16 @@ const MessageComposer = ({
       })
       if (res.data?.url) {
         window.location.href = res.data.url
+        // setConnectingOAuth(false)
       } else {
         toast.error(res.data?.message || 'Could not start Facebook connect')
+        // setConnectingOAuth(false)
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not start Facebook connect')
-    } finally {
       setConnectingOAuth(false)
+    } finally {
+      // setConnectingOAuth(false)
     }
   }
 
