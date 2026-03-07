@@ -1351,9 +1351,10 @@ const MessageComposer = ({
                 { label: 'Text', value: 'sms', icon: MessageSquareDot },
                 { label: 'Email', value: 'email', icon: Mail },
                 { label: 'Comment', value: 'comment', icon: MessageSquare },
-                ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
-                  ? [{ label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }]
-                  : []),
+                { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }
+                // ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
+                //   ? [{ label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }]
+                //   : []),
               ]}
               value={composerMode === 'instagram' ? 'facebook' : composerMode}
               onChange={(value) => {
