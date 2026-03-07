@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -26,8 +26,20 @@ const TaskBoardFilterPopover = ({
   setFilterPriority,
   teamMembers = [],
 }) => {
-  const hasActiveFilters =
-    filterMember != null || filterDueStatus != null || filterPriority != null
+
+  const hasActiveFilters = filterMember != null || filterDueStatus != null || filterPriority != null;
+  //filter by types
+  const Filter_By_Types = [
+    { id: 1, label: 'Members', value: 'members' },
+    { id: 2, label: 'Status', value: 'status' },
+    { id: 3, label: 'Priority', value: 'priority' },
+  ]
+
+  const [filterType, setFilterType] = useState('members');
+
+  const handleChangeFilterType = (value) => {
+    setFilterType(value);
+  };
 
   return (
     <Popover style={{ zIndex: 1555 }}>
@@ -58,135 +70,129 @@ const TaskBoardFilterPopover = ({
         side="bottom"
         className="w-72 p-0"
         style={{ zIndex: 1600 }}
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        // onInteractOutside={(e) => e.preventDefault()}
-        // onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => {
-          const taskBoard = document.querySelector('[data-task-board]')
-          const target = e.detail?.originalEvent?.target ?? e.target
-          if (taskBoard?.contains(target)) return // click inside task board → allow close
-          e.preventDefault() // click outside task board (e.g. modal) → keep open
-        }}
-        onPointerDownOutside={(e) => {
-          const taskBoard = document.querySelector('[data-task-board]')
-          const target = e.detail?.originalEvent?.target ?? e.target
-          if (taskBoard?.contains(target)) return
-          e.preventDefault()
-        }}
       >
         <div className="p-3 border-b border-black/[0.06]">
           <TypographyCaption className="font-semibold text-foreground">
             Filter by
           </TypographyCaption>
+          {/* filter by types */}
+          <div className="flex flex-row items-center w-full mt-2 gap-4 bg-[#eaeaea] px-2 py-1 rounded-lg">
+            {
+              Filter_By_Types?.map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => handleChangeFilterType(type.value)}
+                  className={`gap-2 text-left rounded-md px-2 py-1 cursor-pointer ${filterType === type.value ? 'bg-[#ffffff] text-black' : 'text-black'}`}
+                >
+                  <TypographyCaption className="text-black font-medium">
+                    {type.label}
+                  </TypographyCaption>
+                </button>
+              ))
+            }
+          </div>
         </div>
         <div className="p-3 space-y-4 max-h-[320px] overflow-y-auto">
           {/* Members */}
           <div className="space-y-2">
-            <TypographyCaption className="text-muted-foreground font-medium">
-              Members
-            </TypographyCaption>
-            <RadioGroup
-              value={filterMember != null ? String(filterMember) : 'all'}
-              onValueChange={(v) =>
-                setFilterMember(v === 'all' ? null : parseInt(v, 10))
-              }
-              className="space-y-1.5"
-            >
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="all" id="members-all" />
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-[14px] text-foreground">All Members</span>
-              </label>
-              {teamMembers.map((m) => {
-                const id = m.invitedUserId ?? m.invitedUser?.id ?? m.id
-                const name = m.name ?? m.invitedUser?.name ?? 'Unknown'
-                const img =
-                  m.thumb_profile_image ?? m.invitedUser?.thumb_profile_image
-                return (
-                  <label
-                    key={id}
-                    className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-black/[0.04]"
-                  >
-                    <RadioGroupItem value={String(id)} id={`member-${id}`} />
-                    <Avatar className="h-5 w-5">
-                      {img ? (
-                        <AvatarImage src={img} alt={name} />
-                      ) : null}
-                      <AvatarFallback className="text-xs">
-                        {name[0]?.toUpperCase() ?? '?'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-[14px] text-foreground truncate">{name}</span>
+            {
+              filterType === 'members' ? (
+                <RadioGroup
+                  value={filterMember != null ? String(filterMember) : 'all'}
+                  onValueChange={(v) =>
+                    setFilterMember(v === 'all' ? null : parseInt(v, 10))
+                  }
+                  className="space-y-1.5"
+                >
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="all" id="members-all" />
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-[14px] text-foreground">All Members</span>
                   </label>
-                )
-              })}
-            </RadioGroup>
+                  {teamMembers.map((m) => {
+                    const id = m.invitedUserId ?? m.invitedUser?.id ?? m.id
+                    const name = m.name ?? m.invitedUser?.name ?? 'Unknown'
+                    const img =
+                      m.thumb_profile_image ?? m.invitedUser?.thumb_profile_image
+                    return (
+                      <label
+                        key={id}
+                        className="flex items-center gap-2 cursor-pointer rounded px-2 py-1.5 hover:bg-black/[0.04]"
+                      >
+                        <RadioGroupItem value={String(id)} id={`member-${id}`} />
+                        <Avatar className="h-5 w-5">
+                          {img ? (
+                            <AvatarImage src={img} alt={name} />
+                          ) : null}
+                          <AvatarFallback className="text-xs">
+                            {name[0]?.toUpperCase() ?? '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-[14px] text-foreground truncate">{name}</span>
+                      </label>
+                    )
+                  })}
+                </RadioGroup>
+              ) : filterType === 'status' ? (
+                <RadioGroup
+                  value={filterDueStatus ?? 'all'}
+                  onValueChange={(v) =>
+                    setFilterDueStatus(v === 'all' ? null : v)
+                  }
+                  className="space-y-1.5"
+                >
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="all" id="status-all" />
+                    <span className="text-[14px] text-foreground">All</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="past-due" id="status-past-due" />
+                    <span className="text-[14px] text-foreground">Past Due</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="due-today" id="status-due-today" />
+                    <span className="text-[14px] text-foreground">Due Today</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="in-future" id="status-in-future" />
+                    <span className="text-[14px] text-foreground">In future</span>
+                  </label>
+                </RadioGroup>
+              ) : filterType === 'priority' ? (
+                <RadioGroup
+                  value={filterPriority ?? 'all'}
+                  onValueChange={(v) =>
+                    setFilterPriority(v === 'all' ? null : v)
+                  }
+                  className="space-y-1.5"
+                >
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="all" id="priority-all" />
+                    <span className="text-[14px] text-foreground">All</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="no-priority" id="priority-no-priority" />
+                    <span className="text-[14px] text-foreground">No Priority</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="low" id="priority-low" />
+                    <span className="text-[14px] text-foreground">Low</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="medium" id="priority-medium" />
+                    <span className="text-[14px] text-foreground">Medium</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
+                    <RadioGroupItem value="high" id="priority-high" />
+                    <span className="text-[14px] text-foreground">High</span>
+                  </label>
+                </RadioGroup>
+              ) : null
+            }
+
           </div>
           {/* Status (due date) */}
-          <div className="space-y-2">
-            <TypographyCaption className="text-muted-foreground font-medium">
-              Status
-            </TypographyCaption>
-            <RadioGroup
-              value={filterDueStatus ?? 'all'}
-              onValueChange={(v) =>
-                setFilterDueStatus(v === 'all' ? null : v)
-              }
-              className="space-y-1.5"
-            >
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="all" id="status-all" />
-                <span className="text-[14px] text-foreground">All</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="past-due" id="status-past-due" />
-                <span className="text-[14px] text-foreground">Past Due</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="due-today" id="status-due-today" />
-                <span className="text-[14px] text-foreground">Due Today</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="in-future" id="status-in-future" />
-                <span className="text-[14px] text-foreground">In future</span>
-              </label>
-            </RadioGroup>
-          </div>
           {/* Priority */}
-          <div className="space-y-2">
-            <TypographyCaption className="text-muted-foreground font-medium">
-              Priority
-            </TypographyCaption>
-            <RadioGroup
-              value={filterPriority ?? 'all'}
-              onValueChange={(v) =>
-                setFilterPriority(v === 'all' ? null : v)
-              }
-              className="space-y-1.5"
-            >
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="all" id="priority-all" />
-                <span className="text-[14px] text-foreground">All</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="no-priority" id="priority-no-priority" />
-                <span className="text-[14px] text-foreground">No Priority</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="low" id="priority-low" />
-                <span className="text-[14px] text-foreground">Low</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="medium" id="priority-medium" />
-                <span className="text-[14px] text-foreground">Medium</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                <RadioGroupItem value="high" id="priority-high" />
-                <span className="text-[14px] text-foreground">High</span>
-              </label>
-            </RadioGroup>
-          </div>
         </div>
       </PopoverContent>
     </Popover>
