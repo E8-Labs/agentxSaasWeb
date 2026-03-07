@@ -1462,13 +1462,13 @@ const MessageComposer = ({
                 <div className="flex flex-wrap items-center gap-2">
                   <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
                     {connectingOAuth && <Loader2 className="w-3.5 h- mr-1.5 animate-spin" />}
-                    Connect Facebook
+                    Connect
                   </Button>
+                  {/*
                   <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
                     {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
                     Connect Instagram
                   </Button>
-                  {/*
                   <span className="text-xs text-muted-foreground">or</span>
                   <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('facebook')} disabled={connectingOAuth}>
                     Connect manually
@@ -1476,7 +1476,7 @@ const MessageComposer = ({
                 </div>
               </div>
             )}
-            {!hasInstagramConnection && (
+            {/*{!hasInstagramConnection && (
               <div className="flex flex-col items-center gap-2">
                 <Image
                   src="/fbInsta.png"
@@ -1493,14 +1493,14 @@ const MessageComposer = ({
                     {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
                     Connect
                   </Button>
-                  {/*
+                  
                   <span className="text-xs text-muted-foreground">or</span>
                   <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('instagram')} disabled={connectingOAuth}>
                     Connect manually
-                  </Button>*/}
+                  </Button>
                 </div>
               </div>
-            )}
+            )}*/}
             {hasFacebookConnection && hasInstagramConnection && (
               <p className="text-sm text-muted-foreground">
                 Select a Messenger or Instagram conversation from the list to reply here.
