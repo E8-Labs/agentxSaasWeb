@@ -2507,11 +2507,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle send message
   const handleSendMessage = async () => {
-    // Get the appropriate message body (SMS: strip HTML to plain text; email: keep HTML)
+    // SMS: send HTML so backend can store it for bubble display and send plain text with URLs to carrier
+    // Email: send HTML as-is
     const rawBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-    const messageBody = composerMode === 'sms' ? stripHTML(rawBody) : rawBody
+    const hasContent = composerMode === 'sms' ? stripHTML(rawBody).trim() : rawBody.trim()
+    const messageBodyForPreview = composerMode === 'sms' ? stripHTML(rawBody) : rawBody
 
-    if (!selectedThread || !messageBody.trim()) return
+    if (!selectedThread || !hasContent) return
     if (composerMode === 'email' && !composerData.to.trim()) return
     if (sendingMessage) return // Prevent double submission
 
@@ -2528,10 +2530,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const token = userData.token
 
       if (composerMode === 'sms') {
-        // Send SMS using existing API
+        // Send SMS: content = HTML from composer; backend sends plain text with URLs to Twilio and stores HTML in DB
         const smsPayload = {
           leadId: selectedThread.leadId,
-          content: messageBody,
+          content: rawBody,
           smsPhoneNumberId: selectedPhoneNumber || null,
         }
         // Add userId if viewing subaccount from admin/agency
@@ -2593,7 +2595,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setCallSummaryDraftsMessageId(null)
 
           updateThreadPreviewAfterSend(selectedThread.id, {
-            content: messageBody,
+            content: messageBodyForPreview,
             messageType: 'sms',
             direction: 'outbound',
           })
@@ -2700,7 +2702,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const formData = new FormData()
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
-        formData.append('body', messageMarkdownToHtml(messageBody))
+        formData.append('body', messageMarkdownToHtml(rawBody))
 
         // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
@@ -2797,8 +2799,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setCallSummaryDraftsMessageId(null)
 
           // Preview = email body with spaces at block boundaries (match ThreadsList)
-          const emailBodyPreview = typeof messageBody === 'string'
-            ? htmlToPreviewText(messageBody).slice(0, 80)
+          const emailBodyPreview = typeof rawBody === 'string'
+            ? htmlToPreviewText(rawBody).slice(0, 80)
             : ''
           updateThreadPreviewAfterSend(selectedThread.id, {
             content: emailBodyPreview || (composerData.subject?.trim() || 'Email sent'),
