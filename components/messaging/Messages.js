@@ -3857,7 +3857,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
                           linkingLeadId={linkingLeadId}
                           starredMessageIds={starredMessageIds}
-                          onStarToggle={handleStarToggle}
+                          // onStarToggle={handleStarToggle}
                           drafts={drafts}
                           draftsLoading={draftsLoading}
                           onSelectDraft={handleSelectDraft}
