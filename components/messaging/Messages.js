@@ -328,23 +328,59 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [effectiveShortlistUserId])
 
-  const onShortlistToggle = useCallback((leadId) => {
-    if (!leadId) return
-    const uid = selectedUser?.id ?? reduxUser?.id
-    setShortlistedLeadIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(leadId)) next.delete(leadId)
-      else next.add(leadId)
-      if (uid) {
-        try {
-          localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify([...next]))
-        } catch {
-          // ignore storage errors
-        }
+  const onShortlistToggle = useCallback(
+    async (leadId) => {
+      if (!leadId) return
+      const uid = selectedUser?.id ?? reduxUser?.id
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const token = JSON.parse(localData).token
+      const url = `${Apis.shortlistLead}/${leadId}`
+      const params = uid ? { userId: uid } : {}
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       }
-      return next
-    })
-  }, [selectedUser?.id, reduxUser?.id])
+      const isShortlisted = shortlistedLeadIds.has(leadId)
+      try {
+        if (isShortlisted) {
+          await axios.delete(url, { ...config, params })
+          setShortlistedLeadIds((prev) => {
+            const next = new Set(prev)
+            next.delete(leadId)
+            if (uid) {
+              try {
+                localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify([...next]))
+              } catch {
+                // ignore
+              }
+            }
+            return next
+          })
+        } else {
+          await axios.post(url, {}, { ...config, params })
+          setShortlistedLeadIds((prev) => {
+            const next = new Set(prev)
+            next.add(leadId)
+            if (uid) {
+              try {
+                localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify([...next]))
+              } catch {
+                // ignore
+              }
+            }
+            return next
+          })
+        }
+      } catch (err) {
+        console.error('Shortlist toggle failed:', err)
+        toast.error(err.response?.data?.message || err.message || (isShortlisted ? 'Failed to remove from starred' : 'Failed to star'))
+      }
+    },
+    [selectedUser?.id, reduxUser?.id, shortlistedLeadIds],
+  )
 
   // Normalize email header details for the popover
   const getEmailDetails = useCallback(
@@ -717,6 +753,17 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const unrepliedCount = response?.data?.unrepliedCount ?? 0
         setAllThreadsCount(allCount)
         setUnrepliedCountFromApi(unrepliedCount)
+        if (!append && Array.isArray(response?.data?.shortlistedLeadIds)) {
+          setShortlistedLeadIds(new Set(response.data.shortlistedLeadIds))
+          const uid = selectedUser?.id ?? JSON.parse(localStorage.getItem('User') || '{}')?.user?.id
+          if (uid) {
+            try {
+              localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify(response.data.shortlistedLeadIds))
+            } catch {
+              // ignore
+            }
+          }
+        }
         if (response.data?.status && Array.isArray(response.data?.data)) {
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
@@ -896,6 +943,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
               requestedLimit: params.limit,
               receivedCount: allMessages.length,
               setInState: fetchedMessages.length,
+              starredCount: (response.data?.starredMessageIds || []).length,
             })
 
             // Debug: Log messages with attachments and metadata structure
@@ -905,7 +953,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
-            setStarredMessageIds(new Set(response.data?.starredMessageIds || []))
+            const starred = response.data?.starredMessageIds || []
+            setStarredMessageIds(new Set(starred))
+            if (starred.length > 0) {
+              console.log('[Messages] GET messages: starredMessageIds from API', starred.length, starred)
+            }
 
             // Update latest message ID ref
             if (fetchedMessages.length > 0) {
@@ -1363,6 +1415,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         if (response.data?.status && response.data?.data) {
           const allFetchedMessages = response.data.data
+          const pollStarred = response.data?.starredMessageIds
+          if (Array.isArray(pollStarred)) {
+            setStarredMessageIds(new Set(pollStarred))
+          }
 
           console.log('[Messages] poll response', {
             threadId: selectedThread.id,
@@ -1547,9 +1603,15 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   // Star/unstar message (user-specific, persisted via API)
   const handleStarToggle = useCallback(
     async (messageId) => {
-      if (!selectedThread?.id || !messageId) return
+      if (!selectedThread?.id || !messageId) {
+        console.warn('[Messages] handleStarToggle skipped: no thread or messageId', { selectedThreadId: selectedThread?.id, messageId })
+        return
+      }
       const localData = localStorage.getItem('User')
-      if (!localData) return
+      if (!localData) {
+        console.warn('[Messages] handleStarToggle skipped: no User in localStorage')
+        return
+      }
       const token = JSON.parse(localData).token
       const url = `${Apis.getMessagesForThread}/${selectedThread.id}/messages/${messageId}/star`
       const params = selectedUser?.id ? { userId: selectedUser.id } : {}
@@ -1560,6 +1622,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         },
       }
       const isStarred = starredMessageIds.has(messageId)
+      console.log('[Messages] Star API call', isStarred ? 'DELETE' : 'POST', url, params)
       try {
         if (isStarred) {
           await axios.delete(url, { ...config, params })
@@ -1569,7 +1632,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             return next
           })
         } else {
-          await axios.post(url, null, { ...config, params })
+          await axios.post(url, {}, { ...config, params })
           setStarredMessageIds((prev) => new Set([...prev, messageId]))
         }
       } catch (err) {
