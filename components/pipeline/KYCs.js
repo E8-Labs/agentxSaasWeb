@@ -3,7 +3,7 @@ import { MoreHorizontal } from 'lucide-react'
 import { CaretDown, CaretUp } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
 import { UserTypes } from '@/constants/UserTypes'
@@ -15,6 +15,45 @@ import VideoCard from '../createagent/VideoCard'
 import UserType from '../onboarding/UserType'
 import AddBuyerKyc from './AddBuyerKyc'
 import AddSellerKyc from './AddSellerKyc'
+
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      setStage('entering')
+      onEnter?.()
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = requestAnimationFrame(() => setStage('entered'))
+      })
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, timeout, onExited, onEnter])
+
+  const isEntering = stage === 'entering'
+  const style = {
+    opacity: isEntering || stage === 'exiting' ? 0 : 1,
+    transform: isEntering || stage === 'exiting' ? 'scale(0.95)' : 'scale(1)',
+    transition: `opacity ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1), transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+  }
+
+  return <div style={style}>{children}</div>
+}
 
 const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -36,6 +75,8 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [SellerUrgencyData, setSellerUrgencyData] = useState([])
   const [showSellerUrgencyData, setShowSellerUrgencyData] = useState(false)
   const [addSellerKyc, setAddSellerKyc] = useState(false)
+  const [sellerKycClosing, setSellerKycClosing] = useState(false)
+  const [sellerKycModalTitle, setSellerKycModalTitle] = useState('What would you like to ask sellers?')
 
   //directly open the desired add seeler question tab
   const [OpenSellerNeeds, setOpenSellerNeeds] = useState(false)
@@ -52,6 +93,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [BuyerUrgencyData, setBuyerUrgencyData] = useState([])
   const [showBuyerUrgencyData, setShowBuyerUrgencyData] = useState(false)
   const [addBuyerKyc, setAddBuyerKyc] = useState(false)
+  const [buyerKycClosing, setBuyerKycClosing] = useState(false)
 
   //directly open the desired add seeler question tab
   // const [OpenBuyerNeed, setOpenBuyerNeed] = useState(false);
@@ -767,68 +809,91 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       {/* Modals code goes here */}
       <Modal
         open={addSellerKyc}
-        // onClose={() => setAddSellerKyc(false)}
+        onClose={() => setSellerKycClosing(true)}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            //backdropFilter: "blur(20px)",
-          },
+          timeout: 250,
+          sx: { backgroundColor: '#00000099' },
         }}
       >
         <Box
           className="sm:w-[760px] w-10/12 h-[85vh]"
           sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
-          <div className="flex flex-row justify-center w-full h-[100%]">
-            <div
-              className="w-full h-[100%]"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div className="flex flex-row justify-end items-center">
-                {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
-                <button
-                  onClick={() => {
-                    setAddSellerKyc(false)
-                    setOpenSelerMotivation(false)
-                    setOpenSellerUrgency(false)
-                    setOpenSellerNeeds(false)
+          <ScaleFadeTransition
+            in={addSellerKyc && !sellerKycClosing}
+            timeout={250}
+            onExited={() => {
+              setAddSellerKyc(false)
+              setSellerKycClosing(false)
+              setOpenSelerMotivation(false)
+              setOpenSellerUrgency(false)
+              setOpenSellerNeeds(false)
+            }}
+          >
+            <div className="flex flex-row justify-center w-full h-[100%]">
+              <div
+                className="w-[500px] flex flex-col gap-3 p-0 overflow-hidden"
+                style={{
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid #eaeaea',
+                  borderRadius: 12,
+                }}
+              >
+                <div
+                  className="flex flex-row justify-between items-center"
+                  style={{
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    paddingLeft: 16,
+                    paddingRight: 16,
+                    borderBottom: '1px solid #eaeaea',
                   }}
                 >
-                  <Image
-                    src={'/assets/crossIcon.png'}
-                    height={40}
-                    width={40}
-                    alt="*"
+                  <span
+                    className="text-left font-semibold"
+                    style={{ fontSize: 18 }}
+                  >
+                    {sellerKycModalTitle}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setSellerKycClosing(true)
+                      setOpenSelerMotivation(false)
+                      setOpenSellerUrgency(false)
+                      setOpenSellerNeeds(false)
+                    }}
+                  >
+                    <Image
+                      src={'/assets/crossIcon.png'}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <div style={{ padding: 1 }}>
+                  <AddSellerKyc
+                    onTitleReady={setSellerKycModalTitle}
+                    titleRenderedInHeader={true}
+                    mainAgentId={mainAgentId}
+                    hideTitle={true}
+                    handleCloseSellerKyc={handleCloseSellerKyc}
+                    handleAddSellerKycData={handleAddSellerKycData}
+                    OpenSellerNeeds={OpenSellerNeeds}
+                    OpenSelerMotivation={OpenSelerMotivation}
+                    OpenSellerUrgency={OpenSellerUrgency}
+                    SellerNeedData={SellerNeedData}
+                    SellerMotivationData={SellerMotivationData}
+                    SellerUrgencyData={SellerUrgencyData}
+                    allKYCs={kycsData}
+                    selectedUser={selectedUser}
                   />
-                </button>
+                </div>
               </div>
-
-              <AddSellerKyc
-                mainAgentId={mainAgentId}
-                hideTitle={true}
-                handleCloseSellerKyc={handleCloseSellerKyc}
-                handleAddSellerKycData={handleAddSellerKycData}
-                OpenSellerNeeds={OpenSellerNeeds}
-                OpenSelerMotivation={OpenSelerMotivation}
-                OpenSellerUrgency={OpenSellerUrgency}
-                //sending already existing questions
-                SellerNeedData={SellerNeedData}
-                SellerMotivationData={SellerMotivationData}
-                SellerUrgencyData={SellerUrgencyData}
-                allKYCs={kycsData}
-                selectedUser={selectedUser}
-              />
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
-          </div>
+          </ScaleFadeTransition>
         </Box>
       </Modal>
 
@@ -1203,65 +1268,86 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       {/* Add modals code */}
       <Modal
         open={addBuyerKyc}
-        // onClose={() => setAddBuyerKyc(false)}
+        onClose={() => setBuyerKycClosing(true)}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            //backdropFilter: "blur(20px)",
-          },
+          timeout: 250,
+          sx: { backgroundColor: '#00000099' },
         }}
       >
         <Box
           className="sm:w-[760px] h-[85vh]"
           sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
-          <div className="flex flex-row justify-center w-full h-[100%]">
-            <div
-              className="w-full h-[100%]"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div className="flex flex-row justify-end items-center">
-                {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
-                <button
-                  onClick={() => {
-                    setAddBuyerKyc(false)
-                    setAddBuyerKyc(false)
-                    setOpenBuyerMotivation(false)
-                    setOpenBuyerUrgency(false)
+          <ScaleFadeTransition
+            in={addBuyerKyc && !buyerKycClosing}
+            timeout={250}
+            onExited={() => {
+              setAddBuyerKyc(false)
+              setBuyerKycClosing(false)
+              setOpenBuyerMotivation(false)
+              setOpenBuyerUrgency(false)
+            }}
+          >
+            <div className="flex flex-row justify-center w-full h-[100%]">
+              <div
+                className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
+                style={{
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid #eaeaea',
+                  borderRadius: 12,
+                }}
+              >
+                <div
+                  className="flex flex-row justify-between items-center"
+                  style={{
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    paddingLeft: 16,
+                    paddingRight: 16,
+                    borderBottom: '1px solid #eaeaea',
                   }}
                 >
-                  <Image
-                    src={'/assets/crossIcon.png'}
-                    height={40}
-                    width={40}
-                    alt="*"
+                  <span
+                    className="text-left font-semibold"
+                    style={{ fontSize: 18 }}
+                  >
+                    What would you like to ask buyers?
+                  </span>
+                  <button
+                    onClick={() => {
+                      setBuyerKycClosing(true)
+                      setOpenBuyerMotivation(false)
+                      setOpenBuyerUrgency(false)
+                    }}
+                  >
+                    <Image
+                      src={'/assets/crossIcon.png'}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <div style={{ padding: 20 }}>
+                  <AddBuyerKyc
+                    titleRenderedInHeader={true}
+                    handleCloseSellerKyc={handleCloseSellerKyc}
+                    handleAddBuyerKycData={handleAddBuyerKycData}
+                    OpenBuyerMotivation={OpenBuyerMotivation}
+                    OpenBuyerUrgency={OpenBuyerUrgency}
+                    BuyerNeedData={BuyerNeedData}
+                    BuyerMotivationData={BuyerMotivationData}
+                    BuyerUrgencyData={BuyerUrgencyData}
+                    mainAgentId={mainAgentId}
+                    selectedUser={selectedUser}
+                    hideTitle={true}
                   />
-                </button>
+                </div>
               </div>
-
-              <AddBuyerKyc
-                handleCloseSellerKyc={handleCloseSellerKyc}
-                handleAddBuyerKycData={handleAddBuyerKycData}
-                OpenBuyerMotivation={OpenBuyerMotivation}
-                OpenBuyerUrgency={OpenBuyerUrgency}
-                BuyerNeedData={BuyerNeedData}
-                BuyerMotivationData={BuyerMotivationData}
-                BuyerUrgencyData={BuyerUrgencyData}
-                mainAgentId={mainAgentId}
-                selectedUser={selectedUser}
-                hideTitle={true}
-              />
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
-          </div>
+          </ScaleFadeTransition>
         </Box>
       </Modal>
     </div>

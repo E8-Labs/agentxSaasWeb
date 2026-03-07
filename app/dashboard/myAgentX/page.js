@@ -4609,10 +4609,10 @@ function Page() {
                 className="flex-shrink-0 w-full flex flex-row items-center justify-between gap-3 px-4 py-3 border-b border-[#eaeaea] bg-white"
                 style={{ minHeight: 72 }}
               >
-                <div className="flex flex-row items-start justify-between w-full gap-4 min-w-0">
-                  <div className="flex flex-row items-start justify-start mt-2 gap-4">
+                <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0">
+                  <div className="flex flex-row items-start justify-start mt-2 gap-3 w-full">
                     {/* Profile Image */}
-                    <div className="">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
                       <button
                         // className='mt-8'
                         onClick={() => {
@@ -4625,7 +4625,7 @@ function Page() {
                         onDragLeave={handleDragLeave}
                       >
                         <div
-                          className="flex flex-row items-end"
+                          className="flex flex-row items-center justify-center w-10 h-10"
                           style={
                             {
                               // border: dragging ? "2px dashed #0070f3" : "",
@@ -4636,15 +4636,15 @@ function Page() {
                             <div style={{ marginTop: '', background: '' }}>
                               <Image
                                 src={selectedImage}
-                                height={45}
-                                width={45}
+                                height={40}
+                                width={40}
                                 alt="profileImage"
                                 className="rounded-full"
                                 style={{
                                   objectFit: 'cover',
                                   resize: 'cover',
-                                  height: '74px',
-                                  width: '74px',
+                                  height: 40,
+                                  width: 40,
                                 }}
                               />
                             </div>
@@ -4654,7 +4654,7 @@ function Page() {
 
                           <Image
                             src={'/otherAssets/cameraBtn.png'}
-                            style={{ marginLeft: -25 }}
+                            style={{ marginLeft: -25, filter: 'var(--brand-primary-filter, none)' }}
                             height={20}
                             width={20}
                             alt="profileImage"
@@ -4708,29 +4708,23 @@ function Page() {
                                 {showDrawerSelectedAgent?.name}
                               </div>
                             </div>
-                          </div>
-                        </button>
-                        <div
-                          className="text-brand-primary max-w-[140px]"
-                          style={{ fontSize: 11, fontWeight: '600' }}
-                        >
-                          {showDrawerSelectedAgent?.agentObjective}{' '}
-                          <span>
-                            {' '}
-                            |{' '}
-                            {showDrawerSelectedAgent?.agentType
-                              ?.slice(0, 1)
-                              .toUpperCase(0)}
-                            {showDrawerSelectedAgent?.agentType?.slice(1)} |{' '}
-                          </span>
-                        </div>
+</div>
+                      </button>
+                      </div>
 
-                        {/* <EmbedWidget
-                      assistantId={showDrawerSelectedAgent?.modelIdVapi}
-                      setShowSuccessSnack={setShowSuccessSnack}
-                      setIsVisible={setIsVisibleSnack}
-                      baseUrl={baseUrl}
-                    /> */}
+                      <div
+                        className="text-brand-primary max-w-[140px]"
+                        style={{ fontSize: 11, fontWeight: '600' }}
+                      >
+                        {showDrawerSelectedAgent?.agentObjective}{' '}
+                        <span>
+                          {' '}
+                          |{' '}
+                          {showDrawerSelectedAgent?.agentType
+                            ?.slice(0, 1)
+                            .toUpperCase(0)}
+                          {showDrawerSelectedAgent?.agentType?.slice(1)} |{' '}
+                        </span>
                       </div>
 
                       <div
@@ -4750,7 +4744,7 @@ function Page() {
                           style={{ fontSize: 11, fontWeight: '500', color: '#000' }}
                         >
                           {/* {showDrawer?.createdAt} */}
-                          {GetFormattedDateString(
+                          {                          GetFormattedDateString(
                             showDrawerSelectedAgent?.createdAt,
                           )}
                         </div>
@@ -5151,14 +5145,14 @@ function Page() {
                   />
                 </div>
                 {/* Bottom Agent Info */}
-                <div className="flex flex-row justify-between items-center pb-2 mb-4">
+                <div className="flex flex-row items-center gap-2 w-full h-auto pb-2 mb-4 border-b border-border">
                   {AgentMenuOptions.map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`${activeTab === tab
-                        ? 'text-brand-primary border-b-2 border-brand-primary'
-                        : 'text-black-500'
+                      className={`flex-1 min-w-0 pb-2 -mb-0.5 border-b-2 transition-colors ${activeTab === tab
+                        ? 'text-brand-primary border-brand-primary'
+                        : 'text-muted-foreground border-transparent hover:text-foreground'
                         }`}
                       style={{
                         fontSize: 15,
@@ -6607,7 +6601,7 @@ function Page() {
               sx={{ ...styles.modalsStyle, backgroundColor: 'white', padding: 0 }}
             >
               <div style={{ width: '100%' }}>
-                <div className="h-[90vh] text-sm gap-1 flex flex-col" style={{ scrollbarWidth: 'none', fontSize: 14 }}>
+                <div className="h-[90vh] text-sm gap-[12px] flex flex-col animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ scrollbarWidth: 'none', fontSize: 14 }}>
                   <div
                     className="w-full py-3 px-4 border-b flex flex-row items-center justify-between max-h-[54px]"
                     style={{ borderBottomColor: '#eaeaea' }}
@@ -6681,14 +6675,9 @@ function Page() {
                   </div>
 
                   {showScript && (
-                    <div style={{ height: '73%', borderWidth: 0 }}>
-                        <div
-                          style={{
-                            height: showSaveChangesBtn ? '95%' : '100%',
-                            borderWidth: 0,
-                          }}
-                        >
-                        <div className="flex flex-col gap-3 px-4 text-sm">
+                    <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
+                        <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
+                        <div className="flex-1 min-h-0 h-full overflow-auto flex flex-col gap-3 px-4 text-sm">
                         <div className="rounded-[1px] border-l-4 border-brand-primary bg-primary/5 p-3 mt-2">
                           <div className="flex flex-row items-center gap-2 text-sm font-medium text-foreground">
                             <Info size={20} weight="fill" className="text-brand-primary flex-shrink-0" />
@@ -6748,7 +6737,7 @@ function Page() {
                           </div>
                         </div>
 
-                        <div className="w-full flex flex-col gap-3 [&_input]:h-[40px] [&_input]:min-h-[40px] [&_input]:rounded-lg [&_input]:border [&_input]:border-[#e5e7eb] [&_input]:px-3 [&_input]:py-2.5 [&_input]:text-sm [&_input]:outline-none [&_input]:transition-colors [&_input]:focus:border-brand-primary [&_input]:focus:ring-2 [&_input]:focus:ring-brand-primary/20 [&_input]:hover:border-gray-300 [&_input]:hover:bg-gray-50/30 [&_textarea]:min-h-[40px] [&_textarea]:w-full [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-[#e5e7eb] [&_textarea]:px-3 [&_textarea]:py-2.5 [&_textarea]:text-sm [&_textarea]:font-normal [&_textarea]:text-black/80 [&_textarea]:outline-none [&_textarea]:transition-colors [&_textarea]:focus:border-brand-primary [&_textarea]:focus:ring-2 [&_textarea]:focus:ring-brand-primary/20 [&_textarea]:hover:border-gray-300">
+                        <div className="w-full h-full flex flex-col gap-3 [&_input]:h-[40px] [&_input]:min-h-[40px] [&_input]:rounded-lg [&_input]:border [&_input]:border-[#e5e7eb] [&_input]:px-3 [&_input]:py-2.5 [&_input]:text-sm [&_input]:outline-none [&_input]:transition-colors [&_input]:focus:border-brand-primary [&_input]:focus:ring-2 [&_input]:focus:ring-brand-primary/20 [&_input]:hover:border-gray-300 [&_input]:hover:bg-gray-50/30 [&_textarea]:min-h-[40px] [&_textarea]:w-full [&_textarea]:flex-1 [&_textarea]:min-h-0 [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-[#e5e7eb] [&_textarea]:px-3 [&_textarea]:py-2.5 [&_textarea]:text-sm [&_textarea]:font-normal [&_textarea]:text-black/80 [&_textarea]:outline-none [&_textarea]:transition-colors [&_textarea]:focus:border-brand-primary [&_textarea]:focus:ring-2 [&_textarea]:focus:ring-brand-primary/20 [&_textarea]:hover:border-gray-300">
                           <div className="flex w-full">
                             <VideoCard
                               duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}

@@ -376,13 +376,13 @@ const GuardianSetting = ({
             )
             return (
               <div
-                className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3"
+                className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3 hover:bg-black/[0.02] transition-colors duration-150"
                 key={index}
               >
                 <div
                   role="button"
                   tabIndex={0}
-                  className="flex flex-row items-center justify-between py-3 cursor-pointer"
+                  className="flex flex-row items-center justify-between gap-4 py-3 cursor-pointer w-full"
                   onClick={() => handleShowDetails(item)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -392,19 +392,23 @@ const GuardianSetting = ({
                   }}
                   aria-expanded={isExpanded}
                 >
-                  <div className="text-sm font-normal" style={{ fontSize: '14px', fontWeight: 400 }}>
-                    {item.title}
+                  <div className="flex flex-col gap-2 ml-2 w-full text-[14px] text-black/80">
+                    <div className="font-normal" style={{ fontWeight: 400 }}>
+                      {item.title}
+                    </div>
                   </div>
-                  <span className="outline-none pointer-events-none" aria-hidden>
-                    {isExpanded ? (
-                      <ChevronUp size={16} />
-                    ) : (
-                      <ChevronDown size={16} />
-                    )}
-                  </span>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-primary/[0.02] flex-shrink-0">
+                    <span className="outline-none pointer-events-none text-brand-primary" aria-hidden>
+                      {isExpanded ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
+                    </span>
+                  </div>
                 </div>
                 {isExpanded && (
-                  <div className="flex flex-row items-start justify-between bg-black/[0.02] p-2 px-3 mt-3">
+                  <div className="flex flex-row items-start justify-between gap-3 bg-black/[0.02] p-2 px-3 mt-3">
                     <div
                       style={{ fontSize: '14px', fontWeight: 400 }}
                     >
@@ -485,6 +489,17 @@ const GuardianSetting = ({
               </div>
             )
           })}
+          {showTitle && (
+            <div className="flex flex-row items-center justify-start py-3">
+              <button
+                className="text-brand-primary underline outline-none h-8"
+                style={{ fontWeight: '500', fontSize: 14 }}
+                onClick={() => setShowAddObjForm(true)}
+              >
+                New Guardrail
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div>
@@ -513,18 +528,6 @@ const GuardianSetting = ({
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {showTitle && (
-        <div className="flex flex-row items-center justify-start pb-3">
-          <button
-            className="text-brand-primary underline outline-none"
-            style={{ fontWeight: '500', fontSize: 15 }}
-            onClick={() => setShowAddObjForm(true)}
-          >
-            New Guardrail
-          </button>
         </div>
       )}
 

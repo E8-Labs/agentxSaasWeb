@@ -318,7 +318,7 @@ const AgentsListPaginated = ({
             {agentsListSeparated.map((item, index) => (
               <div
                 key={index}
-                className="group w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start relative overflow-hidden"
+                className="group w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start relative overflow-hidden transition-shadow duration-200 hover:border-[#eaeaea] hover:shadow-[0_4px_30px_rgba(0,0,0,0.15)]"
                 style={{
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   backgroundColor: '#ffffff',

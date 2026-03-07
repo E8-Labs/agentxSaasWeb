@@ -361,7 +361,7 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
             )
             return (
               <div
-                className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3"
+                className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3 hover:bg-black/[0.02] transition-colors duration-150"
                 key={index}
               >
                 <div
@@ -471,6 +471,17 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
               </div>
             )
           })}
+          {showTitle && (
+            <div className="flex flex-row items-center justify-start py-3">
+              <button
+                className="text-brand-primary underline outline-none h-8"
+                style={{ fontWeight: '500', fontSize: 14 }}
+                onClick={() => setShowAddObjForm(true)}
+              >
+                New Objection
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div>
@@ -499,18 +510,6 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {showTitle && (
-        <div className="flex flex-row items-center justify-start pb-3">
-          <button
-            className="text-brand-primary underline outline-none"
-            style={{ fontWeight: '500', fontSize: 15 }}
-            onClick={() => setShowAddObjForm(true)}
-          >
-            New Objection
-          </button>
         </div>
       )}
 
