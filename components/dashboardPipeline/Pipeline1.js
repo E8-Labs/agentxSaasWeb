@@ -2737,41 +2737,41 @@ const Pipeline1 = () => {
                                   }}
                                 />
                               )}
-                              {SelectedPipeline?.pipelineType !== 'agency_use' && (
-                                <button
-                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
-                                  onMouseEnter={(e) => {
-                                    const rect = e.currentTarget.getBoundingClientRect()
-                                    const container = stageAnchorContainerRef.current
-                                    if (!container) return
-                                    const cRect = container.getBoundingClientRect()
-                                    setStageAnchorPillRect({
-                                      left: rect.left - cRect.left,
-                                      top: rect.top - cRect.top,
-                                      width: rect.width,
-                                      height: rect.height,
-                                    })
-                                  }}
-                                  onClick={() => {
-                                    setShowRenamePopup(true)
-                                    // //console.log;
-                                    setRenameStage(selectedStage.stageTitle)
-                                    setUpdateStageColor(
-                                      selectedStage.defaultColor,
-                                    )
-                                  }}
-                                >
-                                  <Image
-                                    src={'/assets/editPen.png'}
-                                    height={16}
-                                    width={16}
-                                    alt="*"
-                                  />
-                                  <div className="w-36 text-start justify-start text-black text-[14px] font-normal font-['Inter'] leading-normal">
-                                    Rename
-                                  </div>
-                                </button>
-                              )}
+                              {/*SelectedPipeline?.pipelineType !== 'agency_use' && (
+                              )*/}
+                              <button
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
+                                onMouseEnter={(e) => {
+                                  const rect = e.currentTarget.getBoundingClientRect()
+                                  const container = stageAnchorContainerRef.current
+                                  if (!container) return
+                                  const cRect = container.getBoundingClientRect()
+                                  setStageAnchorPillRect({
+                                    left: rect.left - cRect.left,
+                                    top: rect.top - cRect.top,
+                                    width: rect.width,
+                                    height: rect.height,
+                                  })
+                                }}
+                                onClick={() => {
+                                  setShowRenamePopup(true)
+                                  // //console.log;
+                                  setRenameStage(selectedStage.stageTitle)
+                                  setUpdateStageColor(
+                                    selectedStage.defaultColor,
+                                  )
+                                }}
+                              >
+                                <Image
+                                  src={'/assets/editPen.png'}
+                                  height={16}
+                                  width={16}
+                                  alt="*"
+                                />
+                                <div className="w-36 text-start justify-start text-black text-[14px] font-normal font-['Inter'] leading-normal">
+                                  Rename
+                                </div>
+                              </button>
                               <button
                                 className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-2 outline-none"
                                 onMouseEnter={(e) => {

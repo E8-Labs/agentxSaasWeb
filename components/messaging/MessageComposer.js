@@ -1494,7 +1494,7 @@ const MessageComposer = ({
                   Connect a Facebook page or Instagram page to send messages
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                  <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
                     {connectingOAuth && <Loader2 className="w-3.5 h- mr-1.5 animate-spin" />}
                     Connect
                   </Button>
@@ -1632,7 +1632,7 @@ const MessageComposer = ({
                   </label>
                   {
                     hasFacebookConnection && (
-                      <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={() => disconnectSocialOAuth('facebook')} disabled={connectingOAuth}>
+                      <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={() => disconnectSocialOAuth('facebook')} disabled={connectingOAuth}>
                         {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
                         Disconnect
                       </Button>
