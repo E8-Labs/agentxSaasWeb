@@ -1285,6 +1285,33 @@ const MessageComposer = ({
     }
   }
 
+  const disconnectSocialOAuth = async (platform) => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please sign in to disconnect')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    try {
+      setConnectingOAuth(true)
+      let url = Apis.disconnectSocialConnection
+      const params = new URLSearchParams()
+      params.set('platform', platform)
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      url += `?${params.toString()}`
+      const response = await axios.delete(url, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      toast.success(platform === 'facebook' ? 'Facebook disconnected' : 'Instagram disconnected')
+      onConnectionSuccess?.()
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Could not disconnect')
+    } finally {
+      setConnectingOAuth(false)
+    }
+  }
+
   const handleConnectSubmit = async (e) => {
     e?.preventDefault()
     const externalId = (connectForm.externalId || '').trim()
@@ -1476,7 +1503,7 @@ const MessageComposer = ({
                 </div>
               </div>
             )}
-            {/*{!hasInstagramConnection && (
+            {!hasInstagramConnection && (
               <div className="flex flex-col items-center gap-2">
                 <Image
                   src="/fbInsta.png"
@@ -1494,13 +1521,13 @@ const MessageComposer = ({
                     Connect
                   </Button>
                   
-                  <span className="text-xs text-muted-foreground">or</span>
+                  {/*<span className="text-xs text-muted-foreground">or</span>
                   <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('instagram')} disabled={connectingOAuth}>
                     Connect manually
-                  </Button>
+                  </Button>*/}
                 </div>
               </div>
-            )}*/}
+            )}
             {hasFacebookConnection && hasInstagramConnection && (
               <p className="text-sm text-muted-foreground">
                 Select a Messenger or Instagram conversation from the list to reply here.
@@ -1612,11 +1639,19 @@ const MessageComposer = ({
             {/* Messenger/Instagram expanded: RichTextEditor with formatting toolbar (no From/Subject/CC/BCC/Templates) */}
             {sendableSocial ? (
               <div className="mt-2">
-                <div className="mb-2">
+                <div className="mb-2  w-full flex flex-row items-center justify-between">
                   <label className="text-sm font-semibold text-foreground">
                     {/*isMessengerReply ? 'Send a DM' : 'Reply in Instagram'}*/}
                     Send a DM
                   </label>
+                  {
+                    hasFacebookConnection && (
+                      <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={() => disconnectSocialOAuth('facebook')} disabled={connectingOAuth}>
+                        {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+                        Disconnect
+                      </Button>
+                    )
+                  }
                 </div>
                 <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor

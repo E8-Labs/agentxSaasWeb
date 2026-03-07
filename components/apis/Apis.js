@@ -423,6 +423,7 @@ const Apis = {
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
   socialConnections: `${BasePath}api/mail/social-connections`,
   socialFacebookAuthorize: `${BasePath}api/mail/social/facebook/authorize`,
+  disconnectSocialConnection: `${BasePath}api/mail/social-connections/all`,
 
   // AI Chat APIs
   aiChat: '/api/ai/chat',
