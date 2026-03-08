@@ -22,6 +22,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
+import { Code, SquareArrowOutUpRight, Webhook } from 'lucide-react'
 import { ArrowUpRight, Info, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import imageCompression from 'browser-image-compression'
@@ -132,6 +133,60 @@ const DuplicateButton = dynamic(
     ssr: false,
   },
 )
+
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      if (stage !== 'entered') {
+        setStage('entering')
+        onEnter?.()
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = requestAnimationFrame(() => setStage('entered'))
+        })
+      }
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, onEnter, onExited, stage, timeout])
+
+  let style = {
+    transition: `opacity ${timeout}ms ease-out, transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+    opacity: 0,
+    transform: 'scale(0.95)',
+  }
+
+  if (stage === 'entering' || stage === 'entered') {
+    style = { ...style, opacity: 1, transform: 'scale(1)' }
+  } else if (stage === 'exiting') {
+    style = { ...style, opacity: 0, transform: 'scale(0.95)' }
+  }
+
+  if (stage === 'exited' && !inProp) {
+    return null
+  }
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+      <div style={style}>{children}</div>
+    </div>
+  )
+}
 
 function Page() {
   // IMMEDIATE POPUP HANDLING - Run before React renders to preserve popup context
@@ -1429,23 +1484,49 @@ function Page() {
   ////// //console.log;
 
   // Function to render icon with branding using mask-image (same logic as NotificationsDrawer.js)
-  const renderBrandedIcon = (iconPath, width, height) => {
+  // Optional 4th arg: useBlack = true forces icon color to black instead of brand color
+  const renderBrandedIcon = (iconPath, width, height, useBlack = false) => {
     if (typeof window === 'undefined') {
       return <Image src={iconPath} width={width} height={height} alt="*" />
     }
 
-    // Get brand color from CSS variable
+    // Get brand color from CSS variable (unless useBlack)
     const root = document.documentElement
     const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+    const iconColor = useBlack ? '#000' : (brandColor && brandColor !== '' && brandColor.length >= 3 ? `hsl(${brandColor})` : undefined)
 
-    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
-    // Check for empty string, null, undefined, or if it doesn't contain valid color values
-    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+    // Black icon (e.g. drawer actions)
+    if (useBlack) {
+      return (
+        <div
+          style={{
+            width: width,
+            height: height,
+            minWidth: width,
+            minHeight: height,
+            backgroundColor: '#000',
+            WebkitMaskImage: `url(${iconPath})`,
+            WebkitMaskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            WebkitMaskMode: 'alpha',
+            maskImage: `url(${iconPath})`,
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+            maskMode: 'alpha',
+            flexShrink: 0,
+          }}
+        />
+      )
+    }
+
+    // No valid brand color: plain Image
+    if (!iconColor) {
       return <Image src={iconPath} width={width} height={height} alt="*" />
     }
 
     // Use mask-image approach: background color with icon as mask
-    // This works for both SVG and PNG icons
     return (
       <div
         style={{
@@ -1453,7 +1534,7 @@ function Page() {
           height: height,
           minWidth: width,
           minHeight: height,
-          backgroundColor: `hsl(${brandColor})`,
+          backgroundColor: iconColor,
           WebkitMaskImage: `url(${iconPath})`,
           WebkitMaskSize: 'contain',
           WebkitMaskRepeat: 'no-repeat',
@@ -4299,23 +4380,26 @@ function Page() {
             }}
             closeAfterTransition
             BackdropProps={{
-              timeout: 500,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
-                // //backdropFilter: "blur(20px)",
+                backgroundColor: '#00000099',
               },
             }}
           >
             <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-              <div className="flex flex-row justify-center w-full max-h-[80vh]">
-                <div
-                  className="sm:w-full w-full p-[2px] h-full flex flex-col w-[400px]"
-                  style={{
-                    backgroundColor: '#ffffff',
-                    scrollbarWidth: 'none',
-                    borderRadius: '13px',
-                  }}
-                >
+              <ScaleFadeTransition in={openTestAiModal} timeout={250}>
+                <div className="flex flex-row justify-center w-full max-h-[80vh]">
+                  <div
+                    className="w-[400px] flex flex-col gap-3 overflow-hidden sm:w-full w-full h-full flex flex-col"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                      border: '1px solid #eaeaea',
+                      borderRadius: 12,
+                      scrollbarWidth: 'none',
+                      padding: '12px 16px',
+                    }}
+                  >
                   <div
                     className="flex flex-row justify-between items-center py-3 px-4 flex-shrink-0 flex-wrap gap-2"
                     style={{ borderBottom: '1px solid #eaeaea' }}
@@ -4487,6 +4571,7 @@ function Page() {
                   {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                 </div>
               </div>
+              </ScaleFadeTransition>
             </Box>
           </Modal>
           <UnlockPremiunFeatures
@@ -4610,41 +4695,39 @@ function Page() {
                 style={{ minHeight: 72 }}
               >
                 <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0">
-                  <div className="flex flex-row items-start justify-start mt-2 gap-3 w-full">
-                    {/* Profile Image */}
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
+                  <div className="flex flex-row items-start justify-start gap-3 w-full p-4">
+                    {/* Profile Image (left) */}
+                    <div className="flex items-center justify-center w-[120px] h-[120px] rounded-lg shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
                       <button
-                        // className='mt-8'
                         onClick={() => {
                           document.getElementById('fileInput').click()
-                          // if (typeof document === "undefined") {
-                          // }
                         }}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                       >
                         <div
-                          className="flex flex-row items-center justify-center w-10 h-10"
-                          style={
-                            {
-                              // border: dragging ? "2px dashed #0070f3" : "",
-                            }
-                          }
+                          className="flex flex-row items-center justify-center w-[120px] h-[120px] rounded-xl"
+                          style={{
+                            border: '3px solid white',
+                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                            backdropFilter: 'blur(8px)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                          }}
                         >
                           {selectedImage ? (
                             <div style={{ marginTop: '', background: '' }}>
                               <Image
                                 src={selectedImage}
-                                height={40}
-                                width={40}
+                                height={48}
+                                width={48}
                                 alt="profileImage"
                                 className="rounded-full"
                                 style={{
                                   objectFit: 'cover',
                                   resize: 'cover',
-                                  height: 40,
-                                  width: 40,
+                                  height: 48,
+                                  width: 48,
                                 }}
                               />
                             </div>
@@ -4662,7 +4745,6 @@ function Page() {
                         </div>
                       </button>
 
-                      {/* Hidden file input */}
                       <input
                         value={''}
                         type="file"
@@ -4672,7 +4754,6 @@ function Page() {
                         onChange={handleImageChange}
                       />
 
-                      {/* Global Loader */}
                       {globalLoader && (
                         <CircularLoader
                           globalLoader={globalLoader}
@@ -4680,7 +4761,8 @@ function Page() {
                         />
                       )}
                     </div>
-                    <div className="flex flex-col gap-2 items-start ml-2">
+                    {/* Name and info (right) */}
+                    <div className="flex flex-col gap-2 items-start ml-2 text-sm text-black/80 font-normal" style={{ fontWeight: 400 }}>
                       <div className="flex flex-row justify-center items-center gap-2">
                         <button
                           onClick={() => {
@@ -4691,8 +4773,8 @@ function Page() {
                         >
                           <div className="flex flex-row items-center gap-2">
                             {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
-                            <div className="relative group max-w-[150px]">
-                              <div className="truncate font-semibold text-[22px]">
+                            <div className="relative group max-w-[150px] text-left">
+                              <div className="truncate text-left font-normal" style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)', fontWeight: 400 }}>
                                 {showDrawerSelectedAgent?.name
                                   ?.slice(0, 1)
                                   .toUpperCase()}
@@ -4713,8 +4795,7 @@ function Page() {
                       </div>
 
                       <div
-                        className="text-brand-primary max-w-[140px]"
-                        style={{ fontSize: 11, fontWeight: '600' }}
+                        style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0,0,0,0.8)' }}
                       >
                         {showDrawerSelectedAgent?.agentObjective}{' '}
                         <span>
@@ -4728,7 +4809,7 @@ function Page() {
                       </div>
 
                       <div
-                        style={{ fontSize: 15, fontWeight: '500', color: '#000' }}
+                        style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0,0,0,0.8)' }}
                       >
                         {/* {showDrawer?.phoneNumber} */}
                         {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
@@ -4736,12 +4817,12 @@ function Page() {
 
                       <div className="flex flex-row gap-2 items-center ">
                         <div
-                          style={{ fontSize: 11, fontWeight: '500', color: '#666' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0,0,0,0.8)' }}
                         >
                           Created on:
                         </div>
                         <div
-                          style={{ fontSize: 11, fontWeight: '500', color: '#000' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0,0,0,0.8)' }}
                         >
                           {/* {showDrawer?.createdAt} */}
                           {                          GetFormattedDateString(
@@ -4752,7 +4833,182 @@ function Page() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-2">
+                  <div className="flex flex-col items-center gap-2 py-3">
+                    <div className="flex flex-row items-center gap-2 p-1">
+                      <div className="flex flex-row items-center gap-2 text-black [&_svg]:text-black [&_img]:opacity-100" style={{ color: '#000' }}>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                          <Tooltip
+                            title="Duplicate"
+                            arrow
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: '#ffffff', // Ensure white background
+                                  color: '#333', // Dark text color
+                                  fontSize: '14px',
+                                  padding: '10px 15px',
+                                  borderRadius: '8px',
+                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                },
+                              },
+                              arrow: {
+                                sx: {
+                                  color: '#ffffff', // Match tooltip background
+                                },
+                              },
+                            }}
+                          >
+                            <div className="cursor-pointer pt-1">
+                              <DuplicateButton
+                              handleDuplicate={() => {
+                                setShowDuplicateConfirmationPopup(true)
+                              }}
+                              loading={duplicateLoader}
+                              size={16}
+                              useBlack
+                            />
+                            </div>
+                          </Tooltip>
+                        </div>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                          <Tooltip
+                            title="Open Tab"
+                          arrow
+                          componentsProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#ffffff', // Ensure white background
+                                color: '#333', // Dark text color
+                                fontSize: '14px',
+                                padding: '10px 15px',
+                                borderRadius: '8px',
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                              },
+                            },
+                            arrow: {
+                              sx: {
+                                color: '#ffffff', // Match tooltip background
+                              },
+                            },
+                          }}
+                        >
+                          <button
+                            onClick={() => {
+                              handleWebAgentClick(showDrawerSelectedAgent)
+                            }}
+                          >
+                            <SquareArrowOutUpRight size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                          </button>
+                          </Tooltip>
+                        </div>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                          <Tooltip
+                            title="Embed"
+                          arrow
+                          componentsProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#ffffff', // Ensure white background
+                                color: '#333', // Dark text color
+                                fontSize: '14px',
+                                padding: '10px 15px',
+                                borderRadius: '8px',
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                              },
+                            },
+                            arrow: {
+                              sx: {
+                                color: '#ffffff', // Match tooltip background
+                              },
+                            },
+                          }}
+                        >
+                          <button
+                            style={{ paddingLeft: '3px' }}
+                            onClick={() => {
+                              handleEmbedClick(showDrawerSelectedAgent)
+                            }}
+                          >
+                            <Code size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                          </button>
+                          </Tooltip>
+                        </div>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                          <Tooltip
+                            title="Webhook"
+                          arrow
+                          componentsProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#ffffff', // Ensure white background
+                                color: '#333', // Dark text color
+                                fontSize: '14px',
+                                padding: '10px 15px',
+                                borderRadius: '8px',
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                              },
+                            },
+                            arrow: {
+                              sx: {
+                                color: '#ffffff', // Match tooltip background
+                              },
+                            },
+                          }}
+                        >
+                          <button
+                            style={{ paddingLeft: '3px' }}
+                            onClick={() => {
+                            // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                            if (
+                              reduxUser?.agencyCapabilities
+                                ?.allowEmbedAndWebAgents === false
+                            ) {
+                              setShowUpgradeModal(true)
+                              setTitle('Unlock your Web Agent')
+                              setSubTitle(
+                                'Bring your AI agent to your website allowing them to engage with leads and customers',
+                              )
+                              setFeatureTitle('EmbedAgents')
+                            } else {
+                              if (
+                                reduxUser?.planCapabilities
+                                  ?.allowEmbedAndWebAgents === false
+                              ) {
+                                setShowUpgradeModal(true)
+                                setTitle('Unlock your Web Agent')
+                                setSubTitle(
+                                  'Bring your AI agent to your website allowing them to engage with leads and customers',
+                                )
+                              } else {
+                                // Merge with existing updated agent state if available
+                                let agentToUse = showDrawerSelectedAgent
+                                if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                                  // We have an updated version of this agent - merge the smartlist fields
+                                  agentToUse = {
+                                    ...showDrawerSelectedAgent,
+                                    // Preserve updated smartlist fields from state
+                                    smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
+                                    smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
+                                    smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
+                                    smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
+                                    smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
+                                    smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
+                                  }
+                                }
+                                setFetureType('webhook')
+                                setSelectedAgentForWebAgent(agentToUse)
+                                setShowWebAgentModal(true)
+                              }
+                            }
+                          }}
+                        >
+                            <Webhook size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                          </button>
+                          </Tooltip>
+                        </div>
+                      </div>
+                      <CloseBtn onClick={handleDrawerClose} />
+                    </div>
                     <div>
                       <DuplicateConfirmationPopup
                         open={showDuplicateConfirmationPopup}
@@ -4761,7 +5017,7 @@ function Page() {
                         duplicateLoader={duplicateLoader}
                       />
                       <div className="flex flex-col gap-2  ">
-                        {/* GPT Button */}
+                        {/* GPT Button (last item) */}
 
                         {showModelLoader ? (
                           <CircularProgress size={25} />
@@ -4779,7 +5035,6 @@ function Page() {
                                 padding: '6px 12px',
                                 border: '1px solid #EEE',
                                 backgroundColor: 'white',
-                                // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
                                 fontSize: '16px',
                                 fontWeight: '500',
                                 color: '#000',
@@ -4880,170 +5135,6 @@ function Page() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-row items-center gap-2">
-                      <Tooltip
-                        title="Duplicate"
-                        arrow
-                        componentsProps={{
-                          tooltip: {
-                            sx: {
-                              backgroundColor: '#ffffff', // Ensure white background
-                              color: '#333', // Dark text color
-                              fontSize: '14px',
-                              padding: '10px 15px',
-                              borderRadius: '8px',
-                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                            },
-                          },
-                          arrow: {
-                            sx: {
-                              color: '#ffffff', // Match tooltip background
-                            },
-                          },
-                        }}
-                      >
-                        <div className="cursor-pointer pt-1">
-                          <DuplicateButton
-                            handleDuplicate={() => {
-                              setShowDuplicateConfirmationPopup(true)
-                            }}
-                            loading={duplicateLoader}
-                          />
-                        </div>
-                      </Tooltip>
-                      <Tooltip
-                        title="Open Tab"
-                        arrow
-                        componentsProps={{
-                          tooltip: {
-                            sx: {
-                              backgroundColor: '#ffffff', // Ensure white background
-                              color: '#333', // Dark text color
-                              fontSize: '14px',
-                              padding: '10px 15px',
-                              borderRadius: '8px',
-                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                            },
-                          },
-                          arrow: {
-                            sx: {
-                              color: '#ffffff', // Match tooltip background
-                            },
-                          },
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            handleWebAgentClick(showDrawerSelectedAgent)
-                          }}
-                        >
-                          {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
-                        </button>
-                      </Tooltip>
-                      <Tooltip
-                        title="Embed"
-                        arrow
-                        componentsProps={{
-                          tooltip: {
-                            sx: {
-                              backgroundColor: '#ffffff', // Ensure white background
-                              color: '#333', // Dark text color
-                              fontSize: '14px',
-                              padding: '10px 15px',
-                              borderRadius: '8px',
-                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                            },
-                          },
-                          arrow: {
-                            sx: {
-                              color: '#ffffff', // Match tooltip background
-                            },
-                          },
-                        }}
-                      >
-                        <button
-                          style={{ paddingLeft: '3px' }}
-                          onClick={() => {
-                            handleEmbedClick(showDrawerSelectedAgent)
-                          }}
-                        >
-                          {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
-                        </button>
-                      </Tooltip>
-
-                      <Tooltip
-                        title="Webhook"
-                        arrow
-                        componentsProps={{
-                          tooltip: {
-                            sx: {
-                              backgroundColor: '#ffffff', // Ensure white background
-                              color: '#333', // Dark text color
-                              fontSize: '14px',
-                              padding: '10px 15px',
-                              borderRadius: '8px',
-                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                            },
-                          },
-                          arrow: {
-                            sx: {
-                              color: '#ffffff', // Match tooltip background
-                            },
-                          },
-                        }}
-                      >
-                        <button
-                          style={{ paddingLeft: '3px' }}
-                          onClick={() => {
-                            // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
-                            if (
-                              reduxUser?.agencyCapabilities
-                                ?.allowEmbedAndWebAgents === false
-                            ) {
-                              setShowUpgradeModal(true)
-                              setTitle('Unlock your Web Agent')
-                              setSubTitle(
-                                'Bring your AI agent to your website allowing them to engage with leads and customers',
-                              )
-                              setFeatureTitle('EmbedAgents')
-                            } else {
-                              if (
-                                reduxUser?.planCapabilities
-                                  ?.allowEmbedAndWebAgents === false
-                              ) {
-                                setShowUpgradeModal(true)
-                                setTitle('Unlock your Web Agent')
-                                setSubTitle(
-                                  'Bring your AI agent to your website allowing them to engage with leads and customers',
-                                )
-                              } else {
-                                // Merge with existing updated agent state if available
-                                let agentToUse = showDrawerSelectedAgent
-                                if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
-                                  // We have an updated version of this agent - merge the smartlist fields
-                                  agentToUse = {
-                                    ...showDrawerSelectedAgent,
-                                    // Preserve updated smartlist fields from state
-                                    smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
-                                    smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
-                                    smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
-                                    smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
-                                    smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
-                                    smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
-                                  }
-                                }
-                                setFetureType('webhook')
-                                setSelectedAgentForWebAgent(agentToUse)
-                                setShowWebAgentModal(true)
-                              }
-                            }
-                          }}
-                        >
-                          {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
-                        </button>
-                      </Tooltip>
-                      <CloseBtn onClick={handleDrawerClose} />
-                    </div>
                   </div>
                 </div>
               </header>
@@ -5054,7 +5145,10 @@ function Page() {
                 style={{ scrollbarWidth: 'none' }}
               >
                 {/* Center Stats View  */}
-                <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
+                <div
+                  className="grid grid-cols-5 gap-3 w-full rounded-lg mb-6 p-4 py-3 bg-white text-sm"
+                  style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)' }}
+                >
                   <Card
                     name="Calls"
                     value={
@@ -5145,12 +5239,12 @@ function Page() {
                   />
                 </div>
                 {/* Bottom Agent Info */}
-                <div className="flex flex-row items-center gap-2 w-full h-auto pb-2 mb-4 border-b border-border">
+                <div className="flex flex-row items-center gap-2 w-full h-auto max-h-none pb-2 mb-4 border-b border-border">
                   {AgentMenuOptions.map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`flex-1 min-w-0 pb-2 -mb-0.5 border-b-2 transition-colors ${activeTab === tab
+                      className={`flex-1 min-w-0 min-h-[40px] pb-2 -mb-0.5 border-b-2 transition-colors flex items-center justify-center ${activeTab === tab
                         ? 'text-brand-primary border-brand-primary'
                         : 'text-muted-foreground border-transparent hover:text-foreground'
                         }`}
@@ -5168,7 +5262,7 @@ function Page() {
                 {/* Code for agent info */}
                 {activeTab === 'Agent Info' ? (
                   <div className="w-full">
-                    <div className="flex flex-col">
+                    <div className="flex flex-col p-4 gap-1 text-sm font-normal" style={{ fontSize: 14, fontWeight: 400 }}>
                       <div className="flex flex-row items-center justify-between">
                         <div
                           style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
@@ -7263,7 +7357,12 @@ const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBra
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      {renderIcon()}
+      <div
+        className="flex items-center justify-center w-[42px] h-[42px] rounded-lg shrink-0"
+        style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.05)' }}
+      >
+        {renderIcon()}
+      </div>
 
       <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}

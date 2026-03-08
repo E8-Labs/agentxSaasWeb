@@ -3,20 +3,18 @@
 import Lottie from 'lottie-react'
 import { CopyPlus } from 'lucide-react'
 
-// Function to render Lucide icon with branding color (same logic as NotificationsDrawer.js)
-const renderBrandedLucideIcon = (IconComponent, size = 18) => {
-  if (typeof window === 'undefined') {
-    return <IconComponent size={size} />
+// Function to render Lucide icon with branding color or black
+const renderBrandedLucideIcon = (IconComponent, size = 18, useBlack = false) => {
+  let iconColor = 'hsl(270 75% 50%)'
+  if (useBlack) {
+    iconColor = '#000'
+  } else if (typeof window !== 'undefined') {
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+    if (brandColor && brandColor.trim() && brandColor.length >= 3) {
+      iconColor = `hsl(${brandColor.trim()})`
+    }
   }
-
-  // Get brand color from CSS variable
-  const root = document.documentElement
-  const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
-
-  // Use brand color or fallback to default purple
-  const iconColor = brandColor && brandColor.trim() && brandColor.length >= 3
-    ? `hsl(${brandColor.trim()})`
-    : 'hsl(270 75% 50%)' // Default purple
 
   return (
     <IconComponent
@@ -31,17 +29,17 @@ const renderBrandedLucideIcon = (IconComponent, size = 18) => {
   )
 }
 
-export default function DuplicateButton({ handleDuplicate, loading = false }) {
+export default function DuplicateButton({ handleDuplicate, loading = false, size = 18, useBlack = false }) {
   return (
-    <button className="relative w-[24px] h-[24px] flex items-center justify-center" onClick={handleDuplicate}>
+    <button className="relative flex items-center justify-center" style={{ width: size + 8, height: size + 8, minWidth: size + 8, minHeight: size + 8 }} onClick={handleDuplicate}>
       {loading ? (
         <Lottie
           animationData={require('../../public/assets/animation/duplicateAnimation.json')}
           loop
-          style={{ width: 18, height: 18 }}
+          style={{ width: size, height: size }}
         />
       ) : (
-        renderBrandedLucideIcon(CopyPlus, 18)
+        renderBrandedLucideIcon(CopyPlus, size, useBlack)
       )}
     </button>
   )
