@@ -418,6 +418,7 @@ const Apis = {
   getThreadById: `${BasePath}api/user/messaging/threads`,
   getMessagesForThread: `${BasePath}api/user/messaging/threads`,
   markThreadAsRead: `${BasePath}api/user/messaging/threads`,
+  setThreadReplyStatus: `${BasePath}api/user/messaging/threads`,
   updateThread: `${BasePath}api/user/messaging/threads`,
   deleteThread: `${BasePath}api/user/messaging/threads`,
   linkThreadToLead: `${BasePath}api/user/messaging/threads`,

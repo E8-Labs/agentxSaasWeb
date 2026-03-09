@@ -60,6 +60,7 @@ const ThreadsList = ({
   onShortlistToggle,
   shortlistedCount = 0,
   onContactCreated,
+  onMarkReplyStatus,
   selectedUser = null,
   agencyUser = null,
   onOpenMessageSettings = null,
@@ -637,21 +638,30 @@ const ThreadsList = ({
                                 className="min-w-[160px] rounded-lg border border-black/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.08)] [&_svg]:text-black"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                {
-                                  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && filterType === "unreplied" && (
-                                    <DropdownMenuItem
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        // if (onDeleteThread && leadId) {
-                                        //   onDeleteThread(leadId, thread.id)
-                                        // }
-                                      }}
-                                      className="flex items-center gap-2 cursor-pointer text-brand-primary focus:text-brand-primary focus:bg-red-50"
-                                    >
-                                      <Check size={16} />
-                                      Mark as replied
-                                    </DropdownMenuItem>
-                                  )}
+                                {filterType === 'unreplied' && (
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onMarkReplyStatus?.(thread.id, true)
+                                    }}
+                                    className="flex items-center gap-2 cursor-pointer text-brand-primary focus:text-brand-primary focus:bg-red-50"
+                                  >
+                                    <Check size={16} />
+                                    Mark as replied
+                                  </DropdownMenuItem>
+                                )}
+                                {filterType === 'all' && thread.markedAsRepliedAt && (
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onMarkReplyStatus?.(thread.id, false)
+                                    }}
+                                    className="flex items-center gap-2 cursor-pointer text-brand-primary focus:text-brand-primary focus:bg-red-50"
+                                  >
+                                    <MessageSquareDot size={16} />
+                                    Mark as unreplied
+                                  </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation()
