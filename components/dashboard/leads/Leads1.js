@@ -1921,8 +1921,8 @@ const Leads1 = () => {
                                 {item.ColumnNameInSheet}
                               </td>
                               <td className="py-3 px-3 align-middle truncate max-w-0" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 42 }}>
-                                {processedData && processedData.length > 0 && processedData[0]
-                                  ? processedData[0][item.ColumnNameInSheet] || ''
+                                {originalTransformedData && originalTransformedData.length > 0 && originalTransformedData[0]
+                                  ? originalTransformedData[0][item.ColumnNameInSheet] ?? ''
                                   : ''}
                               </td>
                               <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
