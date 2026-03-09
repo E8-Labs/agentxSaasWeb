@@ -3348,26 +3348,14 @@ const Userleads = ({
           </div>
 
           {showDetailsModal && (
-            <div
-              className="overflow-scroll"
-              style={{
-                backgroundColor: '',
-                height:
-                  typeof window !== 'undefined'
-                    ? window.innerHeight * 0.95
-                    : 1000 * 0.95,
-                width: '100%',
-              }}
-            >
-              <LeadDetails
-                selectedLead={selectedLeadsDetails?.id}
-                pipelineId={selectedLeadsDetails?.pipeline?.id}
-                showDetailsModal={showDetailsModal}
-                setShowDetailsModal={setShowDetailsModal}
-                handleDelLead={handleDeleteLead}
-                leadStageUpdated={HandleUpdateStage}
-              />
-            </div>
+            <LeadDetails
+              selectedLead={selectedLeadsDetails?.id}
+              pipelineId={selectedLeadsDetails?.pipeline?.id}
+              showDetailsModal={showDetailsModal}
+              setShowDetailsModal={setShowDetailsModal}
+              handleDelLead={handleDeleteLead}
+              leadStageUpdated={HandleUpdateStage}
+            />
           )}
 
           {/* Modal to add notes */}
