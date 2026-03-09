@@ -525,7 +525,7 @@ const WebAgentChatDrawer = ({
         className="absolute inset-0"
         style={{
           backgroundColor: 'rgba(0,0,0,0.05)',
-          backdropFilter: 'blur(4px)',
+          // backdropFilter: 'blur(4px)',
         }}
         onClick={handleModalClose}
         onKeyDown={(e) => e.key === 'Escape' && handleModalClose()}
@@ -534,14 +534,14 @@ const WebAgentChatDrawer = ({
         <div
           className={cn(
             'pointer-events-auto flex flex-col overflow-hidden',
-            'rounded-3xl shadow-2xl w-full max-w-[630px]',
+            'rounded-3xl shadow-2xl w-full max-w-[800px]',
             'transition-[height] duration-300 ease-out'
           )}
           style={{
-            height: expanded ? '75vh' : 0,
-            minHeight: expanded ? 400 : 0,
+            height: expanded ? '85vh' : 0,
+            minHeight: expanded ? 500 : 0,
             background: 'rgba(255,255,255,0.82)',
-            backdropFilter: 'blur(12px)',
+            // backdropFilter: 'blur(12px)',
           }}
           onClick={(e) => e.stopPropagation()}
           onTransitionEnd={handleTransitionEnd}
@@ -588,7 +588,7 @@ const WebAgentChatDrawer = ({
                   )}
                   title={currentThreadId != null ? (displayTitleFull !== displayTitle ? displayTitleFull : 'Click to edit title') : displayTitleFull}
                 >
-                  {displayTitle}
+                  {/*displayTitle*/}
                 </button>
               )}
             </div>
