@@ -2,7 +2,7 @@ import { CircularProgress } from '@mui/material'
 import { ArrowUpRight, CaretDown, CaretUp } from '@phosphor-icons/react'
 import axios from 'axios'
 import { color } from 'framer-motion'
-import { EditIcon, Router } from 'lucide-react'
+import { EditIcon, Pencil, Router } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -406,19 +406,20 @@ const PipelineAndStage = ({
         message={message?.message}
         hide={() => setMessage(null)}
       />
-      <div className="w-full flex flex-row items-center justify-between">
+      <div className="w-full flex flex-row items-center justify-between py-3 px-4" style={{ height: 'auto', borderBottom: '1px solid #eaeaea' }}>
         <div className="flex flex-row items-center gap-2">
           <p
             style={{
-              ...styles.paragraph,
-              color: '#00000080',
+              fontSize: 14,
+              fontWeight: 400,
+              color: 'rgba(0, 0, 0, 0.8)',
             }}
           >
             Assigned Pipeline
           </p>
           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
         </div>
-        <div style={styles.paragraph}>
+        <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
           {/*
             {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : '-'}
           */}
@@ -431,24 +432,25 @@ const PipelineAndStage = ({
       </div>
 
       {/* {selectedAgent?.agentType !== "inbound" && ( */}
-      <div className="w-full">
-        <div className="flex flex-row justify-between items-center mt-4">
-          <div className="" style={{ fontWeight: '700', fontSize: 16.8 }}>
+      <div className="w-full" style={{ fontSize: 14, fontWeight: 400 }}>
+        <div className="flex flex-row justify-between items-center mt-4 text-[14px] px-3">
+          <div className="">
             Stages
           </div>
 
           <button
-            className="flex flex-row items-center gap-2 h-[35px] rounded-md bg-brand-primary text-white px-4"
+            className="flex flex-row items-center gap-2 h-[35px] rounded-md px-0 bg-transparent hover:underline"
             style={{
               fontWeight: '500',
-              fontSize: 15,
+              fontSize: 14,
+              color: 'hsl(var(--brand-primary))',
             }}
             onClick={() => {
               handleUpdateCadence()
             }}
           >
             Update
-            <EditIcon size={20} color="white" />
+            <Pencil size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
           </button>
         </div>
         <UpdateCadenceConfirmationPopup
@@ -466,16 +468,10 @@ const PipelineAndStage = ({
           <div>
             {agentCadence.map((stage, index) => (
               <div key={index} className="mt-4">
-                <div
-                  style={{
-                    border: '1px solid #00000020',
-                    borderRadius: '8px',
-                    padding: 15,
-                  }}
-                >
+                <div className="rounded-lg border border-black/10 p-4">
                   <button
                     onClick={() => toggleStageDetails(stage)}
-                    className="w-full flex flex-row items-center justify-between"
+                    className="w-full flex flex-row items-center justify-between py-3 text-sm font-normal"
                   >
                     <div>{stage?.cadence?.stage?.stageTitle || '-'}</div>
                     <div>
@@ -489,71 +485,29 @@ const PipelineAndStage = ({
                     </div>
                   </button>
                   {expandedStages.includes(stage?.cadence?.id) && (
-                    <div
-                      style={{
-                        border: '1px solid #00000020',
-                        borderRadius: '5px',
-                        padding: 10,
-                        marginTop: 15,
-                      }}
-                    >
-                      <div
-                        className="flex flex-row items-center gap-8 pl-20"
-                        style={styles.paragraph2}
-                      >
-                        <div className="text-center">Days</div>
-                        <div className="text-center">Hours</div>
-                        <div className="text-center">Mins</div>
+                    <div className="flex flex-col gap-3 pt-3 border-t border-black/10 text-sm font-normal">
+                      <div className="flex flex-row items-center gap-4 text-black/80">
+                        <span className="w-10 shrink-0" />
+                        <div className="flex flex-row w-[240px]">
+                          <span className="flex-1 text-center text-xs">Days</span>
+                          <span className="flex-1 text-center text-xs">Hours</span>
+                          <span className="flex-1 text-center text-xs">Mins</span>
+                        </div>
                       </div>
 
                       {stage.calls.map((item, index) => {
                         return (
-                          <div
-                            key={index}
-                            className="flex flex-col gap-2 items-ceter mt-2"
-                          >
-                            <div
-                              className="flex flex-row items-center gap-4"
-                              style={styles.paragraph}
-                            >
-                              <div>Wait</div>
-                              <div
-                                className="flex flex-row items-center w-[240px]"
-                                style={{ color: '#00000070' }}
-                              >
-                                <div
-                                  className="text-center"
-                                  style={{
-                                    width: '33%',
-                                    border: '1px solid #00000020',
-                                    borderTopLeftRadius: '7px',
-                                    borderBottomLeftRadius: '7px',
-                                    padding: 5,
-                                  }}
-                                >
+                          <div key={index} className="flex flex-col gap-2">
+                            <div className="flex flex-row items-center gap-4 py-2">
+                              <span>Wait</span>
+                              <div className="flex flex-row items-center w-[240px] rounded bg-black/[0.02] overflow-hidden">
+                                <div className="flex-1 text-center py-1.5 border-r border-black/10">
                                   {item.waitTimeDays}
                                 </div>
-                                <div
-                                  className="text-center"
-                                  style={{
-                                    width: '33%',
-                                    borderBottom: '1px solid #00000020',
-                                    borderTop: '1px solid #00000020',
-                                    padding: 5,
-                                  }}
-                                >
+                                <div className="flex-1 text-center py-1.5 border-r border-black/10">
                                   {item.waitTimeHours}
                                 </div>
-                                <div
-                                  className="text-center"
-                                  style={{
-                                    width: '33%',
-                                    border: '1px solid #00000020',
-                                    borderTopRightRadius: '7px',
-                                    borderBottomRightRadius: '7px',
-                                    padding: 5,
-                                  }}
-                                >
+                                <div className="flex-1 text-center py-1.5">
                                   {item.waitTimeMinutes}
                                 </div>
                               </div>
@@ -594,7 +548,7 @@ const PipelineAndStage = ({
                                     }}
                                   >
                                     <div
-                                      className="text-brand-primary text-[12px] cursor-pointer"
+                                      className="text-brand-primary text-[14px] font-normal cursor-pointer"
                                       onMouseEnter={async () => {
                                         const rowKey = `${item.id}`
                                         const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${item.templateId}`
@@ -635,7 +589,7 @@ const PipelineAndStage = ({
                                     </div>
                                   </Tooltip>
                                 ) : (
-                                  <div className="text-brand-primary text-[12px]">
+                                  <div className="text-brand-primary text-[14px] font-normal">
                                     {(item.communicationType &&
                                       item.communicationType !=
                                       'call') ||
@@ -651,23 +605,12 @@ const PipelineAndStage = ({
                         )
                       })}
 
-                      <div className="flex flex-row items-center gap-2 mt-4">
-                        <p style={styles.paragraph}>Then move to</p>
-                        <div
-                          className="py-1 text-center px-2 flex flex-col justify-center"
-                          style={{
-                            width: 'fit-centent',
-                            backgroundColor: '#15151520',
-                            fontWeight: '500',
-                            fontSize: 15,
-                            height: '33px',
-                            borderRadius: '7px',
-                            border: '1px solid #00000010',
-                          }}
-                        >
+                      <div className="flex flex-row items-center gap-3 pt-2">
+                        <span>Then move to</span>
+                        <span className="rounded-lg bg-black/[0.02] px-3 py-1.5 text-sm">
                           {stage?.cadence?.moveToStage?.stageTitle ||
                             'No stage selected'}
-                        </div>
+                        </span>
                       </div>
                     </div>
                   )}

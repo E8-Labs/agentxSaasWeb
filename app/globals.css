@@ -240,6 +240,18 @@ input[type="date"]::-moz-datetime-edit-year-field {
     transition-duration: 0.1s;
   }
 
+  /* MUI Menu/Popover: firecrawl-style entry (slide from bottom + fade) */
+  @keyframes mui-menu-entry {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Date picker popper: firecrawl-style drop entry (slide from bottom + fade) */
   @keyframes date-picker-drop-entry {
     from {
