@@ -88,6 +88,30 @@ export function hexToHsl(hex) {
 }
 
 /**
+ * Computes complementary, triadic, and tetradic palette from a hex color
+ * Used for conic glow and other multi-color effects
+ * @param {string} hex - Hex color string (e.g., "#7902DF")
+ * @returns {{ complementary: string, triadic1: string, triadic2: string, tetradic1: string, tetradic2: string }}
+ */
+export function getBrandPaletteFromHex(hex) {
+  const primary = hexToHsl(hex)
+  const parts = primary.split(' ')
+  const h = parseFloat(parts[0]) || 270
+  const s = parts[1] || '75%'
+  const l = parts[2] || '50%'
+
+  const wrapHue = (deg) => ((deg % 360) + 360) % 360
+
+  return {
+    complementary: `${wrapHue(h + 180)} ${s} ${l}`,
+    triadic1: `${wrapHue(h + 120)} ${s} ${l}`,
+    triadic2: `${wrapHue(h + 240)} ${s} ${l}`,
+    tetradic1: `${wrapHue(h + 90)} ${s} ${l}`,
+    tetradic2: `${wrapHue(h + 180)} ${s} ${l}`,
+  }
+}
+
+/**
  * Gets default purple color in HSL format
  * Used as fallback when no agency colors are set
  * @returns {string} - HSL color string for default purple

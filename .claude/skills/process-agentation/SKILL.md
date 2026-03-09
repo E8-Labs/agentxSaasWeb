@@ -131,3 +131,9 @@ When the user says **"compose email"** (or "apply compose email"), apply the sty
 - Text inputs: `h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary`
 - Body/editor wrapper: `border border-brand-primary/20 rounded-lg bg-white`
 - Buttons: use same rounded-lg, height, and focus/active patterns as in the composer (e.g. Send button)
+
+When the user says **"conic glow"** (or "apply conic glow"), apply the animated conic-gradient glow border (same as the Web Agent chat input) to the selected/focused element. Implementation:
+- **Name:** Conic glow (animated purple/magenta border on hover and focus).
+- **Structure:** Wrap the target element in a container with `className="relative group w-full"` (adjust width/display if the layout requires it). Inside that container, add six glow layer divs in order: `<div className="chat-input-glow-layer-1" aria-hidden />`, then `chat-input-glow-layer-2` through `chat-input-glow-layer-6`. Then wrap the original element in `<div className="relative z-10">…</div>` so it sits above the glow.
+- **CSS:** The classes `.chat-input-glow-layer-1` through `.chat-input-glow-layer-6` are defined in `app/globals.css`; they use `border-radius: 24px` and colors from the brand palette (primary, complementary, triadic, tetradic). For a different radius, add a modifier class in globals that overrides the border-radius (e.g. `.conic-glow-sm` with `border-radius: 12px`) and use it on the layer divs.
+- **Usage:** Works on any element (input, card, button, div). The glow is hidden by default and animates only on focus-within.
