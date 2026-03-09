@@ -8,6 +8,7 @@ import { X, RotateCcw, Upload, ChevronDown } from 'lucide-react'
 import { OpenAiLogoIcon } from '@phosphor-icons/react'
 import axios from 'axios'
 import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { agentImage } from '@/utilities/agentUtilities'
 import AgentXOrb from '@/components/common/AgentXOrb'
 import WebAgentChatInput from './WebAgentChatInput'
@@ -737,39 +738,77 @@ const WebAgentChatDrawer = ({
             ) : messages.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {messages.map((m) => {
+                  const isInbound = m.direction === 'inbound'
                   const attachments = m.metadata?.attachments || []
                   const imageAttachments = attachments.filter((a) => a.type === 'image' && a.dataUrl)
+                  const agentThumb = agent?.thumb_profile_image || (typeof agentAvatar === 'string' ? agentAvatar : null)
                   return (
                     <div
                       key={m.id}
                       className={cn(
-                        'max-w-[85%] min-w-0 rounded-2xl px-3 py-2 text-sm overflow-hidden break-words',
-                        m.direction === 'inbound'
-                          ? 'self-end bg-brand-primary/15 text-gray-900'
-                          : 'self-start bg-white/90 text-gray-900 border border-gray-100'
+                        'flex items-start gap-2 w-full',
+                        isInbound ? 'justify-end' : 'justify-start'
                       )}
                     >
-                      {imageAttachments.length > 0 && (
-                        <div className="flex flex-col gap-1.5 mb-2">
-                          {imageAttachments.map((img, i) => (
-                            <img
-                              key={i}
-                              src={img.dataUrl}
-                              alt=""
-                              className="rounded-lg max-h-48 w-auto object-contain"
-                            />
-                          ))}
+                      {!isInbound && (
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex-shrink-0 cursor-default">
+                                {agentThumb ? (
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex-shrink-0">
+                                    <Image
+                                      src={agentThumb}
+                                      alt={agentName || 'Agent'}
+                                      width={32}
+                                      height={32}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+                                    {(agentName || 'A').charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">{agentName || 'Agent'}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                      <div
+                        className={cn(
+                          'max-w-[85%] min-w-0 rounded-2xl px-3 py-2 text-sm overflow-hidden break-words',
+                          isInbound ? 'bg-brand-primary/15 text-gray-900' : 'bg-white/90 text-gray-900 border border-gray-100'
+                        )}
+                      >
+                        {imageAttachments.length > 0 && (
+                          <div className="flex flex-col gap-1.5 mb-2">
+                            {imageAttachments.map((img, i) => (
+                              <img
+                                key={i}
+                                src={img.dataUrl}
+                                alt=""
+                                className="rounded-lg max-h-48 w-auto object-contain"
+                              />
+                            ))}
+                          </div>
+                        )}
+                        {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
+                          <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                        ) : null}
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(m.createdAt).toLocaleTimeString(undefined, {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                      {isInbound && (
+                        <div className="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-semibold text-xs flex-shrink-0" aria-hidden>
+                          U
                         </div>
                       )}
-                      {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
-                        <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                      ) : null}
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(m.createdAt).toLocaleTimeString(undefined, {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}
-                      </p>
                     </div>
                   )
                 })}

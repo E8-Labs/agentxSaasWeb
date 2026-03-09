@@ -3,7 +3,7 @@ import React from 'react'
 import CloseBtn from '../globalExtras/CloseBtn'
 import Image from 'next/image'
 
-const SuperHumanModal = ({ open, onClose, onStart }) => {
+const SuperHumanModal = ({ open, onClose, onStart, allowAIEmailAndText, shouldShowAiEmailAndTextRequestFeature, shouldShowAllowAiEmailAndTextUpgrade }) => {
     return (
         <div>
             <div
@@ -29,7 +29,11 @@ const SuperHumanModal = ({ open, onClose, onStart }) => {
                 Your agent can send and respond to messages for you instantly and intelligently. Never miss a reply, and handle conversations at scale without being glued to your inbox.
             </div>
             <button className='w-full h-[50px] mt-4 rounded-lg bg-brand-primary text-white mt-4' style={{ fontWeight: '600', fontSize: 15 }} onClick={onStart}>
-                Get Started
+                {
+                    allowAIEmailAndText ? "Get Started" :
+                        shouldShowAiEmailAndTextRequestFeature ? "Request Feature" :
+                            shouldShowAllowAiEmailAndTextUpgrade ? "Upgrade Plan" : ""
+                }
             </button>
         </div>
     )
