@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Checkbox } from '@/components/ui/checkbox'
 import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
 import FeatureLine from '@/components/userPlans/FeatureLine'
+import { reorderPlanFeatures } from '@/components/plan/PlansUtilities'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import SignupHeaderMobile from './SignupHeaderMobile'
 import { useSelector } from 'react-redux'
@@ -201,7 +202,7 @@ function PlansListMobile({
                                                         )}
 
                                                         {Array.isArray(plan?.features) &&
-                                                            plan?.features?.map((feature) => (
+                                                            reorderPlanFeatures(plan.features)?.map((feature) => (
                                                                 <div
                                                                     key={feature.text}
                                                                     className="flex flex-row items-center gap-3 mb-3 w-full"

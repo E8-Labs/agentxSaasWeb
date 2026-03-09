@@ -25,6 +25,7 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import FeatureLine from './FeatureLine'
 import FitText from './FitText'
+import { reorderPlanFeatures } from '../plan/PlansUtilities'
 import UpgradePlan from './UpgradePlan'
 import UserAddCard from './UserAddCardModal'
 import { getSubscribeApiConfig, getUserLocalData, getUserPlans } from './UserPlanServices'
@@ -1090,7 +1091,7 @@ function UserPlans({
 
                         <div className="flex flex-col items-start w-full flex-1 pr-2">
                           {Array.isArray(item.features) &&
-                            item.features?.map((feature, featureIndex) => (
+                            reorderPlanFeatures(item.features)?.map((feature, featureIndex) => (
                               <div
                                 key={feature.text}
                                 className="flex flex-row items-start gap-3 mb-3 w-full"
