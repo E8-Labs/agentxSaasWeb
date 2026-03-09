@@ -13,6 +13,15 @@ const TEXTAREA_MAX_HEIGHT_PX = 120
 /** Height above which we consider the input multi-line (align buttons bottom, reduce radius) */
 const SINGLE_LINE_HEIGHT_PX = 48
 
+/** Speech recognition support (Chrome, Edge, Safari; requires HTTPS or localhost) */
+function getSpeechRecognition() {
+  if (typeof window === 'undefined') return null
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null
+}
+
+/** Silence duration (ms) after which dictation auto-stops */
+const DICTATION_SILENCE_MS = 2000
+
 /**
  * Chat input: Plus (attach files) left, input center, Send right. onFocus opens drawer when used on bar.
  */
@@ -34,6 +43,12 @@ const WebAgentChatInput = ({
   const inputRef = inputRefProp ?? inputRefLocal
   const fileInputRef = useRef(null)
   const [isMultiLine, setIsMultiLine] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [interimTranscript, setInterimTranscript] = useState('')
+  const recognitionRef = useRef(null)
+  const appendTranscriptRef = useRef(null)
+  const setInterimTranscriptRef = useRef(null)
+  const silenceTimeoutRef = useRef(null)
 
   const handleFocus = (e) => {
     if (onFocus) onFocus(e)
@@ -75,10 +90,136 @@ const WebAgentChatInput = ({
     resizeTextarea()
   }, [value, resizeTextarea])
 
+  useEffect(() => {
+    if (interimTranscript) requestAnimationFrame(resizeTextarea)
+  }, [interimTranscript, resizeTextarea])
+
+  const displayValue =
+    (value ?? '') + (interimTranscript ? (value?.trim() ? ' ' : '') + interimTranscript : '')
+
   const handleChange = (e) => {
+    setInterimTranscript('')
     onChange?.(e)
     requestAnimationFrame(resizeTextarea)
   }
+
+  const appendTranscript = useCallback(
+    (transcript) => {
+      if (!transcript || typeof transcript !== 'string') return
+      const trimmed = transcript.trim()
+      if (!trimmed) return
+      const current = (value ?? '').trim()
+      const newValue = current ? `${current} ${trimmed}` : trimmed
+      onChange?.({ target: { value: newValue } })
+      requestAnimationFrame(resizeTextarea)
+    },
+    [value, onChange, resizeTextarea]
+  )
+
+  appendTranscriptRef.current = appendTranscript
+  setInterimTranscriptRef.current = setInterimTranscript
+
+  const clearSilenceTimeout = useCallback(() => {
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current)
+      silenceTimeoutRef.current = null
+    }
+  }, [])
+
+  const scheduleSilenceStop = useCallback((recognition) => {
+    clearSilenceTimeout()
+    silenceTimeoutRef.current = setTimeout(() => {
+      silenceTimeoutRef.current = null
+      try {
+        recognition?.stop()
+      } catch (_) {}
+    }, DICTATION_SILENCE_MS)
+  }, [clearSilenceTimeout])
+
+  const handleDictateClick = useCallback(() => {
+    const SpeechRecognitionClass = getSpeechRecognition()
+    if (!SpeechRecognitionClass) return
+
+    let recognition = recognitionRef.current
+
+    if (isListening && recognition) {
+      clearSilenceTimeout()
+      recognition.stop()
+      setIsListening(false)
+      setInterimTranscript('')
+      return
+    }
+
+    if (!recognition) {
+      recognition = new SpeechRecognitionClass()
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.lang = 'en-US'
+
+      recognition.onresult = (e) => {
+        let finalTranscript = ''
+        let interim = ''
+        for (let i = e.resultIndex; i < e.results.length; i += 1) {
+          const result = e.results[i]
+          const text = result[0]?.transcript ?? ''
+          if (result.isFinal) {
+            finalTranscript += text
+          } else {
+            interim += text
+          }
+        }
+        if (finalTranscript && appendTranscriptRef.current) {
+          appendTranscriptRef.current(finalTranscript)
+          setInterimTranscriptRef.current?.('')
+        }
+        if (interim !== undefined && setInterimTranscriptRef.current) {
+          setInterimTranscriptRef.current(interim)
+        }
+        scheduleSilenceStop(recognitionRef.current)
+      }
+
+      recognition.onend = () => {
+        clearSilenceTimeout()
+        setIsListening(false)
+        setInterimTranscriptRef.current?.('')
+      }
+
+      recognition.onerror = (e) => {
+        clearSilenceTimeout()
+        if (e.error !== 'no-speech' && e.error !== 'aborted') {
+          setIsListening(false)
+          setInterimTranscriptRef.current?.('')
+        }
+      }
+
+      recognitionRef.current = recognition
+    }
+
+    try {
+      setInterimTranscript('')
+      recognition.start()
+      setIsListening(true)
+      scheduleSilenceStop(recognition)
+    } catch (err) {
+      setIsListening(false)
+    }
+  }, [isListening, clearSilenceTimeout, scheduleSilenceStop])
+
+  useEffect(() => {
+    return () => {
+      clearSilenceTimeout()
+      const recognition = recognitionRef.current
+      if (recognition) {
+        try {
+          recognition.abort()
+        } catch (_) {}
+        recognitionRef.current = null
+      }
+      setIsListening(false)
+    }
+  }, [clearSilenceTimeout])
+
+  const speechSupported = typeof window !== 'undefined' && !!getSpeechRecognition()
 
   return (
     <form
@@ -117,7 +258,7 @@ const WebAgentChatInput = ({
         ref={inputRef}
         readOnly={readOnly}
         placeholder={placeholder}
-        value={value}
+        value={displayValue}
         onChange={handleChange}
         onFocus={handleFocus}
         onClick={handleClick}
@@ -140,13 +281,25 @@ const WebAgentChatInput = ({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className={cn(btnCircleClass)}
-                aria-label="Dictate"
+                onClick={handleDictateClick}
+                disabled={!speechSupported || readOnly}
+                className={cn(
+                  btnCircleClass,
+                  isListening && 'bg-red-100 text-red-600 hover:bg-red-100'
+                )}
+                aria-label={isListening ? 'Stop dictation' : 'Dictate'}
+                aria-pressed={isListening}
               >
                 <Mic className="h-5 w-5 stroke-[2.5]" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>Dictate</TooltipContent>
+            <TooltipContent>
+              {!speechSupported
+                ? 'Speech input not supported in this browser'
+                : isListening
+                  ? 'Listening… Click to stop'
+                  : 'Dictate'}
+            </TooltipContent>
           </Tooltip>
         </TooltipProvider>
         <TooltipProvider delayDuration={0}>
