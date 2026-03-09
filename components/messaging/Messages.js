@@ -2456,6 +2456,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
       if (res.data?.status && Array.isArray(res.data?.data)) {
+        console.log("fetchSocialConnections res.data.data", res.data.data)
         setSocialConnections(res.data.data)
       } else {
         setSocialConnections([])
@@ -3966,6 +3967,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         onSendSocialMessage={handleSendSocialMessage}
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
                         hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
+                        pageName={socialConnections[0]?.displayName}
                         onConnectionSuccess={fetchSocialConnections}
                         onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
                         onCommentAdded={(newMessage) => {
