@@ -1,8 +1,7 @@
 import { CircularProgress } from '@mui/material'
-import { ArrowUpRight, CaretDown, CaretUp } from '@phosphor-icons/react'
 import axios from 'axios'
 import { color } from 'framer-motion'
-import { EditIcon, Pencil, Router } from 'lucide-react'
+import { ChevronDown, ChevronUp, EditIcon, Pencil, Router } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -24,6 +23,8 @@ const PipelineAndStage = ({
   UserPipeline,
   mainAgent,
   selectedUser,
+  selectedLead,
+  selectedLeadId,
   from,
 }) => {
 
@@ -33,6 +34,8 @@ const PipelineAndStage = ({
   const [message, setMessage] = useState(null)
   const router = useRouter()
   const [expandedStages, setExpandedStages] = useState([])
+  const [leadStageTitle, setLeadStageTitle] = useState(null)
+  const [leadStageLoading, setLeadStageLoading] = useState(false)
   const [StagesList, setStagesList] = useState([
     { id: 1, title: 's1', description: 'Testing the stage1' },
     { id: 2, title: 's2', description: 'Testing the stage2' },
@@ -76,6 +79,37 @@ const PipelineAndStage = ({
       handleGetCadence()
     }
   }, [])
+
+  // Fetch lead's current stage when selectedLeadId or selectedLead.id is provided
+  useEffect(() => {
+    const leadId = selectedLeadId ?? selectedLead?.id
+    if (!leadId) {
+      setLeadStageTitle(null)
+      return
+    }
+    const fetchLeadStage = async () => {
+      try {
+        setLeadStageLoading(true)
+        const token = AuthToken()
+        const response = await axios.get(`${Apis.getLeadDetails}?leadId=${leadId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        if (response?.data?.data?.stage?.stageTitle) {
+          setLeadStageTitle(response.data.data.stage.stageTitle)
+        } else {
+          setLeadStageTitle(null)
+        }
+      } catch (err) {
+        setLeadStageTitle(null)
+      } finally {
+        setLeadStageLoading(false)
+      }
+    }
+    fetchLeadStage()
+  }, [selectedLeadId, selectedLead?.id])
 
   //code for togeling stages seleciton
   const toggleStageDetails = (stage) => {
@@ -431,27 +465,52 @@ const PipelineAndStage = ({
         </div>
       </div>
 
+      <div className="w-full flex flex-row items-center justify-between py-3 px-4" style={{ height: 'auto', borderBottom: '1px solid #eaeaea' }}>
+        <div className="flex flex-row items-center gap-2">
+          <p
+            style={{
+              fontSize: 14,
+              fontWeight: 400,
+              color: 'rgba(0, 0, 0, 0.8)',
+            }}
+          >
+            Stages
+          </p>
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
+          {leadStageLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            leadStageTitle ||
+            (selectedLead || selectedUser)?.PipelineStages?.stageTitle ||
+            (selectedLead || selectedUser)?.stage?.stageTitle ||
+            (typeof (selectedLead || selectedUser)?.stage === 'string' ? (selectedLead || selectedUser)?.stage : null) ||
+            (selectedLead || selectedUser)?.pipelineStage?.stageTitle ||
+            agentCadence[0]?.cadence?.stage?.stageTitle ||
+            '-'
+          )}
+        </div>
+      </div>
+
       {/* {selectedAgent?.agentType !== "inbound" && ( */}
       <div className="w-full" style={{ fontSize: 14, fontWeight: 400 }}>
-        <div className="flex flex-row justify-between items-center mt-4 text-[14px] px-3">
+        <div className="hidden flex-row items-center justify-between mt-4 text-[14px] px-3">
           <div className="">
             Stages
           </div>
-
-          <button
-            className="flex flex-row items-center gap-2 h-[35px] rounded-md px-0 bg-transparent hover:underline"
-            style={{
-              fontWeight: '500',
-              fontSize: 14,
-              color: 'hsl(var(--brand-primary))',
-            }}
-            onClick={() => {
-              handleUpdateCadence()
-            }}
-          >
-            Update
-            <Pencil size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
-          </button>
+          <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
+            {leadStageLoading ? (
+              <CircularProgress size={20} />
+            ) : (
+              leadStageTitle ||
+              (selectedLead || selectedUser)?.PipelineStages?.stageTitle ||
+              (selectedLead || selectedUser)?.stage?.stageTitle ||
+              (typeof (selectedLead || selectedUser)?.stage === 'string' ? (selectedLead || selectedUser)?.stage : null) ||
+              (selectedLead || selectedUser)?.pipelineStage?.stageTitle ||
+              agentCadence[0]?.cadence?.stage?.stageTitle ||
+              '-'
+            )}
+          </div>
         </div>
         <UpdateCadenceConfirmationPopup
           showConfirmationPopuup={showConfirmationPopup}
@@ -460,32 +519,33 @@ const PipelineAndStage = ({
             handleUpdateCadence()
           }}
         />
-        {initialLoader ? (
-          <div className="w-full flex flex-row items-center justify-center">
-            <CircularProgress size={25} />
-          </div>
-        ) : (
-          <div>
-            {agentCadence.map((stage, index) => (
-              <div key={index} className="mt-4">
-                <div className="rounded-lg border border-black/10 p-4">
+        <div className="flex flex-col">
+          {initialLoader ? (
+            <div className="w-full flex flex-row items-center justify-center mt-4">
+              <CircularProgress size={25} />
+            </div>
+          ) : (
+            <>
+              {agentCadence.map((stage, index) => (
+                <div key={index} className="mt-4">
+                  <div className="py-px px-0" style={{ borderRadius: 0 }}>
                   <button
                     onClick={() => toggleStageDetails(stage)}
-                    className="w-full flex flex-row items-center justify-between py-3 text-sm font-normal"
+                    className="w-full flex flex-row items-center justify-between py-3 px-4 text-sm font-normal border-none hover:bg-black/[0.02] active:scale-[0.98] transition-transform duration-150"
                   >
-                    <div>{stage?.cadence?.stage?.stageTitle || '-'}</div>
+                    <div>Cadence</div>
                     <div>
                       <div>
                         {expandedStages.includes(stage?.cadence?.id) ? (
-                          <CaretUp size={20} weight="bold" />
+                          <ChevronUp size={16} />
                         ) : (
-                          <CaretDown size={20} weight="bold" />
+                          <ChevronDown size={16} />
                         )}
                       </div>
                     </div>
                   </button>
                   {expandedStages.includes(stage?.cadence?.id) && (
-                    <div className="flex flex-col gap-3 pt-3 border-t border-black/10 text-sm font-normal">
+                    <div className="flex flex-col gap-1 pt-3 px-4 border-t border-black/10 text-sm font-normal">
                       <div className="flex flex-row items-center gap-4 text-black/80">
                         <span className="w-10 shrink-0" />
                         <div className="flex flex-row w-[240px]">
@@ -495,6 +555,7 @@ const PipelineAndStage = ({
                         </div>
                       </div>
 
+                      <div className="flex flex-col gap-px">
                       {stage.calls.map((item, index) => {
                         return (
                           <div key={index} className="flex flex-col gap-2">
@@ -612,13 +673,31 @@ const PipelineAndStage = ({
                             'No stage selected'}
                         </span>
                       </div>
+                      <div className="flex justify-start pt-3">
+                        <button
+                          className="flex flex-row items-center gap-2 h-[35px] rounded-md px-0 bg-transparent hover:underline font-sans text-[15px]"
+                          style={{
+                            fontWeight: '500',
+                            fontFamily: 'Inter, sans-serif',
+                            color: 'hsl(var(--brand-primary))',
+                          }}
+                          onClick={() => {
+                            handleUpdateCadence()
+                          }}
+                        >
+                          Update Cadence
+                          <Pencil size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
+                        </button>
+                      </div>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
             ))}
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
       {/* )} */}
     </div>

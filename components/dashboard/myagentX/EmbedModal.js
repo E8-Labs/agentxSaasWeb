@@ -2,15 +2,11 @@ import {
   Box,
   CircularProgress,
   FormControl,
-  IconButton,
   MenuItem,
   Modal,
   Select,
   Switch,
-  TextField,
-  Typography,
 } from '@mui/material'
-import { ArrowUpRight, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
@@ -367,12 +363,11 @@ const EmbedModal = ({
   const styles = {
     modalsStyle: {
       height: 'auto',
-      //   width: "45vw",
       bgcolor: 'transparent',
       mx: 'auto',
       my: '50vh',
       transform: 'translateY(-50%)',
-      borderRadius: 2,
+      borderRadius: 0,
       border: 'none',
       outline: 'none',
     },
@@ -385,82 +380,55 @@ const EmbedModal = ({
       open={open}
       onClose={onClose}
       closeAfterTransition
-      BackdropProps={{
-        timeout: 1000,
-        // sx: {
-        //   backgroundColor: '#00000020',
-        // },
-      }}
+      BackdropProps={{ timeout: 1000 }}
     >
       <Box
-        className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-8/12"
+        className="flex flex-row justify-center w-full max-w-[900px] mx-auto"
         sx={styles.modalsStyle}
       >
-        <div className="flex flex-row justify-center w-full">
-          <div
-            className="w-full px-[24px] pt-[24px] pb-[10px]"
-            style={{
-              backgroundColor: '#ffffff',
+        <div
+          className="flex flex-row w-full overflow-hidden rounded-[12px] bg-white"
+          style={{
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            maxHeight: '90vh',
+          }}
+        >
+          {/* Left Side - Configuration */}
+          <div className="flex flex-col w-[450px] shrink-0 overflow-y-auto">
+            {/* Header */}
+            <div className="px-4 py-3">
+              <p className="text-[18px] font-semibold leading-[1.2] text-black tracking-[-0.36px]">
+                {agentName ? `${agentName.charAt(0).toUpperCase() + agentName.slice(1)} | ` : ''}Embed Agent
+              </p>
+            </div>
 
-              borderRadius: '13px',
-              display: 'flex',
-              maxHeight: '90vh',
-            }}
-          >
-            {/* Left Side - Configuration */}
-            <div style={{ flex: 1, paddingRight: 24 }}>
-              {/* Header */}
-              {/* <div className="flex flex-row justify-between items-center mb-3">
-              <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-                {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Embed Agent
-              </Typography>
-              <button onClick={onClose}>
-                <Image
-                  src={"/assets/cross.png"}
-                  height={14}
-                  width={14}
-                  alt="*"
-                />
-              </button>
-            </div> */}
-
+            {/* Content */}
+            <div className="flex flex-col gap-3 px-4 pb-4">
               {/* Logo Section */}
-              <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <div className="flex flex-col gap-1 items-center">
+                <div className="flex flex-col gap-2.5 items-center">
                   <div
+                    className="w-[54px] h-[54px] rounded-full shrink-0 bg-cover bg-center bg-no-repeat"
                     style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
                       backgroundImage: logoPreview
                         ? `url(${logoPreview})`
                         : 'url(/thumbOrbSmall.png)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
-                      marginRight: 12,
                       border: logoPreview ? 'none' : '1px solid #e0e0e0',
                     }}
                   />
                   <button
-                    className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2"
+                    type="button"
+                    className="flex items-center justify-center gap-1.5 min-h-[32px] px-3 py-[5.5px] rounded-lg bg-[#efefef] text-[#0f172a] text-sm font-normal hover:opacity-90 transition-opacity"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Image
-                      className="transition-all duration-200 hover:hidden"
-                      src={'/otherAssets/uploadIcon.png'}
-                      height={24}
-                      width={24}
+                      src="/otherAssets/uploadIcon.png"
+                      height={20}
+                      width={20}
                       alt="Upload"
                     />
-                    <Image
-                      className="transition-all duration-200 hidden hover:inline"
-                      src={'/otherAssets/uploadIconPurple.png'}
-                      height={24}
-                      width={24}
-                      alt="Upload Hover"
-                    />
-                    <span className="ml-1">Change Logo</span>
+                    <span>Change Logo</span>
                   </button>
                   <input
                     ref={fileInputRef}
@@ -468,45 +436,26 @@ const EmbedModal = ({
                     accept="image/*"
                     onChange={handleLogoChange}
                     onClick={(e) => e.stopPropagation()}
-                    style={{ display: 'none' }}
+                    className="hidden"
                   />
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <div style={{ width: 40, marginRight: 12 }}></div>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      fontSize: '12px',
-                      marginLeft: -6,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      display: 'flex',
-                    }}
-                  >
-                    {renderBrandedIcon('/assets/infoIcon.png', 12, 12)}
+                </div>
+                <div className="flex items-center justify-center gap-1">
+                  {renderBrandedIcon('/assets/infoIcon.png', 16, 16)}
+                  <p className="text-sm font-normal leading-[1.4] text-black opacity-60 tracking-[-0.14px]">
                     Ensure Image is a 1:1 dimension for better quality
-                  </Typography>
-                </Box>
-              </Box>
+                  </p>
+                </div>
+              </div>
 
               {/* Button Label */}
-              <Box sx={{ mb: 3 }}>
-                <div className="flex flex-row justify-between items-center mb-1">
-                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                    Button Label
-                  </Typography>
-                  <div
-                    style={{
-                      marginLeft: '16px',
-                      fontSize: '12px',
-                      color: '#666',
-                    }}
-                  >
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 w-full">
+                  <p className="flex-1 text-sm font-normal text-black/50">Button Label</p>
+                  <p className="text-sm font-normal text-black/50 shrink-0">
                     {buttonLabel ? buttonLabel.length : 0}/10
-                  </div>
+                  </p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden px-3">
                   <input
                     ref={textInputRef}
                     type="text"
@@ -514,37 +463,22 @@ const EmbedModal = ({
                     onChange={(e) => setButtonLabel(e.target.value)}
                     placeholder="Get Help"
                     maxLength={10}
-                    className="outline-none focus:outline-none focus:ring-0 border rounded-lg p-3"
-                    style={{
-                      fontSize: '14px',
-                      width: '100%',
-                      border: '1px solid #00000020',
-                    }}
+                    className="flex-1 min-w-0 outline-none border-none bg-transparent text-sm font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-0"
                   />
                 </div>
-              </Box>
+              </div>
 
               {/* Require Form Section */}
-              <Box
-                sx={{
-                  mb: 3,
-                  p: 2,
-                  backgroundColor: '#f8f9fa',
-                  borderRadius: 2,
-                  border: '1px solid #e9ecef',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 1,
-                  }}
-                >
-                  <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                    Require users to complete a form?
-                  </Typography>
+              <div className="flex flex-col rounded-xl px-4 py-2 bg-black/[0.08]">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-2 flex-1 min-w-0 py-2">
+                    <p className="text-sm font-normal text-black">
+                      Require users to complete a form?
+                    </p>
+                    <p className="text-sm font-normal text-muted-foreground">
+                      This prompts users to fill out a form before they engage in a conversation with your AI.
+                    </p>
+                  </div>
                   <Switch
                     checked={requireForm}
                     onChange={handleToggleChange}
@@ -553,39 +487,24 @@ const EmbedModal = ({
                       '& .MuiSwitch-switchBase.Mui-checked': {
                         color: 'hsl(var(--brand-primary))',
                       },
-                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                        {
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                        },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: 'hsl(var(--brand-primary))',
+                      },
                       margin: 0,
+                      flexShrink: 0,
                     }}
                   />
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  This prompts users to fill out a form before they engage in a
-                  conversation with your AI.
-                </Typography>
-              </Box>
+                </div>
+              </div>
 
               {/* Smart List Selection */}
               {requireForm && (
-                <Box sx={{ mb: 3 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      mb: 2,
-                    }}
-                  >
-                    <Typography
-                      variant="body1"
-                      sx={{ fontWeight: 'medium', color: 'rgba(0, 0, 0, 0.5)' }}
-                    >
-                      Select Smartlist
-                    </Typography>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-black/50">Select Smartlist</p>
                     <button
-                      className="text-brand-primary underline text-transform-none font-medium"
+                      type="button"
+                      className="text-brand-primary underline text-sm font-medium"
                       onClick={(e) => {
                         e.stopPropagation()
                         onShowSmartList()
@@ -593,16 +512,13 @@ const EmbedModal = ({
                     >
                       New Smartlist
                     </button>
-                  </Box>
-
+                  </div>
                   {loading ? (
-                    <Box
-                      sx={{ display: 'flex', justifyContent: 'center', py: 2 }}
-                    >
+                    <div className="flex justify-center py-2">
                       <CircularProgress size={24} />
-                    </Box>
+                    </div>
                   ) : smartLists.length > 0 ? (
-                    <FormControl className="w-full h-[50px]">
+                    <FormControl className="w-full">
                       <Select
                         value={selectedSmartList || ''}
                         onChange={(e) => {
@@ -612,29 +528,24 @@ const EmbedModal = ({
                         onClick={(e) => e.stopPropagation()}
                         displayEmpty
                         sx={{
-                          height: '48px',
-                          borderRadius: '13px',
-                          border: '1px solid #00000020', // Default border
-                          '&:hover': {
-                            border: '1px solid #00000020', // Same border on hover
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none', // Remove the default outline
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: 'none', // Remove outline on focus
-                          },
-                          '&.MuiSelect-select': {
-                            py: 0, // Optional padding adjustments
+                          height: 40,
+                          borderRadius: '8px',
+                          border: '1px solid #E5E7EB',
+                          backgroundColor: '#FFFFFF',
+                          '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                          '&:hover': { borderColor: '#D1D5DB', backgroundColor: '#F9FAFB' },
+                          '&.Mui-focused': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                            boxShadow: '0 0 0 2px hsl(var(--brand-primary) / 0.2)',
                           },
                         }}
                         MenuProps={{
                           PaperProps: {
                             style: {
-                              maxHeight: '30vh', // Limit dropdown height
-                              overflow: 'auto', // Enable scrolling in dropdown
+                              maxHeight: '30vh',
+                              overflow: 'auto',
                               scrollbarWidth: 'none',
-                              // borderRadius: "10px"
                             },
                           },
                         }}
@@ -647,28 +558,18 @@ const EmbedModal = ({
                       </Select>
                     </FormControl>
                   ) : (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ py: 2 }}
-                    >
+                    <p className="text-sm text-muted-foreground py-2">
                       No smart lists available. Create a new one to get started.
-                    </Typography>
+                    </p>
                   )}
-                </Box>
+                </div>
               )}
 
-              {/* Buttons */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 2,
-                  mt: 3,
-                }}
-              >
+              {/* Footer Buttons */}
+              <div className="flex items-center justify-between px-4 py-2 mt-1">
                 <button
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  type="button"
+                  className="flex items-center justify-center min-h-[40px] px-3 py-2 rounded-lg bg-[#efefef] text-[#0f172a] text-sm font-normal hover:opacity-90 transition-opacity"
                   onClick={(e) => {
                     e.stopPropagation()
                     onClose()
@@ -677,7 +578,8 @@ const EmbedModal = ({
                   Cancel
                 </button>
                 <button
-                  className="px-6 py-2 bg-brand-primary text-white rounded-lg font-medium hover:bg-brand-primary/90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                  type="button"
+                  className="flex items-center justify-center min-h-[40px] px-6 py-2.5 rounded-lg bg-brand-primary text-primary-foreground text-sm font-normal hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                   onClick={(e) => {
                     e.stopPropagation()
                     handleCopyEmbed()
@@ -690,87 +592,51 @@ const EmbedModal = ({
                     'Copy Embed'
                   )}
                 </button>
-              </Box>
-            </div>
-
-            {/* Right Side - Preview */}
-            <div
-              style={{
-                flex: 1,
-                position: 'relative',
-                marginRight: -24,
-                marginTop: -24,
-                marginBottom: -10,
-              }}
-            >
-              <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
-                style={{
-                  borderRadius: '0 8px 8px 0',
-                  height: '100%',
-                  minHeight: 400,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Close button for preview */}
-                <div style={{ position: 'absolute', top: 16, right: 16 }}>
-                  <CloseBtn
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onClose()
-                    }}
-                  />
-                </div>
-
-                {/* Preview Button */}
-                <button
-                  style={{
-                    backgroundColor: 'white',
-                    border: 'none',
-                    borderRadius: 25,
-                    padding: '12px 20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                    cursor: 'pointer',
-                    position: 'relative',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: '50%',
-                      backgroundImage: logoPreview
-                        ? `url(${logoPreview})`
-                        : 'url(/thumbOrbSmall.png)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
-                      marginRight: 8,
-                      border: logoPreview ? 'none' : '1px solid #e0e0e0',
-                    }}
-                  />
-                  <span style={{ color: '#333', fontWeight: '500' }}>
-                    {buttonLabel}
-                  </span>
-                </button>
               </div>
             </div>
+          </div>
 
-            {/* Snackbar */}
-            <AgentSelectSnackMessage
-              isVisible={snackbar.isVisible}
-              title={snackbar.title}
-              message={snackbar.message}
-              type={snackbar.type}
-              hide={hideSnackbar}
-            />
+          {/* Right Side - Preview */}
+          <div className="flex-1 min-w-0 relative flex flex-col items-center justify-center p-4 bg-brand-primary overflow-hidden">
+            <div className="absolute top-4 right-4 z-10">
+              <CloseBtn
+                showWhiteCross
+                className="rounded-[20px] p-2 bg-black/[0.02] hover:bg-black/5 transition-colors"
+                iconSize={16}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onClose()
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              className="flex items-center gap-2 px-4 py-4 rounded-[130px] bg-white shadow-[0px_19.462px_23.224px_0px_rgba(0,0,0,0.09)] cursor-default pointer-events-none"
+            >
+              <div
+                className="w-8 h-8 rounded-full shrink-0 bg-cover bg-center bg-no-repeat"
+                style={{
+                  backgroundImage: logoPreview
+                    ? `url(${logoPreview})`
+                    : 'url(/thumbOrbSmall.png)',
+                  border: logoPreview ? 'none' : '1px solid #e0e0e0',
+                }}
+              />
+              <span className="text-[24px] font-normal leading-[1.2] text-black tracking-[-1.2px]">
+                {buttonLabel}
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* Snackbar */}
+        <AgentSelectSnackMessage
+          isVisible={snackbar.isVisible}
+          title={snackbar.title}
+          message={snackbar.message}
+          type={snackbar.type}
+          hide={hideSnackbar}
+        />
       </Box>
     </Modal>
   );

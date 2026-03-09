@@ -3400,6 +3400,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             // setShowWarningModal={setShowWarningModal}
             setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
             setOpenTestAiModal={setOpenTestAiModal}
+            setShowClaimPopup={setShowClaimPopup}
             mainAgentsList={mainAgentsList}
             setScriptKeys={setScriptKeys}
             setSelectedAgent={setSelectedAgent}

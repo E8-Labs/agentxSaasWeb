@@ -136,6 +136,12 @@ When the user says **"accordion style"** (or "apply accordion style"), style the
 - Outer container: `border rounded-lg p-3 w-full text-sm text-black/80 mt-3`
 - Inner content wrapper (direct child content area): `bg-black/[0.02] p-2 px-3` with `marginTop: 12` or `mt-3` as appropriate
 
+When the user says **"agent avatar card"** (or "apply agent avatar card"), style the selected element to match the profile image button in the Agent Detail drawer (app/dashboard/myAgentX/page.js). Apply the same layout, blur effect, and hover interaction:
+- **Button:** `transition-all duration-300 ease-out`, `onMouseEnter`/`onMouseLeave` for hover state
+- **Inner container:** `flex flex-row items-center justify-center w-[120px] h-[120px] overflow-hidden relative` with `border: '3px solid white'`, `boxShadow: '0 16px 30px rgba(0, 0, 0, 0.055)'`, `backdropFilter: 'blur(8px)'`, `borderRadius: 16`
+- **Blur circle:** absolute, `w-[60px] h-[60px] rounded-full bg-brand-primary -translate-x-1/2 left-1/2 z-0`, `top: -30px`; default `filter: blur(30px)`, `opacity: 0.75`; on hover `filter: blur(38px)`, `opacity: 0.88`; `transition: 'filter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out'`
+- Preserve existing functionality; only update UI and interaction.
+
 When the user says **"input style"** (or "apply input style"), style the selected element to match the search-input-wrapper pattern (e.g. in LastStep.js, Leads1.js). Apply to the wrapper and its input if present:
 - **Wrapper:** `search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden` with `paddingLeft: 12`, `paddingRight: 12` (or `px-3`). Ensure the wrapper has the global `.search-input-wrapper` styles: `border: 1px solid #E5E7EB`, `background: #FFFFFF`, transition on border/box-shadow/background; **hover:** `border-color: #D1D5DB`, `background: #F9FAFB`; **focus-within:** `border-color: hsl(var(--brand-primary))`, `box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.2)`; **active:** shorter transition. If the component does not use the global class, add these via inline styles or Tailwind equivalents.
 - **Input sizing:** height 40px for the control (wrapper or input); **font:** 14px, font-medium, text `#111827`, placeholder `#9CA3AF`; input `outline-none border-none bg-transparent focus:outline-none focus:ring-0`.

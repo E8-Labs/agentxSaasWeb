@@ -62,6 +62,7 @@ const AgentsListPaginated = ({
   mainAgentsList,
   setScriptKeys,
   setSelectedAgent,
+  setShowClaimPopup,
   keys,
   paginationLoader,
   setShowDrawerSelectedAgent,
@@ -93,6 +94,7 @@ const AgentsListPaginated = ({
   const [actionInfoEl, setActionInfoEl] = useState(null)
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null)
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null)
+  const [hoveredAvatarIndex, setHoveredAvatarIndex] = useState(null)
 
   const open = Boolean(actionInfoEl)
 
@@ -352,32 +354,62 @@ const AgentsListPaginated = ({
                 <div className="relative z-10 w-full flex flex-col gap-3 items-start">
                 <div className="w-full flex flex-row items-start justify-between h-full min-h-0 flex-1">
                   <div className="flex flex-row gap-5 items-center flex-1 min-w-0">
-                    <div className="flex flex-row items-center justify-center w-[100px] h-[100px] bg-white rounded-[12px]">
-                      {selectedImages[index] ? (
-                        <Image
-                          src={selectedImages[index]}
-                          height={72}
-                          width={72}
-                          alt="Profile"
+                    <div className="flex items-center justify-center w-[100px] h-[100px] rounded-[16px] shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onMouseEnter={() => setHoveredAvatarIndex(index)}
+                        onMouseLeave={() => setHoveredAvatarIndex(null)}
+                        className="transition-all duration-300 ease-out cursor-default"
+                      >
+                        <div
+                          className="flex flex-row items-center justify-center w-[100px] h-[100px] overflow-hidden relative"
                           style={{
-                            borderRadius: '50%',
-                            objectFit: 'cover',
-                            height: '72px',
-                            width: '72px',
+                            border: '3px solid white',
+                            boxShadow: '0 16px 30px rgba(0, 0, 0, 0.055)',
+                            backdropFilter: 'blur(8px)',
+                            backgroundColor: 'transparent',
+                            borderRadius: 16,
                           }}
-                        />
-                      ) : (
-
-                          getAgentsListImage(item, 72, 72,from ="agentsList")
-                      )}
-                      <input
-                        type="file"
-                        value={''}
-                        accept="image/*"
-                        ref={(el) => (fileInputRef.current[index] = el)}
-                        onChange={(e) => handleProfileImgChange(e, index)}
-                        style={{ display: 'none' }}
-                      />
+                        >
+                          <div
+                            className="absolute left-1/2 z-0 w-[50px] h-[50px] rounded-full bg-brand-primary -translate-x-1/2"
+                            style={{
+                              top: '-25px',
+                              filter: `blur(${hoveredAvatarIndex === index ? 38 : 30}px)`,
+                              opacity: hoveredAvatarIndex === index ? 0.88 : 0.75,
+                              transition: 'filter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out',
+                            }}
+                            aria-hidden
+                          />
+                          <div className="relative z-10 flex flex-row items-center justify-center bg-transparent w-auto h-auto">
+                            {selectedImages[index] ? (
+                              <Image
+                                src={selectedImages[index]}
+                                height={72}
+                                width={72}
+                                alt="Profile"
+                                style={{
+                                  borderRadius: '50%',
+                                  objectFit: 'cover',
+                                  height: '72px',
+                                  width: '72px',
+                                }}
+                              />
+                            ) : (
+                              getAgentsListImage(item, 72, 72, from="agentsList")
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            value={''}
+                            accept="image/*"
+                            ref={(el) => (fileInputRef.current[index] = el)}
+                            onChange={(e) => handleProfileImgChange(e, index)}
+                            style={{ display: 'none' }}
+                          />
+                        </div>
+                      </div>
                     </div>
                     <div className="flex flex-col gap-1 w-full">
                       <div className="flex flex-col gap-1 items-start w-full">
@@ -478,8 +510,8 @@ const AgentsListPaginated = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end justify-start gap-2 self-end text-right h-full min-h-[100px] pt-2">
-                    <div className="relative inline-block">
+                  <div className="flex flex-row items-start justify-between gap-2 self-end text-left h-full min-h-[100px] pt-2">
+                    <div className={`relative inline-block ${!item.phoneNumber ? 'ml-auto' : ''}`}>
                       {!item.phoneNumber && (
                         <div
                           className="absolute -right-1 -top-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-red-500"
@@ -560,29 +592,56 @@ const AgentsListPaginated = ({
                       </div>
                     </button>
                     </div>
-                    {!item.phoneNumber && (
-                      <div className="flex flex-row items-center gap-2 w-full">
-                        <Image
-                          src={'/assets/warningFill.png'}
-                          height={18}
-                          width={18}
-                          alt="*"
-                        />
-                        <p>
-                          <span
-                            className="text-red"
-                            style={{
-                              fontSize: 12,
-                              fontWeight: '600',
-                            }}
-                          >
-                            No phone number assigned
-                          </span>
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
+
+                {!item.phoneNumber && (
+                  <div
+                    className="flex flex-row items-center justify-between gap-2 w-full"
+                    style={{
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                      paddingLeft: 12,
+                      paddingRight: 12,
+                      backgroundColor: 'rgba(255, 78, 78, 0.02)',
+                      border: '2px solid rgba(255, 78, 78, 0.6)',
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div className="flex flex-row items-center gap-2">
+                      <Image
+                        src={'/assets/warningFill.png'}
+                        height={18}
+                        width={18}
+                        alt="*"
+                      />
+                      <p>
+                        <span
+                          className="text-red"
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 400,
+                            opacity: 1,
+                          }}
+                        >
+                          No phone number assigned
+                        </span>
+                      </p>
+                    </div>
+                    {setShowClaimPopup && (
+                      <button
+                        type="button"
+                        className="text-brand-primary underline text-sm font-medium hover:opacity-80 transition-opacity flex-shrink-0"
+                        onClick={() => {
+                          setSelectedAgent(item)
+                          setShowClaimPopup(true)
+                        }}
+                      >
+                        Assign number
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 <div
                   className="w-full bg-white px-4 py-3 rounded-lg text-sm"
@@ -769,7 +828,7 @@ export const WarningModal = ({
       }}
     >
       <Box
-        className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 p-8 rounded-[15px]"
+        className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 pt-6 px-8 pb-8 rounded-[15px]"
         sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
       >
         <div style={{ width: '100%' }}>
@@ -778,7 +837,7 @@ export const WarningModal = ({
             style={{ scrollbarWidth: 'none' }}
           >
             <div
-              className="flex flex-row items-center justify-center gap-2 -mt-1 p-4 rounded-lg border border-red bg-red/10"
+              className="flex flex-row items-start justify-start gap-2 p-4 rounded-lg border border-red bg-red/10"
             >
               <Image
                 src={'/assets/warningFill.png'}

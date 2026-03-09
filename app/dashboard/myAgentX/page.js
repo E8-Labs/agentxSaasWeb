@@ -610,6 +610,7 @@ function Page() {
   //code for image select and drag and drop
   const [selectedImage, setSelectedImage] = useState('')
   const [selectedImage2, setSelectedImage2] = useState(null)
+  const [profileImageHovered, setProfileImageHovered] = useState(false)
   const [dragging, setDragging] = useState(false)
 
   const [globalLoader, setGlobalLoader] = useState(false)
@@ -4234,6 +4235,7 @@ function Page() {
                 mainAgentsList={mainAgentsList}
                 setScriptKeys={setScriptKeys}
                 setSelectedAgent={setSelectedAgent}
+                setShowClaimPopup={setShowClaimPopup}
                 keys={keys}
                 canGetMore={canGetMore}
                 paginationLoader={paginationLoader}
@@ -4285,7 +4287,7 @@ function Page() {
           >
             <ScaleFadeTransition in={!!showRenameAgentPopup} timeout={250}>
               <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+                className="w-[400px]"
                 sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
               >
                 <div style={{ width: '100%' }}>
@@ -4718,12 +4720,15 @@ function Page() {
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
+                        onMouseEnter={() => setProfileImageHovered(true)}
+                        onMouseLeave={() => setProfileImageHovered(false)}
+                        className="transition-all duration-300 ease-out"
                       >
                         <div
                           className="flex flex-row items-center justify-center w-[120px] h-[120px] overflow-hidden relative"
                           style={{
                             border: '3px solid white',
-                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.105)',
+                            boxShadow: '0 16px 30px rgba(0, 0, 0, 0.055)',
                             backdropFilter: 'blur(8px)',
                             backgroundColor: 'transparent',
                             borderRadius: 16,
@@ -4731,7 +4736,12 @@ function Page() {
                         >
                           <div
                             className="absolute left-1/2 z-0 w-[60px] h-[60px] rounded-full bg-brand-primary -translate-x-1/2"
-                            style={{ top: '-30px', filter: 'blur(30px)', opacity: 0.8 }}
+                            style={{
+                              top: '-30px',
+                              filter: `blur(${profileImageHovered ? 38 : 30}px)`,
+                              opacity: profileImageHovered ? 0.88 : 0.75,
+                              transition: 'filter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out',
+                            }}
                             aria-hidden
                           />
                           <div className="relative z-10 flex flex-row items-center justify-center bg-transparent w-auto h-auto p-1 [&_*]:bg-transparent">
