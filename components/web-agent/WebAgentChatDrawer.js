@@ -83,6 +83,7 @@ const WebAgentChatDrawer = ({
   agentAvatar = null,
   leadId = null,
   canChangeLlmProvider = false,
+  formData = null
 }) => {
   const headerAvatar = agentAvatar ?? (agent ? agentImage(agent) : null)
   const [inputValue, setInputValue] = useState('')
@@ -806,7 +807,7 @@ const WebAgentChatDrawer = ({
                       </div>
                       {isInbound && (
                         <div className="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-semibold text-xs flex-shrink-0" aria-hidden>
-                          U
+                          {formData?.firstName?.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>

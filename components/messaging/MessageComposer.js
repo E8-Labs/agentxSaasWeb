@@ -210,6 +210,7 @@ const MessageComposer = ({
   onSendSocialMessage,
   hasFacebookConnection = false,
   hasInstagramConnection = false,
+  pageName = null,
   onConnectionSuccess,
   onOpenAuthPopup,
   onCommentAdded,
@@ -1229,7 +1230,7 @@ const MessageComposer = ({
   const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
   const showSocialComposer = false
 
-  console.log("!HAS Facebook", hasFacebookConnection, "!has insta", hasInstagramConnection, "social sendable", sendableSocial, "isexpeded status", isExpanded)
+  console.log("!HAS Facebook", hasFacebookConnection, "!has insta", hasInstagramConnection, "social sendable", sendableSocial, "isexpeded status", isExpanded, "can reply insta gran", canReplyInstagram, "linked social sendable", linkedSocialSendable)
 
   const handleSendSocial = async (e) => {
     e?.preventDefault()
@@ -1482,7 +1483,7 @@ const MessageComposer = ({
 
         {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
           <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
-            {!hasFacebookConnection ? (
+            {(!hasFacebookConnection || !hasInstagramConnection) ? (
               <div className="flex flex-col items-center gap-2">
                 <Image
                   src="/fbInsta.png"
@@ -1643,7 +1644,7 @@ const MessageComposer = ({
                         disabled={connectingOAuth}
                       >
                         {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Image src={hasFacebookConnection ? "/facebook.png" : "/instagram.png"} width={20} height={20} alt="Facebook" />}
-                        Logout {hasFacebookConnection ? 'of Facebook' : hasInstagramConnection ? 'of Instagram' : ''}
+                        Logout of {pageName}
                       </Button>
                     )
                   }
