@@ -3553,6 +3553,56 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [searchValue, selectedThread, fetchThreads, selectedUser, setThreadIdInUrl])
 
+  // Mark thread as replied or unreplied (updates list and counts after API success)
+  const handleMarkReplyStatus = useCallback(async (threadId, replied) => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      let apiPath = `${Apis.setThreadReplyStatus}/${threadId}/reply-status`
+      if (selectedUser?.id) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+      }
+
+      const response = await axios.patch(
+        apiPath,
+        { replied },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+
+      if (response.data?.status) {
+        setSnackbar({
+          isVisible: true,
+          message: response.data?.message || (replied ? 'Marked as replied' : 'Marked as unreplied'),
+          type: SnackbarTypes.Success,
+        })
+        // Refresh current list and counts so thread moves between replied/unreplied
+        fetchThreads(searchValue, appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
+      } else {
+        setSnackbar({
+          isVisible: true,
+          message: response.data?.message || 'Failed to update reply status',
+          type: SnackbarTypes.Error,
+        })
+      }
+    } catch (error) {
+      console.error('Error setting thread reply status:', error)
+      setSnackbar({
+        isVisible: true,
+        message: error.response?.data?.message || 'Error updating reply status',
+        type: SnackbarTypes.Error,
+      })
+    }
+  }, [searchValue, appliedTeamMemberIds, filterType, fetchThreads, selectedUser])
+
   // Setup scroll listener (re-run when thread changes so we attach after container mounts)
   useEffect(() => {
     const container = messagesContainerRef.current
@@ -3739,6 +3789,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     getRecentMessageType={getRecentMessageType}
                     formatUnreadCount={formatUnreadCount}
                     onDeleteThread={handleDeleteThread}
+                    onMarkReplyStatus={handleMarkReplyStatus}
                     searchValue={searchValue}
                     onSearchChange={setSearchValue}
                     searchLoading={searchLoading}
