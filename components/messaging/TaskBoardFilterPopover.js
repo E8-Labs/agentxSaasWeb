@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
@@ -71,26 +72,26 @@ const TaskBoardFilterPopover = ({
         className="w-72 p-0"
         style={{ zIndex: 1600 }}
       >
-        <div className="p-3 border-b border-black/[0.06]">
-          <TypographyCaption className="font-semibold text-foreground">
+        <div
+          className="px-3"
+          style={{ paddingTop: 12, paddingBottom: 12, borderBottom: '1px solid #eaeaea' }}
+        >
+          <TypographyCaption className="font-semibold text-foreground block mb-2">
             Filter by
           </TypographyCaption>
-          {/* filter by types */}
-          <div className="flex flex-row items-center w-full mt-2 gap-4 bg-[#eaeaea] px-2 py-1 rounded-lg">
-            {
-              Filter_By_Types?.map((type) => (
-                <button
+          <Tabs value={filterType} onValueChange={handleChangeFilterType}>
+            <TabsList className="flex w-full shrink-0 h-9 items-center justify-between rounded-lg bg-muted p-1 text-muted-foreground text-[14px] font-['Inter'] gap-2 [&_svg]:size-4">
+              {Filter_By_Types.map((type) => (
+                <TabsTrigger
                   key={type.id}
-                  onClick={() => handleChangeFilterType(type.value)}
-                  className={`gap-2 text-left rounded-md px-2 py-1 cursor-pointer ${filterType === type.value ? 'bg-[#ffffff] text-black' : 'text-black'}`}
+                  value={type.value}
+                  className="flex-1 min-w-0 text-[14px] gap-1 active:scale-[0.98] transition-transform duration-150"
                 >
-                  <TypographyCaption className="text-black font-medium">
-                    {type.label}
-                  </TypographyCaption>
-                </button>
-              ))
-            }
-          </div>
+                  {type.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
         <div className="p-3 space-y-4 max-h-[320px] overflow-y-auto">
           {/* Members */}
