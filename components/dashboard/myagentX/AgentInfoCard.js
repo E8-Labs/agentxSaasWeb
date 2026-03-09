@@ -64,10 +64,10 @@ const AgentInfoCard = ({ name, value, icon, iconComponent, bgColor, iconColor, i
       {/* Icon */}
       {renderIcon()}
 
-      <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
+      <div style={{ fontSize: 14, fontWeight: 400, color: '#000' }}>
         {name}
       </div>
-      <div style={{ fontSize: 20, fontWeight: '600', color: '#000' }}>
+      <div className="text-sm font-normal text-black/80">
         {value}
       </div>
     </div>

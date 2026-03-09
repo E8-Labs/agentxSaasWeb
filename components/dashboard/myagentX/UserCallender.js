@@ -893,13 +893,13 @@ const UserCalender = ({
         {/* Modal to add custom calender */}
         <Modal open={showAddNewCalender}>
           <Box
-            className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+            className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
             sx={{
               ...styles.modalsStyle,
-              backgroundColor: 'white',
-              paddingInline: '25px',
-              paddingTop: '25px',
-              paddingBottom: '30px',
+              backgroundColor: '#ffffff',
+              boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #eaeaea',
+              borderRadius: 12,
             }}
           ></Box>
         </Modal>

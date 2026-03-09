@@ -57,6 +57,7 @@ import AgentXOrb from '../common/AgentXOrb'
 import { MYAGENTX_URL } from '../askSky/constants'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { useUser } from '@/hooks/redux-hooks'
+import { History } from 'lucide-react'
 import WebAgentChatInput from '@/components/web-agent/WebAgentChatInput'
 import WebAgentChatDrawer from '@/components/web-agent/WebAgentChatDrawer'
 
@@ -1118,10 +1119,9 @@ const Creator = ({ agentId, name }) => {
           <div className='flex mt-5 flex-row items-center justify-center gap-2'>
             <button
               onClick={handleCloseCall}
-              className="px-3 py-2 flex flex-row items-center justify-center gap-3 rounded-full bg-[#ffffff40] shadow-md"
+              className="px-3 py-2 flex flex-row items-center justify-center gap-3 rounded-full bg-white/25 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:bg-white/35 active:scale-[0.98] transition-all duration-200"
             >
-              <Image src="/assets/cross.png" alt="end call"
-                width={12} height={12} />
+              <History className="shrink-0 text-black" size={16} strokeWidth={2} aria-hidden />
               <span className='text-black text-[15px] font-normal'>
                 End Call
               </span>
@@ -1405,8 +1405,8 @@ const Creator = ({ agentId, name }) => {
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(5px)",
+            backgroundColor: 'transparent',
+            backdropFilter: 'none',
           },
         }}
       >

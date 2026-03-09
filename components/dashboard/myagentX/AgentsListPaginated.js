@@ -13,6 +13,7 @@ import {
   getAgentProfileImage,
   getAgentsListImage,
 } from '@/utilities/agentUtilities'
+import { getTetradicHslFromPrimary } from '@/utilities/colorUtils'
 
 import ImportantCallsModal from '@/components/modals/ImportantCallsModal'
 import AgentInfoCard from './AgentInfoCard'
@@ -315,16 +316,40 @@ const AgentsListPaginated = ({
           style={{ overflow: 'unset' }}
         >
           <div className="flex flex-col gap-3 px-10 w-[98%] max-w-[1028px] m-auto">
-            {agentsListSeparated.map((item, index) => (
+            {agentsListSeparated.map((item, index) => {
+              const tetradic = getTetradicHslFromPrimary()
+              const primary = tetradic[0]
+              /* Primary-dominant comet: primary 0–19% (half), tetradic accents, then fade to white */
+              const gradient = `conic-gradient(from 0deg, hsl(${primary}) 0%, hsl(${primary}) 19%, hsl(${tetradic[1]}) 21%, hsl(${tetradic[2]}) 23%, hsl(${tetradic[3]}) 25%, hsl(${primary} / 0.7) 27%, hsl(${primary} / 0.4) 31%, hsl(${primary} / 0.15) 36%, white 41%, white 100%)`
+              return (
               <div
                 key={index}
-                className="group w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start relative overflow-hidden transition-shadow duration-200 hover:border-[#eaeaea] hover:shadow-[0_4px_30px_rgba(0,0,0,0.15)]"
+                className="group agent-card-glowing-shadow w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start relative overflow-hidden transition-shadow duration-200 hover:border-[#eaeaea]"
                 style={{
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   backgroundColor: '#ffffff',
                   borderRadius: 12,
                 }}
               >
+                {/* Animated gradient border (hover-only, comet + blur) */}
+                <div
+                  className="absolute inset-0 rounded-[12px] pointer-events-none opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 group-hover:[animation-play-state:running] [animation-play-state:paused]"
+                  style={{ zIndex: 0 }}
+                  aria-hidden
+                >
+                  <div
+                    className="absolute inset-0 rounded-[12px] animate-border-spin"
+                    style={{
+                      background: gradient,
+                      filter: 'blur(5px)',
+                    }}
+                  />
+                  <div
+                    className="absolute rounded-[10px] bg-white"
+                    style={{ inset: 2 }}
+                  />
+                </div>
+                <div className="relative z-10 w-full flex flex-col gap-3 items-start">
                 <div className="w-full flex flex-row items-start justify-between h-full min-h-0 flex-1">
                   <div className="flex flex-row gap-5 items-center flex-1 min-w-0">
                     <div className="flex flex-row items-center justify-center w-[100px] h-[100px] bg-white rounded-[12px]">
@@ -684,8 +709,10 @@ const AgentsListPaginated = ({
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </InfiniteScroll>
       ) : (
@@ -750,7 +777,9 @@ export const WarningModal = ({
             className="max-h-[60vh] overflow-auto"
             style={{ scrollbarWidth: 'none' }}
           >
-            <div className="flex flex-row items-center justify-center gap-2 -mt-1">
+            <div
+              className="flex flex-row items-center justify-center gap-2 -mt-1 p-4 rounded-lg border border-red bg-red/10"
+            >
               <Image
                 src={'/assets/warningFill.png'}
                 height={18}
@@ -773,15 +802,7 @@ export const WarningModal = ({
 
           <div className="flex flex-row items-center gap-4 mt-6">
             <button
-              className="mt-4 outline-none w-5/12"
-              style={{
-                color: 'black',
-                height: '50px',
-                borderRadius: '10px',
-                // width: "100%",
-                fontWeight: 600,
-                fontSize: '20',
-              }}
+              className="w-5/12 flex items-center justify-center h-[50px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
               onClick={() => {
                 setShowWarningModal(null)
               }}
@@ -789,15 +810,7 @@ export const WarningModal = ({
               Close
             </button>
             <button
-              className="mt-4 outline-none bg-brand-primary w-7/12 text-white"
-              style={{
-                color: 'white',
-                height: '50px',
-                borderRadius: '10px',
-                // width: "100%",
-                fontWeight: 600,
-                fontSize: '20',
-              }}
+              className="w-7/12 flex items-center justify-center h-[50px] rounded-lg bg-brand-primary text-white px-3 text-sm font-medium hover:opacity-90 transition-colors duration-150 active:scale-[0.98] outline-none"
               onClick={() => {
                 setShowDrawerSelectedAgent(ShowWarningModal)
                 setShowWarningModal(null)

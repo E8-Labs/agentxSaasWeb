@@ -318,6 +318,24 @@ input[type="date"]::-moz-datetime-edit-year-field {
     }
   }
 
+  /* Agent card animated gradient border (hover-only) */
+  @keyframes border-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-border-spin {
+    animation: border-spin 4s linear infinite;
+  }
+
+  /* Agent card glowing shadow on hover (primary-tinted glow) */
+  .agent-card-glowing-shadow {
+    transition: box-shadow 0.35s ease-out;
+  }
+  .agent-card-glowing-shadow:hover {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+
   /* Prevent any black space at top - ensure body and html are white */
   html, body {
     background-color: #ffffff !important;

@@ -189,6 +189,21 @@ export function getBrandPrimaryHsl() {
 }
 
 /**
+ * Returns tetradic colors derived from the brand primary (H, H+90, H+180, H+270).
+ * Useful for animated gradient borders and other multi-color effects.
+ * @returns {string[]} - Array of four HSL strings (e.g. "270 75% 50%") for use in conic-gradient etc.
+ */
+export function getTetradicHslFromPrimary() {
+  const primary = getBrandPrimaryHsl()
+  const match = primary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+  const h = match ? parseInt(match[1], 10) : 270
+  const s = match ? match[2] : '75%'
+  const l = match ? match[3] : '50%'
+  const hues = [h, (h + 90) % 360, (h + 180) % 360, (h + 270) % 360]
+  return hues.map((hu) => `${hu} ${s} ${l}`)
+}
+
+/**
  * Gets the brand primary color from CSS variable as hex string
  * Useful for inline styles that require hex format (e.g., Material-UI sx prop)
  * @returns {string} - Hex color string (e.g., "#7902DF") or default if not available

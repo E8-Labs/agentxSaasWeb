@@ -138,14 +138,18 @@ const AdvancedSettingsModalCN = ({
           backgroundColor: 'white',
           borderRadius: '8px',
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-          p: 4,
+          m: 0,
+          p: 0,
           width: '100%',
           maxWidth: '450px',
-          mx: 2,
           maxHeight: '90vh',
           overflow: 'auto',
           outline: 'none',
-          zIndex: 1700
+          zIndex: 1700,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          fontFamily: 'Inter, sans-serif',
         }}
         className={className}
       >
@@ -162,11 +166,12 @@ const AdvancedSettingsModalCN = ({
           />
         </div>
 
-        <div className='flex flex-row items-center justify-between z-1750'>
+        <div className='flex flex-row items-center justify-between z-1750 py-3 px-4' style={{ borderBottom: '1px solid #eaeaea' }}>
           <Typography
             variant="h5"
-            fontWeight="bold"
+            fontWeight={600}
             gutterBottom
+            sx={{ fontSize: 18, fontFamily: 'Inter, sans-serif' }}
           >
             Advanced Settings
           </Typography>
@@ -183,36 +188,40 @@ const AdvancedSettingsModalCN = ({
           variant="body2"
           color="text.secondary"
           gutterBottom
-          sx={{ mb: 3 }}
+          sx={{ fontSize: 14, px: '16px', pt: 1 }}
         >
           Configure advanced call settings for your agent
         </Typography>
 
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px', height: 'auto', m: 0, py: '12px', px: '16px' }}>
         {/* Content */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, zIndex: 1800 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1800 }}>
           {/* Maximum Duration */}
-          <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              gutterBottom
-            >
-              Maximum Duration (seconds)
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              gutterBottom
-              sx={{ mb: 1 }}
-            >
-              The maximum duration of a call in minutes
-            </Typography>
-            <div className="flex flex-row items-center border rounded w-full focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+          <Box sx={{ fontSize: 14, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <Typography
+                variant="subtitle1"
+                fontWeight={400}
+                gutterBottom
+                sx={{ fontSize: 14, fontFamily: 'Inter, sans-serif' }}
+              >
+                Maximum Duration (seconds)
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                gutterBottom
+                sx={{ fontSize: 14 }}
+              >
+                The maximum duration of a call in minutes
+              </Typography>
+            </Box>
+            <div className="flex flex-row items-center h-[40px] border border-input rounded-lg w-full transition-colors hover:border-[hsl(var(--brand-primary)/0.5)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[hsl(var(--brand-primary))] focus-within:ring-offset-0 focus-within:border-[1px] focus-within:border-[hsl(var(--brand-primary))]">
               <Input
                 type="number"
                 value={maxDurationSeconds}
                 onChange={(e) => setMaxDurationSeconds(e.target.value)}
-                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="border-0 rounded-r-none rounded-l px-3 h-[40px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-[14px]"
               />
               <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
                 {Number(maxDurationSeconds) === 1 ? 'min' : 'mins'}
@@ -221,29 +230,32 @@ const AdvancedSettingsModalCN = ({
           </Box>
 
           {/* Silence Timeout */}
-          <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              gutterBottom
-            >
-              Silence Timeout (seconds)
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              gutterBottom
-              sx={{ mb: 1 }}
-            >
-              Time before considering user as idle
-            </Typography>
-            <div className="flex flex-row items-center border rounded w-full focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+          <Box sx={{ fontSize: 14, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <Typography
+                variant="subtitle1"
+                fontWeight={400}
+                gutterBottom
+                sx={{ fontSize: 14, fontFamily: 'Inter, sans-serif' }}
+              >
+                Silence Timeout (seconds)
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                gutterBottom
+                sx={{ fontSize: 14 }}
+              >
+                Time before considering user as idle
+              </Typography>
+            </Box>
+            <div className="flex flex-row items-center h-[40px] border border-input rounded-lg w-full transition-colors hover:border-[hsl(var(--brand-primary)/0.5)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[hsl(var(--brand-primary))] focus-within:ring-offset-0 focus-within:border-[1px] focus-within:border-[hsl(var(--brand-primary))]">
               <Input
                 type="number"
                 value={idleTimeoutSeconds}
                 onChange={handleIdleTimeoutChange}
                 placeholder="Silence Timeout"
-                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="border-0 rounded-r-none rounded-l px-3 h-[40px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-[14px]"
               />
               <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
                 {Number(idleTimeoutSeconds) === 1 ? 'sec' : 'secs'}
@@ -252,27 +264,30 @@ const AdvancedSettingsModalCN = ({
           </Box>
 
           {/* Silence Response */}
-          <Box className="z-1900">
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              gutterBottom
-            >
-              Silence Response
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              gutterBottom
-              sx={{ mb: 1 }}
-            >
-              Message to say when user is silent.
-            </Typography>
+          <Box className="z-1900" sx={{ fontSize: 14, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <Typography
+                variant="subtitle1"
+                fontWeight={400}
+                gutterBottom
+                sx={{ fontSize: 14, fontFamily: 'Inter, sans-serif' }}
+              >
+                Silence Response
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                gutterBottom
+                sx={{ fontSize: 14 }}
+              >
+                Message to say when user is silent.
+              </Typography>
+            </Box>
             <Select
               value={idleMessage}
               onValueChange={setIdleMessage}
             >
-              <SelectTrigger id="idleMessage" className="w-full">
+              <SelectTrigger id="idleMessage" className="w-full h-[40px] border border-input rounded-lg transition-colors hover:border-[hsl(var(--brand-primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--brand-primary))] focus:border-[1px] focus:border-[hsl(var(--brand-primary))] data-[state=open]:border-[1px] data-[state=open]:border-[hsl(var(--brand-primary))]">
                 <SelectValue placeholder="Select a message" />
               </SelectTrigger>
               <SelectContent className="z-[2000]">
@@ -285,11 +300,11 @@ const AdvancedSettingsModalCN = ({
             </Select>
           </Box>
         </Box>
+        </Box>
 
         {/* Footer */}
         <Box
           sx={{
-            mt: 4,
             display: 'flex',
             justifyContent: 'flex-end',
           }}

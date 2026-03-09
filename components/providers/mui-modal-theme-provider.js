@@ -31,16 +31,17 @@ const agentationFriendlyModalTheme = createTheme({
       },
       styleOverrides: {
         tooltip: {
-          backgroundColor: '#ffffff',
-          color: '#333',
-          fontSize: '14px',
+          backgroundColor: 'hsl(0 0% 9%)',
+          color: 'hsl(0 0% 98%)',
+          fontSize: '12px',
           fontWeight: 500,
-          padding: '10px 15px',
+          padding: '6px 12px',
           borderRadius: 8,
-          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+          border: '1px solid #eaeaea',
         },
         arrow: {
-          color: '#ffffff',
+          color: 'hsl(0 0% 9%)',
         },
       },
     },

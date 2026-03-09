@@ -135,3 +135,8 @@ When the user says **"compose email"** (or "apply compose email"), apply the sty
 When the user says **"accordion style"** (or "apply accordion style"), style the selected element/container like the accordion-style reference (border rounded card):
 - Outer container: `border rounded-lg p-3 w-full text-sm text-black/80 mt-3`
 - Inner content wrapper (direct child content area): `bg-black/[0.02] p-2 px-3` with `marginTop: 12` or `mt-3` as appropriate
+
+When the user says **"input style"** (or "apply input style"), style the selected element to match the search-input-wrapper pattern (e.g. in LastStep.js, Leads1.js). Apply to the wrapper and its input if present:
+- **Wrapper:** `search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden` with `paddingLeft: 12`, `paddingRight: 12` (or `px-3`). Ensure the wrapper has the global `.search-input-wrapper` styles: `border: 1px solid #E5E7EB`, `background: #FFFFFF`, transition on border/box-shadow/background; **hover:** `border-color: #D1D5DB`, `background: #F9FAFB`; **focus-within:** `border-color: hsl(var(--brand-primary))`, `box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.2)`; **active:** shorter transition. If the component does not use the global class, add these via inline styles or Tailwind equivalents.
+- **Input sizing:** height 40px for the control (wrapper or input); **font:** 14px, font-medium, text `#111827`, placeholder `#9CA3AF`; input `outline-none border-none bg-transparent focus:outline-none focus:ring-0`.
+- Preserve existing functionality; only update UI and interaction (hover, active, focus states) and font/sizing.

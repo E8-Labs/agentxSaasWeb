@@ -382,7 +382,7 @@ const GuardianSetting = ({
                 <div
                   role="button"
                   tabIndex={0}
-                  className="flex flex-row items-center justify-between gap-4 py-3 cursor-pointer w-full"
+                  className="flex flex-row items-center justify-between gap-4 py-1 cursor-pointer w-full"
                   onClick={() => handleShowDetails(item)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {

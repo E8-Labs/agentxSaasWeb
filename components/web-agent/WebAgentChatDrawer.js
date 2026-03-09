@@ -72,6 +72,16 @@ const LLM_PROVIDERS = [
 
 const noop = () => {}
 
+/** True if target is inside Agentation toolbar, popup, or marker (keep dropdowns/popovers open when annotating) */
+function isAgentationTarget(target) {
+  return (
+    target?.closest?.('[data-feedback-toolbar]') != null ||
+    target?.closest?.('[data-annotation-popup]') != null ||
+    target?.closest?.('[data-annotation-marker]') != null ||
+    target?.closest?.('[data-agentation="toolbar"]') != null
+  )
+}
+
 const WebAgentChatDrawer = ({
   open,
   onClose = noop,
@@ -123,6 +133,7 @@ const WebAgentChatDrawer = ({
   useEffect(() => {
     if (!historyOpen) return
     const onMouseDown = (e) => {
+      if (isAgentationTarget(e.target)) return
       if (historyPanelRef.current && !historyPanelRef.current.contains(e.target)) {
         setHistoryOpen(false)
       }
@@ -398,6 +409,7 @@ const WebAgentChatDrawer = ({
   useEffect(() => {
     if (!llmProviderOpen) return
     const onMouseDown = (e) => {
+      if (isAgentationTarget(e.target)) return
       if (llmProviderRef.current && !llmProviderRef.current.contains(e.target)) {
         setLlmProviderOpen(false)
       }
@@ -527,7 +539,10 @@ const WebAgentChatDrawer = ({
           backgroundColor: 'rgba(0,0,0,0.05)',
           backdropFilter: 'blur(4px)',
         }}
-        onClick={handleModalClose}
+        onClick={(e) => {
+          if (isAgentationTarget(e.target)) return
+          handleModalClose()
+        }}
         onKeyDown={(e) => e.key === 'Escape' && handleModalClose()}
       />
       <div className="absolute inset-0 flex justify-center items-end pointer-events-none pb-5">

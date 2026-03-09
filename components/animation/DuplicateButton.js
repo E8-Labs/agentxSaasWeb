@@ -31,7 +31,11 @@ const renderBrandedLucideIcon = (IconComponent, size = 18, useBlack = false) => 
 
 export default function DuplicateButton({ handleDuplicate, loading = false, size = 18, useBlack = false }) {
   return (
-    <button className="relative flex items-center justify-center" style={{ width: size + 8, height: size + 8, minWidth: size + 8, minHeight: size + 8 }} onClick={handleDuplicate}>
+    <button
+      className="relative flex items-center justify-center rounded-md"
+      style={{ width: 32, height: 32, minWidth: 32, minHeight: 32 }}
+      onClick={handleDuplicate}
+    >
       {loading ? (
         <Lottie
           animationData={require('../../public/assets/animation/duplicateAnimation.json')}

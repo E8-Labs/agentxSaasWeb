@@ -22,7 +22,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Code, SquareArrowOutUpRight, Webhook } from 'lucide-react'
+import { Calendar, ChevronDown, Code, Hourglass, MessageCircleMore, SquareArrowOutUpRight, Webhook, X, Zap } from 'lucide-react'
 import { ArrowUpRight, Info, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import imageCompression from 'browser-image-compression'
@@ -4271,23 +4271,24 @@ function Page() {
           )}
           {/* Modal to rename the agent */}
           <Modal
-            open={showRenameAgentPopup}
+            open={!!showRenameAgentPopup}
             onClose={() => {
               setShowRenameAgentPopup(false)
             }}
+            closeAfterTransition
             BackdropProps={{
-              timeout: 100,
+              timeout: 250,
               sx: {
-                backgroundColor: '#00000020',
-                // //backdropFilter: "blur(20px)",
+                backgroundColor: '#00000099',
               },
             }}
           >
-            <Box
-              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-            >
-              <div style={{ width: '100%' }}>
+            <ScaleFadeTransition in={!!showRenameAgentPopup} timeout={250}>
+              <Box
+                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+                sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+              >
+                <div style={{ width: '100%' }}>
                 <div
                   className="max-h-[60vh] overflow-auto"
                   style={{ scrollbarWidth: 'none' }}
@@ -4368,6 +4369,7 @@ function Page() {
                 )}
               </div>
             </Box>
+            </ScaleFadeTransition>
           </Modal>
           {/* Test ai modal */}
           <Modal
@@ -4388,16 +4390,15 @@ function Page() {
           >
             <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
               <ScaleFadeTransition in={openTestAiModal} timeout={250}>
-                <div className="flex flex-row justify-center w-full max-h-[80vh]">
+                <div className="flex flex-row justify-center w-[400px] max-h-[80vh]">
                   <div
-                    className="w-[400px] flex flex-col gap-3 overflow-hidden sm:w-full w-full h-full flex flex-col"
+                    className="w-[400px] flex flex-col gap-[1px] overflow-hidden sm:w-full w-full h-full flex flex-col p-[1px]"
                     style={{
                       backgroundColor: '#ffffff',
                       boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
                       border: '1px solid #eaeaea',
                       borderRadius: 12,
                       scrollbarWidth: 'none',
-                      padding: '12px 16px',
                     }}
                   >
                   <div
@@ -4405,7 +4406,7 @@ function Page() {
                     style={{ borderBottom: '1px solid #eaeaea' }}
                   >
                     <div className="flex flex-row items-center gap-2 flex-wrap">
-                      <div style={{ fontSize: 16, fontWeight: '500', color: '#000' }}>
+                      <div style={{ fontSize: 18, fontWeight: 600, color: '#000' }}>
                         Tryout Test
                       </div>
                       {!selectedAgent?.phoneNumber && (
@@ -4440,31 +4441,34 @@ function Page() {
                     />
                   </div>
 
-                  <div className="h-[85%] overflow-auto flex flex-col gap-3 flex-1 min-h-0 px-4">
+                  <div className="h-auto max-h-[400px] overflow-auto flex flex-col gap-3 flex-1 min-h-0 p-4">
                     <div className="flex flex-col gap-2">
                       <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
                         Who are you calling
                       </div>
-                      <input
-                        placeholder="Name"
-                        className="w-full rounded-lg border border-[#e5e7eb] px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
-                        style={{
-                          ...styles.inputStyle,
-                        }}
-                        value={name || ''}
-                        onChange={(e) => {
-                          setName(e.target.value)
-                        }}
-                      />
+                      <div className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden px-3">
+                        <input
+                          placeholder="Name"
+                          className="w-full h-full border-none bg-transparent outline-none focus:outline-none focus:ring-0 text-sm font-medium"
+                          style={{
+                            color: '#111827',
+                            fontSize: 14,
+                          }}
+                          value={name || ''}
+                          onChange={(e) => {
+                            setName(e.target.value)
+                          }}
+                        />
+                      </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
                         Phone Number
                       </div>
-                      <div style={{ position: 'relative' }}>
+                      <div className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden px-0" style={{ position: 'relative' }}>
                       <PhoneInput
-                        className="border outline-none bg-white"
+                        className="border-0 outline-none bg-transparent"
                         country={'us'}
                         onlyCountries={['us', 'sv', 'pk', 'mx', 'sv', 'ec']}
                         disableDropdown={false}
@@ -4474,15 +4478,19 @@ function Page() {
                         placeholder={
                           locationLoader ? 'Loading location ...' : 'Enter Number'
                         }
-                        style={{ borderRadius: '7px' }}
-                        containerStyle={{ position: 'relative' }}
+                        style={{ borderRadius: '8px', height: '100%' }}
+                        containerStyle={{ position: 'relative', height: '100%', flex: 1 }}
                         inputStyle={{
                           width: '100%',
+                          height: '40px',
                           borderWidth: '0px',
                           backgroundColor: 'transparent',
-                          paddingLeft: '60px',
-                          paddingTop: '20px',
-                          paddingBottom: '20px',
+                          paddingLeft: '48px',
+                          paddingTop: '0',
+                          paddingBottom: '0',
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: '#111827',
                         }}
                         buttonStyle={{
                           border: 'none',
@@ -4516,25 +4524,27 @@ function Page() {
                     )}
 
                     <div
-                      className="max-h-[37vh] overflow-none"
+                      className="h-auto overflow-none"
                       style={{ scrollbarWidth: 'none' }}
                     >
                       {scriptKeys?.map((key, index) => (
-                        <div key={index}>
+                        <div key={index} className={index === scriptKeys?.length - 1 ? 'mb-16' : ''}>
                           <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
                             {key[0]?.toUpperCase()}
                             {key?.slice(1)}
                           </div>
-                          <input
-                            placeholder="Type here"
-                            className={`w-full rounded-lg border border-[#e5e7eb] px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
-                              }`}
-                            style={{
-                              ...styles.inputStyle,
-                            }}
-                            value={inputValues[key] || ''} // Default to empty string if no value
-                            onChange={(e) => handleInputChange(key, e.target.value)}
-                          />
+                          <div className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden px-3">
+                            <input
+                              placeholder="Type here"
+                              className="w-full h-full border-none bg-transparent outline-none focus:outline-none focus:ring-0 text-sm font-medium"
+                              style={{
+                                color: '#111827',
+                                fontSize: 14,
+                              }}
+                              value={inputValues[key] || ''} // Default to empty string if no value
+                              onChange={(e) => handleInputChange(key, e.target.value)}
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -4547,21 +4557,22 @@ function Page() {
                     ) : (
                       <div>
                         {name && phone && (
-                          <button
-                            // style={{ marginTop: 10 }}
-                            className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center text-white"
-                            onClick={handleTestAiClick}
-                          >
-                            <div
-                              style={{
-                                fontSize: 16,
-                                fontWeight: '500',
-                                color: '#fff',
-                              }}
+                          <div className="pt-3 pb-3 px-4">
+                            <button
+                              className="w-full flex bg-brand-primary h-[40px] py-2 px-4 rounded-lg items-center justify-center text-white"
+                              onClick={handleTestAiClick}
                             >
-                              Test AI
-                            </div>
-                          </button>
+                              <div
+                                style={{
+                                  fontSize: 16,
+                                  fontWeight: '500',
+                                  color: '#fff',
+                                }}
+                              >
+                                Test AI
+                              </div>
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -4658,7 +4669,7 @@ function Page() {
             }}
             transitionDuration={{ enter: 280, exit: 220 }}
             PaperProps={{
-              className: 'responsive-drawer-paper',
+              className: 'responsive-drawer-paper flex flex-col gap-3',
               sx: {
                 padding: 0,
                 backgroundColor: '#ffffff',
@@ -4666,16 +4677,11 @@ function Page() {
                 scrollbarWidth: 'none',
                 border: '1px solid #eaeaea',
                 borderRight: 'none',
-                boxShadow: '-8px 0 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)',
-                width: {
-                  xs: '100%',
-                  sm: '85%',
-                  md: '70%',
-                  lg: '50%',
-                  xl: '40%'
-                },
-                maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' },
-                borderRadius: { xs: 0, sm: '16px 0 0 16px' },
+                boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                width: { xs: '100%', sm: '650px !important' },
+                minWidth: { xs: 'auto', sm: '650px !important' },
+                maxWidth: { xs: '100vw', sm: '650px !important' },
+                borderRadius: '16px',
                 margin: { xs: 0, sm: '1%' },
                 height: { xs: '100vh', sm: '96.5vh' },
               },
@@ -4683,21 +4689,28 @@ function Page() {
             BackdropProps={{
               timeout: 280,
               sx: {
-                backgroundColor: 'rgba(0, 0, 0, 0.55)',
-                backdropFilter: 'blur(2px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'none',
               },
             }}
           >
-            <div className="flex flex-col w-full h-full overflow-hidden">
+            <div className="flex flex-col w-full h-full overflow-hidden m-[1px] gap-[12px]">
               {/* Header: agent name, actions, close */}
               <header
-                className="flex-shrink-0 w-full flex flex-row items-center justify-between gap-3 px-4 py-3 border-b border-[#eaeaea] bg-white"
+                className="flex-shrink-0 w-full flex flex-col gap-3 p-0 border-b border-[#eaeaea] bg-white"
                 style={{ minHeight: 72 }}
               >
-                <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0">
+                <div
+                  className="flex items-center justify-between shrink-0 w-full"
+                  style={{ paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16, borderBottom: '1px solid #eaeaea' }}
+                >
+                  <span style={{ fontSize: 18, fontWeight: 600 }}>Agent Detail</span>
+                  <CloseBtn onClick={handleDrawerClose} />
+                </div>
+                <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0 py-3 px-4">
                   <div className="flex flex-row items-start justify-start gap-3 w-full p-4">
                     {/* Profile Image (left) */}
-                    <div className="flex items-center justify-center w-[120px] h-[120px] rounded-lg shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
+                    <div className="flex items-center justify-center w-[120px] h-[120px] rounded-[16px] shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
                       <button
                         onClick={() => {
                           document.getElementById('fileInput').click()
@@ -4707,32 +4720,39 @@ function Page() {
                         onDragLeave={handleDragLeave}
                       >
                         <div
-                          className="flex flex-row items-center justify-center w-[120px] h-[120px] rounded-xl"
+                          className="flex flex-row items-center justify-center w-[120px] h-[120px] overflow-hidden relative"
                           style={{
                             border: '3px solid white',
-                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.105)',
                             backdropFilter: 'blur(8px)',
-                            backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                            backgroundColor: 'transparent',
+                            borderRadius: 16,
                           }}
                         >
+                          <div
+                            className="absolute left-1/2 z-0 w-[60px] h-[60px] rounded-full bg-brand-primary -translate-x-1/2"
+                            style={{ top: '-30px', filter: 'blur(30px)', opacity: 0.8 }}
+                            aria-hidden
+                          />
+                          <div className="relative z-10 flex flex-row items-center justify-center bg-transparent w-auto h-auto p-1 [&_*]:bg-transparent">
                           {selectedImage ? (
-                            <div style={{ marginTop: '', background: '' }}>
+                            <div className="bg-transparent">
                               <Image
                                 src={selectedImage}
-                                height={48}
-                                width={48}
+                                height={74}
+                                width={74}
                                 alt="profileImage"
                                 className="rounded-full"
                                 style={{
                                   objectFit: 'cover',
                                   resize: 'cover',
-                                  height: 48,
-                                  width: 48,
+                                  height: 74,
+                                  width: 74,
                                 }}
                               />
                             </div>
                           ) : (
-                            getAgentsListImage(showDrawerSelectedAgent)
+                            getAgentsListImage(showDrawerSelectedAgent, 74, 74)
                           )}
 
                           <Image
@@ -4742,6 +4762,7 @@ function Page() {
                             width={20}
                             alt="profileImage"
                           />
+                          </div>
                         </div>
                       </button>
 
@@ -4762,7 +4783,7 @@ function Page() {
                       )}
                     </div>
                     {/* Name and info (right) */}
-                    <div className="flex flex-col gap-2 items-start ml-2 text-sm text-black/80 font-normal" style={{ fontWeight: 400 }}>
+                    <div className="flex flex-col gap-2 items-start ml-2 text-sm text-black/80 font-normal pt-2" style={{ fontWeight: 400 }}>
                       <div className="flex flex-row justify-center items-center gap-2">
                         <button
                           onClick={() => {
@@ -4772,9 +4793,8 @@ function Page() {
                           }}
                         >
                           <div className="flex flex-row items-center gap-2">
-                            {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
-                            <div className="relative group max-w-[150px] text-left">
-                              <div className="truncate text-left font-normal" style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)', fontWeight: 400 }}>
+                            <div className="relative group max-w-[150px] text-left w-full">
+                              <div className="truncate text-left font-semibold w-full" style={{ fontSize: 18, color: 'rgba(0,0,0,0.8)', fontWeight: 600 }}>
                                 {showDrawerSelectedAgent?.name
                                   ?.slice(0, 1)
                                   .toUpperCase()}
@@ -4790,7 +4810,8 @@ function Page() {
                                 {showDrawerSelectedAgent?.name}
                               </div>
                             </div>
-</div>
+                            {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
+                          </div>
                       </button>
                       </div>
 
@@ -4833,10 +4854,169 @@ function Page() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-2 py-3">
-                    <div className="flex flex-row items-center gap-2 p-1">
-                      <div className="flex flex-row items-center gap-2 text-black [&_svg]:text-black [&_img]:opacity-100" style={{ color: '#000' }}>
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                  <div className="flex flex-col items-center gap-2 py-3 self-stretch">
+                    <div className="flex flex-col items-center justify-between gap-2 p-1 h-full [&>div:not(:last-child)]:border [&>div:not(:last-child)]:border-[#eaeaea] [&>div]:rounded-lg [&>div]:min-h-[40px]">
+                      <div>
+                        <DuplicateConfirmationPopup
+                          open={showDuplicateConfirmationPopup}
+                          handleClose={() => setShowDuplicateConfirmationPopup(false)}
+                          handleDuplicate={shouldDuplicateAgent}
+                          duplicateLoader={duplicateLoader}
+                        />
+                        <div className="flex flex-col gap-2  ">
+                          {/* GPT Button (first item) */}
+                          {showModelLoader ? (
+                            <CircularProgress size={25} />
+                          ) : (
+                            <div>
+                              <button
+                                id="gpt"
+                                onClick={(event) =>
+                                  setOpenGptManu(event.currentTarget)
+                                }
+                                className="flex items-center gap-1 h-[40px] rounded-lg bg-transparent px-3 text-foreground hover:bg-black/[0.02] transition-colors duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-foreground"
+                                style={{
+                                  fontSize: 14,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                <Avatar
+                                  src={getModelIcon(selectedGptManu)}
+                                  sx={{ width: 24, height: 24, marginRight: 1 }}
+                                />
+                                {getModelDisplayName(selectedGptManu)}
+                                <ChevronDown size={18} className="shrink-0 opacity-80" />
+                              </button>
+
+                              <Menu
+                                id="gpt"
+                                anchorEl={openGptManu}
+                                open={openGptManu}
+                                onClose={() => setOpenGptManu(null)}
+                                TransitionProps={{ timeout: { enter: 200, exit: 200 } }}
+                                slotProps={{
+                                  paper: {
+                                    className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out',
+                                  },
+                                }}
+                                sx={{
+                                  '& .MuiPaper-root': {
+                                    border: '1px solid #eaeaea',
+                                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                    borderRadius: '12px',
+                                    padding: 0,
+                                    paddingLeft: '4px',
+                                    paddingRight: '4px',
+                                    minWidth: '231px',
+                                    overflow: 'hidden',
+                                  },
+                                  '& .MuiMenu-list': {
+                                    padding: 0,
+                                    marginTop: '1px',
+                                  },
+                                  '& .MuiMenuItem-root': {
+                                    borderRadius: '8px',
+                                    transition: 'background-color 0.15s ease-out',
+                                    fontWeight: 400,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                    color: 'hsl(var(--brand-primary))',
+                                  },
+                                  '& .MuiMenuItem-root:hover': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                                  },
+                                }}
+                              >
+                                <Box
+                                  component="div"
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '10px 12px',
+                                    borderBottom: '1px solid #eaeaea',
+                                    backgroundColor: '#ffffff',
+                                  }}
+                                >
+                                  <span style={{ fontSize: 14, fontWeight: 600, color: '#333' }}>Model</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setOpenGptManu(null)}
+                                    className="rounded flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/[0.05] transition-colors duration-150 ease-out"
+                                    aria-label="Close"
+                                  >
+                                    <X size={14} className="opacity-80" />
+                                  </button>
+                                </Box>
+                                {models.map((model, index) => {
+                                  const iconSrc =
+                                    model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
+                                      ? reduxUser.agencyBranding.supportWidgetLogoUrl
+                                      : model.icon
+                                  return (
+                                    <MenuItem
+                                      key={index}
+                                      onClick={() => handleGptManuSelect(model)}
+                                      disabled={model.disabled}
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        gap: '10px',
+                                        padding: '8px 12px',
+                                        borderRadius: '8px',
+                                        transition: 'background 0.2s',
+                                        '&:hover': {
+                                          backgroundColor: model.disabled
+                                            ? 'inherit'
+                                            : '#F5F5F5',
+                                        },
+                                        opacity: model.disabled ? 0.6 : 1,
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '10px',
+                                        }}
+                                      >
+                                        <Avatar
+                                          src={iconSrc}
+                                          sx={{ width: 24, height: 24 }}
+                                        />
+                                        <span
+                                          style={{
+                                            fontSize: '14px',
+                                            fontWeight: 400,
+                                            color: 'rgba(0, 0, 0, 0.8)',
+                                          }}
+                                        >
+                                          {getModelDisplayName(model)}
+                                        </span>
+                                      </div>
+                                      <div
+                                        style={{
+                                          backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                          color: 'hsl(var(--brand-primary))',
+                                          padding: '4px 8px',
+                                          borderRadius: '12px',
+                                          fontSize: '12px',
+                                          fontWeight: '600',
+                                          minWidth: 'fit-content',
+                                        }}
+                                      >
+                                        {model.responseTime}
+                                      </div>
+                                    </MenuItem>
+                                  )
+                                })}
+                              </Menu>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-row items-center gap-[2px] text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-white rounded-lg" style={{ color: 'rgba(0,0,0,0.8)' }}>
+                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
                           <Tooltip
                             title="Duplicate"
                             arrow
@@ -4858,7 +5038,7 @@ function Page() {
                               },
                             }}
                           >
-                            <div className="cursor-pointer pt-1">
+                            <div className="cursor-pointer pt-1 border-0">
                               <DuplicateButton
                               handleDuplicate={() => {
                                 setShowDuplicateConfirmationPopup(true)
@@ -4870,7 +5050,7 @@ function Page() {
                             </div>
                           </Tooltip>
                         </div>
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
                           <Tooltip
                             title="Open Tab"
                           arrow
@@ -4901,7 +5081,7 @@ function Page() {
                           </button>
                           </Tooltip>
                         </div>
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
                           <Tooltip
                             title="Embed"
                           arrow
@@ -4933,7 +5113,7 @@ function Page() {
                           </button>
                           </Tooltip>
                         </div>
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/[0.02] transition-colors">
+                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
                           <Tooltip
                             title="Webhook"
                           arrow
@@ -5007,133 +5187,6 @@ function Page() {
                           </Tooltip>
                         </div>
                       </div>
-                      <CloseBtn onClick={handleDrawerClose} />
-                    </div>
-                    <div>
-                      <DuplicateConfirmationPopup
-                        open={showDuplicateConfirmationPopup}
-                        handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                        handleDuplicate={shouldDuplicateAgent}
-                        duplicateLoader={duplicateLoader}
-                      />
-                      <div className="flex flex-col gap-2  ">
-                        {/* GPT Button (last item) */}
-
-                        {showModelLoader ? (
-                          <CircularProgress size={25} />
-                        ) : (
-                          <div>
-                            <button
-                              id="gpt"
-                              onClick={(event) =>
-                                setOpenGptManu(event.currentTarget)
-                              }
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                borderRadius: '20px',
-                                padding: '6px 12px',
-                                border: '1px solid #EEE',
-                                backgroundColor: 'white',
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                color: '#000',
-                                textTransform: 'none',
-                                '&:hover': { backgroundColor: '#F5F5F5' },
-                              }}
-                            >
-                              <Avatar
-                                src={getModelIcon(selectedGptManu)}
-                                sx={{ width: 24, height: 24, marginRight: 1 }}
-                              />
-                              {getModelDisplayName(selectedGptManu)}
-                              <Image
-                                src={'/svgIcons/downArrow.svg'}
-                                width={18}
-                                height={18}
-                                alt="*"
-                              />
-                            </button>
-
-                            <Menu
-                              id="gpt"
-                              anchorEl={openGptManu}
-                              open={openGptManu}
-                              onClose={() => setOpenGptManu(null)}
-                              sx={{
-                                '& .MuiPaper-root': {
-                                  borderRadius: '12px',
-                                  padding: '8px',
-                                  minWidth: '220px',
-                                },
-                              }}
-                            >
-                              {models.map((model, index) => {
-                                const iconSrc =
-                                  model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
-                                    ? reduxUser.agencyBranding.supportWidgetLogoUrl
-                                    : model.icon
-                                return (
-                                  <MenuItem
-                                    key={index}
-                                    onClick={() => handleGptManuSelect(model)}
-                                    disabled={model.disabled}
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'space-between',
-                                      gap: '10px',
-                                      padding: '8px 12px',
-                                      borderRadius: '8px',
-                                      transition: 'background 0.2s',
-                                      '&:hover': {
-                                        backgroundColor: model.disabled
-                                          ? 'inherit'
-                                          : '#F5F5F5',
-                                      },
-                                      opacity: model.disabled ? 0.6 : 1,
-                                    }}
-                                  >
-                                    <div
-                                      style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px',
-                                      }}
-                                    >
-                                      <Avatar
-                                        src={iconSrc}
-                                        sx={{ width: 24, height: 24 }}
-                                      />
-                                      <span
-                                        style={{
-                                          fontSize: '14px',
-                                          fontWeight: '500',
-                                        }}
-                                      >
-                                        {getModelDisplayName(model)}
-                                      </span>
-                                    </div>
-                                    <div
-                                      style={{
-                                        backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                        color: 'hsl(var(--brand-primary))',
-                                        padding: '4px 8px',
-                                        borderRadius: '12px',
-                                        fontSize: '12px',
-                                        fontWeight: '600',
-                                        minWidth: 'fit-content',
-                                      }}
-                                    >
-                                      {model.responseTime}
-                                    </div>
-                                  </MenuItem>
-                                )
-                              })}
-                            </Menu>
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -5141,105 +5194,103 @@ function Page() {
 
               {/* Body: scrollable content */}
               <div
-                className="flex-1 min-h-0 overflow-y-auto w-full flex flex-col px-4 py-3"
+                className="flex-1 min-h-0 overflow-y-auto w-full flex flex-col gap-3 px-4 py-0"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {/* Center Stats View  */}
+                {/* Center Stats View — icons match agent card call stat container (AgentsListPaginated) */}
                 <div
-                  className="grid grid-cols-5 gap-3 w-full rounded-lg mb-6 p-4 py-3 bg-white text-sm"
-                  style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)' }}
+                  className="grid grid-cols-5 gap-3 w-full rounded-lg px-4 py-3 bg-white text-sm"
+                  style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)', fontSize: 14, fontWeight: 400 }}
                 >
-                  <Card
-                    name="Calls"
-                    value={
-                      showDrawerSelectedAgent?.calls &&
-                        showDrawerSelectedAgent?.calls > 0 ? (
-                        <div>{showDrawerSelectedAgent?.calls}</div>
-                      ) : (
-                        '-'
-                      )
-                    }
-                    icon="/svgIcons/selectedCallIcon.svg"
-                    bgColor="bg-blue-100"
-                    iconColor="text-blue-500"
-                    isCustomDomain={isCustomDomain}
-                    agencyBranding={agencyBranding}
-                  />
-                  <Card
-                    name="Convos"
-                    value={
-                      showDrawerSelectedAgent?.callsGt10 &&
-                        showDrawerSelectedAgent?.callsGt10 > 0 ? (
-                        <div>{showDrawerSelectedAgent?.callsGt10}</div>
-                      ) : (
-                        '-'
-                      )
-                    }
-                    icon="/svgIcons/convosIcon2.svg"
-                    bgColor="bg-brand-primary/10"
-                    iconColor="text-brand-primary"
-                    isCustomDomain={isCustomDomain}
-                    agencyBranding={agencyBranding}
-                  />
-                  <Card
-                    name="Hot Leads"
-                    value={
-                      <div>
-                        {showDrawerSelectedAgent?.hotleads
-                          ? showDrawerSelectedAgent?.hotleads
-                          : '-'}
-                      </div>
-                    }
-                    icon="/otherAssets/hotLeadsIcon2.png"
-                    bgColor="bg-orange-100"
-                    iconColor="text-orange-500"
-                    isCustomDomain={isCustomDomain}
-                    agencyBranding={agencyBranding}
-                  />
-                  <Card
-                    name="Booked"
-                    value={
-                      <div>
-                        {showDrawerSelectedAgent?.booked
-                          ? showDrawerSelectedAgent?.booked
-                          : '-'}
-                      </div>
-                    }
-                    icon="/otherAssets/greenCalenderIcon.png"
-                    bgColor="bg-green-100"
-                    iconColor="text-green-500"
-                    isCustomDomain={isCustomDomain}
-                    agencyBranding={agencyBranding}
-                  />
-                  <Card
-                    name="Mins Talked"
-                    value={
-                      showDrawerSelectedAgent?.totalDuration &&
-                        showDrawerSelectedAgent?.totalDuration > 0 ? (
-                        // <div>{showDrawer?.totalDuration}</div>
-                        (<div>
-                          {showDrawerSelectedAgent?.totalDuration
-                            ? moment
-                              .utc(
-                                (showDrawerSelectedAgent?.totalDuration || 0) *
-                                1000,
-                              )
-                              .format('HH:mm:ss')
+                  <div className="flex flex-col items-start gap-2">
+                    <AgentInfoCard
+                      name="Calls"
+                      value={
+                        showDrawerSelectedAgent?.calls &&
+                          showDrawerSelectedAgent?.calls > 0 ? (
+                          <div>{showDrawerSelectedAgent?.calls}</div>
+                        ) : (
+                          '-'
+                        )
+                      }
+                      iconComponent={<Zap size={18} />}
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconColor="text-brand-primary"
+                    />
+                  </div>
+                  <div className="flex flex-col items-start gap-2">
+                    <AgentInfoCard
+                      name="Convos"
+                      value={
+                        showDrawerSelectedAgent?.callsGt10 &&
+                          showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                          <div>{showDrawerSelectedAgent?.callsGt10}</div>
+                        ) : (
+                          '-'
+                        )
+                      }
+                      iconComponent={<MessageCircleMore size={18} />}
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconColor="text-brand-primary"
+                    />
+                  </div>
+                  <div className="flex flex-col items-start gap-2">
+                    <AgentInfoCard
+                      name="Hot Leads"
+                      value={
+                        <div>
+                          {showDrawerSelectedAgent?.hotleads
+                            ? showDrawerSelectedAgent?.hotleads
                             : '-'}
-                        </div>)
-                      ) : (
-                        '-'
-                      )
-                    }
-                    icon="/otherAssets/minsCounter.png"
-                    bgColor="bg-green-100"
-                    iconColor="text-green-500"
-                    isCustomDomain={isCustomDomain}
-                    agencyBranding={agencyBranding}
-                  />
+                        </div>
+                      }
+                      iconComponent={<Zap size={18} />}
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconColor="text-brand-primary"
+                    />
+                  </div>
+                  <div className="flex flex-col items-start gap-2">
+                    <AgentInfoCard
+                      name="Booked"
+                      value={
+                        <div>
+                          {showDrawerSelectedAgent?.booked
+                            ? showDrawerSelectedAgent?.booked
+                            : '-'}
+                        </div>
+                      }
+                      iconComponent={<Calendar size={18} />}
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconColor="text-brand-primary"
+                    />
+                  </div>
+                  <div className="flex flex-col items-start gap-2">
+                    <AgentInfoCard
+                      name="Mins Talked"
+                      value={
+                        showDrawerSelectedAgent?.totalDuration &&
+                          showDrawerSelectedAgent?.totalDuration > 0 ? (
+                          <div>
+                            {showDrawerSelectedAgent?.totalDuration
+                              ? moment
+                                  .utc(
+                                    (showDrawerSelectedAgent?.totalDuration || 0) * 1000
+                                  )
+                                  .format('HH:mm:ss')
+                              : '-'}
+                          </div>
+                        ) : (
+                          '-'
+                        )
+                      }
+                      iconComponent={<Hourglass size={18} />}
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconColor="text-orange-500"
+                    />
+                  </div>
                 </div>
                 {/* Bottom Agent Info */}
-                <div className="flex flex-row items-center gap-2 w-full h-auto max-h-none pb-2 mb-4 border-b border-border">
+                <div className="flex flex-row items-center gap-2 w-full h-auto max-h-none p-0 m-0 border-b border-border">
                   {AgentMenuOptions.map((tab) => (
                     <button
                       key={tab}
@@ -5262,10 +5313,18 @@ function Page() {
                 {/* Code for agent info */}
                 {activeTab === 'Agent Info' ? (
                   <div className="w-full">
-                    <div className="flex flex-col p-4 gap-1 text-sm font-normal" style={{ fontSize: 14, fontWeight: 400 }}>
+                    <div
+                      className="flex flex-col p-4 gap-1 text-sm font-normal overflow-hidden"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 400,
+                        border: '1px solid #eaeaea',
+                        borderRadius: 12,
+                      }}
+                    >
                       <div className="flex flex-row items-center justify-between">
                         <div
-                          style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
+                          style={{ fontSize: 16, fontWeight: 400, color: '#000' }}
                         >
                           Voice Options
                         </div>
@@ -5276,7 +5335,7 @@ function Page() {
                           }}
                         >
                           <div
-                            style={{ fontSize: 15, fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
+                            style={{ fontSize: 15, fontWeight: 400, color: 'hsl(var(--brand-primary))' }}
                           >
                             Advanced Settings
                           </div>
@@ -5285,7 +5344,7 @@ function Page() {
                       {/* Language */}
                       <div className="flex w-full justify-between items-center ">
                         <div
-                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
                         >
                           Language
                         </div>
@@ -5367,13 +5426,22 @@ function Page() {
                                   },
                                 }}
                                 MenuProps={{
+                                  TransitionProps: { timeout: { enter: 200, exit: 200 } },
+                                  slotProps: { paper: { className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out' } },
                                   PaperProps: {
-                                    style: {
-                                      maxHeight: '30vh', // Limit dropdown height
-                                      overflow: 'auto', // Enable scrolling in dropdown
+                                    sx: {
+                                      border: '1px solid #eaeaea',
+                                      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                      borderRadius: '12px',
+                                      overflow: 'hidden',
+                                      maxHeight: '30vh',
+                                      overflowY: 'auto',
                                       scrollbarWidth: 'none',
-                                      // borderRadius: "10px"
                                     },
+                                  },
+                                  sx: {
+                                    '& .MuiMenuItem-root': { borderRadius: '8px', transition: 'background-color 0.15s ease-out' },
+                                    '& .MuiMenuItem-root:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                                   },
                                 }}
                               >
@@ -5456,7 +5524,7 @@ function Page() {
 
                       <div className="flex w-full justify-between items-center -mt-4">
                         <div
-                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
                         >
                           Voice
                         </div>
@@ -5528,12 +5596,22 @@ function Page() {
                                     { border: 'none' },
                                 }}
                                 MenuProps={{
+                                  TransitionProps: { timeout: { enter: 200, exit: 200 } },
+                                  slotProps: { paper: { className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out' } },
                                   PaperProps: {
-                                    style: {
-                                      maxHeight: '30vh', // Limit dropdown height
-                                      overflow: 'auto', // Enable scrolling in dropdown
+                                    sx: {
+                                      border: '1px solid #eaeaea',
+                                      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                      borderRadius: '12px',
+                                      overflow: 'hidden',
+                                      maxHeight: '30vh',
+                                      overflowY: 'auto',
                                       scrollbarWidth: 'none',
                                     },
+                                  },
+                                  sx: {
+                                    '& .MuiMenuItem-root': { borderRadius: '8px', transition: 'background-color 0.15s ease-out' },
+                                    '& .MuiMenuItem-root:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                                   },
                                 }}
                               >
@@ -5645,7 +5723,7 @@ function Page() {
                       {/* Expression */}
                       <div className="flex w-full justify-between items-center -mt-4">
                         <div
-                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
                         >
                           Personality
                         </div>
@@ -5715,13 +5793,22 @@ function Page() {
                                   },
                                 }}
                                 MenuProps={{
+                                  TransitionProps: { timeout: { enter: 200, exit: 200 } },
+                                  slotProps: { paper: { className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out' } },
                                   PaperProps: {
-                                    style: {
-                                      maxHeight: '30vh', // Limit dropdown height
-                                      overflow: 'auto', // Enable scrolling in dropdown
+                                    sx: {
+                                      border: '1px solid #eaeaea',
+                                      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                      borderRadius: '12px',
+                                      overflow: 'hidden',
+                                      maxHeight: '30vh',
+                                      overflowY: 'auto',
                                       scrollbarWidth: 'none',
-                                      // borderRadius: "10px"
                                     },
+                                  },
+                                  sx: {
+                                    '& .MuiMenuItem-root': { borderRadius: '8px', transition: 'background-color 0.15s ease-out' },
+                                    '& .MuiMenuItem-root:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                                   },
                                 }}
                               >
@@ -5744,7 +5831,7 @@ function Page() {
                       {/* Talking Pace */}
                       <div className="flex w-full justify-between items-center -mt-4">
                         <div
-                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
                         >
                           Talking Pace
                         </div>
@@ -5814,13 +5901,22 @@ function Page() {
                                   },
                                 }}
                                 MenuProps={{
+                                  TransitionProps: { timeout: { enter: 200, exit: 200 } },
+                                  slotProps: { paper: { className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out' } },
                                   PaperProps: {
-                                    style: {
-                                      maxHeight: '30vh', // Limit dropdown height
-                                      overflow: 'auto', // Enable scrolling in dropdown
+                                    sx: {
+                                      border: '1px solid #eaeaea',
+                                      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                      borderRadius: '12px',
+                                      overflow: 'hidden',
+                                      maxHeight: '30vh',
+                                      overflowY: 'auto',
                                       scrollbarWidth: 'none',
-                                      // borderRadius: "10px"
                                     },
+                                  },
+                                  sx: {
+                                    '& .MuiMenuItem-root': { borderRadius: '8px', transition: 'background-color 0.15s ease-out' },
+                                    '& .MuiMenuItem-root:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                                   },
                                 }}
                               >
@@ -5844,7 +5940,7 @@ function Page() {
                       {/* Patience level */}
                       <div className="flex w-full justify-between items-center -mt-4">
                         <div
-                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
                         >
                           Response Speed
                         </div>
@@ -5914,13 +6010,22 @@ function Page() {
                                   },
                                 }}
                                 MenuProps={{
+                                  TransitionProps: { timeout: { enter: 200, exit: 200 } },
+                                  slotProps: { paper: { className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out' } },
                                   PaperProps: {
-                                    style: {
-                                      maxHeight: '30vh', // Limit dropdown height
-                                      overflow: 'auto', // Enable scrolling in dropdown
+                                    sx: {
+                                      border: '1px solid #eaeaea',
+                                      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                      borderRadius: '12px',
+                                      overflow: 'hidden',
+                                      maxHeight: '30vh',
+                                      overflowY: 'auto',
                                       scrollbarWidth: 'none',
-                                      // borderRadius: "10px"
                                     },
+                                  },
+                                  sx: {
+                                    '& .MuiMenuItem-root': { borderRadius: '8px', transition: 'background-color 0.15s ease-out' },
+                                    '& .MuiMenuItem-root:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                                   },
                                 }}
                               >
@@ -5942,16 +6047,24 @@ function Page() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1 mt-4">
+                    <div
+                      className="flex flex-col p-4 gap-1 text-sm font-normal overflow-hidden mt-4"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 400,
+                        border: '1px solid #eaeaea',
+                        borderRadius: 12,
+                      }}
+                    >
                       <div
-                        style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
+                        style={{ fontSize: 16, fontWeight: 400, color: '#000' }}
                       >
                         Contact
                       </div>
 
                       <div className="flex justify-between items-center">
                         <div
-                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
                         >
                           Number used for calls
                         </div>
@@ -6019,6 +6132,25 @@ function Page() {
                                     },
                                     padding: 0,
                                     margin: 0,
+                                  }}
+                                  MenuProps={{
+                                    TransitionProps: { timeout: { enter: 200, exit: 200 } },
+                                    slotProps: { paper: { className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out' } },
+                                    PaperProps: {
+                                      sx: {
+                                        border: '1px solid #eaeaea',
+                                        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                        borderRadius: '12px',
+                                        overflow: 'hidden',
+                                        maxHeight: '30vh',
+                                        overflowY: 'auto',
+                                        scrollbarWidth: 'none',
+                                      },
+                                    },
+                                    sx: {
+                                      '& .MuiMenuItem-root': { borderRadius: '8px', transition: 'background-color 0.15s ease-out' },
+                                      '& .MuiMenuItem-root:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                                    },
                                   }}
                                 >
                                   {previousNumber?.map((item, index) => {
@@ -6523,7 +6655,10 @@ function Page() {
                 </div>
 
                 <div className="flex flex-row items-center gap-4 mt-6">
-                  <button className="w-1/2 text-[#6b7280] outline-none  h-[50px] outline-none">
+                  <button
+                    className="w-1/2 flex items-center justify-center h-[50px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
+                    onClick={() => setDelAgentModal(false)}
+                  >
                     Cancel
                   </button>
                   <div className="w-1/2">
@@ -6533,15 +6668,7 @@ function Page() {
                       </div>
                     ) : (
                       <button
-                        className="outline-none bg-red"
-                        style={{
-                          color: 'white',
-                          height: '50px',
-                          borderRadius: '10px',
-                          width: '100%',
-                          fontWeight: 600,
-                          fontSize: '20',
-                        }}
+                        className="w-full flex items-center justify-center h-[50px] rounded-lg bg-red px-3 text-sm font-medium text-white hover:opacity-90 transition-colors duration-150 active:scale-[0.98] outline-none"
                         onClick={handleDeleteAgent}
                       >
                         Yes! Delete
@@ -6630,15 +6757,7 @@ function Page() {
 
                 <div className="flex flex-row items-center gap-4 mt-6">
                   <button
-                    className="mt-4 outline-none w-1/2"
-                    style={{
-                      color: 'black',
-                      height: '50px',
-                      borderRadius: '10px',
-                      width: '100%',
-                      fontWeight: 600,
-                      fontSize: '20',
-                    }}
+                    className="w-1/2 flex items-center justify-center h-[50px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
                     onClick={() => {
                       setShowClaimPopup(null)
                       setAssignNumber(showDrawerSelectedAgent?.phoneNumber || '')
@@ -6654,15 +6773,7 @@ function Page() {
                       </div>
                     ) : (
                       <button
-                        className="mt-4 outline-none bg-brand-primary w-full"
-                        style={{
-                          color: 'white',
-                          height: '50px',
-                          borderRadius: '10px',
-                          width: '100%',
-                          fontWeight: 600,
-                          fontSize: '20',
-                        }}
+                        className="w-full flex items-center justify-center h-[50px] rounded-lg bg-brand-primary px-3 text-sm font-medium text-white hover:opacity-90 transition-colors duration-150 active:scale-[0.98] outline-none"
                         onClick={() => {
                           handleReassignNumber(showConfirmationModal)
                           ////console.log
@@ -6959,9 +7070,9 @@ function Page() {
                   )}
 
                   {SeledtedScriptAdvanceSetting && (
-                    <div className="px-4" style={{ height: '80%' }}>
+                    <div className="px-4 flex flex-col gap-3" style={{ height: '80%' }}>
                       <div
-                        className="flex flex-row items-center mt-4 rounded-xl p-1 gap-0 max-w-[400px] mx-auto h-10"
+                        className="flex flex-row items-center mt-4 rounded-xl p-1 gap-0 min-w-[400px] max-w-[400px] mx-auto h-10"
                         style={{
                           backgroundColor: '#F2F2F2',
                           boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
@@ -7355,7 +7466,10 @@ const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBra
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div
+      className="flex flex-col items-start gap-2"
+      style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}
+    >
       {/* Icon */}
       <div
         className="flex items-center justify-center w-[42px] h-[42px] rounded-lg shrink-0"
@@ -7364,10 +7478,10 @@ const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBra
         {renderIcon()}
       </div>
 
-      <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
+      <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
         {name}
       </div>
-      <div style={{ fontSize: 20, fontWeight: '600', color: '#000' }}>
+      <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
         {value}
       </div>
     </div>
