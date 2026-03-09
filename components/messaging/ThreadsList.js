@@ -644,7 +644,7 @@ const ThreadsList = ({
                                       e.stopPropagation()
                                       onMarkReplyStatus?.(thread.id, true)
                                     }}
-                                    className="flex items-center gap-2 cursor-pointer text-brand-primary focus:text-brand-primary focus:bg-red-50"
+                                    className="flex items-center gap-2 cursor-pointer"
                                   >
                                     <Check size={16} />
                                     Mark as replied
@@ -656,7 +656,7 @@ const ThreadsList = ({
                                       e.stopPropagation()
                                       onMarkReplyStatus?.(thread.id, false)
                                     }}
-                                    className="flex items-center gap-2 cursor-pointer text-brand-primary focus:text-brand-primary focus:bg-red-50"
+                                    className="flex items-center gap-2 cursor-pointer"
                                   >
                                     <MessageSquareDot size={16} />
                                     Mark as unreplied

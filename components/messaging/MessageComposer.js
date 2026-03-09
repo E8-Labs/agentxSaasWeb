@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2 } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2, MessageCircle } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
@@ -1636,9 +1636,14 @@ const MessageComposer = ({
                   </label>
                   {
                     hasFacebookConnection && (
-                      <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={() => disconnectSocialOAuth('facebook')} disabled={connectingOAuth}>
-                        {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-                        Disconnect
+                      <Button
+                        type="button"
+                        className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
+                        onClick={() => disconnectSocialOAuth('facebook')}
+                        disabled={connectingOAuth}
+                      >
+                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Image src={hasFacebookConnection ? "/facebook.png" : "/instagram.png"} width={20} height={20} alt="Facebook" />}
+                        Logout {hasFacebookConnection ? 'of Facebook' : hasInstagramConnection ? 'of Instagram' : ''}
                       </Button>
                     )
                   }

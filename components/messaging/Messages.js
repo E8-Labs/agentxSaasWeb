@@ -4025,6 +4025,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                               // setShowSuperHumanModal(false)
                               handleOpenMessageSettings()
                             }}
+                            allowAIEmailAndText={allowAIEmailAndText}
+                            shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                            shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
                           />
                         </div>
                       )

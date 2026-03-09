@@ -540,6 +540,7 @@ const Creator = ({ agentId, name }) => {
           },
         )
         setSmartListFields(parsedData.smartListFields || {})
+        // setShowLeadModal(true)
       }
     } catch (error) {
       console.error('Error loading saved form data:', error)
