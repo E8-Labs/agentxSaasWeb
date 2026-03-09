@@ -28,7 +28,7 @@ import { Checkbox } from '../ui/checkbox'
 import { logout } from '@/utilities/UserUtility'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import FeatureLine from '../userPlans/FeatureLine'
-import { reorderPlanFeatures } from './PlansUtilities'
+import { getFeatureDisplayText, reorderPlanFeatures } from './PlansUtilities'
 import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
 import PlanSummaryMobile from '../onboarding/mobileUI/PlanSummaryMobile'
 import PlansListMobile from '../onboarding/mobileUI/PlansListMobile'
@@ -996,7 +996,7 @@ function AgencyPlans({
                                         borderWidth: 0,
                                       }}
                                     >
-                                      {feature.text}
+                                      {getFeatureDisplayText(feature, index, getCurrentPlans()?.length ?? 0)}
                                     </div>
                                     {feature?.subtext && (
                                       <div

@@ -38,6 +38,22 @@ export const getCardsList = async (selectedUser = null) => {
 }
 
 /**
+ * Returns display text for a feature. For the middle plan, "AI Powered iMessage" is shown as "AI Powered Text".
+ * @param {{ text: string, subtext?: string }} feature - Feature object
+ * @param {number} planIndex - Index of the plan (0-based)
+ * @param {number} totalPlans - Total number of plans
+ * @returns {string} Display text for the feature
+ */
+export const getFeatureDisplayText = (feature, planIndex, totalPlans) => {
+  const text = feature?.text || ''
+  const isMiddlePlan = totalPlans >= 3 && planIndex === 1
+  if (isMiddlePlan && /ai\s+powered\s+imessage/i.test(text)) {
+    return text.replace(/ai\s+powered\s+imessage/gi, 'AI Powered Text')
+  }
+  return text
+}
+
+/**
  * Reorders plan features so "AI Powered iMessage" is 6th and "AI Powered emails" is 7th.
  * @param {Array<{text: string, [key: string]: unknown}>} features - Plan features array
  * @returns {Array} Reordered features array
