@@ -415,6 +415,7 @@ const AgentsListPaginated = ({
                       >
                         <button
                           onClick={() => {
+                            console.log("item on click.kj is", item?.prompt);
                             setGreetingTagInput(item?.prompt?.greeting)
                             setOldGreetingTagInput(item?.prompt?.greeting)
                             setScriptTagInput(item?.prompt?.callScript)
