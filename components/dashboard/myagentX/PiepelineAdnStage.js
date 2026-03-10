@@ -539,16 +539,22 @@ const PipelineAndStage = ({
             Stages
           </div>
 
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/[0.08] bg-white text-black/70 transition-colors hover:bg-black/[0.04] hover:text-black/90"
+                type="button"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/[0.08] bg-white text-black/70 transition-colors hover:bg-black/[0.04] hover:text-black/90 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 aria-label="Pipeline options"
+                onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical size={20} strokeWidth={2} />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[200px]">
+            <DropdownMenuContent
+              align="end"
+              className="z-[1300] min-w-[200px]"
+              onClick={(e) => e.stopPropagation()}
+            >
               <DropdownMenuItem
                 className="flex cursor-pointer items-center gap-2 focus:bg-brand-primary/10 focus:text-brand-primary"
                 onSelect={() => setShowConfirmationPopup(true)}
