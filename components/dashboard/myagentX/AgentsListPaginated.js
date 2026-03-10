@@ -1,4 +1,4 @@
-import { Box, Modal, Popover } from '@mui/material'
+import { Box, Fade, Modal, Popover } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import { AlertTriangle, Calendar, Hourglass, MessageCircleMore, Zap } from 'lucide-react'
 import moment from 'moment'
@@ -15,6 +15,7 @@ import {
 } from '@/utilities/agentUtilities'
 import { getTetradicHslFromPrimary } from '@/utilities/colorUtils'
 
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 import ImportantCallsModal from '@/components/modals/ImportantCallsModal'
 import AgentInfoCard from './AgentInfoCard'
 import AgentStatsCallsModal from './AgentStatsCallsModal'
@@ -317,7 +318,7 @@ const AgentsListPaginated = ({
           }
           style={{ overflow: 'unset' }}
         >
-          <div className="flex flex-col gap-3 px-10 w-[98%] max-w-[1028px] m-auto">
+          <div className="flex flex-col gap-3 px-4 sm:px-6 w-[98%] max-w-[1028px] m-auto">
             {agentsListSeparated.map((item, index) => {
               const tetradic = getTetradicHslFromPrimary()
               const primary = tetradic[0]
@@ -326,7 +327,7 @@ const AgentsListPaginated = ({
               return (
               <div
                 key={index}
-                className="group agent-card-glowing-shadow w-full max-w-[1028px] mx-auto p-3 flex flex-col gap-3 items-start relative overflow-hidden transition-shadow duration-200 hover:border-[#eaeaea]"
+                className="group agent-card-glowing-shadow w-full max-w-[1028px] mx-auto p-4 flex flex-col gap-2 items-start relative overflow-hidden transition-shadow duration-200 hover:border-[#eaeaea]"
                 style={{
                   border: '1px solid rgba(0, 0, 0, 0.08)',
                   backgroundColor: '#ffffff',
@@ -351,9 +352,9 @@ const AgentsListPaginated = ({
                     style={{ inset: 2 }}
                   />
                 </div>
-                <div className="relative z-10 w-full flex flex-col gap-3 items-start">
+                <div className="relative z-10 w-full flex flex-col gap-2 items-start">
                 <div className="w-full flex flex-row items-start justify-between h-full min-h-0 flex-1">
-                  <div className="flex flex-row gap-5 items-center flex-1 min-w-0">
+                  <div className="flex flex-row gap-4 items-center flex-1 min-w-0">
                     <div className="flex items-center justify-center w-[100px] h-[100px] rounded-[16px] shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
                       <div
                         role="button"
@@ -415,13 +416,7 @@ const AgentsListPaginated = ({
                       <div className="flex flex-col gap-1 items-start w-full">
                         <div className="flex flex-row items-center gap-2">
                           <button onClick={() => handleShowDrawer(item)}>
-                            <div
-                              style={{
-                                fontSize: 24,
-                                fontWeight: '600',
-                                color: '#000',
-                              }}
-                            >
+                            <div className="text-2xl font-semibold leading-tight text-foreground">
                               {formatName(item)}
                             </div>
                           </button>
@@ -437,14 +432,7 @@ const AgentsListPaginated = ({
                           </button>
                         </div>
                         </div>
-                        <div
-                          style={{
-                            fontSize: 14,
-                            fontWeight: 400,
-                            color: '#00000080',
-                          }}
-                          className="flex flex-row items-center gap-1"
-                        >
+                        <div className="flex flex-row items-center gap-1 text-sm font-medium text-black/60">
                           <div
                             aria-owns={open ? 'mouse-over-popover' : undefined}
                             aria-haspopup="true"
@@ -470,17 +458,7 @@ const AgentsListPaginated = ({
                           </div>
                         </div>
                       </div>
-                      <div
-                        className="flex flex-row gap-3 items-center"
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 400,
-                          color: 'rgba(0,0,0,0.8)',
-                          textDecoration: 'underline',
-                          textDecorationStyle: 'dotted',
-                          textDecorationColor: 'rgba(0,0,0,0.4)',
-                        }}
-                      >
+                      <div className="flex flex-row items-center gap-3 text-xs font-medium text-black/80 underline decoration-dotted decoration-black/40 underline-offset-[3px]">
                         <button
                           onClick={() => {
                             setGreetingTagInput(item?.prompt?.greeting)
@@ -510,7 +488,7 @@ const AgentsListPaginated = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-row items-start justify-between gap-2 self-end text-left h-full min-h-[100px] pt-2">
+                  <div className="flex flex-row items-center justify-end gap-2 self-stretch text-left pt-1">
                     <div className={`relative inline-block ${!item.phoneNumber ? 'ml-auto' : ''}`}>
                       {!item.phoneNumber && (
                         <div
@@ -597,15 +575,10 @@ const AgentsListPaginated = ({
 
                 {!item.phoneNumber && (
                   <div
-                    className="flex flex-row items-center justify-between gap-2 w-full"
+                    className="flex flex-row items-center justify-between gap-2 w-full py-2 px-3 rounded-lg"
                     style={{
-                      paddingTop: 8,
-                      paddingBottom: 8,
-                      paddingLeft: 12,
-                      paddingRight: 12,
                       backgroundColor: 'rgba(255, 78, 78, 0.02)',
                       border: '2px solid rgba(255, 78, 78, 0.6)',
-                      borderRadius: 8,
                     }}
                   >
                     <div className="flex flex-row items-center gap-2">
@@ -628,26 +601,14 @@ const AgentsListPaginated = ({
                         </span>
                       </p>
                     </div>
-                    {setShowClaimPopup && (
-                      <button
-                        type="button"
-                        className="text-brand-primary underline text-sm font-medium hover:opacity-80 transition-opacity flex-shrink-0"
-                        onClick={() => {
-                          setSelectedAgent(item)
-                          setShowClaimPopup(true)
-                        }}
-                      >
-                        Assign number
-                      </button>
-                    )}
                   </div>
                 )}
 
                 <div
-                  className="w-full bg-white px-4 py-3 rounded-lg text-sm"
+                  className="w-full bg-white p-3 rounded-lg text-sm"
                   style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)' }}
                 >
-                  <div className="w-full flex flex-row items-start justify-between gap-3">
+                  <div className="w-full flex flex-row items-start justify-between gap-1">
                     <button
                       type="button"
                       onClick={() => {
@@ -658,7 +619,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -679,7 +640,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -706,7 +667,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -733,7 +694,7 @@ const AgentsListPaginated = ({
                         })
                         setImportantCallsModalOpen(true)
                       }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-3 w-full rounded-none"
+                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
                       style={{ minWidth: 0 }}
                     >
                       <AgentInfoCard
@@ -767,7 +728,7 @@ const AgentsListPaginated = ({
                         iconColor="text-orange-500"
                       />
                     </button> */}
-                    <div className="flex-1 min-w-0 flex flex-col items-start gap-2 p-3 w-full">
+                    <div className="flex-1 min-w-0 flex flex-col items-start gap-1.5 p-2 w-full">
                       <AgentInfoCard
                         name="Time"
                         value={
@@ -831,73 +792,98 @@ export const WarningModal = ({
   setShowWarningModal,
   setShowDrawerSelectedAgent,
 }) => {
+  const handleClose = () => setShowWarningModal(null)
+
   return (
     <Modal
-      open={ShowWarningModal}
-      onClose={() => {
-        setShowWarningModal(null)
-      }}
+      open={!!ShowWarningModal}
+      onClose={handleClose}
+      closeAfterTransition
       BackdropProps={{
-        timeout: 100,
-        sx: {
-          backgroundColor: '#00000020',
-          // //backdropFilter: "blur(20px)",
-        },
+        timeout: 250,
+        sx: { backgroundColor: '#00000099' },
+      }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
-      <Box
-        className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 pt-6 px-8 pb-8 rounded-[15px]"
-        sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-      >
-        <div style={{ width: '100%' }}>
+      <Fade in={!!ShowWarningModal} timeout={250}>
+        <Box
+          className="flex w-[400px] max-w-[90vw] flex-col overflow-hidden rounded-[12px] bg-white"
+          sx={{
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            outline: 'none',
+            '@keyframes modalEnter': {
+              '0%': { transform: 'scale(0.95)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            animation: 'modalEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+          }}
+        >
+          {/* Header */}
           <div
-            className="max-h-[60vh] overflow-auto"
-            style={{ scrollbarWidth: 'none' }}
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid #eaeaea' }}
           >
-            <div
-              className="flex flex-row items-start justify-start gap-2 p-4 rounded-lg border border-red bg-red/10"
-            >
-              <Image
-                src={'/assets/warningFill.png'}
-                height={18}
-                width={18}
-                alt="*"
-              />
-              <p>
-                <span
-                  className="text-red"
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                  }}
-                >
-                  No phone number assigned
-                </span>
-              </p>
+            <div className="flex flex-row items-center gap-2">
+              <div
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-destructive/10"
+                aria-hidden
+              >
+                <Image
+                  src="/assets/warningFill.png"
+                  height={16}
+                  width={16}
+                  alt=""
+                  className="text-destructive"
+                />
+              </div>
+              <span
+                className="font-semibold"
+                style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
+              >
+                No phone number assigned
+              </span>
             </div>
+            <CloseBtn onClick={handleClose} />
           </div>
 
-          <div className="flex flex-row items-center gap-4 mt-6">
+          {/* Body */}
+          <div
+            className="px-4 py-4"
+            style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+          >
+            Assign a phone number to this agent to enable Test AI.
+          </div>
+
+          {/* Footer */}
+          <div
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderTop: '1px solid #eaeaea' }}
+          >
             <button
-              className="w-5/12 flex items-center justify-center h-[50px] rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
-              onClick={() => {
-                setShowWarningModal(null)
-              }}
+              type="button"
+              onClick={handleClose}
+              className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
             >
               Close
             </button>
             <button
-              className="w-7/12 flex items-center justify-center h-[50px] rounded-lg bg-brand-primary text-white px-3 text-sm font-medium hover:opacity-90 transition-colors duration-150 active:scale-[0.98] outline-none"
+              type="button"
               onClick={() => {
                 setShowDrawerSelectedAgent(ShowWarningModal)
                 setShowWarningModal(null)
               }}
+              className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] outline-none"
             >
               Assign Number
             </button>
           </div>
-        </div>
-      </Box>
+        </Box>
+      </Fade>
     </Modal>
   )
 }

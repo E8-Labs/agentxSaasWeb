@@ -4248,19 +4248,21 @@ function Page() {
 
           {/* Add New Agent bar - fixed to bottom, above scrollable content */}
           {agentsListSeparated.length > 0 && (
-            <div className="fixed bottom-0 left-[250px] right-0 z-10 w-full p-4 bg-white" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+            <div
+              className="fixed bottom-0 left-[250px] right-0 z-10 flex w-full flex-col items-center justify-center bg-white p-4"
+              style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
+            >
               <div
-                className="agents-add-new-bar-inner w-full max-w-[1028px] py-6 flex justify-center items-center min-h-[70px] cursor-pointer flex-shrink-0"
+                className="agents-add-new-bar-inner flex min-h-[70px] w-full max-w-[1028px] flex-shrink-0 cursor-pointer items-center justify-center rounded-[10px] py-6"
                 style={{
                   border: '1px dashed hsl(var(--brand-primary))',
-                  borderRadius: '10px',
                   boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
                   backgroundColor: '#FBFCFF',
                 }}
                 onClick={handleAddNewAgent}
               >
                 <div
-                  className="flex flex-row items-center gap-1"
+                  className="flex flex-row items-center justify-center gap-1"
                   style={{
                     fontSize: 20,
                     fontWeight: '500',
@@ -4374,7 +4376,7 @@ function Page() {
             </Box>
             </ScaleFadeTransition>
           </Modal>
-          {/* Test ai modal */}
+          {/* Test ai modal - firecrawl style */}
           <Modal
             open={openTestAiModal}
             onClose={() => {
@@ -4386,93 +4388,95 @@ function Page() {
             closeAfterTransition
             BackdropProps={{
               timeout: 250,
-              sx: {
-                backgroundColor: '#00000099',
-              },
+              sx: { backgroundColor: '#00000099' },
+            }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-              <ScaleFadeTransition in={openTestAiModal} timeout={250}>
-                <div className="flex flex-row justify-center w-[400px] max-h-[80vh]">
-                  <div
-                    className="w-[400px] flex flex-col gap-[1px] overflow-hidden sm:w-full w-full h-full flex flex-col p-[1px]"
-                    style={{
-                      backgroundColor: '#ffffff',
-                      boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
-                      border: '1px solid #eaeaea',
-                      borderRadius: 12,
-                      scrollbarWidth: 'none',
-                    }}
-                  >
-                  <div
-                    className="flex flex-row justify-between items-center py-3 px-4 flex-shrink-0 flex-wrap gap-2"
-                    style={{ borderBottom: '1px solid #eaeaea' }}
-                  >
-                    <div className="flex flex-row items-center gap-2 flex-wrap">
-                      <div style={{ fontSize: 18, fontWeight: 600, color: '#000' }}>
-                        Tryout Test
+            <Fade in={openTestAiModal} timeout={250}>
+              <Box
+                className="flex w-[400px] max-w-[90vw] max-h-[80vh] flex-col overflow-hidden rounded-[12px] bg-white"
+                sx={{
+                  boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid #eaeaea',
+                  outline: 'none',
+                  '@keyframes modalEnter': {
+                    '0%': { transform: 'scale(0.95)' },
+                    '100%': { transform: 'scale(1)' },
+                  },
+                  animation: 'modalEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                }}
+              >
+                {/* Header */}
+                <div
+                  className="flex flex-row items-center justify-between px-4 py-3 flex-shrink-0 flex-wrap gap-2"
+                  style={{ borderBottom: '1px solid #eaeaea' }}
+                >
+                  <div className="flex flex-row items-center gap-2 flex-wrap">
+                    <span
+                      className="font-semibold"
+                      style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
+                    >
+                      Tryout Test
+                    </span>
+                    {!selectedAgent?.phoneNumber && (
+                      <div className="flex flex-row items-center gap-2">
+                        <Image
+                          src="/assets/warningFill.png"
+                          height={20}
+                          width={20}
+                          alt=""
+                        />
+                        <span className="text-red" style={{ fontSize: 12, fontWeight: 600 }}>
+                          No phone number assigned
+                        </span>
                       </div>
-                      {!selectedAgent?.phoneNumber && (
-                        <div className="flex flex-row items-center gap-2">
-                          <Image
-                            src={'/assets/warningFill.png'}
-                            height={20}
-                            width={20}
-                            alt="*"
-                          />
-                          <p>
-                            <i
-                              className="text-red"
-                              style={{
-                                fontSize: 12,
-                                fontWeight: '600',
-                              }}
-                            >
-                              No phone number assigned
-                            </i>
-                          </p>
-                        </div>
-                      )}
+                    )}
+                  </div>
+                  <CloseBtn
+                    onClick={() => {
+                      setOpenTestAiModal(false)
+                      setName('')
+                      setPhone('')
+                      setErrorMessage('')
+                    }}
+                  />
+                </div>
+
+                {/* Body */}
+                <div
+                  className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-4 py-4"
+                  style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)', scrollbarWidth: 'none' }}
+                >
+                  <div className="flex flex-col gap-2">
+                    <label className="pt-0" style={{ fontSize: 14, fontWeight: 400 }}>
+                      Who are you calling
+                    </label>
+                    <div className="search-input-wrapper flex h-[40px] w-full flex-row items-center overflow-hidden rounded-lg px-3">
+                      <input
+                        placeholder="Name"
+                        className="h-full w-full border-none bg-transparent text-sm font-medium outline-none focus:outline-none focus:ring-0"
+                        style={{ color: '#111827', fontSize: 14 }}
+                        value={name || ''}
+                        onChange={(e) => setName(e.target.value)}
+                      />
                     </div>
-                    <CloseBtn
-                      onClick={() => {
-                        setOpenTestAiModal(false)
-                        setName('')
-                        setPhone('')
-                        setErrorMessage('')
-                      }}
-                    />
                   </div>
 
-                  <div className="h-auto max-h-[400px] overflow-auto flex flex-col gap-3 flex-1 min-h-0 p-4">
-                    <div className="flex flex-col gap-2">
-                      <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
-                        Who are you calling
-                      </div>
-                      <div className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden px-3">
-                        <input
-                          placeholder="Name"
-                          className="w-full h-full border-none bg-transparent outline-none focus:outline-none focus:ring-0 text-sm font-medium"
-                          style={{
-                            color: '#111827',
-                            fontSize: 14,
-                          }}
-                          value={name || ''}
-                          onChange={(e) => {
-                            setName(e.target.value)
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
-                        Phone Number
-                      </div>
-                      <div className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden px-0" style={{ position: 'relative' }}>
+                  <div className="flex flex-col gap-2">
+                    <label className="pt-0" style={{ fontSize: 14, fontWeight: 400 }}>
+                      Phone Number
+                    </label>
+                    <div
+                      className="search-input-wrapper flex h-[40px] w-full flex-row items-center overflow-hidden rounded-lg px-0"
+                      style={{ position: 'relative' }}
+                    >
                       <PhoneInput
-                        className="border-0 outline-none bg-transparent"
-                        country={'us'}
+                        className="border-0 bg-transparent outline-none"
+                        country="us"
                         onlyCountries={['us', 'sv', 'pk', 'mx', 'sv', 'ec']}
                         disableDropdown={false}
                         countryCodeEditable={false}
@@ -4509,84 +4513,82 @@ function Page() {
                           zIndex: 9999,
                         }}
                       />
-                      </div>
                     </div>
+                  </div>
 
-                    {errorMessage ? (
-                      <p
-                        style={{
-                          ...styles.errmsg,
-                          color: errorMessage && 'red',
-                          height: '20px',
-                        }}
-                      >
-                        {errorMessage}
-                      </p>
-                    ) : (
-                      ''
-                    )}
-
-                    <div
-                      className="h-auto overflow-none"
-                      style={{ scrollbarWidth: 'none' }}
+                  {errorMessage ? (
+                    <p
+                      style={{
+                        ...styles.errmsg,
+                        color: 'red',
+                        height: '20px',
+                      }}
                     >
-                      {scriptKeys?.map((key, index) => (
-                        <div key={index} className={index === scriptKeys?.length - 1 ? 'mb-16' : ''}>
-                          <div className="pt-0" style={{ ...styles.headingStyle, fontSize: 14, fontWeight: 400 }}>
-                            {key[0]?.toUpperCase()}
-                            {key?.slice(1)}
-                          </div>
-                          <div className="search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden px-3">
-                            <input
-                              placeholder="Type here"
-                              className="w-full h-full border-none bg-transparent outline-none focus:outline-none focus:ring-0 text-sm font-medium"
-                              style={{
-                                color: '#111827',
-                                fontSize: 14,
-                              }}
-                              value={inputValues[key] || ''} // Default to empty string if no value
-                              onChange={(e) => handleInputChange(key, e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="w-full mt-6 h-[15%]" style={{}}>
-                    {testAIloader ? (
-                      <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
-                        <CircularProgress size={30} />
-                      </div>
-                    ) : (
-                      <div>
-                        {name && phone && (
-                          <div className="pt-3 pb-3 px-4">
-                            <button
-                              className="w-full flex bg-brand-primary h-[40px] py-2 px-4 rounded-lg items-center justify-center text-white"
-                              onClick={handleTestAiClick}
-                            >
-                              <div
-                                style={{
-                                  fontSize: 16,
-                                  fontWeight: '500',
-                                  color: '#fff',
-                                }}
-                              >
-                                Test AI
-                              </div>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                      {errorMessage}
+                    </p>
+                  ) : null}
 
-                  {/* Can be use full to add shadow */}
-                  {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                  <div style={{ scrollbarWidth: 'none' }}>
+                    {scriptKeys?.map((key, index) => (
+                      <div
+                        key={key}
+                        className={index === scriptKeys?.length - 1 ? 'mb-4' : ''}
+                      >
+                        <label
+                          className="pt-0"
+                          style={{ fontSize: 14, fontWeight: 400 }}
+                        >
+                          {key[0]?.toUpperCase()}
+                          {key?.slice(1)}
+                        </label>
+                        <div className="search-input-wrapper mt-1 flex h-[40px] w-full flex-row items-center overflow-hidden rounded-lg px-3">
+                          <input
+                            placeholder="Type here"
+                            className="h-full w-full border-none bg-transparent text-sm font-medium outline-none focus:outline-none focus:ring-0"
+                            style={{ color: '#111827', fontSize: 14 }}
+                            value={inputValues[key] || ''}
+                            onChange={(e) => handleInputChange(key, e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              </ScaleFadeTransition>
-            </Box>
+
+                {/* Footer */}
+                <div
+                  className="flex flex-shrink-0 flex-row items-center justify-between px-4 py-3"
+                  style={{ borderTop: '1px solid #eaeaea' }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenTestAiModal(false)
+                      setName('')
+                      setPhone('')
+                      setErrorMessage('')
+                    }}
+                    className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
+                  >
+                    Cancel
+                  </button>
+                  {testAIloader ? (
+                    <div className="flex h-[40px] items-center justify-center px-6">
+                      <CircularProgress size={24} />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={!name || !phone}
+                      onClick={handleTestAiClick}
+                      className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Test AI
+                    </button>
+                  )}
+                </div>
+              </Box>
+            </Fade>
           </Modal>
           <UnlockPremiunFeatures
             open={showUnlockPremiumFeaturesPopup}
