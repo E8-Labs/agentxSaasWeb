@@ -93,6 +93,17 @@ When the user says **"modal cleanup"** (or "apply modal cleanup"), apply the Add
 - Container: `w-[400px] flex flex-col gap-3 p-0 overflow-hidden`
 - Style: `backgroundColor: '#ffffff'`, medium elevation with `boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)'`, `border: '1px solid #eaeaea'`, `borderRadius: 12`
 
+When the user says **"firecrawl modal"** (or "apply firecrawl modal"), apply the Duplicate Agent modal's full structure and styling to the modal in focus. This is the firecrawl.dev-inspired confirmation modal pattern:
+- **Structure:** Header (title + optional warning icon + close button), Body (14px font), Footer (action bar with Cancel + primary button)
+- **Container:** `w-[400px] max-w-[90vw] flex flex-col overflow-hidden rounded-[12px] bg-white`, `boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)'`, `border: '1px solid #eaeaea'`
+- **Header:** `flex flex-row items-center justify-between px-4 py-3`, `borderBottom: '1px solid #eaeaea'`; title 16px font-semibold; CloseBtn on right
+- **Body:** `px-4 py-4`, `fontSize: 14`, `color: 'rgba(0,0,0,0.8)'`
+- **Footer:** `flex flex-row items-center justify-between px-4 py-3`, `borderTop: '1px solid #eaeaea'` — secondary (Cancel) on far left, primary on far right
+- **Cancel button:** `h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]`
+- **Primary button:** `h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98]`
+- **Backdrop:** `backgroundColor: '#00000099'`, `timeout: 250`
+- **Animation:** `closeAfterTransition`, Fade 250ms, content scale 0.95→1 on enter with `cubic-bezier(0.34, 1.56, 0.64, 1)`
+
 When the user says **"animate modal"** (or "apply animate modal"), apply the Import Leads modal’s animation and backdrop to the selected modal/element:
 - **Backdrop:** `backgroundColor: '#00000099'` (60% opacity), `timeout: 250`
 - **Content entry:** scale 0.95→1, opacity 0→1 over 250ms with `cubic-bezier(0.34, 1.56, 0.64, 1)` (smooth, clean, fast)

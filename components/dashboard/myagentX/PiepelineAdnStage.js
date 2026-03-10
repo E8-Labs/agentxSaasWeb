@@ -1,8 +1,6 @@
 import { CircularProgress } from '@mui/material'
 import axios from 'axios'
-import { color } from 'framer-motion'
-import { ChevronDown, ChevronUp, EditIcon, Pencil, Router } from 'lucide-react'
-import Image from 'next/image'
+import { ChevronDown, ChevronUp, Pencil } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
@@ -198,8 +196,16 @@ const PipelineAndStage = ({
       })
 
       if (response) {
-        setAgentCadence(response.data.data)
-        console.log("agent cadence data is", response.data.data)
+        const raw = Array.isArray(response.data.data) ? response.data.data : []
+        // Deduplicate by cadence.id so we show one cadence UI per stage (avoids duplicate blocks)
+        const seen = new Set()
+        const deduped = raw.filter((item) => {
+          const id = item?.cadence?.id ?? item?.cadence?.stage?.id
+          if (id && seen.has(id)) return false
+          if (id) seen.add(id)
+          return true
+        })
+        setAgentCadence(deduped)
       }
     } catch (error) {
       // console.error("Error occured in get cadence api is:", error);
@@ -432,6 +438,37 @@ const PipelineAndStage = ({
     }
   }
 
+  const firecrawlStyles = {
+    container: {
+      borderRadius: 12,
+      border: '1px solid #eaeaea',
+      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.08)',
+      overflow: 'hidden',
+      backgroundColor: '#ffffff',
+    },
+    header: {
+      borderBottom: '1px solid #eaeaea',
+      padding: '12px 16px',
+      fontSize: 14,
+      color: 'rgba(0, 0, 0, 0.8)',
+    },
+    body: {
+      padding: '16px',
+      fontSize: 14,
+      color: 'rgba(0, 0, 0, 0.8)',
+    },
+    accordion: {
+      border: '1px solid #eaeaea',
+      borderRadius: 12,
+      overflow: 'hidden',
+      marginTop: 12,
+    },
+    accordionInner: {
+      backgroundColor: 'rgba(0, 0, 0, 0.02)',
+      padding: '12px 16px',
+    },
+  }
+
   return (
     <div>
       <AgentSelectSnackMessage
@@ -440,140 +477,101 @@ const PipelineAndStage = ({
         message={message?.message}
         hide={() => setMessage(null)}
       />
-      <div className="w-full flex flex-row items-center justify-between py-3 px-4" style={{ height: 'auto', borderBottom: '1px solid #eaeaea' }}>
-        <div className="flex flex-row items-center gap-2">
-          <p
-            style={{
-              fontSize: 14,
-              fontWeight: 400,
-              color: 'rgba(0, 0, 0, 0.8)',
-            }}
-          >
+      <div className="w-full flex flex-col" style={firecrawlStyles.container}>
+        {/* Header section: Assigned Pipeline + Stages */}
+        <div
+          className="flex flex-row items-center justify-between"
+          style={firecrawlStyles.header}
+        >
+          <span className="font-medium" style={{ color: 'rgba(0, 0, 0, 0.9)' }}>
             Assigned Pipeline
-          </p>
-          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-        </div>
-        <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
-          {/*
-            {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : '-'}
-          */}
+          </span>
           {agentDetailsLoading ? (
-            <CircularProgress size={25} />
+            <CircularProgress size={20} />
           ) : (
-            <div>{agentDetails?.pipeline ? agentDetails?.pipeline?.title : '-'}</div>
+            <span>{agentDetails?.pipeline ? agentDetails?.pipeline?.title : '-'}</span>
           )}
         </div>
-      </div>
 
-      <div className="w-full flex flex-row items-center justify-between py-3 px-4" style={{ height: 'auto', borderBottom: '1px solid #eaeaea' }}>
-        <div className="flex flex-row items-center gap-2">
-          <p
-            style={{
-              fontSize: 14,
-              fontWeight: 400,
-              color: 'rgba(0, 0, 0, 0.8)',
-            }}
-          >
+        <div
+          className="flex flex-row items-center justify-between"
+          style={{ ...firecrawlStyles.header, borderBottom: 'none' }}
+        >
+          <span className="font-medium" style={{ color: 'rgba(0, 0, 0, 0.9)' }}>
             Stages
-          </p>
-        </div>
-        <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
+          </span>
           {leadStageLoading ? (
             <CircularProgress size={20} />
           ) : (
-            leadStageTitle ||
-            (selectedLead || selectedUser)?.PipelineStages?.stageTitle ||
-            (selectedLead || selectedUser)?.stage?.stageTitle ||
-            (typeof (selectedLead || selectedUser)?.stage === 'string' ? (selectedLead || selectedUser)?.stage : null) ||
-            (selectedLead || selectedUser)?.pipelineStage?.stageTitle ||
-            agentCadence[0]?.cadence?.stage?.stageTitle ||
-            '-'
+            <span>
+              {leadStageTitle ||
+                (selectedLead || selectedUser)?.PipelineStages?.stageTitle ||
+                (selectedLead || selectedUser)?.stage?.stageTitle ||
+                (typeof (selectedLead || selectedUser)?.stage === 'string' ? (selectedLead || selectedUser)?.stage : null) ||
+                (selectedLead || selectedUser)?.pipelineStage?.stageTitle ||
+                agentCadence[0]?.cadence?.stage?.stageTitle ||
+                '-'}
+            </span>
           )}
         </div>
-      </div>
 
-      {/* {selectedAgent?.agentType !== "inbound" && ( */}
-      <div className="w-full" style={{ fontSize: 14, fontWeight: 400 }}>
-        <div className="hidden flex-row items-center justify-between mt-4 text-[14px] px-3">
-          <div className="">
-            Stages
-          </div>
-          <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
-            {leadStageLoading ? (
-              <CircularProgress size={20} />
-            ) : (
-              leadStageTitle ||
-              (selectedLead || selectedUser)?.PipelineStages?.stageTitle ||
-              (selectedLead || selectedUser)?.stage?.stageTitle ||
-              (typeof (selectedLead || selectedUser)?.stage === 'string' ? (selectedLead || selectedUser)?.stage : null) ||
-              (selectedLead || selectedUser)?.pipelineStage?.stageTitle ||
-              agentCadence[0]?.cadence?.stage?.stageTitle ||
-              '-'
-            )}
-          </div>
-        </div>
-        <UpdateCadenceConfirmationPopup
-          showConfirmationPopuup={showConfirmationPopup}
-          setShowConfirmationPopup={setShowConfirmationPopup}
-          onContinue={() => {
-            handleUpdateCadence()
-          }}
-        />
-        <div className="flex flex-col">
+        {/* Body: Cadence accordions */}
+        <div className="px-4 py-4" style={firecrawlStyles.body}>
+          <UpdateCadenceConfirmationPopup
+            showConfirmationPopuup={showConfirmationPopup}
+            setShowConfirmationPopup={setShowConfirmationPopup}
+            onContinue={() => {
+              handleUpdateCadence()
+            }}
+          />
           {initialLoader ? (
-            <div className="w-full flex flex-row items-center justify-center mt-4">
-              <CircularProgress size={25} />
+            <div className="flex flex-row items-center justify-center py-8">
+              <CircularProgress size={28} />
             </div>
           ) : (
-            <>
+            <div className="flex flex-col gap-3">
               {agentCadence.map((stage, index) => (
-                <div key={index} className="mt-4">
-                  <div className="py-px px-0" style={{ borderRadius: 0 }}>
+                <div key={index} style={firecrawlStyles.accordion}>
                   <button
                     onClick={() => toggleStageDetails(stage)}
-                    className="w-full flex flex-row items-center justify-between py-3 px-4 text-sm font-normal border-none hover:bg-black/[0.02] active:scale-[0.98] transition-transform duration-150"
+                    className="w-full flex flex-row items-center justify-between py-3 px-4 text-sm font-medium border-none bg-white hover:bg-black/[0.02] active:scale-[0.99] transition-all duration-150"
+                    style={{ color: 'rgba(0, 0, 0, 0.9)' }}
                   >
-                    <div>Cadence</div>
-                    <div>
-                      <div>
-                        {expandedStages.includes(stage?.cadence?.id) ? (
-                          <ChevronUp size={16} />
-                        ) : (
-                          <ChevronDown size={16} />
-                        )}
-                      </div>
-                    </div>
+                    <span>Cadence</span>
+                    {expandedStages.includes(stage?.cadence?.id) ? (
+                      <ChevronUp size={18} />
+                    ) : (
+                      <ChevronDown size={18} />
+                    )}
                   </button>
                   {expandedStages.includes(stage?.cadence?.id) && (
-                    <div className="flex flex-col gap-1 pt-3 px-4 border-t border-black/10 text-sm font-normal">
-                      <div className="flex flex-row items-center gap-4 text-black/80">
+                    <div style={firecrawlStyles.accordionInner}>
+                      <div className="flex flex-row items-center gap-4 text-black/80 mb-2">
                         <span className="w-10 shrink-0" />
                         <div className="flex flex-row w-[240px]">
-                          <span className="flex-1 text-center text-xs">Days</span>
-                          <span className="flex-1 text-center text-xs">Hours</span>
-                          <span className="flex-1 text-center text-xs">Mins</span>
+                          <span className="flex-1 text-center text-xs font-medium">Days</span>
+                          <span className="flex-1 text-center text-xs font-medium">Hours</span>
+                          <span className="flex-1 text-center text-xs font-medium">Mins</span>
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-px">
-                      {stage.calls.map((item, index) => {
-                        return (
-                          <div key={index} className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2">
+                        {stage.calls.map((item, callIndex) => (
+                          <div key={callIndex} className="flex flex-col gap-2">
                             <div className="flex flex-row items-center gap-4 py-2">
-                              <span>Wait</span>
-                              <div className="flex flex-row items-center w-[240px] rounded bg-black/[0.02] overflow-hidden">
-                                <div className="flex-1 text-center py-1.5 border-r border-black/10">
+                              <span className="text-sm">Wait</span>
+                              <div className="flex flex-row items-center w-[240px] rounded-lg overflow-hidden border border-black/10 bg-white">
+                                <div className="flex-1 text-center py-1.5 border-r border-black/10 text-sm">
                                   {item.waitTimeDays}
                                 </div>
-                                <div className="flex-1 text-center py-1.5 border-r border-black/10">
+                                <div className="flex-1 text-center py-1.5 border-r border-black/10 text-sm">
                                   {item.waitTimeHours}
                                 </div>
-                                <div className="flex-1 text-center py-1.5">
+                                <div className="flex-1 text-center py-1.5 text-sm">
                                   {item.waitTimeMinutes}
                                 </div>
                               </div>
                               <div>
-                                {/*decideTextToShowForBookingTimeStatus(item)}, {decideTextToShowForCadenceType(item)*/}
                                 {(item.communicationType === 'email' || item.communicationType === 'sms') && item.templateId ? (
                                   <Tooltip
                                     title={(() => {
@@ -581,7 +579,6 @@ const PipelineAndStage = ({
                                       const isActive = rowHoverTemplate?.rowKey === rowKey
                                       if (!isActive) return ''
                                       if (rowHoverTemplate.loading) return 'Loading...'
-                                      console.log("rowHoverTemplate is", rowHoverTemplate)
                                       const raw = rowHoverTemplate.data?.content ?? rowHoverTemplate.data?.body ?? rowHoverTemplate.data?.templateContent ?? ''
                                       const text = String(raw)
                                         .replace(/<[^>]*>/g, '')
@@ -609,7 +606,7 @@ const PipelineAndStage = ({
                                     }}
                                   >
                                     <div
-                                      className="text-brand-primary text-[14px] font-normal cursor-pointer"
+                                      className="text-brand-primary text-[14px] font-normal cursor-pointer hover:underline"
                                       onMouseEnter={async () => {
                                         const rowKey = `${item.id}`
                                         const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${item.templateId}`
@@ -622,10 +619,8 @@ const PipelineAndStage = ({
                                             return
                                           }
                                         } catch (_) { /* ignore invalid cache */ }
-                                        console.log("template id is", item.templateId)
                                         try {
                                           const data = await getTempleteDetails({ templateId: item.templateId })
-                                          console.log("template data is", data)
                                           if (data) {
                                             localStorage.setItem(cacheKey, JSON.stringify(data))
                                           }
@@ -640,66 +635,45 @@ const PipelineAndStage = ({
                                       }}
                                       onMouseLeave={() => setRowHoverTemplate(null)}
                                     >
-                                      {(item.communicationType &&
-                                        item.communicationType !=
-                                        'call') ||
-                                        (item.action &&
-                                          item.action != 'call')
-                                        ? `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`
-                                        : `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`}
+                                      {`${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`}
                                     </div>
                                   </Tooltip>
                                 ) : (
                                   <div className="text-brand-primary text-[14px] font-normal">
-                                    {(item.communicationType &&
-                                      item.communicationType !=
-                                      'call') ||
-                                      (item.action &&
-                                        item.action != 'call')
-                                      ? `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`
-                                      : `${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`}
+                                    {`${decideTextToShowForBookingTimeStatus(item)}, ${decideTextToShowForCadenceType(item)}`}
                                   </div>
                                 )}
                               </div>
                             </div>
                           </div>
-                        )
-                      })}
+                        ))}
 
-                      <div className="flex flex-row items-center gap-3 pt-2">
-                        <span>Then move to</span>
-                        <span className="rounded-lg bg-black/[0.02] px-3 py-1.5 text-sm">
-                          {stage?.cadence?.moveToStage?.stageTitle ||
-                            'No stage selected'}
-                        </span>
-                      </div>
-                      <div className="flex justify-start pt-3">
-                        <button
-                          className="flex flex-row items-center gap-2 h-[35px] rounded-md px-0 bg-transparent hover:underline font-sans text-[15px]"
-                          style={{
-                            fontWeight: '500',
-                            fontFamily: 'Inter, sans-serif',
-                            color: 'hsl(var(--brand-primary))',
-                          }}
-                          onClick={() => {
-                            handleUpdateCadence()
-                          }}
-                        >
-                          Update Cadence
-                          <Pencil size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
-                        </button>
-                      </div>
+                        <div className="flex flex-row items-center gap-3 pt-3 mt-1 border-t border-black/10">
+                          <span className="text-sm">Then move to</span>
+                          <span className="rounded-lg bg-white border border-black/10 px-3 py-1.5 text-sm">
+                            {stage?.cadence?.moveToStage?.stageTitle || 'No stage selected'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
-            </>
+              ))}
+              {agentCadence.length > 0 && (
+                <div className="flex justify-start pt-2">
+                  <button
+                    className="flex flex-row items-center gap-2 h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98]"
+                    onClick={() => handleUpdateCadence()}
+                  >
+                    Update Cadence
+                    <Pencil size={14} className="opacity-90" />
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
-      {/* )} */}
     </div>
   )
 }

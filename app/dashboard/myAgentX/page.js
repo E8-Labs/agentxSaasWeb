@@ -4707,7 +4707,166 @@ function Page() {
                   style={{ paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16, borderBottom: '1px solid #eaeaea' }}
                 >
                   <span style={{ fontSize: 18, fontWeight: 600 }}>Agent Detail</span>
-                  <CloseBtn onClick={handleDrawerClose} />
+                  <div className="flex items-center gap-2">
+                    {showModelLoader ? (
+                      <div className="flex items-center justify-center h-[40px] px-3">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <>
+                        <div
+                          className="flex flex-row items-center gap-1 border-0 rounded-[12px] bg-white h-[40px]"
+                          style={{
+                            paddingLeft: 12,
+                            paddingRight: 12,
+                          }}
+                        >
+                          <button
+                            id="gpt"
+                            onClick={(event) =>
+                              setOpenGptManu(event.currentTarget)
+                            }
+                            className="flex items-center gap-1 h-[40px] rounded-lg bg-transparent px-0 text-foreground hover:bg-black/[0.02] transition-colors duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-foreground"
+                            style={{
+                              fontSize: 14,
+                              fontWeight: 400,
+                            }}
+                          >
+                            <Avatar
+                              src={getModelIcon(selectedGptManu)}
+                              sx={{ width: 24, height: 24, marginRight: 1 }}
+                            />
+                            {getModelDisplayName(selectedGptManu)}
+                            <ChevronDown size={18} className="shrink-0 opacity-80" />
+                          </button>
+                        </div>
+                        <Menu
+                          id="gpt-menu"
+                          anchorEl={openGptManu}
+                          open={openGptManu}
+                          onClose={() => setOpenGptManu(null)}
+                          TransitionProps={{ timeout: { enter: 200, exit: 200 } }}
+                          slotProps={{
+                            paper: {
+                              className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out',
+                            },
+                          }}
+                          sx={{
+                            '& .MuiPaper-root': {
+                              border: '1px solid #eaeaea',
+                              boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                              borderRadius: '12px',
+                              padding: 0,
+                              paddingLeft: '4px',
+                              paddingRight: '4px',
+                              minWidth: '231px',
+                              overflow: 'hidden',
+                            },
+                            '& .MuiMenu-list': {
+                              padding: 0,
+                              marginTop: '1px',
+                            },
+                            '& .MuiMenuItem-root': {
+                              borderRadius: '8px',
+                              transition: 'background-color 0.15s ease-out',
+                              fontWeight: 400,
+                              backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                              color: 'hsl(var(--brand-primary))',
+                            },
+                            '& .MuiMenuItem-root:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                            },
+                          }}
+                        >
+                          <Box
+                            component="div"
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '10px 12px',
+                              borderBottom: '1px solid #eaeaea',
+                              backgroundColor: '#ffffff',
+                            }}
+                          >
+                            <span style={{ fontSize: 14, fontWeight: 600, color: '#333' }}>Model</span>
+                            <button
+                              type="button"
+                              onClick={() => setOpenGptManu(null)}
+                              className="rounded flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/[0.05] transition-colors duration-150 ease-out"
+                              aria-label="Close"
+                            >
+                              <X size={14} className="opacity-80" />
+                            </button>
+                          </Box>
+                          {models.map((model, index) => {
+                            const iconSrc =
+                              model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
+                                ? reduxUser.agencyBranding.supportWidgetLogoUrl
+                                : model.icon
+                            return (
+                              <MenuItem
+                                key={index}
+                                onClick={() => handleGptManuSelect(model)}
+                                disabled={model.disabled}
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  gap: '10px',
+                                  padding: '8px 12px',
+                                  borderRadius: '8px',
+                                  transition: 'background 0.2s',
+                                  '&:hover': {
+                                    backgroundColor: model.disabled
+                                      ? 'inherit'
+                                      : '#F5F5F5',
+                                  },
+                                  opacity: model.disabled ? 0.6 : 1,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                  }}
+                                >
+                                  <Avatar
+                                    src={iconSrc}
+                                    sx={{ width: 24, height: 24 }}
+                                  />
+                                  <span
+                                    style={{
+                                      fontSize: '14px',
+                                      fontWeight: 400,
+                                      color: 'rgba(0, 0, 0, 0.8)',
+                                    }}
+                                  >
+                                    {getModelDisplayName(model)}
+                                  </span>
+                                </div>
+                                <div
+                                  style={{
+                                    backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                    color: 'hsl(var(--brand-primary))',
+                                    padding: '4px 8px',
+                                    borderRadius: '12px',
+                                    fontSize: '12px',
+                                    fontWeight: '600',
+                                    minWidth: 'fit-content',
+                                  }}
+                                >
+                                  {model.responseTime}
+                                </div>
+                              </MenuItem>
+                            )
+                          })}
+                        </Menu>
+                      </>
+                    )}
+                    <CloseBtn onClick={handleDrawerClose} />
+                  </div>
                 </div>
                 <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0 py-3 px-4">
                   <div className="flex flex-row items-start justify-start gap-3 w-full p-4">
@@ -4873,328 +5032,87 @@ function Page() {
                           handleDuplicate={shouldDuplicateAgent}
                           duplicateLoader={duplicateLoader}
                         />
-                        <div className="flex flex-col gap-2  ">
-                          {/* GPT Button (first item) */}
-                          {showModelLoader ? (
-                            <CircularProgress size={25} />
-                          ) : (
-                            <div>
-                              <button
-                                id="gpt"
-                                onClick={(event) =>
-                                  setOpenGptManu(event.currentTarget)
-                                }
-                                className="flex items-center gap-1 h-[40px] rounded-lg bg-transparent px-3 text-foreground hover:bg-black/[0.02] transition-colors duration-150 active:scale-[0.98] [&_img]:hover:animate-pulse [&_svg]:text-foreground"
-                                style={{
-                                  fontSize: 14,
-                                  fontWeight: 400,
-                                }}
-                              >
-                                <Avatar
-                                  src={getModelIcon(selectedGptManu)}
-                                  sx={{ width: 24, height: 24, marginRight: 1 }}
-                                />
-                                {getModelDisplayName(selectedGptManu)}
-                                <ChevronDown size={18} className="shrink-0 opacity-80" />
+                        <div
+                          className="flex flex-row items-center gap-[2px] text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-[#eaeaea] rounded-[64px] bg-white"
+                          style={{
+                            color: 'rgba(0,0,0,0.8)',
+                            paddingLeft: 12,
+                            paddingRight: 12,
+                            paddingTop: 6,
+                            paddingBottom: 6,
+                            boxShadow: '0 16px 30px rgba(0, 0, 0, 0.12)',
+                          }}
+                        >
+                          <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
+                            <Tooltip
+                              title="Duplicate"
+                              arrow
+                              componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
+                              TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
+                            >
+                              <div className="cursor-pointer pt-1 border-0">
+                                <DuplicateButton handleDuplicate={() => setShowDuplicateConfirmationPopup(true)} loading={duplicateLoader} size={16} useBlack />
+                              </div>
+                            </Tooltip>
+                          </div>
+                          <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
+                            <Tooltip
+                              title="Open Tab"
+                              arrow
+                              componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
+                              TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
+                            >
+                              <button onClick={() => handleWebAgentClick(showDrawerSelectedAgent)}>
+                                <SquareArrowOutUpRight size={16} className="text-black shrink-0" style={{ color: '#000' }} />
                               </button>
-
-                              <Menu
-                                id="gpt"
-                                anchorEl={openGptManu}
-                                open={openGptManu}
-                                onClose={() => setOpenGptManu(null)}
-                                TransitionProps={{ timeout: { enter: 200, exit: 200 } }}
-                                slotProps={{
-                                  paper: {
-                                    className: 'animate-in slide-in-from-bottom-2 duration-200 ease-out',
-                                  },
-                                }}
-                                sx={{
-                                  '& .MuiPaper-root': {
-                                    border: '1px solid #eaeaea',
-                                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
-                                    borderRadius: '12px',
-                                    padding: 0,
-                                    paddingLeft: '4px',
-                                    paddingRight: '4px',
-                                    minWidth: '231px',
-                                    overflow: 'hidden',
-                                  },
-                                  '& .MuiMenu-list': {
-                                    padding: 0,
-                                    marginTop: '1px',
-                                  },
-                                  '& .MuiMenuItem-root': {
-                                    borderRadius: '8px',
-                                    transition: 'background-color 0.15s ease-out',
-                                    fontWeight: 400,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                                    color: 'hsl(var(--brand-primary))',
-                                  },
-                                  '& .MuiMenuItem-root:hover': {
-                                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                                  },
+                            </Tooltip>
+                          </div>
+                          <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
+                            <Tooltip
+                              title="Embed"
+                              arrow
+                              componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
+                              TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
+                            >
+                              <button style={{ paddingLeft: '3px' }} onClick={() => handleEmbedClick(showDrawerSelectedAgent)}>
+                                <Code size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                              </button>
+                            </Tooltip>
+                          </div>
+                          <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
+                            <Tooltip
+                              title="Webhook"
+                              arrow
+                              componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
+                              TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
+                            >
+                              <button
+                                style={{ paddingLeft: '3px' }}
+                                onClick={() => {
+                                  if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+                                    setShowUpgradeModal(true)
+                                    setTitle('Unlock your Web Agent')
+                                    setSubTitle('Bring your AI agent to your website allowing them to engage with leads and customers')
+                                    setFeatureTitle('EmbedAgents')
+                                  } else if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                                    setShowUpgradeModal(true)
+                                    setTitle('Unlock your Web Agent')
+                                    setSubTitle('Bring your AI agent to your website allowing them to engage with leads and customers')
+                                  } else {
+                                    let agentToUse = showDrawerSelectedAgent
+                                    if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                                      agentToUse = { ...showDrawerSelectedAgent, smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb, smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb, smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook, smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook, smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed, smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed }
+                                    }
+                                    setFetureType('webhook')
+                                    setSelectedAgentForWebAgent(agentToUse)
+                                    setShowWebAgentModal(true)
+                                  }
                                 }}
                               >
-                                <Box
-                                  component="div"
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    padding: '10px 12px',
-                                    borderBottom: '1px solid #eaeaea',
-                                    backgroundColor: '#ffffff',
-                                  }}
-                                >
-                                  <span style={{ fontSize: 14, fontWeight: 600, color: '#333' }}>Model</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => setOpenGptManu(null)}
-                                    className="rounded flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/[0.05] transition-colors duration-150 ease-out"
-                                    aria-label="Close"
-                                  >
-                                    <X size={14} className="opacity-80" />
-                                  </button>
-                                </Box>
-                                {models.map((model, index) => {
-                                  const iconSrc =
-                                    model.value === 'gpt-4.1-mini' && reduxUser?.agencyBranding?.supportWidgetLogoUrl
-                                      ? reduxUser.agencyBranding.supportWidgetLogoUrl
-                                      : model.icon
-                                  return (
-                                    <MenuItem
-                                      key={index}
-                                      onClick={() => handleGptManuSelect(model)}
-                                      disabled={model.disabled}
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: '10px',
-                                        padding: '8px 12px',
-                                        borderRadius: '8px',
-                                        transition: 'background 0.2s',
-                                        '&:hover': {
-                                          backgroundColor: model.disabled
-                                            ? 'inherit'
-                                            : '#F5F5F5',
-                                        },
-                                        opacity: model.disabled ? 0.6 : 1,
-                                      }}
-                                    >
-                                      <div
-                                        style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '10px',
-                                        }}
-                                      >
-                                        <Avatar
-                                          src={iconSrc}
-                                          sx={{ width: 24, height: 24 }}
-                                        />
-                                        <span
-                                          style={{
-                                            fontSize: '14px',
-                                            fontWeight: 400,
-                                            color: 'rgba(0, 0, 0, 0.8)',
-                                          }}
-                                        >
-                                          {getModelDisplayName(model)}
-                                        </span>
-                                      </div>
-                                      <div
-                                        style={{
-                                          backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                          color: 'hsl(var(--brand-primary))',
-                                          padding: '4px 8px',
-                                          borderRadius: '12px',
-                                          fontSize: '12px',
-                                          fontWeight: '600',
-                                          minWidth: 'fit-content',
-                                        }}
-                                      >
-                                        {model.responseTime}
-                                      </div>
-                                    </MenuItem>
-                                  )
-                                })}
-                              </Menu>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-row items-center gap-[2px] text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-white rounded-lg" style={{ color: 'rgba(0,0,0,0.8)' }}>
-                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
-                          <Tooltip
-                            title="Duplicate"
-                            arrow
-                            componentsProps={{
-                              tooltip: {
-                                sx: {
-                                  backgroundColor: '#ffffff', // Ensure white background
-                                  color: '#333', // Dark text color
-                                  fontSize: '14px',
-                                  padding: '10px 15px',
-                                  borderRadius: '8px',
-                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                                },
-                              },
-                              arrow: {
-                                sx: {
-                                  color: '#ffffff', // Match tooltip background
-                                },
-                              },
-                            }}
-                          >
-                            <div className="cursor-pointer pt-1 border-0">
-                              <DuplicateButton
-                              handleDuplicate={() => {
-                                setShowDuplicateConfirmationPopup(true)
-                              }}
-                              loading={duplicateLoader}
-                              size={16}
-                              useBlack
-                            />
-                            </div>
-                          </Tooltip>
-                        </div>
-                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
-                          <Tooltip
-                            title="Open Tab"
-                          arrow
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#ffffff', // Ensure white background
-                                color: '#333', // Dark text color
-                                fontSize: '14px',
-                                padding: '10px 15px',
-                                borderRadius: '8px',
-                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                              },
-                            },
-                            arrow: {
-                              sx: {
-                                color: '#ffffff', // Match tooltip background
-                              },
-                            },
-                          }}
-                        >
-                          <button
-                            onClick={() => {
-                              handleWebAgentClick(showDrawerSelectedAgent)
-                            }}
-                          >
-                            <SquareArrowOutUpRight size={16} className="text-black shrink-0" style={{ color: '#000' }} />
-                          </button>
-                          </Tooltip>
-                        </div>
-                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
-                          <Tooltip
-                            title="Embed"
-                          arrow
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#ffffff', // Ensure white background
-                                color: '#333', // Dark text color
-                                fontSize: '14px',
-                                padding: '10px 15px',
-                                borderRadius: '8px',
-                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                              },
-                            },
-                            arrow: {
-                              sx: {
-                                color: '#ffffff', // Match tooltip background
-                              },
-                            },
-                          }}
-                        >
-                          <button
-                            style={{ paddingLeft: '3px' }}
-                            onClick={() => {
-                              handleEmbedClick(showDrawerSelectedAgent)
-                            }}
-                          >
-                            <Code size={16} className="text-black shrink-0" style={{ color: '#000' }} />
-                          </button>
-                          </Tooltip>
-                        </div>
-                        <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.02] transition-colors">
-                          <Tooltip
-                            title="Webhook"
-                          arrow
-                          componentsProps={{
-                            tooltip: {
-                              sx: {
-                                backgroundColor: '#ffffff', // Ensure white background
-                                color: '#333', // Dark text color
-                                fontSize: '14px',
-                                padding: '10px 15px',
-                                borderRadius: '8px',
-                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                              },
-                            },
-                            arrow: {
-                              sx: {
-                                color: '#ffffff', // Match tooltip background
-                              },
-                            },
-                          }}
-                        >
-                          <button
-                            style={{ paddingLeft: '3px' }}
-                            onClick={() => {
-                            // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
-                            if (
-                              reduxUser?.agencyCapabilities
-                                ?.allowEmbedAndWebAgents === false
-                            ) {
-                              setShowUpgradeModal(true)
-                              setTitle('Unlock your Web Agent')
-                              setSubTitle(
-                                'Bring your AI agent to your website allowing them to engage with leads and customers',
-                              )
-                              setFeatureTitle('EmbedAgents')
-                            } else {
-                              if (
-                                reduxUser?.planCapabilities
-                                  ?.allowEmbedAndWebAgents === false
-                              ) {
-                                setShowUpgradeModal(true)
-                                setTitle('Unlock your Web Agent')
-                                setSubTitle(
-                                  'Bring your AI agent to your website allowing them to engage with leads and customers',
-                                )
-                              } else {
-                                // Merge with existing updated agent state if available
-                                let agentToUse = showDrawerSelectedAgent
-                                if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
-                                  // We have an updated version of this agent - merge the smartlist fields
-                                  agentToUse = {
-                                    ...showDrawerSelectedAgent,
-                                    // Preserve updated smartlist fields from state
-                                    smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
-                                    smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
-                                    smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
-                                    smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
-                                    smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
-                                    smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
-                                  }
-                                }
-                                setFetureType('webhook')
-                                setSelectedAgentForWebAgent(agentToUse)
-                                setShowWebAgentModal(true)
-                              }
-                            }
-                          }}
-                        >
-                            <Webhook size={16} className="text-black shrink-0" style={{ color: '#000' }} />
-                          </button>
-                          </Tooltip>
+                                <Webhook size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                              </button>
+                            </Tooltip>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -5322,39 +5240,34 @@ function Page() {
 
                 {/* Code for agent info */}
                 {activeTab === 'Agent Info' ? (
-                  <div className="w-full">
+                  <div className="w-full flex flex-col gap-4">
                     <div
-                      className="flex flex-col p-4 gap-1 text-sm font-normal overflow-hidden"
+                      className="flex flex-col overflow-hidden bg-white"
                       style={{
-                        fontSize: 14,
-                        fontWeight: 400,
                         border: '1px solid #eaeaea',
                         borderRadius: 12,
+                        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.08)',
                       }}
                     >
-                      <div className="flex flex-row items-center justify-between">
-                        <div
-                          style={{ fontSize: 16, fontWeight: 400, color: '#000' }}
-                        >
+                      <div
+                        className="flex flex-row items-center justify-between px-4 py-3"
+                        style={{ borderBottom: '1px solid #eaeaea' }}
+                      >
+                        <span className="font-semibold" style={{ fontSize: 16, color: 'rgba(0, 0, 0, 0.9)' }}>
                           Voice Options
-                        </div>
-
+                        </span>
                         <button
-                          onClick={() => {
-                            setShowAdvancedSettingsModal(true)
-                          }}
+                          onClick={() => setShowAdvancedSettingsModal(true)}
+                          className="text-sm font-medium text-brand-primary hover:opacity-90 transition-opacity"
                         >
-                          <div
-                            style={{ fontSize: 15, fontWeight: 400, color: 'hsl(var(--brand-primary))' }}
-                          >
-                            Advanced Settings
-                          </div>
+                          Advanced Settings
                         </button>
                       </div>
+                      <div className="px-4 py-4" style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
                       {/* Language */}
-                      <div className="flex w-full justify-between items-center ">
+                      <div className="flex w-full justify-between items-center py-2">
                         <div
-                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.7)' }}
                         >
                           Language
                         </div>
@@ -5421,6 +5334,7 @@ function Page() {
                                 }}
                                 sx={{
                                   border: 'none', // Default border
+                                  '& .MuiOutlinedInput-root': { height: 40, minHeight: 40 },
                                   '&:hover': {
                                     border: 'none', // Same border on hover
                                   },
@@ -5532,9 +5446,9 @@ function Page() {
                         </div>
                       </div>
 
-                      <div className="flex w-full justify-between items-center -mt-4">
+                      <div className="flex w-full justify-between items-center py-2">
                         <div
-                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.7)' }}
                         >
                           Voice
                         </div>
@@ -5598,6 +5512,7 @@ function Page() {
                                 }}
                                 sx={{
                                   border: 'none', // Default border
+                                  '& .MuiOutlinedInput-root': { height: 40, minHeight: 40 },
                                   '&:hover': { border: 'none' }, // Same border on hover
                                   '& .MuiOutlinedInput-notchedOutline': {
                                     border: 'none',
@@ -5731,9 +5646,9 @@ function Page() {
                         </div>
                       </div>
                       {/* Expression */}
-                      <div className="flex w-full justify-between items-center -mt-4">
+                      <div className="flex w-full justify-between items-center py-2">
                         <div
-                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.7)' }}
                         >
                           Personality
                         </div>
@@ -5788,6 +5703,7 @@ function Page() {
                                 }}
                                 sx={{
                                   border: 'none', // Default border
+                                  '& .MuiOutlinedInput-root': { height: 40, minHeight: 40 },
                                   '&:hover': {
                                     border: 'none', // Same border on hover
                                   },
@@ -5839,9 +5755,9 @@ function Page() {
                         </div>
                       </div>
                       {/* Talking Pace */}
-                      <div className="flex w-full justify-between items-center -mt-4">
+                      <div className="flex w-full justify-between items-center py-2">
                         <div
-                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.7)' }}
                         >
                           Talking Pace
                         </div>
@@ -5948,9 +5864,9 @@ function Page() {
                       </div>
 
                       {/* Patience level */}
-                      <div className="flex w-full justify-between items-center -mt-4">
+                      <div className="flex w-full justify-between items-center py-2">
                         <div
-                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.7)' }}
                         >
                           Response Speed
                         </div>
@@ -6005,6 +5921,7 @@ function Page() {
                                 }}
                                 sx={{
                                   border: 'none', // Default border
+                                  '& .MuiOutlinedInput-root': { height: 40, minHeight: 40 },
                                   '&:hover': {
                                     border: 'none', // Same border on hover
                                   },
@@ -6056,25 +5973,26 @@ function Page() {
                         </div>
                       </div>
                     </div>
+                    </div>
 
                     <div
-                      className="flex flex-col p-4 gap-1 text-sm font-normal overflow-hidden mt-4"
+                      className="flex flex-col overflow-hidden bg-white"
                       style={{
-                        fontSize: 14,
-                        fontWeight: 400,
                         border: '1px solid #eaeaea',
                         borderRadius: 12,
+                        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.08)',
                       }}
                     >
                       <div
-                        style={{ fontSize: 16, fontWeight: 400, color: '#000' }}
+                        className="px-4 py-3 font-semibold"
+                        style={{ fontSize: 16, color: 'rgba(0, 0, 0, 0.9)', borderBottom: '1px solid #eaeaea' }}
                       >
                         Contact
                       </div>
-
-                      <div className="flex justify-between items-center">
+                      <div className="px-4 py-4" style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
+                      <div className="flex justify-between items-center py-2">
                         <div
-                          style={{ fontSize: 15, fontWeight: 400, color: '#666' }}
+                          style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.7)' }}
                         >
                           Number used for calls
                         </div>
@@ -6137,6 +6055,7 @@ function Page() {
                                   sx={{
                                     ...styles.dropdownMenu,
                                     backgroundColor: 'none',
+                                    '& .MuiOutlinedInput-root': { height: 40, minHeight: 40 },
                                     '& .MuiOutlinedInput-notchedOutline': {
                                       border: 'none',
                                     },
@@ -6311,13 +6230,13 @@ function Page() {
                           )}
                         </div>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center py-2">
                         <div className="flex flex-row gap-3">
                           <div
                             style={{
-                              fontSize: 15,
-                              fontWeight: '500',
-                              color: '#666',
+                              fontSize: 14,
+                              fontWeight: 400,
+                              color: 'rgba(0, 0, 0, 0.7)',
                             }}
                           >
                             Call back number
@@ -6358,13 +6277,13 @@ function Page() {
                           </button>
                         </div>
                       </div>
-                      <div className="flex justify-between mt-4">
+                      <div className="flex justify-between items-center py-2">
                         <div className="flex flex-row gap-3">
                           <div
                             style={{
-                              fontSize: 15,
-                              fontWeight: '500',
-                              color: '#666',
+                              fontSize: 14,
+                              fontWeight: 400,
+                              color: 'rgba(0, 0, 0, 0.7)',
                             }}
                           >
                             Call transfer number
@@ -6377,6 +6296,7 @@ function Page() {
                           setShowEditNumberPopup,
                           setSelectedNumber,
                         })}
+                      </div>
                       </div>
                     </div>
 
@@ -6816,7 +6736,7 @@ function Page() {
               sx={{ ...styles.modalsStyle, backgroundColor: 'white', padding: 0 }}
             >
               <div style={{ width: '100%' }}>
-                <div className="h-[90vh] text-sm gap-[12px] flex flex-col animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ scrollbarWidth: 'none', fontSize: 14 }}>
+                <div className="h-[90vh] text-sm flex flex-col gap-2 animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ scrollbarWidth: 'none', fontSize: 14 }}>
                   <div
                     className="w-full py-3 px-4 border-b flex flex-row items-center justify-between max-h-[54px]"
                     style={{ borderBottomColor: '#eaeaea' }}
@@ -6843,7 +6763,7 @@ function Page() {
                   </div>
 
                   <div
-                    className="mt-4 flex flex-row items-center gap-6 w-full border-b border-border px-4 h-11 min-h-0"
+                    className="mt-2 flex flex-row items-center gap-6 w-full border-b border-border px-4 h-11 min-h-0"
                     style={{ borderBottomColor: 'hsl(var(--border))', fontSize: 14 }}
                     role="tablist"
                     aria-label="Script sections"
@@ -6892,7 +6812,7 @@ function Page() {
                   {showScript && (
                     <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
                         <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
-                        <div className="flex-1 min-h-0 h-full overflow-auto flex flex-col gap-3 px-4 text-sm">
+                        <div className="flex-1 min-h-0 h-full overflow-auto flex flex-col gap-3 px-4 py-[2px] text-sm">
                         <div className="rounded-[1px] border-l-4 border-brand-primary bg-primary/5 p-3 mt-2">
                           <div className="flex flex-row items-center gap-2 text-sm font-medium text-foreground">
                             <Info size={20} weight="fill" className="text-brand-primary flex-shrink-0" />
@@ -7080,9 +7000,9 @@ function Page() {
                   )}
 
                   {SeledtedScriptAdvanceSetting && (
-                    <div className="px-4 flex flex-col gap-3" style={{ height: '80%' }}>
+                    <div className="px-4 flex flex-col gap-1 py-[2px] flex-1 min-h-0 overflow-hidden" style={{ height: '80%' }}>
                       <div
-                        className="flex flex-row items-center mt-4 rounded-xl p-1 gap-0 min-w-[400px] max-w-[400px] mx-auto h-10"
+                        className="flex flex-row items-center mt-2 rounded-xl p-1 gap-0 min-w-[400px] max-w-[400px] mx-auto h-10 flex-shrink-0"
                         style={{
                           backgroundColor: '#F2F2F2',
                           boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
@@ -7135,8 +7055,8 @@ function Page() {
                       </div>
 
                       {showObjection && (
-                        <div style={{ height: '80%' }}>
-                          <div style={{ marginTop: '40px', height: '80%' }}>
+                        <div className="flex-1 min-h-0 flex flex-col overflow-auto">
+                          <div className="flex-1 min-h-0 mt-2 overflow-auto">
                             <Objection
                               showTitle={true}
                               selectedAgentId={showScriptModal}
@@ -7148,8 +7068,8 @@ function Page() {
                       )}
 
                       {showGuardrails && (
-                        <div style={{ height: '80%' }}>
-                          <div style={{ marginTop: '40px', height: '80%' }}>
+                        <div className="flex-1 min-h-0 flex flex-col overflow-auto">
+                          <div className="flex-1 min-h-0 mt-2 overflow-auto">
                             <GuarduanSetting
                               showTitle={true}
                               selectedAgentId={showScriptModal}
@@ -7161,8 +7081,8 @@ function Page() {
                       )}
 
                       {showObjectives && (
-                        <div style={{ height: '80%' }}>
-                          <div style={{ marginTop: '40px', height: '80%' }}>
+                        <div className="flex-1 min-h-0 flex flex-col overflow-auto">
+                          <div className="flex-1 min-h-0 mt-2 overflow-auto flex flex-col">
                             {/* {showScriptModal?.prompt?.objective} */}
 
                             {/* {
@@ -7189,7 +7109,7 @@ function Page() {
                           />
                         } */}
 
-                            <div className="mt-4 w-full">
+                            <div className="mt-2 flex-1 min-h-0 flex flex-col w-full">
                               <PromptTagInput
                                 promptTag={objective}
                                 kycsList={kycsData}
@@ -7198,6 +7118,7 @@ function Page() {
                                 scrollOffset={scrollOffset}
                                 showSaveChangesBtn={showObjectionsSaveBtn}
                                 from={'Objective'}
+                                fillHeight
                                 saveUpdates={async () => {
                                   await updateAgent()
                                   setShowObjectionsSaveBtn(false)
@@ -7217,7 +7138,7 @@ function Page() {
                                     </div>
                                   ) : (
                                     <button
-                                      className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
+                                      className="bg-brand-primary w-full h-[50px] rounded-xl mb-2 text-white"
                                       style={{ fontWeight: '600', fontSize: 15 }}
                                       onClick={async () => {
                                         await updateAgent()
@@ -7241,7 +7162,7 @@ function Page() {
 
                   {SeledtedScriptKYC && (
                     <div
-                      className="px-4 flex flex-col gap-3"
+                      className="px-4 flex flex-col gap-2 py-[2px] flex-1 min-h-0"
                       style={{
                         height: '80%',
                         overflow: 'auto',
@@ -7249,11 +7170,13 @@ function Page() {
                         backgroundColor: '',
                       }}
                     >
+                      <div className="h-full min-h-0 flex flex-col">
                       <KYCs
                         kycsDetails={setKycsData}
                         mainAgentId={MainAgentId}
                         user={user && user}
                       />
+                      </div>
                     </div>
                   )}
                 </div>
