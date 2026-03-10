@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import { Modal } from '@mui/material'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { X, RotateCcw, Upload, ChevronDown } from 'lucide-react'
@@ -173,8 +173,9 @@ const WebAgentChatDrawer = ({
       setCurrentThreadTitle(null)
       setMessages([])
       setHistoryOpen(false)
-      const t = setTimeout(() => setExpanded(true), 50)
-      return () => clearTimeout(t)
+      // One frame delay so Modal is in DOM before we expand; avoids flicker of 0-height panel
+      const id = requestAnimationFrame(() => setExpanded(true))
+      return () => cancelAnimationFrame(id)
     } else {
       setExpanded(false)
       setCurrentThreadId(null)
@@ -516,34 +517,37 @@ const WebAgentChatDrawer = ({
   if (!showOverlay) return null
 
   const modalContent = (
-    <div
-      className="fixed inset-0"
-      style={{ zIndex: 1300 }}
-      role="dialog"
-      aria-modal="true"
+    <Modal
+      open={showOverlay}
+      onClose={handleModalClose}
+      closeAfterTransition
       aria-label="Chat"
+      sx={{ zIndex: 1300 }}
+      slotProps={{
+        root: {
+          sx: {
+            // Disable MUI's default backdrop transition to prevent flicker on open
+            '& .MuiBackdrop-root': { transition: 'none' },
+          },
+        },
+      }}
+      BackdropProps={{
+        sx: { backgroundColor: 'rgba(0,0,0,0.05)' },
+      }}
     >
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundColor: 'rgba(0,0,0,0.05)',
-          // backdropFilter: 'blur(4px)',
-        }}
-        onClick={handleModalClose}
-        onKeyDown={(e) => e.key === 'Escape' && handleModalClose()}
-      />
       <div className="absolute inset-0 flex justify-center items-end pointer-events-none pb-5">
         <div
           className={cn(
             'pointer-events-auto flex flex-col overflow-hidden',
             'rounded-3xl shadow-2xl w-full max-w-[800px]',
-            'transition-[height] duration-300 ease-out'
+            // Hide panel until expanded to avoid flicker of 0-height bar
+            !expanded ? 'opacity-0' : 'opacity-100'
           )}
           style={{
             height: expanded ? '85vh' : 0,
             minHeight: expanded ? 500 : 0,
             background: 'rgba(255,255,255,0.82)',
-            // backdropFilter: 'blur(12px)',
+            transition: 'height 320ms ease-out, opacity 200ms ease-out',
           }}
           onClick={(e) => e.stopPropagation()}
           onTransitionEnd={handleTransitionEnd}
@@ -906,8 +910,6 @@ const WebAgentChatDrawer = ({
               disabled={!sessionReady || sendLoading}
             />
           </div>
-        </div>
-      </div>
 
       {addKeyModalProvider && (
         <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/20 backdrop-blur-sm rounded-3xl">
@@ -943,9 +945,11 @@ const WebAgentChatDrawer = ({
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </div>
+    </Modal>
   )
-  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null
+  return modalContent
 }
 
 export default WebAgentChatDrawer
