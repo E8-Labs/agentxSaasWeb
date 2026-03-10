@@ -203,7 +203,7 @@ export const fromatMessageName = (name) => {
 
 export const AgentLLmModels = {
   Gpt4o: 'gpt-4o',
-  Gpt4oMini: 'gpt-4-turbo',
+  Gpt4oMini: 'gpt-4o-mini',
   synthflow: 'synthflow',
 }
 
