@@ -1,6 +1,14 @@
 import Image from 'next/image'
 
-const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
+const AgentInfoCard = ({
+  name,
+  value,
+  icon,
+  bgColor,
+  iconColor,
+  subtitle,
+  rate,
+}) => {
   // Render icon with branding using mask-image approach (same logic as NotificationsDrawer.js)
   const renderIcon = () => {
     if (typeof window === 'undefined') {
@@ -53,6 +61,18 @@ const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
       <div style={{ fontSize: 20, fontWeight: '600', color: '#000' }}>
         {value}
       </div>
+      {subtitle && rate != null && rate !== '' && (
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: '400',
+            color: '#00000099',
+            marginTop: 2,
+          }}
+        >
+          {subtitle} {Number(rate).toFixed(2)}%
+        </div>
+      )}
     </div>
   )
 }
