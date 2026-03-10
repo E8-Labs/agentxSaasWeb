@@ -1,3 +1,4 @@
+import { formatFractional2Stable } from '@/components/agency/plan/AgencyUtilities'
 import Image from 'next/image'
 
 const AgentInfoCard = ({
@@ -53,7 +54,21 @@ const AgentInfoCard = ({
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      {renderIcon()}
+      <div className="flex flex-row items-center gap-2">
+        {renderIcon()}
+        {subtitle && rate != null && rate !== '' && (
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: '400',
+              color: '#00000099',
+              // marginTop: 2,
+            }}
+          >
+            {subtitle} {formatFractional2Stable(Number(rate))}%
+          </div>
+        )}
+      </div>
 
       <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}
@@ -61,18 +76,6 @@ const AgentInfoCard = ({
       <div style={{ fontSize: 20, fontWeight: '600', color: '#000' }}>
         {value}
       </div>
-      {subtitle && rate != null && rate !== '' && (
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: '400',
-            color: '#00000099',
-            marginTop: 2,
-          }}
-        >
-          {subtitle} {Number(rate).toFixed(2)}%
-        </div>
-      )}
     </div>
   )
 }
