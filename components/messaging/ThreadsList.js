@@ -682,7 +682,8 @@ const ThreadsList = ({
                           {(() => {
                             const lastMessage = thread.messages?.[0]
                             if (!lastMessage) return 'No messages yet'
-                            let text = lastMessage.content?.replace(/<[^>]*>/g, '') || ''
+                            let text = lastMessage.content?.replace(/<[^>]*>/g, ' ') || ''
+                            text = text.replace(/\s+/g, ' ').trim()
                             const trimmed = text.trim()
                             if (/^\[\d+ .+\]$/.test(trimmed)) {
                               if (/voice message/i.test(trimmed)) text = 'Voice message'
