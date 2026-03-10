@@ -20,7 +20,7 @@ function getSpeechRecognition() {
 }
 
 /** Silence duration (ms) after which dictation auto-stops */
-const DICTATION_SILENCE_MS = 2000
+const DICTATION_SILENCE_MS = 5000
 
 /**
  * Chat input: Plus (attach files) left, input center, Send right. onFocus opens drawer when used on bar.
@@ -156,6 +156,10 @@ const WebAgentChatInput = ({
       recognition.interimResults = true
       recognition.lang = 'en-US'
 
+      recognition.onstart = () => {
+        scheduleSilenceStop(recognitionRef.current)
+      }
+
       recognition.onresult = (e) => {
         let finalTranscript = ''
         let interim = ''
@@ -199,7 +203,6 @@ const WebAgentChatInput = ({
       setInterimTranscript('')
       recognition.start()
       setIsListening(true)
-      scheduleSilenceStop(recognition)
     } catch (err) {
       setIsListening(false)
     }
