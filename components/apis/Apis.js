@@ -38,6 +38,7 @@ const Apis = {
   updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
   createPipeLineCadence: `${BasePath}api/pipeline/createPipelineCadence`,
   getAgentCadence: `${BasePath}api/pipeline/getAgentCadence`,
+  removeAgentFromPipeline: `${BasePath}api/pipeline/removeAgentFromPipeline`,
   deletePipeline: `${BasePath}api/pipeline/deletePipeline`,
   updateAgent: `${BasePath}api/agent/updateAgent`,
   updateSubAgent: `${BasePath}api/agent/updateSubAgent`,
