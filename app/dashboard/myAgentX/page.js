@@ -1818,7 +1818,7 @@ function Page() {
       })
 
       if (response) {
-        // console.log("response of update image is", response.data)
+        console.log('update agent image API response: click.kj', response)
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(

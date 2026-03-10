@@ -705,13 +705,16 @@ const Creator = ({ agentId, name }) => {
           } else {
             handleStartCall()
           }
-        } else {
+        } else if (mode !== 'chat') {
+          // Non-chat mode (e.g. future modes): open drawer
           setChatDrawerKey((k) => k + 1)
           setChatDrawerOpen(true)
         }
+        // Chat: drawer already opened in handleOpenChat; webChatLeadId/assistantOverrides set above
       }
     } catch (error) {
       console.error('Error submitting persisted form data:', error)
+      if (mode === 'chat') setChatDrawerOpen(false)
       setSnackbarMessage(mode === 'call' ? 'Error starting call. Please try again.' : 'Error starting chat. Please try again.')
       setSnackbarSeverity('error')
       setSnackbarOpen(true)
@@ -736,6 +739,9 @@ const Creator = ({ agentId, name }) => {
     setFormMode('chat')
     const { valid, savedFormData, savedSmartListFields } = getSavedFormAndValidity()
     if (valid) {
+      // Open drawer immediately so there’s no delay; API runs in background and sets webChatLeadId when done
+      setChatDrawerKey((k) => k + 1)
+      setChatDrawerOpen(true)
       submitSavedFormAndProceed(savedFormData, savedSmartListFields, 'chat')
       return
     }
