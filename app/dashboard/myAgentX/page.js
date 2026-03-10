@@ -5036,13 +5036,13 @@ function Page() {
                           duplicateLoader={duplicateLoader}
                         />
                         <div
-                          className="flex flex-row items-center gap-[2px] text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-[#eaeaea] rounded-[64px] bg-white"
+                          className="flex flex-row items-center gap-1.5 text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-[#eaeaea] rounded-[64px] bg-white"
                           style={{
                             color: 'rgba(0,0,0,0.8)',
-                            paddingLeft: 12,
-                            paddingRight: 12,
-                            paddingTop: 6,
-                            paddingBottom: 6,
+                            paddingLeft: 14,
+                            paddingRight: 14,
+                            paddingTop: 8,
+                            paddingBottom: 8,
                             boxShadow: '0 16px 30px rgba(0, 0, 0, 0.12)',
                           }}
                         >
@@ -5130,10 +5130,10 @@ function Page() {
               >
                 {/* Center Stats View — icons match agent card call stat container (AgentsListPaginated) */}
                 <div
-                  className="grid grid-cols-5 gap-3 w-full rounded-lg px-4 py-3 bg-white text-sm"
+                  className="grid grid-cols-5 gap-x-4 gap-y-3 w-full rounded-lg px-5 py-4 bg-white text-sm"
                   style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)', fontSize: 14, fontWeight: 400 }}
                 >
-                  <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-col items-start gap-2 min-w-0">
                     <AgentInfoCard
                       name="Calls"
                       value={
@@ -5149,7 +5149,7 @@ function Page() {
                       iconColor="text-brand-primary"
                     />
                   </div>
-                  <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-col items-start gap-2 min-w-0">
                     <AgentInfoCard
                       name="Convos"
                       value={
@@ -5165,7 +5165,7 @@ function Page() {
                       iconColor="text-brand-primary"
                     />
                   </div>
-                  <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-col items-start gap-2 min-w-0">
                     <AgentInfoCard
                       name="Hot Leads"
                       value={
@@ -5180,7 +5180,7 @@ function Page() {
                       iconColor="text-brand-primary"
                     />
                   </div>
-                  <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-col items-start gap-2 min-w-0">
                     <AgentInfoCard
                       name="Booked"
                       value={
@@ -5195,7 +5195,7 @@ function Page() {
                       iconColor="text-brand-primary"
                     />
                   </div>
-                  <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-col items-start gap-2 min-w-0">
                     <AgentInfoCard
                       name="Mins Talked"
                       value={
