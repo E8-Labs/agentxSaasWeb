@@ -75,7 +75,7 @@ import ConfigurePopup from '@/components/dashboardPipeline/ConfigurePopup'
 import { TypographyH3 } from '@/lib/typography'
 import PipelineFilterModal from '@/components/common/PipelineFilterModal'
 import StandardHeader from '@/components/common/StandardHeader'
-import { Check } from 'lucide-react'
+import { Check, LayoutGrid } from 'lucide-react'
 import { isColorDark } from '@/components/dashboardPipeline/PipelineUtilities'
 import { toast } from '@/utils/toast'
 
@@ -2419,7 +2419,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                   // variant="contained"
                   onClick={handleShowOtherPipeline}
                 >
-                  <div style={{ borderRadius: '50%', width: '15px', height: '15px', backgroundColor: 'transparent', border: '1px solid #000000' }} />
+                  <LayoutGrid size={16} className="flex-shrink-0" />
                   <div className="flex flex-row items-center justify-between flex-1">
                     <div style={{ fontWeight: '500', fontSize: 15 }}>Pipelines</div>
                     <div
