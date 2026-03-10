@@ -49,13 +49,24 @@ const WebAgentChatInput = ({
   const appendTranscriptRef = useRef(null)
   const setInterimTranscriptRef = useRef(null)
   const silenceTimeoutRef = useRef(null)
+  /** Coalesce focus + click so we only call onFocus once per user gesture (avoids drawer flicker) */
+  const lastOpenCallRef = useRef(0)
+  const OPEN_DEBOUNCE_MS = 150
 
   const handleFocus = (e) => {
-    if (onFocus) onFocus(e)
+    if (!onFocus) return
+    const now = Date.now()
+    if (now - lastOpenCallRef.current < OPEN_DEBOUNCE_MS) return
+    lastOpenCallRef.current = now
+    onFocus(e)
   }
 
   const handleClick = (e) => {
-    if (onFocus) onFocus(e)
+    if (!onFocus) return
+    const now = Date.now()
+    if (now - lastOpenCallRef.current < OPEN_DEBOUNCE_MS) return
+    lastOpenCallRef.current = now
+    onFocus(e)
   }
 
   const handleSubmit = (e) => {
@@ -132,7 +143,7 @@ const WebAgentChatInput = ({
       silenceTimeoutRef.current = null
       try {
         recognition?.stop()
-      } catch (_) {}
+      } catch (_) { }
     }, DICTATION_SILENCE_MS)
   }, [clearSilenceTimeout])
 
@@ -215,7 +226,7 @@ const WebAgentChatInput = ({
       if (recognition) {
         try {
           recognition.abort()
-        } catch (_) {}
+        } catch (_) { }
         recognitionRef.current = null
       }
       setIsListening(false)
@@ -250,7 +261,14 @@ const WebAgentChatInput = ({
       <button
         type="button"
         tabIndex={-1}
-        onClick={handlePlusClick}
+        onClick={() => {
+          console.log("plus button clicked.kj", readOnly);
+          if (readOnly) {
+            handleFocus()
+          } else {
+            handlePlusClick()
+          }
+        }}
         className={cn(btnCircleClass, 'ml-0.5')}
         aria-label="Attach files"
       >
@@ -284,11 +302,18 @@ const WebAgentChatInput = ({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                onClick={handleDictateClick}
-                disabled={!speechSupported || readOnly}
+                onClick={() => {
+                  console.log("plus button clicked.kj", readOnly);
+                  if (readOnly) {
+                    handleFocus()
+                  } else {
+                    handleDictateClick()
+                  }
+                }}
+                disabled={!speechSupported}
                 className={cn(
                   btnCircleClass,
-                  isListening && 'bg-red-100 text-red-600 hover:bg-red-100'
+                  isListening && 'bg-red-100 text-red-600 hover:bg-red-100 cursor-pointer'
                 )}
                 aria-label={isListening ? 'Stop dictation' : 'Dictate'}
                 aria-pressed={isListening}
@@ -313,6 +338,12 @@ const WebAgentChatInput = ({
                 disabled={disabled}
                 className={cn(btnCircleClass, '', disabled && 'opacity-50 cursor-not-allowed')}
                 aria-label="Send message"
+                onClick={() => {
+                  console.log("send button clicked.kj", readOnly);
+                  if (readOnly) {
+                    handleFocus()
+                  }
+                }}
               >
                 <ArrowUp className="h-5 w-5 stroke-[2.5]" />
               </button>
