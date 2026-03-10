@@ -30,25 +30,25 @@ export const UpdateCadenceConfirmationPopup = ({
               className="max-h-[60vh] overflow-auto"
               style={{ scrollbarWidth: 'none' }}
             >
-              <p
+              <div
                 className="text-black"
                 style={{
-                  fontSize: 16,
+                  fontSize: 22,
                   fontWeight: '600',
                 }}
               >
                 {`Update Pipeline and Stages`}
-              </p>
+              </div>
 
-              <p
+              <div
                 className="text-black mt-4"
                 style={{
-                  fontSize: 13,
+                  fontSize: 15,
                   fontWeight: '500',
                 }}
               >
                 {`By updating this, you'll pause all calls assigned to this agent.`}
-              </p>
+              </div>
             </div>
             <div className="flex flex-row items-center justify-between gap-4 mt-6">
               <button

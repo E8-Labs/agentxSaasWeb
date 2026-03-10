@@ -415,6 +415,7 @@ const AgentsListPaginated = ({
                       >
                         <button
                           onClick={() => {
+                            console.log("item on click.kj is", item?.prompt);
                             setGreetingTagInput(item?.prompt?.greeting)
                             setOldGreetingTagInput(item?.prompt?.greeting)
                             setScriptTagInput(item?.prompt?.callScript)
@@ -573,10 +574,16 @@ const AgentsListPaginated = ({
                     >
                       <AgentInfoCard
                         name="Convos"
-                        value={<div>{item.callsGt10 || '-'}</div>}
+                        value={<div>{item.callsGt10 ?? '-'}</div>}
                         icon="/svgIcons/convosIcon2.svg"
                         bgColor="bg-brand-primary/10"
                         iconColor="text-brand-primary"
+                        subtitle="Answer rate"
+                        rate={
+                          item.calls > 0
+                            ? (item.callsGt10 / item.calls) * 100
+                            : null
+                        }
                       />
                     </button>
                     <button
@@ -594,10 +601,16 @@ const AgentsListPaginated = ({
                     >
                       <AgentInfoCard
                         name="Hot Leads"
-                        value={item.hotleads || '-'}
+                        value={item.hotleads ?? '-'}
                         icon="/otherAssets/hotLeadsIcon2.png"
                         bgColor="bg-orange-100"
                         iconColor="text-orange-500"
+                        subtitle="Conversion rate"
+                        rate={
+                          item.callsGt10 > 0
+                            ? (item.hotleads / item.callsGt10) * 100
+                            : null
+                        }
                       />
                     </button>
                     <button
@@ -615,10 +628,16 @@ const AgentsListPaginated = ({
                     >
                       <AgentInfoCard
                         name="Booked Meetings"
-                        value={item.booked || '-'}
+                        value={item.booked ?? '-'}
                         icon="/otherAssets/greenCalenderIcon.png"
                         bgColor="green"
                         iconColor="text-orange-500"
+                        subtitle="Conversion rate"
+                        rate={
+                          item.callsGt10 > 0
+                            ? (item.booked / item.callsGt10) * 100
+                            : null
+                        }
                       />
                     </button>
                     {/* <button

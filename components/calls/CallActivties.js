@@ -54,8 +54,14 @@ function SheduledCalls({ user }) {
   const [otherTags, setOtherTags] = useState([])
 
   const filterTimerRef = useRef(null)
+  const leadsSearchDebounceRef = useRef(null)
   useEffect(() => {
     getScheduledOrOngoingActivityCalls()
+  }, [])
+  useEffect(() => {
+    return () => {
+      if (leadsSearchDebounceRef.current) clearTimeout(leadsSearchDebounceRef.current)
+    }
   }, [])
   useEffect(() => {
     if (filterTimerRef.current) {
@@ -377,8 +383,8 @@ function SheduledCalls({ user }) {
     }
   }
 
-  const fetchLeadsInBatch = async (batch, offset = 0) => {
-    //console.log;
+  const fetchLeadsInBatch = async (batch, offset = 0, value = null) => {
+    console.log("fetching  for fetch call activity leads is", batch, offset, value);
     try {
       let firstApiCall = false
       setLeadsLoading(true)
@@ -403,7 +409,12 @@ function SheduledCalls({ user }) {
       }
 
       const token = user.token // Extract JWT token
-      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
+      const Batch_Id = batch.id || SelectedItem?.id;
+      let path = Apis.getLeadsInBatch + `?batchId=${Batch_Id}&offset=${offset}`
+      if (value) {
+        path = `${path}&search=${value}`
+      }
+      console.log("path for fetch call activity leads is", path);
       const response = await fetch(path, {
         method: 'GET',
         headers: {
@@ -415,11 +426,12 @@ function SheduledCalls({ user }) {
       const data = await response.json()
 
       if (response.ok) {
-        if (firstApiCall) {
+        console.log("data for fetch call activity leads is", data);
+        if (firstApiCall || value !== null) {
           setSelectedLeadsList(data.data)
           setFilteredSelectedLeadsList(data.data)
           localStorage.setItem(
-            PersistanceKeys.LeadsInBatch + `${batch.id}`,
+            PersistanceKeys.LeadsInBatch + `${Batch_Id}`,
             JSON.stringify(data.data),
           )
         } else {
@@ -905,7 +917,10 @@ function SheduledCalls({ user }) {
           {/* Leads list modal goes here */}
           <Modal
             open={showLeadDetailsModal}
-            onClose={() => setShowLeadDetailsModal(false)}
+            onClose={() => {
+              setLeadsSearchValue('');
+              setShowLeadDetailsModal(false);
+              }}
             closeAfterTransition
             BackdropProps={{
               timeout: 100,
@@ -970,8 +985,14 @@ function SheduledCalls({ user }) {
                             value={leadsSearchValue}
                             onChange={(e) => {
                               const value = e.target.value
-                              // handleLeadsSearchChange(value);
-                              setLeadsSearchValue(e.target.value)
+                              setLeadsSearchValue(value)
+                              if (leadsSearchDebounceRef.current) {
+                                clearTimeout(leadsSearchDebounceRef.current)
+                              }
+                              leadsSearchDebounceRef.current = setTimeout(() => {
+                                fetchLeadsInBatch(SelectedItem, 0, value)
+                                leadsSearchDebounceRef.current = null
+                              }, 400)
                             }}
                           />
                           <img

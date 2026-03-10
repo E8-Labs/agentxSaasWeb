@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
@@ -64,15 +64,19 @@ function htmlToPreviewText(html) {
 
 const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const THREADS_PAGE_SIZE = 50
   const [threads, setThreads] = useState([])
   const [allThreadsCount, setAllThreadsCount] = useState(null)
+  const [unrepliedCountFromApi, setUnrepliedCountFromApi] = useState(0)
   const [threadsOffset, setThreadsOffset] = useState(0)
   const [hasMoreThreads, setHasMoreThreads] = useState(true)
   const [loadingMoreThreads, setLoadingMoreThreads] = useState(false)
   const threadsOffsetRef = useRef(0)
   const [selectedThread, setSelectedThread] = useState(null)
   const [messages, setMessages] = useState([])
+  const [starredMessageIds, setStarredMessageIds] = useState(() => new Set())
   const [loading, setLoading] = useState(true)
   const [messagesLoading, setMessagesLoading] = useState(false)
   const [searchLoading, setSearchLoading] = useState(false)
@@ -137,6 +141,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [replyToMessage, setReplyToMessage] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
+  // Per-tab cache: key = userId-apiFilter-search-teamIds. Restore when switching tabs, then refetch in background.
+  const threadsCacheRef = useRef({})
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showAiRequestFeatureModal, setShowAiRequestFeatureModal] = useState(false)
   const [showMessagingRequestModal, setShowMessagingRequestModal] = useState(false)
@@ -324,23 +330,59 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [effectiveShortlistUserId])
 
-  const onShortlistToggle = useCallback((leadId) => {
-    if (!leadId) return
-    const uid = selectedUser?.id ?? reduxUser?.id
-    setShortlistedLeadIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(leadId)) next.delete(leadId)
-      else next.add(leadId)
-      if (uid) {
-        try {
-          localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify([...next]))
-        } catch {
-          // ignore storage errors
-        }
+  const onShortlistToggle = useCallback(
+    async (leadId) => {
+      if (!leadId) return
+      const uid = selectedUser?.id ?? reduxUser?.id
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const token = JSON.parse(localData).token
+      const url = `${Apis.shortlistLead}/${leadId}`
+      const params = uid ? { userId: uid } : {}
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       }
-      return next
-    })
-  }, [selectedUser?.id, reduxUser?.id])
+      const isShortlisted = shortlistedLeadIds.has(leadId)
+      try {
+        if (isShortlisted) {
+          await axios.delete(url, { ...config, params })
+          setShortlistedLeadIds((prev) => {
+            const next = new Set(prev)
+            next.delete(leadId)
+            if (uid) {
+              try {
+                localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify([...next]))
+              } catch {
+                // ignore
+              }
+            }
+            return next
+          })
+        } else {
+          await axios.post(url, {}, { ...config, params })
+          setShortlistedLeadIds((prev) => {
+            const next = new Set(prev)
+            next.add(leadId)
+            if (uid) {
+              try {
+                localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify([...next]))
+              } catch {
+                // ignore
+              }
+            }
+            return next
+          })
+        }
+      } catch (err) {
+        console.error('Shortlist toggle failed:', err)
+        toast.error(err.response?.data?.message || err.message || (isShortlisted ? 'Failed to remove from starred' : 'Failed to star'))
+      }
+    },
+    [selectedUser?.id, reduxUser?.id, shortlistedLeadIds],
+  )
 
   // Normalize email header details for the popover
   const getEmailDetails = useCallback(
@@ -629,7 +671,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     threadsOffsetRef.current = threadsOffset
   }, [threadsOffset])
 
-  // Fetch threads (offset/limit for pagination; append=true loads next page)
+  // Fetch threads (offset/limit for pagination; append=true loads next page). filter: 'all' | 'unreplied' | 'shortlisted' (shortlisted still uses API filter=all and filters on client)
   const fetchThreads = useCallback(
     async (
       searchQuery = '',
@@ -637,16 +679,31 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       offset = 0,
       limit = THREADS_PAGE_SIZE,
       append = false,
+      filter = 'all',
     ) => {
       const requestId = ++threadsRequestIdRef.current
       const isSearch = searchQuery && searchQuery.trim()
+      const apiFilter = filter === 'shortlisted' ? 'all' : filter
+      const cacheKey = `${selectedUser?.id ?? 'self'}-${apiFilter}-${(searchQuery || '').trim()}-${(teamMemberIdsFilter || []).join(',')}`
+
       try {
         if (append) {
           setLoadingMoreThreads(true)
         } else {
-          setLoading(true)
-          if (isSearch) {
-            setSearchLoading(true)
+          // Restore from cache when switching tabs (no search) so UI shows immediately, then we refetch
+          const cached = threadsCacheRef.current[cacheKey]
+          if (!isSearch && cached?.threads?.length) {
+            setThreads(cached.threads)
+            setAllThreadsCount(cached.allCount ?? 0)
+            setUnrepliedCountFromApi(cached.unrepliedCount ?? 0)
+            setThreadsOffset(cached.offset ?? 0)
+            threadsOffsetRef.current = cached.offset ?? 0
+            setHasMoreThreads(cached.hasMore ?? false)
+            setLoading(false)
+            setSearchLoading(false)
+          } else {
+            setLoading(true)
+            if (isSearch) setSearchLoading(true)
           }
           if (isSearch) {
             setThreads([])
@@ -667,6 +724,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const token = userData.token
 
         const params = { offset, limit }
+        if (filter === 'unreplied') {
+          params.filter = 'unreplied'
+        } else {
+          params.filter = 'all'
+        }
         if (searchQuery && searchQuery.trim()) {
           params.search = searchQuery.trim()
         }
@@ -689,9 +751,22 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (requestId !== threadsRequestIdRef.current) {
           return
         }
-        setAllThreadsCount(response?.data?.allThreadCount || 0)
+        const allCount = response?.data?.allThreadCount ?? 0
+        const unrepliedCount = response?.data?.unrepliedCount ?? 0
+        setAllThreadsCount(allCount)
+        setUnrepliedCountFromApi(unrepliedCount)
+        if (!append && Array.isArray(response?.data?.shortlistedLeadIds)) {
+          setShortlistedLeadIds(new Set(response.data.shortlistedLeadIds))
+          const uid = selectedUser?.id ?? JSON.parse(localStorage.getItem('User') || '{}')?.user?.id
+          if (uid) {
+            try {
+              localStorage.setItem(`messaging_shortlist_${uid}`, JSON.stringify(response.data.shortlistedLeadIds))
+            } catch {
+              // ignore
+            }
+          }
+        }
         if (response.data?.status && Array.isArray(response.data?.data)) {
-          console.log('threads response.data.data', response)
           const sortedThreads = response.data.data.sort((a, b) => {
             const dateA = new Date(a.lastMessageAt || a.createdAt)
             const dateB = new Date(b.lastMessageAt || b.createdAt)
@@ -710,6 +785,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             setThreads(sortedThreads)
             setThreadsOffset(sortedThreads.length)
             setHasMoreThreads(sortedThreads.length >= limit)
+            // Cache first page so switching tabs can show it immediately
+            threadsCacheRef.current[cacheKey] = {
+              threads: sortedThreads,
+              allCount,
+              unrepliedCount,
+              offset: sortedThreads.length,
+              hasMore: sortedThreads.length >= limit,
+            }
           }
         } else {
           if (!append) {
@@ -804,8 +887,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const loadMoreThreads = useCallback(() => {
     if (loadingMoreThreads || !hasMoreThreads || loading) return
     const offset = threadsOffsetRef.current
-    fetchThreads(searchValue || '', appliedTeamMemberIds, offset, THREADS_PAGE_SIZE, true)
-  }, [loadingMoreThreads, hasMoreThreads, loading, fetchThreads, searchValue, appliedTeamMemberIds])
+    fetchThreads(searchValue || '', appliedTeamMemberIds, offset, THREADS_PAGE_SIZE, true, filterType)
+  }, [loadingMoreThreads, hasMoreThreads, loading, fetchThreads, searchValue, appliedTeamMemberIds, filterType])
 
   // Fetch messages for a thread
   const fetchMessages = useCallback(
@@ -827,18 +910,18 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         let actualOffset = offset
 
-        // For initial load, fetch a larger batch to get the most recent messages
+        // For initial load, fetch a larger batch (includes sibling threads when same phone/email)
         if (!append && offset === null) {
-          // Fetch a large batch to get the most recent messages
-          // We'll take the last 30 from the fetched batch
           const params = {
-            limit: 500, // Fetch a large batch to ensure we get recent messages
+            limit: 500,
             offset: 0,
+            includeSiblingThreads: true, // merge messages from other threads with same phone/email
           }
-          // Add userId if viewing subaccount from admin/agency
           if (selectedUser?.id) {
             params.userId = selectedUser.id
           }
+
+          console.log('[Messages] fetchMessages initial load', { threadId, params })
 
           const response = await axios.get(
             `${Apis.getMessagesForThread}/${threadId}/messages`,
@@ -853,11 +936,17 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
           if (response.data?.status && response.data?.data) {
             const allMessages = response.data.data
-            console.log('allMessages', allMessages)
-            // Take the last N messages (most recent)
-            const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
-            // Offset of the oldest message we're showing (so next "load older" fetches before this)
+            // Show full merged timeline (backend returns sibling messages in chronological order)
+            const fetchedMessages = allMessages
             const oldestMessageOffset = Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
+
+            console.log('[Messages] fetchMessages initial result', {
+              threadId,
+              requestedLimit: params.limit,
+              receivedCount: allMessages.length,
+              setInState: fetchedMessages.length,
+              starredCount: (response.data?.starredMessageIds || []).length,
+            })
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
@@ -866,6 +955,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
+            const starred = response.data?.starredMessageIds || []
+            setStarredMessageIds(new Set(starred))
+            if (starred.length > 0) {
+              console.log('[Messages] GET messages: starredMessageIds from API', starred.length, starred)
+            }
 
             // Update latest message ID ref
             if (fetchedMessages.length > 0) {
@@ -902,8 +996,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const params = {
           limit: MESSAGES_PER_PAGE,
           offset: actualOffset,
+          includeSiblingThreads: true,
         }
-        // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           params.userId = selectedUser.id
         }
@@ -936,6 +1030,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
             // Prepend older messages at the top
             setMessages((prev) => [...fetchedMessages, ...prev])
+            setStarredMessageIds((prev) => new Set([...prev, ...(response.data?.starredMessageIds || [])]))
 
             // Restore scroll position after prepending — wait for DOM to update (double rAF = after layout/paint)
             requestAnimationFrame(() => {
@@ -954,8 +1049,15 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             // Check if there are more older messages
             setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
-            // Set messages (newest at bottom)
+            // Non-initial, non-append path (e.g. load with offset 0) — replaces full list
+            console.log('[Messages] fetchMessages replace path', {
+              threadId,
+              append: false,
+              offset: actualOffset,
+              setInState: fetchedMessages.length,
+            })
             setMessages(fetchedMessages)
+            setStarredMessageIds(new Set(response.data?.starredMessageIds || []))
 
             // Update latest message ID ref
             if (fetchedMessages.length > 0) {
@@ -1286,16 +1388,21 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           return
         }
 
-        // Fetch the latest messages (just the most recent ones to check for new messages)
-        // Fetch a larger batch to ensure we get the most recent messages, then take the last ones
+        // Fetch the latest messages (merged with siblings) to check for new messages
         const params = {
-          limit: 50, // Fetch a larger batch to ensure we get recent messages
+          limit: 100,
           offset: 0,
+          includeSiblingThreads: true,
         }
-        // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           params.userId = selectedUser.id
         }
+
+        console.log('[Messages] poll for new messages', {
+          threadId: selectedThread.id,
+          params,
+          currentLatestMessageId: currentLatestMessageId,
+        })
 
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${selectedThread.id}/messages`,
@@ -1310,6 +1417,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         if (response.data?.status && response.data?.data) {
           const allFetchedMessages = response.data.data
+          const pollStarred = response.data?.starredMessageIds
+          if (Array.isArray(pollStarred)) {
+            setStarredMessageIds(new Set(pollStarred))
+          }
+
+          console.log('[Messages] poll response', {
+            threadId: selectedThread.id,
+            receivedCount: allFetchedMessages.length,
+            action: 'check for new only (do not replace list)',
+          })
 
           // Messages are returned in ascending order (oldest first), so get the last ones
           // Take the last 10 messages to check for new ones
@@ -1360,13 +1477,32 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                   return prevMessages
                 })
 
-                // Update thread unread count if needed
+                // Update thread list: preview (latest message), lastMessageAt, and unread count
+                // so the left sidebar shows the correct preview after auto-replies or any new inbound messages
+                const latestNewMessage = newMessages[newMessages.length - 1]
                 setThreads((prevThreads) =>
-                  prevThreads.map((t) =>
-                    t.id === selectedThread.id
-                      ? { ...t, unreadCount: (t.unreadCount || 0) + newMessages.length }
-                      : t
-                  )
+                  prevThreads.map((t) => {
+                    if (t.id !== selectedThread.id) return t
+                    const existingMessages = t.messages || []
+                    const newPreviewMessage = {
+                      id: latestNewMessage.id,
+                      content: latestNewMessage.content,
+                      messageType: latestNewMessage.messageType,
+                      direction: latestNewMessage.direction,
+                      createdAt: latestNewMessage.createdAt,
+                      ...(latestNewMessage.subject != null && { subject: latestNewMessage.subject }),
+                    }
+                    const newMessagesList = [
+                      newPreviewMessage,
+                      ...existingMessages.filter((m) => m.id !== latestNewMessage.id),
+                    ].slice(0, 50)
+                    return {
+                      ...t,
+                      lastMessageAt: latestNewMessage.createdAt || new Date().toISOString(),
+                      messages: newMessagesList,
+                      unreadCount: (t.unreadCount || 0) + newMessages.length,
+                    }
+                  })
                 )
               } else { }
             } else { }
@@ -1456,7 +1592,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         })
         if (response.data?.status && response.data?.data?.thread) {
           const linkedThread = response.data.data.thread
-          fetchThreads(searchValue || '', appliedTeamMemberIds)
+          fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
           setSelectedThread(linkedThread)
           fetchMessages(linkedThread.id, null, false)
           setSnackbar({
@@ -1485,6 +1621,22 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     [selectedUser, fetchThreads, searchValue, appliedTeamMemberIds, fetchMessages],
   )
 
+  // Persist selected thread in URL so it survives refresh
+  const setThreadIdInUrl = useCallback(
+    (threadId) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? '')
+      if (threadId != null) {
+        params.set('threadId', String(threadId))
+      } else {
+        params.delete('threadId')
+        params.delete('messageId')
+      }
+      const query = params.toString()
+      router.replace(query ? `${pathname}?${query}` : pathname)
+    },
+    [pathname, router, searchParams]
+  )
+
   // Handle thread selection
   const handleThreadSelect = (thread) => {
     setSelectedThread(thread)
@@ -1492,10 +1644,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     messageOffsetRef.current = 0
     setHasMoreMessages(true)
     setMessages([])
+    setStarredMessageIds(new Set())
     fetchMessages(thread.id, null, false) // null means initial load
     if (thread.unreadCount > 0) {
       markThreadAsRead(thread.id)
     }
+    setThreadIdInUrl(thread.id)
 
     // Clear draft state when switching threads (will be refetched when messages load)
     setDrafts([])
@@ -2302,6 +2456,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
       if (res.data?.status && Array.isArray(res.data?.data)) {
+        console.log("fetchSocialConnections res.data.data", res.data.data)
         setSocialConnections(res.data.data)
       } else {
         setSocialConnections([])
@@ -2348,11 +2503,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle send message
   const handleSendMessage = async () => {
-    // Get the appropriate message body (SMS: strip HTML to plain text; email: keep HTML)
+    // SMS: send HTML so backend can store it for bubble display and send plain text with URLs to carrier
+    // Email: send HTML as-is
     const rawBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-    const messageBody = composerMode === 'sms' ? stripHTML(rawBody) : rawBody
+    const hasContent = composerMode === 'sms' ? stripHTML(rawBody).trim() : rawBody.trim()
+    const messageBodyForPreview = composerMode === 'sms' ? stripHTML(rawBody) : rawBody
 
-    if (!selectedThread || !messageBody.trim()) return
+    if (!selectedThread || !hasContent) return
     if (composerMode === 'email' && !composerData.to.trim()) return
     if (sendingMessage) return // Prevent double submission
 
@@ -2369,10 +2526,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       const token = userData.token
 
       if (composerMode === 'sms') {
-        // Send SMS using existing API
+        // Send SMS: content = HTML from composer; backend sends plain text with URLs to Twilio and stores HTML in DB
         const smsPayload = {
           leadId: selectedThread.leadId,
-          content: messageBody,
+          content: rawBody,
           smsPhoneNumberId: selectedPhoneNumber || null,
         }
         // Add userId if viewing subaccount from admin/agency
@@ -2434,7 +2591,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setCallSummaryDraftsMessageId(null)
 
           updateThreadPreviewAfterSend(selectedThread.id, {
-            content: messageBody,
+            content: messageBodyForPreview,
             messageType: 'sms',
             direction: 'outbound',
           })
@@ -2541,7 +2698,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         const formData = new FormData()
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
-        formData.append('body', messageMarkdownToHtml(messageBody))
+        formData.append('body', messageMarkdownToHtml(rawBody))
 
         // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
@@ -2638,8 +2795,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           setCallSummaryDraftsMessageId(null)
 
           // Preview = email body with spaces at block boundaries (match ThreadsList)
-          const emailBodyPreview = typeof messageBody === 'string'
-            ? htmlToPreviewText(messageBody).slice(0, 80)
+          const emailBodyPreview = typeof rawBody === 'string'
+            ? htmlToPreviewText(rawBody).slice(0, 80)
             : ''
           updateThreadPreviewAfterSend(selectedThread.id, {
             content: emailBodyPreview || (composerData.subject?.trim() || 'Email sent'),
@@ -2992,9 +3149,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (threadToSelect.unreadCount > 0) {
           markThreadAsRead(threadToSelect.id)
         }
+        setThreadIdInUrl(threadToSelect.id)
       }
     }
-  }, [threads, selectedThread, fetchMessages, markThreadAsRead, searchParams])
+  }, [threads, selectedThread, fetchMessages, markThreadAsRead, searchParams, setThreadIdInUrl])
 
   // Scroll to specific message when messages are loaded and messageId is in query params
   useEffect(() => {
@@ -3272,8 +3430,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
 
     const timeoutId = setTimeout(() => {
-      // Fetch threads with search query and team member filter (only use applied filter)
-      fetchThreads(searchValue || '', appliedTeamMemberIds)
+      // Fetch threads with search query and team member filter (tab filter passed at call time)
+      fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
     }, 300) // 300ms debounce
 
     return () => clearTimeout(timeoutId)
@@ -3327,8 +3485,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     const newAppliedIds = [...selectedTeamMemberIds]
     setAppliedTeamMemberIds(newAppliedIds) // Apply the selected filters
     setShowFilterPopover(false)
-    // Pass the IDs directly instead of relying on state
-    fetchThreads(searchValue || '', newAppliedIds)
+    fetchThreads(searchValue || '', newAppliedIds, 0, THREADS_PAGE_SIZE, false, filterType)
   }
 
   // Handler to clear filter
@@ -3336,8 +3493,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     setSelectedTeamMemberIds([])
     setAppliedTeamMemberIds([])
     setShowFilterPopover(false)
-    // Pass empty array directly instead of relying on state
-    fetchThreads(searchValue || '', [])
+    fetchThreads(searchValue || '', [], 0, THREADS_PAGE_SIZE, false, filterType)
   }
 
   // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
@@ -3374,11 +3530,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           type: SnackbarTypes.Success,
         })
         // Refresh threads
-        fetchThreads(searchValue, appliedTeamMemberIds)
-        // Clear selected thread if it was deleted
+        fetchThreads(searchValue, appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
+        // Clear selected thread if it was deleted and remove threadId from URL
         if (selectedThread?.id === threadId) {
           setSelectedThread(null)
           setMessages([])
+          setThreadIdInUrl(null)
         }
       } else {
         setSnackbar({
@@ -3395,7 +3552,57 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         type: SnackbarTypes.Error,
       })
     }
-  }, [searchValue, selectedThread, fetchThreads, selectedUser])
+  }, [searchValue, selectedThread, fetchThreads, selectedUser, setThreadIdInUrl])
+
+  // Mark thread as replied or unreplied (updates list and counts after API success)
+  const handleMarkReplyStatus = useCallback(async (threadId, replied) => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      let apiPath = `${Apis.setThreadReplyStatus}/${threadId}/reply-status`
+      if (selectedUser?.id) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+      }
+
+      const response = await axios.patch(
+        apiPath,
+        { replied },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+
+      if (response.data?.status) {
+        setSnackbar({
+          isVisible: true,
+          message: response.data?.message || (replied ? 'Marked as replied' : 'Marked as unreplied'),
+          type: SnackbarTypes.Success,
+        })
+        // Refresh current list and counts so thread moves between replied/unreplied
+        fetchThreads(searchValue, appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
+      } else {
+        setSnackbar({
+          isVisible: true,
+          message: response.data?.message || 'Failed to update reply status',
+          type: SnackbarTypes.Error,
+        })
+      }
+    } catch (error) {
+      console.error('Error setting thread reply status:', error)
+      setSnackbar({
+        isVisible: true,
+        message: error.response?.data?.message || 'Error updating reply status',
+        type: SnackbarTypes.Error,
+      })
+    }
+  }, [searchValue, appliedTeamMemberIds, filterType, fetchThreads, selectedUser])
 
   // Setup scroll listener (re-run when thread changes so we attach after container mounts)
   useEffect(() => {
@@ -3528,7 +3735,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           // Refresh user data if upgrade was successful
           if (upgradeResult) {
             // Optionally refresh threads or user data
-            fetchThreads(searchValue || '', appliedTeamMemberIds)
+            fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
           }
         }}
         currentFullPlan={reduxUser?.plan}
@@ -3554,38 +3761,16 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
               {(() => {
-                // Helper function to check if a thread is unreplied
-                // A thread is unreplied if the last message is inbound (from lead)
-                const isUnrepliedThread = (thread) => {
-                  // Check if thread has messages array
-                  if (thread.messages && thread.messages.length > 0) {
-                    // Get the most recent message (first in array if sorted by date desc)
-                    const lastMessage = thread.messages[0]
-                    return lastMessage.direction === 'inbound'
-                  }
-
-                  // If no messages array, check if thread has lastMessage property
-                  if (thread.lastMessage) {
-                    return thread.lastMessage.direction === 'inbound'
-                  }
-
-                  // If no message info, check thread direction
-                  // Default to unreplied if we can't determine (safer assumption)
-                  return thread.direction === 'inbound' || !thread.direction
-                }
-
-                // Calculate counts
-                const allCount = allThreadsCount || threads.length
-                const unrepliedCount = threads.filter(isUnrepliedThread).length
+                // All and unreplied counts come from API; starred/shortlisted count from current list (unchanged)
+                const allCount = allThreadsCount ?? 0
+                const unrepliedCount = unrepliedCountFromApi
                 const shortlistedCount = threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id)).length
 
-                // Filter threads based on filterType
-                let filteredThreads = threads
-                if (filterType === 'unreplied') {
-                  filteredThreads = threads.filter(isUnrepliedThread)
-                } else if (filterType === 'shortlisted') {
-                  filteredThreads = threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id))
-                }
+                // Only filter on frontend for shortlisted; all and unreplied are filtered by API
+                const filteredThreads =
+                  filterType === 'shortlisted'
+                    ? threads.filter((t) => t.lead?.id && shortlistedLeadIds.has(t.lead.id))
+                    : threads
 
                 return (
                   <ThreadsList
@@ -3605,6 +3790,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     getRecentMessageType={getRecentMessageType}
                     formatUnreadCount={formatUnreadCount}
                     onDeleteThread={handleDeleteThread}
+                    onMarkReplyStatus={handleMarkReplyStatus}
                     searchValue={searchValue}
                     onSearchChange={setSearchValue}
                     searchLoading={searchLoading}
@@ -3623,7 +3809,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     hasActiveFilters={hasActiveFilters}
                     selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
                     filterType={filterType}
-                    onFilterTypeChange={setFilterType}
+                    onFilterTypeChange={(newFilter) => {
+                      setFilterType(newFilter)
+                      fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, newFilter)
+                    }}
                     allCount={allCount}
                     unrepliedCount={unrepliedCount}
                     shortlistedLeadIds={shortlistedLeadIds}
@@ -3631,7 +3820,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     shortlistedCount={shortlistedCount}
                     onContactCreated={() => {
                       // Refresh threads after contact creation
-                      fetchThreads(searchValue || '', appliedTeamMemberIds)
+                      fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
                     }}
                     selectedUser={selectedUser}
                     agencyUser={agencyUser}
@@ -3669,7 +3858,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       }}
                       onThreadLinked={(linkedThread) => {
                         if (!linkedThread?.id) return
-                        fetchThreads(searchValue || '', appliedTeamMemberIds)
+                        fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
                         setSelectedThread(linkedThread)
                         fetchMessages(linkedThread.id, null, false)
                         setSnackbar({
@@ -3721,6 +3910,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           onShowRequestFeature={() => setShowAiRequestFeatureModal(true)}
                           onLinkToLeadFromMessage={handleLinkToLeadFromMessage}
                           linkingLeadId={linkingLeadId}
+                          starredMessageIds={starredMessageIds}
+                          // onStarToggle={handleStarToggle}
                           drafts={drafts}
                           draftsLoading={draftsLoading}
                           onSelectDraft={handleSelectDraft}
@@ -3776,6 +3967,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         onSendSocialMessage={handleSendSocialMessage}
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
                         hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
+                        pageName={socialConnections[0]?.displayName}
                         onConnectionSuccess={fetchSocialConnections}
                         onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
                         onCommentAdded={(newMessage) => {
@@ -3835,6 +4027,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                               // setShowSuperHumanModal(false)
                               handleOpenMessageSettings()
                             }}
+                            allowAIEmailAndText={allowAIEmailAndText}
+                            shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                            shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
                           />
                         </div>
                       )
@@ -3872,7 +4067,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       // Refresh threads after sending (even if partial success)
                       if (result.sent > 0) {
                         setTimeout(() => {
-                          fetchThreads(searchValue || "", appliedTeamMemberIds)
+                          fetchThreads(searchValue || "", appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
                         }, 1000)
                       }
                     }}

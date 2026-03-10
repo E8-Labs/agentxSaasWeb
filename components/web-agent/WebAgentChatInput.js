@@ -1,18 +1,29 @@
 'use client'
 
-import React, { useRef, useEffect, useCallback } from 'react'
-import { Plus, ArrowUp } from 'lucide-react'
+import React, { useRef, useCallback, useEffect, useState } from 'react'
+import { Plus, ArrowUp, Mic } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
-const iconBtnClass =
-  'flex h-10 w-10 shrink-0 items-center justify-center rounded-[9999px] bg-[rgba(255,255,255,0.39)] border border-white text-gray-600 shadow-[0_23px_30.7px_0_rgba(0,0,0,0.05)] hover:bg-white/50 active:scale-[0.98] transition-all duration-200 ease-in-out'
+const btnCircleClass =
+  'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-gray-700 hover:bg-gray-50 shadow-sm transition-colors'
 
-const MIN_ROWS = 1
-const MAX_HEIGHT_PX = 200
+/** Max height for textarea (~5 lines at 14px text + padding) */
+const TEXTAREA_MAX_HEIGHT_PX = 120
+/** Height above which we consider the input multi-line (align buttons bottom, reduce radius) */
+const SINGLE_LINE_HEIGHT_PX = 48
+
+/** Speech recognition support (Chrome, Edge, Safari; requires HTTPS or localhost) */
+function getSpeechRecognition() {
+  if (typeof window === 'undefined') return null
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null
+}
+
+/** Silence duration (ms) after which dictation auto-stops */
+const DICTATION_SILENCE_MS = 5000
 
 /**
- * Chat input: Plus (attach files) left, multi-line textarea center, Send right.
- * ChatGPT-style: Enter sends, Shift+Enter adds new line. Auto-grows up to max height.
+ * Chat input: Plus (attach files) left, input center, Send right. onFocus opens drawer when used on bar.
  */
 const WebAgentChatInput = ({
   onFocus,
@@ -26,52 +37,43 @@ const WebAgentChatInput = ({
   onChange,
   inputRef: inputRefProp,
   disabled = false,
-  rightSlot,
   ...rest
 }) => {
   const inputRefLocal = useRef(null)
   const inputRef = inputRefProp ?? inputRefLocal
   const fileInputRef = useRef(null)
-
-  const adjustHeight = useCallback(() => {
-    const el = inputRef.current
-    if (!el) return
-    el.style.height = 'auto'
-    const newHeight = Math.min(el.scrollHeight, MAX_HEIGHT_PX)
-    el.style.height = `${Math.max(newHeight, 24)}px`
-    el.style.overflowY = el.scrollHeight > MAX_HEIGHT_PX ? 'auto' : 'hidden'
-  }, [])
-
-  useEffect(() => {
-    adjustHeight()
-  }, [value, adjustHeight])
+  const [isMultiLine, setIsMultiLine] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [interimTranscript, setInterimTranscript] = useState('')
+  const recognitionRef = useRef(null)
+  const appendTranscriptRef = useRef(null)
+  const setInterimTranscriptRef = useRef(null)
+  const silenceTimeoutRef = useRef(null)
+  /** Coalesce focus + click so we only call onFocus once per user gesture (avoids drawer flicker) */
+  const lastOpenCallRef = useRef(0)
+  const OPEN_DEBOUNCE_MS = 150
 
   const handleFocus = (e) => {
-    if (onFocus) onFocus(e)
+    if (!onFocus) return
+    const now = Date.now()
+    if (now - lastOpenCallRef.current < OPEN_DEBOUNCE_MS) return
+    lastOpenCallRef.current = now
+    onFocus(e)
   }
 
   const handleClick = (e) => {
-    if (onFocus) onFocus(e)
+    if (!onFocus) return
+    const now = Date.now()
+    if (now - lastOpenCallRef.current < OPEN_DEBOUNCE_MS) return
+    lastOpenCallRef.current = now
+    onFocus(e)
   }
 
   const handleSubmit = (e) => {
     e?.preventDefault?.()
-    const hasValue = (value?.trim() ?? '').length > 0
-    if (disabled || !hasValue) return
+    if (disabled) return
     if (onSubmit) onSubmit(e)
     else if (inputRef.current) inputRef.current.form?.requestSubmit?.()
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit(e)
-    }
-  }
-
-  const handleChange = (e) => {
-    onChange?.(e)
-    adjustHeight()
   }
 
   const handlePlusClick = () => {
@@ -87,19 +89,163 @@ const WebAgentChatInput = ({
     e.target.value = ''
   }
 
-  const hasValue = (value?.trim() ?? '').length > 0
-  const isSendDisabled = disabled || !hasValue
+  const resizeTextarea = useCallback(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = '0'
+    el.style.height = `${Math.min(el.scrollHeight, TEXTAREA_MAX_HEIGHT_PX)}px`
+    setIsMultiLine(el.offsetHeight > SINGLE_LINE_HEIGHT_PX)
+  }, [])
+
+  useEffect(() => {
+    resizeTextarea()
+  }, [value, resizeTextarea])
+
+  useEffect(() => {
+    if (interimTranscript) requestAnimationFrame(resizeTextarea)
+  }, [interimTranscript, resizeTextarea])
+
+  const displayValue =
+    (value ?? '') + (interimTranscript ? (value?.trim() ? ' ' : '') + interimTranscript : '')
+
+  const handleChange = (e) => {
+    setInterimTranscript('')
+    onChange?.(e)
+    requestAnimationFrame(resizeTextarea)
+  }
+
+  const appendTranscript = useCallback(
+    (transcript) => {
+      if (!transcript || typeof transcript !== 'string') return
+      const trimmed = transcript.trim()
+      if (!trimmed) return
+      const current = (value ?? '').trim()
+      const newValue = current ? `${current} ${trimmed}` : trimmed
+      onChange?.({ target: { value: newValue } })
+      requestAnimationFrame(resizeTextarea)
+    },
+    [value, onChange, resizeTextarea]
+  )
+
+  appendTranscriptRef.current = appendTranscript
+  setInterimTranscriptRef.current = setInterimTranscript
+
+  const clearSilenceTimeout = useCallback(() => {
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current)
+      silenceTimeoutRef.current = null
+    }
+  }, [])
+
+  const scheduleSilenceStop = useCallback((recognition) => {
+    clearSilenceTimeout()
+    silenceTimeoutRef.current = setTimeout(() => {
+      silenceTimeoutRef.current = null
+      try {
+        recognition?.stop()
+      } catch (_) { }
+    }, DICTATION_SILENCE_MS)
+  }, [clearSilenceTimeout])
+
+  const handleDictateClick = useCallback(() => {
+    const SpeechRecognitionClass = getSpeechRecognition()
+    if (!SpeechRecognitionClass) return
+
+    let recognition = recognitionRef.current
+
+    if (isListening && recognition) {
+      clearSilenceTimeout()
+      recognition.stop()
+      setIsListening(false)
+      setInterimTranscript('')
+      return
+    }
+
+    if (!recognition) {
+      recognition = new SpeechRecognitionClass()
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.lang = 'en-US'
+
+      recognition.onstart = () => {
+        scheduleSilenceStop(recognitionRef.current)
+      }
+
+      recognition.onresult = (e) => {
+        let finalTranscript = ''
+        let interim = ''
+        for (let i = e.resultIndex; i < e.results.length; i += 1) {
+          const result = e.results[i]
+          const text = result[0]?.transcript ?? ''
+          if (result.isFinal) {
+            finalTranscript += text
+          } else {
+            interim += text
+          }
+        }
+        if (finalTranscript && appendTranscriptRef.current) {
+          appendTranscriptRef.current(finalTranscript)
+          setInterimTranscriptRef.current?.('')
+        }
+        if (interim !== undefined && setInterimTranscriptRef.current) {
+          setInterimTranscriptRef.current(interim)
+        }
+        scheduleSilenceStop(recognitionRef.current)
+      }
+
+      recognition.onend = () => {
+        clearSilenceTimeout()
+        setIsListening(false)
+        setInterimTranscriptRef.current?.('')
+      }
+
+      recognition.onerror = (e) => {
+        clearSilenceTimeout()
+        if (e.error !== 'no-speech' && e.error !== 'aborted') {
+          setIsListening(false)
+          setInterimTranscriptRef.current?.('')
+        }
+      }
+
+      recognitionRef.current = recognition
+    }
+
+    try {
+      setInterimTranscript('')
+      recognition.start()
+      setIsListening(true)
+    } catch (err) {
+      setIsListening(false)
+    }
+  }, [isListening, clearSilenceTimeout, scheduleSilenceStop])
+
+  useEffect(() => {
+    return () => {
+      clearSilenceTimeout()
+      const recognition = recognitionRef.current
+      if (recognition) {
+        try {
+          recognition.abort()
+        } catch (_) { }
+        recognitionRef.current = null
+      }
+      setIsListening(false)
+    }
+  }, [clearSilenceTimeout])
+
+  const speechSupported = typeof window !== 'undefined' && !!getSpeechRecognition()
 
   return (
     <form
       onSubmit={handleSubmit}
       className={cn(
-        'flex flex-col rounded-[24px] transition-all duration-200 ease-out',
-        'border border-white bg-white/[0.98] backdrop-blur-[34px]',
-        'shadow-[0_1px_3px_rgba(0,0,0,0.06)]',
-        'focus-within:border-white focus-within:bg-white/[0.98] focus-within:shadow-[0_16px_28px_rgba(0,0,0,0.1)]',
+        'flex gap-1.5 transition-all duration-200',
+        'border-2 border-white bg-white/30',
+        'focus-within:border-brand-primary focus-within:bg-white/40',
+        'focus-within:shadow-brand-glow',
         'min-h-[48px] w-full max-w-full',
-        'p-1.5',
+        'px-1.5 py-1',
+        isMultiLine ? 'items-end rounded-[15px]' : 'items-center rounded-full',
         className
       )}
     >
@@ -112,66 +258,96 @@ const WebAgentChatInput = ({
         className="hidden"
         aria-hidden
       />
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={() => {
+          if (readOnly) {
+            handleFocus()
+          } else {
+            handlePlusClick()
+          }
+        }}
+        className={cn(btnCircleClass, 'ml-0.5')}
+        aria-label="Attach files"
+      >
+        <Plus className="h-5 w-5 stroke-[2.5]" />
+      </button>
 
-      {/* Full-width textarea: grows with content */}
       <textarea
         ref={inputRef}
-        rows={MIN_ROWS}
         readOnly={readOnly}
         placeholder={placeholder}
-        value={value}
+        value={displayValue}
         onChange={handleChange}
         onFocus={handleFocus}
         onClick={handleClick}
-        onKeyDown={handleKeyDown}
         disabled={disabled}
+        rows={1}
         className={cn(
-          'w-full min-w-0 rounded-[24px] bg-transparent px-2 py-2.5 resize-none',
+          'flex-1 min-w-0 rounded-xl bg-transparent px-2 py-2.5 resize-none',
           'text-sm text-gray-900 placeholder:text-gray-500',
           'border-0 outline-none focus:outline-none focus:ring-0',
-          'font-normal leading-normal'
+          'font-normal min-h-[40px] max-h-[120px] overflow-y-auto'
         )}
-        style={{
-          fontSize: '14px',
-          minHeight: '24px',
-          maxHeight: `${MAX_HEIGHT_PX}px`,
-          overflowY: 'hidden',
-        }}
+        style={{ fontSize: '14px' }}
+        aria-label="Message input"
         {...rest}
       />
 
-      {/* ChatGPT-style: Plus left, Model + Send right */}
-      <div className="flex flex-row items-center justify-between mt-1 min-h-[40px] gap-1.5">
-        <button
-          type="button"
-          tabIndex={-1}
-          onClick={handlePlusClick}
-          className={cn(iconBtnClass, 'shrink-0')}
-          aria-label="Attach files"
-        >
-          <Plus className="w-[18px] h-[18px] stroke-[2.5]" />
-        </button>
-        <div className="flex flex-row items-center gap-1.5 shrink-0">
-          {rightSlot}
-          <button
-            type="submit"
-            disabled={isSendDisabled}
-            className={cn(
-              'flex h-10 w-10 shrink-0 items-center justify-center rounded-[9999px] border shadow-[0_23px_30.7px_0_rgba(0,0,0,0.05)] active:scale-[0.98] transition-all duration-200 ease-in-out',
-              isSendDisabled
-                ? 'bg-[rgba(255,255,255,0.39)] border-white cursor-not-allowed'
-                : 'bg-brand-primary border-brand-primary hover:bg-brand-primary/90 cursor-pointer'
-            )}
-            aria-label="Send message"
-          >
-            <ArrowUp
-              className={cn(
-                'w-[18px] h-[18px] stroke-[2.5]',
-                isSendDisabled ? 'text-gray-400' : 'text-white'
-              )}
-            />
-          </button>
-        </div>
+      <div className={cn('flex flex-row gap-1 mr-0.5 shrink-0', isMultiLine ? 'items-end' : 'items-center')}>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => {
+                  if (readOnly) {
+                    handleFocus()
+                  } else {
+                    handleDictateClick()
+                  }
+                }}
+                disabled={!speechSupported}
+                className={cn(
+                  btnCircleClass,
+                  isListening && 'bg-red-100 text-red-600 hover:bg-red-100 cursor-pointer'
+                )}
+                aria-label={isListening ? 'Stop dictation' : 'Dictate'}
+                aria-pressed={isListening}
+              >
+                <Mic className="h-5 w-5 stroke-[2.5]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {!speechSupported
+                ? 'Speech input not supported in this browser'
+                : isListening
+                  ? 'Listening… Click to stop'
+                  : 'Dictate'}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="submit"
+                disabled={disabled}
+                className={cn(btnCircleClass, '', disabled && 'opacity-50 cursor-not-allowed')}
+                aria-label="Send message"
+                onClick={() => {
+                  if (readOnly) {
+                    handleFocus()
+                  }
+                }}
+              >
+                <ArrowUp className="h-5 w-5 stroke-[2.5]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Send</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </form>
   )

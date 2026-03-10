@@ -19,8 +19,8 @@ const getAuthToken = () => {
 }
 
 /**
- * Get tasks with optional filters
- * @param {Object} params - Query parameters (userId, leadId, threadId, callId, status, assignedTo, dueDateFilter, priority)
+ * Get tasks with optional filters and pagination
+ * @param {Object} params - Query parameters (userId, leadId, threadId, callId, status, assignedTo, dueDateFilter, priority, offset, limit)
  * @returns {Promise<Object>} Response with tasks and counts
  */
 export const getTasks = async (params = {}, selectedUser = null) => {
@@ -41,6 +41,8 @@ export const getTasks = async (params = {}, selectedUser = null) => {
     if (params.dueDateFilter) queryParams.append('dueDateFilter', params.dueDateFilter)
     if (params.priority) queryParams.append('priority', params.priority)
     if (params.type) queryParams.append('type', params.type)
+    if (params.offset != null) queryParams.append('offset', String(params.offset))
+    if (params.limit != null) queryParams.append('limit', String(params.limit))
     if (selectedUser) {
       queryParams.append('userId', selectedUser.id)
     }

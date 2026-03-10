@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import { Modal } from '@mui/material'
 import dynamic from 'next/dynamic'
-import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { X, RotateCcw, Upload, ChevronDown } from 'lucide-react'
 import { OpenAiLogoIcon } from '@phosphor-icons/react'
 import axios from 'axios'
 import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { agentImage } from '@/utilities/agentUtilities'
 import AgentXOrb from '@/components/common/AgentXOrb'
 import WebAgentChatInput from './WebAgentChatInput'
@@ -73,59 +73,6 @@ const LLM_PROVIDERS = [
 
 const noop = () => {}
 
-/** Icon button with 10% larger size, hover scale 1.05, and subtle magnetic cursor-follow */
-function MagneticIconButton({ onClick, 'aria-label': ariaLabel, children, className, ...props }) {
-  const ref = useRef(null)
-  const [magnetic, setMagnetic] = useState({ x: 0, y: 0 })
-  const [hovered, setHovered] = useState(false)
-
-  const handleMouseMove = useCallback((e) => {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const cx = rect.left + rect.width / 2
-    const cy = rect.top + rect.height / 2
-    const dx = (e.clientX - cx) / rect.width
-    const dy = (e.clientY - cy) / rect.height
-    const strength = 3
-    setMagnetic({ x: dx * strength, y: dy * strength })
-  }, [])
-
-  const handleMouseLeave = useCallback(() => {
-    setMagnetic({ x: 0, y: 0 })
-    setHovered(false)
-  }, [])
-
-  const handleMouseEnter = useCallback(() => {
-    setHovered(true)
-  }, [])
-
-  return (
-    <button
-      ref={ref}
-      type="button"
-      onClick={onClick}
-      aria-label={ariaLabel}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={cn(
-        'flex h-10 w-10 items-center justify-center rounded-[9999px]',
-        'bg-[rgba(255,255,255,0.39)] border border-white text-gray-600',
-        'shadow-[0_23px_30.7px_0_rgba(0,0,0,0.05)]',
-        'hover:bg-white/50 active:scale-[0.98]',
-        'transition-all duration-200 ease-in-out',
-        className
-      )}
-      style={{
-        transform: `translate(${magnetic.x}px, ${magnetic.y}px) scale(${hovered ? 1.05 : 1})`,
-      }}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
-
 /** True if target is inside Agentation toolbar, popup, or marker (keep dropdowns/popovers open when annotating) */
 function isAgentationTarget(target) {
   return (
@@ -146,6 +93,7 @@ const WebAgentChatDrawer = ({
   agentAvatar = null,
   leadId = null,
   canChangeLlmProvider = false,
+  formData = null
 }) => {
   const headerAvatar = agentAvatar ?? (agent ? agentImage(agent) : null)
   const [inputValue, setInputValue] = useState('')
@@ -236,8 +184,9 @@ const WebAgentChatDrawer = ({
       setCurrentThreadTitle(null)
       setMessages([])
       setHistoryOpen(false)
-      const t = setTimeout(() => setExpanded(true), 50)
-      return () => clearTimeout(t)
+      // One frame delay so Modal is in DOM before we expand; avoids flicker of 0-height panel
+      const id = requestAnimationFrame(() => setExpanded(true))
+      return () => cancelAnimationFrame(id)
     } else {
       setExpanded(false)
       setCurrentThreadId(null)
@@ -271,12 +220,13 @@ const WebAgentChatDrawer = ({
     setExpanded(false)
   }
 
-  const handleCloseAnimationComplete = useCallback(() => {
+  const handleTransitionEnd = (e) => {
+    if (e.propertyName !== 'height') return
     if (closing) {
       onClose()
       setClosing(false)
     }
-  }, [closing])
+  }
 
   const fetchHistory = useCallback(async () => {
     if (!agentId) return
@@ -574,70 +524,61 @@ const WebAgentChatDrawer = ({
     }
   }, [agentId, inputValue, currentThreadId, currentSessionId, sessionReady, leadId, attachedFiles])
 
-  const handleModalClose = closing ? noop : onClose
+  const handleModalClose = (event, reason) => {
+    if (reason === 'backdropClick' && event?.target && isAgentationTarget(event.target)) return
+    if (closing) return
+    onClose()
+  }
   const showOverlay = open || closing
   if (!showOverlay) return null
 
-  const liquidSpring = { type: 'spring', stiffness: 360, damping: 26 }
-  const liquidSpringExit = { type: 'spring', stiffness: 400, damping: 32 }
-
   const modalContent = (
-    <AnimatePresence>
-      {showOverlay && (
-        <motion.div
-          key="drawer-overlay"
-          className="fixed inset-0"
-          style={{ zIndex: 1300, fontFamily: "'Inter', sans-serif" }}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Chat"
-          initial={false}
+    <Modal
+      open={showOverlay}
+      onClose={handleModalClose}
+      closeAfterTransition
+      aria-label="Chat"
+      sx={{ zIndex: 1300 }}
+      slotProps={{
+        root: {
+          sx: {
+            // Disable MUI's default backdrop transition to prevent flicker on open
+            '& .MuiBackdrop-root': { transition: 'none' },
+          },
+        },
+      }}
+      BackdropProps={{
+        sx: { backgroundColor: 'rgba(0,0,0,0.05)' },
+      }}
+    >
+      <div className="absolute inset-0 flex justify-center items-end pointer-events-none pb-5">
+        <div
+          className={cn(
+            'pointer-events-auto flex flex-col overflow-hidden',
+            'rounded-3xl shadow-2xl w-full max-w-[800px]',
+            // Hide panel until expanded to avoid flicker of 0-height bar
+            !expanded ? 'opacity-0' : 'opacity-100'
+          )}
+          style={{
+            height: expanded ? '85vh' : 0,
+            minHeight: expanded ? 500 : 0,
+            background: 'rgba(255,255,255,0.82)',
+            transition: 'height 320ms ease-out, opacity 200ms ease-out',
+          }}
+          onClick={(e) => e.stopPropagation()}
+          onTransitionEnd={handleTransitionEnd}
         >
-          <motion.div
-            className="absolute inset-0 bg-transparent"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: expanded ? 1 : 0 }}
-            transition={liquidSpring}
-            onClick={(e) => {
-              if (isAgentationTarget(e.target)) return
-              handleModalClose()
-            }}
-            onKeyDown={(e) => e.key === 'Escape' && handleModalClose()}
-          />
-          <div className="absolute inset-0 flex justify-center items-end pointer-events-none pb-5">
-            <motion.div
-              className={cn(
-                'pointer-events-auto flex flex-col overflow-hidden',
-                'rounded-[32px] w-full max-w-[756px]',
-                'border border-white'
-              )}
-              style={{
-                height: '852px',
-                minHeight: 480,
-                maxHeight: '90vh',
-                background: 'rgba(255,255,255,0.8)',
-                backdropFilter: 'blur(44px)',
-                WebkitBackdropFilter: 'blur(44px)',
-                boxShadow: '0 -10px 45.9px 0 rgba(185,185,185,0.05), 0 -25px 38.9px 0 rgba(255,255,255,0.04)',
-                transformOrigin: 'bottom center',
-                pointerEvents: expanded ? 'auto' : 'none',
-              }}
-              initial={false}
-              animate={{
-                scale: expanded ? 1 : 0.92,
-                opacity: expanded ? 1 : 0,
-                y: expanded ? 0 : 32,
-              }}
-              transition={expanded ? liquidSpring : liquidSpringExit}
-              onAnimationComplete={handleCloseAnimationComplete}
-              onClick={(e) => e.stopPropagation()}
-            >
-          {/* Header: close (left), model selector (center), history + upload (right) — Figma assignx */}
-          <div className="flex flex-shrink-0 items-center justify-between gap-3 px-4 py-3 min-w-0 relative z-10 border-b border-white">
+          {/* Header: X (close) top left with avatar + title (editable when thread exists); History + Upload top right */}
+          <div className="flex flex-shrink-0 items-center justify-between gap-3 px-4 py-3 border-b border-white/50 min-w-0 relative z-10 bg-inherit">
             <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
-              <MagneticIconButton onClick={handleCloseClick} aria-label="Close chat" className="flex-shrink-0">
-                <X className="w-[18px] h-[18px]" />
-              </MagneticIconButton>
+              <button
+                type="button"
+                onClick={handleCloseClick}
+                className="flex-shrink-0 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-600 transition-colors shadow-sm"
+                aria-label="Close chat"
+              >
+                <X className="w-5 h-5" />
+              </button>
               {/* <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
                 {headerAvatar || (
                   <span className="text-lg font-semibold text-gray-500">
@@ -656,7 +597,7 @@ const WebAgentChatDrawer = ({
                     if (e.key === 'Enter') saveTitle()
                     if (e.key === 'Escape') setTitleEditing(false)
                   }}
-                  className="flex-1 min-w-0 font-semibold text-[15px] text-gray-900 bg-white/40 backdrop-blur-sm border border-white/50 rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-200"
+                  className="flex-1 min-w-0 font-semibold text-[15px] text-gray-900 border border-gray-200 rounded px-2 py-1"
                   placeholder="Chat title"
                 />
               ) : (
@@ -664,41 +605,119 @@ const WebAgentChatDrawer = ({
                   type="button"
                   onClick={startTitleEdit}
                   className={cn(
-                    'flex-1 min-w-[80px] font-medium text-[18px] text-gray-900 truncate text-left overflow-hidden block',
+                    'flex-1 min-w-[80px] font-semibold text-[15px] text-gray-900 truncate text-left overflow-hidden block',
                     currentThreadId != null && 'hover:bg-white/50 rounded px-1 -mx-1'
                   )}
                   title={currentThreadId != null ? (displayTitleFull !== displayTitle ? displayTitleFull : 'Click to edit title') : displayTitleFull}
                 >
-                  {displayTitle}
+                  {/*displayTitle*/}
                 </button>
               )}
             </div>
-            <div ref={historyPanelRef} className="flex items-center gap-3 shrink-0 relative">
-              <MagneticIconButton onClick={openHistory} aria-label="History">
-                <RotateCcw className="w-[18px] h-[18px]" />
-              </MagneticIconButton>
-              <MagneticIconButton onClick={() => {}} aria-label="Upload">
-                <Upload className="w-[18px] h-[18px]" />
-              </MagneticIconButton>
-              {/* History dropdown: compact floating panel (like second screenshot) */}
-              <AnimatePresence>
-                {historyOpen && (
-                  <motion.div
-                    key="history-dropdown"
-                    className="absolute top-full right-0 mt-2 w-72 max-h-80 rounded-2xl overflow-hidden z-50 flex flex-col bg-[rgba(255,255,255,0.85)] backdrop-blur-xl border border-white shadow-[0_23px_30.7px_0_rgba(0,0,0,0.05)] origin-top"
-                    role="dialog"
-                    aria-label="Chat history"
-                    initial={{ opacity: 0, y: -20, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.96 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            {canChangeLlmProvider && (
+              <div
+                ref={llmProviderRef}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
+              >
+                <div className="pointer-events-auto relative">
+                  <button
+                    type="button"
+                    onClick={() => setLlmProviderOpen((o) => !o)}
+                    disabled={llmLoading}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white text-gray-900 font-medium min-w-0 transition-colors hover:bg-gray-50/80"
+                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+                    aria-label="LLM Provider"
                   >
-                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-white/50 bg-white/30">
+                    {llmLoading ? (
+                      <span className="text-sm">...</span>
+                    ) : currentLlmIntegration ? (
+                      <>
+                        <span className={cn(
+                          'flex h-6 w-6 shrink-0 items-center justify-center rounded-full overflow-hidden',
+                          currentLlmIntegration.provider === 'anthropic' && 'bg-[#E0775B]',
+                          currentLlmIntegration.provider === 'openai' && 'bg-[#10a37f]',
+                          currentLlmIntegration.provider === 'google' && 'bg-[#4285f4]'
+                        )}>
+                          {currentLlmIntegration.provider === 'anthropic' && (
+                            <Image src="/Claude.jpeg" alt="" width={14} height={14} className="object-contain" />
+                          )}
+                          {currentLlmIntegration.provider === 'openai' && (
+                            <OpenAiLogoIcon size={14} className="text-white" />
+                          )}
+                          {currentLlmIntegration.provider === 'google' && (
+                            <Image src="/gemini.png" alt="" width={14} height={14} className="object-contain" />
+                          )}
+                        </span>
+                        <span className="truncate max-w-[100px] text-sm">
+                          {currentLlmIntegration.provider === 'anthropic' ? 'Claude AI' : currentLlmIntegration.provider === 'google' ? 'Gemini' : 'GPT'}
+                        </span>
+                        <ChevronDown className="w-3.5 h-3.5 shrink-0 text-black" />
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-200">
+                          <span className="text-[10px] font-medium text-gray-500">LLM</span>
+                        </span>
+                        <span className="truncate max-w-[100px] text-sm">LLM</span>
+                        <ChevronDown className="w-3.5 h-3.5 shrink-0 text-black" />
+                      </>
+                    )}
+                  </button>
+                  {llmProviderOpen && (
+                    <div className="absolute left-1/2 top-full mt-2 -translate-x-1/2 w-48 rounded-xl bg-white overflow-hidden z-50 py-1" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                      {LLM_PROVIDERS.map((p) => {
+                        const hasKey = !!integrationForProvider(p.id)
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => handleLlmProviderSelect(p.id)}
+                            className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-sm text-gray-800 hover:bg-gray-50"
+                          >
+                            {p.icon === 'anthropic' && <Image src="/Claude.jpeg" alt="" width={20} height={20} className="rounded object-contain" />}
+                            {p.icon === 'openai' && <OpenAiLogoIcon size={20} className="text-[#10a37f]" />}
+                            {p.icon === 'google' && <Image src="/gemini.png" alt="" width={20} height={20} className="rounded object-contain" />}
+                            <span>{p.label}</span>
+                            {!hasKey && <span className="text-xs text-amber-600 ml-auto">Add key</span>}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            <div ref={historyPanelRef} className="flex items-center gap-1 shrink-0 relative">
+              <button
+                type="button"
+                onClick={openHistory}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-600 transition-colors shadow-sm"
+                aria-label="History"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {}}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-600 transition-colors shadow-sm"
+                aria-label="Upload"
+              >
+                <Upload className="w-5 h-5" />
+              </button>
+              {/* History dropdown: compact floating panel (like second screenshot) */}
+              {historyOpen && (
+                <div
+                  className="absolute top-full right-0 mt-2 w-72 max-h-80 rounded-xl bg-white overflow-hidden z-50 flex flex-col"
+                  style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+                  role="dialog"
+                  aria-label="Chat history"
+                >
+                  <div className="flex-shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-gray-100">
                     <span className="text-sm font-medium text-gray-700">History</span>
                     <button
                       type="button"
                       onClick={() => setHistoryOpen(false)}
-                      className="p-1 rounded-full hover:bg-white/50 text-gray-500 hover:text-gray-700 active:scale-[0.98] transition-all duration-200 ease-in-out"
+                      className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700"
                       aria-label="Close history"
                     >
                       <X className="w-4 h-4" />
@@ -715,7 +734,7 @@ const WebAgentChatDrawer = ({
                           key={t.id}
                           type="button"
                           onClick={() => selectHistoryThread(t)}
-                          className="w-full min-w-0 text-left px-3 py-2.5 text-sm text-gray-800 hover:bg-white/50 active:scale-[0.98] transition-all duration-200 ease-in-out flex flex-col gap-0.5 overflow-hidden"
+                          className="w-full min-w-0 text-left px-3 py-2.5 text-sm text-gray-800 hover:bg-gray-50 flex flex-col gap-0.5 overflow-hidden"
                         >
                           <span className="font-medium truncate block min-w-0 overflow-hidden" title={t.title || 'New chat'}>{truncateTitle(t.title) || 'New chat'}</span>
                           <span className="text-xs text-gray-500">
@@ -726,100 +745,117 @@ const WebAgentChatDrawer = ({
                       ))
                     )}
                   </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Body: messages or empty state */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col px-4 py-4 relative z-0">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col px-4 py-4 relative z-0 bg-[rgba(255,255,255,0.82)]">
             {messagesLoading ? (
               <div className="flex-1 flex items-center justify-center py-8">
                 <p className="text-sm text-gray-500">Loading...</p>
               </div>
             ) : messages.length > 0 ? (
-              <div className="flex flex-col gap-2 px-2 py-2">
+              <div className="flex flex-col gap-2">
                 {messages.map((m) => {
+                  const isInbound = m.direction === 'inbound'
                   const attachments = m.metadata?.attachments || []
                   const imageAttachments = attachments.filter((a) => a.type === 'image' && a.dataUrl)
-                  const isInbound = m.direction === 'inbound'
+                  const agentThumb = agent?.thumb_profile_image || (typeof agentAvatar === 'string' ? agentAvatar : null)
                   return (
                     <div
                       key={m.id}
                       className={cn(
-                        'flex flex-col min-w-0 max-w-[85%]',
-                        isInbound ? 'items-end self-end' : 'items-start self-start'
+                        'flex items-start gap-2 w-full',
+                        isInbound ? 'justify-end' : 'justify-start'
                       )}
                     >
-                      {isInbound ? (
-                        /* Sent: white bubble, tail at top-right (no rounded-tr) — Figma Message Item outbound */
-                        <div className="bg-white rounded-tl-[12px] rounded-bl-[12px] rounded-br-[12px] px-3 py-2 w-full min-w-0">
-                          {imageAttachments.length > 0 && (
-                            <div className="flex flex-col gap-1.5 mb-2">
-                              {imageAttachments.map((img, i) => (
-                                <img
-                                  key={i}
-                                  src={img.dataUrl}
-                                  alt=""
-                                  className="rounded-lg max-h-48 w-auto object-contain"
-                                />
-                              ))}
-                            </div>
-                          )}
-                          {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
-                            <p className="text-[14px] font-normal leading-normal text-black/80 text-right whitespace-pre-wrap break-words">{m.content}</p>
-                          ) : null}
-                          <p className="text-[11px] text-black/50 text-right mt-1">
-                            {new Date(m.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-                          </p>
-                        </div>
-                      ) : (
-                        /* Received: avatar + bubble with tail (no top-left radius), bg rgba(246,247,249,0.28) — Figma Message Item inbound */
-                        <div className="flex gap-2 items-start w-full min-w-0">
-                          <div className="flex-shrink-0 pt-1">
-                            <AgentXOrb size={24} alt="" />
-                          </div>
-                          <div className="flex-1 min-w-0 rounded-tr-[12px] rounded-br-[12px] rounded-bl-[12px] rounded-tl-[0] px-4 py-2 bg-[rgba(246,247,249,0.28)]">
-                            {imageAttachments.length > 0 && (
-                              <div className="flex flex-col gap-1.5 mb-2">
-                                {imageAttachments.map((img, i) => (
-                                  <img
-                                    key={i}
-                                    src={img.dataUrl}
-                                    alt=""
-                                    className="rounded-lg max-h-48 w-auto object-contain"
-                                  />
-                                ))}
+                      {!isInbound && (
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex-shrink-0 cursor-default">
+                                {agentThumb ? (
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex-shrink-0">
+                                    <Image
+                                      src={agentThumb}
+                                      alt={agentName || 'Agent'}
+                                      width={32}
+                                      height={32}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+                                    {(agentName || 'A').charAt(0).toUpperCase()}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                            {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
-                              <p className="text-[14px] font-normal leading-normal text-black/80 whitespace-pre-wrap break-words">{m.content}</p>
-                            ) : null}
-                            <p className="text-[11px] text-[#0e0e0e]/50 mt-1">
-                              {new Date(m.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-                            </p>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">{agentName || 'Agent'}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                      <div
+                        className={cn(
+                          'max-w-[85%] min-w-0 rounded-2xl px-3 py-2 text-sm overflow-hidden break-words',
+                          isInbound ? 'bg-brand-primary/15 text-gray-900' : 'bg-white/90 text-gray-900 border border-gray-100'
+                        )}
+                      >
+                        {imageAttachments.length > 0 && (
+                          <div className="flex flex-col gap-1.5 mb-2">
+                            {imageAttachments.map((img, i) => (
+                              <img
+                                key={i}
+                                src={img.dataUrl}
+                                alt=""
+                                className="rounded-lg max-h-48 w-auto object-contain"
+                              />
+                            ))}
                           </div>
+                        )}
+                        {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
+                          <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                        ) : null}
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(m.createdAt).toLocaleTimeString(undefined, {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                      {isInbound && (
+                        <div className="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-semibold text-xs flex-shrink-0" aria-hidden>
+                          {formData?.firstName?.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
                   )
                 })}
               {sendLoading && (
-                <div className="flex items-start gap-2 w-full min-w-0 mt-2">
-                  <div className="flex-shrink-0 pt-1">
-                    <AgentXOrb size={24} alt="" />
+                <div className="flex items-end gap-2 w-full justify-start mt-2">
+                  <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden">
+                    {thinkingAnimationData && Lottie ? (
+                      <Lottie
+                        animationData={thinkingAnimationData}
+                        loop
+                        style={{ width: 48, height: 48 }}
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full border-2 border-brand-primary border-t-transparent animate-spin" />
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0 rounded-tr-[12px] rounded-br-[12px] rounded-bl-[12px] rounded-tl-[0] px-4 py-3 bg-[rgba(246,247,249,0.28)] min-w-[120px]">
-                    <span className="text-[14px] text-[#0e0e0e]">{THINKING_MESSAGES[thinkingIndex]}</span>
+                  <div className="rounded-2xl rounded-tl-sm px-4 py-3 bg-white/90 border border-gray-100 min-w-[120px]">
+                    <span className="text-sm text-gray-600">{THINKING_MESSAGES[thinkingIndex]}</span>
                   </div>
                 </div>
               )}
               </div>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center gap-3 py-16">
-                <div className="relative flex-shrink-0">
-                  <div className="relative z-10 flex items-center justify-center scale-[1.3]">
+              <div className="flex-1 flex flex-col items-center justify-center py-8">
+                <div className="relative flex-shrink-0 mb-5">
+                  <div className="relative z-10 flex items-center justify-center">
                     <AgentXOrb size={96} alt="Agent" />
                   </div>
                   <div
@@ -834,15 +870,15 @@ const WebAgentChatDrawer = ({
                     }}
                   />
                 </div>
-                <p className="text-[22px] font-semibold leading-[30px] tracking-[-0.77px] text-[#0e0e0e] text-center max-w-sm">
-                  Where should we begin?
+                <p className="text-lg font-medium text-gray-800 text-center max-w-sm">
+                  {emptyStateMessage}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Footer: attached files + input (Plus = attach, Send) — Figma pill container */}
-          <div className="flex-shrink-0 pb-4 pl-4 pr-4 pt-2">
+          {/* Footer: attached files + input (Plus = attach, Send) */}
+          <div className="flex-shrink-0 p-4 pt-2 border-t border-white/50">
             {sessionError && (
               <div className="mb-2 flex items-center justify-between gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
                 <span>{sessionError}</span>
@@ -863,7 +899,7 @@ const WebAgentChatDrawer = ({
                 {attachedFiles.map((file, i) => (
                   <span
                     key={`${file.name}-${i}`}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/50 text-gray-700 text-xs"
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/80 text-gray-700 text-xs"
                   >
                     {file.name}
                     <button
@@ -880,112 +916,20 @@ const WebAgentChatDrawer = ({
                 ))}
               </div>
             )}
-            <div className="relative group w-full">
-              <div className="chat-input-glow-layer-1" aria-hidden />
-              <div className="chat-input-glow-layer-2" aria-hidden />
-              <div className="chat-input-glow-layer-3" aria-hidden />
-              <div className="chat-input-glow-layer-4" aria-hidden />
-              <div className="chat-input-glow-layer-5" aria-hidden />
-              <div className="chat-input-glow-layer-6" aria-hidden />
-
-              <div className="relative z-10">
-                <WebAgentChatInput
-                  inputRef={modalInputRef}
-                placeholder={sessionReady ? 'Ask me anything' : 'Connecting...'}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onAttachFiles={(files) => setAttachedFiles((prev) => [...prev, ...files])}
-                onSubmit={handleSend}
-                disabled={!sessionReady || sendLoading}
-                className="gap-3"
-                rightSlot={
-                  canChangeLlmProvider ? (
-                    <div ref={llmProviderRef} className="relative shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setLlmProviderOpen((o) => !o)}
-                        disabled={llmLoading}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-[9999px] bg-[rgba(255,255,255,0.39)] border border-white text-gray-900 font-medium min-w-0 shadow-[0_23px_30.7px_0_rgba(0,0,0,0.05)] hover:bg-white/50 active:scale-[0.98] transition-all duration-200 ease-in-out"
-                        aria-label="LLM Provider"
-                      >
-                        {llmLoading ? (
-                          <span className="text-sm">...</span>
-                        ) : currentLlmIntegration ? (
-                          <>
-                            <span className={cn(
-                              'flex h-5 w-5 shrink-0 items-center justify-center rounded-full overflow-hidden',
-                              currentLlmIntegration.provider === 'anthropic' && 'bg-[#E0775B]',
-                              currentLlmIntegration.provider === 'openai' && 'bg-[#10a37f]',
-                              currentLlmIntegration.provider === 'google' && 'bg-[#4285f4]'
-                            )}>
-                              {currentLlmIntegration.provider === 'anthropic' && (
-                                <Image src="/Claude.jpeg" alt="" width={12} height={12} className="object-contain" />
-                              )}
-                              {currentLlmIntegration.provider === 'openai' && (
-                                <OpenAiLogoIcon size={12} className="text-white" />
-                              )}
-                              {currentLlmIntegration.provider === 'google' && (
-                                <Image src="/gemini.png" alt="" width={12} height={12} className="object-contain" />
-                              )}
-                            </span>
-                            <span className="truncate max-w-[80px] text-xs">
-                              {currentLlmIntegration.provider === 'anthropic' ? 'Claude AI' : currentLlmIntegration.provider === 'google' ? 'Gemini' : 'GPT'}
-                            </span>
-                            <ChevronDown className="w-3 h-3 shrink-0 text-black" />
-                          </>
-                        ) : (
-                          <>
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-200">
-                              <span className="text-[9px] font-medium text-gray-500">LLM</span>
-                            </span>
-                            <span className="truncate max-w-[80px] text-xs">LLM</span>
-                            <ChevronDown className="w-3 h-3 shrink-0 text-black" />
-                          </>
-                        )}
-                      </button>
-                      <AnimatePresence>
-                        {llmProviderOpen && (
-                          <motion.div
-                            key="llm-provider-dropdown"
-                            className="absolute right-0 bottom-full mb-2 w-48 rounded-2xl overflow-hidden z-50 py-1 bg-[rgba(255,255,255,0.85)] backdrop-blur-xl border border-white shadow-[0_23px_30.7px_0_rgba(0,0,0,0.05)] origin-bottom"
-                            initial={{ opacity: 0, y: 20, scale: 0.96 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 20, scale: 0.96 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                          >
-                            {LLM_PROVIDERS.map((p) => {
-                            const hasKey = !!integrationForProvider(p.id)
-                            return (
-                              <button
-                                key={p.id}
-                                type="button"
-                                onClick={() => handleLlmProviderSelect(p.id)}
-                                className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-sm text-gray-800 hover:bg-white/60 active:scale-[0.98] transition-all duration-200 ease-in-out"
-                              >
-                                {p.icon === 'anthropic' && <Image src="/Claude.jpeg" alt="" width={20} height={20} className="rounded object-contain" />}
-                                {p.icon === 'openai' && <OpenAiLogoIcon size={20} className="text-[#10a37f]" />}
-                                {p.icon === 'google' && <Image src="/gemini.png" alt="" width={20} height={20} className="rounded object-contain" />}
-                                <span>{p.label}</span>
-                                {!hasKey && <span className="text-xs text-amber-600 ml-auto">Add key</span>}
-                              </button>
-                            )
-                          })}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  ) : null
-                }
-              />
-              </div>
-            </div>
+            <WebAgentChatInput
+              inputRef={modalInputRef}
+              placeholder={sessionReady ? 'Ask me anything' : 'Connecting...'}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onAttachFiles={(files) => setAttachedFiles((prev) => [...prev, ...files])}
+              onSubmit={handleSend}
+              disabled={!sessionReady || sendLoading}
+            />
           </div>
-        </motion.div>
-      </div>
 
       {addKeyModalProvider && (
-        <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/15 backdrop-blur-md rounded-3xl">
-          <div className="rounded-2xl p-4 w-full max-w-sm mx-4 bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_8px_32px_rgba(0,0,0,0.12)]">
+        <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/20 backdrop-blur-sm rounded-3xl">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 w-full max-w-sm mx-4">
             <h3 className="text-sm font-semibold text-gray-900 mb-2">
               Add {addKeyModalProvider === 'anthropic' ? 'Claude' : addKeyModalProvider === 'google' ? 'Gemini' : 'OpenAI'} API key
             </h3>
@@ -994,14 +938,14 @@ const WebAgentChatDrawer = ({
               placeholder="Paste your API key"
               value={addKeyValue}
               onChange={(e) => { setAddKeyValue(e.target.value); setAddKeyError('') }}
-              className="w-full px-3 py-2 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary/50 transition-all duration-200"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
             {addKeyError && <p className="text-xs text-red-600 mt-1">{addKeyError}</p>}
             <div className="flex gap-2 mt-3">
               <button
                 type="button"
                 onClick={() => { setAddKeyModalProvider(null); setAddKeyValue(''); setAddKeyError('') }}
-                className="flex-1 py-2 text-sm font-medium text-gray-700 bg-white/50 backdrop-blur-sm border border-white/60 rounded-xl hover:bg-white/70 active:scale-[0.98] transition-all duration-200"
+                className="flex-1 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
               >
                 Cancel
               </button>
@@ -1009,7 +953,7 @@ const WebAgentChatDrawer = ({
                 type="button"
                 onClick={handleAddKeySubmit}
                 disabled={!addKeyValue.trim() || addKeyLoading}
-                className="flex-1 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-xl active:scale-[0.98] disabled:opacity-50 transition-transform duration-150"
+                className="flex-1 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg disabled:opacity-50"
               >
                 {addKeyLoading ? 'Saving...' : 'Save'}
               </button>
@@ -1017,11 +961,11 @@ const WebAgentChatDrawer = ({
           </div>
         </div>
       )}
-    </motion.div>
-    )}
-  </AnimatePresence>
+        </div>
+      </div>
+    </Modal>
   )
-  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null
+  return modalContent
 }
 
 export default WebAgentChatDrawer

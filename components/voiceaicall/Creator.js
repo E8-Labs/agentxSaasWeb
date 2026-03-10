@@ -59,6 +59,7 @@ import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { useUser } from '@/hooks/redux-hooks'
 import WebAgentChatInput from '@/components/web-agent/WebAgentChatInput'
 import WebAgentChatDrawer from '@/components/web-agent/WebAgentChatDrawer'
+import { checkPhoneNumber } from '../onboarding/services/apisServices/ApiService'
 
 
 // Add style tag to override global white background for loading message
@@ -144,13 +145,19 @@ const Creator = ({ agentId, name }) => {
   const [smartListFields, setSmartListFields] = useState({})
   const [smartListData, setSmartListData] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [phoneValidationMessage, setPhoneValidationMessage] = useState(null)
+  const [emailValidationMessage, setEmailValidationMessage] = useState(null)
 
   const { user: reduxUser } = useUser()
 
   // Validation functions
   const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
+    if (!email || typeof email !== 'string') return false
+    const trimmed = email.trim()
+    if (!trimmed) return false
+    // Require: local part, @, domain, and TLD of at least 2 letters (rejects .l, .x, etc.)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    return emailRegex.test(trimmed)
   }
 
   const validatePhoneNumber = (phoneNumber) => {
@@ -173,21 +180,37 @@ const Creator = ({ agentId, name }) => {
       // setCheckPhoneResponse(null);
       // //console.log;
 
-      timerRef.current = setTimeout(() => {
-        checkPhoneNumber(phoneNumber)
-      }, 300)
+      // timerRef.current = setTimeout(() => {
+      //   checkPhoneNumber(phoneNumber)
+      // }, 300)
     }
   }
 
+  const ALLOWED_PHONE_COUNTRIES = ['US', 'CA', 'MX', 'AU', 'GB', 'EC', 'SV']
+
   const isValidPhone = (phone) => {
-    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(`+${phone}`)
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
-    if (!parsedNumber || !parsedNumber.isValid()) {
-      return false
-    } else {
-      return true
-    }
+    if (!phone || !String(phone).trim()) return false
+    const value = `+${String(phone).trim()}`
+    const parsedUs = parsePhoneNumberFromString(value, 'US')
+    const parsedCa = parsePhoneNumberFromString(value, 'CA')
+    const parsedMx = parsePhoneNumberFromString(value, 'MX')
+    const parsedAu = parsePhoneNumberFromString(value, 'AU')
+    const parsedGb = parsePhoneNumberFromString(value, 'GB')
+    const parsedEc = parsePhoneNumberFromString(value, 'EC')
+    const parsedSv = parsePhoneNumberFromString(value, 'SV')
+    const parsedAuto = parsePhoneNumberFromString(value)
+    const isAllowedCountry = (parsed) =>
+      parsed && parsed.isValid() && ALLOWED_PHONE_COUNTRIES.includes(parsed.country)
+    return (
+      isAllowedCountry(parsedUs) ||
+      isAllowedCountry(parsedCa) ||
+      isAllowedCountry(parsedMx) ||
+      isAllowedCountry(parsedAu) ||
+      isAllowedCountry(parsedGb) ||
+      isAllowedCountry(parsedEc) ||
+      isAllowedCountry(parsedSv) ||
+      isAllowedCountry(parsedAuto)
+    )
   }
 
   const isFormValid = () => {
@@ -206,6 +229,26 @@ const Creator = ({ agentId, name }) => {
   const [profileLoader, setProfileLoader] = useState(true)
 
   const API_KEY = process.env.NEXT_PUBLIC_REACT_APP_VITE_API_KEY
+
+  // Sync phone validation message when formData.phone changes (e.g. from saved data)
+  useEffect(() => {
+    const trimmed = (formData.phone || '').toString().trim()
+    if (!trimmed) {
+      setPhoneValidationMessage(null)
+    } else {
+      setPhoneValidationMessage(isValidPhone(trimmed) ? 'Valid' : 'Invalid')
+    }
+  }, [formData.phone])
+
+  // Sync email validation message when formData.email changes (e.g. from saved data)
+  useEffect(() => {
+    const trimmed = (formData.email || '').toString().trim()
+    if (!trimmed) {
+      setEmailValidationMessage(null)
+    } else {
+      setEmailValidationMessage(isValidEmail(trimmed) ? 'Valid' : 'Invalid')
+    }
+  }, [formData.email])
 
   //fetch user profile data
   useEffect(() => {
@@ -438,6 +481,23 @@ const Creator = ({ agentId, name }) => {
     }
     setFormData(newFormData)
 
+    if (field === 'phone') {
+      const trimmed = (value || '').toString().trim()
+      if (!trimmed) {
+        setPhoneValidationMessage(null)
+      } else {
+        setPhoneValidationMessage(isValidPhone(trimmed) ? 'Valid' : 'Invalid')
+      }
+    }
+    if (field === 'email') {
+      const trimmed = (value || '').toString().trim()
+      if (!trimmed) {
+        setEmailValidationMessage(null)
+      } else {
+        setEmailValidationMessage(isValidEmail(trimmed) ? 'Valid' : 'Invalid')
+      }
+    }
+
     // Save to localStorage
     localStorage.setItem(
       `leadForm_${agentId}`,
@@ -480,6 +540,7 @@ const Creator = ({ agentId, name }) => {
           },
         )
         setSmartListFields(parsedData.smartListFields || {})
+        // setShowLeadModal(true)
       }
     } catch (error) {
       console.error('Error loading saved form data:', error)
@@ -644,13 +705,16 @@ const Creator = ({ agentId, name }) => {
           } else {
             handleStartCall()
           }
-        } else {
+        } else if (mode !== 'chat') {
+          // Non-chat mode (e.g. future modes): open drawer
           setChatDrawerKey((k) => k + 1)
           setChatDrawerOpen(true)
         }
+        // Chat: drawer already opened in handleOpenChat; webChatLeadId/assistantOverrides set above
       }
     } catch (error) {
       console.error('Error submitting persisted form data:', error)
+      if (mode === 'chat') setChatDrawerOpen(false)
       setSnackbarMessage(mode === 'call' ? 'Error starting call. Please try again.' : 'Error starting chat. Please try again.')
       setSnackbarSeverity('error')
       setSnackbarOpen(true)
@@ -675,6 +739,9 @@ const Creator = ({ agentId, name }) => {
     setFormMode('chat')
     const { valid, savedFormData, savedSmartListFields } = getSavedFormAndValidity()
     if (valid) {
+      // Open drawer immediately so there’s no delay; API runs in background and sets webChatLeadId when done
+      setChatDrawerKey((k) => k + 1)
+      setChatDrawerOpen(true)
       submitSavedFormAndProceed(savedFormData, savedSmartListFields, 'chat')
       return
     }
@@ -1396,6 +1463,7 @@ const Creator = ({ agentId, name }) => {
         agent={agentDetails?.data?.data?.agent}
         leadId={webChatLeadId}
         canChangeLlmProvider={reduxUser?.id != null && agentDetails?.data?.data?.user?.id != null && reduxUser.id === agentDetails.data.data.user.id}
+        formData={formData}
       />
 
       {/* Lead Details Modal */}
@@ -1498,10 +1566,30 @@ const Creator = ({ agentId, name }) => {
                     }}
                     required
                   />
+                  {emailValidationMessage != null && (
+                    <p
+                      className="mt-1.5 text-sm"
+                      style={{
+                        color:
+                          emailValidationMessage === 'Valid'
+                            ? 'hsl(var(--brand-primary))'
+                            : '#b91c1c',
+                        fontWeight: 500,
+                      }}
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {emailValidationMessage === 'Valid'
+                        ? 'Email is valid'
+                        : 'Please enter a valid email address'}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <PhoneInput
                     country={'us'}
+                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb','sv', 'ec']}
+                    countryCodeEditable={false}
                     value={formData.phone}
                     onChange={(value) => handleFormDataChange('phone', value)}
                     placeholder="Enter Phone Number"
@@ -1536,6 +1624,24 @@ const Creator = ({ agentId, name }) => {
                     }}
                     required
                   />
+                  {phoneValidationMessage != null && (
+                    <p
+                      className="mt-1.5 text-sm"
+                      style={{
+                        color:
+                          phoneValidationMessage === 'Valid'
+                            ? 'hsl(var(--brand-primary))'
+                            : '#b91c1c',
+                        fontWeight: 500,
+                      }}
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {phoneValidationMessage === 'Valid'
+                        ? 'Phone number is valid'
+                        : 'Please enter a valid phone number'}
+                    </p>
+                  )}
                 </div>
               </div>
 

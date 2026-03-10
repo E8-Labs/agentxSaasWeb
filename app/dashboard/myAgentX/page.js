@@ -1818,7 +1818,7 @@ function Page() {
       })
 
       if (response) {
-        // console.log("response of update image is", response.data)
+        console.log('update agent image API response: click.kj', response)
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -2577,6 +2577,7 @@ function Page() {
         AuthToken = Data.token
 
         const ApiPath = Apis.updateSubAgent
+        console.log("ApiPath for update sub agent live transfer number is", ApiPath);
 
         let formData = new FormData()
         formData.append('agentId', showDrawerSelectedAgent.id)
@@ -2650,7 +2651,7 @@ function Page() {
 
         // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
-          // console.log(`test data passed is ${key}: ${value}`);
+          console.log(`test data passed is ${key}: ${value}`);
         }
 
         // return
@@ -3046,8 +3047,8 @@ function Page() {
         setIsVisibleSnack(true)
         setShowSuccessSnack(response.data.message)
 
-        setShowDrawerSelectedAgent(null)
         setActiveTab('Agent Info')
+        setShowDrawerSelectedAgent(null)
         setDelAgentModal(false)
 
         //updating data on localstorage
@@ -3957,10 +3958,10 @@ function Page() {
 
   const handleDrawerClose = async () => {
     setShowDrawerSelectedAgent(null)
+    setActiveTab('Agent Info')
     await getProfileDetails()
     // Sync fresh profile data to Redux after profile update
     await syncProfileToRedux()
-    setActiveTab('Agent Info')
   }
 
   return (

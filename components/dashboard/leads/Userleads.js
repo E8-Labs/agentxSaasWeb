@@ -38,6 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { pipeline } from 'zod'
 
@@ -64,7 +65,7 @@ import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetailsCN from './extras/LeadDetailsCN'
-import { Check, Download, Phone, Settings2, Trash } from 'lucide-react'
+import { Check, Download, ListFilter, Phone, Settings2, Trash, UserPlus } from 'lucide-react'
 import LeadDetails from './extras/LeadDetails'
 import {
   DropdownMenu,
@@ -81,6 +82,9 @@ import { getUniqueTags as fetchUniqueTags, getUniqueTagsList } from '@/component
 
 const Userleads = ({
   handleShowAddLeadModal,
+  onOpenUploadLeads,
+  onOpenCreateSmartlist,
+  onOpenNewContact,
   handleShowUserLeads,
   newListAdded,
   shouldSet,
@@ -1564,6 +1568,52 @@ const Userleads = ({
     )
   }
 
+  const handleSheetsDragStart = useCallback(() => {
+    document.body.style.userSelect = 'none'
+    document.body.style.webkitUserSelect = 'none'
+  }, [])
+
+  const handleSheetsDragEnd = useCallback(
+    async (result) => {
+      document.body.style.userSelect = ''
+      document.body.style.webkitUserSelect = ''
+      const { source, destination } = result
+      if (!destination || source.index === destination.index) return
+
+      const reordered = Array.from(SheetsList)
+      const [moved] = reordered.splice(source.index, 1)
+      reordered.splice(destination.index, 0, moved)
+      const sheetIds = reordered.map((s) => s.id).filter((id) => id != null)
+
+      setSheetsList(reordered)
+
+      try {
+        const localData = localStorage.getItem('User')
+        const AuthToken = localData ? JSON.parse(localData).token : null
+        if (!AuthToken) {
+          setSheetsList(SheetsList)
+          setSnackMessage('Please sign in again to save order')
+          setMessageType(SnackbarTypes.error)
+          setShowSnackMessage(true)
+          return
+        }
+        await axios.put(Apis.reorderSheets, { sheetIds }, {
+          headers: {
+            Authorization: 'Bearer ' + AuthToken,
+            'Content-Type': 'application/json',
+          },
+        })
+      } catch (err) {
+        setSheetsList(SheetsList)
+        const msg = err?.response?.data?.message || err?.message || 'Failed to save list order'
+        setSnackMessage(msg)
+        setMessageType(SnackbarTypes.error)
+        setShowSnackMessage(true)
+      }
+    },
+    [SheetsList],
+  )
+
   const getColumnData = (column, item) => {
     const { title } = column
     const searchQuery = searchLead ? String(searchLead).trim() : ''
@@ -1620,9 +1670,9 @@ const Userleads = ({
               >
                 {searchQuery
                   ? highlightSearchMatch(
-                      [item.firstName, item.lastName].filter(Boolean).join(' ') || '-',
-                      searchQuery,
-                    )
+                    [item.firstName, item.lastName].filter(Boolean).join(' ') || '-',
+                    searchQuery,
+                  )
                   : `${item.firstName || ''} ${item.lastName || ''}`.trim() || '-'}
               </div>
             </div>
@@ -2109,13 +2159,32 @@ const Userleads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center bg-white h-auto max-h-screen overflow-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="w-full flex flex-col items-center bg-white min-h-screen h-screen overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
         (<div className="w-screen">
           <LeadLoading />
         </div>)
       ) : (
         <>
+          <style jsx global>{`
+            .leads-table-body-scroll::-webkit-scrollbar {
+              height: 8px;
+            }
+            .leads-table-body-scroll::-webkit-scrollbar-track {
+              background: hsl(var(--brand-primary) / 0.12);
+              border-radius: 4px;
+            }
+            .leads-table-body-scroll::-webkit-scrollbar-thumb {
+              background: hsl(var(--brand-primary));
+              border-radius: 4px;
+            }
+            .leads-table-body-scroll::-webkit-scrollbar-thumb:hover {
+              background: hsl(var(--brand-primary) / 0.85);
+            }
+            .sheets-tabs-scroll-hide::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
           <AgentSelectSnackMessage
             isVisible={showsnackMessage}
             hide={() => setShowSnackMessage(false)}
@@ -2128,51 +2197,51 @@ const Userleads = ({
                 <div className="flex flex-row items-center gap-2">
                   <TypographyH3>Leads</TypographyH3>
                   {reduxUser?.currentUsage?.maxLeads &&
-                  reduxUser?.planCapabilities?.maxLeads < 10000000 &&
-                  reduxUser?.plan?.planId != null && (
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: '400',
-                        color: '#0000080',
-                      }}
-                    >
-                      {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads) || 0} used`}
-                    </div>
-                  )}
+                    reduxUser?.planCapabilities?.maxLeads < 10000000 &&
+                    reduxUser?.plan?.planId != null && (
+                      <div
+                        style={{
+                          fontSize: 14,
+                          fontWeight: '400',
+                          color: '#0000080',
+                        }}
+                      >
+                        {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads) || 0} used`}
+                      </div>
+                    )}
                 </div>
               }
               showTasks={true}
             />
           </div>
 
-          <div className="w-[98%] mx-auto bg-transparent m-0 p-0 h-auto">
-            <div className="pt-0 bg-transparent flex flex-col gap-0.5 h-auto">
+          <div className="w-[98%] mx-auto bg-transparent m-0 p-0 flex-1 min-h-0 flex flex-col">
+            <div className="pt-0 bg-transparent flex flex-col gap-0.5 flex-1 min-h-0">
               {(hasExportPermission || selectedLeadsList.length > 0 || selectedAll) && (
-              <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
-                <div className="flex flex-row items-center gap-6">
-                  {/* <div className='flex flex-row items-center gap-2'>
+                <div className="hidden flex-row items-center justify-end py-3 px-3 border-b" style={{ borderColor: '#eaeaea' }}>
+                  <div className="flex flex-row items-center gap-6">
+                    {/* <div className='flex flex-row items-center gap-2'>
                                         <Image src={"/assets/buyLeadIcon.png"} height={24} width={24} alt='*' />
                                         <span className='text-purple' style={styles.paragraph}>
                                             Buy Lead
                                         </span>
                                     </div> */}
 
-                  <AssignLeadAnimation
-                    showModal={AssignLeadModal}
-                    selectedLead={selectedLeadsList}
-                    handleClose={
-                      handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
-                    }
-                    leadIs={selectedLeadsList}
-                    selectedAll={selectedAll}
-                    filters={getFiltersObject()}
-                    totalLeads={totalLeads}
-                    userProfile={userLocalDetails} // this is the .user object doesn't include token
-                    sheetId={SelectedSheetId}
-                  />
+                    <AssignLeadAnimation
+                      showModal={AssignLeadModal}
+                      selectedLead={selectedLeadsList}
+                      handleClose={
+                        handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
+                      }
+                      leadIs={selectedLeadsList}
+                      selectedAll={selectedAll}
+                      filters={getFiltersObject()}
+                      totalLeads={totalLeads}
+                      userProfile={userLocalDetails} // this is the .user object doesn't include token
+                      sheetId={SelectedSheetId}
+                    />
 
-                  {/* <Modal
+                    {/* <Modal
                     open={AssignLeadModal}
                     onClose={() => setAssignLeadModal(false)}
                     closeAfterTransition
@@ -2230,505 +2299,574 @@ const Userleads = ({
                       </div>
                     </Box>
                   </Modal>*/}
+                  </div>
                 </div>
-              </div>
               )}
               <div className="sticky top-[65px] z-10 flex flex-col flex-shrink-0 bg-white w-full animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ gap: 2 }}>
-              <div className="flex flex-row items-center justify-between w-full min-w-0 overflow-hidden px-3 py-3 h-auto border-0" style={{ border: 'none' }}>
-                <div className="flex flex-row items-center gap-2 min-w-0 flex-1 overflow-hidden">
-                  <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
-                    <input
-                      style={{ ...styles.paragraph, fontWeight: 400 }}
-                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full text-[14px] text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
-                      placeholder="Search by name, email or phone"
-                      value={searchLead}
-                      onChange={(e) => {
-                        setNextCursorValue('')
-                        const value = e.target.value
-                        setSearchLead(e.target.value)
-                        handleSearchChange(value)
+                <div className="flex flex-row items-center justify-between w-full min-w-0 overflow-hidden px-3 py-3 h-auto border-0" style={{ border: 'none' }}>
+                  <div className="flex flex-row items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                    <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
+                      <input
+                        style={{ ...styles.paragraph, fontWeight: 400 }}
+                        className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full text-[14px] text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
+                        placeholder="Search by name, email or phone"
+                        value={searchLead}
+                        onChange={(e) => {
+                          setNextCursorValue('')
+                          const value = e.target.value
+                          setSearchLead(e.target.value)
+                          handleSearchChange(value)
+                        }}
+                      />
+                      <button className="outline-none border-none" type="button">
+                        <Image
+                          src={'/assets/searchIcon.png'}
+                          height={18}
+                          width={18}
+                          alt="Search"
+                        />
+                      </button>
+                    </div>
+                    <button
+                      className="relative outline-none flex-shrink-0 flex flex-row items-center gap-2 px-3 h-10 rounded-lg border border-transparent bg-[#F9FAFB] hover:bg-white hover:border-[#E5E7EB] active:scale-[0.98] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
+                      onClick={() => {
+                        setShowFilterModal(true)
                       }}
-                    />
-                    <button className="outline-none border-none" type="button">
-                      <Image
-                        src={'/assets/searchIcon.png'}
-                        height={18}
-                        width={18}
-                        alt="Search"
-                      />
+                    >
+                      <Settings2 size={18} className="flex-shrink-0" aria-hidden />
+                      <span className="text-[14px] font-normal">Filter</span>
+                      {filtersSelected.length > 0 && (
+                        <span
+                          className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-brand-primary"
+                          aria-hidden
+                        />
+                      )}
                     </button>
-                  </div>
-                  <button
-                    className="relative outline-none flex-shrink-0 flex flex-row items-center gap-2 px-3 h-10 rounded-lg border border-transparent bg-[#F9FAFB] hover:bg-white hover:border-[#E5E7EB] active:scale-[0.98] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
-                    onClick={() => {
-                      setShowFilterModal(true)
-                    }}
-                  >
-                    <Settings2 size={18} className="flex-shrink-0" aria-hidden />
-                    <span className="text-[14px] font-normal">Filter</span>
-                    {filtersSelected.length > 0 && (
-                      <span
-                        className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-brand-primary"
-                        aria-hidden
-                      />
-                    )}
-                  </button>
-                  {/* Show filters here in a row*/}
-                  <div
-                    className="flex flex-row items-center gap-2 flex-shrink-0 overflow-auto w-[65%]"
-                    style={{
-                      scrollbarColor: '#00000000',
-                      scrollbarWidth: 'none',
-                    }}
-                  >
-                    {filtersSelected.map((filter, index) => {
-                      //////console.log;
-                      return (
-                        <div className="flex-shrink-0" key={filter.key + index}>
-                          <div
-                            className="px-2 h-10 flex-shrink-0 rounded-lg flex flex-row items-center gap-1"
-                            style={{
-                              fontWeight: 400,
-                              fontSize: 14,
-                              color: 'rgba(0,0,0,0.8)',
-                              backgroundColor: 'rgba(0,0,0,0.05)',
-                            }}
-                          >
-                            {getFilterTitle(filter)}
-                            <button
-                              className="outline-none"
-                              onClick={() => {
-                                let filters = []
-                                let stages = []
-                                let pipeline = null
-                                let fromDate = null
-                                let toDate = null
-                                const remainingTags = []
-                                setNextCursorValue('')
-                                filtersSelected.map((f, ind) => {
-                                  if (index != ind) {
-                                    filters.push(f)
-                                    if (f.key == 'stage') {
-                                      stages.push(f.values[0])
-                                    }
-                                    if (f.key == 'pipeline') {
-                                      pipeline = f.values[0]
-                                    }
-                                    if (f.key == 'date') {
-                                      fromDate = f.values[0]
-                                      toDate = f.values[1]
-                                    }
-                                    if (f.key == 'tag') {
-                                      remainingTags.push(f.values[0])
-                                    }
-                                  }
-                                })
-                                //   setFilterLeads([]);
-                                //   setLeadsList([]);
-                                //   setTimeout(() => {
-                                //     let filterText = getFilterText();
-                                //     handleFilterLeads(0, filterText);
-                                //   }, 1000);
-
-                                //   filters.splice(index, 1);
-                                setSelectedStage(stages)
-                                setSelectedFromDate(fromDate)
-                                setSelectedToDate(toDate)
-                                setSelectedPipeline(pipeline)
-                                setFilterTags(remainingTags)
-                                setFiltersSelected(filters)
+                    {/* Show filters here in a row*/}
+                    <div
+                      className="flex flex-row items-center gap-2 flex-shrink-0 overflow-auto w-[65%]"
+                      style={{
+                        scrollbarColor: '#00000000',
+                        scrollbarWidth: 'none',
+                      }}
+                    >
+                      {filtersSelected.map((filter, index) => {
+                        //////console.log;
+                        return (
+                          <div className="flex-shrink-0" key={filter.key + index}>
+                            <div
+                              className="px-2 h-10 flex-shrink-0 rounded-lg flex flex-row items-center gap-1"
+                              style={{
+                                fontWeight: 400,
+                                fontSize: 14,
+                                color: 'rgba(0,0,0,0.8)',
+                                backgroundColor: 'rgba(0,0,0,0.05)',
                               }}
                             >
-                              <Image
-                                src={'/otherAssets/crossIcon.png'}
-                                height={20}
-                                width={20}
-                                alt="*"
-                              />
-                            </button>
+                              {getFilterTitle(filter)}
+                              <button
+                                className="outline-none"
+                                onClick={() => {
+                                  let filters = []
+                                  let stages = []
+                                  let pipeline = null
+                                  let fromDate = null
+                                  let toDate = null
+                                  const remainingTags = []
+                                  setNextCursorValue('')
+                                  filtersSelected.map((f, ind) => {
+                                    if (index != ind) {
+                                      filters.push(f)
+                                      if (f.key == 'stage') {
+                                        stages.push(f.values[0])
+                                      }
+                                      if (f.key == 'pipeline') {
+                                        pipeline = f.values[0]
+                                      }
+                                      if (f.key == 'date') {
+                                        fromDate = f.values[0]
+                                        toDate = f.values[1]
+                                      }
+                                      if (f.key == 'tag') {
+                                        remainingTags.push(f.values[0])
+                                      }
+                                    }
+                                  })
+                                  //   setFilterLeads([]);
+                                  //   setLeadsList([]);
+                                  //   setTimeout(() => {
+                                  //     let filterText = getFilterText();
+                                  //     handleFilterLeads(0, filterText);
+                                  //   }, 1000);
+
+                                  //   filters.splice(index, 1);
+                                  setSelectedStage(stages)
+                                  setSelectedFromDate(fromDate)
+                                  setSelectedToDate(toDate)
+                                  setSelectedPipeline(pipeline)
+                                  setFilterTags(remainingTags)
+                                  setFiltersSelected(filters)
+                                }}
+                              >
+                                <Image
+                                  src={'/otherAssets/crossIcon.png'}
+                                  height={20}
+                                  width={20}
+                                  alt="*"
+                                />
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )
-                    })}
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex flex-row items-center justify-end gap-2 w-auto flex-shrink-0 text-[14px] font-normal">
-                  {hasExportPermission && (
-                    exportLoading ? (
-                      <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                    ) : (
-                      <button
-                        className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0"
-                        style={{
-                          fontWeight: 400,
-                          fontSize: 14,
-                          backgroundColor: '#f7f7f7',
-                          borderRadius: 8,
-                        }}
-                        onClick={() => {
-                          handleExportLeads()
-                        }}
-                        disabled={exportLoading}
-                      >
-                        <Download size={18} className="flex-shrink-0" aria-hidden />
-                        <span className="text-[14px]">Export</span>
-                      </button>
-                    )
-                  )}
-                  <button
-                    style={{
-                      fontWeight: 400,
-                      fontSize: 14,
-                      backgroundColor:
-                        selectedLeadsList.length > 0 || selectedAll
-                          ? 'hsl(var(--brand-primary))'
-                          : '#f7f7f7',
-                      color:
-                        selectedLeadsList.length > 0 || selectedAll
-                          ? 'white'
-                          : undefined,
-                      borderRadius: 8,
-                    }}
-                    className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 hover:opacity-90"
-                    onClick={() => {
-                      if (userLocalDetails?.plan) {
-                        setAssignLeadModal(true)
-                      } else {
-                        setSnackMessage('Add payment method to continue')
-                        setShowSnackMessage(true)
-                        setMessageType(SnackbarTypes.Warning)
-                      }
-                    }}
-                    disabled={!(selectedLeadsList.length > 0 || selectedAll)}
-                  >
-                    <Phone size={18} strokeWidth={2} className="flex-shrink-0" aria-hidden />
-                    <span className="text-[14px]">Start Campaign</span>
-                  </button>
+                  <div className="flex flex-row items-center justify-end gap-2 w-auto flex-shrink-0 text-[14px] font-normal">
+                    {hasExportPermission && (
+                      exportLoading ? (
+                        <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                      ) : (
+                        <button
+                          className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0"
+                          style={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                            backgroundColor: '#f7f7f7',
+                            borderRadius: 8,
+                          }}
+                          onClick={() => {
+                            handleExportLeads()
+                          }}
+                          disabled={exportLoading}
+                        >
+                          <Download size={18} className="flex-shrink-0" aria-hidden />
+                          <span className="text-[14px]">Export</span>
+                        </button>
+                      )
+                    )}
+                    <button
+                      style={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                        backgroundColor:
+                          selectedLeadsList.length > 0 || selectedAll
+                            ? 'hsl(var(--brand-primary))'
+                            : '#f7f7f7',
+                        color:
+                          selectedLeadsList.length > 0 || selectedAll
+                            ? 'white'
+                            : undefined,
+                        borderRadius: 8,
+                      }}
+                      className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 hover:opacity-90"
+                      onClick={() => {
+                        if (userLocalDetails?.plan) {
+                          setAssignLeadModal(true)
+                        } else {
+                          setSnackMessage('Add payment method to continue')
+                          setShowSnackMessage(true)
+                          setMessageType(SnackbarTypes.Warning)
+                        }
+                      }}
+                      disabled={!(selectedLeadsList.length > 0 || selectedAll)}
+                    >
+                      <Phone size={18} strokeWidth={2} className="flex-shrink-0" aria-hidden />
+                      <span className="text-[14px]">Start Campaign</span>
+                    </button>
 
-                  {/* Select All checkbox moved to Name column header in table */}
+                    {/* Select All checkbox moved to Name column header in table */}
 
-                  {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
+                    {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
                                         <span>
                                             Import
                                         </span>
                                         <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
                                     </button> */}
+                  </div>
                 </div>
-              </div>
 
-              {/* Hide sheets list when searching across all sheets */}
-              {!(searchLead && String(searchLead).trim()) && (
-              <div
-                className="flex flex-row items-center gap-2 text-[14px] font-normal border-b px-3"
-                style={{ ...styles.paragraph, borderColor: '#eaeaea' }}
-              >
-                <div
-                  className="flex flex-row items-center w-full min-h-[46px]"
-                  style={{
-                    ...styles.paragraph,
-                    overflowY: 'hidden',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                    fontSize: 14,
-                    fontWeight: 400,
-                    gap: 2,
-                  }}
-                >
-                  <style jsx>
-                    {`
-                      div::-webkit-scrollbar {
-                        display: none; /* For Chrome, Safari, and Opera */
-                      }
-                    `}
-                  </style>
-                  {SheetsList.map((item, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className={`group flex flex-row items-center gap-3 px-2 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 active:scale-[0.98] ${editingSheetId === item.id ? 'flex-shrink-0' : ''}`}
-                        style={{
-                          borderBottom:
-                            SelectedSheetId === item.id
-                              ? '2px solid hsl(var(--brand-primary))'
-                              : '',
-                          color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {editingSheetId === item.id ? (
-                          <input
-                            type="text"
-                            value={editingSheetName}
-                            onChange={(e) => setEditingSheetName(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault()
-                                saveInlineSheetName(item, editingSheetName)
-                              } else if (e.key === 'Escape') {
-                                setEditingSheetId(null)
-                                setEditingSheetName('')
-                                e.target.blur()
-                              }
-                            }}
-                            onBlur={() => saveInlineSheetName(item, editingSheetName)}
-                            onDoubleClick={(e) => e.stopPropagation()}
-                            ref={inlineSheetNameInputRef}
+                {/* Hide sheets list when searching across all sheets */}
+                {!(searchLead && String(searchLead).trim()) && (
+                  <div
+                    className="flex flex-row items-center gap-2 text-[14px] font-normal border-b px-3 select-none"
+                    style={{ ...styles.paragraph, borderColor: '#eaeaea', userSelect: 'none', WebkitUserSelect: 'none' }}
+                  >
+                    <DragDropContext onDragStart={handleSheetsDragStart} onDragEnd={handleSheetsDragEnd}>
+                      <Droppable droppableId="sheets-list" direction="horizontal">
+                        {(droppableProvided) => (
+                          <div
+                            ref={droppableProvided.innerRef}
+                            {...droppableProvided.droppableProps}
+                            className="sheets-tabs-scroll-hide flex flex-row items-center w-full min-h-[46px]"
                             style={{
-                              fontWeight: 400,
+                              ...styles.paragraph,
+                              overflowY: 'hidden',
+                              scrollbarWidth: 'none',
+                              msOverflowStyle: 'none',
                               fontSize: 14,
-                              opacity: 0.8,
-                              width: `${Math.max((editingSheetName || '').length + 1, 8)}ch`,
-                              minWidth: '8ch',
-                              border: 'none',
-                              borderBottom: '1px dotted rgba(0,0,0,0.7)',
-                              borderRadius: 0,
-                            }}
-                            className="outline-none text-left bg-transparent px-0 py-0 min-w-0"
-                          />
-                        ) : (
-                          <button
-                            style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}
-                            className="outline-none w-full text-left"
-                            onClick={() => {
-                              if (sheetClickTimeoutRef.current) clearTimeout(sheetClickTimeoutRef.current)
-                              sheetClickTimeoutRef.current = setTimeout(() => {
-                                sheetClickTimeoutRef.current = null
-                                setSearchLead('')
-                                sheetIndexSelected.current = index
-                                setLeadsList([])
-                                setFilterLeads([])
-                                setLeadColumns([])
-                                setMoreLeadsLoader(false)
-                                setSheetsLoader(false)
-                                setInitialLoader(false)
-                                isFilteringRef.current = false
-                                requestVersion.current++
-                                setNextCursorValue(0)
-                                setHasMore(true)
-                                setSelectedSheetId(item.id)
-                                setParamsInSearchBar(index)
-                                setSelectedLeadsList([])
-                                setSelectedAll(false)
-                              }, 200)
-                            }}
-                            onDoubleClick={(e) => {
-                              e.stopPropagation()
-                              if (sheetClickTimeoutRef.current) {
-                                clearTimeout(sheetClickTimeoutRef.current)
-                                sheetClickTimeoutRef.current = null
-                              }
-                              setEditingSheetId(item.id)
-                              setEditingSheetName(item.sheetName ?? '')
+                              fontWeight: 400,
+                              gap: 2,
                             }}
                           >
-                            {item.sheetName}
-                          </button>
-                        )}
-                        <DropdownMenu
-                          open={dropdownOpen[item.id] || false}
-                          onOpenChange={(open) => {
-                            setDropdownOpen((prev) => ({
-                              ...prev,
-                              [item.id]: open,
-                            }))
-                            if (open) {
-                              handleShowPopup(item)
-                            }
-                          }}
-                        >
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              className={`outline-none transition-opacity duration-150 ${(dropdownOpen[item.id] || SelectedSheetId === item.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                              onClick={() => {
-                                handleShowPopup(item)
-                              }}
-                            >
-                              <DotsThree weight="bold" size={25} color="black" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-[120px]"
-                          >
-                            <DropdownMenuItem
-                              className="text-black focus:text-purple cursor-pointer"
-                              onSelect={(e) => {
-                                e.preventDefault()
-                                setShowEditSmartList(true);
-                                setSelectedSmartListForEdit(item);
-                                console.log("selectedSmartListForEdit", item);
-                              }}
-                              disabled={editSmartListLoader}
-                            >
-                              {editSmartListLoader ? (
-                                <CircularProgress
-                                  size={15}
-                                  sx={{ color: 'hsl(var(--brand-primary))' }}
-                                  className="mr-2"
-                                />
-                              ) : (
-                                <Image
-                                  className='mr-2'
-                                  src={'/assets/editPen.png'}
-                                  height={15}
-                                  width={15}
-                                  alt="*"
-                                />
-                              )}
-                              <span style={{ fontWeight: '500', fontSize: 16 }}>
-                                Edit
-                              </span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-red focus:text-red cursor-pointer"
-                              onSelect={(e) => {
-                                e.preventDefault()
-                                handleDeleteSmartList(item)
-                              }}
-                              disabled={delSmartListLoader}
-                            >
-                              {delSmartListLoader ? (
-                                <CircularProgress
-                                  size={15}
-                                  sx={{ color: 'hsl(var(--brand-primary))' }}
-                                  className="mr-2"
-                                />
-                              ) : (
-                                <Trash size={18} className="mr-2" />
-                              )}
-                              <span style={{ fontWeight: '500', fontSize: 16 }}>
-                                Delete
-                              </span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    )
-                  })}
-                </div>
-                <button
-                  className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 flex-shrink-0 whitespace-nowrap"
-                  style={{
-                    fontWeight: 400,
-                    fontSize: 14,
-                    backgroundColor: '#f7f7f7',
-                    borderRadius: 8,
-                  }}
-                  onClick={() => {
-                    if (uploading) {
-                      setSnackMessage(
-                        'Please wait. Another Lead upload is in progress.',
-                      )
-                      setShowSnackMessage(true)
-                      setMessageType(SnackbarTypes.Warning)
-                      return
-                    }
-                    if (
-                      user?.planCapabilities.maxLeads >
-                      user?.currentUsage.maxLeads
-                    ) {
-                      handleShowAddLeadModal(true)
-                    } else {
-                      setShowUpgradeModal(true)
-                    }
-                  }}
-                >
-                  <Plus size={18} color="hsl(var(--brand-primary))" weight="bold" className="flex-shrink-0" aria-hidden />
-                  <span className="text-[14px]">New Leads</span>
-                </button>
-              </div>
-              )}
-
-              {LeadsList.length > 0 && (
-              <div
-                ref={headerTableScrollRef}
-                onScroll={syncTableScrollHeaderToBody}
-                className="overflow-x-auto overflow-y-hidden w-full"
-                style={{ scrollbarWidth: 'thin' }}
-              >
-              <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
-                <colgroup>
-                  {leadColumns.map((col, i) => (
-                    <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
-                  ))}
-                </colgroup>
-                <thead>
-                  <tr style={{ fontWeight: '500' }}>
-                    {leadColumns.map((column, index) => {
-                      const isMoreColumn = column.title === 'More'
-                      const isNameColumn = column.title === 'Name'
-                      const columnWidth = isMoreColumn ? '100px' : isNameColumn ? '254px' : '150px'
-                      return (
-                        <th
-                          key={index}
-                          className={`border-none px-4 py-2 text-left uppercase text-[14px] font-normal ${isMoreColumn ? 'sticky right-0 bg-white' : ''}`}
-                          style={{
-                            color: 'rgba(0,0,0,0.6)',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            zIndex: isMoreColumn ? 1 : 'auto',
-                            width: columnWidth,
-                            minWidth: columnWidth,
-                            maxWidth: columnWidth,
-                          }}
-                        >
-                          {isNameColumn ? (
-                            <div className="flex flex-row items-center gap-2">
-                              <Checkbox
-                                className="checkbox-leads flex-shrink-0"
-                                checked={selectedAll}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setSelectedLeadsList([])
-                                    setSelectedAll(true)
-                                  } else {
-                                    setSelectedLeadsList([])
-                                    setSelectedAll(false)
+                            {SheetsList.map((item, index) => (
+                              <Draggable
+                                key={item.id ?? `sheet-${index}`}
+                                draggableId={String(item.id ?? `sheet-${index}`)}
+                                index={index}
+                              >
+                                {(draggableProvided, snapshot) => (
+                                  <div
+                                    ref={draggableProvided.innerRef}
+                                    {...draggableProvided.draggableProps}
+                                    {...draggableProvided.dragHandleProps}
+                                    className={`group flex flex-row items-center gap-3 flex-shrink-0 px-2 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 cursor-grab active:cursor-grabbing select-none ${editingSheetId === item.id ? '' : ''}`}
+                                    style={{
+                                      ...draggableProvided.draggableProps.style,
+                                      borderBottom:
+                                        SelectedSheetId === item.id
+                                          ? '2px solid hsl(var(--brand-primary))'
+                                          : '',
+                                      color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
+                                      whiteSpace: 'nowrap',
+                                      userSelect: 'none',
+                                      WebkitUserSelect: 'none',
+                                      ...(snapshot.isDragging
+                                        ? {
+                                            backgroundColor: 'hsl(var(--background))',
+                                            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                            borderRadius: 8,
+                                            zIndex: 1,
+                                          }
+                                        : {}),
+                                    }}
+                                  >
+                                    <span
+                                      className="flex-shrink-0 inline-flex pointer-events-none"
+                                      aria-hidden
+                                    >
+                                      <Image
+                                        src="/assets/list.png"
+                                        height={6}
+                                        width={16}
+                                        alt=""
+                                        draggable={false}
+                                      />
+                                    </span>
+                                    {editingSheetId === item.id ? (
+                              <input
+                                type="text"
+                                value={editingSheetName}
+                                onChange={(e) => setEditingSheetName(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    saveInlineSheetName(item, editingSheetName)
+                                  } else if (e.key === 'Escape') {
+                                    setEditingSheetId(null)
+                                    setEditingSheetName('')
+                                    e.target.blur()
                                   }
                                 }}
+                                onBlur={() => saveInlineSheetName(item, editingSheetName)}
+                                onDoubleClick={(e) => e.stopPropagation()}
+                                ref={inlineSheetNameInputRef}
+                                style={{
+                                  fontWeight: 400,
+                                  fontSize: 14,
+                                  opacity: 0.8,
+                                  width: `${Math.max((editingSheetName || '').length + 1, 8)}ch`,
+                                  minWidth: '8ch',
+                                  border: 'none',
+                                  borderBottom: '1px dotted rgba(0,0,0,0.7)',
+                                  borderRadius: 0,
+                                }}
+                                className="outline-none text-left bg-transparent px-0 py-0 min-w-0"
                               />
-                              <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
-                              {(selectedLeadsList.length > 0 || selectedAll) && (
-                                <span
-                                  className="ml-auto flex-shrink-0"
-                                  style={{
-                                    padding: '4px 8px',
-                                    fontSize: 12,
-                                    fontWeight: 500,
-                                    color: 'hsl(var(--brand-primary))',
-                                    backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                    borderRadius: 8,
+                            ) : (
+                              <button
+                                style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}
+                                className="outline-none w-full text-left"
+                                onClick={() => {
+                                  if (SelectedSheetId === item?.id) {
+                                    return
+                                  }
+                                  if (sheetClickTimeoutRef.current) clearTimeout(sheetClickTimeoutRef.current)
+                                  sheetClickTimeoutRef.current = setTimeout(() => {
+                                    sheetClickTimeoutRef.current = null
+                                    setSearchLead('')
+                                    sheetIndexSelected.current = index
+                                    setLeadsList([])
+                                    setFilterLeads([])
+                                    setLeadColumns([])
+                                    setMoreLeadsLoader(false)
+                                    setSheetsLoader(false)
+                                    setInitialLoader(false)
+                                    isFilteringRef.current = false
+                                    requestVersion.current++
+                                    setNextCursorValue(0)
+                                    setHasMore(true)
+                                    setSelectedSheetId(item.id)
+                                    setParamsInSearchBar(index)
+                                    setSelectedLeadsList([])
+                                    setSelectedAll(false)
+                                  }, 200)
+                                }}
+                                onDoubleClick={(e) => {
+                                  e.stopPropagation()
+                                  if (sheetClickTimeoutRef.current) {
+                                    clearTimeout(sheetClickTimeoutRef.current)
+                                    sheetClickTimeoutRef.current = null
+                                  }
+                                  setEditingSheetId(item.id)
+                                  setEditingSheetName(item.sheetName ?? '')
+                                }}
+                              >
+                                {item.sheetName}
+                              </button>
+                            )}
+                            <DropdownMenu
+                              open={dropdownOpen[item.id] || false}
+                              onOpenChange={(open) => {
+                                setDropdownOpen((prev) => ({
+                                  ...prev,
+                                  [item.id]: open,
+                                }))
+                                if (open) {
+                                  handleShowPopup(item)
+                                }
+                              }}
+                            >
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  className={`outline-none transition-opacity duration-150 ${(dropdownOpen[item.id] || SelectedSheetId === item.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                                  onClick={() => {
+                                    handleShowPopup(item)
                                   }}
                                 >
-                                  {getLeadSelectedCount()} {getLeadSelectedCount() === 1 ? 'lead' : 'leads'}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            (column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()
-                          )}
-                        </th>
-                      )
-                    })}
-                  </tr>
-                </thead>
-              </table>
-              </div>
-              )}
+                                  <DotsThree weight="bold" size={25} color="black" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="w-[120px]"
+                              >
+                                <DropdownMenuItem
+                                  className="text-black focus:text-purple cursor-pointer"
+                                  onSelect={(e) => {
+                                    e.preventDefault()
+                                    setShowEditSmartList(true);
+                                    setSelectedSmartListForEdit(item);
+                                    console.log("selectedSmartListForEdit", item);
+                                  }}
+                                  disabled={editSmartListLoader}
+                                >
+                                  {editSmartListLoader ? (
+                                    <CircularProgress
+                                      size={15}
+                                      sx={{ color: 'hsl(var(--brand-primary))' }}
+                                      className="mr-2"
+                                    />
+                                  ) : (
+                                    <Image
+                                      className='mr-2'
+                                      src={'/assets/editPen.png'}
+                                      height={15}
+                                      width={15}
+                                      alt="*"
+                                    />
+                                  )}
+                                  <span style={{ fontWeight: '500', fontSize: 16 }}>
+                                    Edit
+                                  </span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="text-red focus:text-red cursor-pointer"
+                                  onSelect={(e) => {
+                                    e.preventDefault()
+                                    handleDeleteSmartList(item)
+                                  }}
+                                  disabled={delSmartListLoader}
+                                >
+                                  {delSmartListLoader ? (
+                                    <CircularProgress
+                                      size={15}
+                                      sx={{ color: 'hsl(var(--brand-primary))' }}
+                                      className="mr-2"
+                                    />
+                                  ) : (
+                                    <Trash size={18} className="mr-2" />
+                                  )}
+                                  <span style={{ fontWeight: '500', fontSize: 16 }}>
+                                    Delete
+                                  </span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {droppableProvided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 flex-shrink-0 whitespace-nowrap outline-none"
+                          style={{
+                            fontWeight: 400,
+                            fontSize: 14,
+                            backgroundColor: '#f7f7f7',
+                            borderRadius: 8,
+                          }}
+                          aria-haspopup="menu"
+                          aria-label="New leads options"
+                        >
+                          <Plus size={18} color="hsl(var(--brand-primary))" weight="bold" className="flex-shrink-0" aria-hidden />
+                          <span className="text-[14px]">New Leads</span>
+                          <CaretDown size={14} className="flex-shrink-0 text-primary" aria-hidden />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" side="bottom" avoidCollisions={false} className="min-w-[180px]">
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            if (uploading) {
+                              setSnackMessage(
+                                'Please wait. Another Lead upload is in progress.',
+                              )
+                              setShowSnackMessage(true)
+                              setMessageType(SnackbarTypes.Warning)
+                              return
+                            }
+                            if (
+                              user?.planCapabilities?.maxLeads >
+                              user?.currentUsage?.maxLeads
+                            ) {
+                              onOpenUploadLeads?.()
+                            } else {
+                              setShowUpgradeModal(true)
+                            }
+                          }}
+                          className="flex flex-row items-center gap-2 cursor-pointer"
+                        >
+                          <UserPlus size={22} className="text-primary shrink-0" aria-hidden />
+                          <span>Upload Leads</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => onOpenCreateSmartlist?.()}
+                          className="flex flex-row items-center gap-2 cursor-pointer"
+                        >
+                          <ListFilter size={22} className="text-primary shrink-0" aria-hidden />
+                          <span>Create Smartlist</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => onOpenNewContact?.()}
+                          className="flex flex-row items-center gap-2 cursor-pointer"
+                        >
+                          <Plus size={22} className="text-primary" aria-hidden />
+                          <span>New Contact</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+
+                {LeadsList.length > 0 && (
+                  <div
+                    ref={headerTableScrollRef}
+                    onScroll={syncTableScrollHeaderToBody}
+                    className="overflow-x-auto overflow-y-hidden w-full"
+                    style={{ scrollbarWidth: 'none' }}
+                  >
+                    <table className="table-auto w-full border-collapse border border-none table-fixed" style={{ minWidth: 'max-content' }}>
+                      <colgroup>
+                        {leadColumns.map((col, i) => (
+                          <col key={i} style={{ width: col.title === 'More' ? '100px' : col.title === 'Name' ? '254px' : '150px' }} />
+                        ))}
+                      </colgroup>
+                      <thead>
+                        <tr style={{ fontWeight: '500' }}>
+                          {leadColumns.map((column, index) => {
+                            const isMoreColumn = column.title === 'More'
+                            const isNameColumn = column.title === 'Name'
+                            const columnWidth = isMoreColumn ? '100px' : isNameColumn ? '254px' : '150px'
+                            return (
+                              <th
+                                key={index}
+                                className={`border-none px-4 py-2 text-left uppercase text-[14px] font-normal ${isMoreColumn ? 'sticky right-0 bg-white' : ''}`}
+                                style={{
+                                  color: 'rgba(0,0,0,0.6)',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  zIndex: isMoreColumn ? 1 : 'auto',
+                                  width: columnWidth,
+                                  minWidth: columnWidth,
+                                  maxWidth: columnWidth,
+                                }}
+                              >
+                                {isNameColumn ? (
+                                  <div className="flex flex-row items-center gap-2">
+                                    <Checkbox
+                                      className="checkbox-leads flex-shrink-0"
+                                      checked={selectedAll}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setSelectedLeadsList([])
+                                          setSelectedAll(true)
+                                        } else {
+                                          setSelectedLeadsList([])
+                                          setSelectedAll(false)
+                                        }
+                                      }}
+                                    />
+                                    <span>{(column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()}</span>
+                                    {(selectedLeadsList.length > 0 || selectedAll) && (
+                                      <span
+                                        className="ml-auto flex-shrink-0"
+                                        style={{
+                                          padding: '4px 8px',
+                                          fontSize: 12,
+                                          fontWeight: 500,
+                                          color: 'hsl(var(--brand-primary))',
+                                          backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                          borderRadius: 8,
+                                        }}
+                                      >
+                                        {getLeadSelectedCount()} {getLeadSelectedCount() === 1 ? 'lead' : 'leads'}
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : (
+                                  (column.title.charAt(0).toUpperCase() + column.title.slice(1)).toUpperCase()
+                                )}
+                              </th>
+                            )
+                          })}
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+                )}
 
               </div>
 
               {LeadsList.length > 0 ? (
-                <div
-                  ref={scrollableDivRef}
-                  onScroll={syncTableScrollBodyToHeader}
-                  className="flex-1 min-h-0 overflow-auto pb-[100px] mt-6 bg-transparent"
-                  id="scrollableDiv1"
-                  style={{ scrollbarWidth: 'none', backgroundColor: 'transparent' }}
-                >
-                  <InfiniteScroll
+                  <div
+                    ref={scrollableDivRef}
+                    onScroll={syncTableScrollBodyToHeader}
+                    className="leads-table-body-scroll flex-1 min-h-0 overflow-x-scroll overflow-y-auto pb-[100px] mt-6 bg-transparent max-h-[calc(100svh-280px)]"
+                    id="scrollableDiv1"
+                    style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: 'hsl(var(--brand-primary)) hsl(var(--brand-primary) / 0.12)',
+                      backgroundColor: 'transparent',
+                    }}
+                  >
+                    <InfiniteScroll
                     className="flex flex-col w-full"
                     endMessage={
                       <p
@@ -2772,7 +2910,7 @@ const Userleads = ({
                       <tbody>
                         {FilterLeads.map((item, index) => (
                           <tr
-                            key={index}
+                            key={item.id ?? index}
                             className="hover:bg-gray-50"
                             style={{
                               paddingTop: 12,
@@ -2790,7 +2928,6 @@ const Userleads = ({
                                 style={{
                                   whiteSpace: 'nowrap',
                                   zIndex: column.title === 'More' ? 1 : 'auto',
-                                  // width: "200px",
                                 }}
                               >
                                 {getColumnData(column, item)}
@@ -2859,99 +2996,178 @@ const Userleads = ({
                       borderRadius: 12,
                     }}
                   >
-                  <div className="w-full flex flex-col items-center justify-start gap-0.5">
-                    <div className="flex flex-row items-center justify-between w-full p-4 border-b bg-white" style={{ borderColor: '#eaeaea' }}>
-                      <div className="text-[18px] font-semibold">Filter</div>
-                      <CloseBtn
-                        onClick={() => {
-                          setShowFilterModal(false)
-                        }}
-                      />
-                    </div>
-                    <div className="mt-2 w-full overflow-y-auto px-4 pb-5 text-[14px] h-[400px] min-h-0">
-                      <div className="flex flex-row items-start gap-3">
-                        <div className="w-1/2 h-full">
-                          <div
-                            className="h-full text-[14px]"
-                            style={{
-                              fontWeight: '500',
-                              color: 'rgba(0,0,0,0.8)',
-                              marginTop: 10,
-                            }}
-                          >
-                            From
-                          </div>
-                          <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
-                            <PopoverTrigger asChild>
-                              <button
-                                type="button"
-                                className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
-                              >
-                                <p>
-                                  {selectedFromDate
-                                    ? selectedFromDate.toDateString()
-                                    : 'Select Date'}
-                                </p>
-                                <CalendarDots weight="regular" size={20} aria-hidden />
-                              </button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
-                              <Calendar
-                                mode="single"
-                                selected={selectedFromDate}
-                                onSelect={handleFromDateChange}
-                                initialFocus
-                                classNames={{
-                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
-                                  day_today: 'bg-brand-primary/20 text-brand-primary',
-                                }}
-                              />
-                            </PopoverContent>
-                          </ShadPopover>
-                        </div>
-
-                        <div className="w-1/2 h-full">
-                          <div
-                            className="text-[14px]"
-                            style={{
-                              fontWeight: '500',
-                              color: 'rgba(0,0,0,0.8)',
-                              marginTop: 10,
-                            }}
-                          >
-                            To
-                          </div>
-                          <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
-                            <PopoverTrigger asChild>
-                              <button
-                                type="button"
-                                className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
-                              >
-                                <p>
-                                  {selectedToDate
-                                    ? selectedToDate.toDateString()
-                                    : 'Select Date'}
-                                </p>
-                                <CalendarDots weight="regular" size={20} aria-hidden />
-                              </button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
-                              <Calendar
-                                mode="single"
-                                selected={selectedToDate}
-                                onSelect={handleToDateChange}
-                                initialFocus
-                                classNames={{
-                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
-                                  day_today: 'bg-brand-primary/20 text-brand-primary',
-                                }}
-                              />
-                            </PopoverContent>
-                          </ShadPopover>
-                        </div>
+                    <div className="w-full flex flex-col items-center justify-start gap-0.5">
+                      <div className="flex flex-row items-center justify-between w-full p-4 border-b bg-white" style={{ borderColor: '#eaeaea' }}>
+                        <div className="text-[18px] font-semibold">Filter</div>
+                        <CloseBtn
+                          onClick={() => {
+                            setShowFilterModal(false)
+                          }}
+                        />
                       </div>
+                      <div className="mt-2 w-full overflow-y-auto px-4 pb-5 text-[14px] h-[400px] min-h-0">
+                        <div className="flex flex-row items-start gap-3">
+                          <div className="w-1/2 h-full">
+                            <div
+                              className="h-full text-[14px]"
+                              style={{
+                                fontWeight: '500',
+                                color: 'rgba(0,0,0,0.8)',
+                                marginTop: 10,
+                              }}
+                            >
+                              From
+                            </div>
+                            <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
+                                >
+                                  <p>
+                                    {selectedFromDate
+                                      ? selectedFromDate.toDateString()
+                                      : 'Select Date'}
+                                  </p>
+                                  <CalendarDots weight="regular" size={20} aria-hidden />
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={selectedFromDate}
+                                  onSelect={handleFromDateChange}
+                                  initialFocus
+                                  classNames={{
+                                    day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                    day_today: 'bg-brand-primary/20 text-brand-primary',
+                                  }}
+                                />
+                              </PopoverContent>
+                            </ShadPopover>
+                          </div>
 
-                      <div className="flex flex-col gap-2">
+                          <div className="w-1/2 h-full">
+                            <div
+                              className="text-[14px]"
+                              style={{
+                                fontWeight: '500',
+                                color: 'rgba(0,0,0,0.8)',
+                                marginTop: 10,
+                              }}
+                            >
+                              To
+                            </div>
+                            <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="flex flex-row items-center justify-between p-2.5 px-3 rounded-lg mt-2 w-full text-[14px] bg-white border border-[#eaeaea] hover:bg-muted/30 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
+                                >
+                                  <p>
+                                    {selectedToDate
+                                      ? selectedToDate.toDateString()
+                                      : 'Select Date'}
+                                  </p>
+                                  <CalendarDots weight="regular" size={20} aria-hidden />
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={selectedToDate}
+                                  onSelect={handleToDateChange}
+                                  initialFocus
+                                  classNames={{
+                                    day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                    day_today: 'bg-brand-primary/20 text-brand-primary',
+                                  }}
+                                />
+                              </PopoverContent>
+                            </ShadPopover>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <div
+                            className="mt-6 text-[14px]"
+                            style={{
+                              fontWeight: '500',
+                              color: 'rgba(0,0,0,0.8)',
+                              marginTop: 10,
+                            }}
+                          >
+                            Select Pipeline
+                          </div>
+                          <FormControl fullWidth className="mt-0">
+                            <Select
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={selectedPipeline}
+                              label="Age"
+                              onChange={handleChange}
+                              displayEmpty // Enables placeholder
+                              renderValue={(selected) => {
+                                if (!selected) {
+                                  return (
+                                    <div style={{ color: '#aaa' }}>Select</div>
+                                  ) // Placeholder style
+                                }
+                                return selected
+                              }}
+                              sx={{
+                                border: '1px solid #00000020', // Default border
+                                '&:hover': {
+                                  border: '1px solid #00000020', // Same border on hover
+                                },
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none', // Remove the default outline
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
+                                '&.MuiSelect-select': {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: '30vh',
+                                    overflow: 'auto',
+                                    scrollbarWidth: 'none',
+                                    borderRadius: 12,
+                                    border: '1px solid #eaeaea',
+                                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                  },
+                                },
+                              }}
+                            >
+                              {pipelinesList.map((item, index) => {
+                                const isSelected = selectedPipeline === item.title
+                                return (
+                                  <MenuItem
+                                    key={index}
+                                    value={item.title}
+                                    disableRipple
+                                    sx={{ '&.Mui-focusVisible': { backgroundColor: 'transparent' } }}
+                                  >
+                                    <div className="flex flex-row items-center justify-between w-full">
+                                      <span className={isSelected ? 'text-brand-primary' : ''}>
+                                        {item.title}
+                                      </span>
+                                      {isSelected && (
+                                        <Check className="text-brand-primary flex-shrink-0" size={16} />
+                                      )}
+                                    </div>
+                                  </MenuItem>
+                                )
+                              })}
+                            </Select>
+                          </FormControl>
+                        </div>
+
                         <div
                           className="mt-6 text-[14px]"
                           style={{
@@ -2960,90 +3176,11 @@ const Userleads = ({
                             marginTop: 10,
                           }}
                         >
-                          Select Pipeline
+                          Tags
                         </div>
-                        <FormControl fullWidth className="mt-0">
-                          <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={selectedPipeline}
-                            label="Age"
-                            onChange={handleChange}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: '#aaa' }}>Select</div>
-                                ) // Placeholder style
-                              }
-                              return selected
-                            }}
-                            sx={{
-                              border: '1px solid #00000020', // Default border
-                              '&:hover': {
-                                border: '1px solid #00000020', // Same border on hover
-                              },
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none', // Remove the default outline
-                              },
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                              {
-                                border: 'none', // Remove outline on focus
-                              },
-                              '&.MuiSelect-select': {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: '30vh',
-                                  overflow: 'auto',
-                                  scrollbarWidth: 'none',
-                                  borderRadius: 12,
-                                  border: '1px solid #eaeaea',
-                                  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
-                                },
-                              },
-                            }}
-                          >
-                            {pipelinesList.map((item, index) => {
-                              const isSelected = selectedPipeline === item.title
-                              return (
-                                <MenuItem
-                                  key={index}
-                                  value={item.title}
-                                  disableRipple
-                                  sx={{ '&.Mui-focusVisible': { backgroundColor: 'transparent' } }}
-                                >
-                                  <div className="flex flex-row items-center justify-between w-full">
-                                    <span className={isSelected ? 'text-brand-primary' : ''}>
-                                      {item.title}
-                                    </span>
-                                    {isSelected && (
-                                      <Check className="text-brand-primary flex-shrink-0" size={16} />
-                                    )}
-                                  </div>
-                                </MenuItem>
-                              )
-                            })}
-                          </Select>
-                        </FormControl>
-                      </div>
 
-                      <div
-                        className="mt-6 text-[14px]"
-                        style={{
-                          fontWeight: '500',
-                          color: 'rgba(0,0,0,0.8)',
-                          marginTop: 10,
-                        }}
-                      >
-                        Tags
-                      </div>
-
-                      <div className="mt-2">
-                        {/*<TagManagerCn
+                        <div className="mt-2">
+                          {/*<TagManagerCn
                           ref={tagFilterManagerRef}
                           mode="filter"
                           selectedFilterTags={filterTags}
@@ -3064,120 +3201,120 @@ const Userleads = ({
                         <div className="text-xs text-muted-foreground mt-2">
                           Type to search tags, press Enter to add, or click suggestions
                         </div>*/}
-                        <div className="w-full flex flex-wrap gap-2 gap-y-2">
-                          {uniqueTagsList?.length > 0 && uniqueTagsList?.map((item, index) => {
-                            let found = filterTags?.includes(item)
-                            return (
-                              <div
-                                key={index}
-                                className="flex flex-row items-center m-0 justify-start"
-                                style={{ fontSize: 15, fontWeight: '500' }}
-                              >
-                                <button
-                                  onClick={() => {
-                                    handleFilterTagAdd(item)
-                                  }}
-                                  className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found ? `bg-brand-primary` : 'bg-transparent'
-                                    }
+                          <div className="w-full flex flex-wrap gap-2 gap-y-2">
+                            {uniqueTagsList?.length > 0 && uniqueTagsList?.map((item, index) => {
+                              let found = filterTags?.includes(item)
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex flex-row items-center m-0 justify-start"
+                                  style={{ fontSize: 15, fontWeight: '500' }}
+                                >
+                                  <button
+                                    onClick={() => {
+                                      handleFilterTagAdd(item)
+                                    }}
+                                    className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found ? `bg-brand-primary` : 'bg-transparent'
+                                      }
                               ${found ? `text-white` : 'text-black/80'
-                                    }`}
-                                >
-                                  {item}
-                                </button>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      <div
-                        className="mt-6 text-[14px]"
-                        style={{
-                          fontWeight: '500',
-                          color: 'rgba(0,0,0,0.8)',
-                          marginTop: 10,
-                        }}
-                      >
-                        Stage
-                      </div>
-
-                      {stagesLoader ? (
-                        <div className="w-full flex flex-row justify-center mt-8">
-                          <CircularProgress
-                            size={25}
-                            sx={{ color: '#7902DF' }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-full flex flex-wrap gap-2 gap-y-2">
-                          {stagesList?.map((item, index) => {
-                            let found = isStageSelected(item)
-                            return (
-                              <div
-                                key={index}
-                                className="flex flex-row items-center m-0 justify-start"
-                                style={{ fontSize: 15, fontWeight: '500' }}
-                              >
-                                <button
-                                  onClick={() => {
-                                    handleSelectStage(item)
-                                  }}
-                                className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
-                                  }
-                              ${found >= 0 ? `text-white` : 'text-black/80'
-                                    }`}
-                                >
-                                  {item.stageTitle}
-                                </button>
-                              </div>
-                            )
-                          })}
-
-                          {/* Add "No Stage" button after the list */}
-                          <div className="flex flex-row items-center mt-2 justify-start">
-                            <button
-                              onClick={() => {
-                                setNoStageSelected((prev) => !prev)
-                              }}
-                              className={`p-2 border border-[#00000020] ${noStageSelected
-                                ? `bg-brand-primary text-white`
-                                : 'bg-transparent text-black'
-                                } px-6 rounded-2xl`}
-                            >
-                              No Stage
-                            </button>
+                                      }`}
+                                  >
+                                    {item}
+                                  </button>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
-                      )}
-                    </div>
 
-                    <div className="flex flex-row items-center w-full justify-between gap-3 m-0 p-4 h-auto bg-white border-t border-[#eaeaea]">
-                      <button
-                        type="button"
-                        className="h-10 px-4 rounded-lg text-[14px] font-medium bg-white border border-[#eaeaea] text-foreground hover:bg-muted/50 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
-                        onClick={() => {
-                          resetFilters()
-                        }}
-                      >
-                        Reset
-                      </button>
-                      {sheetsLoader ? (
-                        <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                      ) : (
-                        <button
-                          type="button"
-                          className="flex items-center justify-center h-10 w-[140px] rounded-lg text-[14px] font-medium bg-brand-primary text-white hover:bg-brand-primary/90 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
-                          onClick={() => {
-                            setShowFilterModal(false)
-                            setFiltersFromSelection()
-                            setNextCursorValue('')
+                        <div
+                          className="mt-6 text-[14px]"
+                          style={{
+                            fontWeight: '500',
+                            color: 'rgba(0,0,0,0.8)',
+                            marginTop: 10,
                           }}
                         >
-                          Apply Filter
+                          Stage
+                        </div>
+
+                        {stagesLoader ? (
+                          <div className="w-full flex flex-row justify-center mt-8">
+                            <CircularProgress
+                              size={25}
+                              sx={{ color: '#7902DF' }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full flex flex-wrap gap-2 gap-y-2">
+                            {stagesList?.map((item, index) => {
+                              let found = isStageSelected(item)
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex flex-row items-center m-0 justify-start"
+                                  style={{ fontSize: 15, fontWeight: '500' }}
+                                >
+                                  <button
+                                    onClick={() => {
+                                      handleSelectStage(item)
+                                    }}
+                                    className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
+                                      }
+                              ${found >= 0 ? `text-white` : 'text-black/80'
+                                      }`}
+                                  >
+                                    {item.stageTitle}
+                                  </button>
+                                </div>
+                              )
+                            })}
+
+                            {/* Add "No Stage" button after the list */}
+                            <div className="flex flex-row items-center mt-2 justify-start">
+                              <button
+                                onClick={() => {
+                                  setNoStageSelected((prev) => !prev)
+                                }}
+                                className={`p-2 border border-[#00000020] ${noStageSelected
+                                  ? `bg-brand-primary text-white`
+                                  : 'bg-transparent text-black'
+                                  } px-6 rounded-2xl`}
+                              >
+                                No Stage
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-row items-center w-full justify-between gap-3 m-0 p-4 h-auto bg-white border-t border-[#eaeaea]">
+                        <button
+                          type="button"
+                          className="h-10 px-4 rounded-lg text-[14px] font-medium bg-white border border-[#eaeaea] text-foreground hover:bg-muted/50 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
+                          onClick={() => {
+                            resetFilters()
+                          }}
+                        >
+                          Reset
                         </button>
-                      )}
+                        {sheetsLoader ? (
+                          <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                        ) : (
+                          <button
+                            type="button"
+                            className="flex items-center justify-center h-10 w-[140px] rounded-lg text-[14px] font-medium bg-brand-primary text-white hover:bg-brand-primary/90 transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
+                            onClick={() => {
+                              setShowFilterModal(false)
+                              setFiltersFromSelection()
+                              setNextCursorValue('')
+                            }}
+                          >
+                            Apply Filter
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
                   </div>
                 </Box>
               </Modal>
@@ -3211,26 +3348,14 @@ const Userleads = ({
           </div>
 
           {showDetailsModal && (
-            <div
-              className="overflow-scroll"
-              style={{
-                backgroundColor: '',
-                height:
-                  typeof window !== 'undefined'
-                    ? window.innerHeight * 0.95
-                    : 1000 * 0.95,
-                width: '100%',
-              }}
-            >
-              <LeadDetails
-                selectedLead={selectedLeadsDetails?.id}
-                pipelineId={selectedLeadsDetails?.pipeline?.id}
-                showDetailsModal={showDetailsModal}
-                setShowDetailsModal={setShowDetailsModal}
-                handleDelLead={handleDeleteLead}
-                leadStageUpdated={HandleUpdateStage}
-              />
-            </div>
+            <LeadDetails
+              selectedLead={selectedLeadsDetails?.id}
+              pipelineId={selectedLeadsDetails?.pipeline?.id}
+              showDetailsModal={showDetailsModal}
+              setShowDetailsModal={setShowDetailsModal}
+              handleDelLead={handleDeleteLead}
+              leadStageUpdated={HandleUpdateStage}
+            />
           )}
 
           {/* Modal to add notes */}

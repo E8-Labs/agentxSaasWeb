@@ -45,10 +45,10 @@ function VoiceMailTab({
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
   // console.log('agent', agent)
 
-  const Initial_Detection_Delay_Label_Tooltip = "Time the system waits before starting the first detection."
-  const Detection_Retry_Interval_Label_Tooltip = "Delay between each attempt if the system fails to detect initially."
-  const Max_Detection_Retries_Label_Tooltip = "Maximum number of detection attempts before stopping."
-  const Max_Voicemail_Message_Wait_Label_Tooltip = "Maximum time the system waits for a voicemail message to start."
+  const Initial_Detection_Delay_Label_Tooltip = "How long the AI waits before checking if the call went to voicemail."
+  const Detection_Retry_Interval_Label_Tooltip = "If the AI can't tell right away, this is how long it waits before checking again."
+  const Max_Detection_Retries_Label_Tooltip = "Number of times the AI checks if its voicemail."
+  const Max_Voicemail_Message_Wait_Label_Tooltip = "How long we wait for the voicemail greeting before leaving a message."
 
   const vd = agent?.additionalSettings?.voicemailDetection
   const [advancedSettings, setAdvancedSettings] = useState({

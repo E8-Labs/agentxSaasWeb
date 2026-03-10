@@ -845,7 +845,7 @@ const Pipeline1 = ({
       >
         <div
           ref={mainScrollContainerRef}
-          className="h-[95svh] sm:h-[92svh] overflow-auto pb-24"
+          className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24"
         >
           {/* header with title centered vertically */}
           <div className="relative w-full flex-shrink-0" style={{ minHeight: '100px' }}> {/* showOrb ? '140px' : '100px' */}
@@ -973,7 +973,41 @@ const Pipeline1 = ({
               <PipelineStages
                 stages={selectedPipelineStages}
                 onUpdateOrder={(stages) => {
+                  const oldOrder = selectedPipelineStages
                   setSelectedPipelineStages(stages)
+                  setCadenceByPipeline((prev) => {
+                    const id = selectedPipelineItem?.id
+                    if (!id) return prev
+                    const current = prev[id] ?? EMPTY_CADENCE_SLICE
+                    if (oldOrder.length === 0 || oldOrder.length !== stages.length) return prev
+                    const oldIndexByStageId = {}
+                    oldOrder.forEach((s, i) => {
+                      oldIndexByStageId[s.id] = i
+                    })
+                    const newRowsByIndex = {}
+                    const newAssignedLeads = {}
+                    const newNextStage = {}
+                    const newSelectedNextStage = {}
+                    stages.forEach((stage, newIndex) => {
+                      const oldIndex = oldIndexByStageId[stage.id]
+                      if (oldIndex !== undefined) {
+                        newRowsByIndex[newIndex] = current.rowsByIndex[oldIndex] ?? []
+                        newAssignedLeads[newIndex] = current.assignedLeads[oldIndex] ?? false
+                        newNextStage[newIndex] = current.nextStage[oldIndex]
+                        newSelectedNextStage[newIndex] = current.selectedNextStage[oldIndex]
+                      }
+                    })
+                    return {
+                      ...prev,
+                      [id]: {
+                        ...current,
+                        rowsByIndex: newRowsByIndex,
+                        assignedLeads: newAssignedLeads,
+                        nextStage: newNextStage,
+                        selectedNextStage: newSelectedNextStage,
+                      },
+                    }
+                  })
                 }}
                 assignedLeads={assignedLeads}
                 handleUnAssignNewStage={handleUnAssignNewStage}
@@ -983,7 +1017,6 @@ const Pipeline1 = ({
                 removeRow={removeRow}
                 addRow={addRow}
                 updateRow={updateRow}
-                reorderRows={reorderRows}
                 nextStage={nextStage}
                 handleSelectNextChange={handleSelectNextChange}
                 selectedPipelineStages={selectedPipelineStages}

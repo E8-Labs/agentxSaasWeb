@@ -39,6 +39,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
 import { Check } from 'lucide-react'
 
@@ -1235,6 +1236,55 @@ const AdminLeads = ({
   //     }
   // };
 
+  const handleSheetsDragStart = useCallback(() => {
+    document.body.style.userSelect = 'none'
+    document.body.style.webkitUserSelect = 'none'
+  }, [])
+
+  const handleSheetsDragEnd = useCallback(
+    async (result) => {
+      document.body.style.userSelect = ''
+      document.body.style.webkitUserSelect = ''
+      const { source, destination } = result
+      if (!destination || source.index === destination.index) return
+
+      const reordered = Array.from(SheetsList)
+      const [moved] = reordered.splice(source.index, 1)
+      reordered.splice(destination.index, 0, moved)
+      const sheetIds = reordered.map((s) => s.id).filter((id) => id != null)
+
+      setSheetsList(reordered)
+
+      try {
+        const localData = localStorage.getItem('User')
+        const AuthToken = localData ? JSON.parse(localData).token : null
+        if (!AuthToken) {
+          setSheetsList(SheetsList)
+          setSnackMessage('Please sign in again to save order')
+          setMessageType(SnackbarTypes.error)
+          setShowSnackMessage(true)
+          return
+        }
+        const body = selectedUser?.id
+          ? { sheetIds, userId: selectedUser.id }
+          : { sheetIds }
+        await axios.put(Apis.reorderSheets, body, {
+          headers: {
+            Authorization: 'Bearer ' + AuthToken,
+            'Content-Type': 'application/json',
+          },
+        })
+      } catch (err) {
+        setSheetsList(SheetsList)
+        const msg = err?.response?.data?.message || err?.message || 'Failed to save list order'
+        setSnackMessage(msg)
+        setMessageType(SnackbarTypes.error)
+        setShowSnackMessage(true)
+      }
+    },
+    [SheetsList, selectedUser?.id],
+  )
+
   const getColumnData = (column, item) => {
     const { title } = column
 
@@ -1244,7 +1294,7 @@ const AdminLeads = ({
     switch (title) {
       case 'Name':
         return (
-          <div>
+          <div className='flex flex-row items-center gap-2'>
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {toggleClick.includes(item.id) ? (
                 <button
@@ -2056,66 +2106,99 @@ const AdminLeads = ({
             {/* Hide sheets list when searching across all sheets */}
             {!(searchLead && String(searchLead).trim()) && (
               <div
-                className="flex flex-row items-center mt-8 gap-2"
-                style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+                className="flex flex-row items-center mt-8 gap-2 select-none"
+                style={{ ...styles.paragraph, userSelect: 'none', WebkitUserSelect: 'none' }}
               >
-                <div
-                  className="flex flex-row items-center gap-2 w-full"
-                  style={{
-                    ...styles.paragraph,
-                    overflowY: 'hidden',
-                    scrollbarWidth: 'none', // For Firefox
-                    msOverflowStyle: 'none', // For Internet Explorer and Edge
-                  }}
-                >
-                  <style jsx>
-                    {`
-                    div::-webkit-scrollbar {
-                      display: none; /* For Chrome, Safari, and Opera */
-                    }
-                  `}
-                  </style>
-                  {SheetsList.map((item, index) => {
-                    return (
+                <DragDropContext onDragStart={handleSheetsDragStart} onDragEnd={handleSheetsDragEnd}>
+                  <Droppable droppableId="admin-sheets-list" direction="horizontal">
+                    {(droppableProvided) => (
                       <div
-                        key={index}
-                        className="flex flex-row items-center gap-1 px-3"
+                        ref={droppableProvided.innerRef}
+                        {...droppableProvided.droppableProps}
+                        className="flex flex-row items-center gap-2 w-full min-h-[46px]"
                         style={{
-                          borderBottom:
-                            SelectedSheetId === item.id
-                              ? '2px solid hsl(var(--brand-primary))'
-                              : '',
-                          color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
-                          whiteSpace: 'nowrap', // Prevent text wrapping
+                          ...styles.paragraph,
+                          overflowY: 'hidden',
+                          overflowX: 'auto',
+                          scrollbarWidth: 'none',
+                          msOverflowStyle: 'none',
+                          flexWrap: 'nowrap',
                         }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
                       >
-                        <button
-                          style={styles.paragraph}
-                          className="outline-none w-full"
-                          onClick={() => {
-                            setSearchLead('')
-                            setSelectedSheetId(item.id)
-                            setToggleClick([])
-                            //   getLeads(item, 0);
-                          }}
-                        >
-                          {item.sheetName}
-                        </button>
-                        <button
-                          className="outline-none"
-                          aria-describedby={id}
-                          variant="contained"
-                          onClick={(event) => {
-                            handleShowPopup(event, item)
-                          }}
-                        >
-                          <DotsThree weight="bold" size={25} color="black" />
-                        </button>
-                        <Popover
+                        <style jsx>
+                          {`
+                            div::-webkit-scrollbar {
+                              display: none;
+                            }
+                          `}
+                        </style>
+                        {SheetsList.map((item, index) => (
+                          <Draggable
+                            key={item.id ?? `sheet-${index}`}
+                            draggableId={String(item.id ?? `sheet-${index}`)}
+                            index={index}
+                          >
+                            {(draggableProvided, snapshot) => (
+                              <div
+                                ref={draggableProvided.innerRef}
+                                {...draggableProvided.draggableProps}
+                                className="flex flex-row items-center gap-3 flex-shrink-0 px-3 h-[46px] hover:bg-black/[0.02] rounded-none transition-colors transition-transform duration-150 select-none"
+                                style={{
+                                  ...draggableProvided.draggableProps.style,
+                                  borderBottom:
+                                    SelectedSheetId === item.id
+                                      ? '2px solid hsl(var(--brand-primary))'
+                                      : '',
+                                  color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
+                                  whiteSpace: 'nowrap',
+                                  userSelect: 'none',
+                                  WebkitUserSelect: 'none',
+                                  touchAction: 'none',
+                                  ...(snapshot.isDragging
+                                    ? {
+                                        backgroundColor: 'hsl(var(--background))',
+                                        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                        borderRadius: 8,
+                                        zIndex: 1,
+                                      }
+                                    : {}),
+                                }}
+                              >
+                                <div
+                                  className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none p-1 -m-1"
+                                  aria-label="Drag to reorder sheet"
+                                  {...draggableProvided.dragHandleProps}
+                                >
+                                  <Image
+                                    src="/assets/list.png"
+                                    height={6}
+                                    width={16}
+                                    alt=""
+                                    draggable={false}
+                                  />
+                                </div>
+                                <button
+                                  style={styles.paragraph}
+                                  className="outline-none w-full text-left"
+                                  onClick={() => {
+                                    setSearchLead('')
+                                    setSelectedSheetId(item.id)
+                                    setToggleClick([])
+                                  }}
+                                >
+                                  {item.sheetName}
+                                </button>
+                                <button
+                                  className="outline-none flex-shrink-0"
+                                  aria-describedby={id}
+                                  variant="contained"
+                                  onClick={(event) => {
+                                    handleShowPopup(event, item)
+                                  }}
+                                >
+                                  <DotsThree weight="bold" size={25} color="black" />
+                                </button>
+                                <Popover
                           id={id}
                           open={open}
                           anchorEl={anchorEl}
@@ -2164,14 +2247,18 @@ const AdminLeads = ({
                             )}
                           </div>
                         </Popover>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {droppableProvided.placeholder}
                       </div>
-                    )
-                  })}
-                </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
                 <button
                   className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
                   style={styles.paragraph}
-                  // onClick={() => { setShowAddNewSheetModal(true) }}
                   onClick={() => {
                     handleShowAddLeadModal(true)
                   }}
@@ -2203,11 +2290,17 @@ const AdminLeads = ({
               <div className="w-full flex flex-col">
                 {LeadsList.length > 0 ? (
                   <div
-                    className={`relative overflow-auto pb-[100px] mt-6 ${agencyUser ? 'h-[75vh]' : 'h-[70vh]'}`}
+                    className={`relative overflow-auto pb-[100px] mt-6 select-none ${agencyUser ? 'h-[75vh]' : 'h-[70vh]'}`}
                     id="adminLeadsScrollableDiv"
                     data-component="AdminLeads"
                     ref={setLeadsScrollRootEl}
-                    style={{ scrollbarWidth: 'none', height: agencyUser ? '75vh' : '70vh', maxHeight: agencyUser ? '75vh' : '70vh' }}
+                    style={{
+                      scrollbarWidth: 'none',
+                      height: agencyUser ? '75vh' : '70vh',
+                      maxHeight: agencyUser ? '75vh' : '70vh',
+                      userSelect: 'none',
+                      WebkitUserSelect: 'none',
+                    }}
                   >
                     {/* Global (fixed) loading pill so it's always visible */}
                     {(moreLeadsLoader || sheetsLoader) && hasMore && (
@@ -2232,60 +2325,59 @@ const AdminLeads = ({
                     )}
 
                     <InfiniteScroll
-                      isLoading={moreLeadsLoader || sheetsLoader}
-                      hasMore={hasMore}
-                      root={leadsScrollRoot}
-                      rootMargin="200px"
-                      threshold={1}
-                      next={() => {
-                        const cursorToUse = nextCursorRef.current
-                        if (isLoadingMoreRef.current) return
-                        if (moreLeadsLoader || sheetsLoader) return
-                        // Avoid repeated calls when sentinel stays visible
-                        if (!FilterLeads || FilterLeads.length === 0) return
-                        if (!cursorToUse || cursorToUse === 0) return
-                        if (lastNextCursorRequestedRef.current === cursorToUse) return
-                        lastNextCursorRequestedRef.current = cursorToUse
-                        const filterText = getFilterText()
-                        handleFilterLeads(filterText, true)
-                      }}
-                    >
-                      <div className="flex flex-col w-full pb-[20px]">
-                        <table className="table-auto w-full border-collapse border border-none">
-                          <thead>
-                            <tr style={{ fontWeight: '500' }}>
-                              {leadColumns.map((column, index) => {
-                                const isMoreColumn = column.title === 'More'
-                                const isDateColumn = column.title === 'Date'
-                                const columnWidth =
-                                  column.title === 'More' ? '200px' : '150px'
-                                return (
-                                  <th
-                                    key={index}
-                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
-                                      ? 'sticky right-0 bg-white'
-                                      : ''
-                                      }`}
-                                    style={{
-                                      whiteSpace: 'nowrap',
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      zIndex:
-                                        isMoreColumn === 'More' ? 1 : 'auto',
-                                      maxWidth: columnWidth,
-                                    }}
-                                  >
-                                    {column.title.slice(0, 1).toUpperCase()}
-                                    {column.title.slice(1)}
-                                  </th>
-                                )
-                              })}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {FilterLeads.map((item, index) => {
-                              return (
-                                <tr key={index} className="hover:bg-gray-50">
+                        isLoading={moreLeadsLoader || sheetsLoader}
+                        hasMore={hasMore}
+                        root={leadsScrollRoot}
+                        rootMargin="200px"
+                        threshold={1}
+                        next={() => {
+                          const cursorToUse = nextCursorRef.current
+                          if (isLoadingMoreRef.current) return
+                          if (moreLeadsLoader || sheetsLoader) return
+                          // Avoid repeated calls when sentinel stays visible
+                          if (!FilterLeads || FilterLeads.length === 0) return
+                          if (!cursorToUse || cursorToUse === 0) return
+                          if (lastNextCursorRequestedRef.current === cursorToUse) return
+                          lastNextCursorRequestedRef.current = cursorToUse
+                          const filterText = getFilterText()
+                          handleFilterLeads(filterText, true)
+                        }}
+                      >
+                        <div className="flex flex-col w-full pb-[20px]">
+                          <table className="table-auto w-full border-collapse border border-none">
+                            <thead>
+                              <tr style={{ fontWeight: '500' }}>
+                                {leadColumns.map((column, index) => {
+                                  const isMoreColumn = column.title === 'More'
+                                  const isDateColumn = column.title === 'Date'
+                                  const columnWidth =
+                                    column.title === 'More' ? '200px' : '150px'
+                                  return (
+                                    <th
+                                      key={index}
+                                      className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                        ? 'sticky right-0 bg-white'
+                                        : ''
+                                        }`}
+                                      style={{
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        zIndex:
+                                          isMoreColumn === 'More' ? 1 : 'auto',
+                                        maxWidth: columnWidth,
+                                      }}
+                                    >
+                                      {column.title.slice(0, 1).toUpperCase()}
+                                      {column.title.slice(1)}
+                                    </th>
+                                  )
+                                })}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {FilterLeads.map((item, index) => (
+                                <tr key={item.id ?? index} className="hover:bg-gray-50">
                                   {leadColumns.map((column, colIndex) => (
                                     <td
                                       key={colIndex}
@@ -2304,11 +2396,10 @@ const AdminLeads = ({
                                     </td>
                                   ))}
                                 </tr>
-                              )
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
 
                       {moreLeadsLoader && (
                         <div className="w-full flex flex-row justify-center mt-8">
@@ -2407,95 +2498,171 @@ const AdminLeads = ({
                     borderRadius: 12,
                   }}
                 >
-                <div className="w-full flex flex-col items-center justify-start gap-0.5">
-                  <div className="flex flex-row items-center justify-between w-full p-4 border-b bg-white" style={{ borderColor: '#eaeaea' }}>
-                    <div className="text-[18px] font-semibold">Filter</div>
-                    <CloseBtn onClick={() => setShowFilterModal(false)} />
-                  </div>
-                  <div className="mt-2 w-full overflow-y-auto px-4 pb-5 text-[14px] h-[400px] min-h-0">
-                    <div className="flex flex-row items-start gap-3">
-                      <div className="w-1/2 h-full">
-                        <div
-                          className="h-full text-[14px]"
-                          style={{
-                            fontWeight: '500',
-                            color: 'rgba(0,0,0,0.8)',
-                            marginTop: 10,
-                          }}
-                        >
-                          From
-                        </div>
-                        <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
-                          <PopoverTrigger asChild>
-                            <button
-                              style={{ border: '1px solid #00000020' }}
-                              className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
-                            >
-                              <p>
-                                {selectedFromDate
-                                  ? selectedFromDate.toDateString()
-                                  : 'Select Date'}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
-                            <Calendar
-                              mode="single"
-                              selected={selectedFromDate}
-                              onSelect={handleFromDateChange}
-                              initialFocus
-                              classNames={{
-                                day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
-                                day_today: 'bg-brand-primary/20 text-brand-primary',
-                              }}
-                            />
-                          </PopoverContent>
-                        </ShadPopover>
-                      </div>
-
-                      <div className="w-1/2 h-full">
-                        <div
-                          className="text-[14px]"
-                          style={{
-                            fontWeight: '500',
-                            color: 'rgba(0,0,0,0.8)',
-                            marginTop: 10,
-                          }}
-                        >
-                          To
-                        </div>
-                        <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
-                          <PopoverTrigger asChild>
-                            <button
-                              style={{ border: '1px solid #00000020' }}
-                              className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
-                            >
-                              <p>
-                                {selectedToDate
-                                  ? selectedToDate.toDateString()
-                                  : 'Select Date'}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
-                            <Calendar
-                              mode="single"
-                              selected={selectedToDate}
-                              onSelect={handleToDateChange}
-                              initialFocus
-                              classNames={{
-                                day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
-                                day_today: 'bg-brand-primary/20 text-brand-primary',
-                              }}
-                            />
-                          </PopoverContent>
-                        </ShadPopover>
-                      </div>
+                  <div className="w-full flex flex-col items-center justify-start gap-0.5">
+                    <div className="flex flex-row items-center justify-between w-full p-4 border-b bg-white" style={{ borderColor: '#eaeaea' }}>
+                      <div className="text-[18px] font-semibold">Filter</div>
+                      <CloseBtn onClick={() => setShowFilterModal(false)} />
                     </div>
+                    <div className="mt-2 w-full overflow-y-auto px-4 pb-5 text-[14px] h-[400px] min-h-0">
+                      <div className="flex flex-row items-start gap-3">
+                        <div className="w-1/2 h-full">
+                          <div
+                            className="h-full text-[14px]"
+                            style={{
+                              fontWeight: '500',
+                              color: 'rgba(0,0,0,0.8)',
+                              marginTop: 10,
+                            }}
+                          >
+                            From
+                          </div>
+                          <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
+                            <PopoverTrigger asChild>
+                              <button
+                                style={{ border: '1px solid #00000020' }}
+                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
+                              >
+                                <p>
+                                  {selectedFromDate
+                                    ? selectedFromDate.toDateString()
+                                    : 'Select Date'}
+                                </p>
+                                <CalendarDots weight="regular" size={25} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedFromDate}
+                                onSelect={handleFromDateChange}
+                                initialFocus
+                                classNames={{
+                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                  day_today: 'bg-brand-primary/20 text-brand-primary',
+                                }}
+                              />
+                            </PopoverContent>
+                          </ShadPopover>
+                        </div>
 
-                    <div className="flex flex-col gap-2">
+                        <div className="w-1/2 h-full">
+                          <div
+                            className="text-[14px]"
+                            style={{
+                              fontWeight: '500',
+                              color: 'rgba(0,0,0,0.8)',
+                              marginTop: 10,
+                            }}
+                          >
+                            To
+                          </div>
+                          <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
+                            <PopoverTrigger asChild>
+                              <button
+                                style={{ border: '1px solid #00000020' }}
+                                className="flex flex-row items-center justify-between p-2 px-2 rounded-lg mt-2 w-full text-[14px]"
+                              >
+                                <p>
+                                  {selectedToDate
+                                    ? selectedToDate.toDateString()
+                                    : 'Select Date'}
+                                </p>
+                                <CalendarDots weight="regular" size={25} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedToDate}
+                                onSelect={handleToDateChange}
+                                initialFocus
+                                classNames={{
+                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                  day_today: 'bg-brand-primary/20 text-brand-primary',
+                                }}
+                              />
+                            </PopoverContent>
+                          </ShadPopover>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <div
+                          className="mt-6 text-[14px]"
+                          style={{
+                            fontWeight: '500',
+                            color: 'rgba(0,0,0,0.8)',
+                            marginTop: 10,
+                          }}
+                        >
+                          Select Pipeline
+                        </div>
+                        <FormControl fullWidth className="mt-0">
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={selectedPipeline}
+                            label="Age"
+                            onChange={handleChange}
+                            displayEmpty // Enables placeholder
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
+                              }
+                              return selected
+                            }}
+                            sx={{
+                              border: '1px solid #00000020', // Default border
+                              '&:hover': {
+                                border: '1px solid #00000020', // Same border on hover
+                              },
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                border: 'none', // Remove the default outline
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                border: 'none', // Remove outline on focus
+                              },
+                              '&.MuiSelect-select': {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: '30vh',
+                                  overflow: 'auto',
+                                  scrollbarWidth: 'none',
+                                  borderRadius: 12,
+                                  border: '1px solid #eaeaea',
+                                  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                                },
+                              },
+                            }}
+                          >
+                            {pipelinesList.map((item, index) => {
+                              const isSelected = selectedPipeline === item.title
+                              return (
+                                <MenuItem
+                                  key={index}
+                                  value={item.title}
+                                  disableRipple
+                                  sx={{ '&.Mui-focusVisible': { backgroundColor: 'transparent' } }}
+                                >
+                                  <div className="flex flex-row items-center justify-between w-full">
+                                    <span className={isSelected ? 'text-brand-primary' : ''}>
+                                      {item.title}
+                                    </span>
+                                    {isSelected && (
+                                      <Check className="text-brand-primary flex-shrink-0" size={16} />
+                                    )}
+                                  </div>
+                                </MenuItem>
+                              )
+                            })}
+                          </Select>
+                        </FormControl>
+                      </div>
+
                       <div
                         className="mt-6 text-[14px]"
                         style={{
@@ -2504,168 +2671,92 @@ const AdminLeads = ({
                           marginTop: 10,
                         }}
                       >
-                        Select Pipeline
+                        Stage
                       </div>
-                      <FormControl fullWidth className="mt-0">
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={selectedPipeline}
-                          label="Age"
-                          onChange={handleChange}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
-                            }
-                            return selected
-                          }}
-                          sx={{
-                            border: '1px solid #00000020', // Default border
-                            '&:hover': {
-                              border: '1px solid #00000020', // Same border on hover
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove the default outline
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove outline on focus
-                            },
-                            '&.MuiSelect-select': {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: '30vh',
-                                overflow: 'auto',
-                                scrollbarWidth: 'none',
-                                borderRadius: 12,
-                                border: '1px solid #eaeaea',
-                                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
-                              },
-                            },
-                          }}
-                        >
-                          {pipelinesList.map((item, index) => {
-                            const isSelected = selectedPipeline === item.title
+
+                      {stagesLoader ? (
+                        <div className="w-full flex flex-row justify-center mt-8">
+                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                        </div>
+                      ) : (
+                        <div className="w-full flex flex-wrap gap-2 gap-y-2">
+                          {stagesList?.map((item, index) => {
+                            let found = isStageSelected(item)
                             return (
-                              <MenuItem
+                              <div
                                 key={index}
-                                value={item.title}
-                                disableRipple
-                                sx={{ '&.Mui-focusVisible': { backgroundColor: 'transparent' } }}
+                                className="flex flex-row items-center m-0 justify-start"
+                                style={{ fontSize: 15, fontWeight: '500' }}
                               >
-                                <div className="flex flex-row items-center justify-between w-full">
-                                  <span className={isSelected ? 'text-brand-primary' : ''}>
-                                    {item.title}
-                                  </span>
-                                  {isSelected && (
-                                    <Check className="text-brand-primary flex-shrink-0" size={16} />
-                                  )}
-                                </div>
-                              </MenuItem>
+                                <button
+                                  onClick={() => {
+                                    handleSelectStage(item)
+                                  }}
+                                  className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
+                                    }
+                                                                    ${found >= 0
+                                      ? `text-white`
+                                      : 'text-black/80'
+                                    }`}
+                                >
+                                  {item.stageTitle}
+                                </button>
+                              </div>
                             )
                           })}
-                        </Select>
-                      </FormControl>
+                        </div>
+                      )}
                     </div>
 
-                    <div
-                      className="mt-6 text-[14px]"
-                      style={{
-                        fontWeight: '500',
-                        color: 'rgba(0,0,0,0.8)',
-                        marginTop: 10,
-                      }}
-                    >
-                      Stage
-                    </div>
-
-                    {stagesLoader ? (
-                      <div className="w-full flex flex-row justify-center mt-8">
-                        <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                      </div>
-                    ) : (
-                      <div className="w-full flex flex-wrap gap-2 gap-y-2">
-                        {stagesList?.map((item, index) => {
-                          let found = isStageSelected(item)
-                            return (
-                            <div
-                              key={index}
-                              className="flex flex-row items-center m-0 justify-start"
-                              style={{ fontSize: 15, fontWeight: '500' }}
-                            >
-                              <button
-                                onClick={() => {
-                                  handleSelectStage(item)
-                                }}
-                                className={`p-2 border border-[#00000020] px-2 text-[14px] rounded-xl transition-transform active:scale-[0.98] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
-                                  }
-                                                                    ${found >= 0
-                                    ? `text-white`
-                                    : 'text-black/80'
-                                  }`}
-                              >
-                                {item.stageTitle}
-                              </button>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-row items-center w-full justify-between m-0 p-4 h-auto bg-white">
-                    <button
-                      className="outline-none w-[105px]"
-                      style={{ fontSize: 16.8, fontWeight: '600' }}
-                      onClick={() => {
-                        // setSelectedFromDate(null);
-                        // setSelectedToDate(null);
-                        // setSelectedStage(null);
-                        // getLeads()
-                        //   window.location.reload();
-                        setFiltersSelected([])
-                      }}
-                    >
-                      Reset
-                    </button>
-                    {sheetsLoader ? (
-                      <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                    ) : (
+                    <div className="flex flex-row items-center w-full justify-between m-0 p-4 h-auto bg-white">
                       <button
-                        className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
-                        style={{
-                          fontSize: 16.8,
-                          fontWeight: '600',
-                          // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
-                        }}
+                        className="outline-none w-[105px]"
+                        style={{ fontSize: 16.8, fontWeight: '600' }}
                         onClick={() => {
-                          //////console.log;
-                          // setLeadsList([]);
-                          // setFilterLeads([]);
-                          setShowFilterModal(false)
-                          setFiltersFromSelection()
-
-                          // let filterText = getFilterText();
-                          // handleFilterLeads(0, filterText);
-                          // if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
-                          //     //////console.log;
-                          //     setLeadsList([]);
-                          //     setFilterLeads([]);
-                          //     handleFilterLeads(0)
-                          // } else {
-                          //     //////console.log;
-                          // }
+                          // setSelectedFromDate(null);
+                          // setSelectedToDate(null);
+                          // setSelectedStage(null);
+                          // getLeads()
+                          //   window.location.reload();
+                          setFiltersSelected([])
                         }}
                       >
-                        Apply Filter
+                        Reset
                       </button>
-                    )}
+                      {sheetsLoader ? (
+                        <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                      ) : (
+                        <button
+                          className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
+                          style={{
+                            fontSize: 16.8,
+                            fontWeight: '600',
+                            // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
+                          }}
+                          onClick={() => {
+                            //////console.log;
+                            // setLeadsList([]);
+                            // setFilterLeads([]);
+                            setShowFilterModal(false)
+                            setFiltersFromSelection()
+
+                            // let filterText = getFilterText();
+                            // handleFilterLeads(0, filterText);
+                            // if (selectedFromDate && selectedToDate && selectedStage.length > 0) {
+                            //     //////console.log;
+                            //     setLeadsList([]);
+                            //     setFilterLeads([]);
+                            //     handleFilterLeads(0)
+                            // } else {
+                            //     //////console.log;
+                            // }
+                          }}
+                        >
+                          Apply Filter
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
                 </div>
               </Box>
             </Modal>

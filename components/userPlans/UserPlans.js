@@ -889,9 +889,9 @@ function UserPlans({
 
                           <div
                             className={`text-base font-semibold ${selectedPlan?.id === item.id ||
-                                (hoverPlan?.id === item.id && !isDisabled)
-                                ? 'text-brand-primary'
-                                : 'text-brand-primary'
+                              (hoverPlan?.id === item.id && !isDisabled)
+                              ? 'text-brand-primary'
+                              : 'text-brand-primary'
                               }`}
                             style={{}}
                           >
@@ -980,17 +980,19 @@ function UserPlans({
                                 ) {
                                   if (isFreePlan) {
                                     // Free plan - subscribe directly
-                                    handleSubscribePlan()
+                                    // handleSubscribePlan()
+                                    setAddPaymentPopUp(true)
                                   } else {
+                                    setAddPaymentPopUp(true)
                                     // Paid plan - check for payment method
-                                    if (hasPM) {
-                                      // User has PM - subscribe directly
-                                      handleSubscribePlan()
-                                    } else {
-                                      // User doesn't have PM - show payment modal and set auto-subscribe flag
-                                      setShouldAutoSubscribe(true)
-                                      setAddPaymentPopUp(true)
-                                    }
+                                    // if (hasPM) {
+                                    //   // User has PM - subscribe directly
+                                    //   handleSubscribePlan()
+                                    // } else {
+                                    //   // User doesn't have PM - show payment modal and set auto-subscribe flag
+                                    //   setShouldAutoSubscribe(true)
+                                    //   setAddPaymentPopUp(true)
+                                    // }
                                   }
                                   return
                                 }
@@ -1011,12 +1013,14 @@ function UserPlans({
                                     // Yearly plan selected - check for payment method
                                     if (isFreePlan) {
                                       // Free plan - subscribe directly
-                                      handleSubscribePlan()
+                                      // handleSubscribePlan()
+                                      setAddPaymentPopUp(true)
                                     } else {
                                       // Paid plan - check for payment method
                                       if (hasPM) {
                                         // User has PM - subscribe directly
-                                        handleSubscribePlan()
+                                        // handleSubscribePlan()
+                                        setAddPaymentPopUp(true)
                                       } else {
                                         // User doesn't have PM - show payment modal and set auto-subscribe flag
                                         setShouldAutoSubscribe(true)
@@ -1028,12 +1032,14 @@ function UserPlans({
                                   // Handle other user roles
                                   if (isFreePlan) {
                                     // Free plan - subscribe directly
-                                    handleSubscribePlan()
+                                    // handleSubscribePlan()
+                                    setAddPaymentPopUp(true)
                                   } else {
                                     // Paid plan - check for payment method
                                     if (hasPM) {
                                       // User has PM - subscribe directly
-                                      handleSubscribePlan()
+                                      // handleSubscribePlan()
+                                      setAddPaymentPopUp(true)
                                     } else {
                                       // User doesn't have PM - show payment modal and set auto-subscribe flag
                                       setShouldAutoSubscribe(true)

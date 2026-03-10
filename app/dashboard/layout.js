@@ -132,6 +132,8 @@ export default function DashboardLayout({ children }) {
 
           {/* Main Content */}
           <div className="flex-1 min-w-0 bg-white" style={{ backgroundColor: '#ffffff', background: '#ffffff', minHeight: '100vh' }}>
+            {/* Navigation Loader - shows during page transitions */}
+            <NavigationLoader />
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />
@@ -140,8 +142,6 @@ export default function DashboardLayout({ children }) {
           </div>
         </div>
         
-        {/* Navigation Loader - shows during page transitions */}
-        <NavigationLoader />
         
         {/* Incoming Call Banner - shows on all pages */}
         <IncomingCallBanner />
