@@ -1835,7 +1835,15 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                         <div className="p-4 flex flex-row justify-between items-start border rounded-lg">
                           {/* Img code here */}
                           <div className="flex flex-row items-start gap-4">
-                            <div>
+                            <button
+                              className="outline-none"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setActivityDrawerTeamMember(item)
+                                setActivityDrawerOpen(true)
+                              }}
+                            >
                               {item.invitedUser?.thumb_profile_image ? (
                                 <div
                                   style={{
@@ -1866,12 +1874,20 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                   {item.name?.[0] || 'U'}
                                 </div>
                               )}
-                            </div>
+                            </button>
 
                             <div className="flex flex-wrap flex-col items-start gap-2">
-                              <div className="text-lg font-medium text-black">
+                              <button
+                                className="text-lg font-medium text-black outline-none"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  setActivityDrawerTeamMember(item)
+                                  setActivityDrawerOpen(true)
+                                }}
+                              >
                                 {item.name}
-                              </div>
+                              </button>
                               <div className="text-sm font-medium text-gray-500">
                                 {item?.phone
                                   ? formatPhoneNumber(item.phone)

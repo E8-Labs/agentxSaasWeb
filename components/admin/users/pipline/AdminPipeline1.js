@@ -562,7 +562,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   const handleCreatePipeline = async () => {
     try {
       console.log('handleCreatePipeline selected user', selectedUser?.planStatus?.hasActivePlan);
-      if(selectedUser?.planStatus?.hasActivePlan === false){
+      if (selectedUser?.planStatus?.hasActivePlan === false) {
         toast.error('Plan required to create pipeline.');
         return
       }
@@ -2385,7 +2385,10 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                   }}
                 >
                   {/*<Plus size={17} weight="bold" />{' '}*/}
-                  <span style={{ fontWeight: '500', fontSize: 16 }}>
+                  <span
+                    className="text-brand-primary"
+                    style={{ fontWeight: '500', fontSize: 16 }}
+                  >
                     New Pipeline
                   </span>
                 </button>
@@ -2667,27 +2670,27 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                         >
                           <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
                             <div className="self-stretch flex flex-col justify-start items-start gap-2">
-                              {SelectedPipeline?.pipelineType !== 'agency_use' && (
-                                <button
-                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                                  onClick={() => {
-                                    setShowRenamePopup(true)
-                                    // //console.log;
-                                    setRenameStage(selectedStage.stageTitle)
-                                    setUpdateStageColor(selectedStage.defaultColor)
-                                  }}
-                                >
-                                  <Image
-                                    src={'/assets/editPen.png'}
-                                    height={16}
-                                    width={16}
-                                    alt="*"
-                                  />
-                                  <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                    Rename
-                                  </div>
-                                </button>
-                              )}
+                              {/*SelectedPipeline?.pipelineType !== 'agency_use' && (
+                              )*/}
+                              <button
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                onClick={() => {
+                                  setShowRenamePopup(true)
+                                  // //console.log;
+                                  setRenameStage(selectedStage.stageTitle)
+                                  setUpdateStageColor(selectedStage.defaultColor)
+                                }}
+                              >
+                                <Image
+                                  src={'/assets/editPen.png'}
+                                  height={16}
+                                  width={16}
+                                  alt="*"
+                                />
+                                <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                  Rename
+                                </div>
+                              </button>
                               <button
                                 className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                 onClick={() => colorPickerRef.current.click()}

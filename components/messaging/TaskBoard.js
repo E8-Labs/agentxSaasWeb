@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils'
 import DelConfirmationPopup from '../onboarding/extras/DelConfirmationPopup'
 import { Box, CircularProgress, Modal } from '@mui/material'
 import CloseBtn from '../globalExtras/CloseBtn'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = null, buttonRef = null, selectedUser = null, enablePermissionChecks = false }) => {
   const [tasks, setTasks] = useState([])
@@ -36,6 +37,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   const [filterMember, setFilterMember] = useState(null)
   const [filterDueStatus, setFilterDueStatus] = useState(null)
   const [filterPriority, setFilterPriority] = useState(null)
+
+  // Server-side pagination: offset/limit sent to API, load more on scroll
+  const TASKS_PER_PAGE = 10
+  const [hasMoreTasks, setHasMoreTasks] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   // Priority options for dropdowns
   const priorityOptions = [
@@ -99,13 +105,20 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     }
   }, [open, buttonRef, selectedUser])
 
-  // Fetch tasks
-  const fetchTasks = useCallback(async () => {
+  // Fetch tasks (offset for pagination; append = true means append to list, false means replace)
+  const fetchTasks = useCallback(async (offset = 0, append = false) => {
     if (!open) return
 
-    setLoading(true)
+    if (append) {
+      setLoadingMore(true)
+    } else {
+      setLoading(true)
+    }
     try {
-      const params = {}
+      const params = {
+        offset,
+        limit: TASKS_PER_PAGE,
+      }
       // For regular status tabs, filter by status
       if (selectedStatus !== 'ai') {
         params.status = selectedStatus
@@ -120,24 +133,32 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (filterMember != null && filterMember !== '') params.assignedTo = filterMember
       if (filterDueStatus) params.dueDateFilter = filterDueStatus
       if (filterPriority) params.priority = filterPriority
-      console.log("Selected user passed is", selectedUser)
-      console.log("params sending in api are", params)
 
       const response = await getTasks(params)
-      console.log("response from get tasks is", response)
       if (response.status) {
-        setTasks(response.data || [])
+        const newData = response.data || []
+        if (append) {
+          setTasks((prev) => [...prev, ...newData])
+        } else {
+          setTasks(newData)
+        }
         if (response.counts) {
           setCounts(response.counts)
         }
+        // hasMore: API can send it, or derive from returned length
+        const hasMore = response.hasMore ?? newData.length >= TASKS_PER_PAGE
+        setHasMoreTasks(hasMore)
       } else {
-        toast.error(response.message || 'Failed to fetch tasks')
+        if (!append) toast.error(response.message || 'Failed to fetch tasks')
+        setHasMoreTasks(false)
       }
     } catch (error) {
       console.error('Error fetching tasks:', error)
-      toast.error('Failed to fetch tasks')
+      if (!append) toast.error('Failed to fetch tasks')
+      setHasMoreTasks(false)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }, [open, selectedStatus, leadId, threadId, callId, filterMember, filterDueStatus, filterPriority, selectedUser?.id])
 
@@ -364,12 +385,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     },
   ]
 
-  // Filter tasks by selected status.
-  // AI tab: only tasks with status 'ai'. Todo/In Progress/Done: all tasks with that status (including AI-origin tasks moved to that status).
-  const filteredTasks =
-    selectedStatus === 'ai'
-      ? tasks.filter((task) => task.status === 'ai')
-      : tasks.filter((task) => task.status === selectedStatus)
+  // API returns tasks for current tab (status/type), so we display tasks directly
+  const loadMoreTasks = useCallback(() => {
+    if (loadingMore || !hasMoreTasks) return
+    fetchTasks(tasks.length, true)
+  }, [loadingMore, hasMoreTasks, tasks.length, fetchTasks])
 
   // Reset state when closing
   useEffect(() => {
@@ -381,6 +401,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       setFilterDueStatus(null)
       setFilterPriority(null)
       setTasks([])
+      setHasMoreTasks(true)
     }
   }, [open])
 
@@ -536,37 +557,60 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
           ) : (
             /* Task List - plain overflow container so width is strictly constrained (no horizontal scroll) */
             (<div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 min-w-0">
+              <div
+                id="taskBoardScrollArea"
+                className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 min-w-0"
+              >
                 {loading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="text-muted-foreground">Loading tasks...</div>
                   </div>
-                ) : filteredTasks.length === 0 ? (
+                ) : tasks.length === 0 ? (
                   <TaskEmptyState
                     title={selectedStatus === 'todo' ? 'No Task Created' : 'No Task Found'}
                     description={selectedStatus === 'todo' ? undefined : null}
                   />
                 ) : (
-                  <div className="space-y-3" style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
-                    {filteredTasks.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        onUpdate={handleUpdateTask}
-                        onDelete={() => {
-                          setShowDeleteConfirmation(true)
-                          setSelectedTaskForDelete(task)
-                        }}
-                        onPin={handlePinTask}
-                        teamMembers={teamMembers}
-                        priorityOptions={priorityOptions}
-                        statusOptions={statusOptions}
-                        onEditClick={() => {
-                          setSelectedTask(task)
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <InfiniteScroll
+                    dataLength={tasks.length}
+                    next={loadMoreTasks}
+                    hasMore={hasMoreTasks}
+                    scrollableTarget="taskBoardScrollArea"
+                    loader={
+                      <div className="flex justify-center py-6">
+                        {/*<div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />*/}
+                        <CircularProgress size={20} />
+                      </div>
+                    }
+                    endMessage={
+                      !hasMoreTasks && tasks.length > 0 ? (
+                        <p className="text-center py-4 text-muted-foreground text-sm">
+                          You are all caught up
+                        </p>
+                      ) : null
+                    }
+                  >
+                    <div className="space-y-3" style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+                      {tasks.map((task) => (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          onUpdate={handleUpdateTask}
+                          onDelete={() => {
+                            setShowDeleteConfirmation(true)
+                            setSelectedTaskForDelete(task)
+                          }}
+                          onPin={handlePinTask}
+                          teamMembers={teamMembers}
+                          priorityOptions={priorityOptions}
+                          statusOptions={statusOptions}
+                          onEditClick={() => {
+                            setSelectedTask(task)
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </InfiniteScroll>
                 )}
               </div>
             </div>)

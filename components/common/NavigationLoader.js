@@ -140,7 +140,7 @@ export default function NavigationLoader() {
         backgroundColor: 'rgba(255, 255, 255, 0.85)',
         zIndex: 1200, // Below dialer (z-[1401]) but above most content
         // Position to cover only the right content area (85% width, starting at 15% from left)
-        left: '15%',
+        left: "250px",
         right: 0,
         top: 0,
         bottom: 0,

@@ -2,8 +2,18 @@ import Image from 'next/image'
 
 const ICON_SIZE = 18
 
-const AgentInfoCard = ({ name, value, icon, iconComponent, bgColor, iconColor, iconWrapperClassName }) => {
-  // When iconComponent (e.g. Lucide icon) is provided, render it at 18px; optional wrapper for container styling
+const AgentInfoCard = ({
+  name,
+  value,
+  icon,
+  iconComponent,
+  bgColor,
+  iconColor,
+  iconWrapperClassName,
+  subtitle,
+  rate,
+}) => {
+  // When iconComponent (e.g. Lucide icon) is provided, render it at 18px; optional wrapper for container styling. subtitle/rate for functional display.
   const renderIcon = () => {
     if (iconComponent) {
       const iconEl = (
@@ -70,6 +80,18 @@ const AgentInfoCard = ({ name, value, icon, iconComponent, bgColor, iconColor, i
       <div className="text-sm font-normal text-black/80">
         {value}
       </div>
+      {subtitle && rate != null && rate !== '' && (
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: '400',
+            color: '#00000099',
+            marginTop: 2,
+          }}
+        >
+          {subtitle} {Number(rate).toFixed(2)}%
+        </div>
+      )}
     </div>
   )
 }

@@ -43,6 +43,8 @@ import {
 import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
 import { Checkbox } from '../ui/checkbox'
 import moment from 'moment'
+import { AuthToken } from '../agency/plan/AuthDetails'
+import CloseBtn from '../globalExtras/CloseBtn'
 
 const UserAddCard = ({
   handleBack,
@@ -109,7 +111,28 @@ const UserAddCard = ({
   const [disableContinue, setDisableContinue] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
+  //user cards list
+  const [cards, setCards] = useState([]);
+  const [getCardsLoader, setGetCardsLoader] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null)
+  const [isSubscribeButtonDisabled, setIsSubscribeButtonDisabled] = useState(false)
+  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false)
+  const [showAddCardForm, setShowAddCardForm] = useState(false);
 
+  //function to get card image
+  const getCardImage = (item) => {
+    if (item.brand === 'visa') {
+      return '/svgIcons/Visa.svg'
+    } else if (item.brand === 'Mastercard') {
+      return '/svgIcons/mastercard.svg'
+    } else if (item.brand === 'amex') {
+      return '/svgIcons/Amex.svg'
+    } else if (item.brand === 'discover') {
+      return '/svgIcons/Discover.svg'
+    } else if (item.brand === 'dinersClub') {
+      return '/svgIcons/DinersClub.svg'
+    }
+  }
 
   // Check if user is subaccount and if agency has branding
   useEffect(() => {
@@ -166,6 +189,103 @@ const UserAddCard = ({
     getCurrentUserPlan()
   }, [])
 
+  const fetchCardsList = async () => {
+    try {
+      setGetCardsLoader(true);
+      // setGetCardLoader(true);
+      let token = AuthToken()
+
+      let ApiPath = Apis.getCardsList
+
+      if (selectedUser) {
+        ApiPath = `${ApiPath}?userId=${selectedUser.id}`
+      }
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      console.log('response of fetch cards list', response)
+
+      if (response) {
+        if (response.data.status === true) {
+          const cards = response.data.data
+          if (cards) {
+            console.log('cards fetched in addcard', cards)
+            setCards(cards);
+            setShowAddCardForm(false)
+            // setSelectedCard(cards[0])
+          }
+          setGetCardsLoader(false);
+        }
+      }
+    } catch (error) {
+      toast.error('Error fetching cards list')
+      setGetCardsLoader(false);
+    } finally {
+      // //console.log;
+      // setGetCardLoader(false);
+    }
+  }
+
+  const makeDefaultCard = async (item) => {
+    try {
+      setSelectedCard(item)
+      setIsSubscribeButtonDisabled(true)
+      setMakeDefaultCardLoader(true)
+
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+
+      if (localData) {
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
+      }
+
+      const ApiPath = Apis.makeDefaultCard
+      const ApiData = {
+        paymentMethodId: item.id,
+      }
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response) {
+        if (response.data.status === true) {
+          // Update cards state to reflect the change
+          setCards((prevCards) =>
+            prevCards?.map((card) => ({
+              ...card,
+              isDefault: card.id === item.id,
+            })),
+          )
+          setSelectedCard(item)
+          setAddCardSuccess(true)
+          setAddCardErrtxt('Card set as default successfully')
+        } else {
+          setAddCardFailure(true)
+          setAddCardErrtxt(
+            response.data.message || 'Failed to set default card',
+          )
+        }
+      }
+    } catch (error) {
+      console.error('Error occurred in make default card api:', error)
+      setAddCardFailure(true)
+      setAddCardErrtxt('Error setting default card')
+    } finally {
+      setMakeDefaultCardLoader(false)
+      setIsSubscribeButtonDisabled(false)
+    }
+  }
+
   const getCurrentUserPlan = () => {
     const localData = localStorage.getItem('User')
     if (localData) {
@@ -188,6 +308,11 @@ const UserAddCard = ({
       ref.current.focus()
     }
   }
+
+  //fetch cards list
+  useEffect(() => {
+    fetchCardsList()
+  }, [selectedUser])
   // const [selectedUserPlan, setSelectedUserPlan] = useState(null);
   // Debounced referral code validation (500 ms)
   useEffect(() => {
@@ -450,6 +575,7 @@ const UserAddCard = ({
       })
 
       if (response) {
+        console.log('response of subscribe plan', response)
         if (response.data.status === true) {
           //refresh user data from redux
           refreshUserData()
@@ -461,7 +587,7 @@ const UserAddCard = ({
           setAddCardFailure(true)
           setAddCardErrtxt(errorMessage)
           setDisableContinue(false)
-          setAddCardLoader(false)
+          // setAddCardLoader(false)
         }
       }
     } catch (error) {
@@ -475,9 +601,9 @@ const UserAddCard = ({
         'An error occurred while subscribing to the plan. Please try again.'
       setAddCardFailure(true)
       setAddCardErrtxt(errorMessage)
+      setAddCardLoader(false)
       setDisableContinue(false)
     } finally {
-      setAddCardLoader(false)
       isSubscribingRef.current = false // Reset flag after completion
     }
   }
@@ -993,233 +1119,350 @@ const UserAddCard = ({
               }
             >
               {!isSmallScreen && (
-                <div className="flex w-full flex-col items-start">
+                <div className="flex w-full flex-row items-center justify-between">
                   <div style={{ fontWeight: '600', fontSize: 28 }}>
                     Continue to Payment
                   </div>
+                  {
+                    showAddCardForm && (
+                      <button
+                        className="text-brand-primary underline font-semibold text-lg mt-4"
+                        onClick={() => { setShowAddCardForm(false) }}
+                      >
+                        <CloseBtn />
+                      </button>
+                    )}
                 </div>
               )}
-              <div className="flex w-full flex-col items-start mt-4">
-                <div
-                  style={{
-                    fontWeight: '400',
-                    fontSize: 14,
-                    color: '#4F5B76',
-                  }}
-                >
-                  Card Number
-                </div>
 
-                <div
-                  className="mt-1 px-3 py-1 border relative flex items-center  w-full"
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    borderRadius: '8px',
-                  }}
-                >
-                  <div className="flex-1 min-w-0 w-full">
-                    <CardNumberElement
-                      options={elementOptions}
-                      autoFocus={true}
-                      onChange={(event) => {
-                        handleFieldChange(event, cardExpiryRef)
-                        if (event.complete) {
-                          setCardAdded(true)
-                        } else {
-                          setCardAdded(false)
-                        }
-                      }}
-                      ref={cardNumberRef}
-                      onReady={(element) => {
-                        cardNumberRef.current = element
-                        cardNumberRef.current.focus()
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center gap-1 ml-2 flex-shrink-0">
-                    <Image
-                      src="/svgIcons/Visa.svg"
-                      alt="Visa"
-                      width={28}
-                      height={18}
-                    />
-                    <Image
-                      src="/svgIcons/Mastercard.svg"
-                      alt="Mastercard"
-                      width={28}
-                      height={18}
-                    />
-                    <Image
-                      src="/svgIcons/Amex.svg"
-                      alt="American Express"
-                      width={28}
-                      height={18}
-                    />
-                    <Image
-                      src="/svgIcons/Discover.svg"
-                      alt="Discover"
-                      width={28}
-                      height={18}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className={`flex ${isSmallScreen ? 'flex-col' : 'flex-row'} gap-2 w-full mt-4`}
-              >
-                <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
-                  <div
-                    style={{
-                      fontWeight: '400',
-                      fontSize: 14,
-                      color: '#4F5B76',
-                    }}
-                  >
-                    Exp Date
-                  </div>
-                  <div
-                    className="mt-1 px-3 py-1 border"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <CardExpiryElement
-                      options={elementOptions}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        color: 'white',
-                        fontSize: '22px',
-                        border: '1px solid blue',
-                        borderRadius: '4px',
-                      }}
-                      onChange={(event) => {
-                        handleFieldChange(event, cardCvcRef)
-                        if (event.complete) {
-                          setCardExpiry(true)
-                        } else {
-                          setCardExpiry(false)
-                        }
-                      }}
-                      ref={cardExpiryRef}
-                      onReady={(element) => {
-                        cardExpiryRef.current = element
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
-                  <div
-                    style={{
-                      fontWeight: '400',
-                      fontSize: 14,
-                      color: '#4F5B76',
-                    }}
-                  >
-                    CVV
-                  </div>
-                  <div
-                    className="mt-1 px-3 py-1 border"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <CardCvcElement
-                      options={{
-                        ...elementOptions,
-                        placeholder: 'CVV',
-                      }}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        color: 'white',
-                        fontSize: '22px',
-                        border: '1px solid blue',
-                        borderRadius: '4px',
-                      }}
-                      ref={cardCvcRef}
-                      onReady={(element) => {
-                        cardCvcRef.current = element
-                      }}
-                      onChange={(event) => {
-                        if (event.complete) {
-                          setCVC(true)
-                        } else {
-                          setCVC(false)
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Optional input field for agent x invite code */}
-
-              <div
-                className="mt-4"
-                style={{
-                  fontWeight: '400',
-                  fontSize: 14,
-                  color: '#4F5B76',
-                }}
-              >
-                {`Promo or Referral code (optional)`}
-              </div>
-
-              <div className="mt-1">
-                <input
-                  value={inviteCode}
-                  onChange={(e) => {
-                    setInviteCode(e.target.value)
-                  }}
-                  className="outline-none focus:ring-0 w-full h-[50px]"
-                  style={{
-                    color: '#000000',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    borderRadius: '8px',
-                    border: '1px solid #00000020',
-                    fontSize: 15,
-                    fontWeight: '500',
-                  }}
-                  placeholder="Enter Promo or Referral code"
-                />
-                <style jsx>{`
-                input::placeholder {
-                  color: #00000050;
-                }
-              `}</style>
-              </div>
-              {inviteCode ? (
-                <div
-                  className="mt-2 flex items-center gap-2"
-                  style={{ minHeight: 24 }}
-                >
-                  {referralStatus === 'loading' && (
-                    <>
-                      <div style={{ fontSize: 12, color: '#4F5B76' }}>
-                        Validating code…
+              {
+                !getCardsLoader && (cards.length === 0 || showAddCardForm) ? (
+                  <div className="w-full">
+                    <div className="flex w-full flex-col items-start mt-4">
+                      <div
+                        style={{
+                          fontWeight: '400',
+                          fontSize: 14,
+                          color: '#4F5B76',
+                        }}
+                      >
+                        Card Number
                       </div>
-                    </>
-                  )}
-                  {referralStatus === 'invalid' && (
-                    <div
-                      style={{ fontSize: 12, color: '#D93025', fontWeight: 600 }}
-                    >
-                      {referralMessage || 'Invalid referral code'}
+
+                      <div
+                        className="mt-1 px-3 py-1 border relative flex items-center  w-full"
+                        style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        <div className="flex-1 min-w-0 w-full">
+                          <CardNumberElement
+                            options={elementOptions}
+                            autoFocus={true}
+                            onChange={(event) => {
+                              handleFieldChange(event, cardExpiryRef)
+                              if (event.complete) {
+                                setCardAdded(true)
+                              } else {
+                                setCardAdded(false)
+                              }
+                            }}
+                            ref={cardNumberRef}
+                            onReady={(element) => {
+                              cardNumberRef.current = element
+                              cardNumberRef.current.focus()
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                          <Image
+                            src="/svgIcons/Visa.svg"
+                            alt="Visa"
+                            width={28}
+                            height={18}
+                          />
+                          <Image
+                            src="/svgIcons/Mastercard.svg"
+                            alt="Mastercard"
+                            width={28}
+                            height={18}
+                          />
+                          <Image
+                            src="/svgIcons/Amex.svg"
+                            alt="American Express"
+                            width={28}
+                            height={18}
+                          />
+                          <Image
+                            src="/svgIcons/Discover.svg"
+                            alt="Discover"
+                            width={28}
+                            height={18}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  {referralStatus === 'valid' && (
+
                     <div
-                      style={{ fontSize: 12, color: '#34A853', fontWeight: 600 }}
+                      className={`flex ${isSmallScreen ? 'flex-col' : 'flex-row'} gap-2 w-full mt-4`}
                     >
-                      {referralMessage || 'Code applied'}
+                      <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
+                        <div
+                          style={{
+                            fontWeight: '400',
+                            fontSize: 14,
+                            color: '#4F5B76',
+                          }}
+                        >
+                          Exp Date
+                        </div>
+                        <div
+                          className="mt-1 px-3 py-1 border"
+                          style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <CardExpiryElement
+                            options={elementOptions}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              color: 'white',
+                              fontSize: '22px',
+                              border: '1px solid blue',
+                              borderRadius: '4px',
+                            }}
+                            onChange={(event) => {
+                              handleFieldChange(event, cardCvcRef)
+                              if (event.complete) {
+                                setCardExpiry(true)
+                              } else {
+                                setCardExpiry(false)
+                              }
+                            }}
+                            ref={cardExpiryRef}
+                            onReady={(element) => {
+                              cardExpiryRef.current = element
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
+                        <div
+                          style={{
+                            fontWeight: '400',
+                            fontSize: 14,
+                            color: '#4F5B76',
+                          }}
+                        >
+                          CVV
+                        </div>
+                        <div
+                          className="mt-1 px-3 py-1 border"
+                          style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <CardCvcElement
+                            options={{
+                              ...elementOptions,
+                              placeholder: 'CVV',
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              color: 'white',
+                              fontSize: '22px',
+                              border: '1px solid blue',
+                              borderRadius: '4px',
+                            }}
+                            ref={cardCvcRef}
+                            onReady={(element) => {
+                              cardCvcRef.current = element
+                            }}
+                            onChange={(event) => {
+                              if (event.complete) {
+                                setCVC(true)
+                              } else {
+                                setCVC(false)
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ) : null}
+
+                    {/* Optional input field for agent x invite code */}
+
+                    <div
+                      className="mt-4"
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 14,
+                        color: '#4F5B76',
+                      }}
+                    >
+                      {`Promo or Referral code (optional)`}
+                    </div>
+
+                    <div className="mt-1">
+                      <input
+                        value={inviteCode}
+                        onChange={(e) => {
+                          setInviteCode(e.target.value)
+                        }}
+                        className="outline-none focus:ring-0 w-full h-[50px]"
+                        style={{
+                          color: '#000000',
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                          borderRadius: '8px',
+                          border: '1px solid #00000020',
+                          fontSize: 15,
+                          fontWeight: '500',
+                        }}
+                        placeholder="Enter Promo or Referral code"
+                      />
+                      <style jsx>{`
+                  input::placeholder {
+                    color: #00000050;
+                  }
+                `}</style>
+                    </div>
+                    {inviteCode ? (
+                      <div
+                        className="mt-2 flex items-center gap-2"
+                        style={{ minHeight: 24 }}
+                      >
+                        {referralStatus === 'loading' && (
+                          <>
+                            <div style={{ fontSize: 12, color: '#4F5B76' }}>
+                              Validating code…
+                            </div>
+                          </>
+                        )}
+                        {referralStatus === 'invalid' && (
+                          <div
+                            style={{ fontSize: 12, color: '#D93025', fontWeight: 600 }}
+                          >
+                            {referralMessage || 'Invalid referral code'}
+                          </div>
+                        )}
+                        {referralStatus === 'valid' && (
+                          <div
+                            style={{ fontSize: 12, color: '#34A853', fontWeight: 600 }}
+                          >
+                            {referralMessage || 'Code applied'}
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>) : (
+                  <div className="w-full h-[26vh]">
+                    {
+                      getCardsLoader ? (
+                        <div className="flex flex-row justify-center items-center mt-8 w-full">
+                          <CircularProgress size={30} />
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="w-full flex flex-row items-center justify-between mt-4">
+                            <div className="text-lg font-semibold flex flex-row items-start justify-between">
+                              Payment
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                setShowAddCardForm(true)
+                              }}
+                              className="text-base font-medium text-brand-primary hover:text-brand-primary/80"
+                            >
+                              + Add Payment
+                            </button>
+                          </div>
+                          {
+                            cards?.length > 0 ? (
+                              <div className="w-full h-[35vh] pb-4 overflow-y-auto">
+                                {
+                                  cards?.map((item) => (
+                                    <div className="w-full mt-4" key={item.id}>
+                                      <button
+                                        className="w-full outline-none"
+                                        onClick={() => makeDefaultCard(item)}
+                                        disabled={makeDefaultCardLoader}
+                                      >
+                                        <div
+                                          className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
+                                          style={{
+                                            backgroundColor:
+                                              item.isDefault ||
+                                                selectedCard?.id === item.id
+                                                ? '#4011FA05'
+                                                : 'transparent',
+                                            borderColor:
+                                              item.isDefault ||
+                                                selectedCard?.id === item.id
+                                                ? 'hsl(var(--brand-primary, 270 75% 50%))'
+                                                : '#15151510',
+                                          }}
+                                        >
+                                          <div className="flex items-center gap-2">
+                                            <div
+                                              className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`}
+                                              style={{
+                                                borderWidth:
+                                                  item.isDefault ||
+                                                    selectedCard?.id === item.id
+                                                    ? 3
+                                                    : 1,
+                                              }}
+                                            ></div>
+
+                                            <Image
+                                              src={
+                                                getCardImage(item) ||
+                                                '/svgIcons/Visa.svg'
+                                              }
+                                              alt="Card Logo"
+                                              width={50}
+                                              height={50}
+                                            />
+
+                                            <div className="text-xs font-normal">
+                                              ****{item.last4}{' '}
+                                              {item.isDefault && (
+                                                <span>{`(default)`}</span>
+                                              )}
+                                              {makeDefaultCardLoader &&
+                                                selectedCard?.id === item.id && (
+                                                  <CircularProgress
+                                                    size={14}
+                                                    style={{ marginLeft: '8px' }}
+                                                  />
+                                                )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </button>
+                                    </div>
+                                  ))
+                                }
+                              </div>
+                            ) : (
+                              <div>
+                                No cards found
+                              </div>
+                            )
+                          }
+                        </div>
+                      )
+                    }
+                  </div>
+                )
+              }
+
             </div>
           </div>
           {/* Order Summary - Desktop only */}
@@ -1373,6 +1616,23 @@ const UserAddCard = ({
                             }}
                           >
                             Continue
+                          </button>
+                        ) : (cards?.length > 0 && !isSubscribeButtonDisabled && !showAddCardForm) ? (
+                          <button
+                            onClick={() => {
+                              console.log('selectedCard is', selectedCard)
+                              handleSubscribePlan()
+                              // handleClose(selectedCard);
+                            }}
+                            disabled={addCardLoader || disableContinue || isSubscribingRef.current}
+                            className="w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                              fontWeight: '600',
+                              fontSize: 17,
+                            }}
+                          >
+                            Subscribe
                           </button>
                         ) : (
                           <button

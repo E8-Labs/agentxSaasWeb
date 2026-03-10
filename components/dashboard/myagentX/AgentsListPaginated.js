@@ -684,10 +684,16 @@ const AgentsListPaginated = ({
                     >
                       <AgentInfoCard
                         name="Convos"
-                        value={<div>{item.callsGt10 || '-'}</div>}
+                        value={<div>{item.callsGt10 ?? '-'}</div>}
                         iconComponent={<MessageCircleMore size={18} />}
                         iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                         iconColor="text-brand-primary"
+                        subtitle="Answer rate"
+                        rate={
+                          item.calls > 0
+                            ? (item.callsGt10 / item.calls) * 100
+                            : null
+                        }
                       />
                     </button>
                     <button
@@ -705,10 +711,16 @@ const AgentsListPaginated = ({
                     >
                       <AgentInfoCard
                         name="Hot Leads"
-                        value={item.hotleads || '-'}
+                        value={item.hotleads ?? '-'}
                         iconComponent={<Zap size={18} />}
                         iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                         iconColor="text-brand-primary"
+                        subtitle="Conversion rate"
+                        rate={
+                          item.callsGt10 > 0
+                            ? (item.hotleads / item.callsGt10) * 100
+                            : null
+                        }
                       />
                     </button>
                     <button
@@ -726,10 +738,16 @@ const AgentsListPaginated = ({
                     >
                       <AgentInfoCard
                         name="Booked Meetings"
-                        value={item.booked || '-'}
+                        value={item.booked ?? '-'}
                         iconComponent={<Calendar size={18} />}
                         iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                         iconColor="text-brand-primary"
+                        subtitle="Conversion rate"
+                        rate={
+                          item.callsGt10 > 0
+                            ? (item.booked / item.callsGt10) * 100
+                            : null
+                        }
                       />
                     </button>
                     {/* <button

@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import { Modal } from '@mui/material'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { X, RotateCcw, Upload, ChevronDown } from 'lucide-react'
 import { OpenAiLogoIcon } from '@phosphor-icons/react'
 import axios from 'axios'
 import { cn } from '@/lib/utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { agentImage } from '@/utilities/agentUtilities'
 import AgentXOrb from '@/components/common/AgentXOrb'
 import WebAgentChatInput from './WebAgentChatInput'
@@ -92,6 +93,7 @@ const WebAgentChatDrawer = ({
   agentAvatar = null,
   leadId = null,
   canChangeLlmProvider = false,
+  formData = null
 }) => {
   const headerAvatar = agentAvatar ?? (agent ? agentImage(agent) : null)
   const [inputValue, setInputValue] = useState('')
@@ -182,8 +184,9 @@ const WebAgentChatDrawer = ({
       setCurrentThreadTitle(null)
       setMessages([])
       setHistoryOpen(false)
-      const t = setTimeout(() => setExpanded(true), 50)
-      return () => clearTimeout(t)
+      // One frame delay so Modal is in DOM before we expand; avoids flicker of 0-height panel
+      const id = requestAnimationFrame(() => setExpanded(true))
+      return () => cancelAnimationFrame(id)
     } else {
       setExpanded(false)
       setCurrentThreadId(null)
@@ -526,12 +529,23 @@ const WebAgentChatDrawer = ({
   if (!showOverlay) return null
 
   const modalContent = (
-    <div
-      className="fixed inset-0"
-      style={{ zIndex: 1300 }}
-      role="dialog"
-      aria-modal="true"
+    <Modal
+      open={showOverlay}
+      onClose={handleModalClose}
+      closeAfterTransition
       aria-label="Chat"
+      sx={{ zIndex: 1300 }}
+      slotProps={{
+        root: {
+          sx: {
+            // Disable MUI's default backdrop transition to prevent flicker on open
+            '& .MuiBackdrop-root': { transition: 'none' },
+          },
+        },
+      }}
+      BackdropProps={{
+        sx: { backgroundColor: 'rgba(0,0,0,0.05)' },
+      }}
     >
       <div
         className="absolute inset-0"
@@ -549,14 +563,15 @@ const WebAgentChatDrawer = ({
         <div
           className={cn(
             'pointer-events-auto flex flex-col overflow-hidden',
-            'rounded-3xl shadow-2xl w-full max-w-[630px]',
-            'transition-[height] duration-300 ease-out'
+            'rounded-3xl shadow-2xl w-full max-w-[800px]',
+            // Hide panel until expanded to avoid flicker of 0-height bar
+            !expanded ? 'opacity-0' : 'opacity-100'
           )}
           style={{
-            height: expanded ? '75vh' : 0,
-            minHeight: expanded ? 400 : 0,
+            height: expanded ? '85vh' : 0,
+            minHeight: expanded ? 500 : 0,
             background: 'rgba(255,255,255,0.82)',
-            backdropFilter: 'blur(12px)',
+            transition: 'height 320ms ease-out, opacity 200ms ease-out',
           }}
           onClick={(e) => e.stopPropagation()}
           onTransitionEnd={handleTransitionEnd}
@@ -603,7 +618,7 @@ const WebAgentChatDrawer = ({
                   )}
                   title={currentThreadId != null ? (displayTitleFull !== displayTitle ? displayTitleFull : 'Click to edit title') : displayTitleFull}
                 >
-                  {displayTitle}
+                  {/*displayTitle*/}
                 </button>
               )}
             </div>
@@ -752,39 +767,77 @@ const WebAgentChatDrawer = ({
             ) : messages.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {messages.map((m) => {
+                  const isInbound = m.direction === 'inbound'
                   const attachments = m.metadata?.attachments || []
                   const imageAttachments = attachments.filter((a) => a.type === 'image' && a.dataUrl)
+                  const agentThumb = agent?.thumb_profile_image || (typeof agentAvatar === 'string' ? agentAvatar : null)
                   return (
                     <div
                       key={m.id}
                       className={cn(
-                        'max-w-[85%] min-w-0 rounded-2xl px-3 py-2 text-sm overflow-hidden break-words',
-                        m.direction === 'inbound'
-                          ? 'self-end bg-brand-primary/15 text-gray-900'
-                          : 'self-start bg-white/90 text-gray-900 border border-gray-100'
+                        'flex items-start gap-2 w-full',
+                        isInbound ? 'justify-end' : 'justify-start'
                       )}
                     >
-                      {imageAttachments.length > 0 && (
-                        <div className="flex flex-col gap-1.5 mb-2">
-                          {imageAttachments.map((img, i) => (
-                            <img
-                              key={i}
-                              src={img.dataUrl}
-                              alt=""
-                              className="rounded-lg max-h-48 w-auto object-contain"
-                            />
-                          ))}
+                      {!isInbound && (
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex-shrink-0 cursor-default">
+                                {agentThumb ? (
+                                  <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex-shrink-0">
+                                    <Image
+                                      src={agentThumb}
+                                      alt={agentName || 'Agent'}
+                                      width={32}
+                                      height={32}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+                                    {(agentName || 'A').charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">{agentName || 'Agent'}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                      <div
+                        className={cn(
+                          'max-w-[85%] min-w-0 rounded-2xl px-3 py-2 text-sm overflow-hidden break-words',
+                          isInbound ? 'bg-brand-primary/15 text-gray-900' : 'bg-white/90 text-gray-900 border border-gray-100'
+                        )}
+                      >
+                        {imageAttachments.length > 0 && (
+                          <div className="flex flex-col gap-1.5 mb-2">
+                            {imageAttachments.map((img, i) => (
+                              <img
+                                key={i}
+                                src={img.dataUrl}
+                                alt=""
+                                className="rounded-lg max-h-48 w-auto object-contain"
+                              />
+                            ))}
+                          </div>
+                        )}
+                        {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
+                          <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                        ) : null}
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(m.createdAt).toLocaleTimeString(undefined, {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                      {isInbound && (
+                        <div className="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-semibold text-xs flex-shrink-0" aria-hidden>
+                          {formData?.firstName?.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
-                        <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                      ) : null}
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(m.createdAt).toLocaleTimeString(undefined, {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}
-                      </p>
                     </div>
                   )
                 })}
@@ -881,8 +934,6 @@ const WebAgentChatDrawer = ({
               disabled={!sessionReady || sendLoading}
             />
           </div>
-        </div>
-      </div>
 
       {addKeyModalProvider && (
         <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/20 backdrop-blur-sm rounded-3xl">
@@ -918,9 +969,11 @@ const WebAgentChatDrawer = ({
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </div>
+    </Modal>
   )
-  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null
+  return modalContent
 }
 
 export default WebAgentChatDrawer

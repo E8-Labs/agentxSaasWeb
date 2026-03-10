@@ -135,6 +135,8 @@ export default function DashboardLayout({ children }) {
             className="ml-[250px] flex flex-1 min-w-0 flex-col overflow-hidden bg-white"
             style={{ backgroundColor: '#ffffff', background: '#ffffff', height: '100vh' }}
           >
+            {/* Navigation Loader - shows during page transitions */}
+            <NavigationLoader />
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />
@@ -145,8 +147,6 @@ export default function DashboardLayout({ children }) {
           </div>
         </div>
         
-        {/* Navigation Loader - shows during page transitions */}
-        <NavigationLoader />
         
         {/* Incoming Call Banner - shows on all pages */}
         <IncomingCallBanner />

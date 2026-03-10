@@ -17,6 +17,68 @@ import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
 import { TypographyBody, TypographyBodySemibold, TypographyCaption, TypographyBodyMedium } from '@/lib/typography'
 
+// Time picker helpers (value: "HH:mm" 24h)
+function parseTime24(value) {
+  if (!value || !/^\d{1,2}:\d{2}$/.test(value)) return { hour12: 12, minute: 0, ampm: 'PM' }
+  const [h, m] = value.split(':').map(Number)
+  const hour24 = Math.min(23, Math.max(0, h))
+  const minute = Math.min(59, Math.max(0, m))
+  return { hour12: hour24 % 12 || 12, minute, ampm: hour24 >= 12 ? 'PM' : 'AM' }
+}
+function toTime24(hour12, minute, ampm) {
+  let h = ampm === 'PM' && hour12 !== 12 ? hour12 + 12 : hour12
+  if (ampm === 'AM' && hour12 === 12) h = 0
+  return `${String(h).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+function formatTime12(value) {
+  if (!value) return ''
+  const { hour12, minute, ampm } = parseTime24(value)
+  return `${hour12}:${String(minute).padStart(2, '0')} ${ampm}`
+}
+
+function CustomTimePicker({ value, onChange, onCancel }) {
+  const p = parseTime24(value || '12:00')
+  const [hour12, setHour12] = useState(p.hour12)
+  const [minute, setMinute] = useState(p.minute)
+  const [ampm, setAmpm] = useState(p.ampm)
+  useEffect(() => {
+    const next = parseTime24(value || '12:00')
+    setHour12(next.hour12)
+    setMinute(next.minute)
+    setAmpm(next.ampm)
+  }, [value])
+  const hours = Array.from({ length: 12 }, (_, i) => i + 1)
+  const minutes = Array.from({ length: 60 }, (_, i) => i)
+  const selectedClass = 'bg-brand-primary text-white'
+  const unselectedClass = 'text-foreground hover:bg-black/[0.06]'
+  const colClass = 'flex flex-col overflow-y-auto max-h-[200px] min-w-[52px] rounded-md border border-black/[0.08] bg-muted/30 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+  return (
+    <div className="p-3">
+      <div className="flex gap-2 mb-3">
+        <div className={colClass}>
+          {hours.map((h) => (
+            <button key={h} type="button" onClick={() => setHour12(h)} className={cn('flex items-center justify-center py-2 text-sm font-medium cursor-pointer transition-colors', hour12 === h ? selectedClass : unselectedClass)} aria-pressed={hour12 === h}>{h}</button>
+          ))}
+        </div>
+        <div className={colClass}>
+          {minutes.map((m) => (
+            <button key={m} type="button" onClick={() => setMinute(m)} className={cn('flex items-center justify-center py-2 text-sm font-medium cursor-pointer transition-colors', minute === m ? selectedClass : unselectedClass)} aria-pressed={minute === m}>{String(m).padStart(2, '0')}</button>
+          ))}
+        </div>
+        <div className={colClass}>
+          {['AM', 'PM'].map((a) => (
+            <button key={a} type="button" onClick={() => setAmpm(a)} className={cn('flex items-center justify-center py-2 text-sm font-medium cursor-pointer transition-colors', ampm === a ? selectedClass : unselectedClass)} aria-pressed={ampm === a}>{a}</button>
+          ))}
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
+        <Button type="button" size="sm" className="bg-brand-primary text-white hover:bg-brand-primary/90" onClick={() => { onChange(toTime24(hour12, minute, ampm)); }}>OK</Button>
+      </div>
+    </div>
+  )
+}
+
 const TaskForm = ({
   task = null,
   teamMembers = [],
@@ -96,6 +158,7 @@ const TaskForm = ({
     task?.assignedMembers?.map((m) => m.id) || defaultAssignees || [],
   )
   const [datePickerOpen, setDatePickerOpen] = useState(false)
+  const [timePickerOpen, setTimePickerOpen] = useState(false)
   const [isSavingDate, setIsSavingDate] = useState(false)
 
   // Handle initial description from props
@@ -573,25 +636,37 @@ const TaskForm = ({
                   initialFocus
                 />
 
-                {/* Time input */}
+                {/* Time picker (brand-primary selected background) */}
                 {dueDate && (
                   <div className="flex items-center gap-2 pt-2 border-t">
                     <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <Input
-                      type="time"
-                      value={dueTime}
-                      onChange={(e) => setDueTime(e.target.value)}
-                      onClick={(e) => {
-                        // Ensure the time picker opens when clicking anywhere on the input
-                        e.currentTarget.showPicker?.()
-                      }}
-                      className="w-full cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden"
-                      style={{
-                        WebkitAppearance: 'none',
-                        MozAppearance: 'textfield',
-                      }}
-                      placeholder="Due time (optional)"
-                    />
+                    <Popover open={timePickerOpen} onOpenChange={setTimePickerOpen}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            'flex h-[40px] w-full items-center rounded-lg border border-black/[0.06] bg-white px-3 py-2 text-left text-[14px]',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary cursor-pointer hover:border-black/10'
+                          )}
+                        >
+                          {dueTime ? formatTime12(dueTime) : 'Due time (optional)'}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-auto p-0"
+                        align="start"
+                        side="bottom"
+                        sideOffset={4}
+                        style={{ zIndex: 6100 }}
+                        onOpenAutoFocus={(e) => e.preventDefault()}
+                      >
+                        <CustomTimePicker
+                          value={dueTime}
+                          onChange={(next) => { setDueTime(next); setTimePickerOpen(false); }}
+                          onCancel={() => setTimePickerOpen(false)}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 )}
               </div>

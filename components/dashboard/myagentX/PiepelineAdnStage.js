@@ -1,12 +1,18 @@
-import { CircularProgress } from '@mui/material'
+import { Box, CircularProgress, Modal } from '@mui/material'
 import axios from 'axios'
-import { ChevronDown, ChevronUp, Pencil } from 'lucide-react'
+import { ChevronDown, ChevronUp, EditIcon, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import { PersistanceKeys } from '@/constants/Constants'
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
@@ -48,6 +54,8 @@ const PipelineAndStage = ({
   const [initialLoader, setInitialLoader] = useState(false)
 
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
+  const [showRemoveFromPipelinePopup, setShowRemoveFromPipelinePopup] = useState(false)
+  const [removeFromPipelineLoading, setRemoveFromPipelineLoading] = useState(false)
 
   //fetch agent details state
   const [agentDetails, setAgentDetails] = useState(null)
@@ -469,6 +477,50 @@ const PipelineAndStage = ({
     },
   }
 
+  const handleRemoveFromPipeline = async () => {
+    if (!mainAgent?.id) return
+    try {
+      setRemoveFromPipelineLoading(true)
+      const Token = AuthToken()
+      const response = await axios.post(
+        Apis.removeAgentFromPipeline,
+        { mainAgentId: mainAgent.id },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Token,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      if (response?.data?.status === true) {
+        setShowRemoveFromPipelinePopup(false)
+        setMessage({ type: SnackbarTypes.success, message: 'Agent removed from pipeline' })
+        await fetchAgentDetails()
+        if (selectedAgent?.agentType !== 'inbound') {
+          await handleGetCadence()
+        }
+        setAgentCadence([])
+        window.dispatchEvent(
+          new CustomEvent('refreshSelectedUser', {
+            detail: { userId: selectedUser?.id, userData: selectedUser },
+          }),
+        )
+      } else {
+        setMessage({
+          type: SnackbarTypes.error,
+          message: response?.data?.message || 'Failed to remove agent from pipeline',
+        })
+      }
+    } catch (error) {
+      setMessage({
+        type: SnackbarTypes.error,
+        message: error?.response?.data?.message || 'Failed to remove agent from pipeline',
+      })
+    } finally {
+      setRemoveFromPipelineLoading(false)
+    }
+  }
+
   return (
     <div>
       <AgentSelectSnackMessage
@@ -493,13 +545,104 @@ const PipelineAndStage = ({
           )}
         </div>
 
+        <Modal
+          open={showRemoveFromPipelinePopup}
+          onClose={() => !removeFromPipelineLoading && setShowRemoveFromPipelinePopup(false)}
+          BackdropProps={{ sx: { backgroundColor: '#00000020' } }}
+        >
+          <Box
+            className="w-10/12 sm:w-7/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'white',
+              boxShadow: 24,
+              outline: 'none',
+            }}
+          >
+            <div className="text-black" style={{ fontSize: 22, fontWeight: '600' }}>
+              Remove from Pipeline
+            </div>
+            <div className="text-black mt-4" style={{ fontSize: 15, fontWeight: '500' }}>
+              This will remove the agent from the assigned pipeline and delete all pipeline cadence steps for this agent. This action cannot be undone.
+            </div>
+            <div className="flex flex-row items-center justify-end gap-3 mt-6">
+              <button
+                className="h-[50px] px-6 rounded-[10px] border border-gray-300"
+                style={{ fontWeight: 600 }}
+                onClick={() => !removeFromPipelineLoading && setShowRemoveFromPipelinePopup(false)}
+                disabled={removeFromPipelineLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="h-[50px] px-6 rounded-[10px] bg-red-600 text-white"
+                style={{ fontWeight: 600 }}
+                onClick={handleRemoveFromPipeline}
+                disabled={removeFromPipelineLoading}
+              >
+                {removeFromPipelineLoading ? (
+                  <CircularProgress size={22} color="inherit" />
+                ) : (
+                  'Remove'
+                )}
+              </button>
+            </div>
+          </Box>
+        </Modal>
+
         <div
           className="flex flex-row items-center justify-between"
           style={{ ...firecrawlStyles.header, borderBottom: 'none' }}
         >
-          <span className="font-medium" style={{ color: 'rgba(0, 0, 0, 0.9)' }}>
-            Stages
-          </span>
+          <div className="flex flex-row items-center gap-2">
+            <span className="font-medium" style={{ color: 'rgba(0, 0, 0, 0.9)' }}>
+              Stages
+            </span>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/[0.08] bg-white text-black/70 transition-colors hover:bg-black/[0.04] hover:text-black/90 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  aria-label="Pipeline options"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical size={20} strokeWidth={2} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="z-[1300] min-w-[200px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DropdownMenuItem
+                  className="flex cursor-pointer items-center gap-2 focus:bg-brand-primary/10 focus:text-brand-primary"
+                  onSelect={() => setShowConfirmationPopup(true)}
+                >
+                  <EditIcon size={18} />
+                  Update
+                </DropdownMenuItem>
+                {agentDetails?.pipeline && (
+                  <DropdownMenuItem
+                    className="flex cursor-pointer items-center gap-2 text-red-600 focus:bg-red-500/10 focus:text-red-700"
+                    onSelect={() => setShowRemoveFromPipelinePopup(true)}
+                    disabled={removeFromPipelineLoading}
+                  >
+                    {removeFromPipelineLoading ? (
+                      <CircularProgress size={18} color="inherit" />
+                    ) : (
+                      <>
+                        <Trash2 size={18} strokeWidth={2} />
+                        Remove from pipeline
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           {leadStageLoading ? (
             <CircularProgress size={20} />
           ) : (

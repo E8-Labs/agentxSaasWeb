@@ -55,6 +55,13 @@ function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout 
   return <div style={style}>{children}</div>
 }
 
+// Normalize category for display (API may return 'Needs'/'Motivation'/'Urgency' or 'need'/'motivation'/'urgency')
+const normalizeCategory = (c) => {
+  if (!c) return ''
+  const s = String(c).trim().toLowerCase()
+  return s === 'needs' ? 'need' : s
+}
+
 const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [BuyerAnchor, setBuyerAnchor] = useState(null)
@@ -171,16 +178,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         )
         // //console.log;
         // //console.log;
-        //code for seller kyc questions
+        //code for seller kyc questions (accept both 'Needs'/'need', etc.)
         const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-          (item) => item.category === 'need',
+          (item) => normalizeCategory(item.category) === 'need',
         )
         const filteredSellerMotivationQuestions =
           filteredSellerQuestions.filter(
-            (item) => item.category === 'motivation',
+            (item) => normalizeCategory(item.category) === 'motivation',
           )
         const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-          (item) => item.category === 'urgency',
+          (item) => normalizeCategory(item.category) === 'urgency',
         )
         // //console.log;
         setSellerNeedData(filteredSellerNeedQuestions)
@@ -190,13 +197,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         setSellerUrgencyData(filteredSellerUrgencyQuestions)
         //code for buyer kyc questions
         const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === 'need',
+          (item) => normalizeCategory(item.category) === 'need',
         )
         const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === 'motivation',
+          (item) => normalizeCategory(item.category) === 'motivation',
         )
         const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === 'urgency',
+          (item) => normalizeCategory(item.category) === 'urgency',
         )
         // //console.log;
         setBuyerNeedData(filteredBuyerNeedQuestions)
@@ -252,13 +259,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     )
     // //console.log;
     const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setSellerNeedData(filteredSellerNeedQuestions)
@@ -289,13 +296,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     // //console.log;
 
     const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setBuyerNeedData(filteredBuyerNeedQuestions)
@@ -318,13 +325,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     // //console.log;
     //code for seller kyc questions
     const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setSellerNeedData(filteredSellerNeedQuestions)
@@ -334,13 +341,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     setSellerUrgencyData(filteredSellerUrgencyQuestions)
     //code for buyer kyc questions
     const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setBuyerNeedData(filteredBuyerNeedQuestions)

@@ -1,6 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { Mail, MessageSquareDot } from 'lucide-react'
 
 /**
  * Renders the platform/source icon for a message or thread (Facebook, Instagram, Email, SMS).
@@ -26,24 +27,34 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
 
   const content = (() => {
     if (type === 'email') {
+      // <Image
+      //   src="/messaging/email message type icon.svg"
+      //   width={sizePx}
+      //   height={sizePx}
+      //   alt="Email"
+      //   className="object-contain"
+      // />
       return (
-        <Image
-          src="/messaging/email message type icon.svg"
-          width={sizePx}
-          height={sizePx}
-          alt="Email"
-          className="object-contain"
+        <Mail
+          size={10}
+          strokeWidth={2}
+          className="text-[hsl(var(--brand-primary))]"
         />
       )
     }
     if (type === 'sms') {
+      // <Image
+      //   src="/messaging/text type message icon.svg"
+      //   width={sizePx}
+      //   height={sizePx}
+      //   alt="SMS"
+      //   className="object-contain"
+      // />
       return (
-        <Image
-          src="/messaging/text type message icon.svg"
-          width={sizePx}
-          height={sizePx}
-          alt="SMS"
-          className="object-contain"
+        <MessageSquareDot
+          size={10}
+          strokeWidth={2}
+          className="text-[hsl(var(--brand-primary))]"
         />
       )
     }
