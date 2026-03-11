@@ -1411,7 +1411,7 @@ const Creator = ({ agentId, name }) => {
         {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer */}
         <div className="lg:flex hidden">
           <AnimatePresence>
-            {boxVisible && !pointerOverChatInputArea && (
+            {boxVisible && !pointerOverChatInputArea && !chatDrawerOpen && (
               <motion.div
                 style={{
                   position: 'absolute',
