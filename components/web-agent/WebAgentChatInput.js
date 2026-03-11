@@ -6,7 +6,11 @@ import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const btnCircleClass =
-  'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-gray-700 hover:bg-gray-50 shadow-sm transition-colors'
+  'flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-gray-700 hover:bg-gray-50 shadow-sm transition-transform duration-150 active:scale-[0.98]'
+
+/** Figma drawer: white/40, border, rounded-full, purple-tint shadow */
+const btnCircleClassStacked =
+  'flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/40 border border-white text-gray-700 hover:bg-white/60 transition-transform duration-150 active:scale-[0.98]'
 
 /** Max height for textarea (~5 lines at 14px text + padding) */
 const TEXTAREA_MAX_HEIGHT_PX = 120
@@ -37,6 +41,8 @@ const WebAgentChatInput = ({
   onChange,
   inputRef: inputRefProp,
   disabled = false,
+  leftAddon = null,
+  stackedLayout = false,
   ...rest
 }) => {
   const inputRefLocal = useRef(null)
@@ -235,17 +241,154 @@ const WebAgentChatInput = ({
 
   const speechSupported = typeof window !== 'undefined' && !!getSpeechRecognition()
 
+  const iconBtnClass = stackedLayout ? btnCircleClassStacked : btnCircleClass
+  const plusButton = (
+    <button
+      type="button"
+      tabIndex={-1}
+      onClick={() => {
+        if (readOnly) {
+          handleFocus()
+        } else {
+          handlePlusClick()
+        }
+      }}
+      className={cn(iconBtnClass, leftAddon != null ? 'ml-0' : 'ml-0.5')}
+      style={stackedLayout ? { boxShadow: '0px 4px 22.8px 0px rgba(121,2,223,0.027)' } : undefined}
+      aria-label="Attach files"
+    >
+      <Plus className="w-[18px] h-[18px] stroke-[2.5]" />
+    </button>
+  )
+
+  const actionsRow = (
+    <div className={cn('flex flex-row gap-2 shrink-0', isMultiLine && !stackedLayout ? 'items-end' : 'items-center', stackedLayout && 'gap-2')}>
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => {
+                if (readOnly) {
+                  handleFocus()
+                } else {
+                  handleDictateClick()
+                }
+              }}
+              disabled={!speechSupported}
+              className={cn(
+                iconBtnClass,
+                isListening && 'bg-red-100 text-red-600 hover:bg-red-100 cursor-pointer'
+              )}
+              style={stackedLayout ? { boxShadow: '0px 4px 22.8px 0px rgba(121,2,223,0.027)' } : undefined}
+              aria-label={isListening ? 'Stop dictation' : 'Dictate'}
+              aria-pressed={isListening}
+            >
+              <Mic className="w-[18px] h-[18px] stroke-[2.5]" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {!speechSupported
+              ? 'Speech input not supported in this browser'
+              : isListening
+                ? 'Listening… Click to stop'
+                : 'Dictate'}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="submit"
+              disabled={disabled}
+              className={cn(iconBtnClass, disabled && 'opacity-50 cursor-not-allowed')}
+              style={stackedLayout ? { boxShadow: '0px 4px 22.8px 0px rgba(121,2,223,0.027)' } : undefined}
+              aria-label="Send message"
+              onClick={() => {
+                if (readOnly) {
+                  handleFocus()
+                }
+              }}
+            >
+              <ArrowUp className="w-[18px] h-[18px] stroke-[2.5]" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>Send</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
+  )
+
+  if (stackedLayout) {
+    return (
+      <form
+        onSubmit={handleSubmit}
+        className={cn(
+          'flex flex-col gap-0 transition-all duration-200',
+          'border border-white bg-white/[0.98]',
+          'focus-within:border-white focus-within:bg-white',
+          'w-full max-w-full rounded-[24px] py-2',
+          'min-h-[80px]',
+          className
+        )}
+        style={{
+          boxShadow:
+            '0px 28px 47.2px 0px rgba(110,110,110,0.036), 0px 6px 32.2px 0px rgba(0,0,0,0.045)',
+        }}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept={accept}
+          onChange={handleFileChange}
+          className="hidden"
+          aria-hidden
+        />
+        <div className="px-3 pt-1">
+          <textarea
+            ref={inputRef}
+            readOnly={readOnly}
+            placeholder={placeholder}
+            value={displayValue}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onClick={handleClick}
+            disabled={disabled}
+            rows={2}
+            className={cn(
+              'w-full min-w-0 rounded-lg bg-transparent px-0 py-1 resize-none',
+              'text-sm text-gray-900 border-0 outline-none focus:outline-none focus:ring-0',
+              'font-normal min-h-[40px] max-h-[120px] overflow-y-auto',
+              'placeholder:text-[#151515] placeholder:opacity-30'
+            )}
+            style={{ fontSize: '14px', lineHeight: '100%' }}
+            aria-label="Message input"
+            {...rest}
+          />
+        </div>
+        <div className="flex items-center justify-between w-full px-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {leftAddon}
+            {plusButton}
+          </div>
+          {actionsRow}
+        </div>
+      </form>
+    )
+  }
+
   return (
     <form
       onSubmit={handleSubmit}
       className={cn(
         'flex gap-1.5 transition-all duration-200',
-        'border-2 border-white bg-white/30',
-        'focus-within:border-brand-primary focus-within:bg-white/40',
-        'focus-within:shadow-brand-glow',
+        'border border-white/80 bg-white/80',
+        'focus-within:border-white focus-within:bg-white',
         'min-h-[48px] w-full max-w-full',
         'px-1.5 py-1',
-        isMultiLine ? 'items-end rounded-[15px]' : 'items-center rounded-full',
+        isMultiLine ? 'items-end rounded-[16px]' : 'items-center rounded-full',
         className
       )}
     >
@@ -258,21 +401,14 @@ const WebAgentChatInput = ({
         className="hidden"
         aria-hidden
       />
-      <button
-        type="button"
-        tabIndex={-1}
-        onClick={() => {
-          if (readOnly) {
-            handleFocus()
-          } else {
-            handlePlusClick()
-          }
-        }}
-        className={cn(btnCircleClass, 'ml-0.5')}
-        aria-label="Attach files"
-      >
-        <Plus className="h-5 w-5 stroke-[2.5]" />
-      </button>
+      {leftAddon != null ? (
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {leftAddon}
+          {plusButton}
+        </div>
+      ) : (
+        plusButton
+      )}
 
       <textarea
         ref={inputRef}
@@ -295,60 +431,7 @@ const WebAgentChatInput = ({
         {...rest}
       />
 
-      <div className={cn('flex flex-row gap-1 mr-0.5 shrink-0', isMultiLine ? 'items-end' : 'items-center')}>
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => {
-                  if (readOnly) {
-                    handleFocus()
-                  } else {
-                    handleDictateClick()
-                  }
-                }}
-                disabled={!speechSupported}
-                className={cn(
-                  btnCircleClass,
-                  isListening && 'bg-red-100 text-red-600 hover:bg-red-100 cursor-pointer'
-                )}
-                aria-label={isListening ? 'Stop dictation' : 'Dictate'}
-                aria-pressed={isListening}
-              >
-                <Mic className="h-5 w-5 stroke-[2.5]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {!speechSupported
-                ? 'Speech input not supported in this browser'
-                : isListening
-                  ? 'Listening… Click to stop'
-                  : 'Dictate'}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="submit"
-                disabled={disabled}
-                className={cn(btnCircleClass, '', disabled && 'opacity-50 cursor-not-allowed')}
-                aria-label="Send message"
-                onClick={() => {
-                  if (readOnly) {
-                    handleFocus()
-                  }
-                }}
-              >
-                <ArrowUp className="h-5 w-5 stroke-[2.5]" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Send</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      {actionsRow}
     </form>
   )
 }
