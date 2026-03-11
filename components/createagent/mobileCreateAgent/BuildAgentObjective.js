@@ -7,6 +7,7 @@ import usePlacesService from 'react-google-autocomplete/lib/usePlacesAutocomplet
 
 import LoaderAnimation from '@/components/animations/LoaderAnimation'
 import Apis from '@/components/apis/Apis'
+import { PersistanceKeys } from '@/constants/Constants'
 import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
 import Header from '@/components/onboarding/Header'
@@ -24,6 +25,8 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
   const [InBoundCalls, setInBoundCalls] = useState(false)
   const [buildAgentLoader, setBuildAgentLoader] = useState(false)
   const [agentObjective, setAgentObjective] = useState(null)
+  const [templateOptions, setTemplateOptions] = useState(null)
+  const [templatesLoading, setTemplatesLoading] = useState(false)
 
   const [agentName, setAgentName] = useState('')
   const [agentRole, setAgentRole] = useState('')
@@ -50,8 +53,60 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
   useEffect(() => {
     setAddress(address?.label)
   }, [addressSelected])
-  // const [scollAddress, setScollAddress] = useState("");
-  //// //console.log;
+
+  // Fetch templates (platform + agency) for objective selection
+  useEffect(() => {
+    let cancelled = false
+    const fetchTemplates = async () => {
+      setTemplatesLoading(true)
+      try {
+        const UserDetails = localStorage.getItem(PersistanceKeys.LocalStorageUser)
+        const AuthToken = UserDetails ? JSON.parse(UserDetails)?.token : null
+        if (!AuthToken) {
+          setTemplateOptions(null)
+          return
+        }
+        const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+        let forUserId = null
+        if (U) {
+          try {
+            const Data = JSON.parse(U)
+            if (Data?.subAccountData?.id) forUserId = Data.subAccountData.id
+          } catch (e) {}
+        }
+        const url = forUserId
+          ? `${Apis.getTemplates}?forUserId=${forUserId}`
+          : Apis.getTemplates
+        const res = await axios.get(url, {
+          headers: { Authorization: 'Bearer ' + AuthToken },
+        })
+        if (cancelled) return
+        if (res?.data?.status && res?.data?.data) {
+          const { agencyTemplates = [] } = res.data.data
+          const agencyCards = (agencyTemplates || []).map((a) => ({
+            id: 10000 + (a.agentTemplateId || 0),
+            agentTemplateId: a.agentTemplateId,
+            title: a.agentRole || '',
+            details: a.description || '',
+            source: 'agency',
+            focusIcn: '/svgIcons/obj1F.svg',
+            unFocusIcon: '/objectiveIcons/obj1UF.png',
+          }))
+          setTemplateOptions([...AgentObjective, ...agencyCards])
+        } else {
+          setTemplateOptions(null)
+        }
+      } catch (err) {
+        if (!cancelled) setTemplateOptions(null)
+      } finally {
+        if (!cancelled) setTemplatesLoading(false)
+      }
+    }
+    fetchTemplates()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   //other objective
   const [showOtherObjective, setShowOtherObjective] = useState(false)
@@ -451,7 +506,10 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
               </div>
 
               <div className="flex flex-wrap">
-                {AgentObjective.map((item) => (
+                {(templateOptions && templateOptions.length > 0
+                  ? templateOptions
+                  : AgentObjective
+                ).map((item) => (
                   <div
                     key={item.id}
                     className="w-full text-start md:w-1/2 pe-2 flex py-1"

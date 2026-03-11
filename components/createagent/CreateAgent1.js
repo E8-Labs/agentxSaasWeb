@@ -265,10 +265,11 @@ const CreateAgent1 = ({
         if (cancelled) return
         if (res?.data?.status && res?.data?.data) {
           const { agencyTemplates = [] } = res.data.data
+          console.log("agencyTemplates.kj", agencyTemplates)
           const agencyCards = (agencyTemplates || []).map((a) => ({
             id: 10000 + (a.agentTemplateId || 0),
             agentTemplateId: a.agentTemplateId,
-            title: a.name || '',
+            title: a.agentRole || '',
             details: a.description || '',
             source: 'agency',
             focusIcn: '/svgIcons/obj1F.svg',
