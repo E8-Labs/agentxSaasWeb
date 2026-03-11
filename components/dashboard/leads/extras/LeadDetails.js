@@ -2243,7 +2243,7 @@ const LeadDetails = ({
                                 )}
 
                               {selectedLeadsDetails?.isOnDncList && (
-                                <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
+                                <div className="rounded-full bg-red justify-center items-center  color-black py-0.35 px-2 text-[13px] font-regular">
                                   DNC
                                 </div>
                               )}
