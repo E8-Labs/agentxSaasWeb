@@ -1289,7 +1289,7 @@ const Creator = ({ agentId, name }) => {
           <div
             className="flex items-center justify-center flex-col flex-1 "
             style={{
-              cursor: 'pointer',
+              // cursor: 'pointer',
               outline: 'none',
               border: 'none',
               backgroundColor: 'transparent',
@@ -1303,45 +1303,58 @@ const Creator = ({ agentId, name }) => {
             }}
           >
             {
-              isSmallScreen && (
+              isSmallScreen ? (
 
                 <motion.div
+                  className="rounded-full border-none -mb-[130px] bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
                   animate={{
-                    y: [0, -30, 0],
+                    scale: [1, 1.2, 1],
                   }}
                   transition={{
-                    duration: 3.5,
+                    duration: 1.5,
                     repeat: Infinity,
-                    repeatType: 'loop',
                     ease: 'easeInOut',
                   }}
-                  className="-mb-16 rounded-lg flex flex-col justify-center"
+                  onClick={() => {
+                    // Don't initiate new call if call is already active
+                    if (open) {
+                      return
+                    }
+                    handleInitiateVapi()
+                  }}
                   style={{
-                    fontSize: 14,
+                    fontSize: '14px',
                     fontWeight: '500',
-                    fontFamily: 'inter',
-                    backgroundColor: '#ffffff80',
-                    padding: '10px 20px', // Add padding to the content inside the box
-                    position: 'absolute',
-                    top: '25%',
-                    left: '40%',
+                    color: 'black',
                   }}
                 >
-                  Tap to Talk
-                  {/* Triangle at the bottom center */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '-15px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: 0,
-                      height: 0,
-                      borderLeft: '15px solid transparent',
-                      borderRight: '15px solid transparent',
-                      borderTop: '15px solid #ffffff80',
-                    }}
-                  />
+                  Tab to Talk
+                </motion.div>
+              ) : (
+                <motion.div
+                  className="rounded-full border-none mb-4 bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  onClick={() => {
+                    // Don't initiate new call if call is already active
+                    if (open) {
+                      return
+                    }
+                    handleInitiateVapi()
+                  }}
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    color: 'black',
+                  }}
+                >
+                  Click to talk
                 </motion.div>
               )
             }
@@ -1408,7 +1421,7 @@ const Creator = ({ agentId, name }) => {
           <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
 
-        {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer */}
+        {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer
         <div className="lg:flex hidden">
           <AnimatePresence>
             {boxVisible && !pointerOverChatInputArea && !chatDrawerOpen && (
@@ -1450,7 +1463,7 @@ const Creator = ({ agentId, name }) => {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </div> */}
       </div>
 
       <WebAgentChatDrawer
@@ -1588,7 +1601,7 @@ const Creator = ({ agentId, name }) => {
                 <div>
                   <PhoneInput
                     country={'us'}
-                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb','sv', 'ec']}
+                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb', 'sv', 'ec']}
                     countryCodeEditable={false}
                     value={formData.phone}
                     onChange={(value) => handleFormDataChange('phone', value)}
