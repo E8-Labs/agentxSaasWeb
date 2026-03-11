@@ -65,7 +65,7 @@ export const PersistanceKeys = {
   GlobalWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalWebinarUrl,
   ExternalCalendarLink: process.env.NEXT_PUBLIC_REACT_APP_ExternalCalendarLink,
   SupportWebinarUrl: "https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx" || process.env.NEXT_PUBLIC_REACT_APP_SupportWebinarUrl,
-  ResourceHubUrl: process.env.NEXT_PUBLIC_REACT_APP_ResourceHubUrl,
+  ResourceHubUrl: "https://www.notion.so/AssignX-Resource-Hub-2cd97b2f3bbe8135835cd49454392c1d" || process.env.NEXT_PUBLIC_REACT_APP_ResourceHubUrl,
   FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl , //|| "https://api.leadconnectorhq.com/widget/bookings/support-calendar-assignx"
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
