@@ -562,7 +562,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   const handleCreatePipeline = async () => {
     try {
       console.log('handleCreatePipeline selected user', selectedUser?.planStatus?.hasActivePlan);
-      if(selectedUser?.planStatus?.hasActivePlan === false){
+      if (selectedUser?.planStatus?.hasActivePlan === false) {
         toast.error('Plan required to create pipeline.');
         return
       }
@@ -2385,7 +2385,10 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                   }}
                 >
                   {/*<Plus size={17} weight="bold" />{' '}*/}
-                  <span style={{ fontWeight: '500', fontSize: 16 }}>
+                  <span
+                    style={{ fontWeight: '500', fontSize: 16 }}
+                    className="text-brand-primary"
+                  >
                     New Pipeline
                   </span>
                 </button>
