@@ -1103,12 +1103,6 @@ const Creator = ({ agentId, name }) => {
 
     setMousePosition({ x, y })
 
-    // Check if the mouse is within 150px of the center
-    if (Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150) {
-      setBoxVisible(false) // Hide the box
-      return
-    }
-
     // Check if the mouse is over any of the refs (buttonRef, createAIButtonRef, endCallButtonRef, profileBoxRef)
     if (
       (buttonRef.current && isMouseOverRef(buttonRef, x, y)) ||
@@ -1120,7 +1114,11 @@ const Creator = ({ agentId, name }) => {
       return
     }
 
-    setBoxVisible(true) // Show the box when not hovering over the refs
+    // Show the bubble only when the mouse is within the orb area (150px radius around center)
+    const withinOrbArea =
+      Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150
+
+    setBoxVisible(withinOrbArea)
   }
 
   // Helper function to check if mouse is over a specific element
@@ -1441,8 +1439,9 @@ const Creator = ({ agentId, name }) => {
                   style={{
                     color: 'black',
                     fontWeight: '500',
-                    fontFamily: 'inter',
-                    fontSize: 14,
+                    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif',
+                    fontSize: 10,
+                    letterSpacing: '1px',
                   }}
                 >
                   Click to Talk

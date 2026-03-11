@@ -370,8 +370,8 @@ const WebAgentChatInput = ({
         </div>
         <div className="flex items-center justify-between w-full px-3">
           <div className="flex items-center gap-3 flex-shrink-0">
-            {leftAddon}
             {plusButton}
+            {leftAddon}
           </div>
           {actionsRow}
         </div>
@@ -403,8 +403,8 @@ const WebAgentChatInput = ({
       />
       {leftAddon != null ? (
         <div className="flex items-center gap-2 flex-shrink-0">
-          {leftAddon}
           {plusButton}
+          {leftAddon}
         </div>
       ) : (
         plusButton

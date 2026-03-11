@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { Modal } from '@mui/material'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
@@ -105,6 +106,9 @@ const WebAgentChatDrawer = ({
   const [llmIntegrations, setLlmIntegrations] = useState([])
   const [llmDefaultIntegrationId, setLlmDefaultIntegrationId] = useState(null)
   const [llmProviderOpen, setLlmProviderOpen] = useState(false)
+  const [historyClosing, setHistoryClosing] = useState(false)
+  const [llmProviderClosing, setLlmProviderClosing] = useState(false)
+  const POPOVER_EXIT_MS = 200
   const [llmLoading, setLlmLoading] = useState(false)
   const [addKeyModalProvider, setAddKeyModalProvider] = useState(null)
   const [addKeyValue, setAddKeyValue] = useState('')
@@ -131,17 +135,35 @@ const WebAgentChatDrawer = ({
   const [titleEditValue, setTitleEditValue] = useState('')
   const titleInputRef = useRef(null)
 
+  const closeHistory = useCallback(() => {
+    setHistoryClosing(true)
+    const t = setTimeout(() => {
+      setHistoryOpen(false)
+      setHistoryClosing(false)
+    }, POPOVER_EXIT_MS)
+    return () => clearTimeout(t)
+  }, [])
+
+  const closeLlmProvider = useCallback(() => {
+    setLlmProviderClosing(true)
+    const t = setTimeout(() => {
+      setLlmProviderOpen(false)
+      setLlmProviderClosing(false)
+    }, POPOVER_EXIT_MS)
+    return () => clearTimeout(t)
+  }, [])
+
   useEffect(() => {
     if (!historyOpen) return
     const onMouseDown = (e) => {
       if (isAgentationTarget(e.target)) return
       if (historyPanelRef.current && !historyPanelRef.current.contains(e.target)) {
-        setHistoryOpen(false)
+        closeHistory()
       }
     }
     document.addEventListener('mousedown', onMouseDown)
     return () => document.removeEventListener('mousedown', onMouseDown)
-  }, [historyOpen])
+  }, [historyOpen, closeHistory])
 
   const emptyStateMessage = useMemo(
     () => EMPTY_STATE_MESSAGES[Math.floor(Math.random() * EMPTY_STATE_MESSAGES.length)],
@@ -182,7 +204,7 @@ const WebAgentChatDrawer = ({
       setCurrentSessionId(null)
       setCurrentThreadTitle(null)
       setMessages([])
-      setHistoryOpen(false)
+      setHistoryOpen(false); setHistoryClosing(false)
       // One frame delay so Modal is in DOM before we expand; avoids flicker of 0-height panel
       const id = requestAnimationFrame(() => setExpanded(true))
       return () => cancelAnimationFrame(id)
@@ -193,7 +215,7 @@ const WebAgentChatDrawer = ({
       setCurrentThreadTitle(null)
       setSessionError(null)
       setMessages([])
-      setHistoryOpen(false)
+      setHistoryOpen(false); setHistoryClosing(false)
     }
   }, [open])
 
@@ -286,7 +308,7 @@ const WebAgentChatDrawer = ({
     setCurrentSessionId(null)
     setCurrentThreadTitle(thread.title || null)
     loadMessages(thread.id)
-    setHistoryOpen(false)
+    closeHistory()
   }
 
   const getAuthToken = useCallback(() => {
@@ -348,7 +370,7 @@ const WebAgentChatDrawer = ({
 
   const handleLlmProviderSelect = useCallback(
     async (providerId) => {
-      setLlmProviderOpen(false)
+      closeLlmProvider()
       const token = getAuthToken()
       if (!token) return
       const int = integrationForProvider(providerId)
@@ -367,7 +389,7 @@ const WebAgentChatDrawer = ({
       setAddKeyValue('')
       setAddKeyError('')
     },
-    [getAuthToken, integrationForProvider]
+    [closeLlmProvider, getAuthToken, integrationForProvider]
   )
 
   const handleAddKeySubmit = useCallback(async () => {
@@ -413,12 +435,12 @@ const WebAgentChatDrawer = ({
     const onMouseDown = (e) => {
       if (isAgentationTarget(e.target)) return
       if (llmProviderRef.current && !llmProviderRef.current.contains(e.target)) {
-        setLlmProviderOpen(false)
+        closeLlmProvider()
       }
     }
     document.addEventListener('mousedown', onMouseDown)
     return () => document.removeEventListener('mousedown', onMouseDown)
-  }, [llmProviderOpen])
+  }, [llmProviderOpen, closeLlmProvider])
 
   // Ready when we have a thread (from first send or history) or a sessionId (new chat, thread created on first send)
   const sessionReady = !!(agentId && (currentThreadId != null || currentSessionId != null))
@@ -570,7 +592,7 @@ const WebAgentChatDrawer = ({
             background: 'rgba(255,255,255,0.8)',
             boxShadow:
               '0px -10px 45.9px 0px rgba(185,185,185,0.05), 0px -25px 38.9px 0px rgba(255,255,255,0.04)',
-            transition: 'height 320ms ease-out, opacity 220ms ease-out',
+            transition: 'height 320ms cubic-bezier(0.34, 1.08, 0.64, 1), opacity 220ms ease-out',
           }}
           onClick={(e) => e.stopPropagation()}
           onTransitionEnd={handleTransitionEnd}
@@ -652,9 +674,12 @@ const WebAgentChatDrawer = ({
                 <Upload className="w-[18px] h-[18px]" />
               </button>
               {/* History dropdown: compact floating panel (like second screenshot) */}
-              {historyOpen && (
+              {(historyOpen || historyClosing) && (
                 <div
-                  className="absolute top-full right-0 mt-2 w-72 max-h-80 rounded-[12px] bg-white/80 border border-white backdrop-blur-[34px] overflow-hidden z-50 flex flex-col"
+                  className={cn(
+                    'absolute top-full right-0 mt-2 w-72 max-h-80 rounded-[12px] bg-white/80 border border-white backdrop-blur-[34px] overflow-hidden z-50 flex flex-col',
+                    historyClosing ? 'chat-popover-exit-below' : 'chat-popover-enter-below'
+                  )}
                   style={{ boxShadow: '0px 7px 147.2px 0px rgba(0,0,0,0.06)' }}
                   role="dialog"
                   aria-label="Chat history"
@@ -663,7 +688,7 @@ const WebAgentChatDrawer = ({
                     <span className="text-[14px] font-normal text-[#666666]">History</span>
                     <button
                       type="button"
-                      onClick={() => setHistoryOpen(false)}
+                      onClick={closeHistory}
                       className="p-1 rounded-full hover:bg-white text-gray-500 hover:text-gray-700 transition-transform duration-150 active:scale-[0.98]"
                       aria-label="Close history"
                     >
@@ -742,7 +767,7 @@ const WebAgentChatDrawer = ({
                 <p className="text-sm text-gray-500">Loading...</p>
               </div>
             ) : messages.length > 0 ? (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 px-4">
                 {messages.map((m) => {
                   const isInbound = m.direction === 'inbound'
                   const attachments = m.metadata?.attachments || []
@@ -773,7 +798,7 @@ const WebAgentChatDrawer = ({
                                     />
                                   </div>
                                 ) : (
-                                  <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+                                  <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0 mt-2">
                                     {(agentName || 'A').charAt(0).toUpperCase()}
                                   </div>
                                 )}
@@ -785,11 +810,11 @@ const WebAgentChatDrawer = ({
                       )}
                       <div
                         className={cn(
-                          'max-w-[85%] min-w-0 rounded-2xl px-3.5 py-2.5 text-sm overflow-hidden break-words',
-                          'backdrop-blur-md shadow-[0_1px_3px_rgba(15,23,42,0.06)]',
+                          'max-w-[85%] min-w-0 overflow-hidden break-words',
+                          'text-[14px] font-normal leading-[1.5] text-[#0e0e0e]',
                           isInbound
-                            ? 'bg-brand-primary/12 text-gray-900 border border-brand-primary/15'
-                            : 'bg-white/95 text-gray-900 border border-white/80'
+                            ? 'rounded-bl-[12px] rounded-br-[12px] rounded-tl-[12px] px-3 py-2 bg-white'
+                            : 'rounded-bl-[8px] rounded-br-[8px] rounded-tr-[8px] px-4 py-2 bg-[rgba(246,247,249,0.28)]'
                         )}
                       >
                         {imageAttachments.length > 0 && (
@@ -805,7 +830,7 @@ const WebAgentChatDrawer = ({
                           </div>
                         )}
                         {m.content && (m.content !== '[Image]' || imageAttachments.length === 0) ? (
-                          <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                          <p className="whitespace-pre-wrap break-words text-black/80">{m.content}</p>
                         ) : null}
                         <p className="mt-1 text-[11px] leading-tight text-gray-400">
                           {new Date(m.createdAt).toLocaleTimeString(undefined, {
@@ -816,7 +841,7 @@ const WebAgentChatDrawer = ({
                       </div>
                       {isInbound && (
                         <div
-                          className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-semibold text-xs flex-shrink-0"
+                          className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-semibold text-xs flex-shrink-0 mt-2"
                           aria-hidden
                         >
                           {formData?.firstName?.charAt(0).toUpperCase()}
@@ -848,9 +873,9 @@ const WebAgentChatDrawer = ({
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center gap-3 py-16">
-                <div className="relative flex-shrink-0">
+                <div className="relative flex-shrink-0 mb-4">
                   <div className="relative z-10 flex items-center justify-center">
-                    <AgentXOrb size={96} alt="Agent" />
+                    <AgentXOrb size={192} alt="Agent" />
                   </div>
                   <div
                     className="absolute inset-0 rounded-full blur-2xl -z-0 pointer-events-none"
@@ -935,7 +960,7 @@ const WebAgentChatDrawer = ({
                     <div ref={llmProviderRef} className="relative flex-shrink-0">
                       <button
                         type="button"
-                        onClick={() => setLlmProviderOpen((o) => !o)}
+                        onClick={() => (llmProviderOpen ? closeLlmProvider() : setLlmProviderOpen(true))}
                         disabled={llmLoading}
                         className="flex items-center gap-1 px-2 py-2 rounded-full bg-white/40 border border-white text-gray-900 font-medium min-w-0 text-sm transition-transform duration-150 hover:bg-white/60 active:scale-[0.98]"
                         style={{ boxShadow: '0px 23px 30.7px 0px rgba(0,0,0,0.05)' }}
@@ -976,9 +1001,12 @@ const WebAgentChatDrawer = ({
                           </>
                         )}
                       </button>
-                      {llmProviderOpen && (
+                      {(llmProviderOpen || llmProviderClosing) && (
                         <div
-                          className="absolute left-0 bottom-full mb-2 w-52 rounded-2xl overflow-hidden z-50 py-1 bg-white/90 backdrop-blur-xl border border-white/70"
+                          className={cn(
+                            'absolute left-0 bottom-full mb-2 w-52 rounded-2xl overflow-hidden z-50 py-1 bg-white/90 backdrop-blur-xl border border-white/70',
+                            llmProviderClosing ? 'chat-popover-exit-above' : 'chat-popover-enter-above'
+                          )}
                           style={{
                             boxShadow:
                               '0 0 0 1px rgba(15,23,42,0.04), 0 10px 30px rgba(15,23,42,0.12)',
@@ -1018,40 +1046,43 @@ const WebAgentChatDrawer = ({
             </div>
           </div>
 
-      {addKeyModalProvider && (
-        <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/20 backdrop-blur-sm rounded-3xl">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 w-full max-w-sm mx-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">
-              Add {addKeyModalProvider === 'anthropic' ? 'Claude' : addKeyModalProvider === 'google' ? 'Gemini' : 'OpenAI'} API key
-            </h3>
-            <input
-              type="password"
-              placeholder="Paste your API key"
-              value={addKeyValue}
-              onChange={(e) => { setAddKeyValue(e.target.value); setAddKeyError('') }}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-            />
-            {addKeyError && <p className="text-xs text-red-600 mt-1">{addKeyError}</p>}
-            <div className="flex gap-2 mt-3">
-              <button
-                type="button"
-                onClick={() => { setAddKeyModalProvider(null); setAddKeyValue(''); setAddKeyError('') }}
-                className="flex-1 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleAddKeySubmit}
-                disabled={!addKeyValue.trim() || addKeyLoading}
-                className="flex-1 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg disabled:opacity-50"
-              >
-                {addKeyLoading ? 'Saving...' : 'Save'}
-              </button>
+      {addKeyModalProvider &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 w-full max-w-sm mx-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                Add {addKeyModalProvider === 'anthropic' ? 'Claude' : addKeyModalProvider === 'google' ? 'Gemini' : 'OpenAI'} API key
+              </h3>
+              <input
+                type="password"
+                placeholder="Paste your API key"
+                value={addKeyValue}
+                onChange={(e) => { setAddKeyValue(e.target.value); setAddKeyError('') }}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              />
+              {addKeyError && <p className="text-xs text-red-600 mt-1">{addKeyError}</p>}
+              <div className="flex gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => { setAddKeyModalProvider(null); setAddKeyValue(''); setAddKeyError('') }}
+                  className="flex-1 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddKeySubmit}
+                  disabled={!addKeyValue.trim() || addKeyLoading}
+                  className="flex-1 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg disabled:opacity-50"
+                >
+                  {addKeyLoading ? 'Saving...' : 'Save'}
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
         </div>
       </div>
     </Modal>
