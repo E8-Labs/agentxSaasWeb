@@ -21,6 +21,7 @@ const Apis = {
   defaultData: `${BasePath}api/data/loadDefaualtData`,
   buildAgent: `${BasePath}api/agent/buildAgent`,
   getTemplates: `${BasePath}api/agent/templates`,
+  draftTemplates: `${BasePath}/api/agent/templates`,
   createTemplate: `${BasePath}api/agent/templates`,
   DelAgent: `${BasePath}api/agent/deleteAgent`,
   findPhoneNumber: `${BasePath}api/agent/findPhoneNumbers`,

@@ -21,6 +21,7 @@ import Apis from '@/components/apis/Apis'
 import { UserTypeOptions } from '@/constants/UserTypeOptions'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import DelConfirmationModal from '@/components/common/DelConfirmationModal'
+import { toast } from '@/utils/toast'
 
 const cardShadow = '0 2px 12px rgba(0, 0, 0, 0.06)'
 const cardShadowHover = '0 8px 24px rgba(0, 0, 0, 0.1)'
@@ -61,6 +62,7 @@ export default function AgencyTemplatesList() {
   const [deletingId, setDeletingId] = useState(null)
   const [openConfirmationDelete, setOpenConfirmationDelete] = useState(false)
   const [delLoader, setDelLoader] = useState(false)
+  const [draftLoader, setDraftLoader] = useState(false)
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -70,6 +72,7 @@ export default function AgencyTemplatesList() {
         headers: { Authorization: 'Bearer ' + AuthToken() },
       })
       if (res?.data?.status && res?.data?.data?.agencyTemplates) {
+        console.log("res.data.data.agencyTemplates", res.data.data.agencyTemplates)
         setTemplates(res.data.data.agencyTemplates)
       } else {
         setTemplates([])
@@ -100,6 +103,38 @@ export default function AgencyTemplatesList() {
   const handleMenuClose = () => {
     setMenuAnchorEl(null)
     setSelectedTemplate(null)
+  }
+
+  //function to pblish or draf template
+  const handleDraftClick = async () => {
+    try{
+      setDraftLoader(true)
+      const token = AuthToken()
+      console.log("template.status", token)
+      // {{template_id}}/status
+      const status_to_update = selectedTemplate.status === 'published' || selectedTemplate.status === "Published" ? 'draft' : 'published'
+      const ApiPath = `${Apis.draftTemplates}/${selectedTemplate.agentTemplateId}/status`
+      const ApiData = {
+        status: status_to_update
+      }
+      console.log("ApiPath for draft api", ApiPath)
+      const response = await axios.patch(ApiPath, ApiData, {
+        headers: { Authorization: 'Bearer ' + token },
+      })
+      console.log("response.data.data for draft api", response)
+      if(response.data.status){
+        toast.success('Template drafted successfully')
+        await fetchTemplates()
+        handleMenuClose()
+      } else {
+        toast.error(response.data.message || 'Failed to draft template')
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to draft template'
+      toast.error(msg)
+    } finally {
+      setDraftLoader(false)
+    }
   }
 
   const handleEdit = () => {
@@ -191,8 +226,7 @@ export default function AgencyTemplatesList() {
       >
         {/* Template cards (Figma: node 24207-80889) */}
         {templates.map((t) => {
-          const status = t.status || 'Draft'
-          const isPublished = status === 'Published'
+          const status = t?.status.toLowerCase()
           return (
             <Card
               key={t.agentTemplateId}
@@ -258,7 +292,7 @@ export default function AgencyTemplatesList() {
                             width: 7.373,
                             height: 7.373,
                             borderRadius: '50%',
-                            bgcolor: isPublished ? successGreen : textSecondary,
+                            bgcolor: t?.status?.toLowerCase() === 'published' ? successGreen : textSecondary,
                           }}
                         />
                         <Typography
@@ -271,7 +305,7 @@ export default function AgencyTemplatesList() {
                             color: textPrimary,
                           }}
                         >
-                          {status}
+                          {t?.status}
                         </Typography>
                       </Box>
                       <Box
@@ -327,7 +361,7 @@ export default function AgencyTemplatesList() {
                       }}
                     >
                       <MenuItem onClick={handleEdit}>Edit</MenuItem>
-                      <MenuItem onClick={() => {console.log("draft template template", t); handleMenuClose()}}>Draft</MenuItem>
+                      <MenuItem onClick={() => handleDraftClick(t)} disabled={draftLoader}>{draftLoader ? `${status === 'published' ? 'Drafting...' : 'Publishing...'}` : `${status === 'published' ? 'Draft' : 'Publish'}`}</MenuItem>
                       <MenuItem
                         onClick={() => {
                           setOpenConfirmationDelete(true)
