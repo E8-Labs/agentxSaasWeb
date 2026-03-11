@@ -416,7 +416,7 @@ const WebAgentChatDrawer = ({
     if (!sendLoading) return
     const id = setInterval(() => {
       setThinkingIndex((prev) => (prev + 1) % THINKING_MESSAGES.length)
-    }, 2000)
+    }, 4000)
     return () => clearInterval(id)
   }, [sendLoading])
 

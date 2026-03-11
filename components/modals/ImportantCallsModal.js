@@ -444,7 +444,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                 ref={isAgentStatsMode ? scrollContainerRef : undefined}
               >
                 {isAgentStatsMode ? (
-                  agentStatsLoading && agentStatsCalls.length === 0 ? (
+                  agentStatsLoading ? ( //&& agentStatsCalls.length === 0
                     <div className="w-full flex flex-row items-center justify-center mt-12">
                       <CircularProgress size={35} thickness={2} />
                     </div>
@@ -518,6 +518,13 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                                   <div style={{ fontSize: 13, fontWeight: '600', color: primaryColor }}>
                                     {call.agent?.name || '-'}
                                   </div>
+                                  <div
+                                    style={{
+                                      fontSize: 13,
+                                      fontWeight: '600',
+                                      color: "black", //primaryColor
+                                      textTransform: 'capitalize',
+                                    }}>{call.stage?.stageTitle || '-'}</div>
                                 </div>
                               </div>
                               <div className="text-[13px] text-gray-500">
@@ -541,7 +548,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                             <LeadDetails
                               showDetailsModal={true}
                               selectedLead={selectedCall.id}
-                              setShowDetailsModal={() => {}}
+                              setShowDetailsModal={() => { }}
                               pipelineId={selectedCall?.pipeline?.id || null}
                               handleDelLead={(deletedLead) => {
                                 setAgentStatsCalls((prev) => {
