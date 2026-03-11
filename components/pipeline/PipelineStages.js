@@ -43,8 +43,9 @@ import {
   updateTemplete,
   getTempleteDetails,
 } from './TempleteServices'
-import { MessageSquareDot, PlusIcon } from 'lucide-react'
+import { GripVertical, MessageSquareDot, PlusIcon } from 'lucide-react'
 import CreateTaskFromNextStepsModal from '../dashboard/leads/extras/CreateTaskFromNextStepsModal'
+import ReorderCadenceModal from './ReorderCadenceModal'
 
 const PipelineStages = ({
   stages,
@@ -66,6 +67,7 @@ const PipelineStages = ({
   setSnackType,
   onNewStageCreated,
   handleReOrder,
+  reorderRows,
   scrollContainerRef: scrollContainerRefProp,
 }) => {
   const [showSampleTip, setShowSampleTip] = useState(false)
@@ -171,6 +173,8 @@ const PipelineStages = ({
   // when editing an existing task step: row and stage index
   const [editingTaskRow, setEditingTaskRow] = useState(null)
   const [editingTaskStageIndex, setEditingTaskStageIndex] = useState(null)
+  // reorder cadence modal: stage index when open, null when closed
+  const [reorderCadenceModalStageIndex, setReorderCadenceModalStageIndex] = useState(null)
 
   // useEffect(() => {
   //   console.log("targetUser key is is", targetUser)
@@ -1319,18 +1323,24 @@ const PipelineStages = ({
                                         key={row.id}
                                         className="flex flex-row items-center justify-center mb-2"
                                       >
-                                        {/*<div className="w-[16px]">
-                                          {rowIndex > 0 && (
-                                            <div className="outline-none mt-2">
-                                              <Image
-                                                src={'/assets/list.png'}
-                                                height={6}
-                                                width={16}
-                                                alt="*"
-                                              />
+                                        <div className="w-[16px]">
+                                          {rowIndex > 0 ? (
+                                            <Tooltip title="Reorder steps" arrow>
+                                              <button
+                                                type="button"
+                                                onClick={() => setReorderCadenceModalStageIndex(index)}
+                                                className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-grab active:cursor-grabbing flex items-center justify-center"
+                                                aria-label="Reorder cadence steps"
+                                              > 
+                                                <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
+                                              </button>
+                                            </Tooltip>
+                                          ) : (
+                                            <div className="mt-2 flex items-center justify-center">
+                                              <GripVertical size={16} strokeWidth={2} className="text-[#00000040]" aria-hidden />
                                             </div>
                                           )}
-                                        </div>*/}
+                                        </div>
                                         <div
                                           className="mt-2 ms-2"
                                           style={styles.headingStyle}
@@ -2454,6 +2464,22 @@ const PipelineStages = ({
                 />
               )
             }
+
+            <ReorderCadenceModal
+              open={reorderCadenceModalStageIndex !== null}
+              onClose={() => setReorderCadenceModalStageIndex(null)}
+              stageTitle={
+                reorderCadenceModalStageIndex !== null
+                  ? (pipelineStages[reorderCadenceModalStageIndex]?.stageTitle ??
+                      selectedPipelineStages?.[reorderCadenceModalStageIndex]?.stageTitle) ??
+                    'Stage'
+                  : ''
+              }
+              rows={reorderCadenceModalStageIndex !== null ? (rowsByIndex[reorderCadenceModalStageIndex] ?? []) : []}
+              stageIndex={reorderCadenceModalStageIndex ?? 0}
+              onReorderRows={reorderRows}
+              stepActionDisplayText={stepActionDisplayText}
+            />
 
             {/* Code for add stage modal */}
             <Modal
