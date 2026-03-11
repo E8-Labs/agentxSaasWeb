@@ -25,6 +25,7 @@ import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 import MailgunDomainSetup from '../../messaging/MailgunDomainSetup'
 import ViewDnsRecordsModal from '../../messaging/ViewDnsRecordsModal'
 import UpdateMailgunApiKeyModal from '../../messaging/UpdateMailgunApiKeyModal'
+import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 
 const EmailConfig = ({ selectedAgency }) => {
   // Mail account state
@@ -344,6 +345,11 @@ const EmailConfig = ({ selectedAgency }) => {
     }
   }
 
+  const gmailError =
+    mailAccount?.provider === 'gmail'
+      ? getGmailWatchErrorInfo(mailAccount)
+      : null
+
   return (
     <div>
       {/* Banner Section */}
@@ -369,6 +375,29 @@ const EmailConfig = ({ selectedAgency }) => {
               </div>
             ) : mailAccount ? (
               <div className="w-full">
+                {gmailError && (
+                  <div
+                    className="w-full px-3 py-2.5 mb-3 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg flex flex-row items-center justify-between gap-2 flex-wrap"
+                    title={gmailError.actionHint}
+                  >
+                    <span className="font-medium">{gmailError.shortLabel}</span>
+                    <button
+                      type="button"
+                      onClick={handleGoogleAuth}
+                      disabled={connecting}
+                      className="font-semibold text-amber-900 hover:text-amber-950 underline focus:outline-none focus:ring-0 disabled:opacity-50 flex items-center gap-1"
+                    >
+                      {connecting ? (
+                        <>
+                          <CircularProgress size={14} sx={{ color: 'inherit' }} />
+                          Connecting...
+                        </>
+                      ) : (
+                        'Reconnect'
+                      )}
+                    </button>
+                  </div>
+                )}
                 <div className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50">
                   <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-col">
