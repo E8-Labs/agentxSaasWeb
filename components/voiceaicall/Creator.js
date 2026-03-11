@@ -1714,7 +1714,7 @@ const Creator = ({ agentId, name }) => {
                 </div>
               ) : (
                 <button
-                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid() ? 'bg-purple' : 'bg-gray-400'
+                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid() ? 'bg-brand-primary' : 'bg-gray-400'
                     }`}
                   style={{
                     fontWeight: '600',
