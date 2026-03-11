@@ -989,6 +989,7 @@ const UserAddCard = ({
                   <div className="flex flex-col items-end">
                     <div style={{ fontWeight: '600', fontSize: 22 }}>
                       ${formatFractional2(orderSummary.finalTotal)}{/*orderSummary.dueToday*/}
+                      ${formatFractional2(orderSummary.finalTotal)}{/*orderSummary.dueToday*/}
                     </div>
                     <div
                       style={{
@@ -1581,7 +1582,7 @@ const UserAddCard = ({
                   <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
                   <div className="flex flex-col items-end">
                     <div style={{ fontWeight: '600', fontSize: 22 }}>
-                      ${formatFractional2(orderSummary.finalTotal)}
+                      ${formatFractional2(orderSummary.finalTotal)}{/*orderSummary.dueToday*/}
                     </div>
                     <div
                       style={{
