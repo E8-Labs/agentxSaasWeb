@@ -790,26 +790,24 @@ function AdminDashboardActiveCall({
               style={{ overflow: 'unset' }}
             >
               {filteredAgentsList?.length > 0 ? (
-                <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
-                  {/* Table Header */}
-                  <div className="w-full flex flex-row mt-2 px-10">
+                <div>
+                  {/* Table Header - same layout as CallActivties.js */}
+                  <div className="w-full flex flex-row justify-between mt-10 px-10">
                     {!isFromAgency && (
-                      <div className=" w-[200px] flex-shrink-0">
+                      <div className="w-2/12">
                         <div style={styles.text}>Agency Name</div>
                       </div>
                     )}
-                    <div className=" w-[200px] flex-shrink-0">
+                    <div className="w-2/12">
                       <div style={styles.text}>Sub Account</div>
                     </div>
-                    <div className=" w-[150px] flex-shrink-0">
+                    <div className="w-2/12">
                       <div style={styles.text}>Agent</div>
                     </div>
-
-                    <div className=" w-[200px] flex-shrink-0 truncate">
+                    <div className="w-2/12 truncate">
                       <div style={styles.text}>List Name</div>
                     </div>
-
-                    <div className=" w-[150px] flex-shrink-0">
+                    <div className="w-1/12">
                       <button
                         className="truncate"
                         onClick={() => {
@@ -853,8 +851,7 @@ function AdminDashboardActiveCall({
                         ) : null}
                       </button>
                     </div>
-
-                    <div className=" w-[200px] flex-shrink-0 whitespace-nowrap">
+                    <div className="w-2/12 whitespace-nowrap">
                       <button
                         className=""
                         onClick={() => {
@@ -899,15 +896,15 @@ function AdminDashboardActiveCall({
                         ) : null}
                       </button>
                     </div>
-                    <div className=" w-[200px] flex-shrink-0">
+                    <div className="w-1/12">
                       <div style={styles.text}>Call Status</div>
                     </div>
-                    <div className=" w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                    <div className="w-1/12">
                       <div style={styles.text}>Action</div>
                     </div>
                   </div>
 
-                  {/* Table Data */}
+                  {/* Table Data - same layout as CallActivties.js */}
                   {filteredAgentsList?.map((item, index) => {
                     return (
                       <div key={index}>
@@ -915,11 +912,11 @@ function AdminDashboardActiveCall({
                           return (
                             <div key={index}>
                               <div
-                                className="w-full flex flex-row items-center justify-between mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
                                 key={index}
                               >
                                 {!isFromAgency && (
-                                  <div className="w-[200px] flex-shrink-0 truncate">
+                                  <div className="w-2/12 truncate">
                                     <div style={styles.text2}>
                                       {item.agency?.name || '-'}
                                     </div>
@@ -927,25 +924,20 @@ function AdminDashboardActiveCall({
                                 )}
 
                                 <div
-                                  className="w-[200px] flex-shrink-0 truncate"
+                                  className="w-2/12 truncate cursor-pointer"
                                   onClick={() => {
                                     if (item?.user?.id) {
-                                      // Open a new tab with user ID as query param
-                                      let url = ` admin/users?userId=${item?.user?.id}`
-                                      //console.log
+                                      let url = `/admin/users?userId=${item?.user?.id}`
                                       window.open(url, '_blank')
                                     }
                                   }}
                                 >
-                                  <div
-                                    style={styles.text2}
-                                    className="truncate"
-                                  >
+                                  <div style={styles.text2} className="truncate">
                                     {item?.user?.name}
                                   </div>
                                 </div>
 
-                                <div className="w-[150px] flex-shrink-0 truncate">
+                                <div className="w-2/12 truncate">
                                   <div
                                     style={styles.text2}
                                     className="truncate"
@@ -956,7 +948,7 @@ function AdminDashboardActiveCall({
                                   </div>
                                 </div>
 
-                                <div className="w-[200px] flex-shrink-0 truncate">
+                                <div className="w-2/12 truncate">
                                   <div
                                     style={styles.text2}
                                     className="truncate"
@@ -965,7 +957,7 @@ function AdminDashboardActiveCall({
                                   </div>
                                 </div>
 
-                                <div className=" w-[150px] max-w-[250px] flex-shrink-0 truncate">
+                                <div className="w-1/12">
                                   <button
                                     style={styles.text2}
                                     className="text-purple underline outline-none"
@@ -977,7 +969,7 @@ function AdminDashboardActiveCall({
                                   </button>
                                 </div>
 
-                                <div className=" w-[200px] max-w-[250px] flex-shrink-0 truncate">
+                                <div className="w-2/12">
                                   {item?.createdAt ? (
                                     <div style={styles.text2}>
                                       {GetFormattedDateString(item?.createdAt)}
@@ -986,13 +978,10 @@ function AdminDashboardActiveCall({
                                     <div style={styles.text2}>-</div>
                                   )}
                                 </div>
-                                <div
-                                  className=" w-[200px] max-w-[250px] flex-shrink-0 truncate"
-                                  style={styles.text2}
-                                >
+                                <div className="w-1/12" style={styles.text2}>
                                   {getCallStatusWithSchedule(item)}
                                 </div>
-                                <div className=" w-[150px] max-w-[250px]  flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                                <div className="w-1/12">
                                   <button
                                     aria-describedby={id}
                                     variant="contained"
