@@ -1135,6 +1135,7 @@ const Creator = ({ agentId, name }) => {
   // };
 
   const showCallUI = () => {
+    const buttonShadow = '0px 2px 8px rgba(0, 0, 0, 0.08)'
     return (
       <div
         className="flex flex-col items-center justify-center voice-call-ui-container"
@@ -1160,10 +1161,9 @@ const Creator = ({ agentId, name }) => {
               border: 'none',
               outline: 'none',
               fontStyle: 'italic',
-              color: 'inherit',
+              color: 'rgba(0, 0, 0, 0.75)',
               fontSize: '13px',
               fontWeight: '500',
-
             }}
           >
             {loadingMessage}
@@ -1178,34 +1178,52 @@ const Creator = ({ agentId, name }) => {
           />
         )}
 
-
         {open && (
-          <div className='flex mt-5 flex-row items-center justify-center gap-2'>
-            <button
-              onClick={handleCloseCall}
-              className="px-3 py-2 flex flex-row items-center justify-center gap-3 rounded-full bg-[#ffffff40] shadow-md"
+          <>
+            <div
+              className="flex items-center justify-center gap-1.5 mt-6 mb-4"
+              aria-hidden
             >
-              <Image src="/assets/cross.png" alt="end call"
-                width={12} height={12} />
-              <span className='text-black text-[15px] font-normal'>
-                End Call
-              </span>
-            </button>
+              {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <span
+                  key={i}
+                  className="rounded-full bg-brand-primary shrink-0"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    opacity: 0.8,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="flex mt-1 flex-row items-center justify-center gap-3">
+              <button
+                onClick={handleCloseCall}
+                className="px-5 py-2.5 flex flex-row items-center justify-center gap-3 rounded-full bg-white border-0 transition-[box-shadow,transform] duration-150 active:scale-[0.98]"
+                style={{ boxShadow: buttonShadow }}
+              >
+                <Image src="/assets/cross.png" alt="end call" width={14} height={14} className="opacity-90" />
+                <span className="text-[15px] font-normal text-black/90">
+                  End Call
+                </span>
+              </button>
 
-            <button
-              onClick={handleMuteToggle}
-              aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
-              className={`shadow-lg rounded-full ${isMuted && 'shadow-red-500'}`}
-
-            >
-              <Image
-                src={isMuted ? "/svgIcons/Mute.svg" : "/svgIcons/Unmuted.svg"}
-                alt={isMuted ? "mute" : "unmute"}
-                width={40}
-                height={40}
-              />
-            </button>
-          </div>
+              <button
+                onClick={handleMuteToggle}
+                aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
+                className="rounded-full bg-white border-0 w-11 h-11 flex items-center justify-center shrink-0 transition-[box-shadow,transform] duration-150 active:scale-[0.98]"
+                style={{ boxShadow: buttonShadow }}
+              >
+                <Image
+                  src={isMuted ? "/svgIcons/Mute.svg" : "/svgIcons/Unmuted.svg"}
+                  alt={isMuted ? "mute" : "unmute"}
+                  width={22}
+                  height={22}
+                  className="opacity-90"
+                />
+              </button>
+            </div>
+          </>
         )}
       </div>
     )
