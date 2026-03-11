@@ -7,6 +7,7 @@ import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
 
 import PlatformIcon from './PlatformIcon'
+import { Star } from 'lucide-react'
 import DraftCards from './DraftCards'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -52,6 +53,8 @@ const ConversationView = ({
   onShowRequestFeature,
   onLinkToLeadFromMessage,
   linkingLeadId = null,
+  starredMessageIds = new Set(),
+  onStarToggle = null,
   drafts = [],
   draftsLoading = false,
   onSelectDraft,
@@ -461,33 +464,34 @@ const ConversationView = ({
                             )}
                         </div>
 
-                        {isOutbound && (
-                          <TooltipProvider delayDuration={0}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  className="flex-shrink-0 cursor-pointer"
-                                  onClick={() => {
-                                    console.log("message details", message)
-                                  }}
-                                  aria-label={message ? `${message?.agent?.name || message?.senderUser?.name}` : 'Agent'}
-                                >
-
-                                  <div className="relative flex-shrink-0">
-                                    {getAgentAvatar(message)}
-                                    {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
-                                      <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
-                                    )}
-                                  </div>
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {message?.agent?.name || message?.senderUser?.name || 'Agent'}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
+                        {isOutbound && (() => {
+                          const agentOrSenderName = message?.agent?.name || message?.senderUser?.name;
+                          const button = (
+                            <button
+                              type="button"
+                              className="flex-shrink-0 cursor-pointer"
+                              onClick={() => { console.log("message details", message) }}
+                              aria-label={agentOrSenderName ? `${agentOrSenderName}` : 'Agent'}
+                            >
+                              <div className="relative flex-shrink-0">
+                                {getAgentAvatar(message)}
+                                {/* PlatformIcon as before */}
+                              </div>
+                            </button>
+                          );
+                          return (
+                            <TooltipProvider delayDuration={0}>
+                              {agentOrSenderName ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>{button}</TooltipTrigger>
+                                  <TooltipContent>{agentOrSenderName}</TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                button
+                              )}
+                            </TooltipProvider>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}

@@ -75,7 +75,7 @@ import ConfigurePopup from '@/components/dashboardPipeline/ConfigurePopup'
 import { TypographyH3 } from '@/lib/typography'
 import PipelineFilterModal from '@/components/common/PipelineFilterModal'
 import StandardHeader from '@/components/common/StandardHeader'
-import { Check } from 'lucide-react'
+import { Check, LayoutGrid } from 'lucide-react'
 import { isColorDark } from '@/components/dashboardPipeline/PipelineUtilities'
 import { toast } from '@/utils/toast'
 
@@ -2386,8 +2386,8 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                 >
                   {/*<Plus size={17} weight="bold" />{' '}*/}
                   <span
-                    style={{ fontWeight: '500', fontSize: 16 }}
                     className="text-brand-primary"
+                    style={{ fontWeight: '500', fontSize: 16 }}
                   >
                     New Pipeline
                   </span>
@@ -2419,7 +2419,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                   // variant="contained"
                   onClick={handleShowOtherPipeline}
                 >
-                  <div style={{ borderRadius: '50%', width: '15px', height: '15px', backgroundColor: 'transparent', border: '1px solid #000000' }} />
+                  <LayoutGrid size={16} className="flex-shrink-0" />
                   <div className="flex flex-row items-center justify-between flex-1">
                     <div style={{ fontWeight: '500', fontSize: 15 }}>Pipelines</div>
                     <div
@@ -2670,27 +2670,27 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
                         >
                           <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
                             <div className="self-stretch flex flex-col justify-start items-start gap-2">
-                              {SelectedPipeline?.pipelineType !== 'agency_use' && (
-                                <button
-                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                                  onClick={() => {
-                                    setShowRenamePopup(true)
-                                    // //console.log;
-                                    setRenameStage(selectedStage.stageTitle)
-                                    setUpdateStageColor(selectedStage.defaultColor)
-                                  }}
-                                >
-                                  <Image
-                                    src={'/assets/editPen.png'}
-                                    height={16}
-                                    width={16}
-                                    alt="*"
-                                  />
-                                  <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                    Rename
-                                  </div>
-                                </button>
-                              )}
+                              {/*SelectedPipeline?.pipelineType !== 'agency_use' && (
+                              )*/}
+                              <button
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                onClick={() => {
+                                  setShowRenamePopup(true)
+                                  // //console.log;
+                                  setRenameStage(selectedStage.stageTitle)
+                                  setUpdateStageColor(selectedStage.defaultColor)
+                                }}
+                              >
+                                <Image
+                                  src={'/assets/editPen.png'}
+                                  height={16}
+                                  width={16}
+                                  alt="*"
+                                />
+                                <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                  Rename
+                                </div>
+                              </button>
                               <button
                                 className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                 onClick={() => colorPickerRef.current.click()}

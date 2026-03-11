@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2 } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2, MessageCircle } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
@@ -210,10 +210,12 @@ const MessageComposer = ({
   onSendSocialMessage,
   hasFacebookConnection = false,
   hasInstagramConnection = false,
+  pageName = null,
   onConnectionSuccess,
   onOpenAuthPopup,
   onCommentAdded,
 }) => {
+
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [isExpanded, setIsExpanded] = useState(true)
   const [userData, setUserData] = useState(null)
@@ -1228,6 +1230,8 @@ const MessageComposer = ({
   const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
   const showSocialComposer = false
 
+  console.log("!HAS Facebook", hasFacebookConnection, "!has insta", hasInstagramConnection, "social sendable", sendableSocial, "isexpeded status", isExpanded, "can reply insta gran", canReplyInstagram, "linked social sendable", linkedSocialSendable)
+
   const handleSendSocial = async (e) => {
     e?.preventDefault()
     const raw = (composerData.socialBody ?? socialContent ?? '').trim()
@@ -1275,11 +1279,42 @@ const MessageComposer = ({
       })
       if (res.data?.url) {
         window.location.href = res.data.url
+        // setConnectingOAuth(false)
       } else {
         toast.error(res.data?.message || 'Could not start Facebook connect')
+        // setConnectingOAuth(false)
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not start Facebook connect')
+      setConnectingOAuth(false)
+    } finally {
+      // setConnectingOAuth(false)
+    }
+  }
+
+  const disconnectSocialOAuth = async (platform) => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please sign in to disconnect')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    try {
+      setConnectingOAuth(true)
+      let url = Apis.disconnectSocialConnection
+      const params = new URLSearchParams()
+      params.set('platform', platform)
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      url += `?${params.toString()}`
+      const response = await axios.delete(url, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      console.log("Disconnect Social Response is", response);
+      toast.success(platform === 'facebook' ? 'Facebook disconnected' : 'Instagram disconnected')
+      onConnectionSuccess?.()
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Could not disconnect')
     } finally {
       setConnectingOAuth(false)
     }
@@ -1351,9 +1386,10 @@ const MessageComposer = ({
                 { label: 'Text', value: 'sms', icon: MessageSquareDot },
                 { label: 'Email', value: 'email', icon: Mail },
                 { label: 'Comment', value: 'comment', icon: MessageSquare },
-                ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
-                  ? [{ label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }]
-                  : []),
+                { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }
+                // ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
+                //   ? [{ label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }]
+                //   : []),
               ]}
               value={composerMode === 'instagram' ? 'facebook' : composerMode}
               onChange={(value) => {
@@ -1447,41 +1483,43 @@ const MessageComposer = ({
 
         {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
           <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
-            {!hasFacebookConnection && (
-              <div className="flex flex-col gap-2">
+            {(!hasFacebookConnection || !hasInstagramConnection) ? (
+              <div className="flex flex-col items-center gap-2">
+                <Image
+                  src="/fbInsta.png"
+                  width={42}
+                  height={24}
+                  alt="Facebook"
+                  className="object-contain"
+                />
+                <div style={{ fontWeight: '600', fontSize: '16px' }}>
+                  Connect Account
+                </div>
                 <p className="text-sm text-muted-foreground">
-                  Connect a Facebook Page to send Messenger messages.
+                  Connect a Facebook page or Instagram page to send messages
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
-                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
-                    Connect with Facebook
+                  <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth && <Loader2 className="w-3.5 h- mr-1.5 animate-spin" />}
+                    Connect
+                  </Button>
+                  {/*
+                  <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
+                    {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+                    Connect Instagram
                   </Button>
                   <span className="text-xs text-muted-foreground">or</span>
                   <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('facebook')} disabled={connectingOAuth}>
                     Connect manually
-                  </Button>
+                  </Button>*/}
                 </div>
               </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Select a Messenger or Instagram conversation from the list to reply here.
+              </p>
             )}
-            {!hasInstagramConnection && (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm text-muted-foreground">
-                  Connect an Instagram account to send messages.
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" size="sm" className="w-fit" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
-                    {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5 mr-1.5" />}
-                    Connect with Instagram
-                  </Button>
-                  <span className="text-xs text-muted-foreground">or</span>
-                  <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('instagram')} disabled={connectingOAuth}>
-                    Connect manually
-                  </Button>
-                </div>
-              </div>
-            )}
-            {hasFacebookConnection && hasInstagramConnection && (
+            {hasFacebookConnection || hasInstagramConnection && (
               <p className="text-sm text-muted-foreground">
                 Select a Messenger or Instagram conversation from the list to reply here.
               </p>
@@ -1515,65 +1553,65 @@ const MessageComposer = ({
               </button>
             </div>
           ) : (
-          <div className="mt-2 flex items-center gap-2">
-            <Input
-              value={
-                composerMode === 'sms'
-                  ? stripHTML(composerData.smsBody)
-                  : composerMode === 'comment'
-                    ? stripHTML(commentBody)
-                    : stripHTML(composerData.emailBody)
-              }
-              onChange={(e) => {
-                if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
-                  setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
-                } else if (composerMode === 'email') {
-                  // Convert plain text to HTML for email
-                  const htmlBody = e.target.value.replace(/\n/g, '<br>')
-                  setComposerData((prev) => ({ ...prev, emailBody: htmlBody }))
-                } else if (composerMode === 'comment') {
-                  const htmlBody = e.target.value.replace(/\n/g, '<br>')
-                  setCommentBody(htmlBody)
+            <div className="mt-2 flex items-center gap-2">
+              <Input
+                value={
+                  composerMode === 'sms'
+                    ? stripHTML(composerData.smsBody)
+                    : composerMode === 'comment'
+                      ? stripHTML(commentBody)
+                      : stripHTML(composerData.emailBody)
                 }
-              }}
-              onFocus={() => setIsExpanded(true)}
-              onClick={() => setIsExpanded(true)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  if (composerMode === 'comment') {
-                    if (hasTextContent(commentBody) && selectedThread?.leadId) {
-                      handleSendComment()
-                    }
-                  } else {
-                    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-                    if (hasTextContent(messageBody) &&
-                      ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
-                        (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
-                      handleSendMessage()
+                onChange={(e) => {
+                  if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
+                    setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
+                  } else if (composerMode === 'email') {
+                    // Convert plain text to HTML for email
+                    const htmlBody = e.target.value.replace(/\n/g, '<br>')
+                    setComposerData((prev) => ({ ...prev, emailBody: htmlBody }))
+                  } else if (composerMode === 'comment') {
+                    const htmlBody = e.target.value.replace(/\n/g, '<br>')
+                    setCommentBody(htmlBody)
+                  }
+                }}
+                onFocus={() => setIsExpanded(true)}
+                onClick={() => setIsExpanded(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    if (composerMode === 'comment') {
+                      if (hasTextContent(commentBody) && selectedThread?.leadId) {
+                        handleSendComment()
+                      }
+                    } else {
+                      const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+                      if (hasTextContent(messageBody) &&
+                        ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
+                          (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
+                        handleSendMessage()
+                      }
                     }
                   }
+                }}
+                placeholder={composerMode === 'comment' ? 'Type a comment...' : 'Type your message...'}
+                className="flex-1"
+              />
+              <button
+                onClick={composerMode === 'comment' ? handleSendComment : handleSendMessage}
+                disabled={
+                  composerMode === 'comment'
+                    ? (sendingComment || !hasTextContent(commentBody) || !selectedThread?.leadId)
+                    : (sendingMessage ||
+                      !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
+                      (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
+                      (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
                 }
-              }}
-              placeholder={composerMode === 'comment' ? 'Type a comment...' : 'Type your message...'}
-              className="flex-1"
-            />
-            <button
-              onClick={composerMode === 'comment' ? handleSendComment : handleSendMessage}
-              disabled={
-                composerMode === 'comment'
-                  ? (sendingComment || !hasTextContent(commentBody) || !selectedThread?.leadId)
-                  : (sendingMessage ||
-                    !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
-                    (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
-                    (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
-              }
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              style={{ height: '40px' }}
-            >
-              <PaperPlaneTilt size={20} weight="fill" />
-            </button>
-          </div>
+                className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                style={{ height: '40px' }}
+              >
+                <PaperPlaneTilt size={20} weight="fill" />
+              </button>
+            </div>
           )
         ) : (
           <div
@@ -1592,17 +1630,31 @@ const MessageComposer = ({
             {/* Messenger/Instagram expanded: RichTextEditor with formatting toolbar (no From/Subject/CC/BCC/Templates) */}
             {sendableSocial ? (
               <div className="mt-2">
-                <div className="mb-2">
+                <div className="mb-2  w-full flex flex-row items-center justify-between">
                   <label className="text-sm font-semibold text-foreground">
-                    {isMessengerReply ? 'Reply in Messenger' : 'Reply in Instagram'}
+                    {/*isMessengerReply ? 'Send a DM' : 'Reply in Instagram'}*/}
+                    Send a DM
                   </label>
+                  {
+                    hasFacebookConnection && (
+                      <Button
+                        type="button"
+                        className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
+                        onClick={() => disconnectSocialOAuth('facebook')}
+                        disabled={connectingOAuth}
+                      >
+                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Image src={hasFacebookConnection ? "/facebook.png" : "/instagram.png"} width={20} height={20} alt="Facebook" />}
+                        Logout of {pageName}
+                      </Button>
+                    )
+                  }
                 </div>
                 <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
                     ref={socialRichTextEditorRef}
                     value={socialBodyToEditorValue(composerData.socialBody ?? '')}
                     onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
-                    placeholder="Type your message..."
+                    placeholder="Write your DM here..."   //"Type your message..."
                     availableVariables={[]}
                     toolbarPosition="bottom"
                     customToolbarElement={
@@ -1641,7 +1693,7 @@ const MessageComposer = ({
                     ref={commentEditorRef}
                     value={commentBody}
                     onChange={handleCommentChange}
-                    placeholder="Use @ to mention a teammate. Comments are only visible to your team."
+                    placeholder="Write your DM here"   //"Use @ to mention a teammate. Comments are only visible to your team."
                     availableVariables={[]}
                     toolbarPosition="bottom"
                     customToolbarElement={
@@ -1849,61 +1901,61 @@ const MessageComposer = ({
                                   {emailAccounts.map((account) => {
                                     const gmailError = getGmailWatchErrorInfo(account)
                                     return (
-                                    <div
-                                      key={account.id}
-                                      className="group relative w-full"
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setSelectedEmailAccount(account.id.toString())
-                                          setEmailDropdownOpen(false)
-                                        }}
-                                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                          }`}
+                                      <div
+                                        key={account.id}
+                                        className="group relative w-full"
                                       >
-                                        <div className="flex items-center justify-between">
-                                          <span>{account.email || account.name || account.displayName}</span>
-                                          <div className="flex items-center gap-2">
-                                            {account.provider && (
-                                              <span className="text-xs text-gray-500">
-                                                {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                              </span>
-                                            )}
-                                            {/* Delete icon - visible on hover */}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedEmailAccount(account.id.toString())
+                                            setEmailDropdownOpen(false)
+                                          }}
+                                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                            }`}
+                                        >
+                                          <div className="flex items-center justify-between">
+                                            <span>{account.email || account.name || account.displayName}</span>
+                                            <div className="flex items-center gap-2">
+                                              {account.provider && (
+                                                <span className="text-xs text-gray-500">
+                                                  {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                                </span>
+                                              )}
+                                              {/* Delete icon - visible on hover */}
+                                              <button
+                                                type="button"
+                                                onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                                disabled={deletingEmailAccountId === account.id}
+                                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                                title="Delete email account"
+                                              >
+                                                {deletingEmailAccountId === account.id ? (
+                                                  <CircularProgress size={14} />
+                                                ) : (
+                                                  <Trash2 size={14} />
+                                                )}
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </button>
+                                        {gmailError && (
+                                          <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
+                                            <span>{gmailError.shortLabel}</span>
                                             <button
                                               type="button"
-                                              onClick={(e) => handleDeleteEmailAccount(account, e)}
-                                              disabled={deletingEmailAccountId === account.id}
-                                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
-                                              title="Delete email account"
+                                              onClick={(e) => {
+                                                e.stopPropagation()
+                                                if (onOpenAuthPopup) onOpenAuthPopup()
+                                                setEmailDropdownOpen(false)
+                                              }}
+                                              className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
                                             >
-                                              {deletingEmailAccountId === account.id ? (
-                                                <CircularProgress size={14} />
-                                              ) : (
-                                                <Trash2 size={14} />
-                                              )}
+                                              Reconnect
                                             </button>
                                           </div>
-                                        </div>
-                                      </button>
-                                      {gmailError && (
-                                        <div className="px-3 pb-1.5 text-xs text-amber-700 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-2 flex-wrap" title={gmailError.actionHint}>
-                                          <span>{gmailError.shortLabel}</span>
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation()
-                                              if (onOpenAuthPopup) onOpenAuthPopup()
-                                              setEmailDropdownOpen(false)
-                                            }}
-                                            className="font-semibold text-amber-800 hover:text-amber-900 underline focus:outline-none focus:ring-0"
-                                          >
-                                            Reconnect
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
+                                        )}
+                                      </div>
                                     )
                                   })}
                                 </div>
@@ -2055,9 +2107,9 @@ const MessageComposer = ({
                               type="button"
                               onClick={() => setSubjectVariablesDropdownOpen(!subjectVariablesDropdownOpen)}
                               className={cn(
-                              "px-3 py-2 w-32 flex items-center justify-between text-sm text-gray-700 transition-colors rounded-[12px]",
-                              subjectVariablesDropdownOpen ? "bg-black/[0.02] border-0" : "hover:bg-gray-50"
-                            )}
+                                "px-3 py-2 w-32 flex items-center justify-between text-sm text-gray-700 transition-colors rounded-[12px]",
+                                subjectVariablesDropdownOpen ? "bg-black/[0.02] border-0" : "hover:bg-gray-50"
+                              )}
                             >
                               <span>Variables</span>
                               <CaretDown size={16} className="text-gray-400" />
@@ -2247,9 +2299,9 @@ const MessageComposer = ({
                                   type="button"
                                   onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
                                   className={cn(
-                                  "px-3 py-2 w-32 border-l-[0.5px] flex items-center justify-between gap-2 text-sm text-gray-700 transition-colors rounded-[12px]",
-                                  variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-black/[0.06] hover:bg-black/[0.02] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary"
-                                )}
+                                    "px-3 py-2 w-32 border-l-[0.5px] flex items-center justify-between gap-2 text-sm text-gray-700 transition-colors rounded-[12px]",
+                                    variablesDropdownOpen ? "bg-black/[0.02] border-0" : "border-black/[0.06] hover:bg-black/[0.02] focus-within:ring-2 focus-within:ring-brand-primary/40 focus-within:border-brand-primary"
+                                  )}
                                 >
                                   <span>Variables</span>
                                   <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
@@ -2398,7 +2450,7 @@ const MessageComposer = ({
                               </div>
                             )}
                           </div>
-                            <div className="flex items-center gap-2 ">
+                          <div className="flex items-center gap-2 ">
                             {/* Character count: SMS only (plain text length); email branch so this is for consistency if mode toggles */}
                             <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
 

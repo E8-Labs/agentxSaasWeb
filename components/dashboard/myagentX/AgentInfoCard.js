@@ -1,6 +1,24 @@
-import Image from 'next/image'
+'use client'
 
-const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
+import { formatFractional2Stable } from '@/components/agency/plan/AgencyUtilities'
+import Image from 'next/image'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
+const AgentInfoCard = ({
+  name,
+  value,
+  icon,
+  bgColor,
+  iconColor,
+  subtitle,
+  rate,
+  toolTip,
+}) => {
   // Render icon with branding using mask-image approach (same logic as NotificationsDrawer.js)
   const renderIcon = () => {
     if (typeof window === 'undefined') {
@@ -45,7 +63,30 @@ const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      {renderIcon()}
+      <div className="flex flex-row items-center gap-12">
+        {renderIcon()}
+        {subtitle && rate != null && rate !== '' && (
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: '400',
+                    color: '#00000099',
+                  }}
+                  className="cursor-pointer"
+                >
+                  %
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={4}>
+                {formatFractional2Stable(Number(rate))}% {toolTip}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
 
       <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}

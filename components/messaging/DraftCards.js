@@ -38,7 +38,13 @@ const DraftCards = ({
     // if (draft.source === 'call_summary_follow_up') {
     //   return `Follow-Up Response ${draft.variantNumber || 1}`
     // }
-    const typeLabel = draft.messageType === 'email' ? 'Email' : 'Text'
+    const messageType = draft.messageType || 'sms'
+    const typeLabel =
+      messageType === 'email'
+        ? 'Email'
+        : messageType === 'messenger' || messageType === 'instagram'
+          ? 'DM'
+          : 'Text'
     return `${typeLabel} Response ${draft.variantNumber || 1}`
   }
 

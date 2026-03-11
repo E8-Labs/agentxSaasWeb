@@ -540,6 +540,7 @@ const Creator = ({ agentId, name }) => {
           },
         )
         setSmartListFields(parsedData.smartListFields || {})
+        // setShowLeadModal(true)
       }
     } catch (error) {
       console.error('Error loading saved form data:', error)
@@ -704,13 +705,16 @@ const Creator = ({ agentId, name }) => {
           } else {
             handleStartCall()
           }
-        } else {
+        } else if (mode !== 'chat') {
+          // Non-chat mode (e.g. future modes): open drawer
           setChatDrawerKey((k) => k + 1)
           setChatDrawerOpen(true)
         }
+        // Chat: drawer already opened in handleOpenChat; webChatLeadId/assistantOverrides set above
       }
     } catch (error) {
       console.error('Error submitting persisted form data:', error)
+      if (mode === 'chat') setChatDrawerOpen(false)
       setSnackbarMessage(mode === 'call' ? 'Error starting call. Please try again.' : 'Error starting chat. Please try again.')
       setSnackbarSeverity('error')
       setSnackbarOpen(true)
@@ -735,6 +739,9 @@ const Creator = ({ agentId, name }) => {
     setFormMode('chat')
     const { valid, savedFormData, savedSmartListFields } = getSavedFormAndValidity()
     if (valid) {
+      // Open drawer immediately so there’s no delay; API runs in background and sets webChatLeadId when done
+      setChatDrawerKey((k) => k + 1)
+      setChatDrawerOpen(true)
       submitSavedFormAndProceed(savedFormData, savedSmartListFields, 'chat')
       return
     }
@@ -1404,7 +1411,7 @@ const Creator = ({ agentId, name }) => {
         {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer */}
         <div className="lg:flex hidden">
           <AnimatePresence>
-            {boxVisible && !pointerOverChatInputArea && (
+            {boxVisible && !pointerOverChatInputArea && !chatDrawerOpen && (
               <motion.div
                 style={{
                   position: 'absolute',
@@ -1456,6 +1463,7 @@ const Creator = ({ agentId, name }) => {
         agent={agentDetails?.data?.data?.agent}
         leadId={webChatLeadId}
         canChangeLlmProvider={reduxUser?.id != null && agentDetails?.data?.data?.user?.id != null && reduxUser.id === agentDetails.data.data.user.id}
+        formData={formData}
       />
 
       {/* Lead Details Modal */}

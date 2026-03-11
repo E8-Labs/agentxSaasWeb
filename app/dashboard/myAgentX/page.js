@@ -1818,7 +1818,7 @@ function Page() {
       })
 
       if (response) {
-        // console.log("response of update image is", response.data)
+        console.log('update agent image API response: click.kj', response)
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -3047,8 +3047,8 @@ function Page() {
         setIsVisibleSnack(true)
         setShowSuccessSnack(response.data.message)
 
-        setShowDrawerSelectedAgent(null)
         setActiveTab('Agent Info')
+        setShowDrawerSelectedAgent(null)
         setDelAgentModal(false)
 
         //updating data on localstorage
@@ -3958,10 +3958,10 @@ function Page() {
 
   const handleDrawerClose = async () => {
     setShowDrawerSelectedAgent(null)
+    setActiveTab('Agent Info')
     await getProfileDetails()
     // Sync fresh profile data to Redux after profile update
     await syncProfileToRedux()
-    setActiveTab('Agent Info')
   }
 
   return (
