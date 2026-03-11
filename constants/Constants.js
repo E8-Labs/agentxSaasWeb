@@ -38,6 +38,9 @@ export const PersistanceKeys = {
   // last selected email account in NewMessageModal (for "From" when composing email)
   LastUsedEmailAccountId: 'assignx_lastUsedEmailAccountId',
 
+  // last selected phone number in NewMessageModal (for "From" when composing SMS)
+  LastUsedPhoneNumberId: 'assignx_lastUsedPhoneNumberId',
+
   //vapi-widget call popup
   showVapiModal: 'showVapiModal',
 
