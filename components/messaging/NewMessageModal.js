@@ -602,14 +602,26 @@ const NewMessageModal = ({
         const accounts = response.data.data
         setEmailAccounts(accounts)
         if (accounts.length > 0) {
-          const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedEmailAccountId) : null
-          const lastUsedAccount = lastUsedId ? accounts.find((a) => a.id.toString() === lastUsedId || a.id === parseInt(lastUsedId, 10)) : null
-          if (lastUsedAccount) {
-            setSelectedEmailAccount(lastUsedAccount.id.toString())
-            setSelectedEmailAccountObj(lastUsedAccount)
-          } else {
-            setSelectedEmailAccount(accounts[0].id.toString())
-            setSelectedEmailAccountObj(accounts[0])
+          let didSetFromEditingRow = false
+          if (isPipelineMode && isEditing && editingRow?.emailAccountId != null) {
+            const accountId = String(editingRow.emailAccountId)
+            const account = accounts.find((a) => a.id.toString() === accountId || a.id === parseInt(accountId, 10))
+            if (account) {
+              setSelectedEmailAccount(account.id.toString())
+              setSelectedEmailAccountObj(account)
+              didSetFromEditingRow = true
+            }
+          }
+          if (!didSetFromEditingRow) {
+            const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedEmailAccountId) : null
+            const lastUsedAccount = lastUsedId ? accounts.find((a) => a.id.toString() === lastUsedId || a.id === parseInt(lastUsedId, 10)) : null
+            if (lastUsedAccount) {
+              setSelectedEmailAccount(lastUsedAccount.id.toString())
+              setSelectedEmailAccountObj(lastUsedAccount)
+            } else {
+              setSelectedEmailAccount(accounts[0].id.toString())
+              setSelectedEmailAccountObj(accounts[0])
+            }
           }
         }
       }
