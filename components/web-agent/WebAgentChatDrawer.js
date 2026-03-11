@@ -522,7 +522,7 @@ const WebAgentChatDrawer = ({
       onClose={handleModalClose}
       closeAfterTransition
       aria-label="Chat"
-      sx={{ zIndex: 1300 }}
+      sx={{ zIndex: 9999 }}
       slotProps={{
         root: {
           sx: {
