@@ -343,7 +343,7 @@ const AgentsListPaginated = ({
                         />
                       ) : (
 
-                          getAgentsListImage(item, 60, 60,from ="agentsList")
+                        getAgentsListImage(item, 60, 60, from = "agentsList")
                       )}
                       <input
                         type="file"
@@ -397,8 +397,8 @@ const AgentsListPaginated = ({
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
+                                ?.slice(0, 1)
+                                .toUpperCase()}${item.agentObjective?.slice(
                                   1,
                                 )}`
                               : `${item.agentRole}`}
@@ -579,6 +579,7 @@ const AgentsListPaginated = ({
                         bgColor="bg-brand-primary/10"
                         iconColor="text-brand-primary"
                         subtitle="Answer rate"
+                        toolTip="Answer rate, percent of calls that are answered."
                         rate={
                           item.calls > 0
                             ? (item.callsGt10 / item.calls) * 100
@@ -606,6 +607,7 @@ const AgentsListPaginated = ({
                         bgColor="bg-orange-100"
                         iconColor="text-orange-500"
                         subtitle="Conversion rate"
+                        toolTip="Percent of hot leads that are found in your calls."
                         rate={
                           item.callsGt10 > 0
                             ? (item.hotleads / item.callsGt10) * 100
@@ -633,6 +635,7 @@ const AgentsListPaginated = ({
                         bgColor="green"
                         iconColor="text-orange-500"
                         subtitle="Conversion rate"
+                        toolTip="Percent of convos that convert into a booked call."
                         rate={
                           item.callsGt10 > 0
                             ? (item.booked / item.callsGt10) * 100
@@ -664,8 +667,8 @@ const AgentsListPaginated = ({
                           <div>
                             {item?.totalDuration
                               ? moment
-                                  .utc((item?.totalDuration || 0) * 1000)
-                                  .format('HH:mm:ss')
+                                .utc((item?.totalDuration || 0) * 1000)
+                                .format('HH:mm:ss')
                               : '-'}
                           </div>
                         }
