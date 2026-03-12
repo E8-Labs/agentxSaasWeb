@@ -11,6 +11,7 @@ import {
   TypographyTitle,
 } from '@/lib/typography'
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
+import { Typography } from '@mui/material'
 
 function Perplexity({ selectedLeadsDetails }) {
   let enrichData = selectedLeadsDetails?.enrichData
@@ -133,8 +134,10 @@ function Perplexity({ selectedLeadsDetails }) {
 
       avgScore = (score / profiles.length) * 100
 
+      return formatFractional2(avgScore) + "%"
+    } else {
+      return "No Data"
     }
-    return formatFractional2(avgScore)
   }
 
   return (
@@ -169,29 +172,35 @@ function Perplexity({ selectedLeadsDetails }) {
             alt="*"
           />
 
-          <TypographyH2 className="whitespace-nowrap">
-            Confidence Score:{' '}
-            <span className="text-brand-primary">
-              {calculateConfidanseScore()}%
-            </span>
-          </TypographyH2>
+          {calculateConfidanseScore() === "No Data" ? (
+            <Typography className="whitespace-nowrap">
+              No data found for the lead
+            </Typography>
+          ) : (
+            <TypographyH2 className="whitespace-nowrap">
+              Confidence Score:{' '}
+              <span className="text-brand-primary">
+                {calculateConfidanseScore()}
+              </span>
+            </TypographyH2>
+          )}
         </div>
       </div>
       <div className="w-full flex flex-row items-start gap-2">
         <div className="grid grid-cols-3 gap-3 w-full h-auto overflow-y-auto">
           {profiles?.length > 0
             ? profiles.slice(0, 6).map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    window.open(item.url, '_blank')
-                  }}
-                >
-                  {getProfileView(item, index)}
-                </button>
-              ))
+              <button
+                key={index}
+                onClick={() => {
+                  window.open(item.url, '_blank')
+                }}
+              >
+                {getProfileView(item, index)}
+              </button>
+            ))
             : ''
-              // <div>No Profiles Found</div>
+            // <div>No Profiles Found</div>
           }
         </div>
         {profiles?.length > 6 && (

@@ -1233,7 +1233,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
 
             }}
           >
-            {loadingMessage}
+            {!chatDrawerOpen && `${loadingMessage}`}
           </span>
         ) : isSpeaking ? (
           <VoiceWavesComponent className="mt-12" />
@@ -1337,7 +1337,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
             >
               {agentDetails?.data?.data?.agent?.name
                 ? agentDetails.data.data.agent.name.charAt(0).toUpperCase() +
-                  agentDetails.data.data.agent.name.slice(1)
+                agentDetails.data.data.agent.name.slice(1)
                 : shareResolvedSuccess
                   ? 'Chat'
                   : null}
@@ -1372,61 +1372,68 @@ const Creator = ({ agentId, name, shareToken = null }) => {
             }}
           >
             {
-              isSmallScreen ? (
+              !chatDrawerOpen && (
+                <div>
+                  {
+                    isSmallScreen ? (
 
-                <motion.div
-                  className="rounded-full border-none -mb-[130px] bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
-                  animate={{
-                    scale: [1, 1.2, 1],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  onClick={() => {
-                    // Don't initiate new call if call is already active
-                    if (open) {
-                      return
-                    }
-                    handleInitiateVapi()
-                  }}
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: 'black',
-                  }}
-                >
-                  Tab to Talk
-                </motion.div>
-              ) : (
-                <motion.div
-                  className="rounded-full border-none mb-4 bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
-                  animate={{
-                    scale: [1, 1.3, 1],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  onClick={() => {
-                    // Don't initiate new call if call is already active
-                    if (open) {
-                      return
-                    }
-                    handleInitiateVapi()
-                  }}
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    color: 'black',
-                  }}
-                >
-                  Click to talk
-                </motion.div>
+                      <motion.div
+                        className="rounded-full border-none -mb-[130px] bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
+                        animate={{
+                          scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                        }}
+                        onClick={() => {
+                          // Don't initiate new call if call is already active
+                          if (open) {
+                            return
+                          }
+                          handleInitiateVapi()
+                        }}
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          color: 'black',
+                        }}
+                      >
+                        Tab to Talk
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        className="rounded-full border-none mb-4 bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
+                        animate={{
+                          scale: [1, 1.3, 1],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                        }}
+                        onClick={() => {
+                          // Don't initiate new call if call is already active
+                          if (open) {
+                            return
+                          }
+                          handleInitiateVapi()
+                        }}
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: '500',
+                          color: 'black',
+                        }}
+                      >
+                        Click to talk
+                      </motion.div>
+                    )
+                  }
+                </div>
               )
             }
+
             <div
               className='flex items-center justify-center'
               style={{
