@@ -18,9 +18,10 @@ export default function SocialConnectCallbackPage() {
     const error = searchParams.get('error')
     const errorReason = searchParams.get('error_reason')
 
+    const success = socialConnect === 'success'
+    const errorMessage = error || errorReason || (success ? null : 'Connection failed.')
+
     if (window.opener) {
-      const success = socialConnect === 'success'
-      const errorMessage = error || errorReason || (success ? null : 'Connection failed.')
       window.opener.postMessage(
         {
           type: 'social_connect_done',
@@ -32,6 +33,14 @@ export default function SocialConnectCallbackPage() {
       window.close()
       return
     }
+
+    // Fallback when opener was lost (e.g. first-time popup permission): write to localStorage so opener can read when popup closes or via storage event
+    try {
+      localStorage.setItem(
+        'social_connect_result',
+        JSON.stringify({ success, error: errorMessage, ts: Date.now() })
+      )
+    } catch (_) {}
 
     if (socialConnect === 'success') {
       setMessage('Connected successfully. You can close this tab or return to the app.')
