@@ -1,10 +1,11 @@
 'use client'
 
 import { Box, CircularProgress, Modal, Popover, Tooltip } from '@mui/material'
-import { Check, PaperPlaneTilt, X, CaretDown, Plus } from '@phosphor-icons/react'
+import { Check, PaperPlaneTilt, X, CaretDown, Plus, CalendarBlank } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { toast } from '@/utils/toast'
 import { useRouter } from 'next/navigation'
 
@@ -31,6 +32,13 @@ import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
 import { messageMarkdownToHtml } from './messageMarkdown'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 /** Sliding pill background for MUI Select Menu: follows hovered menu item, 2% black, 8px radius. */
 const SlidingPillMenuList = React.forwardRef((props, ref) => {
@@ -166,6 +174,10 @@ const NewMessageModal = ({
   isBookingStage = false,
   isFromAdminOrAgency = null,
   elevatedZIndex = false, // When true, modal and overlays use z-index above TeamMemberActivityDrawer (5000)
+  // Optional: when provided, Show "Send now" / "Schedule" in New Message (not in Pipeline). Schedule only works when threadId (+ leadId) are provided.
+  onScheduleMessage = null,
+  scheduleThreadId = null,
+  scheduleLeadId = null,
 }) => {
   const modalZIndex = elevatedZIndex ? 15020 : 1500
   console.log("modalZIndex in newmessage modal is", modalZIndex);
@@ -232,6 +244,13 @@ const NewMessageModal = ({
   const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false)
   const [saveAsTemplate, setSaveAsTemplate] = useState(false)
   const [delTempLoader, setDelTempLoader] = useState(null)
+  // Send dropdown (Send now / Schedule) - only when !isPipelineMode && !saveAsTemplate
+  const [sendDropdownOpen, setSendDropdownOpen] = useState(false)
+  const [sendDropdownRect, setSendDropdownRect] = useState(null)
+  const scheduleDropdownAnchorRef = useRef(null)
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('')
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
 
@@ -367,6 +386,13 @@ const NewMessageModal = ({
       truthy: !!saveAsTemplate
     })
   }, [saveAsTemplate])
+
+  useLayoutEffect(() => {
+    if (!sendDropdownOpen || !scheduleDropdownAnchorRef.current) return
+    const el = scheduleDropdownAnchorRef.current
+    const rect = el.getBoundingClientRect()
+    setSendDropdownRect({ top: rect.top, right: rect.right, bottom: rect.bottom })
+  }, [sendDropdownOpen])
 
   // Fetch data when modal opens or mode changes
   useEffect(() => {
@@ -3090,7 +3116,7 @@ const NewMessageModal = ({
 
           {/* Footer with template dropdown, char count, credits, and send button */}
 
-          <div className="flex items-center justify-between gap-4 p-4 border-t border-black/[0.06] bg-black/[0.02]">
+          <div className="flex items-center justify-between gap-4 px-4 pt-5 pb-4 mt-3 border-t border-black/[0.06] bg-black/[0.02]">
             <div className="flex items-center gap-2">
               {/* My Templates Button with Dropdown */}
               <div className="relative" ref={templatesDropdownRef}>
@@ -3205,38 +3231,237 @@ const NewMessageModal = ({
                 </TypographyCaption>
               )}
 
-              <button
-                onClick={handleSend}
-                disabled={
-                  sending ||
-                  (!isPipelineMode && !isLeadMode && selectedLeads.length === 0) ||
-                  (selectedMode === 'sms' && !smsMessageBody.trim()) ||
-                  (selectedMode === 'email' && !emailMessageBody.trim()) ||
-                  (selectedMode === 'email' && !emailSubject.trim()) ||
-                  (selectedMode === 'sms' && !selectedPhoneNumber) ||
-                  (selectedMode === 'email' && !selectedEmailAccount)
-                }
-                className="px-6 py-2.5 h-9 text-[14px] font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-150 ease-out active:scale-[0.98]"
-              >
-                {sending ? (
-                  <>
-                    <CircularProgress size={16} className="text-white" />
-                    {isPipelineMode ? (isEditing ? 'Updating...' : 'Saving...') : 'Sending...'}
-                  </>
-                ) : (
-                  <>
-                    {isPipelineMode ? (isEditing ? 'Update' : 'Save') : selectedTemplate ? (selectedMode === 'sms' ? "Update" : "Send Email") : selectedMode === 'sms' ? 'Send' : 'Send Email'}
-                    {!isPipelineMode && <PaperPlaneTilt size={16} />}
-                  </>
-                )}
-              </button>
+              {/* Pipeline: single Save/Update. Save as template: single Send. Otherwise: split Send now / Schedule (only when not pipeline). */}
+              {isPipelineMode || saveAsTemplate ? (
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={
+                    sending ||
+                    (!isPipelineMode && !isLeadMode && selectedLeads.length === 0) ||
+                    (selectedMode === 'sms' && !smsMessageBody.trim()) ||
+                    (selectedMode === 'email' && !emailMessageBody.trim()) ||
+                    (selectedMode === 'email' && !emailSubject.trim()) ||
+                    (selectedMode === 'sms' && !selectedPhoneNumber) ||
+                    (selectedMode === 'email' && !selectedEmailAccount)
+                  }
+                  className="px-6 py-2.5 h-9 text-[14px] font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-150 ease-out active:scale-[0.98]"
+                >
+                  {sending ? (
+                    <>
+                      <CircularProgress size={16} className="text-white" />
+                      {isPipelineMode ? (isEditing ? 'Updating...' : 'Saving...') : 'Sending...'}
+                    </>
+                  ) : (
+                    <>
+                      {isPipelineMode ? (isEditing ? 'Update' : 'Save') : selectedTemplate ? (selectedMode === 'sms' ? 'Update' : 'Send Email') : selectedMode === 'sms' ? 'Send' : 'Send Email'}
+                      {!isPipelineMode && <PaperPlaneTilt size={16} />}
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="flex items-stretch h-9 rounded-lg overflow-visible border border-transparent relative z-10">
+                  <button
+                    type="button"
+                    onClick={handleSend}
+                    disabled={
+                      sending ||
+                      (!isLeadMode && selectedLeads.length === 0) ||
+                      (selectedMode === 'sms' && !smsMessageBody.trim()) ||
+                      (selectedMode === 'email' && !emailMessageBody.trim()) ||
+                      (selectedMode === 'email' && !emailSubject.trim()) ||
+                      (selectedMode === 'sms' && !selectedPhoneNumber) ||
+                      (selectedMode === 'email' && !selectedEmailAccount)
+                    }
+                    className="h-full px-5 text-[14px] font-medium bg-brand-primary text-white rounded-l-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-150 ease-out"
+                  >
+                    {sending ? (
+                      <>
+                        <CircularProgress size={16} className="text-white" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        {selectedMode === 'sms' ? 'Send' : 'Send Email'}
+                        <PaperPlaneTilt size={16} />
+                      </>
+                    )}
+                  </button>
+                  <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                    <Tooltip
+                      title={onScheduleMessage && selectedLeads.length > 0 ? '' : (selectedLeads.length === 0 ? 'Select at least one recipient to schedule' : 'Schedule is not available')}
+                      disableHoverListener={!!(onScheduleMessage && selectedLeads.length > 0)}
+                    >
+                      <span className="h-full flex">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            const rect = scheduleDropdownAnchorRef.current?.getBoundingClientRect()
+                            if (rect) setSendDropdownRect(rect)
+                            setSendDropdownOpen((o) => !o)
+                          }}
+                          disabled={
+                            sending ||
+                            (!isLeadMode && selectedLeads.length === 0) ||
+                            (selectedMode === 'sms' && !smsMessageBody.trim()) ||
+                            (selectedMode === 'email' && !emailMessageBody.trim()) ||
+                            (selectedMode === 'email' && !emailSubject.trim()) ||
+                            (selectedMode === 'sms' && !selectedPhoneNumber) ||
+                            (selectedMode === 'email' && !selectedEmailAccount)
+                          }
+                          className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
+                          aria-label="Send options"
+                          aria-expanded={sendDropdownOpen}
+                          aria-haspopup="menu"
+                        >
+                          <CaretDown size={16} weight="bold" />
+                        </button>
+                      </span>
+                    </Tooltip>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
         </Box>
       </Modal>
 
+      {/* Send dropdown (Send now / Schedule) - portal so not clipped */}
+      {sendDropdownOpen &&
+        typeof document !== 'undefined' &&
+        document.body &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 z-[9998]"
+              aria-hidden
+              onClick={() => {
+                setSendDropdownOpen(false)
+                setSendDropdownRect(null)
+              }}
+              style={{ zIndex: modalZIndex + 500 }}
+            />
+            {sendDropdownRect && (
+              <div
+                className="fixed z-[9999] min-w-[160px] py-1 bg-white border border-gray-200 rounded-lg shadow-lg"
+                role="menu"
+                style={{
+                  zIndex: modalZIndex + 501,
+                  right: typeof window !== 'undefined' ? window.innerWidth - sendDropdownRect.right : 0,
+                  bottom: typeof window !== 'undefined' ? window.innerHeight - sendDropdownRect.top + 8 : 0,
+                }}
+              >
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
+                  onClick={() => {
+                    setSendDropdownOpen(false)
+                    setSendDropdownRect(null)
+                    handleSend()
+                  }}
+                >
+                  <PaperPlaneTilt size={16} weight="fill" />
+                  Send now
+                </button>
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!onScheduleMessage || selectedLeads.length === 0}
+                  onClick={() => {
+                    setSendDropdownOpen(false)
+                    setSendDropdownRect(null)
+                    const in5 = new Date(Date.now() + 5 * 60 * 1000)
+                    setScheduleDate(in5.toISOString().slice(0, 10))
+                    setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
+                    setScheduleModalOpen(true)
+                  }}
+                >
+                  <CalendarBlank size={16} />
+                  Schedule
+                </button>
+              </div>
+            )}
+          </>,
+          document.body
+        )}
 
+      {/* Schedule message modal */}
+      <Dialog open={scheduleModalOpen} onOpenChange={(open) => !open && setScheduleModalOpen(false)}>
+        <DialogContent className="sm:max-w-md" style={{ zIndex: modalZIndex + 100 }}>
+          <DialogHeader>
+            <DialogTitle>Schedule message</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <label htmlFor="newmsg-schedule-date" className="text-sm font-medium text-gray-700">
+                Date
+              </label>
+              <input
+                id="newmsg-schedule-date"
+                type="date"
+                value={scheduleDate}
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setScheduleDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="newmsg-schedule-time" className="text-sm font-medium text-gray-700">
+                Time
+              </label>
+              <input
+                id="newmsg-schedule-time"
+                type="time"
+                value={scheduleTime}
+                onChange={(e) => setScheduleTime(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setScheduleModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="bg-brand-primary hover:bg-brand-primary/90"
+                onClick={() => {
+                  setScheduleModalOpen(false)
+                  const at = new Date(`${scheduleDate}T${scheduleTime}`)
+                  if (isNaN(at.getTime()) || !onScheduleMessage) return
+                  const leadIds = selectedLeads.map((l) => l.id).filter((id) => id != null)
+                  if (leadIds.length === 0) {
+                    toast.error('Select at least one recipient to schedule')
+                    return
+                  }
+                  const messageType = selectedMode === 'sms' ? 'sms' : 'email'
+                  const content = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
+                  const subject = selectedMode === 'email' ? emailSubject : undefined
+                  const payload = {
+                    leadIds,
+                    ...(leadIds.length === 1 && scheduleThreadId != null && { threadId: scheduleThreadId, leadId: leadIds[0] }),
+                    messageType,
+                    content,
+                    subject,
+                    scheduledSendAt: at.toISOString(),
+                    emailAccountId: selectedMode === 'email' ? selectedEmailAccount : undefined,
+                    smsPhoneNumberId: selectedMode === 'sms' ? selectedPhoneNumber : undefined,
+                  }
+                  onScheduleMessage(payload)
+                }}
+              >
+                Schedule
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
       <AuthSelectionPopup

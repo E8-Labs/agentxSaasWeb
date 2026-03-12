@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
+import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt, CalendarBlank } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2, MessageCircle } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
@@ -206,6 +206,7 @@ const MessageComposer = ({
   SMS_CHAR_LIMIT,
   handleFileChange,
   handleSendMessage,
+  onScheduleMessage,
   sendingMessage,
   onSendSocialMessage,
   hasFacebookConnection = false,
@@ -283,6 +284,21 @@ const MessageComposer = ({
   const [bodyVarPillStyle, setBodyVarPillStyle] = useState({ top: 0, height: 0 })
   const bodyVarListRef = useRef(null)
   const bodyVarOptionRefs = useRef(Object.create(null))
+
+  // Schedule modal: date + time for "Schedule" option
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('')
+  const scheduleDropdownAnchorRef = useRef(null)
+  const [sendDropdownOpen, setSendDropdownOpen] = useState(false)
+  const [sendDropdownRect, setSendDropdownRect] = useState(null)
+
+  useLayoutEffect(() => {
+    if (!sendDropdownOpen || !scheduleDropdownAnchorRef.current) return
+    const el = scheduleDropdownAnchorRef.current
+    const rect = el.getBoundingClientRect()
+    setSendDropdownRect({ top: rect.top, right: rect.right, bottom: rect.bottom })
+  }, [sendDropdownOpen])
 
   // Email attachment dropdown (same pattern as NewMessageModal)
   const attachmentDropdownRef = useRef(null)
@@ -2558,30 +2574,58 @@ const MessageComposer = ({
 
                             </div>
 
-                            {/* Send Button */}
-                            <button
-                              onClick={handleSendMessage}
-                              disabled={
-                                sendingMessage ||
-                                (composerMode === 'email'
-                                  ? (!hasTextContent(composerData.emailBody) || !selectedEmailAccount || !composerData.to)
-                                  : (!hasTextContent(composerData.smsBody) || !selectedPhoneNumber || !composerData.to)
-                                )
-                              }
-                              className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                              {sendingMessage ? (
-                                <>
-                                  <CircularProgress size={16} className="text-white" />
-                                  <span>Sending...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>Send</span>
-                                  <PaperPlaneTilt size={16} weight="fill" />
-                                </>
-                              )}
-                            </button>
+                            {/* Send: primary = Send Now, dropdown = Schedule (portal so not clipped by overflow) */}
+                            <div className="flex items-stretch h-10 mt-1 rounded-lg overflow-visible border border-transparent relative z-10">
+                              <button
+                                type="button"
+                                onClick={handleSendMessage}
+                                disabled={
+                                  sendingMessage ||
+                                  (composerMode === 'email'
+                                    ? (!hasTextContent(composerData.emailBody) || !selectedEmailAccount || !composerData.to)
+                                    : (!hasTextContent(composerData.smsBody) || !selectedPhoneNumber || !composerData.to)
+                                  )
+                                }
+                                className="h-full px-5 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 rounded-l-lg"
+                              >
+                                {sendingMessage ? (
+                                  <>
+                                    <CircularProgress size={16} className="text-white" />
+                                    <span>Sending...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>Send</span>
+                                    <PaperPlaneTilt size={16} weight="fill" />
+                                  </>
+                                )}
+                              </button>
+                              <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    const rect = scheduleDropdownAnchorRef.current?.getBoundingClientRect()
+                                    if (rect) setSendDropdownRect(rect)
+                                    setSendDropdownOpen((o) => !o)
+                                  }}
+                                  disabled={
+                                    sendingMessage ||
+                                    (composerMode === 'email'
+                                      ? (!hasTextContent(composerData.emailBody) || !selectedEmailAccount || !composerData.to)
+                                      : (!hasTextContent(composerData.smsBody) || !selectedPhoneNumber || !composerData.to)
+                                    )
+                                  }
+                                  className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
+                                  aria-label="Send options"
+                                  aria-expanded={sendDropdownOpen}
+                                  aria-haspopup="menu"
+                                >
+                                  <CaretDown size={16} weight="bold" />
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -2846,28 +2890,54 @@ const MessageComposer = ({
                             </span>
                           </div>
 
-                          {/* Send Button */}
-                          <button
-                            onClick={handleSendMessage}
-                            disabled={
-                              sendingMessage ||
-                              !hasTextContent(composerData.smsBody) ||
-                              (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
-                            }
-                            className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                          >
-                            {sendingMessage ? (
-                              <>
-                                <CircularProgress size={16} className="text-white" />
-                                <span>Sending...</span>
-                              </>
-                            ) : (
-                              <>
-                                <span>Send</span>
-                                <PaperPlaneTilt size={16} weight="fill" />
-                              </>
-                            )}
-                          </button>
+                          {/* Send: primary = Send Now, dropdown = Schedule (portal; ref shared with email) */}
+                          <div className="flex items-stretch h-10 mt-1 rounded-lg overflow-visible border border-transparent relative z-10">
+                            <button
+                              type="button"
+                              onClick={handleSendMessage}
+                              disabled={
+                                sendingMessage ||
+                                !hasTextContent(composerData.smsBody) ||
+                                (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
+                              }
+                              className="h-full px-5 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 rounded-l-lg"
+                            >
+                              {sendingMessage ? (
+                                <>
+                                  <CircularProgress size={16} className="text-white" />
+                                  <span>Sending...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Send</span>
+                                  <PaperPlaneTilt size={16} weight="fill" />
+                                </>
+                              )}
+                            </button>
+                            <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  const rect = scheduleDropdownAnchorRef.current?.getBoundingClientRect()
+                                  if (rect) setSendDropdownRect(rect)
+                                  setSendDropdownOpen((o) => !o)
+                                }}
+                                disabled={
+                                  sendingMessage ||
+                                  !hasTextContent(composerData.smsBody) ||
+                                  (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
+                                }
+                                className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
+                                aria-label="Send options"
+                                aria-expanded={sendDropdownOpen}
+                                aria-haspopup="menu"
+                              >
+                                <CaretDown size={16} weight="bold" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </>
@@ -2878,6 +2948,122 @@ const MessageComposer = ({
           </div>
         )}
       </div>
+
+      {/* Send dropdown (portal so not clipped by overflow-hidden); position above trigger */}
+      {sendDropdownOpen &&
+        typeof document !== 'undefined' &&
+        document.body &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 z-[9998]"
+              aria-hidden
+              onClick={() => {
+                setSendDropdownOpen(false)
+                setSendDropdownRect(null)
+              }}
+            />
+            {sendDropdownRect && (
+              <div
+                className="fixed z-[9999] min-w-[160px] py-1 bg-white border border-gray-200 rounded-lg shadow-lg"
+                role="menu"
+                style={{
+                  right: typeof window !== 'undefined' ? window.innerWidth - sendDropdownRect.right : 0,
+                  bottom: typeof window !== 'undefined' ? window.innerHeight - sendDropdownRect.top + 8 : 0,
+                }}
+              >
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
+                  onClick={() => {
+                    setSendDropdownOpen(false)
+                    setSendDropdownRect(null)
+                    handleSendMessage()
+                  }}
+                >
+                  <PaperPlaneTilt size={16} weight="fill" />
+                  Send now
+                </button>
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
+                  onClick={() => {
+                                        setSendDropdownOpen(false)
+                                        setSendDropdownRect(null)
+                                        const in5 = new Date(Date.now() + 5 * 60 * 1000)
+                                        setScheduleDate(in5.toISOString().slice(0, 10))
+                                        setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
+                                        setScheduleModalOpen(true)
+                  }}
+                >
+                  <CalendarBlank size={16} />
+                  Schedule
+                </button>
+              </div>
+            )}
+          </>,
+          document.body
+        )}
+
+      {/* Schedule message modal */}
+      <Dialog open={scheduleModalOpen} onOpenChange={(open) => !open && setScheduleModalOpen(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Schedule message</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <label htmlFor="schedule-date" className="text-sm font-medium text-gray-700">
+                Date
+              </label>
+              <input
+                id="schedule-date"
+                type="date"
+                value={scheduleDate}
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setScheduleDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="schedule-time" className="text-sm font-medium text-gray-700">
+                Time
+              </label>
+              <input
+                id="schedule-time"
+                type="time"
+                value={scheduleTime}
+                onChange={(e) => setScheduleTime(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setScheduleModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  if (!scheduleDate || !scheduleTime || !onScheduleMessage) return
+                  const at = new Date(`${scheduleDate}T${scheduleTime}`)
+                  if (isNaN(at.getTime()) || at.getTime() <= Date.now()) {
+                    toast.error('Please pick a future date and time')
+                    return
+                  }
+                  onScheduleMessage(at)
+                  setScheduleModalOpen(false)
+                }}
+              >
+                Schedule
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Email Account Confirmation Modal */}
       <Modal
