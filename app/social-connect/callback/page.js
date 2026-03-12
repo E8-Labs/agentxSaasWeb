@@ -70,9 +70,29 @@ export default function SocialConnectCallbackPage() {
     return () => clearTimeout(t)
   }, [])
 
+  const showCloseButton = message !== 'Completing connection...'
+
   return (
     <div style={{ padding: '2rem', fontFamily: 'system-ui', textAlign: 'center' }}>
       <p>{message}</p>
+      {showCloseButton && (
+        <button
+          type="button"
+          onClick={() => window.close()}
+          style={{
+            marginTop: '1rem',
+            padding: '0.5rem 1.25rem',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            backgroundColor: '#2563eb',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+          }}
+        >
+          Close
+        </button>
+      )}
     </div>
   )
 }
