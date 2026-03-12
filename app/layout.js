@@ -310,6 +310,18 @@ export default function RootLayout({ children }) {
                     root.style.setProperty('--secondary', secondaryHsl);
                     root.style.setProperty('--icon-filter', iconFilter);
                     
+                    // Conic glow palette (complementary, triadic, tetradic from primary)
+                    var paletteParts = primaryHsl.split(' ');
+                    var pH = parseFloat(paletteParts[0]) || 270;
+                    var pS = paletteParts[1] || '75%';
+                    var pL = paletteParts[2] || '50%';
+                    var wrapHue = function(deg) { return ((deg % 360) + 360) % 360; };
+                    root.style.setProperty('--brand-complementary', wrapHue(pH + 180) + ' ' + pS + ' ' + pL);
+                    root.style.setProperty('--brand-triadic-1', wrapHue(pH + 120) + ' ' + pS + ' ' + pL);
+                    root.style.setProperty('--brand-triadic-2', wrapHue(pH + 240) + ' ' + pS + ' ' + pL);
+                    root.style.setProperty('--brand-tetradic-1', wrapHue(pH + 90) + ' ' + pS + ' ' + pL);
+                    root.style.setProperty('--brand-tetradic-2', wrapHue(pH + 180) + ' ' + pS + ' ' + pL);
+                    
                     // Also update the default style tag to match branding (prevents any flash)
                     var defaultStyle = document.getElementById('brand-colors-default');
                     if (defaultStyle && defaultStyle.sheet) {

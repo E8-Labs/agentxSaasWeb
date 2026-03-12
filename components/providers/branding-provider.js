@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
+import { hexToHsl, calculateIconFilter, getBrandPaletteFromHex } from '@/utilities/colorUtils'
 
 /**
  * Client-side branding provider
@@ -111,7 +111,14 @@ export function BrandingProvider({ children }) {
       document.documentElement.style.setProperty('--primary', primaryHsl)
       document.documentElement.style.setProperty('--secondary', secondaryHsl)
       document.documentElement.style.setProperty('--icon-filter', iconFilter)
-      
+
+      const palette = getBrandPaletteFromHex(branding.primaryColor || '#7902DF')
+      document.documentElement.style.setProperty('--brand-complementary', palette.complementary)
+      document.documentElement.style.setProperty('--brand-triadic-1', palette.triadic1)
+      document.documentElement.style.setProperty('--brand-triadic-2', palette.triadic2)
+      document.documentElement.style.setProperty('--brand-tetradic-1', palette.tetradic1)
+      document.documentElement.style.setProperty('--brand-tetradic-2', palette.tetradic2)
+
       setBrandingLoaded(true)
     }
 
