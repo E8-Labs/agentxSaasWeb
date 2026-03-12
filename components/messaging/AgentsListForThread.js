@@ -14,10 +14,15 @@ const AGENTS_CACHE_KEY = PersistanceKeys.agentsListForMessaging;
 
 const AGENTS_LIST_CACHE_KEY = 'messaging_agents_list'
 
-function getCachedAgents() {
+function getCacheKey(userId) {
+  return userId ? `${AGENTS_LIST_CACHE_KEY}_${userId}` : AGENTS_LIST_CACHE_KEY
+}
+
+function getCachedAgents(userId = null) {
   if (typeof window === 'undefined') return null
   try {
-    const raw = localStorage.getItem(AGENTS_LIST_CACHE_KEY)
+    const key = getCacheKey(userId)
+    const raw = localStorage.getItem(key)
     if (!raw) return null
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed : null
@@ -26,10 +31,11 @@ function getCachedAgents() {
   }
 }
 
-function setCachedAgents(list) {
+function setCachedAgents(list, userId = null) {
   if (typeof window === 'undefined' || !Array.isArray(list)) return
   try {
-    localStorage.setItem(AGENTS_LIST_CACHE_KEY, JSON.stringify(list))
+    const key = getCacheKey(userId)
+    localStorage.setItem(key, JSON.stringify(list))
   } catch (e) {
     console.warn('AgentsListForThread: failed to cache agents', e)
   }
@@ -46,8 +52,10 @@ export default function AgentsListForThread({
   threadId,
   onSelectionSaved,
 }) {
-  const [agentsList, setAgentsList] = useState(() => getCachedAgents() ?? [])
-  const [loading, setLoading] = useState(!getCachedAgents())
+  // When agency/admin views a subaccount, selectedUser is the subaccount; scope cache by selectedUser.id
+  const contextUserId = selectedUser?.id ?? null
+  const [agentsList, setAgentsList] = useState(() => getCachedAgents(contextUserId) ?? [])
+  const [loading, setLoading] = useState(!getCachedAgents(contextUserId))
   const [saving, setSaving] = useState(false)
   const listWrapRef = React.useRef(null)
   const [pill, setPill] = React.useState({ top: 0, height: 0 })
@@ -67,19 +75,6 @@ export default function AgentsListForThread({
   const handleListMouseLeave = () => setPillVisible(false)
 
   useEffect(() => {
-    // if (typeof window !== 'undefined') {
-    //   try {
-    //     const raw = localStorage.getItem(AGENTS_CACHE_KEY)
-    //     if (raw) {
-    //       const parsed = JSON.parse(raw)
-    //       if (Array.isArray(parsed)) setAgentsList(parsed)
-    //       return
-    //     }
-    //   } catch (_) {
-    //     // ignore cache read errors
-    //   }
-    // }
-
     const token = getToken()
     if (!token) {
       setLoading(false)
@@ -87,10 +82,17 @@ export default function AgentsListForThread({
       return
     }
 
-    const hasCache = getCachedAgents()?.length > 0
+    const cached = getCachedAgents(contextUserId)
+    const hasCache = cached?.length > 0
+    if (cached) setAgentsList(cached)
     if (!hasCache) setLoading(true)
 
-    fetch(`${Apis.getAgents}?pagination=false`, {
+    // When agency/admin is viewing a subaccount's messages, pass subaccount userId so backend returns that user's agents
+    const query = new URLSearchParams({ pagination: 'false' })
+    if (contextUserId) query.set('userId', String(contextUserId))
+    const apiUrl = `${Apis.getAgents}?${query.toString()}`
+
+    fetch(apiUrl, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -101,14 +103,14 @@ export default function AgentsListForThread({
       .then((data) => {
         const list = data?.data && Array.isArray(data.data) ? data.data : []
         setAgentsList(list)
-        setCachedAgents(list)
+        setCachedAgents(list, contextUserId)
       })
       .catch((err) => {
         console.error('Error fetching agents for thread:', err)
         if (!hasCache) setAgentsList([])
       })
       .finally(() => setLoading(false))
-  }, [threadId])
+  }, [threadId, contextUserId])
 
   const flatAgents = useMemo(() => {
     if (!Array.isArray(agentsList)) return []
