@@ -1,8 +1,9 @@
 import { Box, CircularProgress, Modal, Popover } from '@mui/material'
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
+import { MoreHorizontal } from 'lucide-react'
+import { CaretDown, CaretUp } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
 import { UserTypes } from '@/constants/UserTypes'
@@ -14,6 +15,52 @@ import VideoCard from '../createagent/VideoCard'
 import UserType from '../onboarding/UserType'
 import AddBuyerKyc from './AddBuyerKyc'
 import AddSellerKyc from './AddSellerKyc'
+
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      setStage('entering')
+      onEnter?.()
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = requestAnimationFrame(() => setStage('entered'))
+      })
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, timeout, onExited, onEnter])
+
+  const isEntering = stage === 'entering'
+  const style = {
+    opacity: isEntering || stage === 'exiting' ? 0 : 1,
+    transform: isEntering || stage === 'exiting' ? 'scale(0.95)' : 'scale(1)',
+    transition: `opacity ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1), transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+  }
+
+  return <div style={style}>{children}</div>
+}
+
+// Normalize category for display (API may return 'Needs'/'Motivation'/'Urgency' or 'need'/'motivation'/'urgency')
+const normalizeCategory = (c) => {
+  if (!c) return ''
+  const s = String(c).trim().toLowerCase()
+  return s === 'needs' ? 'need' : s
+}
 
 const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -35,6 +82,8 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [SellerUrgencyData, setSellerUrgencyData] = useState([])
   const [showSellerUrgencyData, setShowSellerUrgencyData] = useState(false)
   const [addSellerKyc, setAddSellerKyc] = useState(false)
+  const [sellerKycClosing, setSellerKycClosing] = useState(false)
+  const [sellerKycModalTitle, setSellerKycModalTitle] = useState('What would you like to ask sellers?')
 
   //directly open the desired add seeler question tab
   const [OpenSellerNeeds, setOpenSellerNeeds] = useState(false)
@@ -51,6 +100,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [BuyerUrgencyData, setBuyerUrgencyData] = useState([])
   const [showBuyerUrgencyData, setShowBuyerUrgencyData] = useState(false)
   const [addBuyerKyc, setAddBuyerKyc] = useState(false)
+  const [buyerKycClosing, setBuyerKycClosing] = useState(false)
 
   //directly open the desired add seeler question tab
   // const [OpenBuyerNeed, setOpenBuyerNeed] = useState(false);
@@ -128,16 +178,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         )
         // //console.log;
         // //console.log;
-        //code for seller kyc questions
+        //code for seller kyc questions (accept both 'Needs'/'need', etc.)
         const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-          (item) => item.category === 'need',
+          (item) => normalizeCategory(item.category) === 'need',
         )
         const filteredSellerMotivationQuestions =
           filteredSellerQuestions.filter(
-            (item) => item.category === 'motivation',
+            (item) => normalizeCategory(item.category) === 'motivation',
           )
         const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-          (item) => item.category === 'urgency',
+          (item) => normalizeCategory(item.category) === 'urgency',
         )
         // //console.log;
         setSellerNeedData(filteredSellerNeedQuestions)
@@ -147,13 +197,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         setSellerUrgencyData(filteredSellerUrgencyQuestions)
         //code for buyer kyc questions
         const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === 'need',
+          (item) => normalizeCategory(item.category) === 'need',
         )
         const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === 'motivation',
+          (item) => normalizeCategory(item.category) === 'motivation',
         )
         const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === 'urgency',
+          (item) => normalizeCategory(item.category) === 'urgency',
         )
         // //console.log;
         setBuyerNeedData(filteredBuyerNeedQuestions)
@@ -209,13 +259,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     )
     // //console.log;
     const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setSellerNeedData(filteredSellerNeedQuestions)
@@ -246,13 +296,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     // //console.log;
 
     const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setBuyerNeedData(filteredBuyerNeedQuestions)
@@ -275,13 +325,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     // //console.log;
     //code for seller kyc questions
     const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setSellerNeedData(filteredSellerNeedQuestions)
@@ -291,13 +341,13 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     setSellerUrgencyData(filteredSellerUrgencyQuestions)
     //code for buyer kyc questions
     const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'need',
+      (item) => normalizeCategory(item.category) === 'need',
     )
     const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'motivation',
+      (item) => normalizeCategory(item.category) === 'motivation',
     )
     const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === 'urgency',
+      (item) => normalizeCategory(item.category) === 'urgency',
     )
     // //console.log;
     setBuyerNeedData(filteredBuyerNeedQuestions)
@@ -359,11 +409,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       fontWeight: '700',
     },
     inputStyle: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '500',
     },
     dropdownMenu: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '500',
       color: '#00000070',
     },
@@ -432,13 +482,19 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
 
       /> */}
 
-      <div style={styles.headingStyle} className="mt-4">
+      <div style={styles.headingStyle} className="mt-4 py-3">
         {GetTitleForKyc()}
       </div>
-      <div className="border p-2 rounded-lg p-4 w-full mt-4">
-        <div className="flex flex-row items-center justify-between w-full">
-          <div style={styles.inputStyle}>Need</div>
+      <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+          onClick={() => setShowSellerNeedData(!showSellerNeedData)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowSellerNeedData(!showSellerNeedData); } }}
+        >
           <div className="flex flex-row items-center gap-2">
+            <div style={styles.inputStyle}>Need</div>
             <div
               className="border flex flex-row items-center justify-center"
               style={{
@@ -451,26 +507,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             >
               {SellerNeedData?.length}
             </div>
-            <button
-              onClick={() => {
-                setShowSellerNeedData(!showSellerNeedData)
-              }}
-            >
-              {showSellerNeedData ? (
-                <CaretUp size={25} weight="bold" />
-              ) : (
-                <CaretDown size={25} weight="bold" />
-              )}
-            </button>
           </div>
+          <span aria-hidden="true">
+            {showSellerNeedData ? (
+              <CaretUp size={14} weight="bold" />
+            ) : (
+              <CaretDown size={14} weight="bold" />
+            )}
+          </span>
         </div>
 
-        <div className="bg-[#98989810] p-2 mt-4">
+        <div className="bg-black/[0.02] p-2 px-3">
           {showSellerNeedData && (
             <div>
               {SellerNeedData.map((item, index) => (
                 <div key={index} className="">
-                  <div className="flex flex-row items-center justify-between ">
+                  <div className="flex flex-row items-center justify-between py-3 h-auto border-b border-[#eaeaea]">
                     <div style={styles.inputStyle}>{item.question}</div>
                     <button
                       aria-describedby={id}
@@ -478,7 +530,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         handleOpenPopover(event, item)
                       }}
                     >
-                      <DotsThree size={35} weight="bold" />
+                      <MoreHorizontal size={16} />
                     </button>
                     <Popover
                       id={id}
@@ -529,8 +581,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-brand-primary mt-4"
-            style={styles.inputStyle}
+            className="underline text-brand-primary mt-4 text-sm font-normal"
             onClick={() => {
               setOpenSellerNeeds(true)
               setAddSellerKyc(true)
@@ -541,10 +592,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         </div>
       </div>
 
-      <div className="border p-2 rounded-lg p-4 w-full mt-4">
-        <div className="flex flex-row items-center justify-between w-full">
-          <div style={styles.inputStyle}>Motivation</div>
+      <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+          onClick={() => setShowSellerMotivationData(!showSellerMotivationData)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowSellerMotivationData(!showSellerMotivationData); } }}
+        >
           <div className="flex flex-row items-center gap-2">
+            <div style={styles.inputStyle}>Motivation</div>
             <div
               className="border flex flex-row items-center justify-center"
               style={{
@@ -557,26 +614,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             >
               {SellerMotivationData?.length}
             </div>
-            <button
-              onClick={() => {
-                setShowSellerMotivationData(!showSellerMotivationData)
-              }}
-            >
-              {showSellerMotivationData ? (
-                <CaretUp size={25} weight="bold" />
-              ) : (
-                <CaretDown size={25} weight="bold" />
-              )}
-            </button>
           </div>
+          <span aria-hidden="true">
+            {showSellerMotivationData ? (
+              <CaretUp size={14} weight="bold" />
+            ) : (
+              <CaretDown size={14} weight="bold" />
+            )}
+          </span>
         </div>
 
-        <div className="mt-4 bg-[#98989810] p-2">
+        <div className="bg-black/[0.02] p-2 px-3">
           {showSellerMotivationData && (
             <div>
               {SellerMotivationData.map((item, index) => (
                 <div key={index}>
-                  <div className="flex flex-row items-center justify-between ">
+                  <div className="flex flex-row items-center justify-between py-3 h-auto border-b border-[#eaeaea]">
                     <div style={styles.inputStyle}>{item.question}</div>
                     <button
                       aria-describedby={id}
@@ -584,7 +637,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         handleOpenPopover(event, item)
                       }}
                     >
-                      <DotsThree size={35} weight="bold" />
+                      <MoreHorizontal size={16} />
                     </button>
                     <Popover
                       id={id}
@@ -635,8 +688,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-brand-primary mt-4"
-            style={styles.inputStyle}
+            className="underline text-brand-primary mt-4 text-sm font-normal"
             onClick={() => {
               setOpenSelerMotivation(true)
               setAddSellerKyc(true)
@@ -647,10 +699,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         </div>
       </div>
 
-      <div className="border p-2 rounded-lg p-4 w-full mt-4">
-        <div className="flex flex-row items-center justify-between w-full">
-          <div style={styles.inputStyle}>Urgency</div>
+      <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+          onClick={() => setShowSellerUrgencyData(!showSellerUrgencyData)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowSellerUrgencyData(!showSellerUrgencyData); } }}
+        >
           <div className="flex flex-row items-center gap-2">
+            <div style={styles.inputStyle}>Urgency</div>
             <div
               className="border flex flex-row items-center justify-center"
               style={{
@@ -663,26 +721,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             >
               {SellerUrgencyData?.length}
             </div>
-            <button
-              onClick={() => {
-                setShowSellerUrgencyData(!showSellerUrgencyData)
-              }}
-            >
-              {showSellerUrgencyData ? (
-                <CaretUp size={25} weight="bold" />
-              ) : (
-                <CaretDown size={25} weight="bold" />
-              )}
-            </button>
           </div>
+          <span aria-hidden="true">
+            {showSellerUrgencyData ? (
+              <CaretUp size={14} weight="bold" />
+            ) : (
+              <CaretDown size={14} weight="bold" />
+            )}
+          </span>
         </div>
 
-        <div className="mt-4 bg-[#98989810] p-2">
+        <div className="bg-black/[0.02] p-2 px-3">
           {showSellerUrgencyData && (
             <div>
               {SellerUrgencyData.map((item, index) => (
                 <div key={index}>
-                  <div className="flex flex-row items-center justify-between">
+                  <div className="flex flex-row items-center justify-between py-3 h-auto">
                     <div style={styles.inputStyle}>{item.question}</div>
                     <button
                       aria-describedby={id}
@@ -690,7 +744,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         handleOpenPopover(event, item)
                       }}
                     >
-                      <DotsThree size={35} weight="bold" />
+                      <MoreHorizontal size={16} />
                     </button>
                     <Popover
                       id={id}
@@ -743,8 +797,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-brand-primary mt-4"
-            style={styles.inputStyle}
+            className="underline text-brand-primary mt-4 text-sm font-normal"
             onClick={() => {
               setAddSellerKyc(true)
               setOpenSellerUrgency(true)
@@ -763,83 +816,112 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       {/* Modals code goes here */}
       <Modal
         open={addSellerKyc}
-        // onClose={() => setAddSellerKyc(false)}
+        onClose={() => setSellerKycClosing(true)}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            //backdropFilter: "blur(20px)",
-          },
+          timeout: 250,
+          sx: { backgroundColor: '#00000099' },
         }}
       >
         <Box
           className="sm:w-[760px] w-10/12 h-[85vh]"
           sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
-          <div className="flex flex-row justify-center w-full h-[100%]">
-            <div
-              className="w-full h-[100%]"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div className="flex flex-row justify-end items-center">
-                {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
-                <button
-                  onClick={() => {
-                    setAddSellerKyc(false)
-                    setOpenSelerMotivation(false)
-                    setOpenSellerUrgency(false)
-                    setOpenSellerNeeds(false)
+          <ScaleFadeTransition
+            in={addSellerKyc && !sellerKycClosing}
+            timeout={250}
+            onExited={() => {
+              setAddSellerKyc(false)
+              setSellerKycClosing(false)
+              setOpenSelerMotivation(false)
+              setOpenSellerUrgency(false)
+              setOpenSellerNeeds(false)
+            }}
+          >
+            <div className="flex flex-row justify-center w-full h-[100%]">
+              <div
+                className="w-[500px] flex flex-col gap-3 p-0 overflow-hidden"
+                style={{
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid #eaeaea',
+                  borderRadius: 12,
+                }}
+              >
+                <div
+                  className="flex flex-row justify-between items-center"
+                  style={{
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    paddingLeft: 16,
+                    paddingRight: 16,
+                    borderBottom: '1px solid #eaeaea',
                   }}
                 >
-                  <Image
-                    src={'/assets/crossIcon.png'}
-                    height={40}
-                    width={40}
-                    alt="*"
+                  <span
+                    className="text-left font-semibold"
+                    style={{ fontSize: 18 }}
+                  >
+                    {sellerKycModalTitle}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setSellerKycClosing(true)
+                      setOpenSelerMotivation(false)
+                      setOpenSellerUrgency(false)
+                      setOpenSellerNeeds(false)
+                    }}
+                  >
+                    <Image
+                      src={'/assets/crossIcon.png'}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <div style={{ padding: 1 }}>
+                  <AddSellerKyc
+                    onTitleReady={setSellerKycModalTitle}
+                    titleRenderedInHeader={true}
+                    mainAgentId={mainAgentId}
+                    hideTitle={true}
+                    handleCloseSellerKyc={handleCloseSellerKyc}
+                    handleAddSellerKycData={handleAddSellerKycData}
+                    OpenSellerNeeds={OpenSellerNeeds}
+                    OpenSelerMotivation={OpenSelerMotivation}
+                    OpenSellerUrgency={OpenSellerUrgency}
+                    SellerNeedData={SellerNeedData}
+                    SellerMotivationData={SellerMotivationData}
+                    SellerUrgencyData={SellerUrgencyData}
+                    allKYCs={kycsData}
+                    selectedUser={selectedUser}
                   />
-                </button>
+                </div>
               </div>
-
-              <AddSellerKyc
-                mainAgentId={mainAgentId}
-                hideTitle={true}
-                handleCloseSellerKyc={handleCloseSellerKyc}
-                handleAddSellerKycData={handleAddSellerKycData}
-                OpenSellerNeeds={OpenSellerNeeds}
-                OpenSelerMotivation={OpenSelerMotivation}
-                OpenSellerUrgency={OpenSellerUrgency}
-                //sending already existing questions
-                SellerNeedData={SellerNeedData}
-                SellerMotivationData={SellerMotivationData}
-                SellerUrgencyData={SellerUrgencyData}
-                allKYCs={kycsData}
-                selectedUser={selectedUser}
-              />
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
-          </div>
+          </ScaleFadeTransition>
         </Box>
       </Modal>
 
       {/* code for buyer kys */}
 
       {CanShowBuyerKycs() && (
-        <div style={styles.headingStyle} className="mt-4">
+        <div style={styles.headingStyle} className="mt-4 py-3">
           KYC - Buyer
         </div>
       )}
 
       {CanShowBuyerKycs() && (
         <>
-          <div className="border p-2 rounded-lg p-4 w-full mt-4">
-            <div className="flex flex-row items-center justify-between w-full">
+          <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+            <div
+              role="button"
+              tabIndex={0}
+              className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+              onClick={() => setShowBuyerNeedData(!showBuyerNeedData)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBuyerNeedData(!showBuyerNeedData); } }}
+            >
               <div style={styles.inputStyle}>Need</div>
               <div className="flex flex-row items-center gap-2">
                 <div
@@ -854,26 +936,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 >
                   {BuyerNeedData.length}
                 </div>
-                <button
-                  onClick={() => {
-                    setShowBuyerNeedData(!showBuyerNeedData)
-                  }}
-                >
+                <span aria-hidden="true">
                   {showBuyerNeedData ? (
-                    <CaretUp size={25} weight="bold" />
+                    <CaretUp size={14} weight="bold" />
                   ) : (
-                    <CaretDown size={25} weight="bold" />
+                    <CaretDown size={14} weight="bold" />
                   )}
-                </button>
+                </span>
               </div>
             </div>
 
-            <div className="mt-4 bg-[#98989810] p-2">
-              {showBuyerNeedData && (
+<div className="bg-black/[0.02] p-2 px-3">
+            {showBuyerNeedData && (
                 <div>
                   {BuyerNeedData.map((item, index) => (
                     <div key={index}>
-                      <div className="flex flex-row items-center justify-between">
+                      <div className="flex flex-row items-center justify-between py-3 h-auto">
                         <div>{item.question}</div>
                         <button
                           aria-describedby={buyerId}
@@ -881,7 +959,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
                         >
-                          <DotsThree size={35} weight="bold" />
+                          <MoreHorizontal size={16} />
                         </button>
                         <Popover
                           id={buyerId}
@@ -933,8 +1011,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-brand-primary"
-                style={styles.inputStyle}
+                className="underline text-brand-primary text-sm font-normal"
                 onClick={() => {
                   setAddBuyerKyc(true)
                 }}
@@ -944,10 +1021,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             </div>
           </div>
 
-          <div className="border p-2 rounded-lg p-4 w-full mt-4">
-            <div className="flex flex-row items-center justify-between w-full">
-              <div style={styles.inputStyle}>Motivation</div>
+          <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+            <div
+              role="button"
+              tabIndex={0}
+              className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+              onClick={() => setShowBuyerMotivationData(!showBuyerMotivationData)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBuyerMotivationData(!showBuyerMotivationData); } }}
+            >
               <div className="flex flex-row items-center gap-2">
+                <div style={styles.inputStyle}>Motivation</div>
                 <div
                   className="border flex flex-row items-center justify-center"
                   style={{
@@ -960,26 +1043,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 >
                   {BuyerMotivationData.length}
                 </div>
-                <button
-                  onClick={() => {
-                    setShowBuyerMotivationData(!showBuyerMotivationData)
-                  }}
-                >
-                  {showBuyerMotivationData ? (
-                    <CaretUp size={25} weight="bold" />
-                  ) : (
-                    <CaretDown size={25} weight="bold" />
-                  )}
-                </button>
               </div>
+              <span aria-hidden="true">
+                {showBuyerMotivationData ? (
+                  <CaretUp size={14} weight="bold" />
+                ) : (
+                  <CaretDown size={14} weight="bold" />
+                )}
+              </span>
             </div>
 
-            <div className="mt-4 bg-[#98989810] p-2">
-              {showBuyerMotivationData && (
+<div className="bg-black/[0.02] p-2 px-3">
+            {showBuyerMotivationData && (
                 <div>
                   {BuyerMotivationData.map((item, index) => (
                     <div key={index}>
-                      <div className="flex flex-row items-center justify-between ">
+                      <div className="flex flex-row items-center justify-between py-3 h-auto border-b border-[#eaeaea]">
                         <div>{item.question}</div>
                         <button
                           aria-describedby={buyerId}
@@ -987,7 +1066,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
                         >
-                          <DotsThree size={35} weight="bold" />
+                          <MoreHorizontal size={16} />
                         </button>
                         <Popover
                           id={buyerId}
@@ -1039,8 +1118,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-brand-primary"
-                style={styles.inputStyle}
+                className="underline text-brand-primary text-sm font-normal"
                 onClick={() => {
                   setAddBuyerKyc(true)
                   setOpenBuyerMotivation(true)
@@ -1051,10 +1129,16 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             </div>
           </div>
 
-          <div className="border p-2 rounded-lg p-4 w-full mt-4">
-            <div className="flex flex-row items-center justify-between w-full">
-              <div style={styles.inputStyle}>Urgency</div>
+          <div className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3">
+            <div
+              role="button"
+              tabIndex={0}
+              className="flex flex-row items-center justify-between w-full py-3 border-b border-[#eaeaea] cursor-pointer"
+              onClick={() => setShowBuyerUrgencyData(!showBuyerUrgencyData)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowBuyerUrgencyData(!showBuyerUrgencyData); } }}
+            >
               <div className="flex flex-row items-center gap-2">
+                <div style={styles.inputStyle}>Urgency</div>
                 <div
                   className="border flex flex-row items-center justify-center"
                   style={{
@@ -1067,26 +1151,22 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 >
                   {BuyerUrgencyData.length}
                 </div>
-                <button
-                  onClick={() => {
-                    setShowBuyerUrgencyData(!showBuyerUrgencyData)
-                  }}
-                >
-                  {showBuyerUrgencyData ? (
-                    <CaretUp size={25} weight="bold" />
-                  ) : (
-                    <CaretDown size={25} weight="bold" />
-                  )}
-                </button>
               </div>
+              <span aria-hidden="true">
+                {showBuyerUrgencyData ? (
+                  <CaretUp size={14} weight="bold" />
+                ) : (
+                  <CaretDown size={14} weight="bold" />
+                )}
+              </span>
             </div>
 
-            <div className="mt-4 bg-[#98989810] p-2">
-              {showBuyerUrgencyData && (
+<div className="bg-black/[0.02] p-2 px-3">
+            {showBuyerUrgencyData && (
                 <div>
                   {BuyerUrgencyData.map((item, index) => (
                     <div key={index}>
-                      <div className="flex flex-row items-center justify-between">
+                      <div className="flex flex-row items-center justify-between py-3 h-auto">
                         <div>{item.question}</div>
                         <button
                           aria-describedby={buyerId}
@@ -1094,7 +1174,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
                         >
-                          <DotsThree size={35} weight="bold" />
+                          <MoreHorizontal size={16} />
                         </button>
                         <Popover
                           id={buyerId}
@@ -1146,8 +1226,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-brand-primary"
-                style={styles.inputStyle}
+                className="underline text-brand-primary text-sm font-normal"
                 onClick={() => {
                   setAddBuyerKyc(true)
                   setOpenBuyerUrgency(true)
@@ -1196,65 +1275,86 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       {/* Add modals code */}
       <Modal
         open={addBuyerKyc}
-        // onClose={() => setAddBuyerKyc(false)}
+        onClose={() => setBuyerKycClosing(true)}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            //backdropFilter: "blur(20px)",
-          },
+          timeout: 250,
+          sx: { backgroundColor: '#00000099' },
         }}
       >
         <Box
           className="sm:w-[760px] h-[85vh]"
           sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
-          <div className="flex flex-row justify-center w-full h-[100%]">
-            <div
-              className="w-full h-[100%]"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div className="flex flex-row justify-end items-center">
-                {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
-                <button
-                  onClick={() => {
-                    setAddBuyerKyc(false)
-                    setAddBuyerKyc(false)
-                    setOpenBuyerMotivation(false)
-                    setOpenBuyerUrgency(false)
+          <ScaleFadeTransition
+            in={addBuyerKyc && !buyerKycClosing}
+            timeout={250}
+            onExited={() => {
+              setAddBuyerKyc(false)
+              setBuyerKycClosing(false)
+              setOpenBuyerMotivation(false)
+              setOpenBuyerUrgency(false)
+            }}
+          >
+            <div className="flex flex-row justify-center w-full h-[100%]">
+              <div
+                className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
+                style={{
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                  border: '1px solid #eaeaea',
+                  borderRadius: 12,
+                }}
+              >
+                <div
+                  className="flex flex-row justify-between items-center"
+                  style={{
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    paddingLeft: 16,
+                    paddingRight: 16,
+                    borderBottom: '1px solid #eaeaea',
                   }}
                 >
-                  <Image
-                    src={'/assets/crossIcon.png'}
-                    height={40}
-                    width={40}
-                    alt="*"
+                  <span
+                    className="text-left font-semibold"
+                    style={{ fontSize: 18 }}
+                  >
+                    What would you like to ask buyers?
+                  </span>
+                  <button
+                    onClick={() => {
+                      setBuyerKycClosing(true)
+                      setOpenBuyerMotivation(false)
+                      setOpenBuyerUrgency(false)
+                    }}
+                  >
+                    <Image
+                      src={'/assets/crossIcon.png'}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <div style={{ padding: 20 }}>
+                  <AddBuyerKyc
+                    titleRenderedInHeader={true}
+                    handleCloseSellerKyc={handleCloseSellerKyc}
+                    handleAddBuyerKycData={handleAddBuyerKycData}
+                    OpenBuyerMotivation={OpenBuyerMotivation}
+                    OpenBuyerUrgency={OpenBuyerUrgency}
+                    BuyerNeedData={BuyerNeedData}
+                    BuyerMotivationData={BuyerMotivationData}
+                    BuyerUrgencyData={BuyerUrgencyData}
+                    mainAgentId={mainAgentId}
+                    selectedUser={selectedUser}
+                    hideTitle={true}
                   />
-                </button>
+                </div>
               </div>
-
-              <AddBuyerKyc
-                handleCloseSellerKyc={handleCloseSellerKyc}
-                handleAddBuyerKycData={handleAddBuyerKycData}
-                OpenBuyerMotivation={OpenBuyerMotivation}
-                OpenBuyerUrgency={OpenBuyerUrgency}
-                BuyerNeedData={BuyerNeedData}
-                BuyerMotivationData={BuyerMotivationData}
-                BuyerUrgencyData={BuyerUrgencyData}
-                mainAgentId={mainAgentId}
-                selectedUser={selectedUser}
-                hideTitle={true}
-              />
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
-          </div>
+          </ScaleFadeTransition>
         </Box>
       </Modal>
     </div>

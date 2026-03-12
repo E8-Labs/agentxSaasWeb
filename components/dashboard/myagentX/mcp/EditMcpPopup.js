@@ -1,8 +1,11 @@
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
+import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
-import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { cn } from '@/lib/utils'
 
 export default function EditMcpPopup({
   open,
@@ -36,7 +39,6 @@ export default function EditMcpPopup({
     const value = e.target.value
     setMcpUrl(value)
 
-    // Basic check for https and valid URL structure
     try {
       const url = new URL(value)
       if (url.protocol !== 'https:') {
@@ -59,129 +61,150 @@ export default function EditMcpPopup({
       onClose={handleClose}
       closeAfterTransition
       BackdropProps={{
-        timeout: 1000,
-        sx: {
-          backgroundColor: '#00000020',
-          // //backdropFilter: "blur(5px)",
-        },
+        timeout: 250,
+        sx: { backgroundColor: '#00000099' },
+      }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
-      <Box className="w-4/12" sx={styles.modalsStyle}>
-        <div className="flex flex-row justify-center w-full">
+      <Fade in={open} timeout={250}>
+        <Box
+          className={cn(
+            'flex flex-col w-[400px] max-w-[90vw] overflow-hidden rounded-[12px] bg-white',
+          )}
+          sx={{
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            outline: 'none',
+            '@keyframes modalEnter': {
+              '0%': { transform: 'scale(0.95)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            animation:
+              'modalEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+          }}
+        >
+          {/* Header */}
           <div
-            className="w-full px-[30px] py-[20px]"
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '13px',
-            }}
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid #eaeaea' }}
           >
-            <div className="w-full flex flex-row items-center justify-between">
-              <div className="text-[17px] font-[600] text-black">Edit Tool</div>
-              <button
-                onClick={handleClose}
-                className="cursor-pointer px-3 py-3 rounded-full bg-[#00000005]"
-              >
-                <Image
-                  src="/assets/cross.png"
-                  alt="close"
-                  width={15}
-                  height={15}
-                />
-              </button>
-            </div>
+            <span
+              className="font-semibold"
+              style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
+            >
+              Edit Tool
+            </span>
+            <CloseBtn onClick={handleClose} />
+          </div>
 
-            <div className="w-full flex flex-col gap-2 mt-4">
-              <div className="text-[15px] font-[500] text-black mt-2">Name</div>
-
+          {/* Body */}
+          <div
+            className="flex flex-col gap-3 px-4 py-4"
+            style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+          >
+            <div>
+              <label className="block font-medium mb-1" style={{ fontSize: 14 }}>
+                Name
+              </label>
               <input
                 type="text"
                 placeholder="Type here..."
                 value={mcpName}
                 onChange={(e) => setMcpName(e.target.value)}
-                className="w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2"
+                className="w-full h-[40px] rounded-lg border border-input px-3 text-sm outline-none transition-colors focus:ring-2 focus:ring-[hsl(var(--brand-primary))] focus:border-[hsl(var(--brand-primary))]"
+                style={{ fontSize: 14 }}
               />
+            </div>
 
-              <div className="text-[15px] font-[500] text-black mt-3">
+            <div>
+              <label className="block font-medium mb-1" style={{ fontSize: 14 }}>
                 Server URL
-              </div>
+              </label>
               <input
                 type="text"
                 placeholder="Paste your mcp url here"
                 value={mcpUrl}
                 onChange={(e) => handleMcpUrlChange(e)}
-                className="w-full border border-gray-300 rounded-md p-2"
+                className="w-full h-[40px] rounded-lg border border-input px-3 text-sm outline-none transition-colors focus:ring-2 focus:ring-[hsl(var(--brand-primary))] focus:border-[hsl(var(--brand-primary))]"
+                style={{ fontSize: 14 }}
               />
-
               {mcpUrlError && (
-                <div style={{ color: 'red', fontSize: 12 }}>{mcpUrlError}</div>
+                <div className="mt-1" style={{ color: 'red', fontSize: 12 }}>
+                  {mcpUrlError}
+                </div>
               )}
+            </div>
 
-              <div className="flex flex-row items-center w-full justify-between mt-3">
-                <div className="text-[15px] font-[500] text-black">
+            <div>
+              <div className="flex flex-row items-center justify-between mb-1">
+                <label className="font-medium" style={{ fontSize: 14 }}>
                   Description
-                </div>
-
-                <div className="text-[14px] font-[400] text-black">
-                  {mcpDescription?.length}/1000
-                </div>
+                </label>
+                <span className="text-muted-foreground" style={{ fontSize: 14 }}>
+                  {mcpDescription?.length ?? 0}/1000
+                </span>
               </div>
-
               <textarea
                 placeholder="Describe when the AI should use this"
                 value={mcpDescription}
                 onChange={(e) => setMcpDescription(e.target.value)}
                 maxLength={1000}
+                className="w-full rounded-lg border border-input px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-[hsl(var(--brand-primary))] focus:border-[hsl(var(--brand-primary))] resize-none"
                 style={{
-                  fontSize: '15px',
-                  fontWeight: '500',
-                  height: '150px',
-                  border: '1px solid #00000020',
-                  resize: 'none',
-                  borderRadius: '13px',
+                  fontSize: 14,
+                  height: 120,
+                  border: '1px solid #eaeaea',
                 }}
-                className="w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2"
               />
-
-              <div className="w-full flex text-[15px] font-[500] flex-row items-center justify-between gap-8 mt-3">
-                {deleteMcpLoader ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    className="w-1/2 border text-black rounded-md p-2 h-[55px]"
-                    onClick={handleDeleteMcp}
-                  >
-                    Delete
-                  </button>
-                )}
-                {editMcpLoader ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    className="w-1/2 bg-brand-primary text-white rounded-md p-2 h-[55px]"
-                    onClick={handleEditMcp}
-                  >
-                    Save
-                  </button>
-                )}
-              </div>
             </div>
           </div>
-        </div>
-      </Box>
+
+          {/* Footer */}
+          <div
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderTop: '1px solid #eaeaea' }}
+          >
+            {deleteMcpLoader ? (
+              <div className="flex h-[40px] items-center justify-center">
+                <CircularProgress size={24} />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleDeleteMcp}
+                className={cn(
+                  'flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-medium',
+                  'bg-muted text-foreground hover:bg-muted/80',
+                  'transition-colors duration-150 active:scale-[0.98]',
+                )}
+              >
+                Delete
+              </button>
+            )}
+            {editMcpLoader ? (
+              <div className="flex h-[40px] items-center justify-center px-6">
+                <CircularProgress size={24} />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleEditMcp}
+                className={cn(
+                  'flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold',
+                  'bg-brand-primary text-white hover:opacity-90',
+                  'transition-all duration-150 active:scale-[0.98]',
+                )}
+              >
+                Save
+              </button>
+            )}
+          </div>
+        </Box>
+      </Fade>
     </Modal>
   )
-}
-
-const styles = {
-  modalsStyle: {
-    height: 'auto',
-    bgcolor: 'transparent',
-    // p: 2,
-    mx: 'auto',
-    my: '50vh',
-    transform: 'translateY(-50%)',
-    borderRadius: 2,
-    border: 'none',
-    outline: 'none',
-  },
 }

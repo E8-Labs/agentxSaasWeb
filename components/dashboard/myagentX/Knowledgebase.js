@@ -88,24 +88,23 @@ function Knowledgebase({ user, agent }) {
       )
     } else
       return (
-        <div className="flex flex-col items-center justify-center mt-5   p-8 ">
-          <div className="flex flex-col w-[100%] items-center justify-center mt-2 gap-4 p-2 rounded-lg">
+        <div className="flex flex-col items-center justify-center py-6 px-4">
+          <div className="flex flex-col w-full items-center justify-center gap-3 rounded-lg">
             <img
               src={'/assets/nokb.png'}
-              className=" object-fill "
+              className="object-fill"
               style={{ height: 97, width: 130 }}
               alt="No Knowledgebase"
             />
 
             <div
-              className="text-lg font-semibold text-gray-900 italic"
-              style={{}}
+              className="text-[14px] font-normal text-black/80"
             >
               No knowledge base added
             </div>
 
             <button
-              className="flex flex-row h-[54px] items-center gap-2 bg-brand-primary p-2 px-8 rounded-lg"
+              className="flex flex-row h-[40px] items-center gap-2 bg-brand-primary px-4 rounded-lg"
               onClick={() => {
                 if (
                   user?.planCapabilities.maxKnowledgeBases >

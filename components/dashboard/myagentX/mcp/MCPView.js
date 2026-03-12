@@ -404,7 +404,7 @@ function MCPView({
 
   const mcpView = () => {
     return (
-      <div className="flex flex-col w-full gap-3">
+      <div className="flex flex-col w-full">
         <AgentSelectSnackMessage
           type={showSnack.type}
           message={showSnack.message}
@@ -417,40 +417,24 @@ function MCPView({
             })
           }}
         />
-        <div className="flex flex-row items-center justify-between w-[97%]">
-          <div className="flex flex-row items-center gap-2">
-            {/*
-                            <div className="text-[15px] font-[600] ">
-                                Tools
-                            </div>
-                        */}
-
-            {/*
-                            <div className="flex flex-row items-center gap-2">
-                                <button className="border-none outline-none text-[13px] font-[500] text-brand-primary underline cursor-pointer flex flex-row items-center gap-2"
-                                    onClick={() => setIntroVideoModal2(true)}
-                                >
-                                    Learn how to add Tools
-                                    <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                                    // onClick={() => setIntroVideoModal2(true)}
-                                    />
-                                </button>
-                            </div>
-                        */}
-          </div>
+        {/* Header: firecrawl-style */}
+        <div
+          className="flex flex-row items-center justify-between px-4 py-3"
+          style={{ borderBottom: '1px solid #eaeaea' }}
+        >
+          <div className="flex flex-row items-center gap-2" />
           <button
-            className="text-[13px] font-[500] text-brand-primary hover:text-brand-primary/80 transition-colors"
+            className="text-sm font-medium text-brand-primary hover:opacity-90 transition-opacity"
+            style={{ fontSize: 14 }}
             onClick={() => {
               // Use backend-provided flags
               const planCapabilities = user?.planCapabilities || {}
               const shouldShowUpgrade = planCapabilities.shouldShowAllowToolsUpgrade === true
               const shouldShowRequestFeature = planCapabilities.shouldShowToolsRequestFeature === true
-              
+
               if (shouldShowUpgrade || shouldShowRequestFeature) {
-                // Show upgrade/request feature modal
                 setShowUpgradeModal(true)
               } else {
-                // User has access → Open add tool popup
                 setShowAddMcpPopup(true)
               }
             }}
@@ -490,44 +474,50 @@ function MCPView({
         />
 
         {showMcpLoader ? (
-          <div className="flex flex-col items-center justify-center w-full">
+          <div
+            className="flex flex-col items-center justify-center w-full px-4 py-4"
+            style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+          >
             <CircularProgress size={25} />
           </div>
         ) : (
           <div className="w-full">
             {mcpTools.length > 0 ? (
-              <div className="w-full flex flex-col items-center justify-center">
-                <FormControl sx={{ m: 1 }} className="w-[97%]">
+              <div
+                className="w-full flex flex-col px-4 py-4"
+                style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+              >
+                <FormControl className="w-full">
                   <button
-                    className="flex items-center justify-between border rounded px-2 py-1 cursor-pointer outline-none"
+                    type="button"
+                    className="flex items-center justify-between w-full rounded-lg border cursor-pointer outline-none px-3 transition-colors hover:border-[hsl(var(--brand-primary)/0.5)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[hsl(var(--brand-primary))] focus-within:ring-offset-0 focus-within:border-[hsl(var(--brand-primary))]"
                     style={{
-                      border: '1px solid #00000020',
-                      minHeight: '57px',
+                      border: '1px solid #eaeaea',
+                      minHeight: 40,
+                      fontSize: 14,
                     }}
                     onClick={() => setOpen((prev) => !prev)}
                   >
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 flex-1 min-w-0">
                       {selectedMcpIds.length === 0 ? (
                         <div
-                          className="border-none outline-none bg-transparent w-full"
-                          style={{ color: '#aaa' }}
-                        // onClick={() => setOpen((prev) => !prev)}
+                          className="border-none outline-none bg-transparent w-full text-left"
+                          style={{ color: '#9ca3af', fontSize: 14 }}
                         >
                           Select
                         </div>
                       ) : (
-                        <span className="text-[15px] font-[500] cursor-pointer">
-                          <div className="flex flex-wrap gap-2 py-2">
+                        <span className="font-medium cursor-pointer" style={{ fontSize: 14 }}>
+                          <div className="flex flex-wrap gap-2 py-1">
                             {mcpTools
                               .filter((item) => selectedMcpIds.includes(item.id))
                               .map((item, index) => (
                                 <div
                                   key={index}
-                                  className="flex items-center gap-2 bg-brand-primary text-white rounded-[15px] px-2 py-1" //bg-btngray
+                                  className="flex items-center gap-2 bg-brand-primary text-white rounded-lg px-2 py-1"
+                                  style={{ fontSize: 14 }}
                                 >
-                                  <span className="text-[15px] font-[500]">
-                                    {item.name}
-                                  </span>
+                                  {item.name}
                                 </div>
                               ))}
                           </div>
@@ -535,16 +525,12 @@ function MCPView({
                       )}
                     </div>
 
-                    <div
-                      // onClick={() => setOpen((prev) => !prev)}
-                      className="ml-2"
-                    >
+                    <div className="ml-2 flex-shrink-0" aria-hidden>
                       {open ? (
-                        <ArrowDropUpIcon size={16} sx={{ color: '#00000080' }} />
+                        <ArrowDropUpIcon sx={{ color: 'rgba(0,0,0,0.5)', fontSize: 20 }} />
                       ) : (
                         <ArrowDropDownIcon
-                          size={16}
-                          sx={{ color: '#00000080' }}
+                          sx={{ color: 'rgba(0,0,0,0.5)', fontSize: 20 }}
                         />
                       )}
                     </div>
@@ -567,6 +553,9 @@ function MCPView({
                           maxHeight: '30vh',
                           overflow: 'auto',
                           scrollbarWidth: 'none',
+                          border: '1px solid #eaeaea',
+                          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                          borderRadius: 12,
                         },
                       },
                     }}
@@ -581,32 +570,34 @@ function MCPView({
                         {attachMcpLoader === item.id ? (
                           <CircularProgress size={24} />
                         ) : (
-                          <div className="flex flex-row items-center justify-between w-full">
-                            <div className="flex flex-row items-center gap-3">
+                          <div className="flex flex-row items-center justify-between w-full gap-3 py-0.5">
+                            <div className="flex flex-row items-center gap-3 min-w-0 flex-1">
                               {selectedMcpIds.includes(item.id) ? (
                                 <div
-                                  className="bg-brand-primary flex flex-row items-center justify-center rounded"
-                                  style={{ height: '24px', width: '24px' }}
+                                  className="bg-brand-primary flex flex-row items-center justify-center rounded flex-shrink-0"
+                                  style={{ height: 20, width: 20 }}
                                 >
                                   <Image
                                     src={'/assets/whiteTick.png'}
-                                    height={8}
-                                    width={10}
-                                    alt="*"
+                                    height={6}
+                                    width={8}
+                                    alt=""
                                   />
                                 </div>
                               ) : (
                                 <div
-                                  className="bg-none border-2 rounded"
-                                  style={{ height: '24px', width: '24px' }}
-                                ></div>
+                                  className="bg-none border-2 rounded flex-shrink-0 border-input"
+                                  style={{ height: 20, width: 20 }}
+                                />
                               )}
-                              <div className="text-[15px] font-[500]">
+                              <span className="font-medium truncate" style={{ fontSize: 14 }}>
                                 {item.name}
-                              </div>
+                              </span>
                             </div>
                             <button
-                              className="text-[16px] font-[500] text-black underline"
+                              type="button"
+                              className="text-black underline flex-shrink-0 transition-opacity hover:opacity-80"
+                              style={{ fontSize: 14, fontWeight: 500 }}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 e.preventDefault()
@@ -623,8 +614,7 @@ function MCPView({
                   </Select>
                 </FormControl>
 
-
-                <div className="w-full mt-4 flex flex-col items-center justify-center">
+                <div className="w-full mt-6 flex flex-col items-center justify-center">
                   <div className="w-6/12">
                     <VideoCard
                       duration={(() => {
@@ -719,7 +709,10 @@ function MCPView({
 
   const noMcpView = ({ setShowAddMcpPopup }) => {
     return (
-      <div>
+      <div
+        className="px-4 py-4"
+        style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+      >
         <div className="flex flex-col items-center justify-center mb-4">
           {/* Icon Section */}
           <div className="flex items-center justify-center w-24 h-24 mt-3 rounded-lg">
@@ -732,7 +725,7 @@ function MCPView({
 
           {/* Text Section */}
           <div className="-mt-6 text-center">
-            <h3 className="text-[15] font-[400] text-gray-900 italic">
+            <h3 className="font-normal text-foreground italic" style={{ fontSize: 14 }}>
               No Tools added
             </h3>
             {/* <p className="mt-1 text-sm text-gray-500">

@@ -1,121 +1,89 @@
-import { Box, Modal } from '@mui/material'
-import Image from 'next/image'
+'use client'
+
+import { Box, Fade, Modal } from '@mui/material'
+
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 export const UpdateCadenceConfirmationPopup = ({
   showConfirmationPopuup,
   setShowConfirmationPopup,
   onContinue,
 }) => {
-  return (
-    <div>
-      <Modal
-        open={showConfirmationPopuup} //showConfirmationPopuup
-        onClose={() => {
-          setShowConfirmationPopup(false)
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-7/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-        >
-          <div style={{ width: '100%' }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: 'none' }}
-            >
-              <div
-                className="text-black"
-                style={{
-                  fontSize: 22,
-                  fontWeight: '600',
-                }}
-              >
-                {`Update Pipeline and Stages`}
-              </div>
+  const handleClose = () => setShowConfirmationPopup(false)
 
-              <div
-                className="text-black mt-4"
-                style={{
-                  fontSize: 15,
-                  fontWeight: '500',
-                }}
-              >
-                {`By updating this, you'll pause all calls assigned to this agent.`}
-              </div>
-            </div>
-            <div className="flex flex-row items-center justify-between gap-4 mt-6">
-              <button
-                className="w-6/12 h-[50px]"
-                onClick={() => {
-                  setShowConfirmationPopup(false)
-                }}
-              >
-                Cancel
-              </button>
-              <div className="w-6/12">
-                {/* {PauseLoader ? (
-                                    <div className="flex flex-row iems-center justify-center w-full mt-4">
-                                        <CircularProgress size={25} />
-                                    </div>
-                                ) : ( */}
-                <button
-                  className={`outline-none bg-brand-primary`}
-                  style={{
-                    color: 'white',
-                    height: '50px',
-                    borderRadius: '10px',
-                    width: '100%',
-                    fontWeight: 600,
-                    fontSize: '20',
-                  }}
-                  onClick={() => {
-                    onContinue()
-                  }}
-                >
-                  Continue
-                </button>
-                {/* )} */}
-              </div>
-            </div>
+  return (
+    <Modal
+      open={!!showConfirmationPopuup}
+      onClose={handleClose}
+      closeAfterTransition
+      BackdropProps={{
+        timeout: 250,
+        sx: { backgroundColor: '#00000099' },
+      }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Fade in={!!showConfirmationPopuup} timeout={250}>
+        <Box
+          className="flex w-[400px] max-w-[90vw] flex-col overflow-hidden rounded-[12px] bg-white"
+          sx={{
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            outline: 'none',
+            '@keyframes modalEnter': {
+              '0%': { transform: 'scale(0.95)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            animation: 'modalEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+          }}
+        >
+          {/* Header */}
+          <div
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid #eaeaea' }}
+          >
+            <span
+              className="font-semibold"
+              style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
+            >
+              Update Pipeline and Stages
+            </span>
+            <CloseBtn onClick={handleClose} />
+          </div>
+
+          {/* Body */}
+          <div
+            className="px-4 py-4"
+            style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+          >
+            By updating this, you'll pause all calls assigned to this agent.
+          </div>
+
+          {/* Footer */}
+          <div
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderTop: '1px solid #eaeaea' }}
+          >
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => onContinue()}
+              className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] outline-none"
+            >
+              Continue
+            </button>
           </div>
         </Box>
-      </Modal>
-    </div>
+      </Fade>
+    </Modal>
   )
-}
-
-const styles = {
-  text: {
-    fontSize: 15,
-    color: '#00000090',
-    fontWeight: '500',
-  },
-  text2: {
-    textAlignLast: 'left',
-    fontSize: 15,
-    // color: '#000000',
-    fontWeight: '500',
-    whiteSpace: 'nowrap', // Prevent text from wrapping
-    overflow: 'hidden', // Hide overflow text
-    textOverflow: 'ellipsis', // Add ellipsis for overflow text
-  },
-  modalsStyle: {
-    // height: "auto",
-    // height: "90svh",
-    bgcolor: 'transparent',
-    // p: 2,
-    mx: 'auto',
-    my: '50vh',
-    transform: 'translateY(-55%)',
-    borderRadius: 2,
-    border: 'none',
-    outline: 'none',
-  },
 }

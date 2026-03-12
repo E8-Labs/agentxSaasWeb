@@ -29,22 +29,20 @@ const VideoCard = ({
   horizontal = true,
   title,
   duration = "2 mins",
-  width = "80",
-  height = "180",
+  width = "60",
+  height = "60",
 }) => {
   const formattedDuration = formatDuration(duration);
   return (
     <div
       className={`flex ${horizontal ? "flex-row items-center" : "flex-col items-start"
-        } 
-    p-4 rounded-lg border border-brand-primary max-w-[300px] cursor-pointer bg-white`}
+        } gap-3 p-4 rounded-lg border border-[#eaeaea] w-full cursor-pointer bg-white shadow-sm hover:border-gray-200 transition-colors`}
       onClick={() => {
         playVideo();
       }}
     >
 
-     
-      {/* Video Thumbnail */}
+      {/* Video Thumbnail and "Show me how!" row */}
       <div className="flex flex-row items-start justify-between w-full">
         <div className="flex flex-row items-end gap-2">
           <div className="relative flex-shrink-0">
@@ -58,9 +56,17 @@ const VideoCard = ({
               style={{ objectFit: 'contain' }}
             />
           </div>
-          <div className="flex flex-col items-end justify-end gap-1">
-            <div className="flex px-2 py-1 rounded-full border min-w-[40px] border-brdColor ">
-              <p className="text-sm md:text-xs text-gray-600">{duration}</p>
+          <div className="flex flex-col items-start justify-start gap-1 w-full">
+            <div className="flex flex-row items-center gap-2 w-full">
+              <h3
+                className="font-medium text-gray-800 pb-0 w-full text-left"
+                style={{ fontSize: "15px" }}
+              >
+                {title}
+              </h3>
+              <div className="flex px-2 py-1 rounded-full border min-w-[40px] border-brdColor ">
+                <p className="text-sm md:text-xs text-gray-600">{duration}</p>
+              </div>
             </div>
             <div className="flex flex-row items-center gap-2 p-1 bg-[#00000010] rounded-lg">
               <Image
@@ -79,16 +85,6 @@ const VideoCard = ({
         </div>
 
         
-      </div>
- {/* Content Section */}
- <div className="flex flex-col items-start gap-3">
-        <h3
-          className="font-medium text-gray-800 pb-2"
-          style={{ fontSize: "15px" }}
-        >
-          {title}
-        </h3>
-
       </div>
 
     </div>

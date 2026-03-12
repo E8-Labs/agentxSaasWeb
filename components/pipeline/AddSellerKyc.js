@@ -3,7 +3,7 @@ import { Box, style } from '@mui/system'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
@@ -15,6 +15,45 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 import Apis from '../apis/Apis'
 import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
+
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      setStage('entering')
+      onEnter?.()
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = requestAnimationFrame(() => setStage('entered'))
+      })
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, timeout, onExited, onEnter])
+
+  const isEntering = stage === 'entering'
+  const style = {
+    opacity: isEntering || stage === 'exiting' ? 0 : 1,
+    transform: isEntering || stage === 'exiting' ? 'scale(0.95)' : 'scale(1)',
+    transition: `opacity ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1), transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+  }
+
+  return <div style={style}>{children}</div>
+}
 
 const AddSellerKyc = ({
   handleCloseSellerKyc,
@@ -29,6 +68,8 @@ const AddSellerKyc = ({
   mainAgentId,
   allKYCs,
   selectedUser = null,
+  onTitleReady,
+  titleRenderedInHeader = false,
 }) => {
   //console.log;
   //console.log
@@ -40,6 +81,7 @@ const AddSellerKyc = ({
 
   const [toggleClick, setToggleClick] = useState(1)
   const [addKYCQuestion, setAddKYCQuestion] = useState(false)
+  const [addKycQuestionClosing, setAddKycQuestionClosing] = useState(false)
   const [inputs, setInputs] = useState([
     { id: 1, value: '' },
     { id: 2, value: '' },
@@ -163,7 +205,8 @@ const AddSellerKyc = ({
       AuthToken = user.token
     }
     if (user) {
-      GetTitleBasedOnUserType()
+      const title = GetTitleBasedOnUserType()
+      if (titleRenderedInHeader && onTitleReady) onTitleReady(title)
       let profile = user.user
       let kycsneed = GetKycQuestionsForUser(profile.userType, 'seller', 'need')
       setNeedKYCQuestions(kycsneed)
@@ -516,7 +559,7 @@ const AddSellerKyc = ({
     setAddKYCQuestion(true)
   }
 
-  //close add kyc question modal
+  //close add kyc question modal (starts exit transition; onExited clears state)
   const handleClose = () => {
     setInputs([
       { id: 1, value: '' },
@@ -524,7 +567,7 @@ const AddSellerKyc = ({
       { id: 3, value: '' },
     ])
     setNewQuestion('')
-    setAddKYCQuestion(false)
+    setAddKycQuestionClosing(true)
   }
 
   //api call to add kyc
@@ -687,6 +730,10 @@ const AddSellerKyc = ({
 
       if (response) {
         if (response.data.status === true) {
+          setOldSelectedNeedKYC([...selectedNeedKYC])
+          setOldSelectedMotivationKYC([...selectedMotivationKyc])
+          setOldSelectedUrgencyKyc([...selectedUrgencyKyc])
+          setShouldSave(false)
           handleCloseSellerKyc()
           handleAddSellerKycData(response.data.data)
           // router.push("/buyerskycquestions")
@@ -765,19 +812,21 @@ const AddSellerKyc = ({
         hide={() => setShowErrorSnack(false)}
         message={showErrorSnack}
       />
-      <div className="w-full py-4 overflow-auto h-[90%] flex flex-col justify-between">
-        <div className="h-[62vh]" style={{ scrollbarWidth: 'none' }}>
+      <div className="w-full overflow-auto h-[90%] flex flex-col justify-between">
+        <div style={{ scrollbarWidth: 'none' }}>
           {/* header */}
           {/* <Header /> */}
           {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full">
-            <div
-              className="mt-6 w-11/12 md:text-3xl text-lg font-[600]"
-              style={{ textAlign: 'center' }}
-            >
-              {GetTitleBasedOnUserType()}
-            </div>
+          <div className="flex flex-col items-center p-0 w-full gap-3 px-4">
+            {!titleRenderedInHeader && (
+              <div
+                className="mt-6 w-11/12 md:text-3xl text-lg font-[600]"
+                style={{ textAlign: 'center' }}
+              >
+                {GetTitleBasedOnUserType()}
+              </div>
+            )}
             {!hideTitle && (
               <button
                 className="mt-10 underline text-brand-primary"
@@ -787,19 +836,28 @@ const AddSellerKyc = ({
                 {`I don't need questions for sellers`}
               </button>
             )}
-            <div className="flex flex-row items-center gap-10 mt-10">
-              {KYCQuestionType.map((item, index) => (
+            <div
+              className="flex flex-row items-center mt-4 rounded-xl p-1 gap-0 w-full h-10"
+              style={{
+                backgroundColor: '#F2F2F2',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              }}
+              role="tablist"
+              aria-label="Seller KYC question type"
+            >
+              {KYCQuestionType.map((item) => (
                 <button
                   key={item.id}
-                  className="pb-2"
+                  type="button"
+                  role="tab"
+                  aria-selected={item.id === toggleClick}
+                  className="flex-1 min-w-0 h-full rounded-lg font-medium text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 transition-all"
                   style={{
-                    ...styles.inputStyle,
-                    color: item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
-                    borderBottom: item.id === toggleClick ? '2px solid hsl(var(--brand-primary))' : '2px solid transparent',
+                    backgroundColor: item.id === toggleClick ? '#FFFFFF' : 'transparent',
+                    color: item.id === toggleClick ? '#333333' : '#828282',
+                    boxShadow: item.id === toggleClick ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
                   }}
-                  onClick={(e) => {
-                    handleToggleClick(item.id)
-                  }}
+                  onClick={(e) => handleToggleClick(item.id)}
                 >
                   {item.title}
                 </button>
@@ -807,11 +865,14 @@ const AddSellerKyc = ({
             </div>
 
             {toggleClick === 1 ? (
-              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
+              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {needKYCQuestions.map((item, index) => (
                   <button
-                    className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
+                    className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 w-full"
                     style={{
+                      paddingTop: 16,
+                      paddingBottom: 16,
+                      minHeight: 60,
                       border: selectedNeedKYC.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
@@ -820,13 +881,13 @@ const AddSellerKyc = ({
                       backgroundColor: selectedNeedKYC.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? 'hsl(var(--brand-primary) / 0.1)'
+                        ? 'hsl(var(--brand-primary) / 0.05)'
                         : '',
                     }}
                     key={index}
                     onClick={() => handleSelectNeedKYC(item)}
                   >
-                    <div style={{ width: '90%' }} className="text-start">
+                    <div style={{ width: '90%', fontSize: 14 }} className="text-start">
                       {item.question}
                     </div>
                     <div
@@ -844,13 +905,16 @@ const AddSellerKyc = ({
                 ))}
               </div>
             ) : toggleClick === 2 ? (
-              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
+              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {motivationKycQuestions.map((item, index) => (
                   <button
-                    className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
+                    className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 w-full"
                     key={index}
                     onClick={() => handleSelectMotivationKYC(item)}
                     style={{
+                      paddingTop: 16,
+                      paddingBottom: 16,
+                      minHeight: 60,
                       border: selectedMotivationKyc.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
@@ -859,11 +923,11 @@ const AddSellerKyc = ({
                       backgroundColor: selectedMotivationKyc.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? 'hsl(var(--brand-primary) / 0.1)'
+                        ? 'hsl(var(--brand-primary) / 0.05)'
                         : '',
                     }}
                   >
-                    <div style={{ width: '90%' }} className="text-start">
+                    <div style={{ width: '90%', fontSize: 14 }} className="text-start">
                       {item.question}
                     </div>
                     <div
@@ -881,7 +945,7 @@ const AddSellerKyc = ({
                 ))}
               </div>
             ) : toggleClick === 3 ? (
-              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
+              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {urgencyKycQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
@@ -896,11 +960,11 @@ const AddSellerKyc = ({
                       backgroundColor: selectedUrgencyKyc.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? 'hsl(var(--brand-primary) / 0.1)'
+                        ? 'hsl(var(--brand-primary) / 0.05)'
                         : '',
                     }}
                   >
-                    <div style={{ width: '90%' }} className="text-start">
+                    <div style={{ width: '90%', fontSize: 14 }} className="text-start">
                       {item.question}
                     </div>
                     <div
@@ -922,39 +986,53 @@ const AddSellerKyc = ({
             )}
 
             <button
-              className="mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary text-brand-primary"
-              style={{ fontWeight: '700', fontSize: 15 }}
+              className="mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary text-brand-primary h-8 text-sm font-normal"
               onClick={handleAddKyc}
             >
               Add Question
             </button>
             {/* Modal to add KYC */}
             <Modal
-              open={addKYCQuestion}
-              // onClose={() => setAddKYCQuestion(false)}
+              open={addKYCQuestion || addKycQuestionClosing}
+              onClose={handleClose}
               closeAfterTransition
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: '#00000030',
-                  //backdropFilter: "blur(20px)",
-                },
+                timeout: 250,
+                sx: { backgroundColor: '#00000099' },
               }}
             >
-              <Box
-                className="lg:w-5/12 sm:w-full w-8/12"
-                sx={styles.AddNewKYCQuestionModal}
+              <ScaleFadeTransition
+                in={addKYCQuestion && !addKycQuestionClosing}
+                timeout={250}
+                onExited={() => {
+                  setAddKYCQuestion(false)
+                  setAddKycQuestionClosing(false)
+                }}
               >
-                <div className="flex flex-row justify-center w-full">
+                <div className="flex flex-row justify-center items-center w-full h-[100svh] min-h-[100svh]">
                   <div
-                    className="w-full"
+                    className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
                     style={{
                       backgroundColor: '#ffffff',
-                      padding: 20,
-                      borderRadius: '13px',
+                      boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                      border: '1px solid #eaeaea',
+                      borderRadius: 12,
                     }}
                   >
-                    <div className="flex flex-row justify-end">
+                    <div
+                      className="flex flex-row items-center justify-between w-full"
+                      style={{
+                        padding: '12px 16px',
+                        borderBottom: '1px solid #eaeaea',
+                      }}
+                    >
+                      <div
+                        className="text-left"
+                        style={{ fontWeight: '700', fontSize: 18 }}
+                      >
+                        New Question
+                      </div>
                       <button onClick={handleClose}>
                         <Image
                           src={'/assets/crossIcon.png'}
@@ -965,12 +1043,6 @@ const AddSellerKyc = ({
                       </button>
                     </div>
                     <div
-                      className="text-center mt-2"
-                      style={{ fontWeight: '700', fontSize: 24 }}
-                    >
-                      New Question
-                    </div>
-                    <div
                       className="text-[#00000060] mx-2"
                       style={{ fontWeight: '600', fontSize: 13 }}
                     >
@@ -978,7 +1050,7 @@ const AddSellerKyc = ({
                     </div>
                     <div className="mt-2">
                       <input
-                        className="border outline-none w-full p-2 rounded-lg px-3 mx-2 focus:outline-none focus:ring-0"
+                        className="border outline-none w-full rounded-lg px-3 mx-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary h-10"
                         style={{
                           fontWeight: '500',
                           fontSize: 15,
@@ -1034,14 +1106,16 @@ const AddSellerKyc = ({
                                             }
                                         </div> */}
 
-                    <div className="w-full h-[80px]">
+                    <div
+                      className="w-full"
+                      style={{ padding: '12px 16px' }}
+                    >
                       {
                         // inputs.filter((input) => input.value.trim() !== "")
                         //   .length === 3 &&
                         newQuestion ? (
                           <button
-                            className="bg-brand-primary outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
-                            style={{ ...styles.headingStyle, height: '50px' }}
+                            className="bg-brand-primary outline-none border-none rounded-lg text-white w-full mt-4 mx-2 h-8 text-sm font-normal"
                             onClick={handleAddKycQuestion}
                           >
                             Add Question
@@ -1049,8 +1123,7 @@ const AddSellerKyc = ({
                         ) : (
                           <button
                             disabled={true}
-                            className="bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2"
-                            style={{ ...styles.headingStyle, height: '50px' }}
+                            className="bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2 h-8 text-sm font-normal"
                             onClick={handleAddKycQuestion}
                           >
                             Add Question
@@ -1066,28 +1139,25 @@ const AddSellerKyc = ({
                     {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                   </div>
                 </div>
-              </Box>
+              </ScaleFadeTransition>
             </Modal>
           </div>
         </div>
-        <div className="mt-8 flex flex-row justify-center">
+        <div className="mt-8 flex flex-row justify-center py-3">
           {sellerKycLoader ? (
             <div className="flex flex-row justify-center">
               <CircularProgress />
             </div>
           ) : (
-            <div className="w-full flex flex-row item-center justify-center">
-              {shouldSave ? (
-                <button
-                  className="bg-brand-primary text-white rounded-lg w-10/12 md:w-8/12  lg:w-6/12 h-[50px]"
-                  style={styles.headingStyle}
-                  onClick={handleAddNewKyc}
-                >
-                  Save
-                </button>
-              ) : (
-                <div></div>
-              )}
+            <div className="w-full flex flex-row items-center justify-center py-3">
+              <button
+                className="bg-brand-primary text-white rounded-lg w-10/12 md:w-8/12 lg:w-6/12 h-10 min-h-[40px] font-medium transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={styles.headingStyle}
+                onClick={handleAddNewKyc}
+                disabled={!shouldSave}
+              >
+                Save
+              </button>
             </div>
           )}
         </div>
