@@ -639,19 +639,36 @@ const PipelineAndStage = ({
           <span className="font-medium" style={{ color: 'rgba(0, 0, 0, 0.9)' }}>
             Stages
           </span>
-          {leadStageLoading ? (
-            <CircularProgress size={20} />
-          ) : (
-            <span>
-              {leadStageTitle ||
-                (selectedLead || selectedUser)?.PipelineStages?.stageTitle ||
-                (selectedLead || selectedUser)?.stage?.stageTitle ||
-                (typeof (selectedLead || selectedUser)?.stage === 'string' ? (selectedLead || selectedUser)?.stage : null) ||
-                (selectedLead || selectedUser)?.pipelineStage?.stageTitle ||
-                agentCadence[0]?.cadence?.stage?.stageTitle ||
-                '-'}
-            </span>
-          )}
+          <div className="flex flex-row items-center gap-3">
+            {leadStageLoading ? (
+              <CircularProgress size={20} />
+            ) : (
+              <span className="hidden" aria-hidden>
+                {leadStageTitle ||
+                  (selectedLead || selectedUser)?.PipelineStages?.stageTitle ||
+                  (selectedLead || selectedUser)?.stage?.stageTitle ||
+                  (typeof (selectedLead || selectedUser)?.stage === 'string'
+                    ? (selectedLead || selectedUser)?.stage
+                    : null) ||
+                  (selectedLead || selectedUser)?.pipelineStage?.stageTitle ||
+                  agentCadence[0]?.cadence?.stage?.stageTitle ||
+                  '-'}
+              </span>
+            )}
+            {agentCadence.length > 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowConfirmationPopup(true)
+                }}
+                className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-brand-primary outline-none transition-colors duration-150 hover:underline focus:bg-brand-primary/10 focus:text-brand-primary active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0"
+              >
+                <Pencil size={16} strokeWidth={2} />
+                Update
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Body: Cadence accordions */}
@@ -676,7 +693,7 @@ const PipelineAndStage = ({
                     className="w-full flex flex-row items-center justify-between py-3 px-4 text-sm font-medium border-none bg-white hover:bg-black/[0.02] active:scale-[0.99] transition-all duration-150"
                     style={{ color: 'rgba(0, 0, 0, 0.9)' }}
                   >
-                    <span>Cadence</span>
+                    <span>{stage?.cadence?.stage?.stageTitle || 'Cadence'}</span>
                     {expandedStages.includes(stage?.cadence?.id) ? (
                       <ChevronUp size={18} />
                     ) : (
@@ -798,21 +815,6 @@ const PipelineAndStage = ({
                   )}
                 </div>
               ))}
-              {agentCadence.length > 0 && (
-                <div className="flex flex-row items-center gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowConfirmationPopup(true)
-                    }}
-                    className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-brand-primary outline-none transition-colors duration-150 hover:underline focus:bg-brand-primary/10 focus:text-brand-primary active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0"
-                  >
-                    <Pencil size={16} strokeWidth={2} />
-                    Update
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>

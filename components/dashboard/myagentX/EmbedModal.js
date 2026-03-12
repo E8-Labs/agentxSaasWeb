@@ -386,17 +386,17 @@ const EmbedModal = ({
         className="flex flex-row justify-center w-full max-w-[900px] mx-auto"
         sx={styles.modalsStyle}
       >
-        <div
+          <div
           className="flex flex-row w-full overflow-hidden rounded-[12px] bg-white"
-          style={{
+            style={{
             boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
             border: '1px solid #eaeaea',
-            maxHeight: '90vh',
-          }}
-        >
-          {/* Left Side - Configuration */}
+              maxHeight: '90vh',
+            }}
+          >
+            {/* Left Side - Configuration */}
           <div className="flex flex-col w-[450px] shrink-0 overflow-y-auto">
-            {/* Header */}
+              {/* Header */}
             <div className="px-4 py-3">
               <p className="text-[18px] font-semibold leading-[1.2] text-black tracking-[-0.36px]">
                 {agentName ? `${agentName.charAt(0).toUpperCase() + agentName.slice(1)} | ` : ''}Embed Agent
@@ -473,7 +473,7 @@ const EmbedModal = ({
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-col gap-2 flex-1 min-w-0 py-2">
                     <p className="text-sm font-normal text-black">
-                      Require users to complete a form?
+                    Require users to complete a form?
                     </p>
                     <p className="text-sm font-normal text-muted-foreground">
                       This prompts users to fill out a form before they engage in a conversation with your AI.
@@ -488,8 +488,8 @@ const EmbedModal = ({
                         color: 'hsl(var(--brand-primary))',
                       },
                       '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                        backgroundColor: 'hsl(var(--brand-primary))',
-                      },
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                        },
                       margin: 0,
                       flexShrink: 0,
                     }}
@@ -594,49 +594,49 @@ const EmbedModal = ({
                 </button>
               </div>
             </div>
-          </div>
+            </div>
 
-          {/* Right Side - Preview */}
+            {/* Right Side - Preview */}
           <div className="flex-1 min-w-0 relative flex flex-col items-center justify-center p-4 bg-brand-primary overflow-hidden">
             <div className="absolute top-4 right-4 z-10">
-              <CloseBtn
+                  <CloseBtn
                 showWhiteCross
                 className="rounded-[20px] p-2 bg-black/[0.02] hover:bg-black/5 transition-colors"
                 iconSize={16}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onClose()
-                }}
-              />
-            </div>
-            <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onClose()
+                    }}
+                  />
+                </div>
+                <button
               type="button"
               className="flex items-center gap-2 px-4 py-4 rounded-[130px] bg-white shadow-[0px_19.462px_23.224px_0px_rgba(0,0,0,0.09)] cursor-default pointer-events-none"
-            >
-              <div
+                >
+                  <div
                 className="w-8 h-8 rounded-full shrink-0 bg-cover bg-center bg-no-repeat"
-                style={{
-                  backgroundImage: logoPreview
-                    ? `url(${logoPreview})`
-                    : 'url(/thumbOrbSmall.png)',
-                  border: logoPreview ? 'none' : '1px solid #e0e0e0',
-                }}
-              />
+                    style={{
+                      backgroundImage: logoPreview
+                        ? `url(${logoPreview})`
+                        : 'url(/thumbOrbSmall.png)',
+                      border: logoPreview ? 'none' : '1px solid #e0e0e0',
+                    }}
+                  />
               <span className="text-[24px] font-normal leading-[1.2] text-black tracking-[-1.2px]">
-                {buttonLabel}
-              </span>
-            </button>
-          </div>
-        </div>
+                    {buttonLabel}
+                  </span>
+                </button>
+              </div>
+            </div>
 
-        {/* Snackbar */}
-        <AgentSelectSnackMessage
-          isVisible={snackbar.isVisible}
-          title={snackbar.title}
-          message={snackbar.message}
-          type={snackbar.type}
-          hide={hideSnackbar}
-        />
+            {/* Snackbar */}
+            <AgentSelectSnackMessage
+              isVisible={snackbar.isVisible}
+              title={snackbar.title}
+              message={snackbar.message}
+              type={snackbar.type}
+              hide={hideSnackbar}
+            />
       </Box>
     </Modal>
   );

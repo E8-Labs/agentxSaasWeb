@@ -22,7 +22,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Calendar, ChevronDown, Code, Hourglass, MessageCircleMore, SquareArrowOutUpRight, Webhook, X, Zap } from 'lucide-react'
+import { Calendar, Check, ChevronDown, ChevronUp, Code, Hourglass, MessageCircleMore, SquareArrowOutUpRight, Webhook, X, Zap } from 'lucide-react'
 import { ArrowUpRight, Info, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import imageCompression from 'browser-image-compression'
@@ -32,7 +32,7 @@ import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import PhoneInput from 'react-phone-input-2'
 
@@ -599,6 +599,8 @@ function Page() {
   //code for storing the agents data
   const [hasMoreAgents, setHasMoreAgents] = useState(true)
   const [agentsListSeparated, setAgentsListSeparated] = useState([]) //agentsListSeparated: Inbound and outbound separated. Api gives is under one main agent
+  const [sortBy, setSortBy] = useState(null) // null | 'all' | 'inbound' | 'outbound' for Sort By dropdown
+  const [sortByMenuAnchor, setSortByMenuAnchor] = useState(null)
   const [agentsList, setAgentsList] = useState([])
   //agents before search
   const [agentsBeforeSearch, setAgentsBeforeSearch] = useState([])
@@ -3493,6 +3495,16 @@ function Page() {
     }
   }
 
+  // Filter agents by sortBy (all / inbound / outbound) for Sort By dropdown
+  const filteredAgentsList = useMemo(() => {
+    if (sortBy === null || sortBy === 'all') return agentsListSeparated
+    return agentsListSeparated.filter(
+      (main) =>
+        main.agentType === sortBy ||
+        main.agents?.some((a) => a.agentType === sortBy),
+    )
+  }, [agentsListSeparated, sortBy])
+
   //function to add new agent by more agents popup
   const handleAddAgentByMoreAgentsPopup = () => {
     try {
@@ -4157,10 +4169,12 @@ function Page() {
               </div>
             }
             showTasks={true}
-            rightContent={
-              <div className="flex flex-row items-center gap-1 flex-shrink-0 border rounded-full px-4 h-[35px]">
+          />
+          </div>
+          <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3">
+            <div className="search-input-wrapper flex flex-row items-center gap-3 flex-shrink-0 border rounded-lg overflow-hidden h-[40px] w-full max-w-[400px] pl-3 pr-2">
                 <input
-                  className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+                className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 min-w-0 text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
                   placeholder="Search an agent"
                   value={search}
                   onChange={(e) => {
@@ -4171,7 +4185,6 @@ function Page() {
                       setCanKeepLoading(false)
                     }
 
-                    // Clear existing timeout to prevent memory leaks
                     if (searchTimeoutRef.current) {
                       clearTimeout(searchTimeoutRef.current)
                     }
@@ -4181,21 +4194,166 @@ function Page() {
                     }, 500)
                   }}
                 />
-                <button className="outline-none border-none">
+              <button type="button" className="outline-none border-none flex-shrink-0">
                   <Image
                     src={'/assets/searchIcon.png'}
-                    height={24}
-                    width={24}
-                    alt="*"
+                  height={18}
+                  width={18}
+                  alt="Search"
                   />
                 </button>
               </div>
-            }
-          />
+            <button
+              type="button"
+              onClick={(e) => setSortByMenuAnchor(e.currentTarget)}
+              className="mb-1 w-auto h-10 px-3 py-3 rounded-lg bg-black/[0.02] hover:opacity-70 transition-opacity outline-none relative flex-shrink-0 flex items-center justify-center gap-1.5 text-sm font-medium text-foreground"
+            >
+              <span>
+                {sortBy === null
+                  ? 'Sort By'
+                  : `Sort By: ${sortBy === 'all' ? 'All' : sortBy === 'inbound' ? 'Inbound' : 'Outbound'}`}
+              </span>
+              {sortByMenuAnchor ? (
+                <ChevronUp size={16} className="shrink-0 opacity-80" />
+              ) : (
+                <ChevronDown size={16} className="shrink-0 opacity-80" />
+              )}
+            </button>
+            <Menu
+              anchorEl={sortByMenuAnchor}
+              open={Boolean(sortByMenuAnchor)}
+              onClose={() => setSortByMenuAnchor(null)}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              TransitionProps={{
+                timeout: 250,
+              }}
+              slotProps={{
+                paper: {
+                  className: 'firecrawl-sort-menu-paper',
+                  sx: {
+                    padding: '1px',
+                    border: '1px solid #eaeaea',
+                    boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    minWidth: 200,
+                    '@keyframes sortMenuEnter': {
+                      '0%': { opacity: 0, transform: 'scale(0.95)' },
+                      '100%': { opacity: 1, transform: 'scale(1)' },
+                    },
+                    animation: 'sortMenuEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                  },
+                },
+              }}
+              sx={{
+                '& .MuiPaper-root': {
+                  mt: 1.5,
+                },
+                '& .MuiList-root': {
+                  padding: 0,
+                },
+              }}
+            >
+              <div
+                className="flex flex-row items-center justify-between px-4 py-[12px]"
+                style={{ borderBottom: '1px solid #eaeaea' }}
+              >
+                <span
+                  className="font-semibold"
+                  style={{ fontSize: 14, color: 'rgba(0,0,0,0.9)' }}
+                >
+                  Sort by
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSortByMenuAnchor(null)}
+                  className="rounded flex items-center justify-center w-8 h-8 bg-transparent hover:bg-black/[0.05] transition-colors duration-150"
+                  aria-label="Close"
+                >
+                  <X size={14} className="opacity-80" />
+                </button>
+              </div>
+              <MenuItem
+                onClick={() => {
+                  setSortBy('all')
+                  setSortByMenuAnchor(null)
+                }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  py: 1.25,
+                  px: 2,
+                  fontSize: 14,
+                  minHeight: 'unset',
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+                  color:
+                    sortBy === null || sortBy === 'all'
+                      ? 'hsl(var(--brand-primary))'
+                      : 'rgba(0,0,0,0.8)',
+                }}
+              >
+                All
+                {sortBy === 'all' && (
+                  <Check size={18} className="flex-shrink-0" strokeWidth={2.5} />
+                )}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setSortBy('inbound')
+                  setSortByMenuAnchor(null)
+                }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  py: 1.25,
+                  px: 2,
+                  fontSize: 14,
+                  minHeight: 'unset',
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+                  color:
+                    sortBy === 'inbound'
+                      ? 'hsl(var(--brand-primary))'
+                      : 'rgba(0,0,0,0.8)',
+                }}
+              >
+                Inbound
+                {sortBy === 'inbound' && (
+                  <Check size={18} className="flex-shrink-0" strokeWidth={2.5} />
+                )}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setSortBy('outbound')
+                  setSortByMenuAnchor(null)
+                }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  py: 1.25,
+                  px: 2,
+                  fontSize: 14,
+                  minHeight: 'unset',
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' },
+                  color:
+                    sortBy === 'outbound'
+                      ? 'hsl(var(--brand-primary))'
+                      : 'rgba(0,0,0,0.8)',
+                }}
+              >
+                Outbound
+                {sortBy === 'outbound' && (
+                  <Check size={18} className="flex-shrink-0" strokeWidth={2.5} />
+                )}
+              </MenuItem>
+            </Menu>
           </div>
           <div
             id="agentsPageScrollContent"
-            className={`flex min-h-0 flex-1 flex-col overflow-auto w-full items-center ${agentsListSeparated.length > 0 ? 'pb-[170px]' : ''}`}
+            className={`flex min-h-0 flex-1 flex-col overflow-auto w-full items-center ${filteredAgentsList.length > 0 ? 'pb-[170px]' : ''}`}
           >
             {/* code for agents list */}
             {initialLoader ? (
@@ -4206,7 +4364,7 @@ function Page() {
             ) : (
               <AgentsListPaginated
                 oldAgentsList={oldAgentsList}
-                agentsListSeparatedParam={agentsListSeparated}
+                agentsListSeparatedParam={filteredAgentsList}
                 selectedImagesParam={selectedImages}
                 handlePopoverClose={handlePopoverClose}
                 user={user}
@@ -4246,15 +4404,17 @@ function Page() {
             )}
           </div>
 
-          {/* Add New Agent bar - fixed to bottom, above scrollable content */}
+          {/* Add New Agent bar - fixed to bottom, center-aligned (margin auto, no 366px) */}
           {agentsListSeparated.length > 0 && (
             <div
-              className="fixed bottom-0 left-[250px] right-0 z-10 flex w-full flex-col items-center justify-center bg-white p-4"
+              className="fixed bottom-0 left-[250px] right-0 z-10 flex w-full flex-col items-center justify-center bg-white px-12 pr-[160px] py-4"
               style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
             >
               <div
                 className="agents-add-new-bar-inner flex min-h-[70px] w-full max-w-[1028px] flex-shrink-0 cursor-pointer items-center justify-center rounded-[10px] py-6"
                 style={{
+                  margin: 'auto',
+                  marginLeft: -24,
                   border: '1px dashed hsl(var(--brand-primary))',
                   boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
                   backgroundColor: '#FBFCFF',
@@ -4400,8 +4560,8 @@ function Page() {
               <Box
                 className="flex w-[400px] max-w-[90vw] max-h-[80vh] flex-col overflow-hidden rounded-[12px] bg-white"
                 sx={{
-                  boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
-                  border: '1px solid #eaeaea',
+                      boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                      border: '1px solid #eaeaea',
                   outline: 'none',
                   '@keyframes modalEnter': {
                     '0%': { transform: 'scale(0.95)' },
@@ -4413,62 +4573,62 @@ function Page() {
                 {/* Header */}
                 <div
                   className="flex flex-row items-center justify-between px-4 py-3 flex-shrink-0 flex-wrap gap-2"
-                  style={{ borderBottom: '1px solid #eaeaea' }}
-                >
-                  <div className="flex flex-row items-center gap-2 flex-wrap">
+                    style={{ borderBottom: '1px solid #eaeaea' }}
+                  >
+                    <div className="flex flex-row items-center gap-2 flex-wrap">
                     <span
                       className="font-semibold"
                       style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
                     >
-                      Tryout Test
+                        Tryout Test
                     </span>
-                    {!selectedAgent?.phoneNumber && (
-                      <div className="flex flex-row items-center gap-2">
-                        <Image
+                      {!selectedAgent?.phoneNumber && (
+                        <div className="flex flex-row items-center gap-2">
+                          <Image
                           src="/assets/warningFill.png"
-                          height={20}
-                          width={20}
+                            height={20}
+                            width={20}
                           alt=""
                         />
                         <span className="text-red" style={{ fontSize: 12, fontWeight: 600 }}>
-                          No phone number assigned
+                              No phone number assigned
                         </span>
-                      </div>
-                    )}
+                        </div>
+                      )}
+                    </div>
+                    <CloseBtn
+                      onClick={() => {
+                        setOpenTestAiModal(false)
+                        setName('')
+                        setPhone('')
+                        setErrorMessage('')
+                      }}
+                    />
                   </div>
-                  <CloseBtn
-                    onClick={() => {
-                      setOpenTestAiModal(false)
-                      setName('')
-                      setPhone('')
-                      setErrorMessage('')
-                    }}
-                  />
-                </div>
 
                 {/* Body */}
                 <div
                   className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-4 py-4"
                   style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)', scrollbarWidth: 'none' }}
                 >
-                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2">
                     <label className="pt-0" style={{ fontSize: 14, fontWeight: 400 }}>
-                      Who are you calling
+                        Who are you calling
                     </label>
                     <div className="search-input-wrapper flex h-[40px] w-full flex-row items-center overflow-hidden rounded-lg px-3">
-                      <input
-                        placeholder="Name"
+                        <input
+                          placeholder="Name"
                         className="h-full w-full border-none bg-transparent text-sm font-medium outline-none focus:outline-none focus:ring-0"
                         style={{ color: '#111827', fontSize: 14 }}
-                        value={name || ''}
+                          value={name || ''}
                         onChange={(e) => setName(e.target.value)}
-                      />
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2">
                     <label className="pt-0" style={{ fontSize: 14, fontWeight: 400 }}>
-                      Phone Number
+                        Phone Number
                     </label>
                     <div
                       className="search-input-wrapper flex h-[40px] w-full flex-row items-center overflow-hidden rounded-lg px-0"
@@ -4513,19 +4673,19 @@ function Page() {
                           zIndex: 9999,
                         }}
                       />
+                      </div>
                     </div>
-                  </div>
 
-                  {errorMessage ? (
-                    <p
-                      style={{
-                        ...styles.errmsg,
+                    {errorMessage ? (
+                      <p
+                        style={{
+                          ...styles.errmsg,
                         color: 'red',
-                        height: '20px',
-                      }}
-                    >
-                      {errorMessage}
-                    </p>
+                          height: '20px',
+                        }}
+                      >
+                        {errorMessage}
+                      </p>
                   ) : null}
 
                   <div style={{ scrollbarWidth: 'none' }}>
@@ -4538,22 +4698,22 @@ function Page() {
                           className="pt-0"
                           style={{ fontSize: 14, fontWeight: 400 }}
                         >
-                          {key[0]?.toUpperCase()}
-                          {key?.slice(1)}
+                            {key[0]?.toUpperCase()}
+                            {key?.slice(1)}
                         </label>
                         <div className="search-input-wrapper mt-1 flex h-[40px] w-full flex-row items-center overflow-hidden rounded-lg px-3">
-                          <input
-                            placeholder="Type here"
+                            <input
+                              placeholder="Type here"
                             className="h-full w-full border-none bg-transparent text-sm font-medium outline-none focus:outline-none focus:ring-0"
                             style={{ color: '#111827', fontSize: 14 }}
                             value={inputValues[key] || ''}
-                            onChange={(e) => handleInputChange(key, e.target.value)}
-                          />
+                              onChange={(e) => handleInputChange(key, e.target.value)}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
 
                 {/* Footer */}
                 <div
@@ -4572,22 +4732,22 @@ function Page() {
                   >
                     Cancel
                   </button>
-                  {testAIloader ? (
+                    {testAIloader ? (
                     <div className="flex h-[40px] items-center justify-center px-6">
                       <CircularProgress size={24} />
-                    </div>
-                  ) : (
-                    <button
+                      </div>
+                    ) : (
+                            <button
                       type="button"
                       disabled={!name || !phone}
-                      onClick={handleTestAiClick}
+                              onClick={handleTestAiClick}
                       className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Test AI
-                    </button>
-                  )}
-                </div>
-              </Box>
+                              >
+                                Test AI
+                            </button>
+                        )}
+                      </div>
+            </Box>
             </Fade>
           </Modal>
           <UnlockPremiunFeatures
@@ -4871,8 +5031,8 @@ function Page() {
                         </Menu>
                       </>
                     )}
-                    <CloseBtn onClick={handleDrawerClose} />
-                  </div>
+                  <CloseBtn onClick={handleDrawerClose} />
+                </div>
                 </div>
                 <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0 py-0 px-4">
                   <div className="flex flex-row items-start justify-start gap-3 w-full p-4">
@@ -5040,81 +5200,81 @@ function Page() {
                         />
                         <div
                           className="flex flex-row items-center gap-1.5 text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-[#eaeaea] rounded-[64px] bg-white"
-                          style={{
+                                        style={{
                             color: 'rgba(0,0,0,0.8)',
                             padding: 4,
                             boxShadow: '0 16px 30px rgba(0, 0, 0, 0.12)',
                           }}
                         >
                           <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
-                            <Tooltip
-                              title="Duplicate"
-                              arrow
+                          <Tooltip
+                            title="Duplicate"
+                            arrow
                               componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
                               TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
                             >
                               <div className="cursor-pointer border-0">
                                 <DuplicateButton handleDuplicate={() => setShowDuplicateConfirmationPopup(true)} loading={duplicateLoader} size={16} useBlack />
-                              </div>
-                            </Tooltip>
-                          </div>
+                            </div>
+                          </Tooltip>
+                        </div>
                           <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
-                            <Tooltip
-                              title="Open Tab"
-                              arrow
+                          <Tooltip
+                            title="Open Tab"
+                          arrow
                               componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
                               TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
                             >
                               <button onClick={() => handleWebAgentClick(showDrawerSelectedAgent)}>
-                                <SquareArrowOutUpRight size={16} className="text-black shrink-0" style={{ color: '#000' }} />
-                              </button>
-                            </Tooltip>
-                          </div>
+                            <SquareArrowOutUpRight size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                          </button>
+                          </Tooltip>
+                        </div>
                           <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
-                            <Tooltip
-                              title="Embed"
-                              arrow
+                          <Tooltip
+                            title="Embed"
+                          arrow
                               componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
                               TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
                             >
                               <button style={{ paddingLeft: '3px' }} onClick={() => handleEmbedClick(showDrawerSelectedAgent)}>
-                                <Code size={16} className="text-black shrink-0" style={{ color: '#000' }} />
-                              </button>
-                            </Tooltip>
-                          </div>
+                            <Code size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                          </button>
+                          </Tooltip>
+                        </div>
                           <div className="w-8 h-8 rounded-[16px] flex items-center justify-center hover:bg-black/[0.05] [&:has(button:active)]:scale-[0.98] transition-colors transition-transform duration-150">
-                            <Tooltip
-                              title="Webhook"
-                              arrow
+                          <Tooltip
+                            title="Webhook"
+                          arrow
                               componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
                               TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
-                            >
-                              <button
-                                style={{ paddingLeft: '3px' }}
-                                onClick={() => {
+                        >
+                          <button
+                            style={{ paddingLeft: '3px' }}
+                            onClick={() => {
                                   if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
-                                    setShowUpgradeModal(true)
-                                    setTitle('Unlock your Web Agent')
+                              setShowUpgradeModal(true)
+                              setTitle('Unlock your Web Agent')
                                     setSubTitle('Bring your AI agent to your website allowing them to engage with leads and customers')
-                                    setFeatureTitle('EmbedAgents')
+                              setFeatureTitle('EmbedAgents')
                                   } else if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
-                                    setShowUpgradeModal(true)
-                                    setTitle('Unlock your Web Agent')
+                                setShowUpgradeModal(true)
+                                setTitle('Unlock your Web Agent')
                                     setSubTitle('Bring your AI agent to your website allowing them to engage with leads and customers')
-                                  } else {
-                                    let agentToUse = showDrawerSelectedAgent
-                                    if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                              } else {
+                                let agentToUse = showDrawerSelectedAgent
+                                if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
                                       agentToUse = { ...showDrawerSelectedAgent, smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb, smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb, smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook, smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook, smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed, smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed }
-                                    }
-                                    setFetureType('webhook')
-                                    setSelectedAgentForWebAgent(agentToUse)
-                                    setShowWebAgentModal(true)
-                                  }
-                                }}
-                              >
-                                <Webhook size={16} className="text-black shrink-0" style={{ color: '#000' }} />
-                              </button>
-                            </Tooltip>
+                                }
+                                setFetureType('webhook')
+                                setSelectedAgentForWebAgent(agentToUse)
+                                setShowWebAgentModal(true)
+                            }
+                          }}
+                        >
+                            <Webhook size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                          </button>
+                          </Tooltip>
                           </div>
                         </div>
                       </div>
@@ -5252,18 +5412,18 @@ function Page() {
                         boxShadow: '0 4px 30px rgba(0, 0, 0, 0.08)',
                       }}
                     >
-                      <div
+                        <div
                         className="flex flex-row items-center justify-between px-4 py-3"
                         style={{ borderBottom: '1px solid #eaeaea' }}
-                      >
+                        >
                         <span className="font-semibold" style={{ fontSize: 16, color: 'rgba(0, 0, 0, 0.9)' }}>
                           Voice Options
                         </span>
                         <button
                           onClick={() => setShowAdvancedSettingsModal(true)}
                           className="text-sm font-medium text-brand-primary hover:opacity-90 transition-opacity"
-                        >
-                          Advanced Settings
+                          >
+                            Advanced Settings
                         </button>
                       </div>
                       <div className="px-4 py-4" style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}>
@@ -5974,8 +6134,8 @@ function Page() {
                             </FormControl>
                           )}
                         </div>
+                        </div>
                       </div>
-                    </div>
                     </div>
 
                     <div

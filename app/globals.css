@@ -997,7 +997,10 @@ background-color: hsl(var(--brand-primary)) !important;
   flex-shrink: 0;
 }
 
-/* Agents page: enforce margin auto on Add New Agent button (overrides any 366px etc.) */
+/* Agents page: center Add New Agent bar; no fixed margin (e.g. 366px), all margin auto */
 .agents-add-new-bar-inner {
-  margin: auto !important;
+  margin-top: auto !important;
+  margin-right: auto !important;
+  margin-bottom: auto !important;
+  margin-left: auto !important;
 }
