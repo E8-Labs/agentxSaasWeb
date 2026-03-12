@@ -4407,7 +4407,7 @@ function Page() {
           {/* Add New Agent bar - fixed to bottom, center-aligned (margin auto, no 366px) */}
           {agentsListSeparated.length > 0 && (
             <div
-              className="fixed bottom-0 left-[250px] right-0 z-10 flex w-full flex-col items-center justify-center bg-white px-12 pr-[160px] py-4"
+              className=" bottom-0 left-[250px] right-0 z-10 flex w-full flex-col items-center justify-center bg-white px-12  py-4"
               style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
             >
               <div
