@@ -362,6 +362,23 @@ const MessageComposer = ({
     }
   }, [])
 
+  // Listen for Facebook (social) connect popup result so we stay on current page/subaccount
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type !== 'social_connect_done') return
+      if (event.origin !== window.location.origin) return
+      setConnectingOAuth(false)
+      if (event.data.success) {
+        toast.success('Facebook/Instagram connected')
+        onConnectionSuccess?.()
+      } else {
+        toast.error(event.data.error || 'Connection failed')
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [onConnectionSuccess])
+
   // When selecting a Messenger/Instagram thread (or linked lead with social PSID), switch to the corresponding tab
   useEffect(() => {
     const isInstagram = selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid
@@ -1267,35 +1284,33 @@ const MessageComposer = ({
     }
     const userData = JSON.parse(localData)
     const token = userData.token
-    const pathname = typeof window !== 'undefined' ? window.location.pathname || '/dashboard/messages' : '/dashboard/messages'
-    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}${pathname}` : ''
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const callbackPath = '/social-connect/callback'
+    const redirectUrl = origin ? `${origin}${callbackPath}` : ''
     try {
       setConnectingOAuth(true)
       let url = Apis.socialFacebookAuthorize
       const params = new URLSearchParams()
-      if (customDomain) {
-        params.set('customDomain', customDomain.replace(/^https?:\/\//i, ''))
-        params.set('path', pathname)
-      } else if (redirectUrl) {
-        params.set('redirectUrl', redirectUrl)
-      }
+      if (redirectUrl) params.set('redirectUrl', redirectUrl)
       if (selectedUser?.id) params.set('userId', String(selectedUser.id))
       if (params.toString()) url += `?${params.toString()}`
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (res.data?.url) {
-        window.location.href = res.data.url
-        // setConnectingOAuth(false)
+        const popup = window.open(res.data.url, 'facebook-oauth', 'width=500,height=600,scrollbars=yes,resizable=yes')
+        if (!popup) {
+          toast.error('Please allow popups for this site to connect Facebook')
+          setConnectingOAuth(false)
+          return
+        }
       } else {
         toast.error(res.data?.message || 'Could not start Facebook connect')
-        // setConnectingOAuth(false)
+        setConnectingOAuth(false)
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not start Facebook connect')
       setConnectingOAuth(false)
-    } finally {
-      // setConnectingOAuth(false)
     }
   }
 
