@@ -413,7 +413,7 @@ const AgentsListPaginated = ({
                       </div>
                     </div>
                     <div className="flex flex-col gap-1 w-full">
-                      <div className="flex flex-col gap-1 items-start w-full">
+                      <div className="flex flex-col gap-[1px] items-start w-full">
                         <div className="flex flex-row items-center gap-2">
                           <button onClick={() => handleShowDrawer(item)}>
                             <div className="text-2xl font-semibold leading-tight text-foreground">
@@ -457,39 +457,40 @@ const AgentsListPaginated = ({
                             {item.agentType?.slice(1)}
                           </div>
                         </div>
-                      </div>
-                      <div className="flex flex-row items-center gap-3 text-xs font-medium text-black/80 underline decoration-dotted decoration-black/40 underline-offset-[3px]">
-                        <button
-                          onClick={() => {
-                            console.log("item on click.kj is", item?.prompt);
-                            setGreetingTagInput(item?.prompt?.greeting)
-                            setOldGreetingTagInput(item?.prompt?.greeting)
-                            setScriptTagInput(item?.prompt?.callScript)
-                            setOldScriptTagInput(item?.prompt?.callScript)
-                            setShowScriptModal(item)
-                            matchingAgent(item)
-                            setShowScript(true)
-                            if (item?.prompt?.objective) {
-                              setObjective(item?.prompt?.objective)
-                              setOldObjective(item?.prompt?.objective)
-                            }
-                          }}
-                        >
-                          <div>View Script</div>
-                        </button>
-                        <div>|</div>
-                        <button
-                          onClick={() => {
-                            handleShowDrawer(item)
-                          }}
-                        >
-                          <div>More info</div>
-                        </button>
+                        <div className="flex flex-row items-center gap-[1px] text-xs font-medium text-black/80 underline decoration-dotted decoration-black/40 underline-offset-[3px]">
+                          <button
+                            onClick={() => {
+                              console.log("item on click.kj is", item?.prompt);
+                              setGreetingTagInput(item?.prompt?.greeting)
+                              setOldGreetingTagInput(item?.prompt?.greeting)
+                              setScriptTagInput(item?.prompt?.callScript)
+                              setOldScriptTagInput(item?.prompt?.callScript)
+                              setShowScriptModal(item)
+                              matchingAgent(item)
+                              setShowScript(true)
+                              if (item?.prompt?.objective) {
+                                setObjective(item?.prompt?.objective)
+                                setOldObjective(item?.prompt?.objective)
+                              }
+                            }}
+                          >
+                            <div>View Script</div>
+                          </button>
+                          <div>|</div>
+                          <button
+                            onClick={() => {
+                              handleShowDrawer(item)
+                            }}
+                          >
+                            <div>More info</div>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-row items-center justify-end gap-2 self-stretch text-left pt-1">
+                  <div className="flex flex-col gap-2 w-1/2">
+                  <div className="flex flex-row items-center justify-end gap-2 h-auto text-left pt-1">
                     <div className="relative inline-block ml-auto">
                       {!item.phoneNumber && (
                         <div
@@ -570,37 +571,38 @@ const AgentsListPaginated = ({
                         Test AI
                       </div>
                     </button>
-                    {(!item.phoneNumber) && (
-                      <div className="mt-2 flex w-full flex-row items-center justify-end">
-                        <div
-                          className="flex flex-row items-center gap-2 py-2 px-3 rounded-lg"
+                    </div>
+                  </div>
+                {!item.phoneNumber && (
+                  <div className="flex w-full flex-row items-center justify-end">
+                    <div
+                      className="flex flex-row items-center gap-2 py-2 px-3 rounded-lg"
+                      style={{
+                        backgroundColor: 'rgba(255, 78, 78, 0.02)',
+                        border: '2px solid rgba(255, 78, 78, 0.6)',
+                      }}
+                    >
+                      <Image
+                        src={'/assets/warningFill.png'}
+                        height={18}
+                        width={18}
+                        alt="*"
+                      />
+                      <p>
+                        <span
+                          className="text-red"
                           style={{
-                            backgroundColor: 'rgba(255, 78, 78, 0.02)',
-                            border: '2px solid rgba(255, 78, 78, 0.6)',
+                            fontSize: 14,
+                            fontWeight: 400,
+                            opacity: 1,
                           }}
                         >
-                          <Image
-                            src={'/assets/warningFill.png'}
-                            height={18}
-                            width={18}
-                            alt="*"
-                          />
-                          <p>
-                            <span
-                              className="text-red"
-                              style={{
-                                fontSize: 14,
-                                fontWeight: 400,
-                                opacity: 1,
-                              }}
-                            >
-                              No phone number assigned
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                          No phone number assigned
+                        </span>
+                      </p>
                     </div>
+                  </div>
+                )}
                   </div>
                 </div>
 

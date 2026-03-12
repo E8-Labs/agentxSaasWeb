@@ -4203,6 +4203,8 @@ function Page() {
                   />
                 </button>
               </div>
+            {false && (
+            <>
             <button
               type="button"
               onClick={(e) => setSortByMenuAnchor(e.currentTarget)}
@@ -4350,6 +4352,8 @@ function Page() {
                 )}
               </MenuItem>
             </Menu>
+            </>
+            )}
           </div>
           <div
             id="agentsPageScrollContent"
