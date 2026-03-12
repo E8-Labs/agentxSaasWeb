@@ -2894,6 +2894,102 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     ]
   )
 
+  // Schedule from New Message modal (single thread or multiple leads via bulk)
+  const handleScheduleMessageFromModal = useCallback(
+    async (payload) => {
+      const {
+        threadId,
+        leadId,
+        leadIds,
+        messageType,
+        content,
+        subject,
+        scheduledSendAt,
+        emailAccountId,
+        smsPhoneNumberId,
+      } = payload || {}
+      if (!messageType || !content || !scheduledSendAt) return
+      const ids = Array.isArray(leadIds) ? leadIds : leadId != null ? [leadId] : []
+      const useBulk = ids.length !== 1 || threadId == null
+      if (!useBulk && !threadId) return
+      if (useBulk && ids.length === 0) {
+        toast.error('Select at least one recipient to schedule')
+        return
+      }
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      const at = new Date(scheduledSendAt)
+      if (isNaN(at.getTime()) || at.getTime() <= Date.now()) {
+        toast.error('Please pick a future date and time')
+        return
+      }
+      const params = selectedUser?.id ? { userId: selectedUser.id } : {}
+      const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+
+      try {
+        if (useBulk) {
+          const body = {
+            leadIds: ids,
+            messageType,
+            content: (content || '').trim(),
+            subject: subject != null ? String(subject).trim() || undefined : undefined,
+            scheduledSendAt: at.toISOString(),
+          }
+          if (messageType === 'email' && emailAccountId) body.emailAccountId = emailAccountId
+          if (messageType === 'sms' && smsPhoneNumberId) body.smsPhoneNumberId = smsPhoneNumberId
+          const response = await axios.post(Apis.scheduleDraftBulk, body, { params, headers })
+          if (response.data?.status) {
+            const created = response.data?.data?.created?.length ?? 0
+            const errors = response.data?.data?.errors?.length ?? 0
+            const formatted = moment(at).format('MMM D, YYYY [at] h:mm A')
+            if (created > 0) {
+              toast.success(
+                errors > 0
+                  ? `Scheduled for ${created} recipient(s); ${errors} failed.`
+                  : `Message scheduled for ${created} recipient(s) on ${formatted}`
+              )
+              setShowNewMessageModal(false)
+              setTimeout(() => {
+                fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
+              }, 500)
+            } else {
+              toast.error(response.data?.message || 'Failed to schedule message')
+            }
+          } else {
+            toast.error(response.data?.message || 'Failed to schedule message')
+          }
+        } else {
+          const body = {
+            threadId,
+            messageType,
+            content: (content || '').trim(),
+            subject: subject != null ? String(subject).trim() || undefined : undefined,
+            scheduledSendAt: at.toISOString(),
+          }
+          if (messageType === 'email' && emailAccountId) body.emailAccountId = emailAccountId
+          if (messageType === 'sms' && smsPhoneNumberId) body.smsPhoneNumberId = smsPhoneNumberId
+          const response = await axios.post(Apis.scheduleDraft, body, { params, headers })
+          if (response.data?.status) {
+            const formatted = moment(at).format('MMM D, YYYY [at] h:mm A')
+            toast.success(`Message scheduled for ${formatted}`)
+            setShowNewMessageModal(false)
+            setTimeout(() => {
+              fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
+            }, 500)
+          } else {
+            toast.error(response.data?.message || 'Failed to schedule message')
+          }
+        }
+      } catch (error) {
+        console.error('Error scheduling message from modal:', error)
+        toast.error(error.response?.data?.message || 'Failed to schedule message')
+      }
+    },
+    [selectedUser?.id, searchValue, appliedTeamMemberIds, filterType, fetchThreads]
+  )
+
   // Fetch full message settings (for default From number/email). Uses forLeadId when selectedUser is set so we get stored defaults for that lead/contact.
   const fetchMessageSettingsDefaults = useCallback(async () => {
     try {
@@ -4149,6 +4245,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     }}
                     mode={newMessageMode}
                     selectedUser={selectedUser}
+                    onScheduleMessage={handleScheduleMessageFromModal}
+                    scheduleThreadId={selectedThread?.id ?? null}
+                    scheduleLeadId={selectedThread?.lead?.id ?? null}
                   />
                 )
               }

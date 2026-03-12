@@ -2575,7 +2575,7 @@ const MessageComposer = ({
                             </div>
 
                             {/* Send: primary = Send Now, dropdown = Schedule (portal so not clipped by overflow) */}
-                            <div className="flex items-stretch rounded-lg overflow-visible border border-transparent relative z-10">
+                            <div className="flex items-stretch h-10 mt-1 rounded-lg overflow-visible border border-transparent relative z-10">
                               <button
                                 type="button"
                                 onClick={handleSendMessage}
@@ -2586,7 +2586,7 @@ const MessageComposer = ({
                                     : (!hasTextContent(composerData.smsBody) || !selectedPhoneNumber || !composerData.to)
                                   )
                                 }
-                                className="px-5 py-2 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 rounded-l-lg"
+                                className="h-full px-5 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 rounded-l-lg"
                               >
                                 {sendingMessage ? (
                                   <>
@@ -2600,7 +2600,7 @@ const MessageComposer = ({
                                   </>
                                 )}
                               </button>
-                              <div className="relative flex-shrink-0 rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                              <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -2617,7 +2617,7 @@ const MessageComposer = ({
                                       : (!hasTextContent(composerData.smsBody) || !selectedPhoneNumber || !composerData.to)
                                     )
                                   }
-                                  className="px-3 py-2 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 min-w-[36px]"
+                                  className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
                                   aria-label="Send options"
                                   aria-expanded={sendDropdownOpen}
                                   aria-haspopup="menu"
@@ -2891,7 +2891,7 @@ const MessageComposer = ({
                           </div>
 
                           {/* Send: primary = Send Now, dropdown = Schedule (portal; ref shared with email) */}
-                          <div className="flex items-stretch rounded-lg overflow-visible border border-transparent relative z-10">
+                          <div className="flex items-stretch h-10 mt-1 rounded-lg overflow-visible border border-transparent relative z-10">
                             <button
                               type="button"
                               onClick={handleSendMessage}
@@ -2900,7 +2900,7 @@ const MessageComposer = ({
                                 !hasTextContent(composerData.smsBody) ||
                                 (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
                               }
-                              className="px-5 py-2 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 rounded-l-lg"
+                              className="h-full px-5 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 rounded-l-lg"
                             >
                               {sendingMessage ? (
                                 <>
@@ -2914,7 +2914,7 @@ const MessageComposer = ({
                                 </>
                               )}
                             </button>
-                            <div className="relative flex-shrink-0 rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                            <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -2929,7 +2929,7 @@ const MessageComposer = ({
                                   !hasTextContent(composerData.smsBody) ||
                                   (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
                                 }
-                                className="px-3 py-2 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 min-w-[36px]"
+                                className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
                                 aria-label="Send options"
                                 aria-expanded={sendDropdownOpen}
                                 aria-haspopup="menu"
@@ -2988,13 +2988,12 @@ const MessageComposer = ({
                   type="button"
                   className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
                   onClick={() => {
-                    setSendDropdownOpen(false)
-                    setSendDropdownRect(null)
-                    const tomorrow = new Date()
-                    tomorrow.setDate(tomorrow.getDate() + 1)
-                    setScheduleDate(tomorrow.toISOString().slice(0, 10))
-                    setScheduleTime('09:00')
-                    setScheduleModalOpen(true)
+                                        setSendDropdownOpen(false)
+                                        setSendDropdownRect(null)
+                                        const in5 = new Date(Date.now() + 5 * 60 * 1000)
+                                        setScheduleDate(in5.toISOString().slice(0, 10))
+                                        setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
+                                        setScheduleModalOpen(true)
                   }}
                 >
                   <CalendarBlank size={16} />

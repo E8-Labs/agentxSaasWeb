@@ -441,6 +441,7 @@ const Apis = {
   discardDraft: `${BasePath}api/mail/drafts`,
   generateCallSummaryFollowUpDrafts: `${BasePath}api/mail/drafts/call-summary-follow-up`,
   scheduleDraft: `${BasePath}api/mail/drafts/schedule`,
+  scheduleDraftBulk: `${BasePath}api/mail/drafts/schedule-bulk`,
   deleteProfileForAgencyRegistration: `${BasePath}api/user/deleteProfileForAgencyRegistration
 `,
 }
