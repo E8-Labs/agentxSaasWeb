@@ -90,7 +90,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
   const [agentStatsLoading, setAgentStatsLoading] = useState(false)
   const agentStatsLimit = 20
   const agentStatsHasMore = agentStatsCalls.length < agentStatsTotal
-  const scrollContainerRef = useRef(null)
+  const listScrollContainerRef = useRef(null)
   const loadMoreSentinelRef = useRef(null)
   const agentStatsHasMoreRef = useRef(agentStatsHasMore)
   const agentStatsLoadingRef = useRef(agentStatsLoading)
@@ -147,9 +147,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
 
   useEffect(() => {
     if (!open || !agentStatsHasMore || agentStatsCalls.length === 0) return
-    const container = scrollContainerRef.current
+    const listContainer = listScrollContainerRef.current
     const sentinel = loadMoreSentinelRef.current
-    if (!container || !sentinel) return
+    if (!listContainer || !sentinel) return
     const loadMore = () => {
       if (!agentStatsLoadingRef.current && agentStatsHasMoreRef.current) fetchAgentCallsByType(false)
     }
@@ -157,7 +157,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
       (entries) => {
         if (entries[0]?.isIntersecting) loadMore()
       },
-      { root: container, rootMargin: '100px', threshold: 0 }
+      { root: listContainer, rootMargin: '100px', threshold: 0 }
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
@@ -441,10 +441,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
               <div
                 className="h-[100%] pb-12"
                 style={{ scrollbarWidth: 'none' }}
-                ref={isAgentStatsMode ? scrollContainerRef : undefined}
               >
                 {isAgentStatsMode ? (
-                  agentStatsLoading ? ( //&& agentStatsCalls.length === 0
+                  agentStatsLoading && agentStatsCalls.length === 0 ? (
                     <div className="w-full flex flex-row items-center justify-center mt-12">
                       <CircularProgress size={35} thickness={2} />
                     </div>
@@ -462,6 +461,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                   ) : (
                     <div className="w-full flex flex-row items-start justify-between h-[100%]">
                       <div
+                        ref={listScrollContainerRef}
                         className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
                         style={{ scrollbarWidth: 'none' }}
                       >
@@ -537,7 +537,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                           <div className="pt-2 pb-2">
                             <div ref={loadMoreSentinelRef} className="h-4 w-full min-h-[16px]" aria-hidden />
                             {agentStatsLoading && (
-                              <div className="flex justify-center py-2 text-sm text-gray-500">Loading...</div>
+                              <div className="flex justify-center py-2" aria-busy="true" aria-label="Loading more">
+                                <CircularProgress size={24} thickness={2} />
+                              </div>
                             )}
                           </div>
                         )}

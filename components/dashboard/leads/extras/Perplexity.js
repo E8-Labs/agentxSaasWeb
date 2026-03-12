@@ -10,6 +10,7 @@ import {
   TypographyH2,
   TypographyTitle,
 } from '@/lib/typography'
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 
 function Perplexity({ selectedLeadsDetails }) {
   let enrichData = selectedLeadsDetails?.enrichData
@@ -132,9 +133,8 @@ function Perplexity({ selectedLeadsDetails }) {
 
       avgScore = (score / profiles.length) * 100
 
-      // console.log('avgScore', avgScore)
     }
-    return avgScore
+    return formatFractional2(avgScore)
   }
 
   return (
@@ -146,7 +146,7 @@ function Perplexity({ selectedLeadsDetails }) {
         // overflowX: "hidden",
       }}
     >
-      <div className="w-full flex flex-row justify-between items-center">
+      <div className="w-full flex flex-row justify-between items-center px-2">
         <div className="flex flex-row items-center gap-2">
           {/* <Image
                         src={"/svgIcons/image.svg"}
@@ -172,7 +172,7 @@ function Perplexity({ selectedLeadsDetails }) {
           <TypographyH2 className="whitespace-nowrap">
             Confidence Score:{' '}
             <span className="text-brand-primary">
-              {calculateConfidanseScore().toFixed(2)}%
+              {calculateConfidanseScore()}%
             </span>
           </TypographyH2>
         </div>
@@ -226,13 +226,13 @@ function Perplexity({ selectedLeadsDetails }) {
         )}
       </div>
 
-      <div className="w-full flex flex-row items-cneter gap-2 mt-5">
+      <div className="w-full flex flex-row items-cneter gap-2 mt-5 px-2">
         <Image src={'/svgIcons/sparkles.svg'} height={24} width={24} alt="*" />
 
         <TypographyTitle>More detail</TypographyTitle>
       </div>
 
-      <div className="flex flex-col items-start w-full">
+      <div className="flex flex-col items-start w-full px-2">
         <TypographyBodySemibold className="mt-4">
           {enrichData?.summary?.length > 400
             ? isExpanded
