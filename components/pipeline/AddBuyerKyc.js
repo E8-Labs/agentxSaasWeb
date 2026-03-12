@@ -25,6 +25,7 @@ const AddBuyerKyc = ({
   mainAgentId,
   hideTitle,
   selectedUser,
+  titleRenderedInHeader = false,
 }) => {
   const router = useRouter()
   //console.log
@@ -711,13 +712,15 @@ const AddBuyerKyc = ({
           {/* <Header /> */}
           {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full">
-            <div
-              className="mt-6 w-11/12 md:text-3xl text-lg font-[600]"
-              style={{ textAlign: 'center' }}
-            >
-              What would you like to ask buyers?
-            </div>
+          <div className="flex flex-col items-center p-0 w-full">
+            {!titleRenderedInHeader && (
+              <div
+                className="mt-6 w-11/12 md:text-3xl text-lg font-[600]"
+                style={{ textAlign: 'center' }}
+              >
+                What would you like to ask buyers?
+              </div>
+            )}
             {!hideTitle && (
               <button
                 className="mt-10 underline text-brand-primary"

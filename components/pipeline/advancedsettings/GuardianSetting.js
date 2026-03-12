@@ -8,7 +8,7 @@ import {
   Snackbar,
   TextareaAutosize,
 } from '@mui/material'
-import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
+import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -362,19 +362,6 @@ const GuardianSetting = ({
         type={SnackbarTypes.Error}
       />
 
-      {showTitle && (
-        <div className="flex flex-row items-center justify-between mt-4 pb-3">
-          <div style={{ fontWeight: '600', fontSize: 16.8 }}></div>
-          <button
-            className="text-brand-primary underline outline-none"
-            style={{ fontWeight: '500', fontSize: 15 }}
-            onClick={() => setShowAddObjForm(true)}
-          >
-            New Guardrail
-          </button>
-        </div>
-      )}
-
       {guardrailsList.length > 0 ? (
         <div
           style={{
@@ -389,32 +376,41 @@ const GuardianSetting = ({
             )
             return (
               <div
-                className="p-3 rounded-xl mt-4"
+                className="border rounded-lg p-3 w-full text-sm text-black/80 mt-3 hover:bg-black/[0.02] transition-colors duration-150"
                 key={index}
-                style={{ border: '1px solid #00000020' }}
               >
-                <div className="flex flex-row items-center justify-between">
-                  <div style={{ fontWeight: '600', fontSize: 15 }}>
-                    {item.title}
-                  </div>
-                  <button
-                    className="outline-none"
-                    onClick={() => {
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="flex flex-row items-center justify-between gap-4 py-1 cursor-pointer w-full"
+                  onClick={() => handleShowDetails(item)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
                       handleShowDetails(item)
-                    }}
-                  >
-                    {isExpanded ? (
-                      <CaretUp size={20} />
-                    ) : (
-                      <CaretDown size={20} />
-                    )}
-                  </button>
+                    }
+                  }}
+                  aria-expanded={isExpanded}
+                >
+                  <div className="flex flex-col gap-2 ml-2 w-full text-[14px] text-black/80">
+                    <div className="font-normal" style={{ fontWeight: 400 }}>
+                      {item.title}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-primary/[0.02] flex-shrink-0">
+                    <span className="outline-none pointer-events-none text-brand-primary" aria-hidden>
+                      {isExpanded ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
+                    </span>
+                  </div>
                 </div>
                 {isExpanded && (
-                  <div className="flex flex-row items-start justify-between">
+                  <div className="flex flex-row items-start justify-between gap-3 bg-black/[0.02] p-2 px-3 mt-3">
                     <div
-                      className="mt-2 bg-gray-100 p-2"
-                      style={{ fontWeight: '500', fontSize: 15 }}
+                      style={{ fontSize: '14px', fontWeight: 400 }}
                     >
                       {item.description}
                     </div>
@@ -424,9 +420,9 @@ const GuardianSetting = ({
                       onClick={(event) => {
                         handleClick(event, item)
                       }}
-                      className="p-2 px-3"
+                      className="flex items-center justify-center w-6 h-6 flex-shrink-0"
                     >
-                      <DotsThree weight="bold" size={35} />
+                      <MoreHorizontal size={16} />
                     </button>
                     <Popover
                       id={id}
@@ -493,6 +489,17 @@ const GuardianSetting = ({
               </div>
             )
           })}
+          {showTitle && (
+            <div className="flex flex-row items-center justify-start py-3">
+              <button
+                className="text-brand-primary underline outline-none h-8"
+                style={{ fontWeight: '500', fontSize: 14 }}
+                onClick={() => setShowAddObjForm(true)}
+              >
+                New Guardrail
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div>

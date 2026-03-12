@@ -3400,6 +3400,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             // setShowWarningModal={setShowWarningModal}
             setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
             setOpenTestAiModal={setOpenTestAiModal}
+            setShowClaimPopup={setShowClaimPopup}
             mainAgentsList={mainAgentsList}
             setScriptKeys={setScriptKeys}
             setSelectedAgent={setSelectedAgent}
@@ -5602,15 +5603,17 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         }}
       >
         <Box
-          className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 p-8 rounded-[15px]"
+          className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 h-auto p-8 rounded-[15px]"
           sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
         >
-          <div style={{ width: '100%' }}>
+          <div style={{ width: '100%', paddingTop: 12 }}>
             <div
               className="max-h-[60vh] overflow-auto"
               style={{ scrollbarWidth: 'none' }}
             >
-              <div className="flex flex-row items-center justify-center gap-2 -mt-1">
+              <div
+                className="flex flex-row items-center justify-start gap-2 -mt-1 p-4 rounded-lg border border-red bg-red/5"
+              >
                 <Image
                   src={'/assets/warningFill.png'}
                   height={18}
@@ -5633,15 +5636,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
             <div className="flex flex-row items-center gap-4 mt-6">
               <button
-                className="mt-4 outline-none w-5/12"
-                style={{
-                  color: 'black',
-                  height: '50px',
-                  borderRadius: '10px',
-                  // width: "100%",
-                  fontWeight: 600,
-                  fontSize: '20',
-                }}
+                className="w-auto min-w-0 h-[40px] flex items-center justify-center rounded-lg bg-muted px-3 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] outline-none"
                 onClick={() => {
                   setShowWarningModal(null)
                 }}
@@ -5649,15 +5644,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 Close
               </button>
               <button
-                className="mt-4 outline-none bg-brand-primary w-7/12"
-                style={{
-                  color: 'white',
-                  height: '50px',
-                  borderRadius: '10px',
-                  // width: "100%",
-                  fontWeight: 600,
-                  fontSize: '20',
-                }}
+                className="w-auto min-w-0 h-[40px] flex items-center justify-center rounded-lg bg-brand-primary text-white px-3 text-sm font-medium hover:opacity-90 transition-colors duration-150 active:scale-[0.98] outline-none"
                 onClick={() => {
                   setDrawerSelectedAgent(ShowWarningModal)
                   setShowWarningModal(null)

@@ -1,5 +1,6 @@
 import {
   Box,
+  Fade,
   FormControl,
   MenuItem,
   Modal,
@@ -12,6 +13,7 @@ import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { cn } from '@/lib/utils'
 
 import Apis from '../../apis/Apis'
 import AgentSelectSnackMessage, {
@@ -363,19 +365,6 @@ const WebAgentModal = ({
     onShowNewSmartList()
   }
 
-  const styles = {
-    modalsStyle: {
-      height: '100vh',
-      bgcolor: 'transparent',
-      mx: 'auto',
-      // my: "50vh",
-      // transform: "translateY(-50%)",
-      borderRadius: 2,
-      border: 'none',
-      outline: 'none',
-    },
-  }
-
   if (!open) return null
 
   return (
@@ -384,34 +373,43 @@ const WebAgentModal = ({
       onClose={onClose}
       closeAfterTransition
       BackdropProps={{
-        timeout: 1000,
+        timeout: 250,
         sx: {
-          backgroundColor: '#00000020',
+          backgroundColor: '#00000099',
         },
       }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      <Box
-        className="xl:w-4/12 lg:w-6/12 sm:w-10/12 w-6/12 flex flex-col items-center justify-center"
-        sx={styles.modalsStyle}
-      >
-        <div className="flex flex-col justify-center items-center bg-white rounded-lg px-4 py-6 w-full">
+      <Fade in={open} timeout={250}>
+        <Box
+          className="flex flex-col w-[400px] max-w-[90vw] overflow-hidden rounded-[12px] bg-white"
+          sx={{
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            outline: 'none',
+            '@keyframes modalEnter': {
+              '0%': { transform: 'scale(0.95)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            animation: 'modalEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+          }}
+        >
           {/* Header */}
           <div
-            style={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 24,
-            }}
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid #eaeaea' }}
           >
-            <h2
-              className="capitalize"
-              style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}
+            <span
+              className="capitalize font-semibold"
+              style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
             >
               {agentName.slice(0, 20)} {agentName.length > 20 ? '...' : ''} |{' '}
               {`${fetureType === 'webhook' ? 'Webhook Agent' : 'Browser Agent'}`}
-            </h2>
+            </span>
             <CloseBtn
               onClick={(e) => {
                 e.stopPropagation()
@@ -420,25 +418,18 @@ const WebAgentModal = ({
             />
           </div>
 
+          {/* Body */}
+          <div className="flex-1 px-4 py-4" style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
           {/* Require Form Section */}
           <div
+            className="mb-4 rounded-lg p-4"
             style={{
-              marginBottom: 24,
-              padding: 16,
-              backgroundColor: '#f8f9fa',
-              borderRadius: 8,
-              border: '1px solid #e9ecef',
+              backgroundColor: 'rgba(0,0,0,0.02)',
+              border: '1px solid #eaeaea',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 8,
-              }}
-            >
-              <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
+            <div className="mb-2 flex flex-row items-center justify-between">
+              <div style={{ fontWeight: 600, fontSize: 14 }}>
                 {fetureType === 'webhook'
                   ? 'Add your leads to a smartlist'
                   : 'Require users to complete a form?'}
@@ -459,7 +450,7 @@ const WebAgentModal = ({
                 }}
               />
             </div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
               {fetureType === 'webhook'
                 ? 'Organize the leads your AI talks to by adding them to a dedicated smartlist'
                 : 'This prompts users to fill out a form before they engage in a conversation with your AI.'}
@@ -468,7 +459,7 @@ const WebAgentModal = ({
 
           {/* Smart List Selection */}
           {requireForm && (
-            <div style={{ marginBottom: 24, width: '90%' }}>
+            <div className="mb-4 w-full">
               <div
                 style={{
                   width: '100%',
@@ -583,60 +574,45 @@ const WebAgentModal = ({
             </div>
           )}
 
-          {/* Buttons */}
+          </div>
+
+          {/* Footer (action bar) */}
           <div
-            style={{
-              width: '90%',
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 16,
-              marginTop: 24,
-            }}
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderTop: '1px solid #eaeaea' }}
           >
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 onClose()
               }}
-              style={{
-                padding: '8px 16px',
-                color: '#6b7280',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                position: 'relative',
-                zIndex: 10,
-              }}
+              className={cn(
+                'flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-medium',
+                'bg-muted text-foreground hover:bg-muted/80',
+                'transition-colors duration-150 active:scale-[0.98]',
+              )}
             >
               Cancel
             </button>
-            <button className={`${requireForm && !selectedSmartList ? 'bg-gray-300' : 'bg-brand-primary'}`}
+            <button
+              type="button"
+              className={cn(
+                'flex h-[40px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold',
+                'bg-brand-primary text-white hover:opacity-90',
+                'transition-all duration-150 active:scale-[0.98]',
+                'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50',
+              )}
               onClick={(e) => {
                 e.stopPropagation()
                 handleOpenAgent()
               }}
               disabled={requireForm && !selectedSmartList}
-              style={{
-                padding: '8px 24px',
-                
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor:
-                  requireForm && !selectedSmartList ? 'not-allowed' : 'pointer',
-                fontWeight: '500',
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                position: 'relative',
-                zIndex: 10,
-              }}
             >
               {fetureType === 'webhook'
                 ? 'Copy Webhook Url'
                 : 'Open agent in new tab'}
-              <ArrowUpRight size={16} style={{ marginLeft: 8 }} />
+              <ArrowUpRight size={16} />
             </button>
           </div>
 
@@ -648,8 +624,8 @@ const WebAgentModal = ({
             type={snackbar.type}
             hide={hideSnackbar}
           />
-        </div>
-      </Box>
+        </Box>
+      </Fade>
     </Modal>
   );
 }

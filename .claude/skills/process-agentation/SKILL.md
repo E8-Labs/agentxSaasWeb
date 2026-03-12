@@ -93,6 +93,17 @@ When the user says **"modal cleanup"** (or "apply modal cleanup"), apply the Add
 - Container: `w-[400px] flex flex-col gap-3 p-0 overflow-hidden`
 - Style: `backgroundColor: '#ffffff'`, medium elevation with `boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)'`, `border: '1px solid #eaeaea'`, `borderRadius: 12`
 
+When the user says **"firecrawl modal"** (or "apply firecrawl modal"), apply the Duplicate Agent modal's full structure and styling to the modal in focus. This is the firecrawl.dev-inspired confirmation modal pattern:
+- **Structure:** Header (title + optional warning icon + close button), Body (14px font), Footer (action bar with Cancel + primary button)
+- **Container:** `w-[400px] max-w-[90vw] flex flex-col overflow-hidden rounded-[12px] bg-white`, `boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)'`, `border: '1px solid #eaeaea'`
+- **Header:** `flex flex-row items-center justify-between px-4 py-3`, `borderBottom: '1px solid #eaeaea'`; title 16px font-semibold; CloseBtn on right
+- **Body:** `px-4 py-4`, `fontSize: 14`, `color: 'rgba(0,0,0,0.8)'`
+- **Footer:** `flex flex-row items-center justify-between px-4 py-3`, `borderTop: '1px solid #eaeaea'` — secondary (Cancel) on far left, primary on far right
+- **Cancel button:** `h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]`
+- **Primary button:** `h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98]`
+- **Backdrop:** `backgroundColor: '#00000099'`, `timeout: 250`
+- **Animation:** `closeAfterTransition`, Fade 250ms, content scale 0.95→1 on enter with `cubic-bezier(0.34, 1.56, 0.64, 1)`
+
 When the user says **"animate modal"** (or "apply animate modal"), apply the Import Leads modal’s animation and backdrop to the selected modal/element:
 - **Backdrop:** `backgroundColor: '#00000099'` (60% opacity), `timeout: 250`
 - **Content entry:** scale 0.95→1, opacity 0→1 over 250ms with `cubic-bezier(0.34, 1.56, 0.64, 1)` (smooth, clean, fast)
@@ -131,3 +142,18 @@ When the user says **"compose email"** (or "apply compose email"), apply the sty
 - Text inputs: `h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary`
 - Body/editor wrapper: `border border-brand-primary/20 rounded-lg bg-white`
 - Buttons: use same rounded-lg, height, and focus/active patterns as in the composer (e.g. Send button)
+
+When the user says **"accordion style"** (or "apply accordion style"), style the selected element/container like the accordion-style reference (border rounded card):
+- Outer container: `border rounded-lg p-3 w-full text-sm text-black/80 mt-3`
+- Inner content wrapper (direct child content area): `bg-black/[0.02] p-2 px-3` with `marginTop: 12` or `mt-3` as appropriate
+
+When the user says **"agent avatar card"** (or "apply agent avatar card"), style the selected element to match the profile image button in the Agent Detail drawer (app/dashboard/myAgentX/page.js). Apply the same layout, blur effect, and hover interaction:
+- **Button:** `transition-all duration-300 ease-out`, `onMouseEnter`/`onMouseLeave` for hover state
+- **Inner container:** `flex flex-row items-center justify-center w-[120px] h-[120px] overflow-hidden relative` with `border: '3px solid white'`, `boxShadow: '0 16px 30px rgba(0, 0, 0, 0.055)'`, `backdropFilter: 'blur(8px)'`, `borderRadius: 16`
+- **Blur circle:** absolute, `w-[60px] h-[60px] rounded-full bg-brand-primary -translate-x-1/2 left-1/2 z-0`, `top: -30px`; default `filter: blur(30px)`, `opacity: 0.75`; on hover `filter: blur(38px)`, `opacity: 0.88`; `transition: 'filter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out'`
+- Preserve existing functionality; only update UI and interaction.
+
+When the user says **"input style"** (or "apply input style"), style the selected element to match the search-input-wrapper pattern (e.g. in LastStep.js, Leads1.js). Apply to the wrapper and its input if present:
+- **Wrapper:** `search-input-wrapper w-full h-[40px] flex flex-row items-center rounded-lg overflow-hidden` with `paddingLeft: 12`, `paddingRight: 12` (or `px-3`). Ensure the wrapper has the global `.search-input-wrapper` styles: `border: 1px solid #E5E7EB`, `background: #FFFFFF`, transition on border/box-shadow/background; **hover:** `border-color: #D1D5DB`, `background: #F9FAFB`; **focus-within:** `border-color: hsl(var(--brand-primary))`, `box-shadow: 0 0 0 2px hsl(var(--brand-primary) / 0.2)`; **active:** shorter transition. If the component does not use the global class, add these via inline styles or Tailwind equivalents.
+- **Input sizing:** height 40px for the control (wrapper or input); **font:** 14px, font-medium, text `#111827`, placeholder `#9CA3AF`; input `outline-none border-none bg-transparent focus:outline-none focus:ring-0`.
+- Preserve existing functionality; only update UI and interaction (hover, active, focus states) and font/sizing.

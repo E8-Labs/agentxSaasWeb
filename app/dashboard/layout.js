@@ -110,16 +110,16 @@ export default function DashboardLayout({ children }) {
           </div>
         )}
 
-        {/* Main Layout */}
+        {/* Main Layout: sidebar fixed, main area fills and constrains height for scrollable content */}
         <div
-          className={`flex flex-row w-full ${
+          className={`flex flex-row w-full h-screen ${
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
           style={{ backgroundColor: '#ffffff', background: '#ffffff' }}
         >
-          {/* Sidebar */}
+          {/* Sidebar - fixed */}
           <div
-            className="h-screen w-[250px] flex-shrink-0"
+            className="fixed left-0 top-0 z-10 h-screen w-[250px] flex-shrink-0"
             style={{
               borderRight: '1px solid #00000010',
               backgroundColor: 'white',
@@ -130,15 +130,20 @@ export default function DashboardLayout({ children }) {
             </PermissionProvider>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 min-w-0 bg-white" style={{ backgroundColor: '#ffffff', background: '#ffffff', minHeight: '100vh' }}>
+          {/* Main Content - margin so content doesn't sit under sidebar; flex column so page can have fixed header + scrollable body */}
+          <div
+            className="ml-[250px] flex flex-1 min-w-0 flex-col overflow-hidden bg-white"
+            style={{ backgroundColor: '#ffffff', background: '#ffffff', height: '100vh' }}
+          >
             {/* Navigation Loader - shows during page transitions */}
             <NavigationLoader />
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />
             </div>
-            {children}
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              {children}
+            </div>
           </div>
         </div>
         

@@ -18,6 +18,7 @@ export const PromptTagInput = ({
   isSubject = false,
   placeholder = 'Type here...',
   editTitle,
+  fillHeight = false,
 }) => {
   const [popupVisible, setPopupVisible] = useState(false)
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 })
@@ -425,17 +426,29 @@ export const PromptTagInput = ({
     },
   }
 
+  const textareaHeight = fillHeight
+    ? { minHeight: 120, flex: 1 }
+    : {
+        height: isSubject
+          ? '7vh'
+          : showSaveChangesBtn
+            ? window.innerHeight <= 900
+              ? 'calc(100vh - 670px)'
+              : 'calc(100vh - 730px)'
+            : 'calc(100vh - 650px)',
+      }
+
   return (
-    <div className="" style={{ position: 'relative' }}>
+    <div className={fillHeight ? 'h-full flex flex-col min-h-0' : ''} style={{ position: 'relative' }}>
       <div
-        className="flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0"
+        className={`flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0 px-[2px] ${fillHeight ? 'flex-1 min-h-0 flex flex-col' : ''}`}
         style={{
           border: '1px solid #00000020',
           paddingRight: '10px',
         }}
       >
         <textarea
-          className="outline-none rounded-xl focus:ring-0 border-none w-full  min-h-[50px]"
+          className={`outline-none rounded-xl focus:ring-0 border-none w-full min-h-[50px] ${fillHeight ? 'flex-1' : ''}`}
           onClick={() => {
             setShowScriptModal(true)
           }}
@@ -447,24 +460,16 @@ export const PromptTagInput = ({
           style={{
             fontSize: '16px',
             width: '100%',
-            fontWeight: '500',
+            fontWeight: 400,
+            color: 'rgba(0,0,0,0.8)',
             fontSize: 15,
-            height: isSubject
-              ? '7vh'
-              : showSaveChangesBtn
-                ? window.innerHeight <= 900
-                  ? 'calc(100vh - 670px)'
-                  : 'calc(100vh - 730px)'
-                : 'calc(100vh - 650px)',
-            // maxHeight:"28vh",
             resize: 'none',
-            // backgroundColor:'red'
-            // border: "1px solid #00000020",
+            ...textareaHeight,
           }}
           // disabled={true}
         />
         {!isSubject && (
-          <div className="h-[50px] flex flex-col justify-center">
+          <div className="absolute top-1 right-1 h-[50px] flex flex-col justify-center">
             <button
               onClick={() => {
                 setShowScriptModal(true)
