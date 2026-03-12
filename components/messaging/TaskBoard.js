@@ -480,7 +480,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       <div
         ref={taskBoardRef}
         data-task-board
-        className="xl:w-[35vw] fixed bg-white rounded-xl shadow-[0px_8px_24.4px_0px_rgba(0,0,0,0.10)] z-[101] flex flex-col overflow-hidden"
+        className="w-[550px] fixed bg-white rounded-xl shadow-[0px_8px_24.4px_0px_rgba(0,0,0,0.10)] z-[101] flex flex-col overflow-hidden"
         style={{
           // width: '35vw',
           height: selectedUser ? '80svh' : '95vh',
