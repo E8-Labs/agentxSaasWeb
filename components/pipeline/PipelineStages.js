@@ -420,8 +420,11 @@ const PipelineStages = ({
     // closeAddMenu(stageIndex);
   }
 
-  const handleEditRow = useCallback((stageIndex, row, e) => {
+  const handleEditRow = useCallback((stageIndex, row, e, rowIndex) => {
     // Capture event target immediately to avoid React's synthetic event pooling
+    // console.log('handleEditRow stageIndex', stageIndex)
+    // console.log('handleEditRow row', row)
+    // console.log('handleEditRow rowIndex', rowIndex)
     const eventTarget = e?.currentTarget || null
 
     // Check if this is a default cadence
@@ -442,7 +445,7 @@ const PipelineStages = ({
     }
 
     // For 'call' type, open menu first before other state updates to ensure it appears immediately
-    if (row.communicationType === 'call' && eventTarget) {
+    if ((row.communicationType === 'call' || rowIndex === 0) && eventTarget) {
       const syntheticEvent = { currentTarget: eventTarget }
       openAddMenu(stageIndex, syntheticEvent)
       // Then set editing state
@@ -1574,7 +1577,7 @@ const PipelineStages = ({
                                                   <button
                                                     onClick={(e) => {
                                                       e.stopPropagation()
-                                                      handleEditRow(index, row, e)
+                                                      handleEditRow(index, row, e, rowIndex)
                                                     }}
                                                     type="button"
                                                     className="cursor-pointer"
