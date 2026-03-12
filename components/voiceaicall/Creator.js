@@ -130,6 +130,8 @@ const Creator = ({ agentId, name, shareToken = null }) => {
   const [sharedThreadId, setSharedThreadId] = useState(null)
   /** Resolving share token (shared link); block UI until we know whether to show form or open drawer */
   const [shareResolveLoading, setShareResolveLoading] = useState(false)
+  /** True after resolve-share succeeded (valid share link); used to show chat input when agent details failed to load */
+  const [shareResolvedSuccess, setShareResolvedSuccess] = useState(false)
   const [open, setOpen] = useState(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -278,6 +280,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
           setShareResolveLoading(false)
           return
         }
+        setShareResolvedSuccess(true)
         const { threadId, hasLeadInfo, leadId: resolvedLeadId } = data
         if (hasLeadInfo && resolvedLeadId != null && threadId != null) {
           setWebChatLeadId(resolvedLeadId)
@@ -1298,6 +1301,8 @@ const Creator = ({ agentId, name, shareToken = null }) => {
   }
 
   const hasAiChatEnabled = agentDetails?.data?.data?.hasAiChatEnabled === true
+  /** Show chat input when agent has chat enabled, or when we opened via a valid shared link (agent may not have loaded yet) */
+  const canShowChatInput = hasAiChatEnabled || shareResolvedSuccess
 
   return (
     <div>
@@ -1330,10 +1335,12 @@ const Creator = ({ agentId, name, shareToken = null }) => {
               className="truncate"
               style={{ fontSize: '15px', fontWeight: '400', color: 'black' }}
             >
-              {/*agentDetails?.data?.data?.agent?.name*/}
-              {agentDetails?.data?.data?.agent?.name &&
-                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() +
-                agentDetails?.data?.data?.agent?.name.slice(1)}
+              {agentDetails?.data?.data?.agent?.name
+                ? agentDetails.data.data.agent.name.charAt(0).toUpperCase() +
+                  agentDetails.data.data.agent.name.slice(1)
+                : shareResolvedSuccess
+                  ? 'Chat'
+                  : null}
             </div>
           </div>
         </div>
@@ -1467,7 +1474,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
               }
             </div>
           </div>
-          {!profileLoader && !shareResolveLoading && hasAiChatEnabled && !chatDrawerOpen && !loading && !open && (
+          {!profileLoader && !shareResolveLoading && canShowChatInput && !chatDrawerOpen && !loading && !open && (
             <div
               className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10 py-8 -my-8 -mx-4"
               onMouseEnter={() => setPointerOverChatInputArea(true)}

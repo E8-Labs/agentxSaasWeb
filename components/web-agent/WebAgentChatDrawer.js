@@ -110,6 +110,9 @@ const WebAgentChatDrawer = ({
   const [titleEditing, setTitleEditing] = useState(false)
   const [titleEditValue, setTitleEditValue] = useState('')
   const titleInputRef = useRef(null)
+  const [shareLinkLoading, setShareLinkLoading] = useState(false)
+  const [shareLinkCopied, setShareLinkCopied] = useState(false)
+  const [shareLinkUrl, setShareLinkUrl] = useState(null)
 
   useEffect(() => {
     if (!historyOpen) return
@@ -274,6 +277,78 @@ const WebAgentChatDrawer = ({
     loadMessages(thread.id)
     setHistoryOpen(false)
   }
+
+  const copyToClipboardFallback = useCallback((text) => {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.left = '-9999px'
+    textarea.style.top = '0'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+    try {
+      const ok = document.execCommand('copy')
+      document.body.removeChild(textarea)
+      return ok
+    } catch (e) {
+      document.body.removeChild(textarea)
+      return false
+    }
+  }, [])
+
+  const copyShareLink = useCallback(async () => {
+    if (currentThreadId == null || !agentId) return
+    setShareLinkLoading(true)
+    setShareLinkCopied(false)
+    setShareLinkUrl(null)
+    try {
+      const visitorId = getVisitorId()
+      const { data } = await axios.get('/api/public/web-chat/share-link', {
+        params: {
+          agentId: Number(agentId),
+          threadId: currentThreadId,
+          visitorId: visitorId || undefined,
+        },
+      })
+      if (data?.status && data?.data?.shareToken) {
+        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/web-agent/${agentId}?share=${data.data.shareToken}`
+        let copied = false
+        try {
+          await navigator.clipboard.writeText(url)
+          copied = true
+        } catch (clipboardErr) {
+          copied = copyToClipboardFallback(url)
+        }
+        if (copied) {
+          setShareLinkCopied(true)
+          setTimeout(() => setShareLinkCopied(false), 2000)
+        } else {
+          setShareLinkUrl(url)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to get share link:', err?.message)
+    } finally {
+      setShareLinkLoading(false)
+    }
+  }, [currentThreadId, agentId, copyToClipboardFallback])
+
+  const copyShareLinkFromModal = useCallback(() => {
+    if (!shareLinkUrl) return
+    try {
+      navigator.clipboard.writeText(shareLinkUrl)
+      setShareLinkCopied(true)
+      setTimeout(() => setShareLinkCopied(false), 2000)
+      setShareLinkUrl(null)
+    } catch {
+      if (copyToClipboardFallback(shareLinkUrl)) {
+        setShareLinkCopied(true)
+        setTimeout(() => setShareLinkCopied(false), 2000)
+        setShareLinkUrl(null)
+      }
+    }
+  }, [shareLinkUrl, copyToClipboardFallback])
 
   const getAuthToken = useCallback(() => {
     if (typeof window === 'undefined') return null
@@ -676,14 +751,30 @@ const WebAgentChatDrawer = ({
               >
                 <RotateCcw className="w-5 h-5" />
               </button>
-              <button
-                type="button"
-                onClick={() => {}}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-600 transition-colors shadow-sm"
-                aria-label="Upload"
-              >
-                <Upload className="w-5 h-5" />
-              </button>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={currentThreadId != null ? copyShareLink : undefined}
+                      disabled={shareLinkLoading || currentThreadId == null}
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-600 transition-colors shadow-sm disabled:opacity-60"
+                      aria-label={shareLinkCopied ? 'Link copied' : currentThreadId != null ? 'Copy chat link' : 'Send a message to get a shareable link'}
+                    >
+                      {shareLinkLoading ? (
+                        <span className="text-xs">...</span>
+                      ) : shareLinkCopied ? (
+                        <span className="text-xs text-green-600 font-medium">✓</span>
+                      ) : (
+                        <Upload className="w-5 h-5" />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {shareLinkCopied ? 'Link copied' : currentThreadId != null ? 'Copy chat link to share' : 'Send a message to get a shareable link'}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {/* History dropdown: compact floating panel (like second screenshot) */}
               {historyOpen && (
                 <div
@@ -936,6 +1027,38 @@ const WebAgentChatDrawer = ({
                 className="flex-1 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg disabled:opacity-50"
               >
                 {addKeyLoading ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {shareLinkUrl && (
+        <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/20 backdrop-blur-sm rounded-3xl">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4 w-full max-w-md mx-4">
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Share chat link</h3>
+            <p className="text-xs text-gray-600 mb-2">Copy failed in the background. Copy the link below or use the button.</p>
+            <input
+              type="text"
+              readOnly
+              value={shareLinkUrl}
+              onFocus={(e) => e.target.select()}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-900 focus:outline-none"
+            />
+            <div className="flex gap-2 mt-3">
+              <button
+                type="button"
+                onClick={() => setShareLinkUrl(null)}
+                className="flex-1 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={copyShareLinkFromModal}
+                className="flex-1 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg"
+              >
+                Copy link
               </button>
             </div>
           </div>
