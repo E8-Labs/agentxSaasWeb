@@ -440,6 +440,7 @@ const Apis = {
   markDraftAsSent: `${BasePath}api/mail/drafts`,
   discardDraft: `${BasePath}api/mail/drafts`,
   generateCallSummaryFollowUpDrafts: `${BasePath}api/mail/drafts/call-summary-follow-up`,
+  scheduleDraft: `${BasePath}api/mail/drafts/schedule`,
   deleteProfileForAgencyRegistration: `${BasePath}api/user/deleteProfileForAgencyRegistration
 `,
 }

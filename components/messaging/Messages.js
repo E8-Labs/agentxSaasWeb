@@ -2817,6 +2817,83 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }
 
+  // Schedule message for later (creates hidden draft; cron sends at scheduledSendAt).
+  const handleScheduleMessage = useCallback(
+    async (scheduledSendAt) => {
+      const rawBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+      const hasContent = composerMode === 'sms' ? stripHTML(rawBody).trim() : rawBody.trim()
+      if (!selectedThread || !hasContent) return
+      if (composerMode === 'email' && !composerData.to.trim()) return
+
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      const at = scheduledSendAt instanceof Date ? scheduledSendAt : new Date(scheduledSendAt)
+      if (isNaN(at.getTime()) || at.getTime() <= Date.now()) {
+        toast.error('Please pick a future date and time')
+        return
+      }
+
+      const body = {
+        threadId: selectedThread.id,
+        messageType: composerMode,
+        content: rawBody,
+        scheduledSendAt: at.toISOString(),
+      }
+      if (composerMode === 'email') {
+        body.subject = composerData.subject?.trim() || ''
+        if (selectedEmailAccount) body.emailAccountId = selectedEmailAccount
+      } else if (composerMode === 'sms' && selectedPhoneNumber) {
+        body.smsPhoneNumberId = selectedPhoneNumber
+      }
+
+      try {
+        const params = selectedUser?.id ? { userId: selectedUser.id } : {}
+        const response = await axios.post(Apis.scheduleDraft, body, {
+          params,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        if (response.data?.status) {
+          const formatted = moment(at).format('MMM D, YYYY [at] h:mm A')
+          toast.success(`Message scheduled for ${formatted}`)
+          setComposerData((prev) => ({
+            ...prev,
+            to: selectedThread.lead?.email || selectedThread.receiverPhoneNumber || '',
+            smsBody: '',
+            emailBody: '',
+            subject: '',
+            cc: '',
+            bcc: '',
+            attachments: [],
+          }))
+          setCcInput('')
+          setBccInput('')
+        } else {
+          toast.error(response.data?.message || 'Failed to schedule message')
+        }
+      } catch (error) {
+        console.error('Error scheduling message:', error)
+        toast.error(error.response?.data?.message || 'Failed to schedule message')
+      }
+    },
+    [
+      composerMode,
+      composerData.smsBody,
+      composerData.emailBody,
+      composerData.to,
+      composerData.subject,
+      selectedThread,
+      selectedPhoneNumber,
+      selectedEmailAccount,
+      selectedUser?.id,
+    ]
+  )
+
   // Fetch full message settings (for default From number/email). Uses forLeadId when selectedUser is set so we get stored defaults for that lead/contact.
   const fetchMessageSettingsDefaults = useCallback(async () => {
     try {
@@ -3960,6 +4037,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
                         handleFileChange={handleFileChange}
                         handleSendMessage={handleSendMessage}
+                        onScheduleMessage={handleScheduleMessage}
                         sendingMessage={sendingMessage}
                         onSendSocialMessage={handleSendSocialMessage}
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
