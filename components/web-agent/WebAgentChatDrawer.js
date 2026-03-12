@@ -653,7 +653,7 @@ const WebAgentChatDrawer = ({
         className="absolute inset-0"
         style={{
           backgroundColor: 'rgba(0,0,0,0.05)',
-          backdropFilter: 'blur(4px)',
+          // backdropFilter: 'blur(4px)',
         }}
         onClick={(e) => {
           if (isAgentationTarget(e.target)) return

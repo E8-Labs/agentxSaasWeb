@@ -161,9 +161,9 @@ function Perplexity({ selectedLeadsDetails }) {
                         style={{ borderRadius: "50%" }}
                     /> */}
 
-          <TypographyH2 className="whitespace-nowrap">
+          <Typography className="whitespace-nowrap text-[14px] font-semibold">
             More {selectedLeadsDetails?.firstName}
-          </TypographyH2>
+          </Typography>
         </div>
 
         <div className="flex flex-row items-center gap-2 ">
@@ -174,12 +174,12 @@ function Perplexity({ selectedLeadsDetails }) {
             alt="*"
           />
 
-          <TypographyH2 className="whitespace-nowrap text-[14px] leading-normal font-semibold">
+          <Typography className="whitespace-nowrap text-[14px] leading-normal font-semibold">
             Confidence Score:{' '}
             <span className="text-brand-primary">
-              {calculateConfidanseScore().toFixed(2)}%
+              {calculateConfidanseScore()}
             </span>
-          </TypographyH2>
+          </Typography>
         </div>
       </div>
       <div className="w-full flex flex-row items-start gap-2">
