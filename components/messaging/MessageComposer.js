@@ -214,6 +214,7 @@ const MessageComposer = ({
   onConnectionSuccess,
   onOpenAuthPopup,
   onCommentAdded,
+  customDomain = null,
 }) => {
 
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
@@ -1266,12 +1267,18 @@ const MessageComposer = ({
     }
     const userData = JSON.parse(localData)
     const token = userData.token
-    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : ''
+    const pathname = typeof window !== 'undefined' ? window.location.pathname || '/dashboard/messages' : '/dashboard/messages'
+    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}${pathname}` : ''
     try {
       setConnectingOAuth(true)
       let url = Apis.socialFacebookAuthorize
       const params = new URLSearchParams()
-      if (redirectUrl) params.set('redirectUrl', redirectUrl)
+      if (customDomain) {
+        params.set('customDomain', customDomain.replace(/^https?:\/\//i, ''))
+        params.set('path', pathname)
+      } else if (redirectUrl) {
+        params.set('redirectUrl', redirectUrl)
+      }
       if (selectedUser?.id) params.set('userId', String(selectedUser.id))
       if (params.toString()) url += `?${params.toString()}`
       const res = await axios.get(url, {
