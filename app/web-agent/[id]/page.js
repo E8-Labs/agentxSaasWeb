@@ -15,10 +15,11 @@ const Page = () => {
 
   const modelId = params.id // assuming your file is [id]/page.js
   const name = searchParams.get('name') // pulls ?name=value from the URL
+  const shareToken = searchParams.get('share') // shared link: resolve to thread and show form only if lead info missing
 
   return (
     <div>
-      <Creator agentId={modelId} name={name} />
+      <Creator agentId={modelId} name={name} shareToken={shareToken} />
     </div>
   )
 }
