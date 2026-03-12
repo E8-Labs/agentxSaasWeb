@@ -3293,6 +3293,7 @@ const LeadDetails = ({
   return (
     <div className="absolute left-0 top-0 w-0 h-0 overflow-visible">
       <Drawer
+        className="w-[550px]"
         open={showDetailsModal}
         anchor="right"
         onClose={() => {
@@ -3307,7 +3308,7 @@ const LeadDetails = ({
         PaperProps={{
           sx: {
             // width: '35%', // Adjust width as needed
-            width: '35vw',
+            width: '550px',
             minWidth: 320,
             maxWidth: 600,
             borderRadius: '20px', // Rounded corners

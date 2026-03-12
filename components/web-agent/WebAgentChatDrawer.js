@@ -66,9 +66,9 @@ function truncateTitle(title) {
  * Bottom-sheet chat UI. New chat per open; history panel to continue previous web chats.
  */
 const LLM_PROVIDERS = [
-  { id: 'openai', label: 'GPT', icon: 'openai' },
-  { id: 'anthropic', label: 'Claude AI', icon: 'anthropic' },
-  { id: 'google', label: 'Gemini', icon: 'google' },
+  { id: 'openai', label: 'OpenAI | 4o-mini', icon: 'openai' },
+  { id: 'anthropic', label: 'Claude | Haiku-4-5', icon: 'anthropic' },
+  { id: 'google', label: 'Gemini | 2.5-pro', icon: 'google' },
 ]
 
 const noop = () => {}
@@ -648,7 +648,7 @@ const WebAgentChatDrawer = ({
                     )}
                   </button>
                   {llmProviderOpen && (
-                    <div className="absolute left-1/2 top-full mt-2 -translate-x-1/2 w-48 rounded-xl bg-white overflow-hidden z-50 py-1" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                    <div className="absolute left-1/2 top-full mt-2 -translate-x-1/2 w-[270px] rounded-xl bg-white overflow-hidden z-50 py-1" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
                       {LLM_PROVIDERS.map((p) => {
                         const hasKey = !!integrationForProvider(p.id)
                         return (

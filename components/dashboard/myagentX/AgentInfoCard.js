@@ -77,7 +77,7 @@ const AgentInfoCard = ({
                   }}
                   className="cursor-pointer"
                 >
-                  %
+                {formatFractional2Stable(Number(rate))}%
                 </div>
               </TooltipTrigger>
               <TooltipContent side="top" sideOffset={4}>
