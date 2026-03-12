@@ -30,6 +30,47 @@ import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
+/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
+function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
+  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
+  const rafRef = useRef(null)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (inProp) {
+      if (stage !== 'entered') {
+        setStage('entering')
+        onEnter?.()
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = requestAnimationFrame(() => setStage('entered'))
+        })
+      }
+      return () => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
+    } else {
+      if (stage === 'exited') return
+      setStage('exiting')
+      timerRef.current = setTimeout(() => {
+        onExited?.()
+        setStage('exited')
+      }, timeout)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [inProp, timeout, onExited, onEnter])
+
+  const isEntering = stage === 'entering'
+  const style = {
+    opacity: isEntering || stage === 'exiting' ? 0 : 1,
+    transform: isEntering || stage === 'exiting' ? 'scale(0.95)' : 'scale(1)',
+    transition: `opacity ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1), transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
+  }
+
+  return <div style={style}>{children}</div>
+}
+
 import Apis from '@/components/apis/Apis'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { GetFormattedDateString } from '@/utilities/utility'
@@ -90,7 +131,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
   const [agentStatsLoading, setAgentStatsLoading] = useState(false)
   const agentStatsLimit = 20
   const agentStatsHasMore = agentStatsCalls.length < agentStatsTotal
-  const scrollContainerRef = useRef(null)
+  const listScrollContainerRef = useRef(null)
   const loadMoreSentinelRef = useRef(null)
   const agentStatsHasMoreRef = useRef(agentStatsHasMore)
   const agentStatsLoadingRef = useRef(agentStatsLoading)
@@ -147,9 +188,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
 
   useEffect(() => {
     if (!open || !agentStatsHasMore || agentStatsCalls.length === 0) return
-    const container = scrollContainerRef.current
+    const listContainer = listScrollContainerRef.current
     const sentinel = loadMoreSentinelRef.current
-    if (!container || !sentinel) return
+    if (!listContainer || !sentinel) return
     const loadMore = () => {
       if (!agentStatsLoadingRef.current && agentStatsHasMoreRef.current) fetchAgentCallsByType(false)
     }
@@ -157,7 +198,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
       (entries) => {
         if (entries[0]?.isIntersecting) loadMore()
       },
-      { root: container, rootMargin: '100px', threshold: 0 }
+      { root: listContainer, rootMargin: '100px', threshold: 0 }
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
@@ -411,24 +452,24 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
         }}
         closeAfterTransition
         BackdropProps={{
-          timeout: 500,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
+            backgroundColor: '#00000099',
           },
         }}
       >
-        <Box className="lg:w-9/12 sm:w-full w-full" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full h-[90vh]">
+        <ScaleFadeTransition in={open} timeout={250}>
+          <Box className="lg:w-9/12 sm:w-full w-full" sx={styles.modalsStyle}>
+            <div className="flex flex-row justify-center w-full h-[90vh] min-h-full animate-in slide-in-from-bottom-2 duration-200 ease-out">
             <div
-              className="sm:w-full w-full px-6 py-6"
+              className="sm:w-full w-full p-[2px] min-h-full w-[70%] max-w-[70%] overflow-hidden"
               style={{
                 backgroundColor: '#ffffff',
 
                 borderRadius: '13px',
               }}
             >
-              <div className="w-full flex flex-row items-center justify-between">
+              <div className="w-full flex flex-row items-center justify-between p-4 border-b border-[#eaeaea]">
                 <div style={{ fontSize: 22, fontWeight: '600', color: '#000' }}>
                   {isAgentStatsMode
                     ? `${TYPE_LABELS[type] || type} – ${agentName || ''}`
@@ -441,7 +482,6 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
               <div
                 className="h-[100%] pb-12"
                 style={{ scrollbarWidth: 'none' }}
-                ref={isAgentStatsMode ? scrollContainerRef : undefined}
               >
                 {isAgentStatsMode ? (
                   agentStatsLoading && agentStatsCalls.length === 0 ? (
@@ -460,9 +500,11 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                       {AGENT_STATS_EMPTY[type] || 'No data found.'}
                     </div>
                   ) : (
-                    <div className="w-full flex flex-row items-start justify-between h-[100%]">
+                    <div className="w-full flex flex-row items-start justify-between h-[100%] min-h-full">
                       <div
-                        className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
+                        ref={listScrollContainerRef}
+                        // className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
+                        className="w-4/12 min-w-[300px] px-3 flex flex-col overflow-auto h-[100%] border-r border-[#eaeaea]"
                         style={{ scrollbarWidth: 'none' }}
                       >
                         {agentStatsCalls.map((call, index) => {
@@ -482,45 +524,54 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                             <button
                               key={call.id}
                               onClick={() => setSelectedCall(lead || null)}
-                              className="w-full p-3 flex flex-col gap-2 border-[2px] rounded-lg mt-5 text-left"
+                              className="w-full p-3 flex flex-col gap-2 border rounded-lg mt-5 text-left"
                               style={{
-                                borderColor: isSelected ? primaryColor : '',
+                                borderWidth: 1,
+                                borderColor: isSelected ? primaryColor : '#eaeaea',
                               }}
                             >
                               <div className="w-full flex flex-row justify-between items-center">
-                                <div className="flex flex-col gap-2 items-start">
+                                <div className="flex flex-col gap-2 items-start w-full">
                                   <div className="flex flex-row gap-2 items-center">
                                     <div
-                                      className="h-[27px] w-[27px] items-center justify-center text-center pt-[2px] rounded-full bg-black text-white"
+                                      className="h-[32px] w-[32px] items-center justify-center text-center pt-[2px] rounded-full bg-black text-white flex flex-shrink-0"
                                       style={{ fontSize: 15, fontWeight: '500' }}
                                     >
                                       {(lead?.firstName || '?')[0]}
                                     </div>
-                                    <div style={{ fontSize: 15, fontWeight: '500' }}>
+                                    <div style={{ fontSize: 14, fontWeight: '500', color: 'rgba(0,0,0,0.8)' }}>
                                       {lead?.firstName || 'Unknown'}
                                     </div>
                                   </div>
                                   <div
+                                    className="min-w-0 flex-1"
                                     style={{
-                                      fontSize: 13,
+                                      fontSize: 14,
                                       fontWeight: '500',
-                                      color: '#00000060',
+                                      color: 'rgba(0,0,0,0.8)',
                                       overflow: 'hidden',
                                       textOverflow: 'ellipsis',
-                                      maxWidth: 100,
+                                      maxWidth: 200,
                                     }}
                                   >
-                                    {(lead?.email || '').slice(0, 10)}
-                                    {(lead?.email || '').length > 10 ? '...' : ''}
+                                    {(lead?.email || '').slice(0, 24)}
+                                    {(lead?.email || '').length > 24 ? '...' : ''}
                                   </div>
                                 </div>
                                 <div className="flex flex-col gap-2 items-end">
                                   <div style={{ fontSize: 13, fontWeight: '600', color: primaryColor }}>
                                     {call.agent?.name || '-'}
                                   </div>
+                                  <div
+                                    style={{
+                                      fontSize: 13,
+                                      fontWeight: '600',
+                                      color: "black", //primaryColor
+                                      textTransform: 'capitalize',
+                                    }}>{call.stage?.stageTitle || '-'}</div>
                                 </div>
                               </div>
-                              <div className="text-[13px] text-gray-500">
+                              <div className="text-[14px]" style={{ color: 'rgba(0,0,0,0.8)' }}>
                                 {dateStr} · {durationStr}
                               </div>
                             </button>
@@ -530,7 +581,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                           <div className="pt-2 pb-2">
                             <div ref={loadMoreSentinelRef} className="h-4 w-full min-h-[16px]" aria-hidden />
                             {agentStatsLoading && (
-                              <div className="flex justify-center py-2 text-sm text-gray-500">Loading...</div>
+                              <div className="flex justify-center py-2" aria-busy="true" aria-label="Loading more">
+                                <CircularProgress size={24} thickness={2} />
+                              </div>
                             )}
                           </div>
                         )}
@@ -541,7 +594,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                             <LeadDetails
                               showDetailsModal={true}
                               selectedLead={selectedCall.id}
-                              setShowDetailsModal={() => {}}
+                              setShowDetailsModal={() => { }}
                               pipelineId={selectedCall?.pipeline?.id || null}
                               handleDelLead={(deletedLead) => {
                                 setAgentStatsCalls((prev) => {
@@ -577,10 +630,10 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                   <div className="w-full h-[100%]">
                     {importantCalls?.length > 0 ? (
                       <div className="w-full flex flex-row items-start justify-between h-[100%]">
-                        <div
-                          className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
-                          style={{ scrollbarWidth: 'none' }}
-                        >
+                      <div
+                        className="w-4/12 min-w-[300px] px-3 flex flex-col overflow-auto h-[100%] border-r border-[#eaeaea]"
+                        style={{ scrollbarWidth: 'none' }}
+                      >
                           {importantCalls?.map(
                             (
                               item,
@@ -591,19 +644,20 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                                 onClick={() => {
                                   setSelectedCall(item)
                                 }}
-                                className="w-full p-3 flex flex-col gap-2 border-[2px] rounded-lg mt-5"
+                                className="w-full p-3 flex flex-col gap-2 border rounded-lg mt-5"
                                 style={{
+                                  borderWidth: 1,
                                   borderColor:
                                     selectedCall.id === item.id
                                       ? primaryColor
-                                      : '',
+                                      : '#eaeaea',
                                 }}
                               >
                                 <div className="w-full flex flex-row justify-between items-center">
-                                  <div className="flex flex-col gap-2 items-start">
+                                  <div className="flex flex-col gap-2 items-start w-full">
                                     <div className="flex flex-row gap-2 items-center">
                                       <div
-                                        className="h-[27px] w-[27px] items-center justify-center pt-[2px] rounded-full bg-black"
+                                        className="h-[32px] w-[32px] items-center justify-center pt-[2px] rounded-full bg-black flex flex-shrink-0"
                                         style={{
                                           fontSize: 15,
                                           fontWeight: '500',
@@ -614,24 +668,26 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                                       </div>
                                       <div
                                         style={{
-                                          fontSize: 15,
+                                          fontSize: 14,
                                           fontWeight: '500',
+                                          color: 'rgba(0,0,0,0.8)',
                                         }}
                                       >
                                         {item.firstName}
                                       </div>
                                     </div>
                                     <div
+                                      className="min-w-0 flex-1"
                                       style={{
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         fontWeight: '500',
-                                        color: '#00000060',
-                                        width: 100,
+                                        color: 'rgba(0,0,0,0.8)',
+                                        maxWidth: 200,
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                       }}
                                     >
-                                      {item.email.slice(0, 10) + '...'}
+                                      {item.email.length > 24 ? item.email.slice(0, 24) + '...' : item.email}
                                     </div>
                                   </div>
 
@@ -851,9 +907,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
               </div>
             </div>
           </div>
-        </Box>
+          </Box>
+        </ScaleFadeTransition>
       </Modal>
-
     </div>
   )
 }

@@ -57,8 +57,10 @@ import AgentXOrb from '../common/AgentXOrb'
 import { MYAGENTX_URL } from '../askSky/constants'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { useUser } from '@/hooks/redux-hooks'
+import { History } from 'lucide-react'
 import WebAgentChatInput from '@/components/web-agent/WebAgentChatInput'
 import WebAgentChatDrawer from '@/components/web-agent/WebAgentChatDrawer'
+import { getVisitorId } from '@/components/web-agent/visitorId'
 import { checkPhoneNumber } from '../onboarding/services/apisServices/ApiService'
 
 
@@ -88,7 +90,7 @@ const backgroundImage = {
   overflow: 'hidden',
 }
 
-const Creator = ({ agentId, name }) => {
+const Creator = ({ agentId, name, shareToken = null }) => {
   const router = useRouter()
   const buttonRef = useRef(null)
   const buttonRef6 = useRef(null)
@@ -125,6 +127,12 @@ const Creator = ({ agentId, name }) => {
   const [chatDrawerKey, setChatDrawerKey] = useState(0)
   /** Lead ID from pre-chat form for web chat; passed to drawer so first message creates thread tied to this lead */
   const [webChatLeadId, setWebChatLeadId] = useState(null)
+  /** When opening via shared link with hasLeadInfo: thread to load in drawer. Null for new chat. */
+  const [sharedThreadId, setSharedThreadId] = useState(null)
+  /** Resolving share token (shared link); block UI until we know whether to show form or open drawer */
+  const [shareResolveLoading, setShareResolveLoading] = useState(false)
+  /** True after resolve-share succeeded (valid share link); used to show chat input when agent details failed to load */
+  const [shareResolvedSuccess, setShareResolvedSuccess] = useState(false)
   const [open, setOpen] = useState(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -256,6 +264,42 @@ const Creator = ({ agentId, name }) => {
     // Load saved form data on component mount
     loadSavedFormData()
   }, [])
+
+  // Shared link: resolve token and either open drawer (hasLeadInfo) or show form
+  useEffect(() => {
+    if (!shareToken || !String(shareToken).trim()) return
+    const token = String(shareToken).trim()
+    const visitorId = getVisitorId()
+    setShareResolveLoading(true)
+    axios
+      .get('/api/public/web-chat/resolve-share', {
+        params: { share: token, visitorId: visitorId || undefined },
+      })
+      .then((res) => {
+        const data = res.data?.data
+        if (!res.data?.status || !data) {
+          setShareResolveLoading(false)
+          return
+        }
+        setShareResolvedSuccess(true)
+        const { threadId, hasLeadInfo, leadId: resolvedLeadId } = data
+        if (hasLeadInfo && resolvedLeadId != null && threadId != null) {
+          setWebChatLeadId(resolvedLeadId)
+          setSharedThreadId(threadId)
+          setChatDrawerKey((k) => k + 1)
+          setChatDrawerOpen(true)
+        } else {
+          setShowLeadModal(true)
+          setFormMode('chat')
+        }
+      })
+      .catch(() => {
+        setSnackbarMessage('Invalid or expired share link.')
+        setSnackbarSeverity('error')
+        setSnackbarOpen(true)
+      })
+      .finally(() => setShareResolveLoading(false))
+  }, [shareToken])
 
   // User loading messages to fake feedback...
   useEffect(() => {
@@ -540,6 +584,7 @@ const Creator = ({ agentId, name }) => {
           },
         )
         setSmartListFields(parsedData.smartListFields || {})
+        // setShowLeadModal(true)
       }
     } catch (error) {
       console.error('Error loading saved form data:', error)
@@ -588,7 +633,29 @@ const Creator = ({ agentId, name }) => {
         extraColumns: extraColumns,
       }
 
-      // Call API with lead details
+      // Shared link: join shared thread and get leadId + threadId, then open drawer
+      if (shareToken && String(shareToken).trim()) {
+        const visitorId = getVisitorId()
+        const response = await axios.post('/api/public/web-chat/join-shared', {
+          shareToken: String(shareToken).trim(),
+          visitorId: visitorId || undefined,
+          lead_details: leadDetails,
+        })
+        if (response?.data?.status && response?.data?.data) {
+          const { leadId: joinedLeadId, threadId: joinedThreadId } = response.data.data
+          if (joinedLeadId != null) setWebChatLeadId(joinedLeadId)
+          if (joinedThreadId != null) setSharedThreadId(joinedThreadId)
+          handleModalClose()
+          setChatDrawerKey((k) => k + 1)
+          setChatDrawerOpen(true)
+        } else {
+          throw new Error(response?.data?.message || 'Failed to join shared chat')
+        }
+        setIsSubmitting(false)
+        return
+      }
+
+      // Call API with lead details (normal web-agent flow)
       const response = await callApiPost(
         `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}?agentType=web`,
         { lead_details: leadDetails },
@@ -704,13 +771,16 @@ const Creator = ({ agentId, name }) => {
           } else {
             handleStartCall()
           }
-        } else {
+        } else if (mode !== 'chat') {
+          // Non-chat mode (e.g. future modes): open drawer
           setChatDrawerKey((k) => k + 1)
           setChatDrawerOpen(true)
         }
+        // Chat: drawer already opened in handleOpenChat; webChatLeadId/assistantOverrides set above
       }
     } catch (error) {
       console.error('Error submitting persisted form data:', error)
+      if (mode === 'chat') setChatDrawerOpen(false)
       setSnackbarMessage(mode === 'call' ? 'Error starting call. Please try again.' : 'Error starting chat. Please try again.')
       setSnackbarSeverity('error')
       setSnackbarOpen(true)
@@ -735,6 +805,9 @@ const Creator = ({ agentId, name }) => {
     setFormMode('chat')
     const { valid, savedFormData, savedSmartListFields } = getSavedFormAndValidity()
     if (valid) {
+      // Open drawer immediately so there’s no delay; API runs in background and sets webChatLeadId when done
+      setChatDrawerKey((k) => k + 1)
+      setChatDrawerOpen(true)
       submitSavedFormAndProceed(savedFormData, savedSmartListFields, 'chat')
       return
     }
@@ -1096,12 +1169,6 @@ const Creator = ({ agentId, name }) => {
 
     setMousePosition({ x, y })
 
-    // Check if the mouse is within 150px of the center
-    if (Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150) {
-      setBoxVisible(false) // Hide the box
-      return
-    }
-
     // Check if the mouse is over any of the refs (buttonRef, createAIButtonRef, endCallButtonRef, profileBoxRef)
     if (
       (buttonRef.current && isMouseOverRef(buttonRef, x, y)) ||
@@ -1113,7 +1180,11 @@ const Creator = ({ agentId, name }) => {
       return
     }
 
-    setBoxVisible(true) // Show the box when not hovering over the refs
+    // Show the bubble only when the mouse is within the orb area (150px radius around center)
+    const withinOrbArea =
+      Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150
+
+    setBoxVisible(withinOrbArea)
   }
 
   // Helper function to check if mouse is over a specific element
@@ -1130,6 +1201,7 @@ const Creator = ({ agentId, name }) => {
   // };
 
   const showCallUI = () => {
+    const buttonShadow = '0px 2px 8px rgba(0, 0, 0, 0.08)'
     return (
       <div
         className="flex flex-col items-center justify-center voice-call-ui-container"
@@ -1155,13 +1227,12 @@ const Creator = ({ agentId, name }) => {
               border: 'none',
               outline: 'none',
               fontStyle: 'italic',
-              color: 'inherit',
+              color: 'rgba(0, 0, 0, 0.75)',
               fontSize: '13px',
               fontWeight: '500',
-
             }}
           >
-            {loadingMessage}
+            {!chatDrawerOpen && `${loadingMessage}`}
           </span>
         ) : isSpeaking ? (
           <VoiceWavesComponent className="mt-12" />
@@ -1173,34 +1244,52 @@ const Creator = ({ agentId, name }) => {
           />
         )}
 
-
         {open && (
-          <div className='flex mt-5 flex-row items-center justify-center gap-2'>
-            <button
-              onClick={handleCloseCall}
-              className="px-3 py-2 flex flex-row items-center justify-center gap-3 rounded-full bg-[#ffffff40] shadow-md"
+          <>
+            <div
+              className="flex items-center justify-center gap-1.5 mt-6 mb-4"
+              aria-hidden
             >
-              <Image src="/assets/cross.png" alt="end call"
-                width={12} height={12} />
-              <span className='text-black text-[15px] font-normal'>
-                End Call
-              </span>
-            </button>
+              {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <span
+                  key={i}
+                  className="rounded-full bg-brand-primary shrink-0"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    opacity: 0.8,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="flex mt-1 flex-row items-center justify-center gap-3">
+              <button
+                onClick={handleCloseCall}
+                className="px-5 py-2.5 flex flex-row items-center justify-center gap-3 rounded-full bg-white border-0 transition-[box-shadow,transform] duration-150 active:scale-[0.98]"
+                style={{ boxShadow: buttonShadow }}
+              >
+                <Image src="/assets/cross.png" alt="end call" width={14} height={14} className="opacity-90" />
+                <span className="text-[15px] font-normal text-black/90">
+                  End Call
+                </span>
+              </button>
 
-            <button
-              onClick={handleMuteToggle}
-              aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
-              className={`shadow-lg rounded-full ${isMuted && 'shadow-red-500'}`}
-
-            >
-              <Image
-                src={isMuted ? "/svgIcons/Mute.svg" : "/svgIcons/Unmuted.svg"}
-                alt={isMuted ? "mute" : "unmute"}
-                width={40}
-                height={40}
-              />
-            </button>
-          </div>
+              <button
+                onClick={handleMuteToggle}
+                aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
+                className="rounded-full bg-white border-0 w-11 h-11 flex items-center justify-center shrink-0 transition-[box-shadow,transform] duration-150 active:scale-[0.98]"
+                style={{ boxShadow: buttonShadow }}
+              >
+                <Image
+                  src={isMuted ? "/svgIcons/Mute.svg" : "/svgIcons/Unmuted.svg"}
+                  alt={isMuted ? "mute" : "unmute"}
+                  width={22}
+                  height={22}
+                  className="opacity-90"
+                />
+              </button>
+            </div>
+          </>
         )}
       </div>
     )
@@ -1229,6 +1318,8 @@ const Creator = ({ agentId, name }) => {
   }
 
   const hasAiChatEnabled = agentDetails?.data?.data?.hasAiChatEnabled === true
+  /** Show chat input when agent has chat enabled, or when we opened via a valid shared link (agent may not have loaded yet) */
+  const canShowChatInput = hasAiChatEnabled || shareResolvedSuccess
 
   return (
     <div>
@@ -1250,7 +1341,7 @@ const Creator = ({ agentId, name }) => {
           }}
         >
           <div className="rounded-full border border-[#ffffff] bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-1 px-2 outline-none">
-            {profileLoader ? (
+            {profileLoader || shareResolveLoading ? (
               <CircularProgress size={15} />
             ) : (
               <div className="rounded-full">
@@ -1261,10 +1352,12 @@ const Creator = ({ agentId, name }) => {
               className="truncate"
               style={{ fontSize: '15px', fontWeight: '400', color: 'black' }}
             >
-              {/*agentDetails?.data?.data?.agent?.name*/}
-              {agentDetails?.data?.data?.agent?.name &&
-                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() +
-                agentDetails?.data?.data?.agent?.name.slice(1)}
+              {agentDetails?.data?.data?.agent?.name
+                ? agentDetails.data.data.agent.name.charAt(0).toUpperCase() +
+                agentDetails.data.data.agent.name.slice(1)
+                : shareResolvedSuccess
+                  ? 'Chat'
+                  : null}
             </div>
           </div>
         </div>
@@ -1282,7 +1375,7 @@ const Creator = ({ agentId, name }) => {
           <div
             className="flex items-center justify-center flex-col flex-1 "
             style={{
-              cursor: 'pointer',
+              // cursor: 'pointer',
               outline: 'none',
               border: 'none',
               backgroundColor: 'transparent',
@@ -1296,48 +1389,68 @@ const Creator = ({ agentId, name }) => {
             }}
           >
             {
-              isSmallScreen && (
+              !chatDrawerOpen && (
+                <div>
+                  {
+                    isSmallScreen ? (
 
-                <motion.div
-                  animate={{
-                    y: [0, -30, 0],
-                  }}
-                  transition={{
-                    duration: 3.5,
-                    repeat: Infinity,
-                    repeatType: 'loop',
-                    ease: 'easeInOut',
-                  }}
-                  className="-mb-16 rounded-lg flex flex-col justify-center"
-                  style={{
-                    fontSize: 14,
-                    fontWeight: '500',
-                    fontFamily: 'inter',
-                    backgroundColor: '#ffffff80',
-                    padding: '10px 20px', // Add padding to the content inside the box
-                    position: 'absolute',
-                    top: '25%',
-                    left: '40%',
-                  }}
-                >
-                  Tap to Talk
-                  {/* Triangle at the bottom center */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '-15px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: 0,
-                      height: 0,
-                      borderLeft: '15px solid transparent',
-                      borderRight: '15px solid transparent',
-                      borderTop: '15px solid #ffffff80',
-                    }}
-                  />
-                </motion.div>
+                      <motion.div
+                        className="rounded-full border-none -mb-[130px] bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
+                        animate={{
+                          scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                        }}
+                        onClick={() => {
+                          // Don't initiate new call if call is already active
+                          if (open) {
+                            return
+                          }
+                          handleInitiateVapi()
+                        }}
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          color: 'black',
+                        }}
+                      >
+                        Tab to Talk
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        className="rounded-full border-none mb-4 bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-2 px-4 outline-none cursor-pointer"
+                        animate={{
+                          scale: [1, 1.3, 1],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                        }}
+                        onClick={() => {
+                          // Don't initiate new call if call is already active
+                          if (open) {
+                            return
+                          }
+                          handleInitiateVapi()
+                        }}
+                        style={{
+                          fontSize: '16px',
+                          fontWeight: '500',
+                          color: 'black',
+                        }}
+                      >
+                        Click to talk
+                      </motion.div>
+                    )
+                  }
+                </div>
               )
             }
+
             <div
               className='flex items-center justify-center'
               style={{
@@ -1385,7 +1498,7 @@ const Creator = ({ agentId, name }) => {
               }
             </div>
           </div>
-          {!profileLoader && hasAiChatEnabled && !chatDrawerOpen && !loading && !open && (
+          {!profileLoader && !shareResolveLoading && canShowChatInput && !chatDrawerOpen && !loading && !open && (
             <div
               className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10 py-8 -my-8 -mx-4"
               onMouseEnter={() => setPointerOverChatInputArea(true)}
@@ -1401,10 +1514,10 @@ const Creator = ({ agentId, name }) => {
           <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
 
-        {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer */}
+        {/* Mouse Following Box Animation - hidden when pointer is over chat input or its buffer
         <div className="lg:flex hidden">
           <AnimatePresence>
-            {boxVisible && !pointerOverChatInputArea && (
+            {boxVisible && !pointerOverChatInputArea && !chatDrawerOpen && (
               <motion.div
                 style={{
                   position: 'absolute',
@@ -1434,8 +1547,9 @@ const Creator = ({ agentId, name }) => {
                   style={{
                     color: 'black',
                     fontWeight: '500',
-                    fontFamily: 'inter',
-                    fontSize: 14,
+                    fontFamily: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif',
+                    fontSize: 10,
+                    letterSpacing: '1px',
                   }}
                 >
                   Click to Talk
@@ -1443,19 +1557,24 @@ const Creator = ({ agentId, name }) => {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </div> */}
       </div>
 
       <WebAgentChatDrawer
         key={chatDrawerKey}
         open={chatDrawerOpen}
-        onClose={() => setChatDrawerOpen(false)}
+        onClose={() => {
+          setChatDrawerOpen(false)
+          setSharedThreadId(null)
+        }}
         agentId={agentDetails?.data?.data?.agent?.id ?? agentId}
         agentName={agentDetails?.data?.data?.agent?.name}
         agencyBranding={agentDetails?.data?.data?.agencyBranding || reduxUser?.agencyBranding}
         agent={agentDetails?.data?.data?.agent}
         leadId={webChatLeadId}
+        initialThreadId={sharedThreadId}
         canChangeLlmProvider={reduxUser?.id != null && agentDetails?.data?.data?.user?.id != null && reduxUser.id === agentDetails.data.data.user.id}
+        formData={formData}
       />
 
       {/* Lead Details Modal */}
@@ -1465,8 +1584,8 @@ const Creator = ({ agentId, name }) => {
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(5px)",
+            backgroundColor: 'transparent',
+            backdropFilter: 'none',
           },
         }}
       >
@@ -1580,7 +1699,7 @@ const Creator = ({ agentId, name }) => {
                 <div>
                   <PhoneInput
                     country={'us'}
-                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb','sv', 'ec']}
+                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb', 'sv', 'ec']}
                     countryCodeEditable={false}
                     value={formData.phone}
                     onChange={(value) => handleFormDataChange('phone', value)}
@@ -1693,7 +1812,7 @@ const Creator = ({ agentId, name }) => {
                 </div>
               ) : (
                 <button
-                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid() ? 'bg-purple' : 'bg-gray-400'
+                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid() ? 'bg-brand-primary' : 'bg-gray-400'
                     }`}
                   style={{
                     fontWeight: '600',

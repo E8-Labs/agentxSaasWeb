@@ -1027,6 +1027,7 @@ const Pipeline1 = ({
                 setSnackType={setSnackType}
                 onNewStageCreated={onNewStageCreated}
                 handleReOrder={handleReorder}
+                reorderRows={reorderRows}
               />
 
               {/* Reorder stage loader modal */}

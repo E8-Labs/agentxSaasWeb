@@ -83,15 +83,28 @@ const ActionsTab = ({
     <div className="w-full overflow-x-hidden">
       <div className="w-full flex flex-row items-center justify-center px-2 sm:px-0">
         <div
-          className="border bg-neutral-100 px-1 sm:px-2 flex flex-row items-center gap-[2px] sm:gap-[8px] rounded-full py-1.5 mb-4 flex-wrap justify-center"
-          style={{ width: 'fit-content', maxWidth: '100%' }}
+          className="flex flex-row items-center mt-4 rounded-xl p-1 gap-0 min-w-[400px] max-w-[400px] mx-auto h-10 mb-4"
+          style={{
+            backgroundColor: '#F2F2F2',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+          }}
+          role="tablist"
+          aria-label="Calendars, Tools, Lead Scoring"
         >
           {actionsTab.map((item) => {
+            const isSelected = selectedActionTab === item.id
             return (
               <button
                 key={item.id}
-                className={`px-2 sm:px-4 py-1 text-xs sm:text-sm md:text-base whitespace-nowrap min-w-fit ${selectedActionTab === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'} border-none outline-none`}
-                style={{ minWidth: 'fit-content' }}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                className="flex-1 min-w-0 h-full rounded-lg font-medium text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 transition-all"
+                style={{
+                  backgroundColor: isSelected ? '#FFFFFF' : 'transparent',
+                  color: isSelected ? '#333333' : '#828282',
+                  boxShadow: isSelected ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                }}
                 onClick={() => setSelectedActionTab(item.id)}
               >
                 {item.title}

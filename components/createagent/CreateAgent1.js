@@ -52,6 +52,8 @@ const CreateAgent1 = ({
   const [InBoundCalls, setInBoundCalls] = useState(false)
   const [buildAgentLoader, setBuildAgentLoader] = useState(false)
   const [agentObjective, setAgentObjective] = useState(null)
+  const [templateOptions, setTemplateOptions] = useState(null)
+  const [templatesLoading, setTemplatesLoading] = useState(false)
 
   const [agentName, setAgentName] = useState('')
   const [agentRole, setAgentRole] = useState('')
@@ -229,8 +231,63 @@ const CreateAgent1 = ({
       setUser(d)
     }
   }, [])
-  // const [scollAddress, setScollAddress] = useState("");
-  //// //console.log;
+
+  // Fetch templates (platform + agency) for create-agent step 1
+  useEffect(() => {
+    if (!canShowObjectives()) {
+      setTemplateOptions(null)
+      return
+    }
+    let cancelled = false
+    const fetchTemplates = async () => {
+      setTemplatesLoading(true)
+      try {
+        const UserDetails = localStorage.getItem(PersistanceKeys.LocalStorageUser)
+        const AuthToken = UserDetails ? JSON.parse(UserDetails)?.token : null
+        if (!AuthToken) {
+          setTemplateOptions(null)
+          return
+        }
+        const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+        let forUserId = null
+        if (U) {
+          try {
+            const Data = JSON.parse(U)
+            if (Data?.subAccountData?.id) forUserId = Data.subAccountData.id
+          } catch (e) {}
+        }
+        const url = forUserId
+          ? `${Apis.getTemplates}?forUserId=${forUserId}`
+          : Apis.getTemplates
+        const res = await axios.get(url, {
+          headers: { Authorization: 'Bearer ' + AuthToken },
+        })
+        if (cancelled) return
+        if (res?.data?.status && res?.data?.data) {
+          const { agencyTemplates = [] } = res.data.data
+          console.log("agencyTemplates.kj", agencyTemplates)
+          const agencyCards = (agencyTemplates || []).map((a) => ({
+            id: 10000 + (a.agentTemplateId || 0),
+            agentTemplateId: a.agentTemplateId,
+            title: a.agentRole || '',
+            details: a.description || '',
+            source: 'agency',
+            focusIcn: '/svgIcons/obj1F.svg',
+            unFocusIcon: '/objectiveIcons/obj1UF.png',
+          }))
+          setTemplateOptions([...AgentObjective, ...agencyCards])
+        } else {
+          setTemplateOptions(null)
+        }
+      } catch (err) {
+        if (!cancelled) setTemplateOptions(null)
+      } finally {
+        if (!cancelled) setTemplatesLoading(false)
+      }
+    }
+    fetchTemplates()
+    return () => { cancelled = true }
+  }, [selectedUser?.subAccountData?.id, user?.user?.userType])
 
   //other objective
   const [showOtherObjective, setShowOtherObjective] = useState(false)
@@ -921,6 +978,10 @@ const CreateAgent1 = ({
         formData.append('agentObjective', 'others')
         formData.append('agentObjectiveDescription', '')
         formData.append('agentObjectiveId', 100)
+      } else if (agentObjective.source === 'agency') {
+        formData.append('agentTemplateId', agentObjective.agentTemplateId)
+        formData.append('agentObjective', agentObjective.title)
+        formData.append('agentObjectiveDescription', agentObjective.details || '')
       } else if (agentObjective.id === 100) {
         formData.append('agentObjective', 'others')
         formData.append('agentObjectiveDescription', otherObjVal)
@@ -1489,7 +1550,7 @@ const CreateAgent1 = ({
                 )}
                 {canShowObjectives() && (
                   <div className="flex flex-wrap">
-                    {AgentObjective.map((item) => (
+                    {(templateOptions && templateOptions.length > 0 ? templateOptions : AgentObjective).map((item) => (
                       <div
                         key={item.id}
                         className="w-full text-start md:w-1/2 pe-2 flex py-4"

@@ -136,7 +136,7 @@ function NoPerplexity({
         <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
       ) : (
         <button
-          className="start-campaign-glow h-[40px] px-3 flex flex-row gap-2 rounded-lg bg-brand-primary items-center justify-center text-white"
+          className="h-[40px] px-3 flex flex-row gap-2 rounded-lg bg-brand-primary items-center justify-center text-white font-medium hover:opacity-90 active:opacity-95 transition-opacity"
           onClick={() => {
             if (userLocalData?.cards?.length == 0) {
               setShowAddCard(true)

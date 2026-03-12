@@ -1,5 +1,5 @@
 import Apis from '@/components/apis/Apis'
-import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
+import { hexToHsl, calculateIconFilter, getBrandPaletteFromHex } from '@/utilities/colorUtils'
 import { UserRole } from '@/constants/UserRole'
 
 /**
@@ -49,6 +49,14 @@ const applyBrandingStyles = (branding) => {
     // Calculate and set icon filter
     const iconFilter = calculateIconFilter(primaryColor)
     document.documentElement.style.setProperty('--icon-filter', iconFilter)
+
+    // Set conic glow palette (complementary, triadic, tetradic from primary)
+    const palette = getBrandPaletteFromHex(primaryColor)
+    document.documentElement.style.setProperty('--brand-complementary', palette.complementary)
+    document.documentElement.style.setProperty('--brand-triadic-1', palette.triadic1)
+    document.documentElement.style.setProperty('--brand-triadic-2', palette.triadic2)
+    document.documentElement.style.setProperty('--brand-tetradic-1', palette.tetradic1)
+    document.documentElement.style.setProperty('--brand-tetradic-2', palette.tetradic2)
   } catch (error) {
     console.error('❌ [applyBrandingStyles] Error applying styles:', error)
   }

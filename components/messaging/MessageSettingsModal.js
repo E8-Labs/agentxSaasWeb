@@ -1006,11 +1006,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       )}
                     </div>
 
-                  {/* Set Reply Delay + Save as Draft Section */}
+                  {/* Set Auto Reply + Save as Draft Section */}
                   <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
                     <div className="flex items-center justify-between h-10 min-h-0">
                       <div className="flex items-center gap-2">
-                        <label className="text-[14px] font-medium text-foreground">Set reply delay</label>
+                        <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>

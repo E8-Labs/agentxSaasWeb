@@ -281,7 +281,7 @@ export const GreetingTagInput = ({
   return (
     <div className="overflow-none" style={{ position: 'relative' }}>
       <input
-        className="rounded-xl focus:outline-none focus:ring-0"
+        className="h-[40px] rounded-xl focus:outline-none focus:ring-0 border border-[#e5e7eb] hover:border-gray-300 hover:bg-gray-50/30 transition-colors"
         ref={textFieldRef}
         // rows=""
         // cols="50"
@@ -291,13 +291,12 @@ export const GreetingTagInput = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder || 'Type here...'}
         style={{
-          fontSize: '16px',
-          padding: '15px',
+          fontSize: '14px',
+          padding: '8px 12px',
           width: '100%',
+          height: '40px',
           resize: 'none',
           fontWeight: '500',
-          fontSize: 15,
-          border: '1px solid #00000020',
           outline: 'none',
           outlineColor: 'transparent',
         }}

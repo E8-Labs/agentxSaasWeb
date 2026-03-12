@@ -351,14 +351,9 @@ export function SupportWidget({
     }
   }
 
-  // Handle Get Help button click - check for smart list
+  // Handle Get Help button click - always show form (default or default + smartlist), matching web-agent
   const handleGetHelpClick = () => {
-    // Check if agent has smartList attached
-    if (smartListData && smartListData.id) {
-      handleModalOpen()
-    } else {
-      handleStartCall(true)
-    }
+    handleModalOpen()
   }
 
   async function startCall(overrides = null) {

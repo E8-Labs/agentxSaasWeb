@@ -5,7 +5,7 @@ import {
   Modal,
   Box,
   Typography,
-
+  Fade,
   MenuItem,
   FormControl,
   TextField,
@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 
 import {
@@ -126,6 +127,13 @@ const AdvancedSettingsModalCN = ({
     <Modal
       open={open}
       onClose={handleCancel}
+      closeAfterTransition
+      BackdropProps={{
+        timeout: 250,
+        sx: {
+          backgroundColor: '#00000099',
+        },
+      }}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -133,176 +141,245 @@ const AdvancedSettingsModalCN = ({
         zIndex: 1600,
       }}
     >
-      <Box
-        sx={{
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-          p: 4,
-          width: '100%',
-          maxWidth: '450px',
-          mx: 2,
-          maxHeight: '90vh',
-          overflow: 'auto',
-          outline: 'none',
-          zIndex: 1700
-        }}
-        className={className}
-      >
-        {/* Header */}
-
-        <div>
-          <AgentSelectSnackMessage
-            isVisible={isVisibleSnack}
-            type={SnackbarTypes.Error}
-            message={`Silence timeout cannot be less than 10 seconds`}
-            hide={() => {
-              setIsVisibleSnack(false)
-            }}
-          />
-        </div>
-
-        <div className='flex flex-row items-center justify-between z-1750'>
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            gutterBottom
-          >
-            Advanced Settings
-          </Typography>
-
-          <CloseBtn
-            onClick={() => {
-              console.log("clicked")
-              onOpenChange(false)
-            }}
-          />
-        </div>
-
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          gutterBottom
-          sx={{ mb: 3 }}
-        >
-          Configure advanced call settings for your agent
-        </Typography>
-
-        {/* Content */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, zIndex: 1800 }}>
-          {/* Maximum Duration */}
-          <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              gutterBottom
-            >
-              Maximum Duration (seconds)
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              gutterBottom
-              sx={{ mb: 1 }}
-            >
-              The maximum duration of a call in minutes
-            </Typography>
-            <div className="flex flex-row items-center border rounded w-full focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
-              <Input
-                type="number"
-                value={maxDurationSeconds}
-                onChange={(e) => setMaxDurationSeconds(e.target.value)}
-                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
-                {Number(maxDurationSeconds) === 1 ? 'min' : 'mins'}
-              </span>
-            </div>
-          </Box>
-
-          {/* Silence Timeout */}
-          <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              gutterBottom
-            >
-              Silence Timeout (seconds)
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              gutterBottom
-              sx={{ mb: 1 }}
-            >
-              Time before considering user as idle
-            </Typography>
-            <div className="flex flex-row items-center border rounded w-full focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
-              <Input
-                type="number"
-                value={idleTimeoutSeconds}
-                onChange={handleIdleTimeoutChange}
-                placeholder="Silence Timeout"
-                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
-                {Number(idleTimeoutSeconds) === 1 ? 'sec' : 'secs'}
-              </span>
-            </div>
-          </Box>
-
-          {/* Silence Response */}
-          <Box className="z-1900">
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              gutterBottom
-            >
-              Silence Response
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              gutterBottom
-              sx={{ mb: 1 }}
-            >
-              Message to say when user is silent.
-            </Typography>
-            <Select
-              value={idleMessage}
-              onValueChange={setIdleMessage}
-            >
-              <SelectTrigger id="idleMessage" className="w-full">
-                <SelectValue placeholder="Select a message" />
-              </SelectTrigger>
-              <SelectContent className="z-[2000]">
-                {IDLE_MESSAGES.map((message, index) => (
-                  <SelectItem key={index} value={message}>
-                    {message}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Box>
-        </Box>
-
-        {/* Footer */}
+      <Fade in={open} timeout={250}>
         <Box
+          className={cn(
+            'flex flex-col w-[400px] max-w-[90vw] overflow-hidden rounded-[12px] bg-white',
+            className,
+          )}
           sx={{
-            mt: 4,
-            display: 'flex',
-            justifyContent: 'flex-end',
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            outline: 'none',
+            m: 0,
+            p: 0,
+            maxHeight: '90vh',
+            fontFamily: 'Inter, sans-serif',
+            '@keyframes modalEnter': {
+              '0%': { transform: 'scale(0.95)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            animation:
+              'modalEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
           }}
         >
-          <Button
-            onClick={handleSave}
-            disabled={loading || !isValid()}
-            className="bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          <div>
+            <AgentSelectSnackMessage
+              isVisible={isVisibleSnack}
+              type={SnackbarTypes.Error}
+              message={`Silence timeout cannot be less than 10 seconds`}
+              hide={() => {
+                setIsVisibleSnack(false)
+              }}
+            />
+          </div>
+
+          {/* Header */}
+          <div
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid #eaeaea' }}
           >
-            {loading ? 'Saving...' : 'Save Changes'}
-          </Button>
+            <Typography
+              variant="h5"
+              fontWeight={600}
+              gutterBottom
+              sx={{ fontSize: 16, fontFamily: 'Inter, sans-serif' }}
+            >
+              Advanced Settings
+            </Typography>
+
+            <CloseBtn
+              onClick={() => {
+                onOpenChange(false)
+              }}
+            />
+          </div>
+
+          {/* Body */}
+          <div
+            className="flex-1 px-4 py-4"
+            style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              sx={{ fontSize: 14, mb: 2 }}
+            >
+              Configure advanced call settings for your agent
+            </Typography>
+
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              {/* Maximum Duration */}
+              <Box
+                sx={{
+                  fontSize: 14,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}
+              >
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '1px' }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={400}
+                    gutterBottom
+                    sx={{ fontSize: 14, fontFamily: 'Inter, sans-serif' }}
+                  >
+                    Maximum Duration (seconds)
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ fontSize: 14 }}
+                  >
+                    The maximum duration of a call in minutes
+                  </Typography>
+                </Box>
+                <div className="flex flex-row items-center h-[40px] border border-input rounded-lg w-full transition-colors hover:border-[hsl(var(--brand-primary)/0.5)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[hsl(var(--brand-primary))] focus-within:ring-offset-0 focus-within:border-[1px] focus-within:border-[hsl(var(--brand-primary))]">
+                  <Input
+                    type="number"
+                    value={maxDurationSeconds}
+                    onChange={(e) => setMaxDurationSeconds(e.target.value)}
+                    className="border-0 rounded-r-none rounded-l px-3 h-[40px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-[14px]"
+                  />
+                  <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
+                    {Number(maxDurationSeconds) === 1 ? 'min' : 'mins'}
+                  </span>
+                </div>
+              </Box>
+
+              {/* Silence Timeout */}
+              <Box
+                sx={{
+                  fontSize: 14,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}
+              >
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '1px' }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={400}
+                    gutterBottom
+                    sx={{ fontSize: 14, fontFamily: 'Inter, sans-serif' }}
+                  >
+                    Silence Timeout (seconds)
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ fontSize: 14 }}
+                  >
+                    Time before considering user as idle
+                  </Typography>
+                </Box>
+                <div className="flex flex-row items-center h-[40px] border border-input rounded-lg w-full transition-colors hover:border-[hsl(var(--brand-primary)/0.5)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[hsl(var(--brand-primary))] focus-within:ring-offset-0 focus-within:border-[1px] focus-within:border-[hsl(var(--brand-primary))]">
+                  <Input
+                    type="number"
+                    value={idleTimeoutSeconds}
+                    onChange={handleIdleTimeoutChange}
+                    placeholder="Silence Timeout"
+                    className="border-0 rounded-r-none rounded-l px-3 h-[40px] outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-[14px]"
+                  />
+                  <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
+                    {Number(idleTimeoutSeconds) === 1 ? 'sec' : 'secs'}
+                  </span>
+                </div>
+              </Box>
+
+              {/* Silence Response */}
+              <Box
+                className="z-1900"
+                sx={{
+                  fontSize: 14,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}
+              >
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '1px' }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={400}
+                    gutterBottom
+                    sx={{ fontSize: 14, fontFamily: 'Inter, sans-serif' }}
+                  >
+                    Silence Response
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                    sx={{ fontSize: 14 }}
+                  >
+                    Message to say when user is silent.
+                  </Typography>
+                </Box>
+                <Select value={idleMessage} onValueChange={setIdleMessage}>
+                  <SelectTrigger
+                    id="idleMessage"
+                    className="w-full h-[40px] border border-input rounded-lg transition-colors hover:border-[hsl(var(--brand-primary)/0.5)] focus:ring-2 focus:ring-[hsl(var(--brand-primary))] focus:border-[1px] focus:border-[hsl(var(--brand-primary))] data-[state=open]:border-[1px] data-[state=open]:border-[hsl(var(--brand-primary))]"
+                  >
+                    <SelectValue placeholder="Select a message" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[2000]">
+                    {IDLE_MESSAGES.map((message, index) => (
+                      <SelectItem key={index} value={message}>
+                        {message}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Box>
+            </Box>
+          </div>
+
+          {/* Footer (action bar) */}
+          <div
+            className="flex flex-row items-center justify-between px-4 py-3"
+            style={{ borderTop: '1px solid #eaeaea' }}
+          >
+            <button
+              type="button"
+              onClick={handleCancel}
+              className={cn(
+                'flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-medium',
+                'bg-muted text-foreground hover:bg-muted/80',
+                'transition-colors duration-150 active:scale-[0.98]',
+              )}
+            >
+              Cancel
+            </button>
+            <Button
+              onClick={handleSave}
+              disabled={loading || !isValid()}
+              className={cn(
+                'flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold',
+                'bg-brand-primary text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed',
+                'transition-all duration-150 active:scale-[0.98]',
+              )}
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
         </Box>
-      </Box>
+      </Fade>
     </Modal>
   )
 }

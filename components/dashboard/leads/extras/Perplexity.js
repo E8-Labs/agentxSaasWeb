@@ -1,6 +1,6 @@
 import { get } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
-import { Globe } from 'lucide-react'
+import { Globe, WandSparkles, ArrowUpRight } from 'lucide-react'
 import React, { useState } from 'react'
 import {
   TypographyBody,
@@ -10,6 +10,8 @@ import {
   TypographyH2,
   TypographyTitle,
 } from '@/lib/typography'
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
+import { Typography } from '@mui/material'
 
 function Perplexity({ selectedLeadsDetails }) {
   let enrichData = selectedLeadsDetails?.enrichData
@@ -66,13 +68,14 @@ function Perplexity({ selectedLeadsDetails }) {
         <div className="w-full flex flex-col h-[100px] px-2 py-2 bg-[#FAFAFA] rounded">
           <div className="flex flex-row items-center gap-2 mb-1 min-w-0">
             {renderProfileIcon(item)}
-            <TypographyBodyMedium className="text-muted-foreground truncate">
+            <TypographyBodyMedium className="text-muted-foreground truncate font-normal flex-1 min-w-0 text-left">
               {item.name}
             </TypographyBodyMedium>
+            <ArrowUpRight className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
           </div>
 
           <TypographyBodyMedium
-            className="h-[50px] overflow-hidden text-left truncate max-w-full"
+            className="h-[50px] overflow-hidden text-left truncate max-w-full font-normal capitalize"
           >
             {item.description?.length > 12
               ? `${item.description.slice(0, 12)}..`
@@ -86,12 +89,13 @@ function Perplexity({ selectedLeadsDetails }) {
           <div className="w-full flex flex-col h-[100px] px-2 py-2 bg-[#FAFAFA] rounded">
             <div className="flex flex-row items-center gap-2 mb-1 min-w-0">
               {renderProfileIcon(item)}
-              <TypographyBodyMedium className="text-muted-foreground truncate">
+              <TypographyBodyMedium className="text-muted-foreground truncate font-normal flex-1 min-w-0 text-left">
                 {getSourceName(item.url)}
               </TypographyBodyMedium>
+              <ArrowUpRight className="h-4 w-4 shrink-0 text-brand-primary" aria-hidden />
             </div>
 
-            <TypographyBodyMedium className="h-[50px] overflow-hidden text-left truncate max-w-full text-[14px]">
+            <TypographyBodyMedium className="h-[50px] overflow-hidden text-left truncate max-w-full text-[14px] font-normal">
               {item.url}
             </TypographyBodyMedium>
           </div>
@@ -132,21 +136,22 @@ function Perplexity({ selectedLeadsDetails }) {
 
       avgScore = (score / profiles.length) * 100
 
-      // console.log('avgScore', avgScore)
+      return formatFractional2(avgScore) + "%"
+    } else {
+      return "No Data"
     }
-    return avgScore
   }
 
   return (
     <div
-      className="w-full flex flex-col items-center py-3 gap-3 h-[42vh]"
+      className="w-full flex flex-col items-center py-3 gap-3 h-[42vh] px-4"
       style={{
         overflow: 'auto',
         scrollbarWidth: 'none',
         // overflowX: "hidden",
       }}
     >
-      <div className="w-full flex flex-row justify-between items-center">
+      <div className="w-full flex flex-row justify-between items-center px-2">
         <div className="flex flex-row items-center gap-2">
           {/* <Image
                         src={"/svgIcons/image.svg"}
@@ -169,7 +174,7 @@ function Perplexity({ selectedLeadsDetails }) {
             alt="*"
           />
 
-          <TypographyH2 className="whitespace-nowrap">
+          <TypographyH2 className="whitespace-nowrap text-[14px] leading-normal font-semibold">
             Confidence Score:{' '}
             <span className="text-brand-primary">
               {calculateConfidanseScore().toFixed(2)}%
@@ -181,17 +186,17 @@ function Perplexity({ selectedLeadsDetails }) {
         <div className="grid grid-cols-3 gap-3 w-full h-auto overflow-y-auto">
           {profiles?.length > 0
             ? profiles.slice(0, 6).map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    window.open(item.url, '_blank')
-                  }}
-                >
-                  {getProfileView(item, index)}
-                </button>
-              ))
+              <button
+                key={index}
+                onClick={() => {
+                  window.open(item.url, '_blank')
+                }}
+              >
+                {getProfileView(item, index)}
+              </button>
+            ))
             : ''
-              // <div>No Profiles Found</div>
+            // <div>No Profiles Found</div>
           }
         </div>
         {profiles?.length > 6 && (
@@ -226,14 +231,29 @@ function Perplexity({ selectedLeadsDetails }) {
         )}
       </div>
 
-      <div className="w-full flex flex-row items-cneter gap-2 mt-5">
-        <Image src={'/svgIcons/sparkles.svg'} height={24} width={24} alt="*" />
+      <div className="flex flex-col w-full gap-2">
+        <div className="w-full flex flex-row items-center gap-2">
+          <span className="inline-flex shrink-0" aria-hidden>
+            <svg width="0" height="0" aria-hidden style={{ position: 'absolute' }}>
+              <defs>
+                <linearGradient id="wandGradPerplexity" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="hsl(var(--brand-primary))" />
+                  <stop offset="100%" stopColor="hsl(var(--brand-primary-complement))" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <WandSparkles
+              size={18}
+              strokeWidth={2}
+              className="[stroke:url(#wandGradPerplexity)]"
+              style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))' }}
+            />
+          </span>
+          <TypographyTitle>More detail</TypographyTitle>
+        </div>
 
-        <TypographyTitle>More detail</TypographyTitle>
-      </div>
-
-      <div className="flex flex-col items-start w-full">
-        <TypographyBodySemibold className="mt-4">
+        <div className="flex flex-col items-start w-full">
+        <TypographyBodySemibold className="font-normal text-black/70">
           {enrichData?.summary?.length > 400
             ? isExpanded
               ? `${enrichData.summary}`
@@ -252,6 +272,7 @@ function Perplexity({ selectedLeadsDetails }) {
             </TypographyBodySemibold>
           </button>
         )}
+        </div>
       </div>
     </div>
   )

@@ -1,8 +1,75 @@
-import Image from 'next/image'
+'use client'
 
-const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
-  // Render icon with branding using mask-image approach (same logic as NotificationsDrawer.js)
+import { formatFractional2Stable } from '@/components/agency/plan/AgencyUtilities'
+import Image from 'next/image'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+
+
+
+const ICON_SIZE = 18
+
+const SUBTITLE_SHORT = {
+  'Answer rate': 'Ans. rate',
+  'Conversion rate': 'Conv. rate',
+}
+
+function getSubtitleLabel(subtitle) {
+  return SUBTITLE_SHORT[subtitle] ?? subtitle
+}
+
+/** Small pie chart showing rate (0–100) as filled portion. Filled = brand primary, unfilled = light. */
+function RatePie({ value, size = 15 }) {
+  const pct = Math.min(100, Math.max(0, value))
+  return (
+    <div
+      className="shrink-0 rounded-full"
+      style={{
+        width: size,
+        height: size,
+        background: `conic-gradient(
+          hsl(var(--brand-primary)) 0deg ${(pct / 100) * 360}deg,
+          hsl(var(--brand-primary) / 0.2) ${(pct / 100) * 360}deg 360deg
+        )`,
+      }}
+      aria-hidden
+    />
+  )
+}
+
+const AgentInfoCard = ({
+  name,
+  value,
+  icon,
+  iconComponent,
+  bgColor,
+  iconColor,
+  iconWrapperClassName,
+  subtitle,
+  rate,
+  toolTip,
+}) => {
+  // When iconComponent (e.g. Lucide icon) is provided, render it at 18px; optional wrapper for container styling. subtitle/rate for functional display.
   const renderIcon = () => {
+    if (iconComponent) {
+      const iconEl = (
+        <div className={iconColor ? `flex shrink-0 ${iconColor}` : 'flex shrink-0 text-foreground'} style={{ width: ICON_SIZE, height: ICON_SIZE }}>
+          {iconComponent}
+        </div>
+      )
+      if (iconWrapperClassName) {
+        return (
+          <div className={`flex items-center justify-center ${iconWrapperClassName}`}>
+            {iconEl}
+          </div>
+        )
+      }
+      return iconEl
+    }
     if (typeof window === 'undefined') {
       return <Image src={icon} height={24} width={24} alt="icon" />
     }
@@ -43,16 +110,40 @@ const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      {/* Icon */}
+    <div className="flex w-full flex-col items-start gap-2">
+      {/* Icon - only element not full width */}
       {renderIcon()}
 
-      <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
+      <div className="w-full text-sm font-normal text-foreground">
         {name}
       </div>
-      <div style={{ fontSize: 20, fontWeight: '600', color: '#000' }}>
+      <div className="w-full text-sm font-normal text-black/80">
         {value}
       </div>
+      {subtitle && rate != null && rate !== '' && (
+        <div className="mt-1.5 flex w-full items-center justify-between border-t border-black/10 py-2">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="shrink-0 cursor-default text-xs font-normal leading-4 tracking-[-0.06px] text-black whitespace-nowrap">
+                  {getSubtitleLabel(subtitle)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[200px] px-2 py-1 text-xs">
+                {subtitle}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="flex shrink-0 items-center gap-1">
+            <RatePie value={Number(rate)} size={15} />
+            <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
+              {Number(rate) % 1 === 0
+                ? `${Number(rate).toFixed(0)}%`
+                : `${Number(rate).toFixed(1)}%`}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

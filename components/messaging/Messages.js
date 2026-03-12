@@ -2290,45 +2290,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }
 
-  // Get agent/user avatar for outbound messages
+  // Get agent/user avatar for outbound messages (agent first, then sender user)
   const getAgentAvatar = (message) => {
-    // Priority 1: Team member sender (if message was sent by a team member)
-    if (message.senderUser) {
-      // Try team member profile image first
-      if (message.senderUser.thumb_profile_image) {
-        return (
-          <div
-            className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-white overflow-hidden flex-shrink-0"
-          >
-            <img
-              src={message.senderUser.thumb_profile_image}
-              alt={message.senderUser.name || 'Team Member'}
-              className="w-full h-full object-cover rounded-full"
-              style={{
-                width: '32px',
-                height: '32px',
-                objectFit: 'cover',
-              }}
-              onError={(e) => {
-                console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
-              }}
-              onLoad={() => { }}
-            />
-          </div>
-        );
-      }
-
-      // Fallback to team member name initial
-      const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
-      const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
-      return (
-        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
-          {teamMemberLetter}
-        </div>
-      )
-    }
-
-    // Priority 2: Agent thumb, bitmoji, or initial
+    // Priority 1: Agent thumb, voice, or initial (so SMS and email both show agent when message has an agent)
     if (message.agent) {
       if (message.agent.thumb_profile_image) {
         const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
@@ -2372,6 +2336,39 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       return (
         <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
           {agentLetter}
+        </div>
+      )
+    }
+
+    // Priority 2: Team member sender (when message was sent by a team member and has no agent)
+    if (message.senderUser) {
+      if (message.senderUser.thumb_profile_image) {
+        return (
+          <div
+            className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-white overflow-hidden flex-shrink-0"
+          >
+            <img
+              src={message.senderUser.thumb_profile_image}
+              alt={message.senderUser.name || 'Team Member'}
+              className="w-full h-full object-cover rounded-full"
+              style={{
+                width: '32px',
+                height: '32px',
+                objectFit: 'cover',
+              }}
+              onError={(e) => {
+                console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
+              }}
+              onLoad={() => { }}
+            />
+          </div>
+        );
+      }
+      const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
+      const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
+      return (
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
+          {teamMemberLetter}
         </div>
       )
     }
@@ -2456,6 +2453,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
       if (res.data?.status && Array.isArray(res.data?.data)) {
+        console.log("fetchSocialConnections res.data.data", res.data.data)
         setSocialConnections(res.data.data)
       } else {
         setSocialConnections([])
@@ -3553,6 +3551,56 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [searchValue, selectedThread, fetchThreads, selectedUser, setThreadIdInUrl])
 
+  // Mark thread as replied or unreplied (updates list and counts after API success)
+  const handleMarkReplyStatus = useCallback(async (threadId, replied) => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      let apiPath = `${Apis.setThreadReplyStatus}/${threadId}/reply-status`
+      if (selectedUser?.id) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+      }
+
+      const response = await axios.patch(
+        apiPath,
+        { replied },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+
+      if (response.data?.status) {
+        setSnackbar({
+          isVisible: true,
+          message: response.data?.message || (replied ? 'Marked as replied' : 'Marked as unreplied'),
+          type: SnackbarTypes.Success,
+        })
+        // Refresh current list and counts so thread moves between replied/unreplied
+        fetchThreads(searchValue, appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
+      } else {
+        setSnackbar({
+          isVisible: true,
+          message: response.data?.message || 'Failed to update reply status',
+          type: SnackbarTypes.Error,
+        })
+      }
+    } catch (error) {
+      console.error('Error setting thread reply status:', error)
+      setSnackbar({
+        isVisible: true,
+        message: error.response?.data?.message || 'Error updating reply status',
+        type: SnackbarTypes.Error,
+      })
+    }
+  }, [searchValue, appliedTeamMemberIds, filterType, fetchThreads, selectedUser])
+
   // Setup scroll listener (re-run when thread changes so we attach after container mounts)
   useEffect(() => {
     const container = messagesContainerRef.current
@@ -3739,6 +3787,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     getRecentMessageType={getRecentMessageType}
                     formatUnreadCount={formatUnreadCount}
                     onDeleteThread={handleDeleteThread}
+                    onMarkReplyStatus={handleMarkReplyStatus}
                     searchValue={searchValue}
                     onSearchChange={setSearchValue}
                     searchLoading={searchLoading}
@@ -3915,6 +3964,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         onSendSocialMessage={handleSendSocialMessage}
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
                         hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
+                        pageName={socialConnections[0]?.displayName}
                         onConnectionSuccess={fetchSocialConnections}
                         onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
                         onCommentAdded={(newMessage) => {
@@ -3940,6 +3990,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         }}
                         selectedUser={selectedUser}
                         searchLoading={searchLoading}
+                        customDomain={reduxUser?.agencyBranding?.customDomain}
                       />
                     </div>
 
@@ -3974,6 +4025,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                               // setShowSuperHumanModal(false)
                               handleOpenMessageSettings()
                             }}
+                            allowAIEmailAndText={allowAIEmailAndText}
+                            shouldShowAiEmailAndTextRequestFeature={shouldShowAiEmailAndTextRequestFeature}
+                            shouldShowAllowAiEmailAndTextUpgrade={shouldShowAllowAiEmailAndTextUpgrade}
                           />
                         </div>
                       )

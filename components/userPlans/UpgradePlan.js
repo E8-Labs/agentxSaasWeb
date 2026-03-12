@@ -822,7 +822,7 @@ function UpgradePlanContent({
     // item.id is the plan ID from the plans list
     // Convert both to numbers for strict comparison
     const itemPlanId = Number(item.id || item.planId)
-    const currentPlanId = Number(planToCompare.planId ||planToCompare.id)
+    const currentPlanId = Number(planToCompare.planId || planToCompare.id)
 
     console.log("itemPlanId", itemPlanId)
     console.log("currentPlanId itemPlanId", currentPlanId)
@@ -1865,7 +1865,7 @@ function UpgradePlanContent({
                                   : 'bg-brand-primary text-white'
                                 }`}
                             >
-                              {isCurrentPlan ? 'Current Plan' : 'Select Plan'}
+                              {item?.hasTrial ? `${item?.trialValidForDays} ${item?.trialValidForDays > 1 ? 'Days' : 'Day'} free trial` : isCurrentPlan ? 'Current Plan' : 'Select Plan'}
                             </div>
                           </button>
                         )
@@ -1989,9 +1989,6 @@ function UpgradePlanContent({
                         <div className="flex flex-row items-center justify-between w-full">
                           <div className=" text-xl font-semibold ">
                             Order Summary
-                          </div>
-                          <div>
-                            {currentSelectedPlan?.hasTrial ? `${currentSelectedPlan?.trialValidForDays} ${currentSelectedPlan?.trialValidForDays > 1 ? 'Days' : 'Day'} free trial` : ''}
                           </div>
                         </div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">

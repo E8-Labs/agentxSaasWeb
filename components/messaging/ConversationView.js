@@ -464,21 +464,52 @@ const ConversationView = ({
                             )}
                         </div>
 
+                        {onStarToggle && (
+                          <TooltipProvider delayDuration={0}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onStarToggle(message.id)
+                                  }}
+                                  className="flex-shrink-0 p-1 rounded transition-colors hover:bg-black/5"
+                                  aria-label={starredMessageIds?.has(message.id) ? 'Unstar message' : 'Star message'}
+                                >
+                                  {starredMessageIds?.has(message.id) ? (
+                                    <Star size={16} className="fill-brand-primary text-brand-primary" />
+                                  ) : (
+                                    <Star size={16} className="text-gray-400" />
+                                  )}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="left">
+                                {starredMessageIds?.has(message.id) ? 'Unstar message' : 'Star message'}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+
                         {isOutbound && (() => {
-                          const agentOrSenderName = message?.agent?.name || message?.senderUser?.name;
+                          const agentOrSenderName = message?.agent?.name || message?.senderUser?.name
                           const button = (
                             <button
                               type="button"
                               className="flex-shrink-0 cursor-pointer"
-                              onClick={() => { console.log("message details", message) }}
+                              onClick={() => {
+                                console.log("message details", message)
+                              }}
                               aria-label={agentOrSenderName ? `${agentOrSenderName}` : 'Agent'}
                             >
                               <div className="relative flex-shrink-0">
                                 {getAgentAvatar(message)}
-                                {/* PlatformIcon as before */}
+                                {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                                  <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                                )}
                               </div>
                             </button>
-                          );
+                          )
                           return (
                             <TooltipProvider delayDuration={0}>
                               {agentOrSenderName ? (
@@ -490,7 +521,7 @@ const ConversationView = ({
                                 button
                               )}
                             </TooltipProvider>
-                          );
+                          )
                         })()}
                       </div>
                     </div>

@@ -564,10 +564,30 @@ const NewMessageModal = ({
       })
 
       if (response.data?.status && response.data?.data) {
-        setPhoneNumbers(response.data.data)
-        if (response.data.data.length > 0) {
-          setSelectedPhoneNumber(response.data.data[0].id)
-          setSelectedPhoneNumberObj(response.data.data[0])
+        const phones = response.data.data
+        setPhoneNumbers(phones)
+        if (phones.length > 0) {
+          let didSetFromEditingRow = false
+          if (isPipelineMode && isEditing && editingRow?.smsPhoneNumberId != null) {
+            const phoneId = String(editingRow.smsPhoneNumberId)
+            const phone = phones.find((p) => p.id.toString() === phoneId || p.id === parseInt(phoneId, 10))
+            if (phone) {
+              setSelectedPhoneNumber(phone.id.toString())
+              setSelectedPhoneNumberObj(phone)
+              didSetFromEditingRow = true
+            }
+          }
+          if (!didSetFromEditingRow) {
+            const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedPhoneNumberId) : null
+            const lastUsedPhone = lastUsedId ? phones.find((p) => p.id.toString() === lastUsedId || p.id === parseInt(lastUsedId, 10)) : null
+            if (lastUsedPhone) {
+              setSelectedPhoneNumber(lastUsedPhone.id.toString())
+              setSelectedPhoneNumberObj(lastUsedPhone)
+            } else {
+              setSelectedPhoneNumber(phones[0].id.toString())
+              setSelectedPhoneNumberObj(phones[0])
+            }
+          }
         }
       }
     } catch (error) {
@@ -602,14 +622,26 @@ const NewMessageModal = ({
         const accounts = response.data.data
         setEmailAccounts(accounts)
         if (accounts.length > 0) {
-          const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedEmailAccountId) : null
-          const lastUsedAccount = lastUsedId ? accounts.find((a) => a.id.toString() === lastUsedId || a.id === parseInt(lastUsedId, 10)) : null
-          if (lastUsedAccount) {
-            setSelectedEmailAccount(lastUsedAccount.id.toString())
-            setSelectedEmailAccountObj(lastUsedAccount)
-          } else {
-            setSelectedEmailAccount(accounts[0].id.toString())
-            setSelectedEmailAccountObj(accounts[0])
+          let didSetFromEditingRow = false
+          if (isPipelineMode && isEditing && editingRow?.emailAccountId != null) {
+            const accountId = String(editingRow.emailAccountId)
+            const account = accounts.find((a) => a.id.toString() === accountId || a.id === parseInt(accountId, 10))
+            if (account) {
+              setSelectedEmailAccount(account.id.toString())
+              setSelectedEmailAccountObj(account)
+              didSetFromEditingRow = true
+            }
+          }
+          if (!didSetFromEditingRow) {
+            const lastUsedId = typeof window !== 'undefined' ? localStorage.getItem(PersistanceKeys.LastUsedEmailAccountId) : null
+            const lastUsedAccount = lastUsedId ? accounts.find((a) => a.id.toString() === lastUsedId || a.id === parseInt(lastUsedId, 10)) : null
+            if (lastUsedAccount) {
+              setSelectedEmailAccount(lastUsedAccount.id.toString())
+              setSelectedEmailAccountObj(lastUsedAccount)
+            } else {
+              setSelectedEmailAccount(accounts[0].id.toString())
+              setSelectedEmailAccountObj(accounts[0])
+            }
           }
         }
       }
@@ -1709,6 +1741,10 @@ const NewMessageModal = ({
       if (successCount > 0 && selectedMode === 'email' && selectedEmailAccount && typeof window !== 'undefined') {
         localStorage.setItem(PersistanceKeys.LastUsedEmailAccountId, selectedEmailAccount)
       }
+      // Remember last used phone number for next time user opens new SMS message
+      if (successCount > 0 && selectedMode === 'sms' && selectedPhoneNumber && typeof window !== 'undefined') {
+        localStorage.setItem(PersistanceKeys.LastUsedPhoneNumberId, selectedPhoneNumber)
+      }
 
       // Always create template - type depends on "Save as template" checkbox
       if (successCount > 0) {
@@ -2024,8 +2060,12 @@ const NewMessageModal = ({
                                           type="button"
                                           onClick={() => {
                                             const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
-                                            setSelectedPhoneNumber(phone.id.toString())
+                                            const idStr = phone.id.toString()
+                                            setSelectedPhoneNumber(idStr)
                                             setSelectedPhoneNumberObj(phoneObj)
+                                            if (typeof window !== 'undefined') {
+                                              localStorage.setItem(PersistanceKeys.LastUsedPhoneNumberId, idStr)
+                                            }
                                             setPhoneDropdownOpen(false)
                                           }}
                                           className={cn(
