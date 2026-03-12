@@ -59,6 +59,7 @@ import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { useUser } from '@/hooks/redux-hooks'
 import WebAgentChatInput from '@/components/web-agent/WebAgentChatInput'
 import WebAgentChatDrawer from '@/components/web-agent/WebAgentChatDrawer'
+import { getVisitorId } from '@/components/web-agent/visitorId'
 import { checkPhoneNumber } from '../onboarding/services/apisServices/ApiService'
 
 
@@ -88,7 +89,7 @@ const backgroundImage = {
   overflow: 'hidden',
 }
 
-const Creator = ({ agentId, name }) => {
+const Creator = ({ agentId, name, shareToken = null }) => {
   const router = useRouter()
   const buttonRef = useRef(null)
   const buttonRef6 = useRef(null)
@@ -125,6 +126,10 @@ const Creator = ({ agentId, name }) => {
   const [chatDrawerKey, setChatDrawerKey] = useState(0)
   /** Lead ID from pre-chat form for web chat; passed to drawer so first message creates thread tied to this lead */
   const [webChatLeadId, setWebChatLeadId] = useState(null)
+  /** When opening via shared link with hasLeadInfo: thread to load in drawer. Null for new chat. */
+  const [sharedThreadId, setSharedThreadId] = useState(null)
+  /** Resolving share token (shared link); block UI until we know whether to show form or open drawer */
+  const [shareResolveLoading, setShareResolveLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -256,6 +261,41 @@ const Creator = ({ agentId, name }) => {
     // Load saved form data on component mount
     loadSavedFormData()
   }, [])
+
+  // Shared link: resolve token and either open drawer (hasLeadInfo) or show form
+  useEffect(() => {
+    if (!shareToken || !String(shareToken).trim()) return
+    const token = String(shareToken).trim()
+    const visitorId = getVisitorId()
+    setShareResolveLoading(true)
+    axios
+      .get('/api/public/web-chat/resolve-share', {
+        params: { share: token, visitorId: visitorId || undefined },
+      })
+      .then((res) => {
+        const data = res.data?.data
+        if (!res.data?.status || !data) {
+          setShareResolveLoading(false)
+          return
+        }
+        const { threadId, hasLeadInfo, leadId: resolvedLeadId } = data
+        if (hasLeadInfo && resolvedLeadId != null && threadId != null) {
+          setWebChatLeadId(resolvedLeadId)
+          setSharedThreadId(threadId)
+          setChatDrawerKey((k) => k + 1)
+          setChatDrawerOpen(true)
+        } else {
+          setShowLeadModal(true)
+          setFormMode('chat')
+        }
+      })
+      .catch(() => {
+        setSnackbarMessage('Invalid or expired share link.')
+        setSnackbarSeverity('error')
+        setSnackbarOpen(true)
+      })
+      .finally(() => setShareResolveLoading(false))
+  }, [shareToken])
 
   // User loading messages to fake feedback...
   useEffect(() => {
@@ -589,7 +629,29 @@ const Creator = ({ agentId, name }) => {
         extraColumns: extraColumns,
       }
 
-      // Call API with lead details
+      // Shared link: join shared thread and get leadId + threadId, then open drawer
+      if (shareToken && String(shareToken).trim()) {
+        const visitorId = getVisitorId()
+        const response = await axios.post('/api/public/web-chat/join-shared', {
+          shareToken: String(shareToken).trim(),
+          visitorId: visitorId || undefined,
+          lead_details: leadDetails,
+        })
+        if (response?.data?.status && response?.data?.data) {
+          const { leadId: joinedLeadId, threadId: joinedThreadId } = response.data.data
+          if (joinedLeadId != null) setWebChatLeadId(joinedLeadId)
+          if (joinedThreadId != null) setSharedThreadId(joinedThreadId)
+          handleModalClose()
+          setChatDrawerKey((k) => k + 1)
+          setChatDrawerOpen(true)
+        } else {
+          throw new Error(response?.data?.message || 'Failed to join shared chat')
+        }
+        setIsSubmitting(false)
+        return
+      }
+
+      // Call API with lead details (normal web-agent flow)
       const response = await callApiPost(
         `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}?agentType=web`,
         { lead_details: leadDetails },
@@ -1257,7 +1319,7 @@ const Creator = ({ agentId, name }) => {
           }}
         >
           <div className="rounded-full border border-[#ffffff] bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-1 px-2 outline-none">
-            {profileLoader ? (
+            {profileLoader || shareResolveLoading ? (
               <CircularProgress size={15} />
             ) : (
               <div className="rounded-full">
@@ -1405,7 +1467,7 @@ const Creator = ({ agentId, name }) => {
               }
             </div>
           </div>
-          {!profileLoader && hasAiChatEnabled && !chatDrawerOpen && !loading && !open && (
+          {!profileLoader && !shareResolveLoading && hasAiChatEnabled && !chatDrawerOpen && !loading && !open && (
             <div
               className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10 py-8 -my-8 -mx-4"
               onMouseEnter={() => setPointerOverChatInputArea(true)}
@@ -1469,12 +1531,16 @@ const Creator = ({ agentId, name }) => {
       <WebAgentChatDrawer
         key={chatDrawerKey}
         open={chatDrawerOpen}
-        onClose={() => setChatDrawerOpen(false)}
+        onClose={() => {
+          setChatDrawerOpen(false)
+          setSharedThreadId(null)
+        }}
         agentId={agentDetails?.data?.data?.agent?.id ?? agentId}
         agentName={agentDetails?.data?.data?.agent?.name}
         agencyBranding={agentDetails?.data?.data?.agencyBranding || reduxUser?.agencyBranding}
         agent={agentDetails?.data?.data?.agent}
         leadId={webChatLeadId}
+        initialThreadId={sharedThreadId}
         canChangeLlmProvider={reduxUser?.id != null && agentDetails?.data?.data?.user?.id != null && reduxUser.id === agentDetails.data.data.user.id}
         formData={formData}
       />

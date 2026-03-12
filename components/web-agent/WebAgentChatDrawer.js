@@ -30,19 +30,7 @@ const THINKING_MESSAGES = [
   'Don\'t leave yet...',
 ]
 
-const WEB_CHAT_VISITOR_ID_KEY = 'webChatVisitorId'
-
-function getVisitorId() {
-  if (typeof window === 'undefined') return null
-  let id = localStorage.getItem(WEB_CHAT_VISITOR_ID_KEY)
-  if (!id) {
-    id = typeof crypto !== 'undefined' && crypto.randomUUID
-      ? crypto.randomUUID()
-      : `v_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
-    localStorage.setItem(WEB_CHAT_VISITOR_ID_KEY, id)
-  }
-  return id
-}
+import { getVisitorId } from './visitorId'
 
 const EMPTY_STATE_MESSAGES = [
   "What's the agenda?",
@@ -82,6 +70,7 @@ const WebAgentChatDrawer = ({
   agent = null,
   agentAvatar = null,
   leadId = null,
+  initialThreadId = null,
   canChangeLlmProvider = false,
   formData = null
 }) => {
@@ -167,11 +156,17 @@ const WebAgentChatDrawer = ({
     if (open) {
       setClosing(false)
       setSessionError(null)
-      // Always start a new chat when opening (ChatGPT-style: old thread only when selected from History)
-      setCurrentThreadId(null)
-      setCurrentSessionId(null)
+      const threadId = initialThreadId != null ? Number(initialThreadId) : null
+      if (threadId != null && !Number.isNaN(threadId)) {
+        setCurrentThreadId(threadId)
+        setCurrentSessionId(null)
+        loadMessages(threadId)
+      } else {
+        setCurrentThreadId(null)
+        setCurrentSessionId(null)
+        setMessages([])
+      }
       setCurrentThreadTitle(null)
-      setMessages([])
       setHistoryOpen(false)
       // One frame delay so Modal is in DOM before we expand; avoids flicker of 0-height panel
       const id = requestAnimationFrame(() => setExpanded(true))
@@ -185,18 +180,19 @@ const WebAgentChatDrawer = ({
       setMessages([])
       setHistoryOpen(false)
     }
-  }, [open])
+  }, [open, initialThreadId, loadMessages])
 
-  // On open + expanded: for new chat just set a sessionId (thread is created on first send)
+  // On open + expanded: for new chat just set a sessionId (thread is created on first send). Skip when opening shared thread.
   useEffect(() => {
     if (!open || !expanded || !agentId) return
+    if (initialThreadId != null) return
     if (currentThreadId == null && currentSessionId == null) {
       const sessionId = typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
         : `s_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
       setCurrentSessionId(sessionId)
     }
-  }, [open, expanded, agentId])
+  }, [open, expanded, agentId, initialThreadId, currentThreadId, currentSessionId])
 
   useEffect(() => {
     if (!expanded || !open) return

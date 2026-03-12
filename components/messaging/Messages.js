@@ -2290,45 +2290,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }
 
-  // Get agent/user avatar for outbound messages
+  // Get agent/user avatar for outbound messages (agent first, then sender user)
   const getAgentAvatar = (message) => {
-    // Priority 1: Team member sender (if message was sent by a team member)
-    if (message.senderUser) {
-      // Try team member profile image first
-      if (message.senderUser.thumb_profile_image) {
-        return (
-          <div
-            className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-white overflow-hidden flex-shrink-0"
-          >
-            <img
-              src={message.senderUser.thumb_profile_image}
-              alt={message.senderUser.name || 'Team Member'}
-              className="w-full h-full object-cover rounded-full"
-              style={{
-                width: '32px',
-                height: '32px',
-                objectFit: 'cover',
-              }}
-              onError={(e) => {
-                console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
-              }}
-              onLoad={() => { }}
-            />
-          </div>
-        );
-      }
-
-      // Fallback to team member name initial
-      const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
-      const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
-      return (
-        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
-          {teamMemberLetter}
-        </div>
-      )
-    }
-
-    // Priority 2: Agent thumb, bitmoji, or initial
+    // Priority 1: Agent thumb, voice, or initial (so SMS and email both show agent when message has an agent)
     if (message.agent) {
       if (message.agent.thumb_profile_image) {
         const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
@@ -2372,6 +2336,39 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       return (
         <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
           {agentLetter}
+        </div>
+      )
+    }
+
+    // Priority 2: Team member sender (when message was sent by a team member and has no agent)
+    if (message.senderUser) {
+      if (message.senderUser.thumb_profile_image) {
+        return (
+          <div
+            className="flex items-center justify-center w-[32px] h-[32px] rounded-full bg-white overflow-hidden flex-shrink-0"
+          >
+            <img
+              src={message.senderUser.thumb_profile_image}
+              alt={message.senderUser.name || 'Team Member'}
+              className="w-full h-full object-cover rounded-full"
+              style={{
+                width: '32px',
+                height: '32px',
+                objectFit: 'cover',
+              }}
+              onError={(e) => {
+                console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
+              }}
+              onLoad={() => { }}
+            />
+          </div>
+        );
+      }
+      const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
+      const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
+      return (
+        <div className="w-[32px] h-[32px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
+          {teamMemberLetter}
         </div>
       )
     }
