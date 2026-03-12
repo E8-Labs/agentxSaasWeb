@@ -2,7 +2,7 @@
 
 import { CircularProgress } from '@mui/material'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import getProfileDetails from '@/components/apis/GetProfile'
@@ -27,6 +27,11 @@ const ConnectStripe = ({ fullScreen = false }) => {
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Warning)
   const [showVideoModal, setShowVideoModal] = useState(false)
 
+  const pathname = usePathname()
+  console.log("pathname .kj", pathname)
+
+
+
   useEffect(() => {
     checkStripe()
   }, [])
@@ -39,8 +44,12 @@ const ConnectStripe = ({ fullScreen = false }) => {
         agencyProfile?.data?.data?.canAcceptPaymentsAgencyccount
 
       setAgencyData(agencyProfile?.data?.data)
+      console.log("agencyProfile?.data?.data .kj", agencyProfile?.data?.data)
+      if (pathname === "/agency/verify" && stripeStatus) {
+        window.location.href = '/agency/dashboard'
+      }
       setCheckStripeStatus(Boolean(stripeStatus))
-    } catch (error) {} finally {
+    } catch (error) { } finally {
       setCheckStripeStatusLoader(false)
     }
   }
@@ -206,24 +215,24 @@ const ConnectStripe = ({ fullScreen = false }) => {
 
 
 
-<div className="flex flex-row items-center gap-4">
-          <button
-            className="text-[15px] font-[500] text-brand-primary outline-none border-none cursor-pointer"
-            onClick={() => {
-              setShowVideoModal(true)
-            }}
-          >
-            {'Learn how to connect your Stripe account'}
-          </button>
-          <Play onClick={() => {
-              setShowVideoModal(true)
-            }} size={18} 
-          weight='bold'
-          className="text-brand-primary cursor-pointer"
-          
-          style={{ color: 'hsl(var(--brand-primary))' }}
-          />
-          {/* <Image
+            <div className="flex flex-row items-center gap-4">
+              <button
+                className="text-[15px] font-[500] text-brand-primary outline-none border-none cursor-pointer"
+                onClick={() => {
+                  setShowVideoModal(true)
+                }}
+              >
+                {'Learn how to connect your Stripe account'}
+              </button>
+              <Play onClick={() => {
+                setShowVideoModal(true)
+              }} size={18}
+                weight='bold'
+                className="text-brand-primary cursor-pointer"
+
+                style={{ color: 'hsl(var(--brand-primary))' }}
+              />
+              {/* <Image
             src="/otherAssets/playIcon.jpg"
             alt="info"
             width={10}
@@ -231,7 +240,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
             className="cursor-pointer"
             onClick={() => setIntroVideoModal2(true)}
           /> */}
-        </div>
+            </div>
 
             {/* <div className="w-full flex items-center justify-center">
               <VideoCard
