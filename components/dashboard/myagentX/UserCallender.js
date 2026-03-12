@@ -575,7 +575,13 @@ const UserCalender = ({
           }}
         />
       )}
-      <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
+      <div
+        className="bg-white w-full flex flex-col overflow-hidden"
+        style={{
+          borderRadius: 12,
+          border: '1px solid #eaeaea',
+        }}
+      >
         {showTools ? (
           <MCPView
             selectedAgent={selectedAgent}

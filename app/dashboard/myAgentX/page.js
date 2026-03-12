@@ -4686,7 +4686,10 @@ function Page() {
                 width: { xs: '100%', sm: '650px !important' },
                 minWidth: { xs: 'auto', sm: '650px !important' },
                 maxWidth: { xs: '100vw', sm: '650px !important' },
-                borderRadius: '16px',
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+                borderBottomLeftRadius: 16,
+                borderBottomRightRadius: 16,
                 margin: { xs: 0, sm: '1%' },
                 height: { xs: '100vh', sm: '96.5vh' },
               },
@@ -4871,7 +4874,7 @@ function Page() {
                     <CloseBtn onClick={handleDrawerClose} />
                   </div>
                 </div>
-                <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0 py-3 px-4">
+                <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0 py-0 px-4">
                   <div className="flex flex-row items-start justify-start gap-3 w-full p-4">
                     {/* Profile Image (left) */}
                     <div className="flex items-center justify-center w-[120px] h-[120px] rounded-[16px] shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
@@ -5039,10 +5042,7 @@ function Page() {
                           className="flex flex-row items-center gap-1.5 text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-[#eaeaea] rounded-[64px] bg-white"
                           style={{
                             color: 'rgba(0,0,0,0.8)',
-                            paddingLeft: 14,
-                            paddingRight: 14,
-                            paddingTop: 8,
-                            paddingBottom: 8,
+                            padding: 4,
                             boxShadow: '0 16px 30px rgba(0, 0, 0, 0.12)',
                           }}
                         >
@@ -5053,7 +5053,7 @@ function Page() {
                               componentsProps={{ tooltip: { sx: { backgroundColor: '#000000', color: '#ffffff', fontSize: '12px', padding: '8px 12px', borderRadius: '12px' } }, arrow: { sx: { color: '#000000' } } }}
                               TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
                             >
-                              <div className="cursor-pointer pt-1 border-0">
+                              <div className="cursor-pointer border-0">
                                 <DuplicateButton handleDuplicate={() => setShowDuplicateConfirmationPopup(true)} loading={duplicateLoader} size={16} useBlack />
                               </div>
                             </Tooltip>
