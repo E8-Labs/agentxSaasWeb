@@ -3993,6 +3993,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         }}
                         selectedUser={selectedUser}
                         searchLoading={searchLoading}
+                        customDomain={reduxUser?.agencyBranding?.customDomain}
                       />
                     </div>
 

@@ -214,6 +214,7 @@ const MessageComposer = ({
   onConnectionSuccess,
   onOpenAuthPopup,
   onCommentAdded,
+  customDomain = null,
 }) => {
 
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
@@ -358,6 +359,66 @@ const MessageComposer = ({
     const user = getUserLocalData()
     if (user) {
       setUserData(user)
+    }
+  }, [])
+
+  const socialConnectPollIntervalRef = useRef(null)
+  const popupRef = useRef(null)
+
+  const applySocialConnectResult = useCallback(
+    (success, errorMessage) => {
+      if (socialConnectPollIntervalRef.current) {
+        clearInterval(socialConnectPollIntervalRef.current)
+        socialConnectPollIntervalRef.current = null
+      }
+      setConnectingOAuth(false)
+      if (success) {
+        toast.success('Facebook/Instagram connected')
+        onConnectionSuccess?.()
+      } else {
+        toast.error(errorMessage || 'Connection failed')
+      }
+    },
+    [onConnectionSuccess]
+  )
+
+  // Listen for Facebook (social) connect popup result: postMessage (when opener is preserved)
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type !== 'social_connect_done') return
+      if (event.origin !== window.location.origin) return
+      applySocialConnectResult(event.data.success, event.data.error)
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [applySocialConnectResult])
+
+  // Fallback when opener was lost: storage event (callback page wrote to localStorage)
+  useEffect(() => {
+    const SOCIAL_RESULT_KEY = 'social_connect_result'
+    const MAX_AGE_MS = 2 * 60 * 1000
+
+    const handleStorage = (event) => {
+      if (event.key !== SOCIAL_RESULT_KEY || !event.newValue) return
+      try {
+        const data = JSON.parse(event.newValue)
+        if (data && typeof data.ts === 'number' && Date.now() - data.ts < MAX_AGE_MS) {
+          applySocialConnectResult(!!data.success, data.error || null)
+          localStorage.removeItem(SOCIAL_RESULT_KEY)
+        }
+      } catch (_) {}
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [applySocialConnectResult])
+
+  // Clear popup poll interval on unmount
+  useEffect(() => {
+    return () => {
+      if (socialConnectPollIntervalRef.current) {
+        clearInterval(socialConnectPollIntervalRef.current)
+        socialConnectPollIntervalRef.current = null
+      }
     }
   }, [])
 
@@ -1266,7 +1327,9 @@ const MessageComposer = ({
     }
     const userData = JSON.parse(localData)
     const token = userData.token
-    const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}` : ''
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const callbackPath = '/social-connect/callback'
+    const redirectUrl = origin ? `${origin}${callbackPath}` : ''
     try {
       setConnectingOAuth(true)
       let url = Apis.socialFacebookAuthorize
@@ -1278,17 +1341,52 @@ const MessageComposer = ({
         headers: { Authorization: `Bearer ${token}` },
       })
       if (res.data?.url) {
-        window.location.href = res.data.url
-        // setConnectingOAuth(false)
+        const popup = window.open(res.data.url, 'facebook-oauth', 'width=500,height=600,scrollbars=yes,resizable=yes')
+        if (!popup) {
+          toast.error('Please allow popups for this site to connect Facebook')
+          setConnectingOAuth(false)
+          return
+        }
+        popupRef.current = popup
+        const SOCIAL_RESULT_KEY = 'social_connect_result'
+        const MAX_AGE_MS = 2 * 60 * 1000
+        const startedAt = Date.now()
+        socialConnectPollIntervalRef.current = setInterval(() => {
+          if (!popupRef.current || !popupRef.current.closed) {
+            if (Date.now() - startedAt > MAX_AGE_MS) {
+              clearInterval(socialConnectPollIntervalRef.current)
+              socialConnectPollIntervalRef.current = null
+              setConnectingOAuth(false)
+            }
+            return
+          }
+          popupRef.current = null
+          clearInterval(socialConnectPollIntervalRef.current)
+          socialConnectPollIntervalRef.current = null
+          try {
+            const raw = localStorage.getItem(SOCIAL_RESULT_KEY)
+            if (raw) {
+              const data = JSON.parse(raw)
+              if (data && typeof data.ts === 'number' && Date.now() - data.ts < MAX_AGE_MS) {
+                applySocialConnectResult(!!data.success, data.error || null)
+              } else {
+                setConnectingOAuth(false)
+              }
+              localStorage.removeItem(SOCIAL_RESULT_KEY)
+            } else {
+              setConnectingOAuth(false)
+            }
+          } catch (_) {
+            setConnectingOAuth(false)
+          }
+        }, 500)
       } else {
         toast.error(res.data?.message || 'Could not start Facebook connect')
-        // setConnectingOAuth(false)
+        setConnectingOAuth(false)
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not start Facebook connect')
       setConnectingOAuth(false)
-    } finally {
-      // setConnectingOAuth(false)
     }
   }
 
