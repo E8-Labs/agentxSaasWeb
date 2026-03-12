@@ -746,8 +746,8 @@ const PipelineAndStage = ({
                                     componentsProps={{
                                       tooltip: {
                                         sx: {
-                                          backgroundColor: 'hsl(var(--brand-primary))',
-                                          color: '#fff',
+                                          backgroundColor: '#000000',
+                                          color: '#ffffff',
                                           fontSize: '12px',
                                           maxWidth: 320,
                                           whiteSpace: 'pre-wrap',
@@ -756,7 +756,7 @@ const PipelineAndStage = ({
                                       },
                                       arrow: {
                                         sx: {
-                                          color: 'hsl(var(--brand-primary))',
+                                          color: '#000000',
                                         },
                                       },
                                     }}

@@ -109,31 +109,12 @@ const AgentInfoCard = ({
     )
   }
 
-  return (
-    <div className="flex w-full flex-col items-start gap-2">
-      {/* Icon - only element not full width */}
-      {renderIcon()}
+  const showRate = subtitle && rate != null && rate !== ''
 
-      <div className="w-full text-sm font-normal text-foreground">
-        {name}
-      </div>
-      <div className="w-full text-sm font-normal text-black/80">
-        {value}
-      </div>
-      {subtitle && rate != null && rate !== '' && (
-        <div className="mt-1.5 flex w-full items-center justify-between border-t border-black/10 py-2">
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="shrink-0 cursor-default text-xs font-normal leading-4 tracking-[-0.06px] text-black whitespace-nowrap">
-                  {getSubtitleLabel(subtitle)}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-[200px] px-2 py-1 text-xs">
-                {subtitle}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+  return (
+    <div className="relative flex w-full flex-col items-start gap-2">
+      {showRate && (
+        <div className="absolute right-0 top-0 flex items-center gap-1">
           <div className="flex shrink-0 items-center gap-1">
             <RatePie value={Number(rate)} size={15} />
             <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
@@ -144,6 +125,16 @@ const AgentInfoCard = ({
           </div>
         </div>
       )}
+
+      {/* Icon - only element not full width */}
+      {renderIcon()}
+
+      <div className="w-full text-sm font-normal text-foreground">
+        {name}
+      </div>
+      <div className="w-full text-sm font-normal text-black/80">
+        {value}
+      </div>
     </div>
   )
 }

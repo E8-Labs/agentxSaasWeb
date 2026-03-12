@@ -322,8 +322,8 @@ const AgentsListPaginated = ({
             {agentsListSeparated.map((item, index) => {
               const tetradic = getTetradicHslFromPrimary()
               const primary = tetradic[0]
-              /* Primary-dominant comet: primary 0–19% (half), tetradic accents, then fade to white */
-              const gradient = `conic-gradient(from 0deg, hsl(${primary}) 0%, hsl(${primary}) 19%, hsl(${tetradic[1]}) 21%, hsl(${tetradic[2]}) 23%, hsl(${tetradic[3]}) 25%, hsl(${primary} / 0.7) 27%, hsl(${primary} / 0.4) 31%, hsl(${primary} / 0.15) 36%, white 41%, white 100%)`
+              /* Primary + white only: soft rotating ring */
+              const gradient = `conic-gradient(from 0deg, hsl(${primary}) 0deg, hsl(${primary}) 140deg, #ffffff 180deg, #ffffff 320deg, hsl(${primary}) 360deg)`
               return (
               <div
                 key={index}
@@ -490,7 +490,7 @@ const AgentsListPaginated = ({
                   </div>
 
                   <div className="flex flex-row items-center justify-end gap-2 self-stretch text-left pt-1">
-                    <div className={`relative inline-block ${!item.phoneNumber ? 'ml-auto' : ''}`}>
+                    <div className="relative inline-block ml-auto">
                       {!item.phoneNumber && (
                         <div
                           className="absolute -right-1 -top-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-red-500"
@@ -570,40 +570,39 @@ const AgentsListPaginated = ({
                         Test AI
                       </div>
                     </button>
+                    {(!item.phoneNumber) && (
+                      <div className="mt-2 flex w-full flex-row items-center justify-end">
+                        <div
+                          className="flex flex-row items-center gap-2 py-2 px-3 rounded-lg"
+                          style={{
+                            backgroundColor: 'rgba(255, 78, 78, 0.02)',
+                            border: '2px solid rgba(255, 78, 78, 0.6)',
+                          }}
+                        >
+                          <Image
+                            src={'/assets/warningFill.png'}
+                            height={18}
+                            width={18}
+                            alt="*"
+                          />
+                          <p>
+                            <span
+                              className="text-red"
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 400,
+                                opacity: 1,
+                              }}
+                            >
+                              No phone number assigned
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     </div>
                   </div>
                 </div>
-
-                {!item.phoneNumber && (
-                  <div
-                    className="flex flex-row items-center justify-between gap-2 w-full py-2 px-3 rounded-lg"
-                    style={{
-                      backgroundColor: 'rgba(255, 78, 78, 0.02)',
-                      border: '2px solid rgba(255, 78, 78, 0.6)',
-                    }}
-                  >
-                    <div className="flex flex-row items-center gap-2">
-                      <Image
-                        src={'/assets/warningFill.png'}
-                        height={18}
-                        width={18}
-                        alt="*"
-                      />
-                      <p>
-                        <span
-                          className="text-red"
-                          style={{
-                            fontSize: 14,
-                            fontWeight: 400,
-                            opacity: 1,
-                          }}
-                        >
-                          No phone number assigned
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                )}
 
                 <div
                   className="w-full bg-white p-3 rounded-lg text-sm"
@@ -627,7 +626,7 @@ const AgentsListPaginated = ({
                         name="Calls"
                         value={<div>{item.calls || '-'}</div>}
                         iconComponent={<Zap size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                         iconColor="text-brand-primary"
                       />
                     </button>
@@ -648,7 +647,7 @@ const AgentsListPaginated = ({
                         name="Convos"
                         value={<div>{item.callsGt10 ?? '-'}</div>}
                         iconComponent={<MessageCircleMore size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                         iconColor="text-brand-primary"
                         subtitle="Answer rate"
                         toolTip="Answer rate, percent of calls that are answered."
@@ -676,7 +675,7 @@ const AgentsListPaginated = ({
                         name="Hot Leads"
                         value={item.hotleads ?? '-'}
                         iconComponent={<Zap size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                         iconColor="text-brand-primary"
                         subtitle="Conversion rate"
                         toolTip="Percent of hot leads that are found in your calls."
@@ -704,7 +703,7 @@ const AgentsListPaginated = ({
                         name="Booked Meetings"
                         value={item.booked ?? '-'}
                         iconComponent={<Calendar size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                         iconColor="text-brand-primary"
                         subtitle="Conversion rate"
                         toolTip="Percent of convos that convert into a booked call."
@@ -739,14 +738,14 @@ const AgentsListPaginated = ({
                           <div>
                             {item?.totalDuration
                               ? moment
-                                .utc((item?.totalDuration || 0) * 1000)
-                                .format('HH:mm:ss')
+                                  .utc((item?.totalDuration || 0) * 1000)
+                                  .format('HH:mm:ss')
                               : '-'}
                           </div>
                         }
                         iconComponent={<Hourglass size={18} />}
-                        bgColor="green"
-                        iconColor="text-orange-500"
+                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
+                        iconColor="text-brand-primary"
                       />
                     </div>
                   </div>
