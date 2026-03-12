@@ -648,6 +648,7 @@ const WebAgentChatDrawer = ({
         },
       }}
     >
+      <div className="absolute inset-0 size-full">
       <div
         className="absolute inset-0"
         style={{
@@ -1177,6 +1178,7 @@ const WebAgentChatDrawer = ({
           </div>
         </div>
       )}
+      </div>
       </div>
     </Modal>
   )

@@ -6,16 +6,21 @@ import React from 'react'
 import Creator from '@/components/voiceaicall/Creator'
 
 const Page = () => {
-  // const params = useParams();
-  // // const id = params.id;
-  // const modelId = params.modelId;
-  // const name = params.name;
   const params = useParams() // e.g., /web-agent/[id]
-  const searchParams = useSearchParams() // query string from URL
+  const searchParams = useSearchParams()
 
-  const modelId = params.id // assuming your file is [id]/page.js
-  const name = searchParams.get('name') // pulls ?name=value from the URL
-  const shareToken = searchParams.get('share') // shared link: resolve to thread and show form only if lead info missing
+  // Guard: useParams() can be undefined in Next.js 16 (e.g. before hydration / RSC)
+  const modelId = params?.id ?? null
+  const name = searchParams?.get?.('name') ?? null
+  const shareToken = searchParams?.get?.('share') ?? null
+
+  if (modelId == null) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <p className="text-sm text-gray-500">Loading…</p>
+      </div>
+    )
+  }
 
   return (
     <div>
