@@ -879,7 +879,7 @@ const Pipeline1 = ({
           />
 
           <div
-            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[250px]"
             style={{
               position: 'absolute',
               // left: "18%",
