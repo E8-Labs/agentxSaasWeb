@@ -1064,54 +1064,7 @@ const Pipeline1 = ({
               className={`w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4`}  //${showOrb ? 'mt-6' : 'mt-4'}
               style={{ scrollbarWidth: 'none', minHeight: 0 }}
             >
-              {pipelinesDetails.length > 1 && (
-                <div>
-                  <div style={styles.headingStyle}>Select a pipeline</div>
-                  <div className="border rounded-lg">
-                    <Box className="w-full">
-                      <FormControl className="w-full">
-                        <Select
-                          className="border-none rounded-lg outline-none"
-                          displayEmpty
-                          value={selectPipleLine}
-                          onChange={handleSelectPipleLine}
-                          renderValue={(selected) => {
-                            if (selected === '') {
-                              return <div>Select Pipeline</div>
-                            }
-                            return selected
-                          }}
-                          sx={{
-                            ...styles.dropdownMenu,
-                            backgroundColor: '#FFFFFF',
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none',
-                            },
-                            color: '#000000',
-                          }}
-                        >
-                          {/* <MenuItem value="">
-                                                        <div style={styles.dropdownMenu}>None</div>
-                                                    </MenuItem> */}
-                          {pipelinesDetails.map((item, index) => (
-                            <MenuItem
-                              key={item.id}
-                              style={styles.dropdownMenu}
-                              value={item.title}
-                            >
-                              {item.title}
-                            </MenuItem>
-                          ))}
-                          {/* <MenuItem value={20}>03058191079</MenuItem>
-                                        <MenuItem value={30}>03281575712</MenuItem> */}
-                        </Select>
-                      </FormControl>
-                    </Box>
-                  </div>
-                </div>
-              )}
-
-              {!isInboundAgent && cadenceTemplatesList.length > 0 && (
+              {!isInboundAgent && (
                 <div className="flex justify-center">
                   <div className="relative inline-block">
                     <FormControl size="small">
@@ -1172,6 +1125,48 @@ const Pipeline1 = ({
                         </MenuItem>
                       </Select>
                     </FormControl>
+                  </div>
+                </div>
+              )}
+
+              {pipelinesDetails.length > 1 && (
+                <div>
+                  <div style={styles.headingStyle}>Select a pipeline</div>
+                  <div className="border rounded-lg">
+                    <Box className="w-full">
+                      <FormControl className="w-full">
+                        <Select
+                          className="border-none rounded-lg outline-none"
+                          displayEmpty
+                          value={selectPipleLine}
+                          onChange={handleSelectPipleLine}
+                          renderValue={(selected) => {
+                            if (selected === '') {
+                              return <div>Select Pipeline</div>
+                            }
+                            return selected
+                          }}
+                          sx={{
+                            ...styles.dropdownMenu,
+                            backgroundColor: '#FFFFFF',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
+                            },
+                            color: '#000000',
+                          }}
+                        >
+                          {pipelinesDetails.map((item, index) => (
+                            <MenuItem
+                              key={item.id}
+                              style={styles.dropdownMenu}
+                              value={item.title}
+                            >
+                              {item.title}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Box>
                   </div>
                 </div>
               )}
