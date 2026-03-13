@@ -774,7 +774,7 @@ function ActivityTimelineItem({ item, onLeadClick }) {
         {item.type === 'call' && (
           <>
             <TypographyBody className="font-semibold text-foreground">
-              Made a call to{' '}
+              Called @ {' '}
               {leadId ? (
                 <button
                   type="button"
@@ -810,7 +810,7 @@ function ActivityTimelineItem({ item, onLeadClick }) {
         {item.type === 'email' && (
           <>
             <TypographyBody className="font-semibold text-foreground">
-              Sent an email to{' '}
+              Emailed @ {' '}
               {leadId ? (
                 <button
                   type="button"
@@ -924,7 +924,7 @@ function ActivityTimelineItem({ item, onLeadClick }) {
         {item.type === 'sms' && (
           <>
             <TypographyBody className=" text-foreground">
-              Sent a text message to @
+              Texted @ {' '}
               {leadId ? (
                 <button
                   type="button"
