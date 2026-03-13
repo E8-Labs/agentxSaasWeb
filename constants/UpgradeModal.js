@@ -46,31 +46,31 @@ const UpgradeModal = ({
             const h = parseInt(hslMatch[1]) / 360
             const s = parseInt(hslMatch[2]) / 100
             const l = parseInt(hslMatch[3]) / 100
-            
+
             const c = (1 - Math.abs(2 * l - 1)) * s
             const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
             const m = l - c / 2
-            
+
             let r = 0, g = 0, b = 0
-            
-            if (0 <= h && h < 1/6) {
+
+            if (0 <= h && h < 1 / 6) {
               r = c; g = x; b = 0
-            } else if (1/6 <= h && h < 2/6) {
+            } else if (1 / 6 <= h && h < 2 / 6) {
               r = x; g = c; b = 0
-            } else if (2/6 <= h && h < 3/6) {
+            } else if (2 / 6 <= h && h < 3 / 6) {
               r = 0; g = c; b = x
-            } else if (3/6 <= h && h < 4/6) {
+            } else if (3 / 6 <= h && h < 4 / 6) {
               r = 0; g = x; b = c
-            } else if (4/6 <= h && h < 5/6) {
+            } else if (4 / 6 <= h && h < 5 / 6) {
               r = x; g = 0; b = c
-            } else if (5/6 <= h && h < 1) {
+            } else if (5 / 6 <= h && h < 1) {
               r = c; g = 0; b = x
             }
-            
+
             r = Math.round((r + m) * 255)
             g = Math.round((g + m) * 255)
             b = Math.round((b + m) * 255)
-            
+
             setBrandPrimaryColor(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`)
             return
           }
@@ -78,13 +78,13 @@ const UpgradeModal = ({
       }
       setBrandPrimaryColor('#7902DF') // Default fallback
     }
-    
+
     // Set initial color
     updateBrandColor()
-    
+
     // Listen for branding updates
     window.addEventListener('agencyBrandingUpdated', updateBrandColor)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
@@ -125,10 +125,10 @@ const UpgradeModal = ({
     <div className="w-full">
       <Modal
         open={open}
-        // onClose={handleClose()}
-        //     handleResetValues();
-        //     handleClose("");
-        // }}
+      // onClose={handleClose()}
+      //     handleResetValues();
+      //     handleClose("");
+      // }}
       >
         {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
         <Box
@@ -139,7 +139,7 @@ const UpgradeModal = ({
         >
           <div className="w-full ">
             <div
-              className="w-full h-[80vh] flex flex-col items-center pb-6 justify-between border"
+              className="w-full max-h-[80vh] flex flex-col items-center pb-6 justify-between border overflow-y-auto"
               style={{
                 backgroundImage: "url('/otherAssets/gradientBg.png')",
                 backgroundSize: 'cover',
@@ -147,127 +147,136 @@ const UpgradeModal = ({
                 // borderRadius:'20px'
               }}
             >
-                <div className="w-full flex flex-row items-start justify-end p-5">
-                  <CloseBtn onClick={handleClose} />
-                </div>
+              <div
+                className=""
+                style={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 15,
+                  backgroundColor: 'transparent',
+                  zIndex: 1000,
+                }}
+              >
+                <CloseBtn onClick={handleClose} />
+              </div>
 
-                <div className="flex flex-row items-center justify-center gap-4">
-                  <div
-                    style={{ 
-                      fontSize: '29px', 
-                      fontWeight: '700',
-                      color: `hsl(var(--brand-primary))`,
-                    }}
-                  >
-                    {title}
-                  </div>
-                  <Image
-                    alt="*"
-                    src={'/otherAssets/starsIcon2.png'}
-                    height={28}
-                    width={26}
-                    className="filter-brand-primary"
-                  />
-                </div>
+              <div className="flex flex-row items-center justify-center gap-4 pt-14">
                 <div
-                  className=""
                   style={{
-                    fontSize: '13px',
-                    fontWeight: '400',
-                    color: '#00000050',
+                    fontSize: '29px',
+                    fontWeight: '700',
+                    color: `hsl(var(--brand-primary))`,
                   }}
                 >
-                  {subTitle}
+                  {title}
                 </div>
-                <div
-                  className="mt-4 w-full text-start px-8 "
-                  style={{ fontSize: '18px', fontWeight: '700' }}
-                >
-                  {`What You'll Get`}
-                </div>
-                <div className="w-full flex flex-col items-center justify-center px-8 pt-4 overflow-y-auto max-h-[50vh]">
-                  <div className="w-full flex flex-row items-start mt-4">
-                    <div className="w-1/2 flex flex-col gap-4">
-                      {benifits1.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex flex-row items-center gap-4"
-                        >
-                          <Image
-                            alt="*"
-                            src={'/otherAssets/simpleTick.png'}
-                            height={16}
-                            width={16}
-                          />
-                          <div style={{ fontSize: '15px', fontWeight: '500' }}>
-                            {item.title}
-                          </div>
+                <Image
+                  alt="*"
+                  src={'/otherAssets/starsIcon2.png'}
+                  height={28}
+                  width={26}
+                  className="filter-brand-primary"
+                />
+              </div>
+              <div
+                className=""
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '400',
+                  color: '#00000050',
+                }}
+              >
+                {subTitle}
+              </div>
+              <div
+                className="mt-4 w-full text-start px-8 "
+                style={{ fontSize: '18px', fontWeight: '700' }}
+              >
+                {`What You'll Get`}
+              </div>
+              <div className="w-full flex flex-col items-center justify-center px-8">
+                <div className="w-full flex flex-row items-start mt-4">
+                  <div className="w-1/2 flex flex-col gap-4">
+                    {benifits1.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex flex-row items-center gap-4"
+                      >
+                        <Image
+                          alt="*"
+                          src={'/otherAssets/simpleTick.png'}
+                          height={16}
+                          width={16}
+                        />
+                        <div style={{ fontSize: '15px', fontWeight: '500' }}>
+                          {item.title}
                         </div>
-                      ))}
-                    </div>
-                    <div className="w-1/2 flex flex-col gap-4">
-                      {benifits2.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex flex-row items-center gap-4"
-                        >
-                          <Image
-                            alt="*"
-                            src={'/otherAssets/simpleTick.png'}
-                            height={16}
-                            width={16}
-                          />
-                          <div style={{ fontSize: '15px', fontWeight: '500' }}>
-                            {item.title}
-                          </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="w-1/2 flex flex-col gap-4">
+                    {benifits2.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex flex-row items-center gap-4"
+                      >
+                        <Image
+                          alt="*"
+                          src={'/otherAssets/simpleTick.png'}
+                          height={16}
+                          width={16}
+                        />
+                        <div style={{ fontSize: '15px', fontWeight: '500' }}>
+                          {item.title}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="w-full flex flex-col items-center justify-center">
-                  <button
-                    className="h-[54px] w-[20vw] rounded-xl text-white text-center flex flex-row items-center justify-center transition-colors"
-                    style={{ 
-                      fontSize: '15px', 
-                      fontWeight: '500',
-                      backgroundColor: `hsl(var(--brand-primary))`,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
-                    }}
-                    onClick={() => {
-                      if (featureTitle) {
-                        handleRequestFeature(featureTitle)
-                      } else {
-                        setShowUpgradePlanPopup(true)
-                      }
-                    }}
-                  >
-                    {featureTitle ? 'Request Feature' : 'Upgrade'}
-                  </button>
+              </div>
+              <div className="w-full flex flex-col items-center justify-center mt-4">
+                <button
+                  className="h-[54px] w-[150px] rounded-xl text-white text-center flex flex-row items-center justify-center transition-colors"
+                  style={{
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    backgroundColor: `hsl(var(--brand-primary))`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
+                  }}
+                  onClick={() => {
+                    if (featureTitle) {
+                      handleRequestFeature(featureTitle)
+                    } else {
+                      setShowUpgradePlanPopup(true)
+                    }
+                  }}
+                >
+                  {featureTitle ? 'Request Feature' : 'Upgrade'}
+                </button>
 
-                  <button
-                    className="mt-4 transition-colors"
-                    style={{ 
-                      fontSize: '15px', 
-                      fontWeight: '500',
-                      color: `hsl(var(--brand-primary))`,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = `hsl(var(--brand-primary) / 0.8)`
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = `hsl(var(--brand-primary))`
-                    }}
-                    onClick={handleClose}
-                  >
-                    {buttonTitle}
-                  </button>
-                </div>
+                <button
+                  className="mt-4 transition-colors"
+                  style={{
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    color: `hsl(var(--brand-primary))`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = `hsl(var(--brand-primary) / 0.8)`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = `hsl(var(--brand-primary))`
+                  }}
+                  onClick={handleClose}
+                >
+                  {buttonTitle}
+                </button>
+              </div>
             </div>
           </div>
         </Box>
@@ -295,7 +304,7 @@ const UpgradeModal = ({
           }}
           plan={selectedPlan}
           currentFullPlan={reduxUser?.user?.plan}
-          setSelectedPlan={() => {}}
+          setSelectedPlan={() => { }}
         />
       </Elements>
     </div>

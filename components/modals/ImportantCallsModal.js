@@ -459,438 +459,38 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
         }}
       >
         <ScaleFadeTransition in={open} timeout={250}>
-          <Box className="lg:w-9/12 sm:w-full w-full" sx={styles.modalsStyle}>
+          <Box
+            className="xl:w-10/12 w-full" sx={styles.modalsStyle}
+          >
             <div className="flex flex-row justify-center w-full h-[90vh] min-h-full animate-in slide-in-from-bottom-2 duration-200 ease-out">
-            <div
-              className="sm:w-full w-full p-[2px] min-h-full w-[70%] max-w-[70%] overflow-hidden"
-              style={{
-                backgroundColor: '#ffffff',
+              <div
+                className="sm:w-full w-full p-[2px] min-h-full sm:max-w-[90%] lg:max-w-[80%] xl:max-w-[70%] overflow-hidden"
+                style={{
+                  backgroundColor: '#ffffff',
 
-                borderRadius: '13px',
-              }}
-            >
-              <div className="w-full flex flex-row items-center justify-between p-4 border-b border-[#eaeaea]">
-                <div style={{ fontSize: 22, fontWeight: '600', color: '#000' }}>
-                  {isAgentStatsMode
-                    ? `${TYPE_LABELS[type] || type} – ${agentName || ''}`
-                    : 'Recommend Calls'}
+                  borderRadius: '13px',
+                }}
+              >
+                <div className="w-full flex flex-row items-center justify-between p-4 border-b border-[#eaeaea]">
+                  <div style={{ fontSize: 22, fontWeight: '600', color: '#000' }}>
+                    {isAgentStatsMode
+                      ? `${TYPE_LABELS[type] || type} – ${agentName || ''}`
+                      : 'Recommend Calls'}
+                  </div>
+
+                  <CloseBtn onClick={handleClose} />
                 </div>
 
-                <CloseBtn onClick={handleClose} />
-              </div>
-
-              <div
-                className="h-[100%] pb-12"
-                style={{ scrollbarWidth: 'none' }}
-              >
-                {isAgentStatsMode ? (
-                  agentStatsLoading && agentStatsCalls.length === 0 ? (
-                    <div className="w-full flex flex-row items-center justify-center mt-12">
-                      <CircularProgress size={35} thickness={2} />
-                    </div>
-                  ) : agentStatsCalls.length === 0 ? (
-                    <div
-                      style={{
-                        fontsize: 24,
-                        fontWeight: '600',
-                        textAlign: 'center',
-                        marginTop: 20,
-                      }}
-                    >
-                      {AGENT_STATS_EMPTY[type] || 'No data found.'}
-                    </div>
-                  ) : (
-                    <div className="w-full flex flex-row items-start justify-between h-[100%] min-h-full">
-                      <div
-                        ref={listScrollContainerRef}
-                        // className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
-                        className="w-4/12 min-w-[300px] px-3 flex flex-col overflow-auto h-[100%] border-r border-[#eaeaea]"
-                        style={{ scrollbarWidth: 'none' }}
-                      >
-                        {agentStatsCalls.map((call, index) => {
-                          const lead = call.LeadModel
-                          const leadName = lead
-                            ? [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.email || 'Unknown'
-                            : 'Unknown'
-                          const durationStr =
-                            call.duration != null
-                              ? moment.utc(call.duration * 1000).format('mm:ss')
-                              : '-'
-                          const dateStr = call.createdAt
-                            ? moment(call.createdAt).format('MMM D, YYYY h:mm A')
-                            : '-'
-                          const isSelected = selectedCall?.id === lead?.id
-                          return (
-                            <button
-                              key={call.id}
-                              onClick={() => setSelectedCall(lead || null)}
-                              className="w-full p-3 flex flex-col gap-2 border rounded-lg mt-5 text-left"
-                              style={{
-                                borderWidth: 1,
-                                borderColor: isSelected ? primaryColor : '#eaeaea',
-                              }}
-                            >
-                              <div className="w-full flex flex-row justify-between items-center">
-                                <div className="flex flex-col gap-2 items-start w-full">
-                                  <div className="flex flex-row gap-2 items-center">
-                                    <div
-                                      className="h-[32px] w-[32px] items-center justify-center text-center pt-[2px] rounded-full bg-black text-white flex flex-shrink-0"
-                                      style={{ fontSize: 15, fontWeight: '500' }}
-                                    >
-                                      {(lead?.firstName || '?')[0]}
-                                    </div>
-                                    <div style={{ fontSize: 14, fontWeight: '500', color: 'rgba(0,0,0,0.8)' }}>
-                                      {lead?.firstName || 'Unknown'}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className="min-w-0 flex-1"
-                                    style={{
-                                      fontSize: 14,
-                                      fontWeight: '500',
-                                      color: 'rgba(0,0,0,0.8)',
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      maxWidth: 200,
-                                    }}
-                                  >
-                                    {(lead?.email || '').slice(0, 24)}
-                                    {(lead?.email || '').length > 24 ? '...' : ''}
-                                  </div>
-                                </div>
-                                <div className="flex flex-col gap-2 items-end">
-                                  <div style={{ fontSize: 13, fontWeight: '600', color: primaryColor }}>
-                                    {call.agent?.name || '-'}
-                                  </div>
-                                  <div
-                                    style={{
-                                      fontSize: 13,
-                                      fontWeight: '600',
-                                      color: "black", //primaryColor
-                                      textTransform: 'capitalize',
-                                    }}>{call.stage?.stageTitle || '-'}</div>
-                                </div>
-                              </div>
-                              <div className="text-[14px]" style={{ color: 'rgba(0,0,0,0.8)' }}>
-                                {dateStr} · {durationStr}
-                              </div>
-                            </button>
-                          )
-                        })}
-                        {agentStatsHasMore && (
-                          <div className="pt-2 pb-2">
-                            <div ref={loadMoreSentinelRef} className="h-4 w-full min-h-[16px]" aria-hidden />
-                            {agentStatsLoading && (
-                              <div className="flex justify-center py-2" aria-busy="true" aria-label="Loading more">
-                                <CircularProgress size={24} thickness={2} />
-                              </div>
-                            )}
-                          </div>
-                        )}
+                <div
+                  className="h-[100%] pb-12"
+                  style={{ scrollbarWidth: 'none' }}
+                >
+                  {isAgentStatsMode ? (
+                    agentStatsLoading && agentStatsCalls.length === 0 ? (
+                      <div className="w-full flex flex-row items-center justify-center mt-12">
+                        <CircularProgress size={35} thickness={2} />
                       </div>
-                      <div className="w-8/12 flex flex-col">
-                        {selectedCall ? (
-                          <div className="w-full h-[80vh] overflow-hidden" style={{ scrollbarWidth: 'none' }}>
-                            <LeadDetails
-                              showDetailsModal={true}
-                              selectedLead={selectedCall.id}
-                              setShowDetailsModal={() => { }}
-                              pipelineId={selectedCall?.pipeline?.id || null}
-                              handleDelLead={(deletedLead) => {
-                                setAgentStatsCalls((prev) => {
-                                  const next = prev.filter((c) => c.LeadModel?.id !== deletedLead.id)
-                                  if (selectedCall?.id === deletedLead.id) {
-                                    setSelectedCall(next[0]?.LeadModel ?? null)
-                                  }
-                                  return next
-                                })
-                                setAgentStatsTotal((prev) => Math.max(0, prev - 1))
-                              }}
-                              hideDelete={false}
-                              isPipeline={false}
-                              noBackDrop={true}
-                              renderInline={true}
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-full h-[80vh] flex items-center justify-center">
-                            <div style={{ fontSize: 24, fontWeight: '600', textAlign: 'center' }}>
-                              Select a call to view details
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                ) : initialLoader ? (
-                  <div className="w-full flex flex-row items-center justify-center mt-12">
-                    <CircularProgress size={35} thickness={2} />
-                  </div>
-                ) : (
-                  <div className="w-full h-[100%]">
-                    {importantCalls?.length > 0 ? (
-                      <div className="w-full flex flex-row items-start justify-between h-[100%]">
-                      <div
-                        className="w-4/12 min-w-[300px] px-3 flex flex-col overflow-auto h-[100%] border-r border-[#eaeaea]"
-                        style={{ scrollbarWidth: 'none' }}
-                      >
-                          {importantCalls?.map(
-                            (
-                              item,
-                              index, //.slice.reverse
-                            ) => (
-                              <button
-                                key={index}
-                                onClick={() => {
-                                  setSelectedCall(item)
-                                }}
-                                className="w-full p-3 flex flex-col gap-2 border rounded-lg mt-5"
-                                style={{
-                                  borderWidth: 1,
-                                  borderColor:
-                                    selectedCall.id === item.id
-                                      ? primaryColor
-                                      : '#eaeaea',
-                                }}
-                              >
-                                <div className="w-full flex flex-row justify-between items-center">
-                                  <div className="flex flex-col gap-2 items-start w-full">
-                                    <div className="flex flex-row gap-2 items-center">
-                                      <div
-                                        className="h-[32px] w-[32px] items-center justify-center pt-[2px] rounded-full bg-black flex flex-shrink-0"
-                                        style={{
-                                          fontSize: 15,
-                                          fontWeight: '500',
-                                          color: '#fff',
-                                        }}
-                                      >
-                                        {item.firstName[0]}
-                                      </div>
-                                      <div
-                                        style={{
-                                          fontSize: 14,
-                                          fontWeight: '500',
-                                          color: 'rgba(0,0,0,0.8)',
-                                        }}
-                                      >
-                                        {item.firstName}
-                                      </div>
-                                    </div>
-                                    <div
-                                      className="min-w-0 flex-1"
-                                      style={{
-                                        fontSize: 14,
-                                        fontWeight: '500',
-                                        color: 'rgba(0,0,0,0.8)',
-                                        maxWidth: 200,
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                      }}
-                                    >
-                                      {item.email.length > 24 ? item.email.slice(0, 24) + '...' : item.email}
-                                    </div>
-                                  </div>
-
-                                  <div className="flex flex-col gap-2 items-end">
-                                    <img
-                                      src="/svgIcons/fireIcon.png"
-                                      style={{ height: 17, width: 17 }}
-                                    />
-                                    <div className="flex flex-row gap-2 items-center">
-                                      <Image
-                                        src={'/agentXOrb.gif'}
-                                        height={23}
-                                        width={23}
-                                        alt="gif"
-                                      />
-                                      <div
-                                        style={{
-                                          fontSize: 13,
-                                          fontWeight: '600',
-                                          color: primaryColor,
-                                          textDecorationLine: 'underline',
-                                          marginRight: 30,
-                                        }}
-                                      >
-                                        {item?.callActivity[0]?.agent?.name ||
-                                          '-'}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="w-full flex flex-row justify-between items-center">
-                                  <div className="flex flex-row items-center gap-2">
-                                    {
-                                      !item.teamsAssigned && (
-                                        <Image
-                                          src={'/assets/manIcon.png'}
-                                          height={23}
-                                          width={23}
-                                          alt="*"
-                                        />
-                                      )
-                                    }
-                                    {/* Team assignments display */}
-                                    {item.teamsAssigned && item.teamsAssigned.length > 0 && (
-                                      <div className="flex flex-row items-center gap-1">
-                                        {item.teamsAssigned.slice(0, 2).map((teamMember, idx) => {
-                                          const memberName = teamMember?.name || teamMember?.invitedUser?.name || ''
-                                          return (
-                                            <div
-                                              key={teamMember.id || teamMember.invitedUserId || idx}
-                                              className="h-6 w-6 rounded-full bg-brand-primary flex items-center justify-center text-white text-xs font-semibold"
-                                              title={memberName}
-                                            >
-                                              {memberName.charAt(0).toUpperCase()}
-                                            </div>
-                                          )
-                                        })}
-                                        {item.teamsAssigned.length > 2 && (
-                                          <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 text-xs font-semibold">
-                                            +{item.teamsAssigned.length - 2}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <div className="flex flex-row gap-2">
-                                    {item.tags?.length > 0 ? (
-                                      <div
-                                        className="text-end flex flex-row items-center gap-4"
-                                        style={styles.paragraph}
-                                      >
-                                        {
-                                          // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                          item?.tags
-                                            .slice(0, 2)
-                                            .map((tag, index) => {
-                                              return (
-                                                <div
-                                                  key={index}
-                                                  className="flex flex-row items-center gap-4"
-                                                >
-                                                  <div
-                                                    className="px-2 py-1 rounded-lg"
-                                                    style={{
-                                                      backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.05)`,
-                                                    }}
-                                                  >
-                                                    <div
-                                                      className="text-[13px]"
-                                                      style={{
-                                                        color: `hsl(var(--brand-primary, 270 75% 50%))`,
-                                                      }}
-                                                    >
-                                                      {tag}
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              )
-                                            })
-                                        }
-                                        <div>
-                                          {item?.tags.length > 2 && (
-                                            <div>+{item?.tags.length - 2}</div>
-                                          )}
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      '-'
-                                    )}
-                                  </div>
-                                </div>
-                              </button>
-                            ),
-                          )}
-                        </div>
-
-                        <div className="w-8/12 flex flex-col">
-                          {selectedCall ? (
-                            <div className="w-full h-[80vh] overflow-hidden" style={{ scrollbarWidth: 'none' }}>
-                              <LeadDetails
-                                onTagDeleted={(deletedTag, leadId) => handleTagDeleted(deletedTag, leadId)}
-                                showDetailsModal={true}
-                                selectedLead={selectedCall.id}
-                                setShowDetailsModal={() => {
-                                  // Prevent closing - always show when call is selected
-                                }}
-                                pipelineId={selectedCall?.pipeline?.id || null}
-                                handleDelLead={(deletedLead) => {
-                                  // Remove deleted lead from the list
-                                  setImportantCalls((prevCalls) =>
-                                    prevCalls.filter((call) => call.id !== deletedLead.id)
-                                  )
-                                  // If deleted lead was selected, select first remaining or clear
-                                  if (selectedCall.id === deletedLead.id) {
-                                    const remaining = importantCalls.filter(
-                                      (call) => call.id !== deletedLead.id
-                                    )
-                                    setSelectedCall(remaining[0] || null)
-                                  }
-                                }}
-                                hideDelete={false}
-                                isPipeline={false}
-                                noBackDrop={true}
-                                renderInline={true}
-                                leadStageUpdated={(stage) => {
-                                  // Update the selected call's stage
-                                  setSelectedCall((prev) => ({
-                                    ...prev,
-                                    stage: stage,
-                                  }))
-                                  // Update in the list
-                                  setImportantCalls((prevCalls) =>
-                                    prevCalls.map((call) =>
-                                      call.id === selectedCall.id
-                                        ? { ...call, stage: stage }
-                                        : call
-                                    )
-                                  )
-                                }}
-                                leadAssignedTeam={(teamMember, lead) => {
-                                  // lead is the updated selectedLeadsDetails object with teamsAssigned
-                                  if (!lead) return
-
-                                  // Update team assignment in selected call
-                                  setSelectedCall((prev) => ({
-                                    ...prev,
-                                    teamsAssigned: lead.teamsAssigned || [],
-                                  }))
-
-                                  // Update in the list to reflect team assignments in left section
-                                  const leadIdToUpdate = lead.id || selectedCall?.id
-                                  setImportantCalls((prevCalls) =>
-                                    prevCalls.map((call) => {
-                                      if (call.id === leadIdToUpdate) {
-                                        return {
-                                          ...call,
-                                          teamsAssigned: lead.teamsAssigned || [],
-                                        }
-                                      }
-                                      return call
-                                    })
-                                  )
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-[80vh] flex items-center justify-center">
-                              <div
-                                style={{
-                                  fontsize: 24,
-                                  fontWeight: '600',
-                                  textAlign: 'center',
-                                }}
-                              >
-                                Select a call to view details
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
+                    ) : agentStatsCalls.length === 0 ? (
                       <div
                         style={{
                           fontsize: 24,
@@ -899,14 +499,416 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                           marginTop: 20,
                         }}
                       >
-                        No Data Found
+                        {AGENT_STATS_EMPTY[type] || 'No data found.'}
                       </div>
-                    )}
-                  </div>
-                )}
+                    ) : (
+                      <div className="w-full flex flex-row items-start justify-between h-[100%] min-h-full">
+                        <div
+                          ref={listScrollContainerRef}
+                          // className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
+                          className="w-4/12 min-w-[300px] px-3 flex flex-col overflow-auto h-[100%] border-r border-[#eaeaea]"
+                          style={{ scrollbarWidth: 'none' }}
+                        >
+                          {agentStatsCalls.map((call, index) => {
+                            const lead = call.LeadModel
+                            const leadName = lead
+                              ? [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.email || 'Unknown'
+                              : 'Unknown'
+                            const durationStr =
+                              call.duration != null
+                                ? moment.utc(call.duration * 1000).format('mm:ss')
+                                : '-'
+                            const dateStr = call.createdAt
+                              ? moment(call.createdAt).format('MMM D, YYYY h:mm A')
+                              : '-'
+                            const isSelected = selectedCall?.id === lead?.id
+                            return (
+                              <button
+                                key={call.id}
+                                onClick={() => setSelectedCall(lead || null)}
+                                className="w-full p-3 flex flex-col gap-2 border rounded-lg mt-5 text-left"
+                                style={{
+                                  borderWidth: 1,
+                                  borderColor: isSelected ? primaryColor : '#eaeaea',
+                                }}
+                              >
+                                <div className="w-full flex flex-row justify-between items-center">
+                                  <div className="flex flex-col gap-2 items-start w-full">
+                                    <div className="flex flex-row gap-2 items-center">
+                                      <div
+                                        className="h-[32px] w-[32px] items-center justify-center text-center pt-[2px] rounded-full bg-black text-white flex flex-shrink-0"
+                                        style={{ fontSize: 15, fontWeight: '500' }}
+                                      >
+                                        {(lead?.firstName || '?')[0]}
+                                      </div>
+                                      <div style={{ fontSize: 14, fontWeight: '500', color: 'rgba(0,0,0,0.8)' }}>
+                                        {lead?.firstName || 'Unknown'}
+                                      </div>
+                                    </div>
+                                    <div
+                                      className="min-w-0 flex-1"
+                                      style={{
+                                        fontSize: 14,
+                                        fontWeight: '500',
+                                        color: 'rgba(0,0,0,0.8)',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        maxWidth: 200,
+                                      }}
+                                    >
+                                      {(lead?.email || '').slice(0, 24)}
+                                      {(lead?.email || '').length > 24 ? '...' : ''}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col gap-2 items-end">
+                                    <div style={{ fontSize: 13, fontWeight: '600', color: primaryColor }}>
+                                      {call.agent?.name || '-'}
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: 13,
+                                        fontWeight: '600',
+                                        color: "black", //primaryColor
+                                        textTransform: 'capitalize',
+                                      }}>{call.stage?.stageTitle || '-'}</div>
+                                  </div>
+                                </div>
+                                <div className="text-[14px]" style={{ color: 'rgba(0,0,0,0.8)' }}>
+                                  {dateStr} · {durationStr}
+                                </div>
+                              </button>
+                            )
+                          })}
+                          {agentStatsHasMore && (
+                            <div className="pt-2 pb-2">
+                              <div ref={loadMoreSentinelRef} className="h-4 w-full min-h-[16px]" aria-hidden />
+                              {agentStatsLoading && (
+                                <div className="flex justify-center py-2" aria-busy="true" aria-label="Loading more">
+                                  <CircularProgress size={24} thickness={2} />
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="w-8/12 flex flex-col">
+                          {selectedCall ? (
+                            <div className="w-full h-[80vh] overflow-hidden" style={{ scrollbarWidth: 'none' }}>
+                              <LeadDetails
+                                showDetailsModal={true}
+                                selectedLead={selectedCall.id}
+                                setShowDetailsModal={() => { }}
+                                pipelineId={selectedCall?.pipeline?.id || null}
+                                handleDelLead={(deletedLead) => {
+                                  setAgentStatsCalls((prev) => {
+                                    const next = prev.filter((c) => c.LeadModel?.id !== deletedLead.id)
+                                    if (selectedCall?.id === deletedLead.id) {
+                                      setSelectedCall(next[0]?.LeadModel ?? null)
+                                    }
+                                    return next
+                                  })
+                                  setAgentStatsTotal((prev) => Math.max(0, prev - 1))
+                                }}
+                                hideDelete={false}
+                                isPipeline={false}
+                                noBackDrop={true}
+                                renderInline={true}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-[80vh] flex items-center justify-center">
+                              <div style={{ fontSize: 24, fontWeight: '600', textAlign: 'center' }}>
+                                Select a call to view details
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  ) : initialLoader ? (
+                    <div className="w-full flex flex-row items-center justify-center mt-12">
+                      <CircularProgress size={35} thickness={2} />
+                    </div>
+                  ) : (
+                    <div className="w-full h-[100%]">
+                      {importantCalls?.length > 0 ? (
+                        <div className="w-full flex flex-row items-start justify-between h-[100%]">
+                          <div
+                            className="w-4/12 min-w-[300px] px-3 flex flex-col overflow-auto h-[100%] border-r border-[#eaeaea]"
+                            style={{ scrollbarWidth: 'none' }}
+                          >
+                            {importantCalls?.map(
+                              (
+                                item,
+                                index, //.slice.reverse
+                              ) => (
+                                <button
+                                  key={index}
+                                  onClick={() => {
+                                    setSelectedCall(item)
+                                  }}
+                                  className="w-full p-3 flex flex-col gap-2 border rounded-lg mt-5"
+                                  style={{
+                                    borderWidth: 1,
+                                    borderColor:
+                                      selectedCall.id === item.id
+                                        ? primaryColor
+                                        : '#eaeaea',
+                                  }}
+                                >
+                                  <div className="w-full flex flex-row justify-between items-center">
+                                    <div className="flex flex-col gap-2 items-start w-full">
+                                      <div className="flex flex-row gap-2 items-center">
+                                        <div
+                                          className="h-[32px] w-[32px] items-center justify-center pt-[2px] rounded-full bg-black flex flex-shrink-0"
+                                          style={{
+                                            fontSize: 15,
+                                            fontWeight: '500',
+                                            color: '#fff',
+                                          }}
+                                        >
+                                          {item.firstName[0]}
+                                        </div>
+                                        <div
+                                          style={{
+                                            fontSize: 14,
+                                            fontWeight: '500',
+                                            color: 'rgba(0,0,0,0.8)',
+                                          }}
+                                        >
+                                          {item.firstName}
+                                        </div>
+                                      </div>
+                                      <div
+                                        className="min-w-0 flex-1"
+                                        style={{
+                                          fontSize: 14,
+                                          fontWeight: '500',
+                                          color: 'rgba(0,0,0,0.8)',
+                                          maxWidth: 200,
+                                          overflow: 'hidden',
+                                          textOverflow: 'ellipsis',
+                                        }}
+                                      >
+                                        {item.email.length > 24 ? item.email.slice(0, 24) + '...' : item.email}
+                                      </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2 items-end">
+                                      <img
+                                        src="/svgIcons/fireIcon.png"
+                                        style={{ height: 17, width: 17 }}
+                                      />
+                                      <div className="flex flex-row gap-2 items-center">
+                                        <Image
+                                          src={'/agentXOrb.gif'}
+                                          height={23}
+                                          width={23}
+                                          alt="gif"
+                                        />
+                                        <div
+                                          style={{
+                                            fontSize: 13,
+                                            fontWeight: '600',
+                                            color: primaryColor,
+                                            textDecorationLine: 'underline',
+                                            marginRight: 30,
+                                          }}
+                                        >
+                                          {item?.callActivity[0]?.agent?.name ||
+                                            '-'}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="w-full flex flex-row justify-between items-center">
+                                    <div className="flex flex-row items-center gap-2">
+                                      {
+                                        !item.teamsAssigned && (
+                                          <Image
+                                            src={'/assets/manIcon.png'}
+                                            height={23}
+                                            width={23}
+                                            alt="*"
+                                          />
+                                        )
+                                      }
+                                      {/* Team assignments display */}
+                                      {item.teamsAssigned && item.teamsAssigned.length > 0 && (
+                                        <div className="flex flex-row items-center gap-1">
+                                          {item.teamsAssigned.slice(0, 2).map((teamMember, idx) => {
+                                            const memberName = teamMember?.name || teamMember?.invitedUser?.name || ''
+                                            return (
+                                              <div
+                                                key={teamMember.id || teamMember.invitedUserId || idx}
+                                                className="h-6 w-6 rounded-full bg-brand-primary flex items-center justify-center text-white text-xs font-semibold"
+                                                title={memberName}
+                                              >
+                                                {memberName.charAt(0).toUpperCase()}
+                                              </div>
+                                            )
+                                          })}
+                                          {item.teamsAssigned.length > 2 && (
+                                            <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 text-xs font-semibold">
+                                              +{item.teamsAssigned.length - 2}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="flex flex-row gap-2">
+                                      {item.tags?.length > 0 ? (
+                                        <div
+                                          className="text-end flex flex-row items-center gap-4"
+                                          style={styles.paragraph}
+                                        >
+                                          {
+                                            // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                            item?.tags
+                                              .slice(0, 2)
+                                              .map((tag, index) => {
+                                                return (
+                                                  <div
+                                                    key={index}
+                                                    className="flex flex-row items-center gap-4"
+                                                  >
+                                                    <div
+                                                      className="px-2 py-1 rounded-lg"
+                                                      style={{
+                                                        backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.05)`,
+                                                      }}
+                                                    >
+                                                      <div
+                                                        className="text-[13px]"
+                                                        style={{
+                                                          color: `hsl(var(--brand-primary, 270 75% 50%))`,
+                                                        }}
+                                                      >
+                                                        {tag}
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                )
+                                              })
+                                          }
+                                          <div>
+                                            {item?.tags.length > 2 && (
+                                              <div>+{item?.tags.length - 2}</div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        '-'
+                                      )}
+                                    </div>
+                                  </div>
+                                </button>
+                              ),
+                            )}
+                          </div>
+
+                          <div className="w-8/12 flex flex-col">
+                            {selectedCall ? (
+                              <div className="w-full h-[80vh] overflow-hidden" style={{ scrollbarWidth: 'none' }}>
+                                <LeadDetails
+                                  onTagDeleted={(deletedTag, leadId) => handleTagDeleted(deletedTag, leadId)}
+                                  showDetailsModal={true}
+                                  selectedLead={selectedCall.id}
+                                  setShowDetailsModal={() => {
+                                    // Prevent closing - always show when call is selected
+                                  }}
+                                  pipelineId={selectedCall?.pipeline?.id || null}
+                                  handleDelLead={(deletedLead) => {
+                                    // Remove deleted lead from the list
+                                    setImportantCalls((prevCalls) =>
+                                      prevCalls.filter((call) => call.id !== deletedLead.id)
+                                    )
+                                    // If deleted lead was selected, select first remaining or clear
+                                    if (selectedCall.id === deletedLead.id) {
+                                      const remaining = importantCalls.filter(
+                                        (call) => call.id !== deletedLead.id
+                                      )
+                                      setSelectedCall(remaining[0] || null)
+                                    }
+                                  }}
+                                  hideDelete={false}
+                                  isPipeline={false}
+                                  noBackDrop={true}
+                                  renderInline={true}
+                                  leadStageUpdated={(stage) => {
+                                    // Update the selected call's stage
+                                    setSelectedCall((prev) => ({
+                                      ...prev,
+                                      stage: stage,
+                                    }))
+                                    // Update in the list
+                                    setImportantCalls((prevCalls) =>
+                                      prevCalls.map((call) =>
+                                        call.id === selectedCall.id
+                                          ? { ...call, stage: stage }
+                                          : call
+                                      )
+                                    )
+                                  }}
+                                  leadAssignedTeam={(teamMember, lead) => {
+                                    // lead is the updated selectedLeadsDetails object with teamsAssigned
+                                    if (!lead) return
+
+                                    // Update team assignment in selected call
+                                    setSelectedCall((prev) => ({
+                                      ...prev,
+                                      teamsAssigned: lead.teamsAssigned || [],
+                                    }))
+
+                                    // Update in the list to reflect team assignments in left section
+                                    const leadIdToUpdate = lead.id || selectedCall?.id
+                                    setImportantCalls((prevCalls) =>
+                                      prevCalls.map((call) => {
+                                        if (call.id === leadIdToUpdate) {
+                                          return {
+                                            ...call,
+                                            teamsAssigned: lead.teamsAssigned || [],
+                                          }
+                                        }
+                                        return call
+                                      })
+                                    )
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-full h-[80vh] flex items-center justify-center">
+                                <div
+                                  style={{
+                                    fontsize: 24,
+                                    fontWeight: '600',
+                                    textAlign: 'center',
+                                  }}
+                                >
+                                  Select a call to view details
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            fontsize: 24,
+                            fontWeight: '600',
+                            textAlign: 'center',
+                            marginTop: 20,
+                          }}
+                        >
+                          No Data Found
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
           </Box>
         </ScaleFadeTransition>
       </Modal>

@@ -31,6 +31,7 @@ const THINKING_MESSAGES = [
 ]
 
 import { getVisitorId } from './visitorId'
+import { OpenAiLogoIcon } from '@phosphor-icons/react'
 
 const EMPTY_STATE_MESSAGES = [
   "What's the agenda?",
@@ -1104,7 +1105,7 @@ const WebAgentChatDrawer = ({
                       {(llmProviderOpen || llmProviderClosing) && (
                         <div
                           className={cn(
-                            'absolute left-0 bottom-full mb-2 w-52 rounded-2xl overflow-hidden z-50 py-1 bg-white/90 backdrop-blur-xl border border-white/70',
+                            'absolute left-0 bottom-full mb-2 w-[250px] rounded-2xl overflow-hidden z-50 py-1 bg-white/90 backdrop-blur-xl border border-white/70',
                             llmProviderClosing ? 'chat-popover-exit-above' : 'chat-popover-enter-above'
                           )}
                           style={{
@@ -1124,8 +1125,9 @@ const WebAgentChatDrawer = ({
                                 {p.icon === 'anthropic' && (
                                   <Image src="/Claude.jpeg" alt="" width={20} height={20} className="rounded object-contain" />
                                 )}
+                                {/*<Sparkles className="w-5 h-5 text-[#10a37f]" />*/}
                                 {p.icon === 'openai' && (
-                                  <Sparkles className="w-5 h-5 text-[#10a37f]" />
+                                  <OpenAiLogoIcon size={19} className="text-brand-primary" />
                                 )}
                                 {p.icon === 'google' && (
                                   <Image src="/gemini.png" alt="" width={20} height={20} className="rounded object-contain" />
