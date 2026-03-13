@@ -18,6 +18,7 @@ import {
   pipelineFeatures,
   webAgentFeatures,
 } from './UpgradeModalFeatures'
+import { Check } from 'lucide-react'
 
 const UpgradeModal = ({
   featureTitle,
@@ -202,12 +203,7 @@ const UpgradeModal = ({
                         key={item.id}
                         className="flex flex-row items-center gap-4"
                       >
-                        <Image
-                          alt="*"
-                          src={'/otherAssets/simpleTick.png'}
-                          height={16}
-                          width={16}
-                        />
+                        <Check strokeWidth={2.5} className="w-5 h-5" color={`hsl(var(--brand-primary))`} />
                         <div style={{ fontSize: '15px', fontWeight: '500' }}>
                           {item.title}
                         </div>
@@ -220,12 +216,7 @@ const UpgradeModal = ({
                         key={item.id}
                         className="flex flex-row items-center gap-4"
                       >
-                        <Image
-                          alt="*"
-                          src={'/otherAssets/simpleTick.png'}
-                          height={16}
-                          width={16}
-                        />
+                        <Check strokeWidth={2.5} className="w-5 h-5" color={`hsl(var(--brand-primary))`} />
                         <div style={{ fontSize: '15px', fontWeight: '500' }}>
                           {item.title}
                         </div>
