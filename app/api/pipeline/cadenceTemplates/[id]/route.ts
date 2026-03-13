@@ -8,7 +8,7 @@ const BASE_API_URL =
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const authHeader = req.headers.get('Authorization')
@@ -20,7 +20,7 @@ export async function GET(
     }
 
     const token = authHeader.split(' ')[1]
-    const { id } = params
+    const { id } = await params
 
     const response = await fetch(
       `${BASE_API_URL}api/pipeline/cadenceTemplates/${id}`,
@@ -55,7 +55,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const authHeader = req.headers.get('Authorization')
@@ -67,7 +67,7 @@ export async function PUT(
     }
 
     const token = authHeader.split(' ')[1]
-    const { id } = params
+    const { id } = await params
     const body = await req.json()
 
     const response = await fetch(
@@ -103,7 +103,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const authHeader = req.headers.get('Authorization')
@@ -115,7 +115,7 @@ export async function DELETE(
     }
 
     const token = authHeader.split(' ')[1]
-    const { id } = params
+    const { id } = await params
 
     const response = await fetch(
       `${BASE_API_URL}api/pipeline/cadenceTemplates/${id}`,
