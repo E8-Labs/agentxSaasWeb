@@ -31,43 +31,47 @@ const UnlockPremiunFeatures = ({
     fetchLocalUserData()
     // Map titles to API feature key so request works when modal is used in any context (e.g. agency viewing subaccount)
     if (title === 'Unlock Messaging' || title === 'Unlock AI Email & Text' || title === 'AI Text & Messages' || title === 'Enable AI Text & Messages') {
-      setFeatureTitleValue('AiEmailAndText')
+      setFeatureTitleValue('AI Text & Messages')//AiEmailAndText
       return
     }
     const Data = localUserData?.agencyCapabilities
     if (localUserData?.userRole === 'AgencySubAccount') {
       if (title === 'Enable Live Transfer') {
         if (!Data?.allowLiveCallTransfer) {
-          setFeatureTitleValue('LiveTransfer')
+          setFeatureTitleValue('Live Transfer')//LiveTransfer
         }
       } else if (title === 'Enable Dialer') {
-        setFeatureTitleValue('Dialer')
+        setFeatureTitleValue('Enable Dialer')//Dialer
       } else if (title === 'Unlock Actions') {
         if (!Data?.allowToolsAndActions) {
-          setFeatureTitleValue('ToolsAndActions')
+          setFeatureTitleValue('Tools and Actions')//ToolsAndActions
         }
       } else if (
         title === 'Unlock Knowledge Base' ||
         title === 'Add Knowledge Base'
       ) {
         if (!Data?.allowKnowledgeBases) {
-          setFeatureTitleValue('Knowledgebase')
+          setFeatureTitleValue('Knowledge Base')//Knowledgebase
         }
       } else if (title === 'Unlock Voicemail' || title === 'Enable Voicemail') {
         if (!Data?.allowVoicemail) {
           setFeatureTitleValue('Voicemail')
         }
       } else if (title === 'Unlock Live Support Webinar') {
-        setFeatureTitleValue('SupportSettings')
+        setFeatureTitleValue('Support Settings')//SupportSettings
         // if (!Data?.allowLiveSupportWebinar) {
         // }
       } else if (title === 'Unlock Calendar Integration') {
         if (!Data?.allowCalendarIntegration) {
-          setFeatureTitleValue('CalendarIntegration')
+          setFeatureTitleValue('Calendar Integration')//CalendarIntegration
         }
       } else if (title === 'Unlock Lead Scoring') {
         if (!Data?.allowLeadScoring) {
-          setFeatureTitleValue('Lead Scoring') //LeadScoring
+          setFeatureTitleValue('Lead Scoring') //LeadScoring EmbedAgents
+        }
+      } else if (title === 'EmbedAgents') {
+        if (!Data?.allowEmbedAgents) {
+          setFeatureTitleValue('Embed Agents') //EmbedAgents
         }
       } else {
         setFeatureTitleValue(title)
@@ -166,14 +170,14 @@ const UnlockPremiunFeatures = ({
         },
       }}
     >
-      <Box 
+      <Box
         className="flex justify-center items-center w-full h-full"
         sx={{
           position: 'relative',
           zIndex: 10001, // Higher than backdrop (10000) to appear on top
         }}
       >
-        <div 
+        <div
           className="bg-white rounded-2xl p-8 max-w-lg w-[90%] relative shadow-2xl"
           style={{
             zIndex: 10001, // Ensure content is above backdrop
