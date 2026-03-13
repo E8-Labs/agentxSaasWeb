@@ -655,19 +655,18 @@ const PipelineAndStage = ({
                   '-'}
               </span>
             )}
-            {agentCadence.length > 0 && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowConfirmationPopup(true)
-                }}
-                className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-brand-primary outline-none transition-colors duration-150 hover:underline focus:bg-brand-primary/10 focus:text-brand-primary active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0"
-              >
-                <Pencil size={16} strokeWidth={2} />
-                Update
-              </button>
-            )}
+            {/*agentCadence.length > 0 && ()*/}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowConfirmationPopup(true)
+              }}
+              className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-brand-primary outline-none transition-colors duration-150 hover:underline focus:bg-brand-primary/10 focus:text-brand-primary active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0"
+            >
+              <Pencil size={16} strokeWidth={2} />
+              Update
+            </button>
           </div>
         </div>
 
