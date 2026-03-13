@@ -472,6 +472,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/20 z-[100] backdrop"
+        onClick={() => {
+          if (!showDeleteConfirmation) {
+            onClose()
+          }
+        }}
         style={{
           animation: 'fadeIn 0.2s ease-out',
         }}
@@ -640,9 +645,9 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
               </>
             ) : (
               <>
-                <Button variant="outline" onClick={onClose}>
+                {/*<Button variant="outline" onClick={onClose}>
                   Cancel
-                </Button>
+                </Button>*/}
                 <Button
                   className="bg-brand-primary text-white hover:bg-brand-primary/90"
                   onClick={() => setIsCreating(true)}
