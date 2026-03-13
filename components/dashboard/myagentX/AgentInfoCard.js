@@ -112,7 +112,30 @@ const AgentInfoCard = ({
   return (
     <div className="flex w-full flex-col items-start gap-2">
       {/* Icon - only element not full width */}
-      {renderIcon()}
+      <div className="flex flex-row items-center gap-8">
+        {renderIcon()}
+        {
+          toolTip && rate != null && rate !== '' && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <RatePie value={Number(rate)} size={15} />
+                    <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
+                      {Number(rate) % 1 === 0
+                        ? `${Number(rate).toFixed(0)}%`
+                        : `${Number(rate).toFixed(1)}%`}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className=" px-2 py-1 text-xs">
+                  {toolTip}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )
+        }
+      </div>
 
       <div className="w-full text-sm font-normal text-foreground">
         {name}
@@ -120,30 +143,6 @@ const AgentInfoCard = ({
       <div className="w-full text-sm font-normal text-black/80">
         {value}
       </div>
-      {subtitle && rate != null && rate !== '' && (
-        <div className="mt-1.5 flex w-full items-center justify-between border-t border-black/10 py-2">
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="shrink-0 cursor-default text-xs font-normal leading-4 tracking-[-0.06px] text-black whitespace-nowrap">
-                  {getSubtitleLabel(subtitle)}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-[200px] px-2 py-1 text-xs">
-                {subtitle}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <div className="flex shrink-0 items-center gap-1">
-            <RatePie value={Number(rate)} size={15} />
-            <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
-              {Number(rate) % 1 === 0
-                ? `${Number(rate).toFixed(0)}%`
-                : `${Number(rate).toFixed(1)}%`}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
