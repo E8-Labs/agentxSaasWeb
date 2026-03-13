@@ -1,15 +1,17 @@
 import {
   Alert,
   Box,
+  Checkbox,
   CircularProgress,
   Fade,
   FormControl,
+  FormControlLabel,
   MenuItem,
   Modal,
   Select,
   Snackbar,
 } from '@mui/material'
-import { CaretDown, Minus, YoutubeLogo } from '@phosphor-icons/react'
+import { CaretDown, Minus, X, YoutubeLogo } from '@phosphor-icons/react'
 import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
@@ -33,7 +35,9 @@ import VideoCard from '../createagent/VideoCard'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
+import { Input } from '@/components/ui/input'
 import PipelineStages from './PipelineStages'
+import { getCadenceTemplates, createCadenceTemplate } from './TempleteServices'
 
 const EMPTY_CADENCE_SLICE = {
   assignedLeads: {},
@@ -165,6 +169,12 @@ const Pipeline1 = ({
     }
   }, [])
 
+  const [cadenceTemplatesList, setCadenceTemplatesList] = useState([])
+  const [selectedCadenceTemplate, setSelectedCadenceTemplate] = useState('')
+  const [saveAsTemplate, setSaveAsTemplate] = useState(false)
+  const [newTemplateName, setNewTemplateName] = useState('')
+  const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false)
+
   const [reorderLoader, setReorderLoader] = useState(false)
   //code for new Lead calls
   // const [rows, setRows] = useState([]);
@@ -271,6 +281,12 @@ const Pipeline1 = ({
     //    // //console.log;
     // }
     getPipelines()
+
+    getCadenceTemplates().then((templates) => {
+      if (templates && Array.isArray(templates)) {
+        setCadenceTemplatesList(templates)
+      }
+    })
 
     const agentDetails = localStorage.getItem('agentDetails')
     if (agentDetails && agentDetails != 'undefined') {
@@ -560,6 +576,121 @@ const Pipeline1 = ({
     })
   }
 
+  const serializeCadenceAsTemplate = () => {
+    const stages = []
+    for (const [indexStr, isAssigned] of Object.entries(assignedLeads)) {
+      if (!isAssigned) continue
+      const index = Number(indexStr)
+      const stage = selectedPipelineStages[index]
+      if (!stage) continue
+
+      const moveToStageObj = selectedNextStage[index]
+      let moveToStageIdentifier = null
+      if (moveToStageObj) {
+        moveToStageIdentifier = moveToStageObj.identifier || moveToStageObj.stageTitle
+      }
+
+      const calls = (rowsByIndex[index] || []).map((row) => ({
+        waitTimeDays: row.waitTimeDays || 0,
+        waitTimeHours: row.waitTimeHours || 0,
+        waitTimeMinutes: row.waitTimeMinutes || 0,
+        communicationType: row.communicationType || row.action || 'call',
+        referencePoint: row.referencePoint || 'regular_calls',
+      }))
+
+      stages.push({
+        stageIdentifier: stage.identifier || stage.stageTitle,
+        stageTitle: stage.stageTitle,
+        moveToStageIdentifier,
+        calls,
+      })
+    }
+    return stages
+  }
+
+  const applyCadenceTemplate = (template) => {
+    if (!template || !template.stages || !selectedPipelineStages?.length) return
+
+    const hasExistingConfig = Object.values(assignedLeads).some(Boolean)
+    if (hasExistingConfig) {
+      const confirmed = window.confirm(
+        'This will replace your current cadence configuration. Continue?',
+      )
+      if (!confirmed) return
+    }
+
+    const newAssignedLeads = {}
+    const newRowsByIndex = {}
+    const newNextStage = {}
+    const newSelectedNextStage = {}
+
+    for (const templateStage of template.stages) {
+      let matchingStage = selectedPipelineStages.find(
+        (s) => s.identifier && s.identifier === templateStage.stageIdentifier,
+      )
+      if (!matchingStage) {
+        matchingStage = selectedPipelineStages.find(
+          (s) => s.stageTitle === templateStage.stageTitle,
+        )
+      }
+      if (!matchingStage) continue
+
+      const stageIndex = selectedPipelineStages.indexOf(matchingStage)
+      const isBookingStage = matchingStage.identifier === 'booked'
+
+      newAssignedLeads[stageIndex] = true
+      newRowsByIndex[stageIndex] = (templateStage.calls || []).map((call, i) => ({
+        id: i + 1,
+        waitTimeDays: call.waitTimeDays || 0,
+        waitTimeHours: call.waitTimeHours || 0,
+        waitTimeMinutes: call.waitTimeMinutes || 0,
+        communicationType: call.communicationType || 'call',
+        action: call.communicationType || 'call',
+        referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
+      }))
+
+      if (templateStage.moveToStageIdentifier) {
+        let moveToStage = selectedPipelineStages.find(
+          (s) => s.identifier && s.identifier === templateStage.moveToStageIdentifier,
+        )
+        if (!moveToStage) {
+          moveToStage = selectedPipelineStages.find(
+            (s) => s.stageTitle === templateStage.moveToStageIdentifier,
+          )
+        }
+        if (moveToStage) {
+          newNextStage[stageIndex] = moveToStage.stageTitle
+          newSelectedNextStage[stageIndex] = moveToStage
+        }
+      }
+    }
+
+    updateCurrentPipelineCadence(() => ({
+      assignedLeads: newAssignedLeads,
+      rowsByIndex: newRowsByIndex,
+      nextStage: newNextStage,
+      selectedNextStage: newSelectedNextStage,
+    }))
+  }
+
+  const handleTemplateSelect = (event) => {
+    const value = event.target.value
+    if (value === '__new__') {
+      setSaveAsTemplate(true)
+      setSelectedCadenceTemplate('')
+      return
+    }
+    setSelectedCadenceTemplate(value)
+    const template = cadenceTemplatesList.find((t) => t.id === value)
+    if (template) {
+      applyCadenceTemplate(template)
+    }
+  }
+
+  const handleClearTemplate = () => {
+    setSelectedCadenceTemplate('')
+  }
+
   const printAssignedLeadsData = async () => {
     // return
     onContinueClick?.()
@@ -626,6 +757,24 @@ const Pipeline1 = ({
     if (cadenceData) {
       localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
     }
+
+    if (saveAsTemplate && newTemplateName.trim()) {
+      try {
+        const templateStages = serializeCadenceAsTemplate()
+        if (templateStages.length > 0) {
+          const result = await createCadenceTemplate({
+            templateName: newTemplateName.trim(),
+            stages: templateStages,
+          })
+          if (result?.status) {
+            setCadenceTemplatesList((prev) => [result.data, ...prev])
+          }
+        }
+      } catch (e) {
+        console.error('Failed to save cadence template:', e)
+      }
+    }
+
     handleContinue()
 
     // try {
@@ -962,6 +1111,71 @@ const Pipeline1 = ({
                 </div>
               )}
 
+              {!isInboundAgent && cadenceTemplatesList.length > 0 && (
+                <div className="flex justify-center">
+                  <div className="relative inline-block">
+                    <FormControl size="small">
+                      <Select
+                        displayEmpty
+                        value={selectedCadenceTemplate}
+                        onChange={handleTemplateSelect}
+                        renderValue={(selected) => {
+                          if (!selected) {
+                            return <span style={{ color: '#00000070' }}>Select Template</span>
+                          }
+                          const tmpl = cadenceTemplatesList.find((t) => t.id === selected)
+                          return tmpl?.templateName || 'Select Template'
+                        }}
+                        endAdornment={
+                          selectedCadenceTemplate ? (
+                            <X
+                              size={16}
+                              className="cursor-pointer mr-4"
+                              style={{ color: '#00000070' }}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleClearTemplate()
+                              }}
+                            />
+                          ) : null
+                        }
+                        sx={{
+                          fontSize: 14,
+                          fontWeight: '500',
+                          minWidth: 180,
+                          backgroundColor: '#FFFFFF',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#e0e0e0',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                      >
+                        <MenuItem disabled value="">
+                          <span style={{ fontSize: 13, color: '#00000050' }}>Templates</span>
+                        </MenuItem>
+                        {cadenceTemplatesList.map((tmpl) => (
+                          <MenuItem
+                            key={tmpl.id}
+                            value={tmpl.id}
+                            style={{ fontSize: 14, fontWeight: '500' }}
+                          >
+                            {tmpl.templateName}
+                          </MenuItem>
+                        ))}
+                        <MenuItem
+                          value="__new__"
+                          style={{ fontSize: 14, fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
+                        >
+                          New Template
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </div>
+                </div>
+              )}
+
               <div className="mt-4" style={styles.headingStyle}>
                 Assign this agent to a stage
               </div>
@@ -1071,13 +1285,50 @@ const Pipeline1 = ({
           <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
-            <Footer
-              handleContinue={printAssignedLeadsData}
-              donotShowBack={true}
-              registerLoader={createPipelineLoader}
-              shouldContinue={shouldContinue}
-            />
+          <div className="flex items-center w-full px-4" style={{ minHeight: '50px' }}>
+            <div className="flex-1" />
+            <div className="flex items-center gap-3">
+              {!isInboundAgent && (
+                <div className="flex items-center gap-2">
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={saveAsTemplate}
+                        onChange={(e) => setSaveAsTemplate(e.target.checked)}
+                        size="small"
+                        sx={{
+                          color: '#00000040',
+                          '&.Mui-checked': {
+                            color: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                      />
+                    }
+                    label={
+                      <span style={{ fontSize: 13, fontWeight: '500', color: '#000000', whiteSpace: 'nowrap' }}>
+                        Save template
+                      </span>
+                    }
+                    sx={{ marginRight: 0 }}
+                  />
+                  {saveAsTemplate && (
+                    <Input
+                      placeholder="Template name"
+                      value={newTemplateName}
+                      onChange={(e) => setNewTemplateName(e.target.value)}
+                      className="border-2 border-[#00000020] rounded p-2 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
+                      style={{ width: 180, height: 34, fontSize: 13 }}
+                    />
+                  )}
+                </div>
+              )}
+              <Footer
+                handleContinue={printAssignedLeadsData}
+                donotShowBack={true}
+                registerLoader={createPipelineLoader}
+                shouldContinue={shouldContinue}
+              />
+            </div>
           </div>
         </div>
       </div>

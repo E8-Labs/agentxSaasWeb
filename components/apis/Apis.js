@@ -267,6 +267,7 @@ const Apis = {
   getAdminTransactions: `${BasePath}api/admin/transactions`,
   releaseHeldFunds: `${BasePath}api/admin/transactions/release`,
 
+  cadenceTemplates: `${BasePath}api/pipeline/cadenceTemplates`,
   templets: `${BasePath}api/templates`,
   gmailAccount: `${BasePath}api/mail/accounts`,
   connectGmailAccount: `${BasePath}api/mail/connect-gmail`,

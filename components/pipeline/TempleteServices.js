@@ -325,6 +325,73 @@ export const connectGmailAccount = async (data, selectedUser) => {
   }
 }
 
+export const getCadenceTemplates = async () => {
+  try {
+    let token = AuthToken()
+    let path = Apis.cadenceTemplates
+
+    const response = await axios.get(path, {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    })
+
+    if (response) {
+      return response.data.data
+    }
+  } catch (e) {
+    console.error('Error fetching cadence templates:', e)
+    return []
+  }
+}
+
+export const createCadenceTemplate = async (data) => {
+  try {
+    let token = AuthToken()
+    let path = Apis.cadenceTemplates
+
+    const response = await axios.post(path, data, {
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (response) {
+      return response.data
+    }
+  } catch (e) {
+    console.error('Error creating cadence template:', e)
+    if (e.response) {
+      return e.response.data
+    }
+    return { status: false, message: 'Failed to create cadence template' }
+  }
+}
+
+export const deleteCadenceTemplate = async (id) => {
+  try {
+    let token = AuthToken()
+    let path = `${Apis.cadenceTemplates}/${id}`
+
+    const response = await axios.delete(path, {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    })
+
+    if (response) {
+      return response.data
+    }
+  } catch (e) {
+    console.error('Error deleting cadence template:', e)
+    if (e.response) {
+      return e.response.data
+    }
+    return { status: false, message: 'Failed to delete cadence template' }
+  }
+}
+
 export const deleteAccount = async (account) => {
   let token = AuthToken()
   let path = `${Apis.gmailAccount}/${account.id}`
