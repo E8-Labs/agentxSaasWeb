@@ -41,7 +41,7 @@ import {
 } from '@/components/ui/popover'
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
-import { Check } from 'lucide-react'
+import { Check, PhoneCall } from 'lucide-react'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import { AuthToken, userLocalData } from '@/components/agency/plan/AuthDetails'
@@ -64,6 +64,7 @@ import AdminAssignLead from './AdminAssignLead'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -1771,21 +1772,11 @@ const AdminLeads = ({
             disabled={!toggleClick.length > 0}
           >
             {toggleClick.length > 0 ? (
-              <Image
-                src={'/assets/callBtnFocus.png'}
-                height={17}
-                width={17}
-                alt="*"
-              />
+              <PhoneCall size={18} weight="900" color="white" />
             ) : (
-              <Image
-                src={'/assets/callBtn.png'}
-                height={17}
-                width={17}
-                alt="*"
-              />
+              <PhoneCall size={18} weight="900" />
             )}
-            <span style={styles.heading}>Start Campaign</span>
+            <span style={{fontWeight: 400, fontSize: 15}}>Start Campaign</span>
           </button>
         }
         selectedUser={selectedUser}
@@ -2156,11 +2147,11 @@ const AdminLeads = ({
                                   touchAction: 'none',
                                   ...(snapshot.isDragging
                                     ? {
-                                        backgroundColor: 'hsl(var(--background))',
-                                        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                                        borderRadius: 8,
-                                        zIndex: 1,
-                                      }
+                                      backgroundColor: 'hsl(var(--background))',
+                                      boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                      borderRadius: 8,
+                                      zIndex: 1,
+                                    }
                                     : {}),
                                 }}
                               >
@@ -2199,54 +2190,54 @@ const AdminLeads = ({
                                   <DotsThree weight="bold" size={25} color="black" />
                                 </button>
                                 <Popover
-                          id={id}
-                          open={open}
-                          anchorEl={anchorEl}
-                          onClose={handleClosePopup}
-                          anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                          }}
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left', // Ensures the Popover's top right corner aligns with the anchor point
-                          }}
-                          PaperProps={{
-                            elevation: 0, // This will remove the shadow
-                            style: {
-                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                              borderRadius: '10px',
-                              width: '120px',
-                            },
-                          }}
-                        >
-                          <div
-                            className="p-2 flex flex-col gap-2"
-                            style={{ fontWeight: '500', fontSize: 15 }}
-                          >
-                            {delSmartListLoader ? (
-                              <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                            ) : (
-                              <button
-                                className="text-red flex flex-row items-center gap-1"
-                                onClick={handleDeleteSmartList}
-                              >
-                                <Image
-                                  src={'/assets/delIcon.png'}
-                                  height={18}
-                                  width={18}
-                                  alt="*"
-                                />
-                                <p
-                                  className="text-red"
-                                  style={{ fontWeight: '00', fontSize: 16 }}
+                                  id={id}
+                                  open={open}
+                                  anchorEl={anchorEl}
+                                  onClose={handleClosePopup}
+                                  anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
+                                  }}
+                                  transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left', // Ensures the Popover's top right corner aligns with the anchor point
+                                  }}
+                                  PaperProps={{
+                                    elevation: 0, // This will remove the shadow
+                                    style: {
+                                      boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                      borderRadius: '10px',
+                                      width: '120px',
+                                    },
+                                  }}
                                 >
-                                  Delete
-                                </p>
-                              </button>
-                            )}
-                          </div>
-                        </Popover>
+                                  <div
+                                    className="p-2 flex flex-col gap-2"
+                                    style={{ fontWeight: '500', fontSize: 15 }}
+                                  >
+                                    {delSmartListLoader ? (
+                                      <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                                    ) : (
+                                      <button
+                                        className="text-red flex flex-row items-center gap-1"
+                                        onClick={handleDeleteSmartList}
+                                      >
+                                        <Image
+                                          src={'/assets/delIcon.png'}
+                                          height={18}
+                                          width={18}
+                                          alt="*"
+                                        />
+                                        <p
+                                          className="text-red"
+                                          style={{ fontWeight: '00', fontSize: 16 }}
+                                        >
+                                          Delete
+                                        </p>
+                                      </button>
+                                    )}
+                                  </div>
+                                </Popover>
                               </div>
                             )}
                           </Draggable>
@@ -2325,81 +2316,81 @@ const AdminLeads = ({
                     )}
 
                     <InfiniteScroll
-                        isLoading={moreLeadsLoader || sheetsLoader}
-                        hasMore={hasMore}
-                        root={leadsScrollRoot}
-                        rootMargin="200px"
-                        threshold={1}
-                        next={() => {
-                          const cursorToUse = nextCursorRef.current
-                          if (isLoadingMoreRef.current) return
-                          if (moreLeadsLoader || sheetsLoader) return
-                          // Avoid repeated calls when sentinel stays visible
-                          if (!FilterLeads || FilterLeads.length === 0) return
-                          if (!cursorToUse || cursorToUse === 0) return
-                          if (lastNextCursorRequestedRef.current === cursorToUse) return
-                          lastNextCursorRequestedRef.current = cursorToUse
-                          const filterText = getFilterText()
-                          handleFilterLeads(filterText, true)
-                        }}
-                      >
-                        <div className="flex flex-col w-full pb-[20px]">
-                          <table className="table-auto w-full border-collapse border border-none">
-                            <thead>
-                              <tr style={{ fontWeight: '500' }}>
-                                {leadColumns.map((column, index) => {
-                                  const isMoreColumn = column.title === 'More'
-                                  const isDateColumn = column.title === 'Date'
-                                  const columnWidth =
-                                    column.title === 'More' ? '200px' : '150px'
-                                  return (
-                                    <th
-                                      key={index}
-                                      className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
-                                        ? 'sticky right-0 bg-white'
-                                        : ''
-                                        }`}
-                                      style={{
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        zIndex:
-                                          isMoreColumn === 'More' ? 1 : 'auto',
-                                        maxWidth: columnWidth,
-                                      }}
-                                    >
-                                      {column.title.slice(0, 1).toUpperCase()}
-                                      {column.title.slice(1)}
-                                    </th>
-                                  )
-                                })}
+                      isLoading={moreLeadsLoader || sheetsLoader}
+                      hasMore={hasMore}
+                      root={leadsScrollRoot}
+                      rootMargin="200px"
+                      threshold={1}
+                      next={() => {
+                        const cursorToUse = nextCursorRef.current
+                        if (isLoadingMoreRef.current) return
+                        if (moreLeadsLoader || sheetsLoader) return
+                        // Avoid repeated calls when sentinel stays visible
+                        if (!FilterLeads || FilterLeads.length === 0) return
+                        if (!cursorToUse || cursorToUse === 0) return
+                        if (lastNextCursorRequestedRef.current === cursorToUse) return
+                        lastNextCursorRequestedRef.current = cursorToUse
+                        const filterText = getFilterText()
+                        handleFilterLeads(filterText, true)
+                      }}
+                    >
+                      <div className="flex flex-col w-full pb-[20px]">
+                        <table className="table-auto w-full border-collapse border border-none">
+                          <thead>
+                            <tr style={{ fontWeight: '500' }}>
+                              {leadColumns.map((column, index) => {
+                                const isMoreColumn = column.title === 'More'
+                                const isDateColumn = column.title === 'Date'
+                                const columnWidth =
+                                  column.title === 'More' ? '200px' : '150px'
+                                return (
+                                  <th
+                                    key={index}
+                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                      ? 'sticky right-0 bg-white'
+                                      : ''
+                                      }`}
+                                    style={{
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      zIndex:
+                                        isMoreColumn === 'More' ? 1 : 'auto',
+                                      maxWidth: columnWidth,
+                                    }}
+                                  >
+                                    {column.title.slice(0, 1).toUpperCase()}
+                                    {column.title.slice(1)}
+                                  </th>
+                                )
+                              })}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {FilterLeads.map((item, index) => (
+                              <tr key={item.id ?? index} className="hover:bg-gray-50">
+                                {leadColumns.map((column, colIndex) => (
+                                  <td
+                                    key={colIndex}
+                                    className={`border-none px-4 py-2 ${column.title === 'More'
+                                      ? 'sticky right-0 bg-white'
+                                      : ''
+                                      }`}
+                                    style={{
+                                      whiteSpace: 'nowrap',
+                                      zIndex:
+                                        column.title === 'More' ? 1 : 'auto',
+                                      width: '200px',
+                                    }}
+                                  >
+                                    {getColumnData(column, item)}
+                                  </td>
+                                ))}
                               </tr>
-                            </thead>
-                            <tbody>
-                              {FilterLeads.map((item, index) => (
-                                <tr key={item.id ?? index} className="hover:bg-gray-50">
-                                  {leadColumns.map((column, colIndex) => (
-                                    <td
-                                      key={colIndex}
-                                      className={`border-none px-4 py-2 ${column.title === 'More'
-                                        ? 'sticky right-0 bg-white'
-                                        : ''
-                                        }`}
-                                      style={{
-                                        whiteSpace: 'nowrap',
-                                        zIndex:
-                                          column.title === 'More' ? 1 : 'auto',
-                                        width: '200px',
-                                      }}
-                                    >
-                                      {getColumnData(column, item)}
-                                    </td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
 
                       {moreLeadsLoader && (
                         <div className="w-full flex flex-row justify-center mt-8">

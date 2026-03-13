@@ -129,7 +129,11 @@ const AgentInfoCard = ({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className=" px-2 py-1 text-xs">
-                  {toolTip}
+                <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
+                {Number(rate) % 1 === 0
+                  ? `${Number(rate).toFixed(0)}%`
+                  : `${Number(rate).toFixed(1)}%`}
+              </span> {toolTip}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
