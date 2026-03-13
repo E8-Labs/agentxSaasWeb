@@ -83,108 +83,108 @@ const ReorderCadenceModal = ({
       >
         <Box
           className="w-8/12 sm:w-5/12 md:w-4/12 lg:w-3/12"
-        sx={{
-          ...MODAL_STYLES.modalsStyle,
-          backgroundColor: 'white',
-          maxHeight: '80vh',
-          overflow: isDragging ? 'visible' : 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ width: '100%', flexShrink: 0 }}>
-          <div
-            style={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <div style={{ fontWeight: '700', fontSize: 22 }}>
-              Reorder cadence steps
-              {stageTitle != null && stageTitle !== '' && (
-                <span style={{ fontWeight: '500', fontSize: 16, color: '#00000080', marginLeft: 8 }}>
-                  — {stageTitle}
-                </span>
-              )}
-            </div>
-            <CloseBtn onClick={onClose} />
-          </div>
-        </div>
-        <div
-          className="mt-4 flex-1"
-          style={{
-            overflow: isDragging ? 'visible' : 'auto',
-            scrollbarWidth: 'thin',
-            minHeight: 120,
+          sx={{
+            ...MODAL_STYLES.modalsStyle,
+            backgroundColor: 'white',
+            maxHeight: '80vh',
+            overflow: isDragging ? 'visible' : 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <Droppable droppableId="reorder-cadence-list">
-              {(droppableProvided) => (
-                <div
-                  ref={droppableProvided.innerRef}
-                  {...droppableProvided.droppableProps}
-                >
-                  {list.map((row, rowIndex) => (
-                    <Draggable
-                      key={row.id}
-                      draggableId={`reorder-row-${stageIndex}-${row.id}`}
-                      index={rowIndex}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className="flex flex-row items-center justify-between gap-3 py-2 px-3 rounded-lg border border-[#00000015] mb-2 select-none"
-                          style={{
-                            ...provided.draggableProps.style,
-                            userSelect: 'none',
-                            WebkitUserSelect: 'none',
-                            backgroundColor: snapshot.isDragging
-                              ? '#fff'
-                              : rowIndex === 0
-                                ? 'hsl(var(--brand-primary) / 0.06)'
-                                : '#fafafa',
-                            ...(snapshot.isDragging
-                              ? {
+          <div style={{ width: '100%', flexShrink: 0 }}>
+            <div
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div style={{ fontWeight: '500', fontSize: 16, color: '#00000080' }}>
+                Reorder steps
+              </div>
+              <CloseBtn onClick={onClose} />
+            </div>
+            {stageTitle != null && stageTitle !== '' && (
+              <div style={{ fontWeight: '700', fontSize: 22, marginTop: 2 }}>
+                {stageTitle}
+              </div>
+            )}
+          </div>
+          <div
+            className="mt-4 flex-1"
+            style={{
+              overflow: isDragging ? 'visible' : 'auto',
+              scrollbarWidth: 'thin',
+              minHeight: 120,
+            }}
+          >
+            <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+              <Droppable droppableId="reorder-cadence-list">
+                {(droppableProvided) => (
+                  <div
+                    ref={droppableProvided.innerRef}
+                    {...droppableProvided.droppableProps}
+                  >
+                    {list.map((row, rowIndex) => (
+                      <Draggable
+                        key={row.id}
+                        draggableId={`reorder-row-${stageIndex}-${row.id}`}
+                        index={rowIndex}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className="flex flex-row items-center justify-between gap-3 py-2 px-3 rounded-lg border border-[#00000015] mb-2 select-none"
+                            style={{
+                              ...provided.draggableProps.style,
+                              userSelect: 'none',
+                              WebkitUserSelect: 'none',
+                              backgroundColor: snapshot.isDragging
+                                ? '#fff'
+                                : rowIndex === 0
+                                  ? 'hsl(var(--brand-primary) / 0.06)'
+                                  : '#fafafa',
+                              ...(snapshot.isDragging
+                                ? {
                                   zIndex: 99999,
                                   boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
                                   opacity: 1,
                                 }
-                              : {}),
-                          }}
-                        >
-                          <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
-                            <div
-                              {...provided.dragHandleProps}
-                              className="p-1 rounded hover:bg-black/10 cursor-grab active:cursor-grabbing touch-none"
-                              aria-label="Drag to reorder"
-                            >
-                              <Image
-                                src={'/assets/list.png'}
-                                height={6}
-                                width={16}
-                                alt="Drag handle"
-                              />
-                            </div>
-                            <div style={{ fontSize: 14, fontWeight: '500', flex: 1 }}>
-                              Wait {row.waitTimeDays}d {row.waitTimeHours}h {row.waitTimeMinutes}m, then{' '}
-                              {stepActionDisplayText?.(row) ?? '—'}
+                                : {}),
+                            }}
+                          >
+                            <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
+                              <div
+                                {...provided.dragHandleProps}
+                                className="p-1 rounded hover:bg-black/10 cursor-grab active:cursor-grabbing touch-none"
+                                aria-label="Drag to reorder"
+                              >
+                                <Image
+                                  src={'/assets/list.png'}
+                                  height={6}
+                                  width={16}
+                                  alt="Drag handle"
+                                />
+                              </div>
+                              <div style={{ fontSize: 14, fontWeight: '500', flex: 1 }}>
+                                Wait {row.waitTimeDays}d {row.waitTimeHours}h {row.waitTimeMinutes}m, then{' '}
+                                {stepActionDisplayText?.(row) ?? '—'}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {droppableProvided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
-      </Box>
+                        )}
+                      </Draggable>
+                    ))}
+                    {droppableProvided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
+        </Box>
       </div>
     </Modal>
   )
