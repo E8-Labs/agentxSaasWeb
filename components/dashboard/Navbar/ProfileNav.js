@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useLayoutEffect, useState, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -1774,16 +1775,11 @@ const ProfileNav = () => {
 
 
             {
-              !showAssignBanner && !isLeadUploading && showSlider && (
-                <div
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    bottom: 0
-                  }}>
-                  <DashboardSlider
-                    needHelp={showHelpModal} />
-                </div>
+              !showAssignBanner && !isLeadUploading && showSlider &&
+              typeof document !== "undefined" &&
+              createPortal(
+                <DashboardSlider needHelp={showHelpModal} />,
+                document.body
               )
             }
 

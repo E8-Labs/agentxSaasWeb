@@ -1118,7 +1118,7 @@ const PipelineStages = ({
               provided.innerRef(el)
               droppableContainerRef.current = el
             }}
-            className="h-[57svh] overflow-y-auto pb-36 2xl:pb-24"
+            // className="h-[57svh] overflow-y-auto pb-36 2xl:pb-24"
             style={{
               // maxHeight: '100vh',
               // overflowY: "auto",

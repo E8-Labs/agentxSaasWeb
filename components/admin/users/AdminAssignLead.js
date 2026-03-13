@@ -38,7 +38,7 @@ import DncConfirmationPopup from '@/components/dashboard/leads/DncConfirmationPo
 import { SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi'
 import { getAgentImage } from '@/utilities/agentUtilities'
 import { GetTimezone } from '@/utilities/utility'
-import { CalendarDays, PhoneCall } from 'lucide-react'
+import { CalendarDays, ListStart, PhoneCall } from 'lucide-react'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -1035,7 +1035,7 @@ const AdminAssignLead = ({
                     width={24}
                     alt="*"
                   />*/}
-                  <PhoneCall size={32} weight="900" />
+                  <ListStart size={30} className="flex-shrink-0" aria-hidden />
                   <div style={styles.title}>Start Now</div>
                 </button>
                 <div className="w-1/2">

@@ -908,7 +908,7 @@ const Pipeline1 = ({
           </div>
 
           <div
-            className="flex flex-col items-center px-4 w-full flex-1 min-h-0 overflow-hidden"
+            className="flex flex-col items-center px-4 w-full flex-1 min-h-0 max-h-[70svh] overflow-auto pb-8 md:pb-4 lg:pb-0"
           >
 
             <div

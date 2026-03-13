@@ -67,7 +67,7 @@ const UnlockPremiunFeatures = ({
         }
       } else if (title === 'Unlock Lead Scoring') {
         if (!Data?.allowLeadScoring) {
-          setFeatureTitleValue('LeadScoring')
+          setFeatureTitleValue('Lead Scoring') //LeadScoring
         }
       } else {
         setFeatureTitleValue(title)
