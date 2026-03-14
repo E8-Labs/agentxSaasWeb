@@ -619,7 +619,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
             </div>
           )}
 
-          {
+          {/*
             activeTab !== "lead_details" && (
               <div className="w-full flex flex-row justify-end pb-4 pe-4">
                 <Button
@@ -630,7 +630,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                 </Button>
               </div>
             )
-          }
+          }*/}
           {
             taskModalOpen && (
               <CreateTaskFromNextStepsModal

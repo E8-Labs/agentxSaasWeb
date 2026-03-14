@@ -970,7 +970,7 @@ const UserAddCard = ({
                         marginTop: 4,
                       }}
                     >
-                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD, YYYY')}
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
@@ -1540,7 +1540,7 @@ const UserAddCard = ({
                         marginTop: '',
                       }}
                     >
-                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD, YYYY')}
                     </div>
                   </div>
                   <div
