@@ -3423,7 +3423,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               // borderColor: '#7902DF',
               boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
               backgroundColor: '#FBFCFF',
-              zIndex: 1000,
+              zIndex: 10,
             }}
             onClick={handleAddNewAgent}
           >
