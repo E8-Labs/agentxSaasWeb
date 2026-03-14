@@ -323,8 +323,8 @@ const AdminDashboard = ({ selectedUser, agencyUser, enablePermissionChecks = fal
         </div>
       ) : (
         <div className='w-full h-[100%]'>
-          <div>
-            <StandardHeader title="" showTasks={true} showSeparator={false} selectedUser={selectedUser} buttonClassName="bg-black/10 backdrop-blur-sm" />
+          <div className="relative z-[3]">
+            <StandardHeader title="" showTasks={true} showSeparator={false} selectedUser={selectedUser} buttonClassName="bg-white/90 backdrop-blur-sm text-black shadow-sm hover:bg-white" agencyUser={agencyUser} variant="dark" />
           </div>
           <div className="flex flex-col items-center w-full h-[90%] overflow-y-auto">
             {
