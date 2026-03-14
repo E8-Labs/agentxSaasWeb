@@ -43,7 +43,8 @@ function StandardHeader({
   showSeparator = true,
   variant = 'dark',
   selectedUser = null,
-  enablePermissionChecks = false
+  enablePermissionChecks = false,
+  buttonClassName = '',
 }) {
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
@@ -160,13 +161,14 @@ function StandardHeader({
                 setTaskBoardOpen(true)
                 window.dispatchEvent(new CustomEvent('hideSlider', { detail: { update: true } }))
               }}
-              className="mb-1 w-auto h-auto p-2 rounded-lg flex flex-row items-center justify-center gap-1.5 flex-shrink-0 relative bg-black/[0.05] hover:opacity-70 transition-opacity active:scale-[0.98]"
+              className={`mb-1 w-auto h-auto p-2 rounded-lg flex flex-row items-center justify-center gap-1.5 flex-shrink-0 relative hover:opacity-70 transition-opacity active:scale-[0.98] ${buttonClassName || (isBright ? 'bg-white/20 text-white' : 'bg-black/[0.05]')}`}
             >
               <Image
                 src='/messaging/checkList.svg'
                 alt='Tasks'
                 width={20}
                 height={20}
+                style={isBright ? { filter: 'brightness(0) invert(1)' } : undefined}
               />
               <span className="text-sm font-medium">Task</span>
               {/* Status indicator dots */}
@@ -190,7 +192,7 @@ function StandardHeader({
               )}
             </button>
           )}
-          <NotficationsDrawer />
+          <NotficationsDrawer variant={variant} buttonClassName={buttonClassName} />
         </div>
       </div >
       {showTasks && (

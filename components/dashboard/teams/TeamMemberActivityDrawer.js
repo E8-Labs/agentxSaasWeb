@@ -24,7 +24,7 @@ import TaskCard from '@/components/messaging/TaskCard'
 import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { TypographyH3, TypographyBody, TypographyH3Semibold, TypographyCaption, TypographyTitle, TypographyButtonText, TypographyAlert, TypographyCaptionMedium } from '@/lib/typography'
 import { cn } from '@/lib/utils'
-import { sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
+import { sanitizeHTMLForEmailBody, sanitizeHTMLForSMS } from '@/utilities/textUtils'
 import CreateTaskFromNextStepsModal from '../leads/extras/CreateTaskFromNextStepsModal'
 import { Button } from '@/components/ui/button'
 import CloseIcon from '@mui/icons-material/Close'
@@ -1001,14 +1001,17 @@ function ActivityTimelineItem({ item, onLeadClick }) {
             </TypographyBody>
             {item.content && (
               <>
-                <TypographyBody
+                <div
                   className={cn(
                     'text-sm text-muted-foreground mt-1',
-                    !contentExpanded && hasLongContent && 'line-clamp-3'
+                    '[&_a]:!text-brand-primary [&_a]:underline [&_a]:cursor-pointer [&_a:hover]:opacity-80',
+                    '[&_p]:m-0',
+                    !contentExpanded && hasLongContent && 'line-clamp-3 overflow-hidden'
                   )}
-                >
-                  {contentExpanded ? item.content : contentSnippet}
-                </TypographyBody>
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHTMLForSMS(contentExpanded ? item.content : contentSnippet)
+                  }}
+                />
                 {hasLongContent && (
                   <button
                     type="button"

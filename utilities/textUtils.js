@@ -60,6 +60,31 @@ export function sanitizeHTMLForEmailBody(html) {
 }
 
 /**
+ * Sanitize HTML for SMS/message display.
+ * Renders p, br, strong, em, a tags properly and forces all links to open in new tabs.
+ * @param {string} html - Raw SMS/message content (may contain HTML)
+ * @returns {string} Sanitized HTML safe for dangerouslySetInnerHTML
+ */
+export function sanitizeHTMLForSMS(html) {
+  if (typeof window === 'undefined') return html ?? ''
+  if (!html) return ''
+
+  const hasHtmlTags = /<[^>]+>/.test(html)
+  if (!hasHtmlTags) {
+    return linkifyText(html)
+  }
+
+  const sanitized = sanitizeHTMLForEmailBody(html)
+  return sanitized.replace(
+    /<a\s+([^>]*?)>/gi,
+    (match, attrs) => {
+      const cleaned = attrs.replace(/target\s*=\s*["'][^"']*["']/gi, '').replace(/rel\s*=\s*["'][^"']*["']/gi, '')
+      return `<a ${cleaned.trim()} target="_blank" rel="noopener noreferrer">`
+    }
+  )
+}
+
+/**
  * Converts plain text with **bold** markdown to HTML with <strong> tags.
  * Escapes HTML and sanitizes output. Safe for dangerouslySetInnerHTML.
  * @param {string} text - Plain text possibly containing **bold** segments
