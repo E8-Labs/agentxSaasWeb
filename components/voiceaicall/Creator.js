@@ -1499,17 +1499,18 @@ const Creator = ({ agentId, name, shareToken = null }) => {
             </div>
           </div>
           {!profileLoader && !shareResolveLoading && canShowChatInput && !chatDrawerOpen && !loading && !open && (
-            <div
-              className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10 py-8 -my-8 -mx-4"
+            <button
+              className="absolute bottom-14 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-10 py-8 -my-8 -mx-4 outline-none"
               onMouseEnter={() => setPointerOverChatInputArea(true)}
               onMouseLeave={() => setPointerOverChatInputArea(false)}
+              onClick={handleOpenChat}
             >
               <WebAgentChatInput
                 onFocus={handleOpenChat}
                 placeholder="Ask me anything"
                 readOnly
               />
-            </div>
+            </button>
           )}
           <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
@@ -1590,7 +1591,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
         }}
       >
         <Box
-          className="xl:w-4/12 lg:w-4/12 sm:w-6/12 w-5/12"
+          className="xl:w-4/12 lg:w-4/12 sm:w-6/12 md:w-5/12 w-5/12"
           sx={{
             position: 'absolute',
             top: '50%',
