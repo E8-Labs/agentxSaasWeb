@@ -132,6 +132,15 @@ const DomainConfig = ({ selectedAgency }) => {
     }
   }, [])
 
+  const isValidCustomDomain = () => {
+    if (!customDomain) return false
+    const domain = customDomain.trim().toLowerCase()
+    if (domain.endsWith('assignx.ai')) {
+      return true
+    }
+    return false
+  }
+
   const handleAddDomain = async () => {
     if (!customDomain.trim()) {
       setShowSnackMessage({
@@ -535,7 +544,7 @@ const DomainConfig = ({ selectedAgency }) => {
               <button
                 className="bg-brand-primary text-white rounded-md px-6 py-2 text-center font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity min-w-[100px]"
                 onClick={handleAddDomain}
-                disabled={loading || !!domainStatus}
+                disabled={loading || !!domainStatus || isValidCustomDomain()}
               >
                 {loading ? 'Saving...' : 'Save'}
               </button>

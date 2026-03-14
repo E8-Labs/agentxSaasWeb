@@ -745,7 +745,7 @@ const AgentsListPaginated = ({
                             }
                             iconComponent={<Hourglass size={18} />}
                             iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
-                            iconColor="text-orange-500"
+                            iconColor="text-brand-primary"
                           />
                         </div>
                       </div>
