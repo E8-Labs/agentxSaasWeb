@@ -3415,7 +3415,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         {/* code to add new agent */}
         {agentsListSeparated.length > 0 && (
           <button
-            className="w-[80%] absolute bottom-5 py-6 flex justify-center items-center"
+            className="w-[80%] absolute bottom-5 h-[75px] flex justify-center items-center"
             style={{
               marginTop: 40,
               border: '1px dashed hsl(var(--brand-primary))',
@@ -3423,13 +3423,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               // borderColor: '#7902DF',
               boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
               backgroundColor: '#FBFCFF',
+              zIndex: 1000,
             }}
             onClick={handleAddNewAgent}
           >
             <div
               className="flex flex-row items-center gap-1"
               style={{
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: '600',
                 color: '#000',
               }}
