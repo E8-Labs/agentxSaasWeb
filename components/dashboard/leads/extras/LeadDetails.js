@@ -2122,7 +2122,7 @@ const LeadDetails = ({
                       <div className="flex flex-row items-start justify-between mt-4 w-full">
                         <div className="flex flex-col items-start w-full">
                           <div className="flex flex-row items-between justify-between w-full h-10 max-h-none px-4">
-                            <div className="flex flex-row items-center gap-3 w-full">
+                            <div className="flex flex-row items-center gap-3 w-full min-w-0">
 
                               {/* only show when showAsTab is true */}
                               {showAsTab && (
@@ -2253,7 +2253,7 @@ const LeadDetails = ({
                               )}
                             </div>
                             {/* Stage Select Dropdown */}
-                            <div className="flex flex-col align-self-end gap-[5px] ">
+                            <div className="flex flex-col align-self-end gap-[5px] shrink-0">
                               <div className="flex flex-row items-center gap-2">
                                 {/* <Image
                               src={"/assets/arrow.png"}
@@ -2287,7 +2287,7 @@ const LeadDetails = ({
                                           stagesList={stagesList}
                                           updateLeadStage={updateLeadStage}
                                           chevronIcon={ChevronDown}
-                                          textSize="14px"
+                                          textSize="12px"
                                           contentClassName={elevatedZIndex ? '!z-[5020]' : undefined}
                                         />
                                       )}

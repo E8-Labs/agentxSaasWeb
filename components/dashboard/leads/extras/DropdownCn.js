@@ -76,7 +76,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
   return (
     <div className="relative">
       <DropdownMenu open={open} onOpenChange={handleOpenChange}>
-        <div className={cn("flex items-center h-[40px] rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
+        <div className={cn("flex items-center h-[40px] w-auto whitespace-nowrap rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
           {onChevronClick ? (
             <>
               <DropdownMenuTrigger asChild>
