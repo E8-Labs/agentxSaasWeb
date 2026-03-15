@@ -68,14 +68,14 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, sele
 }
 
 const RANGE_OPTIONS = [
-  { value: 'all', label: 'All' },
+  { value: 'all', label: 'All Activities' },
   { value: 'last_24hrs', label: 'Last 24hrs' },
   { value: 'last_7days', label: 'Last 7days' },
   { value: 'custom', label: 'Custom' },
 ]
 
 const FILTER_OPTIONS = [
-  { value: 'all', label: 'All' },
+  { value: 'all', label: 'All Time' },
   { value: 'calls', label: 'Calls' },
   { value: 'sms', label: 'SMS' },
   { value: 'email', label: 'Emails' },
@@ -835,7 +835,7 @@ function ActivityTimelineItem({ item, onLeadClick }) {
       <div className="flex-1 min-w-0 rounded-lg bg-background py-3 pr-4 pl-5">
         {item.type === 'call' && (
           <>
-            <TypographyBody className="font-semibold text-foreground">
+            <TypographyBody className="text-foreground">
               Called @ {' '}
               {leadId ? (
                 <button
@@ -871,7 +871,7 @@ function ActivityTimelineItem({ item, onLeadClick }) {
         )}
         {item.type === 'email' && (
           <>
-            <TypographyBody className="font-semibold text-foreground">
+            <TypographyBody className="text-foreground">
               Emailed @ {' '}
               {leadId ? (
                 <button

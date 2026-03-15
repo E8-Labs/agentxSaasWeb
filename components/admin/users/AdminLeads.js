@@ -41,7 +41,7 @@ import {
 } from '@/components/ui/popover'
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
-import { Check, PhoneCall } from 'lucide-react'
+import { ListStart } from 'lucide-react'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import { AuthToken, userLocalData } from '@/components/agency/plan/AuthDetails'
@@ -1772,9 +1772,9 @@ const AdminLeads = ({
             disabled={!toggleClick.length > 0}
           >
             {toggleClick.length > 0 ? (
-              <PhoneCall size={18} weight="900" color="white" />
+              <ListStart size={18} className="flex-shrink-0" aria-hidden />
             ) : (
-              <PhoneCall size={18} weight="900" />
+              <ListStart size={18} className="flex-shrink-0" aria-hidden />
             )}
             <span style={{fontWeight: 400, fontSize: 15}}>Start Campaign</span>
           </button>
