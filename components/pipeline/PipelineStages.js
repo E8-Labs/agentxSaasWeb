@@ -1328,11 +1328,11 @@ const PipelineStages = ({
                                       >
                                         <div className="w-[16px]">
                                           {rowIndex > 0 ? (
-                                            <Tooltip title="Reorder steps" arrow>
+                                            <Tooltip title="Click to reorder steps" arrow>
                                               <button
                                                 type="button"
                                                 onClick={() => setReorderCadenceModalStageIndex(index)}
-                                                className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-grab active:cursor-grabbing flex items-center justify-center"
+                                                className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-pointer flex items-center justify-center"
                                                 aria-label="Reorder cadence steps"
                                               > 
                                                 <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />

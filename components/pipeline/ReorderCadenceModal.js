@@ -101,16 +101,16 @@ const ReorderCadenceModal = ({
                 alignItems: 'center',
               }}
             >
-              <div style={{ fontWeight: '500', fontSize: 16, color: '#00000080' }}>
-                Reorder steps
-              </div>
+              {stageTitle != null && stageTitle !== '' && (
+                <div style={{ fontWeight: '700', fontSize: 22}}>
+                  {stageTitle}
+                </div>
+              )}
               <CloseBtn onClick={onClose} />
             </div>
-            {stageTitle != null && stageTitle !== '' && (
-              <div style={{ fontWeight: '700', fontSize: 22, marginTop: 2 }}>
-                {stageTitle}
-              </div>
-            )}
+            <div  style={{ fontWeight: '500', fontSize: 16, color: '#00000080', marginTop: 2 }}>
+              Reorder steps
+            </div>
           </div>
           <div
             className="mt-4 flex-1"
