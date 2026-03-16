@@ -32,7 +32,7 @@ import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import PhoneInput from 'react-phone-input-2'
 
@@ -678,6 +678,7 @@ function Page() {
 
   const [search, setSearch] = useState('')
   const [selectedTags, setSelectedTags] = useState([]) // [] = All, string[] = filter by any of these tags
+  const tagFilterEffectMountedRef = useRef(false) // skip first run so tag clicks drive fetch with committed state
   const [duplicateLoader, setDuplicateLoader] = useState(false)
 
   //nedd help popup
@@ -3351,6 +3352,7 @@ function Page() {
     paginationStatus,
     search = null,
     searchLoader = false,
+    tagFilter = undefined,
   ) => {
     setPaginationLoader(true)
 
@@ -3377,7 +3379,7 @@ function Page() {
       if (!agentLocalDetails || (searchLoader && search)) {
         setInitialLoader(true)
       }
-      const tagFilterArg = arguments.length > 3 ? arguments[3] : selectedTags
+      const tagFilterArg = tagFilter !== undefined ? tagFilter : selectedTags
       const tagsForApi = Array.isArray(tagFilterArg) ? tagFilterArg : tagFilterArg != null && tagFilterArg !== '' ? [tagFilterArg] : []
       let offset = mainAgentsList.length
       let ApiPath = `${Apis.getAgents}?offset=${offset}` //?agentType=outbound
@@ -3496,6 +3498,15 @@ function Page() {
       setInitialLoader(false)
     }
   }
+
+  // When user changes tag filter (pill or All), fetch with committed selectedTags so we never send previous selection
+  useEffect(() => {
+    if (!tagFilterEffectMountedRef.current) {
+      tagFilterEffectMountedRef.current = true
+      return
+    }
+    getAgents(false, search, true, selectedTags)
+  }, [selectedTags])
 
   // Filter agents by sortBy (all / inbound / outbound) for Sort By dropdown
   const filteredAgentsList = useMemo(() => {
@@ -4272,10 +4283,7 @@ function Page() {
                 <div className="flex flex-row items-center gap-1.5 flex-nowrap shrink-0">
                   <button
                     type="button"
-                    onClick={() => {
-                      setSelectedTags([])
-                      getAgents(false, search, true, [])
-                    }}
+                    onClick={() => setSelectedTags([])}
                     className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${selectedTags.length === 0 ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
                   >
                     All
@@ -4289,7 +4297,6 @@ function Page() {
                         onClick={() => {
                           const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
                           setSelectedTags(next)
-                          getAgents(false, search, true, next)
                         }}
                         className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
                       >
