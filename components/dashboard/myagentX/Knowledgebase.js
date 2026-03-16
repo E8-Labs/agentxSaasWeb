@@ -88,23 +88,21 @@ function Knowledgebase({ user, agent }) {
       )
     } else
       return (
-        <div className="flex flex-col items-center justify-center py-6 px-4">
-          <div className="flex flex-col w-full items-center justify-center gap-3 rounded-lg">
+        <div className="flex flex-col items-center justify-center py-10 px-4">
+          <div className="flex w-full max-w-sm flex-col items-center justify-center gap-4 rounded-lg">
             <img
               src={'/assets/nokb.png'}
-              className="object-fill"
-              style={{ height: 97, width: 130 }}
+              className="object-contain mx-auto"
+              style={{ height: 96, width: 96 }}
               alt="No Knowledgebase"
             />
 
-            <div
-              className="text-[14px] font-normal text-black/80"
-            >
+            <div className="text-[14px] font-normal text-black/80 text-center">
               No knowledge base added
             </div>
 
             <button
-              className="flex flex-row h-[40px] items-center gap-2 bg-brand-primary px-4 rounded-lg"
+              className="inline-flex h-11 px-6 items-center justify-center gap-2 rounded-[8px] bg-brand-primary text-[14px] font-semibold text-white shadow-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
               onClick={() => {
                 if (
                   user?.planCapabilities.maxKnowledgeBases >
@@ -116,13 +114,8 @@ function Knowledgebase({ user, agent }) {
                 }
               }}
             >
-              <Plus color="white"></Plus>
-              <div
-                className="flex items-center justify-center  text-black text-white font-medium"
-                // Fixed typo
-              >
-                Add New
-              </div>
+              <Plus size={18} color="white" />
+              <span>Add New</span>
             </button>
           </div>
         </div>

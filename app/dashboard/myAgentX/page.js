@@ -5980,6 +5980,7 @@ function Page() {
                                 }}
                                 sx={{
                                   border: 'none', // Default border
+                                  '& .MuiOutlinedInput-root': { height: 40, minHeight: 40 },
                                   '&:hover': {
                                     border: 'none', // Same border on hover
                                   },

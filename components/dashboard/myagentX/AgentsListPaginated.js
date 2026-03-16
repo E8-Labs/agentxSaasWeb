@@ -488,121 +488,123 @@ const AgentsListPaginated = ({
                         </div>
                       </div>
 
-                      <div className="flex flex-row items-center justify-end gap-2 self-stretch text-left pt-1">
-                        <div className={`relative inline-block ${!item.phoneNumber ? 'ml-auto' : ''}`}>
-                          {!item.phoneNumber && (
-                            <div
-                              className="absolute -right-1 -top-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-red-500"
-                              aria-hidden
-                            >
-                              <AlertTriangle
-                                size={16}
-                                className="text-white"
-                              />
-                            </div>
-                          )}
-                          <button
-                            className="bg-brand-primary px-4 py-2 rounded-lg text-white relative"
-                            onClick={() => {
-                              if (!item.phoneNumber) {
-                                setShowWarningModal(item)
-                              } else {
-                                setOpenTestAiModal(true)
-                              }
+                      <div className="flex flex-col gap-2 self-stretch text-left pt-1">
+                        <div className="flex flex-row items-center justify-end gap-2">
+                          <div className={`relative inline-block ${!item.phoneNumber ? 'ml-auto' : ''}`}>
+                            {!item.phoneNumber && (
+                              <div
+                                className="absolute -right-1 -top-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-red-500"
+                                aria-hidden
+                              >
+                                <AlertTriangle
+                                  size={16}
+                                  className="text-white"
+                                />
+                              </div>
+                            )}
+                            <button
+                              className="bg-brand-primary px-4 py-2 rounded-lg text-white relative"
+                              onClick={() => {
+                                if (!item.phoneNumber) {
+                                  setShowWarningModal(item)
+                                } else {
+                                  setOpenTestAiModal(true)
+                                }
 
-                              setSelectedAgent(item)
-                              // Reset keys array for each agent to avoid accumulating variables from previous agents
-                              keys = []
-                              const callScript =
-                                item.prompt.callScript + ' ' + item.prompt.greeting
-                              const regex = /\{(.*?)\}/g
-                              let match
-                              let mainAgent = null
-                              mainAgentsList.map((ma) => {
-                                if (ma.agents?.length > 0) {
-                                  if (ma.agents[0].id == item.id) {
-                                    mainAgent = ma
-                                  } else if (ma.agents?.length >= 2) {
-                                    if (ma.agents[1].id == item.id) {
+                                setSelectedAgent(item)
+                                // Reset keys array for each agent to avoid accumulating variables from previous agents
+                                keys = []
+                                const callScript =
+                                  item.prompt.callScript + ' ' + item.prompt.greeting
+                                const regex = /\{(.*?)\}/g
+                                let match
+                                let mainAgent = null
+                                mainAgentsList.map((ma) => {
+                                  if (ma.agents?.length > 0) {
+                                    if (ma.agents[0].id == item.id) {
                                       mainAgent = ma
+                                    } else if (ma.agents?.length >= 2) {
+                                      if (ma.agents[1].id == item.id) {
+                                        mainAgent = ma
+                                      }
+                                    }
+                                  }
+                                })
+                                let kyc = (mainAgent?.kyc || []).map(
+                                  (kyc) => kyc.question,
+                                )
+                                while ((match = regex.exec(callScript)) !== null) {
+                                  const defaultVariables = [
+                                    'Full Name',
+                                    'First Name',
+                                    'Last Name',
+                                    'firstName',
+                                    'seller_kyc',
+                                    'buyer_kyc',
+                                    'CU_address',
+                                    'CU_status',
+                                  ]
+                                  // Remove the length restriction to allow longer variable names like "Appointment Date" and "Appointment Time"
+                                  if (
+                                    !defaultVariables.includes(match[1]) &&
+                                    match[1]?.trim().length > 0
+                                  ) {
+                                    if (
+                                      !keys.includes(match[1]) &&
+                                      !kyc.includes(match[1])
+                                    ) {
+                                      keys.push(match[1])
                                     }
                                   }
                                 }
-                              })
-                              let kyc = (mainAgent?.kyc || []).map(
-                                (kyc) => kyc.question,
-                              )
-                              while ((match = regex.exec(callScript)) !== null) {
-                                const defaultVariables = [
-                                  'Full Name',
-                                  'First Name',
-                                  'Last Name',
-                                  'firstName',
-                                  'seller_kyc',
-                                  'buyer_kyc',
-                                  'CU_address',
-                                  'CU_status',
-                                ]
-                                // Remove the length restriction to allow longer variable names like "Appointment Date" and "Appointment Time"
-                                if (
-                                  !defaultVariables.includes(match[1]) &&
-                                  match[1]?.trim().length > 0
-                                ) {
-                                  if (
-                                    !keys.includes(match[1]) &&
-                                    !kyc.includes(match[1])
-                                  ) {
-                                    keys.push(match[1])
-                                  }
-                                }
-                              }
-                              setScriptKeys(keys)
+                                setScriptKeys(keys)
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: '600',
+                                  color: '#fff',
+                                }}
+                              >
+                                Test AI
+                              </div>
+                            </button>
+                          </div>
+                        </div>
+
+                        {!item.phoneNumber && (
+                          <div
+                            className="flex flex-row items-center justify-between gap-2 w-full py-2 px-3 rounded-lg"
+                            style={{
+                              backgroundColor: 'rgba(255, 78, 78, 0.02)',
+                              border: '2px solid rgba(255, 78, 78, 0.6)',
                             }}
                           >
-                            <div
-                              style={{
-                                fontSize: 15,
-                                fontWeight: '600',
-                                color: '#fff',
-                              }}
-                            >
-                              Test AI
+                            <div className="flex flex-row items-center gap-2">
+                              <Image
+                                src={'/assets/warningFill.png'}
+                                height={18}
+                                width={18}
+                                alt="*"
+                              />
+                              <p>
+                                <span
+                                  className="text-red"
+                                  style={{
+                                    fontSize: 14,
+                                    fontWeight: 400,
+                                    opacity: 1,
+                                  }}
+                                >
+                                  No phone number assigned
+                                </span>
+                              </p>
                             </div>
-                          </button>
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-
-                    {!item.phoneNumber && (
-                      <div
-                        className="flex flex-row items-center justify-between gap-2 w-full py-2 px-3 rounded-lg"
-                        style={{
-                          backgroundColor: 'rgba(255, 78, 78, 0.02)',
-                          border: '2px solid rgba(255, 78, 78, 0.6)',
-                        }}
-                      >
-                        <div className="flex flex-row items-center gap-2">
-                          <Image
-                            src={'/assets/warningFill.png'}
-                            height={18}
-                            width={18}
-                            alt="*"
-                          />
-                          <p>
-                            <span
-                              className="text-red"
-                              style={{
-                                fontSize: 14,
-                                fontWeight: 400,
-                                opacity: 1,
-                              }}
-                            >
-                              No phone number assigned
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    )}
 
                     <div
                       className="w-full bg-white p-3 rounded-lg text-sm"
