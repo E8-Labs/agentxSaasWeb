@@ -91,6 +91,7 @@ const WebAgentChatDrawer = ({
   open,
   onClose = noop,
   agentId,
+  agentVapiId,
   agentName,
   agencyBranding = null,
   agent = null,
@@ -361,7 +362,7 @@ const WebAgentChatDrawer = ({
         },
       })
       if (data?.status && data?.data?.shareToken) {
-        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/web-agent/${agentId}?share=${data.data.shareToken}`
+        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/web-agent/${agentVapiId}?share=${data.data.shareToken}`
         let copied = false
         try {
           await navigator.clipboard.writeText(url)

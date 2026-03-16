@@ -665,159 +665,159 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
   return (
     <>
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent
-        className="w-[500px] max-w-[500px] p-0 gap-0 overflow-hidden rounded-xl border border-black/[0.06] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] data-[state=open]:animate-modal-entry"
-        overlayClassName="bg-black/60 duration-[250ms]"
-        hideCloseButton={isSubScreen}
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
-        onFocusOutside={(e) => e.preventDefault()}
-      >
-        {/* Sub-screen: Agent Meter (sliders) or Communication setting (radio options) */}
-        {isSubScreen ? (
-          isAgentMeterScreen ? (
-            <div className="max-h-[80svh] overflow-hidden">
-              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-black/[0.06]">
-                <button
-                  type="button"
-                  onClick={() => setSubModalKey(null)}
-                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.04] transition-colors -ml-1"
-                  aria-label="Back"
-                >
-                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
-                </button>
-                <DialogTitle className="text-[14px] font-semibold flex-1">Agent Meter</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col gap-2 py-4 px-4 overflow-y-auto max-h-[60svh] text-[14px]">
-                {(() => {
-                  const bubbleStyle = (leftPct) => ({ left: `${leftPct}%`, transform: 'translateX(-50%)', top: -44 })
-                  return (
-                    <>
-                      <div className="flex flex-col gap-2 py-2">
-                        <TypographyH4Semibold className="!font-medium text-[14px]">Sales Drive</TypographyH4Semibold>
-                        <p className="text-[14px] text-muted-foreground mb-0">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
-                        <div className="pt-14">
-                          <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
-                              <TypographyBody>0</TypographyBody>
-                            </div>
-                            <div ref={salesDriveTrackRef} className="relative flex-1 min-w-0 overflow-visible">
-                              <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.salesDrive)}>
-                                <span className="agent-meter-bubble-inner">{agentMeterDraft.salesDrive}</span>
-                                <span className="agent-meter-bubble-arrow" aria-hidden />
-                              </span>
-                              <input
-                                type="range"
-                                min={1}
-                                max={10}
-                                value={agentMeterDraft.salesDrive}
-                                onChange={(e) => setAgentMeterDraft((p) => ({ ...p, salesDrive: Number(e.target.value) }))}
-                                className="agent-meter-slider w-full block"
-                                style={{
-                                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.salesDrive}%, #e5e7eb ${bubbleLeft.salesDrive}%, #e5e7eb 100%)`,
-                                }}
-                              />
-                            </div>
-                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
-                              <TypographyBody>10</TypographyBody>
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent
+          className="w-[500px] max-w-[500px] p-0 gap-0 overflow-hidden rounded-xl border border-black/[0.06] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] data-[state=open]:animate-modal-entry"
+          overlayClassName="bg-black/60 duration-[250ms]"
+          hideCloseButton={isSubScreen}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+          onFocusOutside={(e) => e.preventDefault()}
+        >
+          {/* Sub-screen: Agent Meter (sliders) or Communication setting (radio options) */}
+          {isSubScreen ? (
+            isAgentMeterScreen ? (
+              <div className="max-h-[80svh] overflow-hidden">
+                <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-black/[0.06]">
+                  <button
+                    type="button"
+                    onClick={() => setSubModalKey(null)}
+                    className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.04] transition-colors -ml-1"
+                    aria-label="Back"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                  <DialogTitle className="text-[14px] font-semibold flex-1">Agent Meter</DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col gap-2 py-4 px-4 overflow-y-auto max-h-[60svh] text-[14px]">
+                  {(() => {
+                    const bubbleStyle = (leftPct) => ({ left: `${leftPct}%`, transform: 'translateX(-50%)', top: -44 })
+                    return (
+                      <>
+                        <div className="flex flex-col gap-2 py-2">
+                          <TypographyH4Semibold className="!font-medium text-[14px]">Sales Drive</TypographyH4Semibold>
+                          <p className="text-[14px] text-muted-foreground mb-0">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
+                          <div className="pt-14">
+                            <div className="flex flex-row items-center gap-2">
+                              <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
+                                <TypographyBody>0</TypographyBody>
+                              </div>
+                              <div ref={salesDriveTrackRef} className="relative flex-1 min-w-0 overflow-visible">
+                                <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.salesDrive)}>
+                                  <span className="agent-meter-bubble-inner">{agentMeterDraft.salesDrive}</span>
+                                  <span className="agent-meter-bubble-arrow" aria-hidden />
+                                </span>
+                                <input
+                                  type="range"
+                                  min={1}
+                                  max={10}
+                                  value={agentMeterDraft.salesDrive}
+                                  onChange={(e) => setAgentMeterDraft((p) => ({ ...p, salesDrive: Number(e.target.value) }))}
+                                  className="agent-meter-slider w-full block"
+                                  style={{
+                                    background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.salesDrive}%, #e5e7eb ${bubbleLeft.salesDrive}%, #e5e7eb 100%)`,
+                                  }}
+                                />
+                              </div>
+                              <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
+                                <TypographyBody>10</TypographyBody>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                      </div>
-                      <div className="flex flex-col gap-2 py-2">
-                        <TypographyH4Semibold className="mt-1 !font-medium text-[14px]">Persuasiveness</TypographyH4Semibold>
-                        <p className="text-[14px] text-muted-foreground mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
-                        <div className="pt-14">
-                          <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
-                              <TypographyBody>0</TypographyBody>
-                            </div>
-                            <div ref={persuasivenessTrackRef} className="relative flex-1 min-w-0 overflow-visible">
-                              <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.persuasiveness)}>
-                                <span className="agent-meter-bubble-inner">{agentMeterDraft.persuasiveness}</span>
-                                <span className="agent-meter-bubble-arrow" aria-hidden />
-                              </span>
-                              <input
-                                type="range"
-                                min={1}
-                                max={10}
-                                value={agentMeterDraft.persuasiveness}
-                                onChange={(e) => setAgentMeterDraft((p) => ({ ...p, persuasiveness: Number(e.target.value) }))}
-                                className="agent-meter-slider w-full block"
-                                style={{
-                                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.persuasiveness}%, #e5e7eb ${bubbleLeft.persuasiveness}%, #e5e7eb 100%)`,
-                                }}
-                              />
-                            </div>
-                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
-                              <TypographyBody>10</TypographyBody>
+                        </div>
+                        <div className="flex flex-col gap-2 py-2">
+                          <TypographyH4Semibold className="mt-1 !font-medium text-[14px]">Persuasiveness</TypographyH4Semibold>
+                          <p className="text-[14px] text-muted-foreground mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
+                          <div className="pt-14">
+                            <div className="flex flex-row items-center gap-2">
+                              <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
+                                <TypographyBody>0</TypographyBody>
+                              </div>
+                              <div ref={persuasivenessTrackRef} className="relative flex-1 min-w-0 overflow-visible">
+                                <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.persuasiveness)}>
+                                  <span className="agent-meter-bubble-inner">{agentMeterDraft.persuasiveness}</span>
+                                  <span className="agent-meter-bubble-arrow" aria-hidden />
+                                </span>
+                                <input
+                                  type="range"
+                                  min={1}
+                                  max={10}
+                                  value={agentMeterDraft.persuasiveness}
+                                  onChange={(e) => setAgentMeterDraft((p) => ({ ...p, persuasiveness: Number(e.target.value) }))}
+                                  className="agent-meter-slider w-full block"
+                                  style={{
+                                    background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.persuasiveness}%, #e5e7eb ${bubbleLeft.persuasiveness}%, #e5e7eb 100%)`,
+                                  }}
+                                />
+                              </div>
+                              <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
+                                <TypographyBody>10</TypographyBody>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                      </div>
-                      <div className="flex flex-col gap-2 py-2">
-                        <TypographyH4Semibold className="mt-1 !font-medium text-[14px]">Client Handling</TypographyH4Semibold>
-                        <p className="text-[14px] text-muted-foreground mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
-                        <div className="pt-14">
-                          <div className="flex flex-row items-center gap-2">
-                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
-                              <TypographyBody>0</TypographyBody>
-                            </div>
-                            <div ref={clientHandlingTrackRef} className="relative flex-1 min-w-0 overflow-visible">
-                              <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.clientHandling)}>
-                                <span className="agent-meter-bubble-inner">{agentMeterDraft.clientHandling}</span>
-                                <span className="agent-meter-bubble-arrow" aria-hidden />
-                              </span>
-                              <input
-                                type="range"
-                                min={1}
-                                max={10}
-                                value={agentMeterDraft.clientHandling}
-                                onChange={(e) => setAgentMeterDraft((p) => ({ ...p, clientHandling: Number(e.target.value) }))}
-                                className="agent-meter-slider w-full block"
-                                style={{
-                                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.clientHandling}%, #e5e7eb ${bubbleLeft.clientHandling}%, #e5e7eb 100%)`,
-                                }}
-                              />
-                            </div>
-                            <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
-                              <TypographyBody>10</TypographyBody>
+                        </div>
+                        <div className="flex flex-col gap-2 py-2">
+                          <TypographyH4Semibold className="mt-1 !font-medium text-[14px]">Client Handling</TypographyH4Semibold>
+                          <p className="text-[14px] text-muted-foreground mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
+                          <div className="pt-14">
+                            <div className="flex flex-row items-center gap-2">
+                              <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
+                                <TypographyBody>0</TypographyBody>
+                              </div>
+                              <div ref={clientHandlingTrackRef} className="relative flex-1 min-w-0 overflow-visible">
+                                <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.clientHandling)}>
+                                  <span className="agent-meter-bubble-inner">{agentMeterDraft.clientHandling}</span>
+                                  <span className="agent-meter-bubble-arrow" aria-hidden />
+                                </span>
+                                <input
+                                  type="range"
+                                  min={1}
+                                  max={10}
+                                  value={agentMeterDraft.clientHandling}
+                                  onChange={(e) => setAgentMeterDraft((p) => ({ ...p, clientHandling: Number(e.target.value) }))}
+                                  className="agent-meter-slider w-full block"
+                                  style={{
+                                    background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.clientHandling}%, #e5e7eb ${bubbleLeft.clientHandling}%, #e5e7eb 100%)`,
+                                  }}
+                                />
+                              </div>
+                              <div className="flex rounded-full h-6 w-6 items-center justify-center shrink-0">
+                                <TypographyBody>10</TypographyBody>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </>
-                  )
-                })()}
+                      </>
+                    )
+                  })()}
+                </div>
+                <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t border-black/[0.06] p-4">
+                  <Button variant="ghost" onClick={() => setSubModalKey(null)} disabled={savingSubModal} className="h-8 rounded-lg px-3 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04]">Cancel</Button>
+                  <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} className="h-8 rounded-lg px-4 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white transition-all duration-150 ease-out active:scale-[0.98]">
+                    {savingSubModal ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
               </div>
-              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t border-black/[0.06] p-4">
-                <Button variant="ghost" onClick={() => setSubModalKey(null)} disabled={savingSubModal} className="h-8 rounded-lg px-3 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04]">Cancel</Button>
-                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} className="h-8 rounded-lg px-4 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white transition-all duration-150 ease-out active:scale-[0.98]">
-                  {savingSubModal ? 'Saving...' : 'Save'}
-                </Button>
-              </DialogFooter>
-            </div>
-          ) : (
-            <div className="max-h-[80svh] overflow-hidden">
-              <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-black/[0.06]">
-                <button
-                  type="button"
-                  onClick={() => setSubModalKey(null)}
-                  className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.04] transition-colors -ml-1"
-                  aria-label="Back"
-                >
-                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
-                </button>
-                <DialogTitle className="text-[14px] font-semibold flex-1">{activeSubModalConfig.label}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-2 p-4 overflow-y-auto max-h-[60svh] w-full text-[14px]">
-                {activeSubModalConfig.question && (
-                  <p className="text-[14px] text-muted-foreground mt-1">{activeSubModalConfig.question}</p>
-                )}
-                {/*subModalSelectedValue != null && (
+            ) : (
+              <div className="max-h-[80svh] overflow-hidden">
+                <DialogHeader className="h-auto py-3 px-4 flex flex-row items-center gap-2 border-b border-black/[0.06]">
+                  <button
+                    type="button"
+                    onClick={() => setSubModalKey(null)}
+                    className="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-black/[0.04] transition-colors -ml-1"
+                    aria-label="Back"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                  <DialogTitle className="text-[14px] font-semibold flex-1">{activeSubModalConfig.label}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-2 p-4 overflow-y-auto max-h-[60svh] w-full text-[14px]">
+                  {activeSubModalConfig.question && (
+                    <p className="text-[14px] text-muted-foreground mt-1">{activeSubModalConfig.question}</p>
+                  )}
+                  {/*subModalSelectedValue != null && (
                   <button
                     type="button"
                     onClick={() => setSubModalSelectedValue(null)}
@@ -826,134 +826,134 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                     Clear selection (save as none)
                   </button>
                 )*/}
-                {activeSubModalConfig.options.map((opt) => {
-                  const isOptSelected = subModalSelectedValue === opt.value
-                  return (
-                    <label
-                      key={opt.value}
-                      className={cn(
-                        'group flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-150 ease-out active:scale-[0.98]',
-                        isOptSelected ? 'border-brand-primary bg-brand-primary/10' : 'border-black/[0.06] hover:bg-black/[0.04]',
-                      )}
-                    >
-                      <span className="relative mt-1 shrink-0 flex items-center justify-center w-4 h-4">
-                        <input
-                          type="radio"
-                          name={activeSubModalConfig.settingsKey}
-                          value={opt.value}
-                          checked={isOptSelected}
-                          onClick={(e) => {
-                            if (isOptSelected) {
-                              e.preventDefault();
-                              setSubModalSelectedValue(null);
-                            } else {
-                              setSubModalSelectedValue(opt.value);
-                            }
-                          }}
-                          onChange={() => {
-                            if (!isOptSelected) setSubModalSelectedValue(opt.value);
-                          }}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-[1]"
-                        />
-                        <span
-                          className={cn(
-                            'w-4 h-4 rounded-full border-2 flex items-center justify-center pointer-events-none transition-all duration-150 ease-out',
-                            isOptSelected ? 'border-brand-primary bg-brand-primary' : 'border-black/[0.15] bg-white group-hover:border-black/[0.25]',
-                          )}
-                        >
-                          {isOptSelected && (
-                            <span
-                              className="w-1.5 h-1.5 rounded-full bg-white"
-                              aria-hidden
-                            />
-                          )}
-                        </span>
-                      </span>
-                      <div className="min-w-0 flex flex-col gap-2">
-                        <span className={cn('text-[14px] font-medium', isOptSelected && 'text-brand-primary')}>
-                          {opt.label}
-                        </span>
-                        {opt.bestFor && (
-                          <p className="text-[14px] text-muted-foreground mt-0.5">Best for: {opt.bestFor}</p>
+                  {activeSubModalConfig.options.map((opt) => {
+                    const isOptSelected = subModalSelectedValue === opt.value
+                    return (
+                      <label
+                        key={opt.value}
+                        className={cn(
+                          'group flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-150 ease-out active:scale-[0.98]',
+                          isOptSelected ? 'border-brand-primary bg-brand-primary/10' : 'border-black/[0.06] hover:bg-black/[0.04]',
                         )}
-                        {opt.example && (
-                          <p className="text-[14px] text-muted-foreground">Ex: {opt.example}</p>
-                        )}
-                      </div>
-                    </label>
-                  )
-                })}
-              </div>
-              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t border-black/[0.06] p-4">
-                <Button
-                  variant="ghost"
-                  onClick={() => setSubModalKey(null)}
-                  disabled={savingSubModal}
-                  className="h-9 rounded-lg px-3 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04]"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() =>
-                    handleSaveCommunicationSubModal(
-                      activeSubModalConfig.settingsKey,
-                      subModalSelectedValue
+                      >
+                        <span className="relative mt-1 shrink-0 flex items-center justify-center w-4 h-4">
+                          <input
+                            type="radio"
+                            name={activeSubModalConfig.settingsKey}
+                            value={opt.value}
+                            checked={isOptSelected}
+                            onClick={(e) => {
+                              if (isOptSelected) {
+                                e.preventDefault();
+                                setSubModalSelectedValue(null);
+                              } else {
+                                setSubModalSelectedValue(opt.value);
+                              }
+                            }}
+                            onChange={() => {
+                              if (!isOptSelected) setSubModalSelectedValue(opt.value);
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-[1]"
+                          />
+                          <span
+                            className={cn(
+                              'w-4 h-4 rounded-full border-2 flex items-center justify-center pointer-events-none transition-all duration-150 ease-out',
+                              isOptSelected ? 'border-brand-primary bg-brand-primary' : 'border-black/[0.15] bg-white group-hover:border-black/[0.25]',
+                            )}
+                          >
+                            {isOptSelected && (
+                              <span
+                                className="w-1.5 h-1.5 rounded-full bg-white"
+                                aria-hidden
+                              />
+                            )}
+                          </span>
+                        </span>
+                        <div className="min-w-0 flex flex-col gap-2">
+                          <span className={cn('text-[14px] font-medium', isOptSelected && 'text-brand-primary')}>
+                            {opt.label}
+                          </span>
+                          {opt.bestFor && (
+                            <p className="text-[14px] text-muted-foreground mt-0.5">Best for: {opt.bestFor}</p>
+                          )}
+                          {opt.example && (
+                            <p className="text-[14px] text-muted-foreground">Ex: {opt.example}</p>
+                          )}
+                        </div>
+                      </label>
                     )
-                  }
-                  disabled={savingSubModal || !subModalSelectedValue}
-                  className="h-9 rounded-lg px-4 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 ease-out active:scale-[0.98]"
-                >
-                  {savingSubModal ? 'Saving...' : 'Save'}
-                </Button>
-              </DialogFooter>
-            </div>
-          )
-        ) : (
-          <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
-            <div className="flex flex-col gap-[2px]">
-              <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-black/[0.06]">
-                <DialogTitle className="text-[14px] font-semibold">AI Message Settings</DialogTitle>
-                <DialogClose asChild>
-                  <button
-                    type="button"
-                    aria-label="Close"
-                    className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/[0.04] transition-colors duration-150 ease-out"
-                  >
-                    
-                  </button>
-                </DialogClose>
-              </div>
-
-              {loading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+                  })}
                 </div>
-              ) : (
-                <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px]">
-                  {/* API Key Section */}
-                  <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-black/[0.06]">
-                    <label className="text-[14px] font-medium text-foreground">AI Provider</label>
-                    <RadioGroup
-                      value={selectedProvider}
-                      onValueChange={(v) => setSelectedProvider(v)}
-                      className="flex flex-wrap gap-4"
+                <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t border-black/[0.06] p-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setSubModalKey(null)}
+                    disabled={savingSubModal}
+                    className="h-9 rounded-lg px-3 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04]"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      handleSaveCommunicationSubModal(
+                        activeSubModalConfig.settingsKey,
+                        subModalSelectedValue
+                      )
+                    }
+                    disabled={savingSubModal || !subModalSelectedValue}
+                    className="h-9 rounded-lg px-4 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 ease-out active:scale-[0.98]"
+                  >
+                    {savingSubModal ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
+              </div>
+            )
+          ) : (
+            <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
+              <div className="flex flex-col gap-[2px]">
+                <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-black/[0.06]">
+                  <DialogTitle className="text-[14px] font-semibold">AI Message Settings</DialogTitle>
+                  <DialogClose asChild>
+                    <button
+                      type="button"
+                      aria-label="Close"
+                      className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/[0.04] transition-colors duration-150 ease-out"
                     >
-                      <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                        <RadioGroupItem value="openai" id="ai-provider-openai" />
-                        <OpenAiLogoIcon size={19} className="text-brand-primary" />
-                        <span className="text-[14px] text-foreground">OpenAI</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                        <RadioGroupItem value="google" id="ai-provider-google" />
-                        <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
-                        <span className="text-[14px] text-foreground">Gemini</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                        <RadioGroupItem value="anthropic" id="ai-provider-anthropic" />
-                        <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
-                        <span className="text-[14px] text-foreground">Anthropic</span>
-                      </label>
-                    </RadioGroup>
+
+                    </button>
+                  </DialogClose>
+                </div>
+
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px]">
+                    {/* API Key Section */}
+                    <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-black/[0.06]">
+                      <label className="text-[14px] font-medium text-foreground">AI Provider</label>
+                      <RadioGroup
+                        value={selectedProvider}
+                        onValueChange={(v) => setSelectedProvider(v)}
+                        className="flex flex-wrap gap-4"
+                      >
+                        <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                          <RadioGroupItem value="openai" id="ai-provider-openai" />
+                          <OpenAiLogoIcon size={19} className="text-brand-primary" />
+                          <span className="text-[14px] text-foreground">OpenAI</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                          <RadioGroupItem value="google" id="ai-provider-google" />
+                          <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
+                          <span className="text-[14px] text-foreground">Gemini</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                          <RadioGroupItem value="anthropic" id="ai-provider-anthropic" />
+                          <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
+                          <span className="text-[14px] text-foreground">Anthropic</span>
+                        </label>
+                      </RadioGroup>
 
                       <p className="text-sm text-gray-600">
                         {selectedProvider === 'google'
@@ -1006,11 +1006,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       )}
                     </div>
 
-                  {/* Set Auto Reply + Save as Draft Section */}
-                  <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
-                    <div className="flex items-center justify-between h-10 min-h-0">
-                      <div className="flex items-center gap-2">
-                        <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                    {/* Set Auto Reply + Save as Draft Section */}
+                    <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                      <div className="flex items-center justify-between h-10 min-h-0">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -1031,14 +1031,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
+                        </div>
+                        <Switch
+                          checked={settings.replyDelayEnabled}
+                          onCheckedChange={handleReplyDelayToggle}
+                          className="data-[state=checked]:bg-brand-primary"
+                        />
                       </div>
-                      <Switch
-                        checked={settings.replyDelayEnabled}
-                        onCheckedChange={handleReplyDelayToggle}
-                        className="data-[state=checked]:bg-brand-primary"
-                      />
-                    </div>
-                    {settings.replyDelayEnabled && (
+                      {settings.replyDelayEnabled && (
                         <div className="relative">
                           <Input
                             type="number"
@@ -1054,146 +1054,146 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           >
                             sec
                           </span>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between h-10 min-h-0">
-                      <div className="flex items-center gap-2">
-                        <label className="text-[14px] font-medium text-foreground">Save as draft</label>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                <Info size={16} />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              align="start"
-                              sideOffset={8}
-                              className="max-w-xs bg-black text-white z-[1500]"
-                              collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
-                            >
-                              <p className="text-xs">
-                                Have your AI draft the response for you to review before sending.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <Switch
-                        checked={settings.saveAsDraftEnabled}
-                        onCheckedChange={handleSaveAsDraftToggle}
-                        className="data-[state=checked]:bg-brand-primary"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Communication Settings */}
-                  <div className="flex flex-col gap-3 w-full py-3">
-                    <h3 className="text-[14px] font-semibold text-foreground">Communication Settings</h3>
-                    <div className="flex flex-col gap-3 rounded-lg overflow-hidden">
-                      {communicationRowsConfig.map((row) => {
-                        const value = settings[row.settingsKey]
-                        const selectedLabel = getLabelForValue(row.options, value)
-                        return (
-                          <button
-                            key={row.key}
-                            type="button"
-                            onClick={() => {
-                              if (showCommunicationUpgradeOrRequest) {
-                                setTriggerCommunicationUpgradeModal(true)
-                                return
-                              }
-                              setSubModalKey(row.key)
-                              setSubModalSelectedValue(settings[row.settingsKey] ?? null)
-                            }}
-                            className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
-                          >
-                            <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
-                              <div className="text-[14px] font-medium text-foreground">{row.label}</div>
-                              {selectedLabel && (
-                                <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-md text-[14px] font-normal bg-black/[0.04] text-muted-foreground truncate">
-                                  {selectedLabel}
-                                </span>
-                              )}
-                            </div>
-                            <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
-                          </button>
-                        )
-                      })}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (showCommunicationUpgradeOrRequest) {
-                            setTriggerCommunicationUpgradeModal(true)
-                            return
-                          }
-                          const meter = settings.agentSettings?.agentMeterSettings
-                          if (meter && typeof meter === 'object') {
-                            setAgentMeterDraft({
-                              salesDrive: typeof meter.salesDrive === 'number' && meter.salesDrive >= 1 && meter.salesDrive <= 10 ? meter.salesDrive : 5,
-                              persuasiveness: typeof meter.persuasiveness === 'number' && meter.persuasiveness >= 1 && meter.persuasiveness <= 10 ? meter.persuasiveness : 5,
-                              clientHandling: typeof meter.clientHandling === 'number' && meter.clientHandling >= 1 && meter.clientHandling <= 10 ? meter.clientHandling : 5,
-                            })
-                          }
-                          setSubModalKey('agentMeter')
-                        }}
-                        className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
-                      >
-                        <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
-                          <div className="text-[14px] font-medium text-foreground">Agent meter</div>
-                          {settings.agentSettings?.agentMeterSettings && (
-                            <div className="flex flex-wrap gap-1.5 mt-1">
-                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
-                                Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
-                              </span>
-                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
-                                Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
-                              </span>
-                              <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
-                                Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
-                              </span>
-                            </div>
-                          )}
                         </div>
-                        <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
-                      </button>
+                      )}
+                      <div className="flex items-center justify-between h-10 min-h-0">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                  <Info size={16} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="top"
+                                align="start"
+                                sideOffset={8}
+                                className="max-w-xs bg-black text-white z-[1500]"
+                                collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                              >
+                                <p className="text-xs">
+                                  Have your AI draft the response for you to review before sending.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Switch
+                          checked={settings.saveAsDraftEnabled}
+                          onCheckedChange={handleSaveAsDraftToggle}
+                          className="data-[state=checked]:bg-brand-primary"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Communication Settings */}
+                    <div className="flex flex-col gap-3 w-full py-3">
+                      <h3 className="text-[14px] font-semibold text-foreground">Communication Settings</h3>
+                      <div className="flex flex-col gap-3 rounded-lg overflow-hidden">
+                        {communicationRowsConfig.map((row) => {
+                          const value = settings[row.settingsKey]
+                          const selectedLabel = getLabelForValue(row.options, value)
+                          return (
+                            <button
+                              key={row.key}
+                              type="button"
+                              onClick={() => {
+                                if (showCommunicationUpgradeOrRequest) {
+                                  setTriggerCommunicationUpgradeModal(true)
+                                  return
+                                }
+                                setSubModalKey(row.key)
+                                setSubModalSelectedValue(settings[row.settingsKey] ?? null)
+                              }}
+                              className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
+                            >
+                              <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
+                                <div className="text-[14px] font-medium text-foreground">{row.label}</div>
+                                {selectedLabel && (
+                                  <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-md text-[14px] font-normal bg-black/[0.04] text-muted-foreground truncate">
+                                    {selectedLabel}
+                                  </span>
+                                )}
+                              </div>
+                              <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
+                            </button>
+                          )
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (showCommunicationUpgradeOrRequest) {
+                              setTriggerCommunicationUpgradeModal(true)
+                              return
+                            }
+                            const meter = settings.agentSettings?.agentMeterSettings
+                            if (meter && typeof meter === 'object') {
+                              setAgentMeterDraft({
+                                salesDrive: typeof meter.salesDrive === 'number' && meter.salesDrive >= 1 && meter.salesDrive <= 10 ? meter.salesDrive : 5,
+                                persuasiveness: typeof meter.persuasiveness === 'number' && meter.persuasiveness >= 1 && meter.persuasiveness <= 10 ? meter.persuasiveness : 5,
+                                clientHandling: typeof meter.clientHandling === 'number' && meter.clientHandling >= 1 && meter.clientHandling <= 10 ? meter.clientHandling : 5,
+                              })
+                            }
+                            setSubModalKey('agentMeter')
+                          }}
+                          className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
+                        >
+                          <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
+                            <div className="text-[14px] font-medium text-foreground">Agent meter</div>
+                            {settings.agentSettings?.agentMeterSettings && (
+                              <div className="flex flex-wrap gap-1.5 mt-1">
+                                <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
+                                  Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
+                                </span>
+                                <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
+                                  Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
+                                </span>
+                                <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
+                                  Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <DialogFooter className="gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between border-t border-black/[0.06]">
-              <Button
-                variant="ghost"
-                onClick={onClose}
-                disabled={saving}
-                className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] active:scale-[0.98] transition-all duration-150 ease-out"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={saving || loading}
-                className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white active:scale-[0.98] transition-all duration-150 ease-out"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </DialogFooter>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-    <UpgradeTagWithModal
-      reduxUser={reduxUser}
-      setReduxUser={setReduxUser}
-      hideTag
-      externalTrigger={triggerCommunicationUpgradeModal}
-      onModalClose={() => setTriggerCommunicationUpgradeModal(false)}
-      requestFeature={shouldShowAiEmailAndTextRequestFeature}
-      featureTitle="AI Text & Messages"
-    />
+              <DialogFooter className="gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between border-t border-black/[0.06]">
+                <Button
+                  variant="ghost"
+                  onClick={onClose}
+                  disabled={saving}
+                  className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] active:scale-[0.98] transition-all duration-150 ease-out"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || loading}
+                  className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white active:scale-[0.98] transition-all duration-150 ease-out"
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      <UpgradeTagWithModal
+        reduxUser={reduxUser}
+        setReduxUser={setReduxUser}
+        hideTag
+        externalTrigger={triggerCommunicationUpgradeModal}
+        onModalClose={() => setTriggerCommunicationUpgradeModal(false)}
+        requestFeature={shouldShowAiEmailAndTextRequestFeature}
+        featureTitle="AI Text & Messages"
+      />
     </>
   )
 }

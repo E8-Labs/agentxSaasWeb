@@ -485,8 +485,10 @@ const Creator = ({ agentId, name, shareToken = null }) => {
       setProfileLoader(true)
       // Add agentType query parameter for web agents
       const apiPath = `${Apis.getUserByAgentVapiId}/${agentId}?agentType=web`
+      console.log('response of user by agent id api path is', apiPath)
       const response = await callApiGet(apiPath)
       if (response) {
+        console.log('response of user by agent id', response)
         setAgentDetails(response)
         setVapiAgent(response?.data?.data?.agent)
 
@@ -502,6 +504,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
       }
       setProfileLoader(false)
     } catch (error) {
+      console.log("response of user by agent id error", error)
       setProfileLoader(false)
     } finally {
       setProfileLoader(false)
@@ -1568,7 +1571,8 @@ const Creator = ({ agentId, name, shareToken = null }) => {
           setChatDrawerOpen(false)
           setSharedThreadId(null)
         }}
-        agentId={agentDetails?.data?.data?.agent?.id ?? agentId}
+        agentId={agentDetails?.data?.data?.agent?.id ?? null}
+        agentVapiId={agentDetails?.data?.data?.agent?.modelIdVapi ?? agentId}
         agentName={agentDetails?.data?.data?.agent?.name}
         agencyBranding={agentDetails?.data?.data?.agencyBranding || reduxUser?.agencyBranding}
         agent={agentDetails?.data?.data?.agent}

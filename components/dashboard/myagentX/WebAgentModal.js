@@ -63,7 +63,7 @@ const WebAgentModal = ({
     setSnackbar((prev) => ({ ...prev, isVisible: false }))
   }
 
-  useEffect(() => {}, [agentSmartRefillId])
+  useEffect(() => { }, [agentSmartRefillId])
 
   // Measure FormControl width when smart list section is visible so dropdown matches it
   useEffect(() => {
@@ -104,8 +104,8 @@ const WebAgentModal = ({
 
         // IMPORTANT: Only use legacy fields if new fields don't exist
         // If new fields exist (even if false/null), use them
-        const hasNewFields = 
-          agent.smartListEnabledForWeb !== undefined || 
+        const hasNewFields =
+          agent.smartListEnabledForWeb !== undefined ||
           agent.smartListIdForWeb !== undefined ||
           agent.smartListEnabledForEmbed !== undefined ||
           agent.smartListIdForEmbed !== undefined
@@ -132,7 +132,7 @@ const WebAgentModal = ({
         setRequireForm(false)
         setSelectedSmartList('')
       }
-      
+
       // Fetch smart lists after initializing state
       fetchSmartLists()
     }
@@ -181,7 +181,7 @@ const WebAgentModal = ({
               ? agent?.smartListIdForWebhook
               : agent?.smartListIdForWeb
           const fallbackId = agentSmartRefillId || agentSmartRefill
-          
+
           if (webSmartListId || fallbackId) {
             setSelectedSmartList(webSmartListId || fallbackId)
           } else if (response.data.data.length > 0) {
@@ -194,7 +194,7 @@ const WebAgentModal = ({
       showSnackbar(
         '',
         error.response?.data?.message ||
-          'Failed to fetch smart lists. Please try again.',
+        'Failed to fetch smart lists. Please try again.',
         SnackbarTypes.Error,
       )
     } finally {
@@ -420,159 +420,169 @@ const WebAgentModal = ({
 
           {/* Body */}
           <div className="flex-1 px-4 py-4" style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
-          {/* Require Form Section */}
-          <div
-            className="mb-4 rounded-lg p-4"
-            style={{
-              backgroundColor: 'rgba(0,0,0,0.02)',
-              border: '1px solid #eaeaea',
-            }}
-          >
-            <div className="mb-2 flex flex-row items-center justify-between">
-              <div style={{ fontWeight: 600, fontSize: 14 }}>
-                {fetureType === 'webhook'
-                  ? 'Add your leads to a smartlist'
-                  : 'Require users to complete a form?'}
-              </div>
-              <Switch
-                checked={requireForm}
-                onChange={handleToggleChange}
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: 'hsl(var(--brand-primary))',
-                    '& + .MuiSwitch-track': {
-                      backgroundColor: 'hsl(var(--brand-primary))',
+            {/* Require Form Section */}
+            <div
+              className="mb-4 rounded-lg p-4"
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.02)',
+                border: '1px solid #eaeaea',
+              }}
+            >
+              <div className="mb-2 flex flex-row items-center justify-between">
+                <div style={{ fontWeight: 600, fontSize: 14 }}>
+                  {fetureType === 'webhook'
+                    ? 'Add your leads to a smartlist'
+                    : 'Require users to complete a form?'}
+                </div>
+                <Switch
+                  checked={requireForm}
+                  onChange={handleToggleChange}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: 'hsl(var(--brand-primary))',
+                      '& + .MuiSwitch-track': {
+                        backgroundColor: 'hsl(var(--brand-primary))',
+                      },
                     },
-                  },
-                  '& .MuiSwitch-track': {
-                    backgroundColor: '#ccc',
-                  },
-                }}
-              />
-            </div>
-            <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
-              {fetureType === 'webhook'
-                ? 'Organize the leads your AI talks to by adding them to a dedicated smartlist'
-                : 'This prompts users to fill out a form before they engage in a conversation with your AI.'}
-            </div>
-          </div>
-
-          {/* Smart List Selection */}
-          {requireForm && (
-            <div className="mb-4 w-full">
-              <div
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 16,
-                }}
-              >
-                <div
-                  style={{
-                    fontWeight: 'medium',
-                    color: 'rgba(0, 0, 0, 0.5)',
-                    fontSize: '16px',
+                    '& .MuiSwitch-track': {
+                      backgroundColor: '#ccc',
+                    },
                   }}
-                >
-                  Select Smart List
-                </div>
-                <button
-                  className="text-brand-primary underline text-transform-none font-medium"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleNewSmartList()
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    position: 'relative',
-                    zIndex: 10,
-                  }}
-                >
-                  New Smartlist
-                </button>
+                />
               </div>
+              <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
+                {fetureType === 'webhook'
+                  ? 'Organize the leads your AI talks to by adding them to a dedicated smartlist'
+                  : 'This prompts users to fill out a form before they engage in a conversation with your AI.'}
+              </div>
+            </div>
 
-              {loading ? (
+            {/* Smart List Selection */}
+            {requireForm && (
+              <div className="mb-4 w-full">
                 <div
                   style={{
+                    width: '100%',
                     display: 'flex',
-                    justifyContent: 'center',
-                    padding: '16px 0',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 16,
                   }}
                 >
-                  <div>Loading...</div>
+                  <div
+                    style={{
+                      fontWeight: 'medium',
+                      color: 'rgba(0, 0, 0, 0.5)',
+                      fontSize: '16px',
+                    }}
+                  >
+                    Select Smart List
+                  </div>
+                  <button
+                    className="text-brand-primary underline text-transform-none font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleNewSmartList()
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      position: 'relative',
+                      zIndex: 10,
+                    }}
+                  >
+                    New Smartlist
+                  </button>
                 </div>
-              ) : smartLists.length > 0 ? (
-                <div ref={formControlRef} className="w-full">
-                  <FormControl className="w-full h-[50px]">
-                    <Select
-                      value={selectedSmartList}
-                      onChange={(e) => setSelectedSmartList(e.target.value)}
-                      style={{
-                        border: '1px solid #E5E7EB',
-                        fontSize: '14px',
-                        padding: '12px',
-                        backgroundColor: '#fff',
-                        width: '100%',
-                        borderRadius: '6px',
-                        outline: 'none',
-                      }}
-                      sx={{
-                        height: '48px',
-                        borderRadius: '13px',
-                        border: '1px solid #00000020', // Default border
-                        '&:hover': {
-                          border: '1px solid #00000020', // Same border on hover
-                        },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          border: 'none', // Remove the default outline
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          border: 'none', // Remove outline on focus
-                        },
-                        '&.MuiSelect-select': {
-                          py: 0, // Optional padding adjustments
-                        },
-                      }}
-                      MenuProps={{
-                        onOpen: () => {
-                          if (formControlRef.current) {
-                            setSelectMenuWidth(formControlRef.current.offsetWidth)
-                          }
-                        },
-                        PaperProps: {
-                          style: {
-                            maxHeight: '30vh',
-                            overflow: 'auto',
-                            scrollbarWidth: 'none',
-                            width: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
-                            minWidth: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
+
+                {loading ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      padding: '16px 0',
+                    }}
+                  >
+                    <div>Loading...</div>
+                  </div>
+                ) : smartLists.length > 0 ? (
+                  <div ref={formControlRef} className="w-full">
+                    <FormControl className="w-full h-[50px]">
+                      <Select
+                        value={selectedSmartList}
+                        onChange={(e) => setSelectedSmartList(e.target.value)}
+                        style={{
+                          border: '1px solid #E5E7EB',
+                          fontSize: '14px',
+                          padding: '12px',
+                          backgroundColor: '#fff',
+                          width: '100%',
+                          borderRadius: '6px',
+                          outline: 'none',
+                        }}
+                        sx={{
+                          height: '48px',
+                          borderRadius: '13px',
+                          border: '1px solid #00000020', // Default border
+                          '&:hover': {
+                            border: '1px solid #00000020', // Same border on hover
                           },
-                        },
-                      }}
-                    >
-                    {smartLists.map((list, index) => (
-                      <MenuItem key={list.id || index} value={list.id}>
-                        {list.sheetName}
-                      </MenuItem>
-                    ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              ) : (
-                <div
-                  style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}
-                >
-                  No smart lists available. Create a new one to get started.
-                </div>
-              )}
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Remove the default outline
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Remove outline on focus
+                          },
+                          '&.MuiSelect-select': {
+                            py: 0, // Optional padding adjustments
+                          },
+                        }}
+                        MenuProps={{
+                          onOpen: () => {
+                            if (formControlRef.current) {
+                              setSelectMenuWidth(formControlRef.current.offsetWidth)
+                            }
+                          },
+                          PaperProps: {
+                            style: {
+                              maxHeight: '30vh',
+                              overflow: 'auto',
+                              scrollbarWidth: 'none',
+                              width: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
+                              minWidth: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
+                            },
+                          },
+                        }}
+                      >
+                        {smartLists.map((list, index) => (
+                          <MenuItem key={list.id || index} value={list.id}>
+                            {list.sheetName}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
+                ) : (
+                  <div
+                    style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}
+                  >
+                    No smart lists available. Create a new one to get started.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div
+              className="mb-4 rounded-lg p-4"
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.02)',
+                border: '1px solid #eaeaea',
+              }}
+            >
+              Hamza
             </div>
-          )}
 
           </div>
 
