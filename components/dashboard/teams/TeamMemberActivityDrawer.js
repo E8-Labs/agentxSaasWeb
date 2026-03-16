@@ -24,12 +24,14 @@ import TaskCard from '@/components/messaging/TaskCard'
 import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { TypographyH3, TypographyBody, TypographyH3Semibold, TypographyCaption, TypographyTitle, TypographyButtonText, TypographyAlert, TypographyCaptionMedium } from '@/lib/typography'
 import { cn } from '@/lib/utils'
+import { toast } from '@/utils/toast'
 import { sanitizeHTMLForEmailBody, sanitizeHTMLForSMS } from '@/utilities/textUtils'
 import CreateTaskFromNextStepsModal from '../leads/extras/CreateTaskFromNextStepsModal'
 import { PortalZIndexProvider } from '@/components/providers/portal-z-index-provider'
 import { Button } from '@/components/ui/button'
 import CloseIcon from '@mui/icons-material/Close'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { CircularProgress } from '@mui/material'
 
 /** Page size for activities (infinite scroll). Offset is passed to the API. */
 const ACTIVITIES_PAGE_SIZE = 10
@@ -108,6 +110,8 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [selectedLeadIdForModal, setSelectedLeadIdForModal] = useState(null)
   const [rangeDropdownOpen, setRangeDropdownOpen] = useState(false)
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false)
+  const [filterDropdownLoading, setFilterDropdownLoading] = useState(false)
+  const [rangeDropdownLoading, setRangeDropdownLoading] = useState(false)
   const [filter, setFilter] = useState('all')
   const [customFromDate, setCustomFromDate] = useState(null)
   const [customToDate, setCustomToDate] = useState(null)
@@ -159,7 +163,11 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
 
   const loadActivities = useCallback(async (append = false) => {
     if (!teamMemberUserId) return
-    if (range === 'custom' && (!customFromDate || !customToDate)) return
+    if (range === 'custom' && (!customFromDate || !customToDate)) {
+      setRangeDropdownLoading(false)
+      setFilterDropdownLoading(false)
+      return
+    }
     if (append && isLoadingMoreRef.current) return
     const fromStr = range === 'custom' && customFromDate ? format(customFromDate, 'yyyy-MM-dd') : undefined
     const toStr = range === 'custom' && customToDate ? format(customToDate, 'yyyy-MM-dd') : undefined
@@ -208,6 +216,8 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       setHasMoreActivities(false)
     } finally {
       setActivitiesLoading(false)
+      setFilterDropdownLoading(false)
+      setRangeDropdownLoading(false)
       if (append) isLoadingMoreRef.current = false
     }
   }, [teamMemberUserId, range, customFromDate, customToDate, filter])
@@ -217,7 +227,9 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   }, [open, activeTab, teamMemberUserId, taskStatusFilter, loadTasks])
 
   useEffect(() => {
-    if (open && activeTab === 'activity' && teamMemberUserId) loadActivities(false)
+    if (!open || activeTab !== 'activity' || !teamMemberUserId) return
+    if (range === 'custom' && (!customFromDate || !customToDate)) return
+    loadActivities(false)
   }, [open, activeTab, teamMemberUserId, range, customFromDate, customToDate, filter, loadActivities])
 
   const displayName = teamMember?.name || teamMember?.invitedUser?.name || 'Team Member'
@@ -264,253 +276,256 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       <PortalZIndexProvider value={5010}>
         <div className="flex h-full bg-background rounded-xl overflow-hidden w-[58vw]">
           {/* Left column: header, profile, vertical tabs - header height matches right for aligned lines */}
-        <div className="flex flex-col w-[20vw] shrink-0 border-r border-border bg-background">
-          <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border">
-            <span className="text-base font-semibold text-foreground">Team Member</span>
-          </div>
-          {teamMember && (
-            <>
-              <div className="p-5 flex flex-col items-center text-center ">
-                {/* Avatar: solid purple circle with white initial when no profile image */}
-                <div className="h-16 w-16 rounded-full bg-brand-primary flex items-center justify-center text-white text-2xl font-semibold mb-4">
-                  {initial}
+          <div className="flex flex-col w-[20vw] shrink-0 border-r border-border bg-background">
+            <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border">
+              <span className="text-base font-semibold text-foreground">Team Member</span>
+            </div>
+            {teamMember && (
+              <>
+                <div className="p-5 flex flex-col items-center text-center ">
+                  {/* Avatar: solid purple circle with white initial when no profile image */}
+                  <div className="h-16 w-16 rounded-full bg-brand-primary flex items-center justify-center text-white text-2xl font-semibold mb-4">
+                    {initial}
+                  </div>
+                  <TypographyH3Semibold>{displayName}</TypographyH3Semibold>
+                  {/* <span className="text-base font-semibold text-foreground">{displayName}</span> */}
+                  {displayEmail && (
+                    <a
+                      href={`mailto:${displayEmail}`}
+                      className="flex items-center justify-center gap-1.5 mt-2 text-sm text-muted-foreground hover:text-foreground hover:underline"
+                    >
+                      <Mail className="h-4 w-4 shrink-0" />
+                      <TypographyButtonText >{displayEmail}</TypographyButtonText>
+                    </a>
+                  )}
+                  {displayPhone && (
+                    <TypographyButtonText className="flex items-center justify-center gap-1.5 mt-1.5 text-sm text-muted-foreground">
+                      <Phone className="h-4 w-4 shrink-0" />
+                      {formattedPhone}
+                    </TypographyButtonText>
+                  )}
                 </div>
-                <TypographyH3Semibold>{displayName}</TypographyH3Semibold>
-                {/* <span className="text-base font-semibold text-foreground">{displayName}</span> */}
-                {displayEmail && (
-                  <a
-                    href={`mailto:${displayEmail}`}
-                    className="flex items-center justify-center gap-1.5 mt-2 text-sm text-muted-foreground hover:text-foreground hover:underline"
-                  >
-                    <Mail className="h-4 w-4 shrink-0" />
-                    <TypographyButtonText >{displayEmail}</TypographyButtonText>
-                  </a>
-                )}
-                {displayPhone && (
-                  <TypographyButtonText className="flex items-center justify-center gap-1.5 mt-1.5 text-sm text-muted-foreground">
-                    <Phone className="h-4 w-4 shrink-0" />
-                    {formattedPhone}
-                  </TypographyButtonText>
-                )}
-              </div>
-              <nav className="p-3 flex flex-col gap-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('activity')}
-                  className={cn(
-                    'flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium transition-colors',
-                    activeTab === 'activity'
-                      ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  )}
-                >
-                  {/* <MessageSquare className="h-4 w-4 shrink-0" /> */}
-                  Activity Log
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('tasks')}
-                  className={cn(
-                    'flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium transition-colors',
-                    activeTab === 'tasks'
-                      ? 'bg-brand-primary/10 text-brand-primary'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  )}
-                >
-                  {/* <ListTodo className="h-4 w-4 shrink-0" /> */}
-                  Tasks
-                </button>
-              </nav>
-            </>
-          )}
-        </div>
-
-        {/* Right column: content - header height h-14 to align divider line with left; min-h-0 so scroll area gets bounded height */}
-        <div className="flex flex-col flex-1 min-w-0 min-h-0 w-[80vw]">
-          <div className="flex flex-row items-center justify-end px-4 h-14 shrink-0 border-b border-border">
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-md hover:bg-muted transition-colors"
-              aria-label="Close"
-            >
-              {/*<X className="h-5 w-5 text-muted-foreground" />*/}
-              <CloseIcon />
-            </button>
-          </div>
-          {activeTab === 'tasks' && (
-            <>
-              <span className="text-lg font-semibold text-foreground ml-2 mt-2 mb-3">Task</span>
-              <div
-                // className="px-5 py-3 flex flex-wrap gap-2 border-b border-border"
-                style={{
-                  backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                  width: 'fit-content',
-                  marginLeft: 15
-                }}
-                className={cn("px-3 py-2 flex flex-wrap gap-2 border-b border-border rounded-full", "flex flex-row items-center justify-center gap-2 rounded-full")}
-              >
-                {STATUS_OPTIONS.map((opt) => (
+                <nav className="p-3 flex flex-col gap-1">
                   <button
-                    key={opt.value}
                     type="button"
-                    onClick={() => setTaskStatusFilter(taskStatusFilter === opt.value ? null : opt.value)}
-                    // className={cn(
-                    //   'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
-                    //   taskStatusFilter === opt.value
-                    //     ? 'bg-brand-primary text-white'
-                    //     : 'bg-muted text-muted-foreground hover:bg-muted/80',
-                    // )}
+                    onClick={() => setActiveTab('activity')}
                     className={cn(
-                      "px-2 py-1 transition-colors",
-                      taskStatusFilter === opt.value ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
-                      taskStatusFilter === opt.value ? "rounded-full" : "rounded-none",
-                      // taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
-                      taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+                      'flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium transition-colors',
+                      activeTab === 'activity'
+                        ? 'bg-brand-primary/10 text-brand-primary'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
                   >
-                    {opt.label} {counts[opt.value] ?? 0}
+                    {/* <MessageSquare className="h-4 w-4 shrink-0" /> */}
+                    Activity Log
                   </button>
-                ))}
-                {/*<ToggleGroupCN
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('tasks')}
+                    className={cn(
+                      'flex items-center justify-center gap-2 w-full py-2.5 rounded-md text-sm font-medium transition-colors',
+                      activeTab === 'tasks'
+                        ? 'bg-brand-primary/10 text-brand-primary'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    )}
+                  >
+                    {/* <ListTodo className="h-4 w-4 shrink-0" /> */}
+                    Tasks
+                  </button>
+                </nav>
+              </>
+            )}
+          </div>
+
+          {/* Right column: content - header height h-14 to align divider line with left; min-h-0 so scroll area gets bounded height */}
+          <div className="flex flex-col flex-1 min-w-0 min-h-0 w-[80vw]">
+            <div className="flex flex-row items-center justify-end px-4 h-14 shrink-0 border-b border-border">
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-1.5 rounded-md hover:bg-muted transition-colors"
+                aria-label="Close"
+              >
+                {/*<X className="h-5 w-5 text-muted-foreground" />*/}
+                <CloseIcon />
+              </button>
+            </div>
+            {activeTab === 'tasks' && (
+              <>
+                <span className="text-lg font-semibold text-foreground ml-2 mt-2 mb-3">Task</span>
+                <div
+                  // className="px-5 py-3 flex flex-wrap gap-2 border-b border-border"
+                  style={{
+                    backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                    width: 'fit-content',
+                    marginLeft: 15
+                  }}
+                  className={cn("px-3 py-2 flex flex-wrap gap-2 border-b border-border rounded-full", "flex flex-row items-center justify-center gap-2 rounded-full")}
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setTaskStatusFilter(taskStatusFilter === opt.value ? null : opt.value)}
+                      // className={cn(
+                      //   'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                      //   taskStatusFilter === opt.value
+                      //     ? 'bg-brand-primary text-white'
+                      //     : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                      // )}
+                      className={cn(
+                        "px-2 py-1 transition-colors",
+                        taskStatusFilter === opt.value ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
+                        taskStatusFilter === opt.value ? "rounded-full" : "rounded-none",
+                        // taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+                        taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+                      )}
+                    >
+                      {opt.label} {counts[opt.value] ?? 0}
+                    </button>
+                  ))}
+                  {/*<ToggleGroupCN
                   options={STATUS_OPTIONS}
                   value={taskStatusFilter}
                   onChange={setTaskStatusFilter}
                   height="p-1.5"
                   roundedness="rounded-lg"
                 />*/}
-              </div>
-              <ScrollArea className="flex-1">
-                <div className="p-5">
-                  {tasksLoading ? (
-                    <div className="flex justify-center py-12">
-                      <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
-                    </div>
-                  ) : tasks.length === 0 ? (
-                    <TypographyBody className="text-muted-foreground italic py-8">No tasks assigned</TypographyBody>
-                  ) : (
-                    <div className="space-y-3">
-                      {tasks.map((task) => (
-                        <TaskCard
-                          key={task.id}
-                          task={task}
-                          onUpdate={loadTasks}
-                          onDelete={loadTasks}
-                          statusOptions={[
-                            { label: 'To Do', value: 'todo' },
-                            { label: 'In Progress', value: 'in-progress' },
-                            { label: 'Done', value: 'done' },
-                          ]}
-                          priorityOptions={[
-                            { label: 'No Priority', value: 'no-priority' },
-                            { label: 'Low', value: 'low' },
-                            { label: 'Medium', value: 'medium' },
-                            { label: 'High', value: 'high' },
-                          ]}
-                          teamMembers={[]}
-                        />
-                      ))}
-                    </div>
-                  )}
                 </div>
-              </ScrollArea>
-            </>
-          )}
+                <ScrollArea className="flex-1">
+                  <div className="p-5">
+                    {tasksLoading ? (
+                      <div className="flex justify-center py-12">
+                        <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                      </div>
+                    ) : tasks.length === 0 ? (
+                      <TypographyBody className="text-muted-foreground italic py-8">No tasks assigned</TypographyBody>
+                    ) : (
+                      <div className="space-y-3">
+                        {tasks.map((task) => (
+                          <TaskCard
+                            key={task.id}
+                            task={task}
+                            onUpdate={loadTasks}
+                            onDelete={loadTasks}
+                            statusOptions={[
+                              { label: 'To Do', value: 'todo' },
+                              { label: 'In Progress', value: 'in-progress' },
+                              { label: 'Done', value: 'done' },
+                            ]}
+                            priorityOptions={[
+                              { label: 'No Priority', value: 'no-priority' },
+                              { label: 'Low', value: 'low' },
+                              { label: 'Medium', value: 'medium' },
+                              { label: 'High', value: 'high' },
+                            ]}
+                            teamMembers={[]}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </>
+            )}
 
-          {activeTab === 'activity' && (
-            <>
-              <div className="flex flex-row items-center justify-between px-6 h-14 shrink-0 ">
-                <span className="text-lg font-semibold text-foreground">Activity Log</span>
-                <div className="flex flex-row items-center gap-2">
-                  <DropdownMenu open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
-                    <div className="relative flex items-center">
-                      <DropdownMenuTrigger asChild>
+            {activeTab === 'activity' && (
+              <>
+                <div className="flex flex-row items-center justify-between px-6 h-14 shrink-0 ">
+                  <span className="text-lg font-semibold text-foreground">Activity Log</span>
+                  <div className="flex flex-row items-center gap-2">
+                    <DropdownMenu open={filterDropdownOpen} onOpenChange={setFilterDropdownOpen}>
+                      <div className="relative flex items-center">
+                        <DropdownMenuTrigger asChild disabled={filterDropdownLoading}>
+                          <button
+                            type="button"
+                            className={cn(
+                              'flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm',
+                              'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring min-w-[140px]',
+                            )}
+                            aria-label="Select filter"
+                            onPointerDown={(e) => e.stopPropagation()}
+                            disabled={filterDropdownLoading}
+                          >
+                            {
+                              filterDropdownLoading ? (
+                                <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                              ) : (
+                                <span>{FILTER_OPTIONS.find((o) => o.value === filter)?.label ?? 'Filters'}</span>
+                              )}
+                            <ChevronDown className="h-4 w-4 opacity-50" />
+                          </button>
+                        </DropdownMenuTrigger>
+                      </div>
+                      <DropdownMenuContent align="end" className="min-w-[140px] z-[5010]">
+                        {FILTER_OPTIONS.map((opt) => (
+                          <DropdownMenuItem
+                            key={opt.value}
+                            disabled={opt.value === filter}
+                            onSelect={(e) => {
+                            }}
+                            onClick={() => {
+                              setFilterDropdownLoading(true)
+                              setFilter(opt.value)
+                              setFilterDropdownOpen(false)
+                            }}
+                          >
+                            {opt.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DropdownMenu open={rangeDropdownOpen} onOpenChange={setRangeDropdownOpen}>
+                      <DropdownMenuTrigger asChild disabled={rangeDropdownLoading}>
                         <button
                           type="button"
                           className={cn(
                             'flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm',
-                            'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring min-w-[140px]',
-                            filter !== 'all' && 'pr-8'
+                            'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring min-w-[140px]'
                           )}
-                          aria-label="Select filter"
+                          aria-label="Select range"
                           onPointerDown={(e) => e.stopPropagation()}
+                          disabled={rangeDropdownLoading}
                         >
-                          <span>{FILTER_OPTIONS.find((o) => o.value === filter)?.label ?? 'Filters'}</span>
+                          {
+                            rangeDropdownLoading ? (
+                              <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                            ) : (
+                              <span>{RANGE_OPTIONS.find((o) => o.value === range)?.label ?? 'Range'}</span>
+                            )}
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </button>
                       </DropdownMenuTrigger>
-                      {filter !== 'all' && (
-                        <button
-                          type="button"
-                          className="absolute right-1.5 flex h-5 w-5 items-center justify-center rounded-full hover:bg-accent/80 transition-colors"
-                          aria-label="Clear filter"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setFilter('all')
-                          }}
-                        >
-                          <X className="h-3 w-3 opacity-60" />
-                        </button>
-                      )}
-                    </div>
-                    <DropdownMenuContent align="end" className="min-w-[140px] z-[5010]">
-                      {FILTER_OPTIONS.map((opt) => (
-                        <DropdownMenuItem
-                          key={opt.value}
-                          onSelect={(e) => {
-                          }}
-                          onClick={() => {
-                            setFilter(opt.value)
-                            setFilterDropdownOpen(false)
-                          }}
-                        >
-                          {opt.label}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <DropdownMenu open={rangeDropdownOpen} onOpenChange={setRangeDropdownOpen}>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          'flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm',
-                          'hover:bg-accent/50 focus:outline-none focus:ring-1 focus:ring-ring min-w-[140px]'
-                        )}
-                        aria-label="Select range"
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        <span>{RANGE_OPTIONS.find((o) => o.value === range)?.label ?? 'Range'}</span>
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="min-w-[140px] z-[5010]">
-                      {RANGE_OPTIONS.map((opt) => (
-                        <DropdownMenuItem
-                          key={opt.value}
-                          onSelect={(e) => {
-                            if (opt.value === 'custom') e.preventDefault()
-                          }}
-                          onClick={() => {
-                            setRange(opt.value)
-                            if (opt.value === 'custom') {
-                              setShowCustomDateModal(true)
-                            } else {
-                              setShowCustomDateModal(false)
-                              setRangeDropdownOpen(false)
-                            }
-                          }}
-                        >
-                          {opt.label}
-                        </DropdownMenuItem>
-                      ))}
+                      <DropdownMenuContent align="end" className="min-w-[140px] z-[5010]">
+                        {RANGE_OPTIONS.map((opt) => (
+                          <DropdownMenuItem
+                            key={opt.value}
+                            disabled={opt.value !== 'custom' && opt.value === range}
+                            onSelect={(e) => {
+                              if (opt.value === 'custom') e.preventDefault()
+                            }}
+                            onClick={() => {
+                              setRange(opt.value)
+                              if (opt.value === 'custom') {
+                                setCustomFromDate(null)
+                                setCustomToDate(null)
+                                setShowCustomDateModal(true)
+                              } else {
+                                setShowCustomDateModal(false)
+                                setRangeDropdownOpen(false)
+                                setRangeDropdownLoading(true)
+                              }
+                            }}
+                          >
+                            {opt.label}
+                          </DropdownMenuItem>
+                        ))}
 
-                      {showCustomDateModal && (
-                        <>
-                          <div className="my-1 h-px bg-muted" />
-                          <div className="p-2 space-y-2">
-                            <div className="text-xs font-medium text-muted-foreground px-2">From / To</div>
-                            <div className="flex flex-col gap-2">
+                        {showCustomDateModal && (
+                          <>
+                            <div className="my-1 h-px bg-muted" />
+                            <div className="p-2 space-y-2">
+                              <div className="text-xs font-medium text-muted-foreground px-2">From</div>
                               <Popover open={customFromOpen} onOpenChange={setCustomFromOpen}>
                                 <PopoverTrigger asChild>
                                   <button
@@ -528,7 +543,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                                   >
                                     <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
                                     <span className="text-muted-foreground">
-                                      {customFromDate ? format(customFromDate, 'MM/dd/yyyy') : 'From date'}
+                                      {customFromDate ? format(customFromDate, 'MM/dd/yyyy') : 'Select'}
                                     </span>
                                   </button>
                                 </PopoverTrigger>
@@ -551,6 +566,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                                   </div>
                                 </PopoverContent>
                               </Popover>
+                              <div className="text-xs font-medium text-muted-foreground px-2">To</div>
                               <Popover open={customToOpen} onOpenChange={setCustomToOpen}>
                                 <PopoverTrigger asChild>
                                   <button
@@ -568,7 +584,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                                   >
                                     <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
                                     <span className="text-muted-foreground">
-                                      {customToDate ? format(customToDate, 'MM/dd/yyyy') : 'To date'}
+                                      {customToDate ? format(customToDate, 'MM/dd/yyyy') : 'Select'}
                                     </span>
                                   </button>
                                 </PopoverTrigger>
@@ -583,107 +599,118 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                                       mode="single"
                                       selected={customToDate}
                                       onSelect={(d) => {
-                                        setCustomToDate(d ?? null)
+                                        if (!d) {
+                                          setCustomToDate(null)
+                                          setCustomToOpen(false)
+                                          return
+                                        }
+                                        if (customFromDate && d < customFromDate) {
+                                          toast.error('To date cannot be before the from date')
+                                          return
+                                        }
+                                        setCustomToDate(d)
                                         setCustomToOpen(false)
-                                        if (customFromDate && d) setRangeDropdownOpen(false)
+                                        if (customFromDate && d) {
+                                          setRangeDropdownLoading(true)
+                                          setRangeDropdownOpen(false)
+                                        }
                                       }}
                                     />
                                   </div>
                                 </PopoverContent>
                               </Popover>
                             </div>
-                          </div>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-              </div>
 
-              {/* Stats section: background wrapper, cards with no border, label above count, brand icons */}
-              <div className="px-6 py-5 border-b border-border ">
-                <div className="grid grid-cols-3 gap-3 bg-[#F9F9F9] p-3 rounded-lg">
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-1 bg-transparent">
-                    <Phone className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Calls</TypographyBody>
-                    <span className="text-base font-semibold text-foreground">{totals.calls}</span>
-                  </div>
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
-                    <MessageSquareDot className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Texts</TypographyBody>
-                    <span className="text-base font-semibold text-foreground">{totals.sms}</span>
-                  </div>
-                  <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
-                    <Mail className="h-6 w-6 text-brand-primary shrink-0" />
-                    <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Emails</TypographyBody>
-                    <span className="text-base font-semibold text-foreground">{totals.email}</span>
-                  </div>
-                </div>
-              </div>
-              <div
-                id="teamMemberActivitiesScroll"
-                className="flex-1 min-h-0 overflow-auto bg-[#F9F9F9]"
-                style={{ scrollbarWidth: 'thin' }}
-              >
-                <div className="px-6 py-5">
-                  {activitiesLoading && activities.length === 0 ? (
-                    <div className="flex justify-center py-12">
-                      <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                {/* Stats section: background wrapper, cards with no border, label above count, brand icons */}
+                <div className="px-6 py-5 border-b border-border ">
+                  <div className="grid grid-cols-3 gap-3 bg-[#F9F9F9] p-3 rounded-lg">
+                    <div className="rounded-lg p-4 flex flex-col items-center gap-1 bg-transparent">
+                      <Phone className="h-6 w-6 text-brand-primary shrink-0" />
+                      <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Calls</TypographyBody>
+                      <span className="text-base font-semibold text-foreground">{totals.calls}</span>
                     </div>
-                  ) : activities.length === 0 ? (
-                    <TypographyBody className="text-muted-foreground italic py-8">No activities in this range</TypographyBody>
-                  ) : (
-                    <InfiniteScroll
-                      dataLength={activities.length}
-                      next={() => {
-                        if (!isLoadingMoreRef.current && hasMoreActivities) loadActivities(true)
-                      }}
-                      hasMore={hasMoreActivities}
-                      scrollableTarget="teamMemberActivitiesScroll"
-                      loader={
-                        <div className="flex justify-center py-6">
-                          <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
-                        </div>
-                      }
-                      endMessage={
-                        <p className="text-center py-4 text-muted-foreground text-sm">
-                          You are all caught up
-                        </p>
-                      }
-                    >
-                      <ActivityTimeline
-                        activities={activities}
-                        onLeadClick={(lead_ID) => {
-                          setSelectedLeadIdForModal(lead_ID)
-                          console.log("lead_ID", lead_ID)
-                          setActiveTab("lead_details")
-                        }}
-                      />
-                    </InfiniteScroll>
-                  )}
+                    <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
+                      <MessageSquareDot className="h-6 w-6 text-brand-primary shrink-0" />
+                      <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Texts</TypographyBody>
+                      <span className="text-base font-semibold text-foreground">{totals.sms}</span>
+                    </div>
+                    <div className="rounded-lg p-4 flex flex-col items-center gap-2 bg-transparent">
+                      <Mail className="h-6 w-6 text-brand-primary shrink-0" />
+                      <TypographyBody style={{ color: "#666666" }} className="text-sm font-regular text-foreground">Emails</TypographyBody>
+                      <span className="text-base font-semibold text-foreground">{totals.email}</span>
+                    </div>
+                  </div>
                 </div>
+                <div
+                  id="teamMemberActivitiesScroll"
+                  className="flex-1 min-h-0 overflow-auto bg-[#F9F9F9]"
+                  style={{ scrollbarWidth: 'thin' }}
+                >
+                  <div className="px-6 py-5">
+                    {activitiesLoading && activities.length === 0 ? (
+                      <div className="flex justify-center py-12">
+                        <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                      </div>
+                    ) : activities.length === 0 ? (
+                      <TypographyBody className="text-muted-foreground italic py-8">No activities in this range</TypographyBody>
+                    ) : (
+                      <InfiniteScroll
+                        dataLength={activities.length}
+                        next={() => {
+                          if (!isLoadingMoreRef.current && hasMoreActivities) loadActivities(true)
+                        }}
+                        hasMore={hasMoreActivities}
+                        scrollableTarget="teamMemberActivitiesScroll"
+                        loader={
+                          <div className="flex justify-center py-6">
+                            <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                          </div>
+                        }
+                        endMessage={
+                          <p className="text-center py-4 text-muted-foreground text-sm">
+                            You are all caught up
+                          </p>
+                        }
+                      >
+                        <ActivityTimeline
+                          activities={activities}
+                          onLeadClick={(lead_ID) => {
+                            setSelectedLeadIdForModal(lead_ID)
+                            console.log("lead_ID", lead_ID)
+                            setActiveTab("lead_details")
+                          }}
+                        />
+                      </InfiniteScroll>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {activeTab === "lead_details" && selectedLeadIdForModal != null && (
+              <div>
+                <LeadDetails
+                  selectedUser={selectedUser}
+                  selectedLead={selectedLeadIdForModal}
+                  showDetailsModal={true}
+                  setShowDetailsModal={() => {
+                    setSelectedLeadIdForModal(null)
+                    setActiveTab("activity")
+                  }}
+                  hideDelete={true}
+                  elevatedZIndex
+                  showAsTab
+                />
               </div>
-            </>
-          )}
+            )}
 
-          {activeTab === "lead_details" && selectedLeadIdForModal != null && (
-            <div>
-              <LeadDetails
-                selectedUser={selectedUser}
-                selectedLead={selectedLeadIdForModal}
-                showDetailsModal={true}
-                setShowDetailsModal={() => {
-                  setSelectedLeadIdForModal(null)
-                  setActiveTab("activity")
-                }}
-                hideDelete={true}
-                elevatedZIndex
-                showAsTab
-              />
-            </div>
-          )}
-
-          {/*
+            {/*
             activeTab !== "lead_details" && (
               <div className="w-full flex flex-row justify-end pb-4 pe-4">
                 <Button
@@ -695,22 +722,22 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
               </div>
             )
           }*/}
-          {
-            taskModalOpen && (
-              <CreateTaskFromNextStepsModal
-                open={taskModalOpen}
-                onClose={() => setTaskModalOpen(false)}
-                leadId={selectedLeadIdForModal}
-                leadName={selectedLeadIdForModal}
-                callId={selectedLeadIdForModal}
-                selectedUser={teamMember}
-                elevatedZIndex
-                onTaskCreated={handleTaskCreatedFromDrawer}
-              />
-            )
-          }
+            {
+              taskModalOpen && (
+                <CreateTaskFromNextStepsModal
+                  open={taskModalOpen}
+                  onClose={() => setTaskModalOpen(false)}
+                  leadId={selectedLeadIdForModal}
+                  leadName={selectedLeadIdForModal}
+                  callId={selectedLeadIdForModal}
+                  selectedUser={teamMember}
+                  elevatedZIndex
+                  onTaskCreated={handleTaskCreatedFromDrawer}
+                />
+              )
+            }
 
-        </div>
+          </div>
         </div>
       </PortalZIndexProvider>
     </Drawer>

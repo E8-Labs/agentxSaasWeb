@@ -1008,7 +1008,7 @@ const WebAgentChatDrawer = ({
                     className="text-center font-semibold text-[#0e0e0e] max-w-sm"
                     style={{ fontSize: '22px', lineHeight: '30px', letterSpacing: '-0.77px' }}
                   >
-                    {emptyStateMessage}hj
+                    {emptyStateMessage}
                   </p>
                 </div>
               )}
