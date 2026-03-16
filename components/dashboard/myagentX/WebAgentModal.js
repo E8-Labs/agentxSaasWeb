@@ -7,12 +7,14 @@ import {
   Select,
   Switch,
 } from '@mui/material'
-import { ArrowUpRight, X } from '@phosphor-icons/react'
+import { ArrowUpRight, OpenAiLogoIcon, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { Input } from '@/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 
 import Apis from '../../apis/Apis'
@@ -49,6 +51,30 @@ const WebAgentModal = ({
   })
   const formControlRef = useRef(null)
   const [selectMenuWidth, setSelectMenuWidth] = useState(null)
+
+  // API Key section (AI Provider) – same behaviour as MessageSettingsModal
+  const [selectedProvider, setSelectedProvider] = useState('openai')
+  const [apiKey, setApiKey] = useState('')
+  const [apiKeyError, setApiKeyError] = useState('')
+  const [isEditingApiKey, setIsEditingApiKey] = useState(false)
+  const [existingIntegrationId, setExistingIntegrationId] = useState(null)
+  const [existingApiKey, setExistingApiKey] = useState('')
+  const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('')
+  const [aiIntegrations, setAiIntegrations] = useState([])
+  const [loadingIntegrations, setLoadingIntegrations] = useState(false)
+  const [savingApiKey, setSavingApiKey] = useState(false)
+  const [enableChat, setEnableChat] = useState(false)
+
+  const providerFor = (int) =>
+    int?.provider === 'google' ? 'google' : int?.provider === 'anthropic' ? 'anthropic' : 'openai'
+
+  const maskApiKey = (key) => {
+    if (!key || key.length === 0) return ''
+    if (key.length <= 6) return '*'.repeat(key.length)
+    const last6 = key.slice(-6)
+    const stars = '*'.repeat(key.length - 6)
+    return stars + last6
+  }
 
   const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
     setSnackbar({
@@ -133,10 +159,147 @@ const WebAgentModal = ({
         setSelectedSmartList('')
       }
 
-      // Fetch smart lists after initializing state
+      // Fetch smart lists and AI integrations after initializing state
       fetchSmartLists()
+      fetchAiIntegrations()
+      setIsEditingApiKey(false)
     }
-  }, [open, agent, fetureType, agentSmartRefill])
+  }, [open, agent, fetureType, agentSmartRefill, selectedUser?.id])
+
+  // Sync API key display from integrations by selected provider
+  useEffect(() => {
+    if (!open || isEditingApiKey || loadingIntegrations) return
+    const existingIntegration = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
+    if (!existingIntegration) {
+      setExistingIntegrationId(null)
+      setStoredApiKeyMasked('')
+      setExistingApiKey('')
+      setApiKey('••••••••••••••••••••••••••••••••')
+      return
+    }
+    setExistingIntegrationId(existingIntegration.id)
+    const masked = existingIntegration.apiKeyMasked || ''
+    const legacyRaw = existingIntegration.apiKey || ''
+    if (masked) {
+      setStoredApiKeyMasked(masked)
+      setApiKey(masked)
+    } else if (legacyRaw) {
+      setExistingApiKey(legacyRaw)
+      setApiKey(maskApiKey(legacyRaw))
+    } else {
+      setApiKey('••••••••••••••••••••••••••••••••')
+    }
+  }, [selectedProvider, aiIntegrations, isEditingApiKey, loadingIntegrations, open])
+
+  const fetchAiIntegrations = async () => {
+    try {
+      setLoadingIntegrations(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      const apiUrl = selectedUser?.id
+        ? `${Apis.BasePath}api/mail/ai-integrations?userId=${selectedUser.id}`
+        : `${Apis.BasePath}api/mail/ai-integrations`
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response.data?.status && Array.isArray(response.data?.data)) {
+        setAiIntegrations(response.data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching AI integrations:', error)
+    } finally {
+      setLoadingIntegrations(false)
+    }
+  }
+
+  const handleSaveApiKey = async () => {
+    setApiKeyError('')
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      showSnackbar('', 'Please log in to save API key.', SnackbarTypes.Error)
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    const trimmedApiKey = apiKey.trim()
+    const isMaskedKey =
+      (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
+      (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
+    const isPlaceholder = trimmedApiKey === '••••••••••••••••••••••••••••••••'
+    if (!trimmedApiKey || isMaskedKey || isPlaceholder) {
+      return
+    }
+    try {
+      setSavingApiKey(true)
+      if (existingIntegrationId) {
+        const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+        const updateResponse = await axios.put(
+          updateUrl,
+          { apiKey: trimmedApiKey },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        if (updateResponse.data?.status) {
+          setIsEditingApiKey(false)
+          const newMasked = maskApiKey(trimmedApiKey)
+          setStoredApiKeyMasked(newMasked)
+          setApiKey(newMasked)
+          showSnackbar('', 'API key updated successfully', SnackbarTypes.Success)
+        } else {
+          throw new Error(updateResponse.data?.message || 'Failed to update API key')
+        }
+      } else {
+        const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
+        const createResponse = await axios.post(
+          createUrl,
+          { provider: selectedProvider, apiKey: trimmedApiKey },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        if (createResponse.data?.status && createResponse.data?.data) {
+          const newId = createResponse.data.data.id
+          setExistingIntegrationId(newId)
+          setIsEditingApiKey(false)
+          const newMasked = maskApiKey(trimmedApiKey)
+          setStoredApiKeyMasked(newMasked)
+          setApiKey(newMasked)
+          await fetchAiIntegrations()
+          showSnackbar('', 'API key saved successfully', SnackbarTypes.Success)
+        } else {
+          throw new Error(createResponse.data?.message || 'Failed to save API key')
+        }
+      }
+    } catch (err) {
+      console.error('Error saving API key:', err)
+      setApiKeyError(
+        err.response?.data?.message || 'Failed to save API key. Please check the key and try again.',
+      )
+      showSnackbar(
+        '',
+        err.response?.data?.message || 'Failed to save API key. Please try again.',
+        SnackbarTypes.Error,
+      )
+    } finally {
+      setSavingApiKey(false)
+    }
+  }
+
+  const handleEnableChatChange = (event) => {
+    setEnableChat(event.target.checked)
+  }
 
   const fetchSmartLists = async () => {
     try {
@@ -581,8 +744,129 @@ const WebAgentModal = ({
                 border: '1px solid #eaeaea',
               }}
             >
-              Hamza
+              {/* API Key Section */}
+              <div className="flex flex-row items-center justify-between">
+                <div style={{ fontWeight: 600, fontSize: 14 }}>Enable chat?</div>
+                <div>
+                  <Switch
+                    checked={enableChat}
+                    onChange={handleEnableChatChange}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: 'hsl(var(--brand-primary))',
+                        '& + .MuiSwitch-track': {
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                        },
+                      },
+                      '& .MuiSwitch-track': {
+                        backgroundColor: '#ccc',
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+              <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>This allows your users to chat with the agent.</div>
             </div>
+
+            {enableChat && (
+              <div className="flex flex-col gap-3">
+                <label className="text-[14px] font-medium text-foreground">AI Provider</label>
+                <RadioGroup
+                  value={selectedProvider}
+                  onValueChange={(v) => setSelectedProvider(v)}
+                  className="flex flex-wrap gap-4"
+                >
+                  <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                    <RadioGroupItem value="openai" id="web-agent-ai-provider-openai" />
+                    <OpenAiLogoIcon size={19} className="text-brand-primary" />
+                    <span className="text-[14px] text-foreground">OpenAI</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                    <RadioGroupItem value="google" id="web-agent-ai-provider-google" />
+                    <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
+                    <span className="text-[14px] text-foreground">Gemini</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                    <RadioGroupItem value="anthropic" id="web-agent-ai-provider-anthropic" />
+                    <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
+                    <span className="text-[14px] text-foreground">Anthropic</span>
+                  </label>
+                </RadioGroup>
+
+                <p className="text-sm text-gray-600">
+                  {selectedProvider === 'google'
+                    ? 'Add Gemini API key to enable AI text + email + chat.'
+                    : selectedProvider === 'anthropic'
+                      ? 'Add Anthropic API key to enable AI text + email + chat.'
+                      : 'Add ChatGPT API key to enable AI text + email + chat.'}
+                </p>
+                <Input
+                  type={isEditingApiKey ? 'password' : 'text'}
+                  placeholder={
+                    existingIntegrationId
+                      ? 'Enter new API key to update'
+                      : selectedProvider === 'google'
+                        ? 'Enter your Gemini API key'
+                        : selectedProvider === 'anthropic'
+                          ? 'Enter your Anthropic API key'
+                          : 'Enter your OpenAI API key'
+                  }
+                  value={apiKey}
+                  onChange={(e) => {
+                    const newValue = e.target.value
+                    const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
+                    const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
+                    const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
+                    if (
+                      !isEditingApiKey &&
+                      (isPlaceholder ||
+                        isMaskedDisplay ||
+                        (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))
+                    ) {
+                      setIsEditingApiKey(true)
+                      setApiKey(newValue)
+                    } else {
+                      setApiKey(newValue)
+                    }
+                    setApiKeyError('')
+                  }}
+                  onBlur={() => {
+                    if (!apiKey.trim()) {
+                      setIsEditingApiKey(false)
+                      if (storedApiKeyMasked) {
+                        setApiKey(storedApiKeyMasked)
+                      } else if (existingApiKey) {
+                        setApiKey(maskApiKey(existingApiKey))
+                      } else if (existingIntegrationId) {
+                        setApiKey('••••••••••••••••••••••••••••••••')
+                      }
+                    }
+                  }}
+                  className={cn(
+                    'h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary',
+                    apiKey === '••••••••••••••••••••••••••••••••' && 'text-gray-400',
+                  )}
+                />
+                {apiKeyError && (
+                  <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleSaveApiKey()
+                  }}
+                  disabled={savingApiKey}
+                  className={cn(
+                    'mt-1 flex h-9 w-full items-center justify-center rounded-lg px-4 text-sm font-medium',
+                    'bg-brand-primary text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed',
+                    'transition-all duration-150 active:scale-[0.98]',
+                  )}
+                >
+                  {savingApiKey ? 'Saving...' : 'Save API key'}
+                </button>
+              </div>
+            )}
 
           </div>
 
