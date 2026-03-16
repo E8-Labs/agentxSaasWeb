@@ -677,6 +677,7 @@ function Page() {
 
   const [search, setSearch] = useState('')
   const [selectedTags, setSelectedTags] = useState([]) // [] = All, string[] = filter by any of these tags
+  const allTagsSeenRef = useRef(new Set()) // accumulate all tags so filter pills stay visible when filtering
   const [duplicateLoader, setDuplicateLoader] = useState(false)
 
   //nedd help popup
@@ -3498,10 +3499,14 @@ function Page() {
     )
   }, [agentsListSeparated, sortBy])
 
-  // Unique tags across all main agents (for tag pills)
-  const uniqueTags = useMemo(() => {
+  // Unique tags for filter pills: accumulate from every mainAgentsList so tags stay visible when filtering
+  const [uniqueTags, setUniqueTags] = useState([])
+  useEffect(() => {
     const tags = (mainAgentsList || []).flatMap((m) => m.tags || [])
-    return [...new Set(tags)].filter(Boolean).sort()
+    const added = tags.filter((t) => t && !allTagsSeenRef.current.has(t))
+    if (added.length === 0) return
+    added.forEach((t) => allTagsSeenRef.current.add(t))
+    setUniqueTags((prev) => [...new Set([...prev, ...added])].filter(Boolean).sort())
   }, [mainAgentsList])
 
   const handleAssignAgentTags = async (mainAgentId, tags) => {
