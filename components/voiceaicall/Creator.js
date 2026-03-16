@@ -1684,7 +1684,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
                       style={{
                         color:
                           emailValidationMessage === 'Valid'
-                            ? 'hsl(var(--brand-primary))'
+                            ? 'black'
                             : '#b91c1c',
                         fontWeight: 500,
                       }}
@@ -1742,7 +1742,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
                       style={{
                         color:
                           phoneValidationMessage === 'Valid'
-                            ? 'hsl(var(--brand-primary))'
+                            ? 'black'
                             : '#b91c1c',
                         fontWeight: 500,
                       }}
