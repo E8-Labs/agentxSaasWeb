@@ -467,6 +467,7 @@ function Page() {
   const timerRef = useRef()
   const fileInputRef = useRef([])
   const searchTimeoutRef = useRef(null)
+  const getAgentsRequestIdRef = useRef(0) // ignore stale responses when filter changes quickly
   let attempts = 0
   const maxAttempts = 10
   // const fileInputRef = useRef(null);
@@ -677,7 +678,6 @@ function Page() {
 
   const [search, setSearch] = useState('')
   const [selectedTags, setSelectedTags] = useState([]) // [] = All, string[] = filter by any of these tags
-  const allTagsSeenRef = useRef(new Set()) // accumulate all tags so filter pills stay visible when filtering
   const [duplicateLoader, setDuplicateLoader] = useState(false)
 
   //nedd help popup
@@ -3388,16 +3388,18 @@ function Page() {
       }
       if (tagsForApi.length > 0) {
         offset = 0
-        const tagParams = tagsForApi.map((t) => `tag=${encodeURIComponent(t)}`).join('&')
+        const tagsParam = encodeURIComponent(tagsForApi.join(','))
         ApiPath = search
-          ? `${Apis.getAgents}?offset=0&search=${encodeURIComponent(search)}&${tagParams}`
-          : `${Apis.getAgents}?offset=0&${tagParams}`
+          ? `${Apis.getAgents}?offset=0&search=${encodeURIComponent(search)}&tags=${tagsParam}`
+          : `${Apis.getAgents}?offset=0&tags=${tagsParam}`
       }
       // console.log("Api path is", ApiPath);
 
       const Auth = AuthToken()
       ////console.log;
       // const AuthToken = userData.token;
+
+      const thisRequestId = ++getAgentsRequestIdRef.current
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -3448,6 +3450,15 @@ function Page() {
         setPaginationLoader(false)
         let agents = response.data.data || []
         // console.log("Agents from api", agents);
+
+        const isTagFilter = tagsForApi.length > 0
+        const isReplaceMode = (search && searchLoader) || (isTagFilter && searchLoader)
+
+        // Ignore stale response if user already changed filter/search (newer request in flight)
+        if (thisRequestId !== getAgentsRequestIdRef.current) {
+          return
+        }
+
         setOldAgentsList(agents)
         if (agents.length >= 6) {
           setCanGetMore(true)
@@ -3455,9 +3466,6 @@ function Page() {
           setPaginationLoader(false)
           setCanGetMore(false)
         }
-
-        const isTagFilter = tagsForApi.length > 0
-        const isReplaceMode = (search && searchLoader) || (isTagFilter && searchLoader)
 
         if (isReplaceMode) {
           setMainAgentsList(agents)
@@ -3499,15 +3507,29 @@ function Page() {
     )
   }, [agentsListSeparated, sortBy])
 
-  // Unique tags for filter pills: accumulate from every mainAgentsList so tags stay visible when filtering
+  // Unique tags for filter pills: loaded from API (all tags for user's agents), merged with any newly assigned tags
   const [uniqueTags, setUniqueTags] = useState([])
+
+  const fetchAgentTags = useCallback(async () => {
+    try {
+      const Auth = AuthToken()
+      if (!Auth) return
+      const res = await axios.get(Apis.getAgentTags, {
+        headers: { Authorization: 'Bearer ' + Auth, 'Content-Type': 'application/json' },
+      })
+      const list = res?.data?.data
+      if (Array.isArray(list)) {
+        setUniqueTags(list.filter(Boolean).sort())
+      }
+    } catch (_) {
+      // non-blocking
+    }
+  }, [])
+
   useEffect(() => {
-    const tags = (mainAgentsList || []).flatMap((m) => m.tags || [])
-    const added = tags.filter((t) => t && !allTagsSeenRef.current.has(t))
-    if (added.length === 0) return
-    added.forEach((t) => allTagsSeenRef.current.add(t))
-    setUniqueTags((prev) => [...new Set([...prev, ...added])].filter(Boolean).sort())
-  }, [mainAgentsList])
+    const userData = localStorage.getItem('User')
+    if (userData) fetchAgentTags()
+  }, [fetchAgentTags])
 
   const handleAssignAgentTags = async (mainAgentId, tags) => {
     try {
@@ -3534,6 +3556,9 @@ function Page() {
         }
         return updated
       })
+      setUniqueTags((prev) =>
+        [...new Set([...prev, ...(tags || [])])].filter(Boolean).sort(),
+      )
     } catch (err) {
       console.error('AssignAgentTags error:', err)
       setShowSnackMsg({

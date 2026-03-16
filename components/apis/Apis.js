@@ -51,6 +51,7 @@ const Apis = {
   getSheets: `${BasePath}api/leads/getSheets`,
   reorderSheets: `${BasePath}api/leads/reorderSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
+  getAgentTags: `${BasePath}api/agent/getAgentTags`,
   assignAgentTags: `${BasePath}api/agent/assignAgentTags`,
   attachSmartList: `${BasePath}api/agent/attachSmartList`,
   assignLeadToPipeLine: `${BasePath}api/pipeline/assignLeadsToPipeline`,
