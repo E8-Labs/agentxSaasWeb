@@ -65,7 +65,7 @@ import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetailsCN from './extras/LeadDetailsCN'
-import { Check, Download, ListFilter, Phone, Settings2, Trash, UserPlus } from 'lucide-react'
+import { Check, Download, ListFilter, ListStart, Phone, PhoneCall, Settings2, Trash, UserPlus } from 'lucide-react'
 import LeadDetails from './extras/LeadDetails'
 import {
   DropdownMenu,
@@ -2471,7 +2471,8 @@ const Userleads = ({
                       }}
                       disabled={!(selectedLeadsList.length > 0 || selectedAll)}
                     >
-                      <Phone size={18} strokeWidth={2} className="flex-shrink-0" aria-hidden />
+                      {/*<Phone size={18} strokeWidth={2} className="flex-shrink-0" aria-hidden />*/}
+                      <ListStart size={18} className="flex-shrink-0" aria-hidden />
                       <span className="text-[14px]">Start Campaign</span>
                     </button>
 

@@ -28,6 +28,7 @@ const GuardianSetting = ({
   selectedAgentId,
   kycsData,
   uniqueColumns,
+  userId = null,
 }) => {
   const [guardrailsList, setGuardrailsList] = useState([])
   const [initialLoader, setInitialLoader] = useState(false)
@@ -121,6 +122,9 @@ const GuardianSetting = ({
       if (agentId) {
         ApiPath += `&agentId=${agentId}`
       }
+      if (userId) {
+        ApiPath += `&userId=${userId}`
+      }
       // //console.log;
 
       const response = await axios.get(ApiPath, {
@@ -185,6 +189,7 @@ const GuardianSetting = ({
         description: addObjDescription,
         type: 'guardrail',
         mainAgentId: mainAgentId,
+        ...(userId != null && { userId }),
       }
 
       // //console.log;
@@ -265,6 +270,9 @@ const GuardianSetting = ({
 
       const formData = new FormData()
       formData.append('id', SelectedGuardrail.id)
+      if (userId != null) {
+        formData.append('userId', userId)
+      }
 
       for (let [key, value] of formData.entries()) {
         // //console.log
@@ -525,6 +533,15 @@ const GuardianSetting = ({
                   {`Looks like you haven't added guardrails yet`}
                   {/* </i> */}
                 </div>
+              </div>
+              <div className="flex flex-row items-center justify-center py-3">
+                <button
+                  className="text-brand-primary underline outline-none h-8"
+                  style={{ fontWeight: '600', fontSize: 18 }}
+                  onClick={() => setShowAddObjForm(true)}
+                >
+                  Add New
+                </button>
               </div>
             </div>
           )}

@@ -112,22 +112,36 @@ const AgentInfoCard = ({
   const showRate = subtitle && rate != null && rate !== ''
 
   return (
-    <div className="relative flex w-full flex-col items-start gap-2">
-      {showRate && (
-        <div className="absolute right-0 top-0 flex items-center gap-1">
-          <div className="flex shrink-0 items-center gap-1">
-            <RatePie value={Number(rate)} size={15} />
-            <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
-              {Number(rate) % 1 === 0
-                ? `${Number(rate).toFixed(0)}%`
-                : `${Number(rate).toFixed(1)}%`}
-            </span>
-          </div>
-        </div>
-      )}
-
+    <div className="flex w-full flex-col items-start gap-2">
       {/* Icon - only element not full width */}
-      {renderIcon()}
+      <div className="flex flex-row items-center gap-8">
+        {renderIcon()}
+        {
+          toolTip && rate != null && rate !== '' && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <RatePie value={Number(rate)} size={15} />
+                    <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
+                      {Number(rate) % 1 === 0
+                        ? `${Number(rate).toFixed(0)}%`
+                        : `${Number(rate).toFixed(1)}%`}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className=" px-2 py-1 text-xs">
+                <span className="tabular-nums text-xs font-normal leading-4 tracking-[-0.06px] text-brand-primary whitespace-nowrap">
+                {Number(rate) % 1 === 0
+                  ? `${Number(rate).toFixed(0)}%`
+                  : `${Number(rate).toFixed(1)}%`}
+              </span> {toolTip}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )
+        }
+      </div>
 
       <div className="w-full text-sm font-normal text-foreground">
         {name}

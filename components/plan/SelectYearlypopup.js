@@ -61,7 +61,7 @@ const SelectYearlypopup = ({
             style={{ fontSize: 15, fontWeight: '500' }}
           >
             <button
-              className="outline-none border-none bg-purple text-white rounded-xl h-[55px] w-1/2"
+              className="outline-none border-none bg-brand-primary text-white rounded-xl h-[55px] w-1/2"
               onClick={continueYearlyPlan}
             >
               Get Yearly

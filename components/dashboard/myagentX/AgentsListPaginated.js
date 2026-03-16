@@ -322,401 +322,399 @@ const AgentsListPaginated = ({
             {agentsListSeparated.map((item, index) => {
               const tetradic = getTetradicHslFromPrimary()
               const primary = tetradic[0]
-              /* Primary + white only: soft rotating ring */
-              const gradient = `conic-gradient(from 0deg, hsl(${primary}) 0deg, hsl(${primary}) 140deg, #ffffff 180deg, #ffffff 320deg, hsl(${primary}) 360deg)`
+              const gradient = `conic-gradient(from 0deg, hsl(${primary}) 0%, hsl(${primary}) 20%, hsl(${primary} / 0.7) 28%, hsl(${primary} / 0.4) 34%, hsl(${primary} / 0.15) 40%, white 46%, white 100%)`
               return (
-              <div
-                key={index}
-                className="group agent-card-glowing-shadow w-full max-w-[1028px] mx-auto p-4 flex flex-col gap-2 items-start relative overflow-hidden transition-shadow duration-200 hover:border-[#eaeaea]"
-                style={{
-                  border: '1px solid rgba(0, 0, 0, 0.08)',
-                  backgroundColor: '#ffffff',
-                  borderRadius: 12,
-                }}
-              >
-                {/* Animated gradient border (hover-only, comet + blur) */}
                 <div
-                  className="absolute inset-0 rounded-[12px] pointer-events-none opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 group-hover:[animation-play-state:running] [animation-play-state:paused]"
-                  style={{ zIndex: 0 }}
-                  aria-hidden
+                  key={index}
+                  className="group agent-card-glowing-shadow w-full max-w-[1028px] mx-auto p-4 flex flex-col gap-2 items-start relative overflow-hidden transition-shadow duration-200 hover:border-[#eaeaea]"
+                  style={{
+                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                    backgroundColor: '#ffffff',
+                    borderRadius: 12,
+                  }}
                 >
+                  {/* Animated gradient border (hover-only, comet + blur) */}
                   <div
-                    className="absolute inset-0 rounded-[12px] animate-border-spin"
-                    style={{
-                      background: gradient,
-                      filter: 'blur(5px)',
-                    }}
-                  />
-                  <div
-                    className="absolute rounded-[10px] bg-white"
-                    style={{ inset: 2 }}
-                  />
-                </div>
-                <div className="relative z-10 w-full flex flex-col gap-2 items-start">
-                <div className="w-full flex flex-row items-start justify-between h-full min-h-0 flex-1">
-                  <div className="flex flex-row gap-4 items-center flex-1 min-w-0">
-                    <div className="flex items-center justify-center w-[100px] h-[100px] rounded-[16px] shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onMouseEnter={() => setHoveredAvatarIndex(index)}
-                        onMouseLeave={() => setHoveredAvatarIndex(null)}
-                        className="transition-all duration-300 ease-out cursor-default"
-                      >
-                        <div
-                          className="flex flex-row items-center justify-center w-[100px] h-[100px] overflow-hidden relative"
-                          style={{
-                            border: '3px solid white',
-                            boxShadow: '0 16px 30px rgba(0, 0, 0, 0.055)',
-                            backdropFilter: 'blur(8px)',
-                            backgroundColor: 'transparent',
-                            borderRadius: 16,
-                          }}
-                        >
+                    className="absolute inset-0 rounded-[12px] pointer-events-none opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 group-hover:[animation-play-state:running] [animation-play-state:paused]"
+                    style={{ zIndex: 0 }}
+                    aria-hidden
+                  >
+                    <div
+                      className="absolute inset-0 rounded-[12px] animate-border-spin"
+                      style={{
+                        background: gradient,
+                        filter: 'blur(5px)',
+                      }}
+                    />
+                    <div
+                      className="absolute rounded-[10px] bg-white"
+                      style={{ inset: 2 }}
+                    />
+                  </div>
+                  <div className="relative z-10 w-full flex flex-col gap-2 items-start">
+                    <div className="w-full flex flex-row items-start justify-between h-full min-h-0 flex-1">
+                      <div className="flex flex-row gap-4 items-center flex-1 min-w-0">
+                        <div className="flex items-center justify-center w-[100px] h-[100px] rounded-[16px] shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
                           <div
-                            className="absolute left-1/2 z-0 w-[50px] h-[50px] rounded-full bg-brand-primary -translate-x-1/2"
-                            style={{
-                              top: '-25px',
-                              filter: `blur(${hoveredAvatarIndex === index ? 38 : 30}px)`,
-                              opacity: hoveredAvatarIndex === index ? 0.88 : 0.75,
-                              transition: 'filter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out',
-                            }}
-                            aria-hidden
-                          />
-                          <div className="relative z-10 flex flex-row items-center justify-center bg-transparent w-auto h-auto">
-                            {selectedImages[index] ? (
-                              <Image
-                                src={selectedImages[index]}
-                                height={72}
-                                width={72}
-                                alt="Profile"
+                            role="button"
+                            tabIndex={0}
+                            onMouseEnter={() => setHoveredAvatarIndex(index)}
+                            onMouseLeave={() => setHoveredAvatarIndex(null)}
+                            className="transition-all duration-300 ease-out cursor-default"
+                          >
+                            <div
+                              className="flex flex-row items-center justify-center w-[100px] h-[100px] overflow-hidden relative"
+                              style={{
+                                border: '3px solid white',
+                                boxShadow: '0 16px 30px rgba(0, 0, 0, 0.055)',
+                                backdropFilter: 'blur(8px)',
+                                backgroundColor: 'transparent',
+                                borderRadius: 16,
+                              }}
+                            >
+                              <div
+                                className="absolute left-1/2 z-0 w-[50px] h-[50px] rounded-full bg-brand-primary -translate-x-1/2"
                                 style={{
-                                  borderRadius: '50%',
-                                  objectFit: 'cover',
-                                  height: '72px',
-                                  width: '72px',
+                                  top: '-25px',
+                                  filter: `blur(${hoveredAvatarIndex === index ? 38 : 30}px)`,
+                                  opacity: hoveredAvatarIndex === index ? 0.88 : 0.75,
+                                  transition: 'filter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease-out',
                                 }}
+                                aria-hidden
                               />
-                            ) : (
-                              getAgentsListImage(item, 72, 72, from="agentsList")
-                            )}
+                              <div className="relative z-10 flex flex-row items-center justify-center bg-transparent w-auto h-auto">
+                                {selectedImages[index] ? (
+                                  <Image
+                                    src={selectedImages[index]}
+                                    height={72}
+                                    width={72}
+                                    alt="Profile"
+                                    style={{
+                                      borderRadius: '50%',
+                                      objectFit: 'cover',
+                                      height: '72px',
+                                      width: '72px',
+                                    }}
+                                  />
+                                ) : (
+                                  getAgentsListImage(item, 72, 72, from = "agentsList")
+                                )}
+                              </div>
+                              <input
+                                type="file"
+                                value={''}
+                                accept="image/*"
+                                ref={(el) => (fileInputRef.current[index] = el)}
+                                onChange={(e) => handleProfileImgChange(e, index)}
+                                style={{ display: 'none' }}
+                              />
+                            </div>
                           </div>
-                          <input
-                            type="file"
-                            value={''}
-                            accept="image/*"
-                            ref={(el) => (fileInputRef.current[index] = el)}
-                            onChange={(e) => handleProfileImgChange(e, index)}
-                            style={{ display: 'none' }}
-                          />
+                        </div>
+                        <div className="flex flex-col gap-1 w-full">
+                          <div className="flex flex-col gap-1 items-start w-full">
+                            <div className="flex flex-row items-center gap-2">
+                              <button onClick={() => handleShowDrawer(item)}>
+                                <div className="text-2xl font-semibold leading-tight text-foreground">
+                                  {formatName(item)}
+                                </div>
+                              </button>
+                              <div className="opacity-0 group-hover:opacity-100 scale-[0.8] group-hover:scale-100 transition-all duration-200 ease-out origin-left">
+                                <button
+                                  onClick={() => {
+                                    setShowRenameAgentPopup(true)
+                                    setSelectedRenameAgent(item)
+                                    setRenameAgent(item.name)
+                                  }}
+                                >
+                                  {renderBrandedIcon('/svgIcons/editPen.svg', 20, 20)}
+                                </button>
+                              </div>
+                            </div>
+                            <div className="flex flex-row items-center gap-1 text-sm font-medium text-black/60">
+                              <div
+                                aria-owns={open ? 'mouse-over-popover' : undefined}
+                                aria-haspopup="true"
+                                onMouseEnter={(event) => {
+                                  if (item.agentObjectiveId === 3) {
+                                    handlePopoverOpen(event, item)
+                                  }
+                                }}
+                                onMouseLeave={handlePopoverClose}
+                                style={{ cursor: 'pointer' }}
+                              >
+                                {user.user.userType == UserTypes.RealEstateAgent
+                                  ? `${item.agentObjective
+                                    ?.slice(0, 1)
+                                    .toUpperCase()}${item.agentObjective?.slice(
+                                      1,
+                                    )}`
+                                  : `${item.agentRole}`}
+                              </div>
+                              <div>
+                                | {item.agentType?.slice(0, 1).toUpperCase()}
+                                {item.agentType?.slice(1)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-row items-center gap-3 text-xs font-medium text-black/80 underline decoration-dotted decoration-black/40 underline-offset-[3px]">
+                            <button
+                              onClick={() => {
+                                console.log("item on click.kj is", item?.prompt);
+                                setGreetingTagInput(item?.prompt?.greeting)
+                                setOldGreetingTagInput(item?.prompt?.greeting)
+                                setScriptTagInput(item?.prompt?.callScript)
+                                setOldScriptTagInput(item?.prompt?.callScript)
+                                setShowScriptModal(item)
+                                matchingAgent(item)
+                                setShowScript(true)
+                                if (item?.prompt?.objective) {
+                                  setObjective(item?.prompt?.objective)
+                                  setOldObjective(item?.prompt?.objective)
+                                }
+                              }}
+                            >
+                              <div>View Script</div>
+                            </button>
+                            <div>|</div>
+                            <button
+                              onClick={() => {
+                                handleShowDrawer(item)
+                              }}
+                            >
+                              <div>More info</div>
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex flex-col gap-1 w-full">
-                      <div className="flex flex-col gap-[1px] items-start w-full">
-                        <div className="flex flex-row items-center gap-2">
-                          <button onClick={() => handleShowDrawer(item)}>
-                            <div className="text-2xl font-semibold leading-tight text-foreground">
-                              {formatName(item)}
+
+                      <div className="flex flex-row items-center justify-end gap-2 self-stretch text-left pt-1">
+                        <div className={`relative inline-block ${!item.phoneNumber ? 'ml-auto' : ''}`}>
+                          {!item.phoneNumber && (
+                            <div
+                              className="absolute -right-1 -top-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-red-500"
+                              aria-hidden
+                            >
+                              <AlertTriangle
+                                size={16}
+                                className="text-white"
+                              />
+                            </div>
+                          )}
+                          <button
+                            className="bg-brand-primary px-4 py-2 rounded-lg text-white relative"
+                            onClick={() => {
+                              if (!item.phoneNumber) {
+                                setShowWarningModal(item)
+                              } else {
+                                setOpenTestAiModal(true)
+                              }
+
+                              setSelectedAgent(item)
+                              // Reset keys array for each agent to avoid accumulating variables from previous agents
+                              keys = []
+                              const callScript =
+                                item.prompt.callScript + ' ' + item.prompt.greeting
+                              const regex = /\{(.*?)\}/g
+                              let match
+                              let mainAgent = null
+                              mainAgentsList.map((ma) => {
+                                if (ma.agents?.length > 0) {
+                                  if (ma.agents[0].id == item.id) {
+                                    mainAgent = ma
+                                  } else if (ma.agents?.length >= 2) {
+                                    if (ma.agents[1].id == item.id) {
+                                      mainAgent = ma
+                                    }
+                                  }
+                                }
+                              })
+                              let kyc = (mainAgent?.kyc || []).map(
+                                (kyc) => kyc.question,
+                              )
+                              while ((match = regex.exec(callScript)) !== null) {
+                                const defaultVariables = [
+                                  'Full Name',
+                                  'First Name',
+                                  'Last Name',
+                                  'firstName',
+                                  'seller_kyc',
+                                  'buyer_kyc',
+                                  'CU_address',
+                                  'CU_status',
+                                ]
+                                // Remove the length restriction to allow longer variable names like "Appointment Date" and "Appointment Time"
+                                if (
+                                  !defaultVariables.includes(match[1]) &&
+                                  match[1]?.trim().length > 0
+                                ) {
+                                  if (
+                                    !keys.includes(match[1]) &&
+                                    !kyc.includes(match[1])
+                                  ) {
+                                    keys.push(match[1])
+                                  }
+                                }
+                              }
+                              setScriptKeys(keys)
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: '600',
+                                color: '#fff',
+                              }}
+                            >
+                              Test AI
                             </div>
                           </button>
-                          <div className="opacity-0 group-hover:opacity-100 scale-[0.8] group-hover:scale-100 transition-all duration-200 ease-out origin-left">
-                          <button
-                            onClick={() => {
-                              setShowRenameAgentPopup(true)
-                              setSelectedRenameAgent(item)
-                              setRenameAgent(item.name)
-                            }}
-                          >
-                            {renderBrandedIcon('/svgIcons/editPen.svg', 20, 20)}
-                          </button>
-                        </div>
-                        </div>
-                        <div className="flex flex-row items-center gap-1 text-sm font-medium text-black/60">
-                          <div
-                            aria-owns={open ? 'mouse-over-popover' : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={(event) => {
-                              if (item.agentObjectiveId === 3) {
-                                handlePopoverOpen(event, item)
-                              }
-                            }}
-                            onMouseLeave={handlePopoverClose}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {user.user.userType == UserTypes.RealEstateAgent
-                              ? `${item.agentObjective
-                                ?.slice(0, 1)
-                                .toUpperCase()}${item.agentObjective?.slice(
-                                  1,
-                                )}`
-                              : `${item.agentRole}`}
-                          </div>
-                          <div>
-                            | {item.agentType?.slice(0, 1).toUpperCase()}
-                            {item.agentType?.slice(1)}
-                          </div>
-                        </div>
-                        <div className="flex flex-row items-center gap-[1px] text-xs font-medium text-black/80 underline decoration-dotted decoration-black/40 underline-offset-[3px]">
-                          <button
-                            onClick={() => {
-                              console.log("item on click.kj is", item?.prompt);
-                              setGreetingTagInput(item?.prompt?.greeting)
-                              setOldGreetingTagInput(item?.prompt?.greeting)
-                              setScriptTagInput(item?.prompt?.callScript)
-                              setOldScriptTagInput(item?.prompt?.callScript)
-                              setShowScriptModal(item)
-                              matchingAgent(item)
-                              setShowScript(true)
-                              if (item?.prompt?.objective) {
-                                setObjective(item?.prompt?.objective)
-                                setOldObjective(item?.prompt?.objective)
-                              }
-                            }}
-                          >
-                            <div>View Script</div>
-                          </button>
-                          <div>|</div>
-                          <button
-                            onClick={() => {
-                              handleShowDrawer(item)
-                            }}
-                          >
-                            <div>More info</div>
-                          </button>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex flex-col gap-2 w-1/2">
-                  <div className="flex flex-row items-center justify-end gap-2 h-auto text-left pt-1">
-                    <div className="relative inline-block ml-auto">
-                      {!item.phoneNumber && (
-                        <div
-                          className="absolute -right-1 -top-2 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-red-500"
-                          aria-hidden
-                        >
-                          <AlertTriangle
-                            size={16}
-                            className="text-white"
-                          />
-                        </div>
-                      )}
-                    <button
-                      className="bg-brand-primary px-4 py-2 rounded-lg text-white relative"
-                      onClick={() => {
-                        if (!item.phoneNumber) {
-                          setShowWarningModal(item)
-                        } else {
-                          setOpenTestAiModal(true)
-                        }
-
-                        setSelectedAgent(item)
-                        // Reset keys array for each agent to avoid accumulating variables from previous agents
-                        keys = []
-                        const callScript =
-                          item.prompt.callScript + ' ' + item.prompt.greeting
-                        const regex = /\{(.*?)\}/g
-                        let match
-                        let mainAgent = null
-                        mainAgentsList.map((ma) => {
-                          if (ma.agents?.length > 0) {
-                            if (ma.agents[0].id == item.id) {
-                              mainAgent = ma
-                            } else if (ma.agents?.length >= 2) {
-                              if (ma.agents[1].id == item.id) {
-                                mainAgent = ma
-                              }
-                            }
-                          }
-                        })
-                        let kyc = (mainAgent?.kyc || []).map(
-                          (kyc) => kyc.question,
-                        )
-                        while ((match = regex.exec(callScript)) !== null) {
-                          const defaultVariables = [
-                            'Full Name',
-                            'First Name',
-                            'Last Name',
-                            'firstName',
-                            'seller_kyc',
-                            'buyer_kyc',
-                            'CU_address',
-                            'CU_status',
-                          ]
-                          // Remove the length restriction to allow longer variable names like "Appointment Date" and "Appointment Time"
-                          if (
-                            !defaultVariables.includes(match[1]) &&
-                            match[1]?.trim().length > 0
-                          ) {
-                            if (
-                              !keys.includes(match[1]) &&
-                              !kyc.includes(match[1])
-                            ) {
-                              keys.push(match[1])
-                            }
-                          }
-                        }
-                        setScriptKeys(keys)
-                      }}
-                    >
+                    {!item.phoneNumber && (
                       <div
+                        className="flex flex-row items-center justify-between gap-2 w-full py-2 px-3 rounded-lg"
                         style={{
-                          fontSize: 15,
-                          fontWeight: '600',
-                          color: '#fff',
+                          backgroundColor: 'rgba(255, 78, 78, 0.02)',
+                          border: '2px solid rgba(255, 78, 78, 0.6)',
                         }}
                       >
-                        Test AI
+                        <div className="flex flex-row items-center gap-2">
+                          <Image
+                            src={'/assets/warningFill.png'}
+                            height={18}
+                            width={18}
+                            alt="*"
+                          />
+                          <p>
+                            <span
+                              className="text-red"
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 400,
+                                opacity: 1,
+                              }}
+                            >
+                              No phone number assigned
+                            </span>
+                          </p>
+                        </div>
                       </div>
-                    </button>
-                    </div>
-                  </div>
-                {!item.phoneNumber && (
-                  <div className="flex w-full flex-row items-center justify-end">
-                    <div
-                      className="flex flex-row items-center gap-2 py-2 px-3 rounded-lg"
-                      style={{
-                        backgroundColor: 'rgba(255, 78, 78, 0.02)',
-                        border: '2px solid rgba(255, 78, 78, 0.6)',
-                      }}
-                    >
-                      <Image
-                        src={'/assets/warningFill.png'}
-                        height={18}
-                        width={18}
-                        alt="*"
-                      />
-                      <p>
-                        <span
-                          className="text-red"
-                          style={{
-                            fontSize: 14,
-                            fontWeight: 400,
-                            opacity: 1,
-                          }}
-                        >
-                          No phone number assigned
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                )}
-                  </div>
-                </div>
+                    )}
 
-                <div
-                  className="w-full bg-white p-3 rounded-lg text-sm"
-                  style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)' }}
-                >
-                  <div className="w-full flex flex-row items-start justify-between gap-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImportantCallsModalContext({
-                          agentId: item.id,
-                          type: 'calls',
-                          agentName: item.name || '',
-                        })
-                        setImportantCallsModalOpen(true)
-                      }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
-                      style={{ minWidth: 0 }}
+                    <div
+                      className="w-full bg-white p-3 rounded-lg text-sm"
+                      style={{ boxShadow: '0 4.2px 30px rgba(0, 0, 0, 0.06)' }}
                     >
-                      <AgentInfoCard
-                        name="Calls"
-                        value={<div>{item.calls || '-'}</div>}
-                        iconComponent={<Zap size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
-                        iconColor="text-brand-primary"
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImportantCallsModalContext({
-                          agentId: item.id,
-                          type: 'convos',
-                          agentName: item.name || '',
-                        })
-                        setImportantCallsModalOpen(true)
-                      }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
-                      style={{ minWidth: 0 }}
-                    >
-                      <AgentInfoCard
-                        name="Convos"
-                        value={<div>{item.callsGt10 ?? '-'}</div>}
-                        iconComponent={<MessageCircleMore size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
-                        iconColor="text-brand-primary"
-                        subtitle="Answer rate"
-                        toolTip="Answer rate, percent of calls that are answered."
-                        rate={
-                          item.calls > 0
-                            ? (item.callsGt10 / item.calls) * 100
-                            : null
-                        }
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImportantCallsModalContext({
-                          agentId: item.id,
-                          type: 'hotleads',
-                          agentName: item.name || '',
-                        })
-                        setImportantCallsModalOpen(true)
-                      }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
-                      style={{ minWidth: 0 }}
-                    >
-                      <AgentInfoCard
-                        name="Hot Leads"
-                        value={item.hotleads ?? '-'}
-                        iconComponent={<Zap size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
-                        iconColor="text-brand-primary"
-                        subtitle="Conversion rate"
-                        toolTip="Percent of hot leads that are found in your calls."
-                        rate={
-                          item.callsGt10 > 0
-                            ? (item.hotleads / item.callsGt10) * 100
-                            : null
-                        }
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImportantCallsModalContext({
-                          agentId: item.id,
-                          type: 'booked',
-                          agentName: item.name || '',
-                        })
-                        setImportantCallsModalOpen(true)
-                      }}
-                      className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
-                      style={{ minWidth: 0 }}
-                    >
-                      <AgentInfoCard
-                        name="Booked Meetings"
-                        value={item.booked ?? '-'}
-                        iconComponent={<Calendar size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
-                        iconColor="text-brand-primary"
-                        subtitle="Conversion rate"
-                        toolTip="Percent of convos that convert into a booked call."
-                        rate={
-                          item.callsGt10 > 0
-                            ? (item.booked / item.callsGt10) * 100
-                            : null
-                        }
-                      />
-                    </button>
-                    {/* <button
+                      <div className="w-full flex flex-row items-start justify-between gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImportantCallsModalContext({
+                              agentId: item.id,
+                              type: 'calls',
+                              agentName: item.name || '',
+                            })
+                            setImportantCallsModalOpen(true)
+                          }}
+                          className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
+                          style={{ minWidth: 0 }}
+                        >
+                          <AgentInfoCard
+                            name="Calls"
+                            value={<div>{item.calls || '-'}</div>}
+                            iconComponent={<Zap size={18} />}
+                            iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                            iconColor="text-brand-primary"
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImportantCallsModalContext({
+                              agentId: item.id,
+                              type: 'convos',
+                              agentName: item.name || '',
+                            })
+                            setImportantCallsModalOpen(true)
+                          }}
+                          className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
+                          style={{ minWidth: 0 }}
+                        >
+                          <AgentInfoCard
+                            name="Convos"
+                            value={<div>{item.callsGt10 ?? '-'}</div>}
+                            iconComponent={<MessageCircleMore size={18} />}
+                            iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                            iconColor="text-brand-primary"
+                            subtitle="Answer rate"
+                            toolTip="Answer rate, percent of calls that are answered."
+                            rate={
+                              item.calls > 0
+                                ? (item.callsGt10 / item.calls) * 100
+                                : null
+                            }
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImportantCallsModalContext({
+                              agentId: item.id,
+                              type: 'hotleads',
+                              agentName: item.name || '',
+                            })
+                            setImportantCallsModalOpen(true)
+                          }}
+                          className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
+                          style={{ minWidth: 0 }}
+                        >
+                          <AgentInfoCard
+                            name="Hot Leads"
+                            value={item.hotleads ?? '-'}
+                            iconComponent={<Zap size={18} />}
+                            iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                            iconColor="text-brand-primary"
+                            subtitle="Conversion rate"
+                            toolTip="Percent of hot leads that are found in your calls."
+                            rate={
+                              item.callsGt10 > 0
+                                ? (item.hotleads / item.callsGt10) * 100
+                                : null
+                            }
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImportantCallsModalContext({
+                              agentId: item.id,
+                              type: 'booked',
+                              agentName: item.name || '',
+                            })
+                            setImportantCallsModalOpen(true)
+                          }}
+                          className="flex-1 min-w-0 flex flex-col items-start gap-1.5 cursor-pointer hover:opacity-80 hover:bg-black/[0.02] transition-opacity text-left border border-black/[0.02] bg-transparent p-2 w-full rounded-none"
+                          style={{ minWidth: 0 }}
+                        >
+                          <AgentInfoCard
+                            name="Booked Meetings"
+                            value={item.booked ?? '-'}
+                            iconComponent={<Calendar size={18} />}
+                            iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                            iconColor="text-brand-primary"
+                            subtitle="Conversion rate"
+                            toolTip="Percent of convos that convert into a booked call."
+                            rate={
+                              item.callsGt10 > 0
+                                ? (item.booked / item.callsGt10) * 100
+                                : null
+                            }
+                          />
+                        </button>
+                        {/* <button
                       type="button"
                       onClick={() => {
                         setImportantCallsModalContext(null)
@@ -733,28 +731,28 @@ const AgentsListPaginated = ({
                         iconColor="text-orange-500"
                       />
                     </button> */}
-                    <div className="flex-1 min-w-0 flex flex-col items-start gap-1.5 p-2 w-full">
-                      <AgentInfoCard
-                        name="Time"
-                        value={
-                          <div>
-                            {item?.totalDuration
-                              ? moment
-                                  .utc((item?.totalDuration || 0) * 1000)
-                                  .format('HH:mm:ss')
-                              : '-'}
-                          </div>
-                        }
-                        iconComponent={<Hourglass size={18} />}
-                        iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
-                        iconColor="text-brand-primary"
-                      />
+                        <div className="flex-1 min-w-0 flex flex-col items-start gap-1.5 p-2 w-full">
+                          <AgentInfoCard
+                            name="Time"
+                            value={
+                              <div>
+                                {item?.totalDuration
+                                  ? moment
+                                    .utc((item?.totalDuration || 0) * 1000)
+                                    .format('HH:mm:ss')
+                                  : '-'}
+                              </div>
+                            }
+                            iconComponent={<Hourglass size={18} />}
+                            iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                            iconColor="text-brand-primary"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                </div>
-              </div>
-            );
+              );
             })}
           </div>
         </InfiniteScroll>

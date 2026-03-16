@@ -24,7 +24,7 @@ import CloseBtn from '../globalExtras/CloseBtn'
 import { useUser } from '@/hooks/redux-hooks'
 import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
-function NotficationsDrawer({ close }) {
+function NotficationsDrawer({ close, variant = 'dark', buttonClassName = '' }) {
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -756,7 +756,7 @@ function NotficationsDrawer({ close }) {
           setShowNotificationDrawer(true)
           getNotifications()
         }}
-        className="mb-1 h-10 px-3 py-3 rounded-lg bg-black/[0.05] hover:opacity-70 transition-opacity flex-shrink-0 flex items-center justify-center"
+        className={`mb-1 h-10 px-3 py-3 rounded-lg hover:opacity-70 transition-opacity flex-shrink-0 flex items-center justify-center ${buttonClassName || (variant === 'bright' ? 'bg-white/20' : 'bg-black/[0.05]')}`}
       >
         <div className="flex flex-row relative">
           <Image
@@ -764,6 +764,7 @@ function NotficationsDrawer({ close }) {
             height={20}
             width={20}
             alt="Notification Icon"
+            style={variant === 'bright' ? { filter: 'brightness(0) invert(1)' } : undefined}
           />
           {unread > 0 && (
             <div

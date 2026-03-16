@@ -40,7 +40,7 @@ import AgentSelectSnackMessage, {
 } from './AgentSelectSnackMessage'
 import AllowSmartRefillPopup from './AllowSmartRefillPopup'
 import DncConfirmationPopup from './DncConfirmationPopup'
-import { CalendarDays, PhoneCall } from 'lucide-react'
+import { CalendarDays, ListStart, PhoneCall } from 'lucide-react'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -1193,7 +1193,7 @@ const AssignLead = ({
                     width={24}
                     alt="*"
                   />*/}
-                  <PhoneCall size={32} weight="900" />
+                  <ListStart size={18} className="flex-shrink-0" aria-hidden />
                   <div style={styles.title}>Start Now</div>
                 </button>
                 <div className="w-1/2">

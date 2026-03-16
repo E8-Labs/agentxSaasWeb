@@ -19,6 +19,8 @@ export default function SettingsTabContent({
   const [autoReplyDisabled, setAutoReplyDisabled] = useState(false)
   const [cadenceDisabled, setCadenceDisabled] = useState(false)
   const [pendingCallsCount, setPendingCallsCount] = useState(0)
+  const [pendingEmailsCount, setPendingEmailsCount] = useState(0)
+  const [pendingSMSCount, setPendingSMSCount] = useState(0)
   const [loadingSettings, setLoadingSettings] = useState(false)
 
   useEffect(() => {
@@ -26,15 +28,21 @@ export default function SettingsTabContent({
       setAutoReplyDisabled(false)
       setCadenceDisabled(false)
       setPendingCallsCount(0)
+      setPendingEmailsCount(0)
+      setPendingSMSCount(0)
       return
     }
     if (leadSettingsProp !== null && leadSettingsProp !== undefined) {
       setAutoReplyDisabled(leadSettingsProp.autoReplyDisabled === true)
       setCadenceDisabled(leadSettingsProp.cadenceDisabled === true)
       setPendingCallsCount(Number(leadSettingsProp.pendingCallsCount) || 0)
+      setPendingEmailsCount(Number(leadSettingsProp.pendingEmailsCount) || 0)
+      setPendingSMSCount(Number(leadSettingsProp.pendingSMSCount) || 0)
+      console.log("leadSettingsProp passed data fetched from props are", leadSettingsProp)
     } else {
       fetchLeadSettings()
     }
+    fetchLeadSettings()
   }, [leadId, leadSettingsProp])
 
   const fetchLeadSettings = async () => {
@@ -58,6 +66,9 @@ export default function SettingsTabContent({
         setAutoReplyDisabled(data.autoReplyDisabled === true)
         setCadenceDisabled(data.cadenceDisabled === true)
         setPendingCallsCount(Number(data.pendingCallsCount) || 0)
+        setPendingEmailsCount(Number(data.pendingEmailsCount) || 0)
+        setPendingSMSCount(Number(data.pendingSMSCount) || 0)
+        console.log("leadSettingsProp passed data fetched from api are", data)
       }
     } catch (error) {
       console.error('Error fetching lead settings:', error)
@@ -90,6 +101,9 @@ export default function SettingsTabContent({
         setAutoReplyDisabled(updatedData.autoReplyDisabled === true)
         setCadenceDisabled(updatedData.cadenceDisabled === true)
         setPendingCallsCount(Number(updatedData.pendingCallsCount) || 0)
+        setPendingEmailsCount(Number(updatedData.pendingEmailsCount) || 0)
+        setPendingSMSCount(Number(updatedData.pendingSMSCount) || 0)
+        console.log("leadSettingsProp passed updatedData are", updatedData)
         toast.success('Auto-reply settings updated')
         onSettingsUpdate?.(updatedData)
       } else {
@@ -129,6 +143,9 @@ export default function SettingsTabContent({
         setAutoReplyDisabled(updatedData.autoReplyDisabled === true)
         setCadenceDisabled(updatedData.cadenceDisabled === true)
         setPendingCallsCount(Number(updatedData.pendingCallsCount) || 0)
+        setPendingEmailsCount(Number(updatedData.pendingEmailsCount) || 0)
+        setPendingSMSCount(Number(updatedData.pendingSMSCount) || 0)
+        console.log("leadSettingsProp passed updatedData are", updatedData)
         toast.success(
           checked ? 'Cadence disabled - pending calls have been skipped' : 'Cadence enabled',
         )
@@ -162,12 +179,14 @@ export default function SettingsTabContent({
           disabled={loadingSettings}
         />
       </div>
-      {Number(pendingCallsCount) > 0 && (
+      {Number(pendingCallsCount) || Number(pendingEmailsCount) || Number(pendingSMSCount) > 0 && (
         <div className="flex items-center justify-between gap-2 p-3 h-10 min-h-0">
           <div className="flex flex-col">
             <TypographyBody className="text-sm text-foreground">Disable cadence</TypographyBody>
             <TypographyCaption className="text-xs text-muted-foreground">
-              {pendingCallsCount} pending call{Number(pendingCallsCount) !== 1 ? 's' : ''}
+              {pendingCallsCount > 0 && `${pendingCallsCount} call${Number(pendingCallsCount) !== 1 ? 's' : ''} | `}
+              {pendingEmailsCount > 0 && `${pendingEmailsCount} email${Number(pendingEmailsCount) !== 1 ? 's' : ''} | `}
+              {pendingSMSCount > 0 && `${pendingSMSCount} SMS${Number(pendingSMSCount) !== 1 ? 's' : ''}`}
             </TypographyCaption>
           </div>
           <Switch

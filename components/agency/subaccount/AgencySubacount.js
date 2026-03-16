@@ -1215,7 +1215,7 @@ function AgencySubacount({ selectedAgency }) {
                     >
                       <div style={styles.text2}>
                         {item.nextChargeDate
-                          ? moment(item.nextChargeDate).format('MMMM DD,YYYY')
+                          ? moment(item.nextChargeDate).format('MMMM DD, YYYY')
                           : '-'}
                       </div>
                     </div>

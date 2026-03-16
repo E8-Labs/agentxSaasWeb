@@ -323,10 +323,8 @@ const AdminDashboard = ({ selectedUser, agencyUser, enablePermissionChecks = fal
         </div>
       ) : (
         <div className='w-full h-[100%]'>
-          <div
-          // className="absolute top-0 left-0 right-0 z-20"
-          >
-            <StandardHeader title="" showTasks={true} showSeparator={false} variant="light" selectedUser={selectedUser} />
+          <div className="relative z-[3]">
+            <StandardHeader title="" showTasks={true} showSeparator={false} selectedUser={selectedUser} buttonClassName="bg-white/90 backdrop-blur-sm text-black shadow-sm hover:bg-white" agencyUser={agencyUser} variant="dark" />
           </div>
           <div className="flex flex-col items-center w-full h-[90%] overflow-y-auto">
             {
@@ -335,19 +333,19 @@ const AdminDashboard = ({ selectedUser, agencyUser, enablePermissionChecks = fal
                   style={{
                     position: 'absolute',
                     top: 0,
-                    // right: 0,
                     width: '83%',
                     height: '20%',
                     objectFit: 'cover',
-                    zIndex: 1, // Ensure the video stays behind content
+                    zIndex: 1,
                     overflow: 'hidden',
+                    pointerEvents: 'none',
                   }}
                 >
                 </div>
               )
             }
 
-            <div className="flex flex-col items-center w-[80%] h-[100%] z-20">
+            <div className="flex flex-col items-center w-[80%] h-[100%] relative z-[2]">
               <div className="w-full flex flex-col items-center h-[100%]">
                 {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>

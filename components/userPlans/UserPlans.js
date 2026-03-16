@@ -630,15 +630,17 @@ function UserPlans({
       // Free yearly plan - subscribe directly
       await handleSubscribePlan()
     } else {
+      setShouldAutoSubscribe(true)
+      setAddPaymentPopUp(true)
       // Paid yearly plan - check for payment method
-      if (hasPM) {
-        // User has PM - subscribe directly
-        await handleSubscribePlan()
-      } else {
-        // User doesn't have PM - show payment modal and set auto-subscribe flag
-        setShouldAutoSubscribe(true)
-        setAddPaymentPopUp(true)
-      }
+      // if (hasPM) {
+      //   // User has PM - subscribe directly
+      //   await handleSubscribePlan()
+      // } else {
+      //   // User doesn't have PM - show payment modal and set auto-subscribe flag
+      //   setShouldAutoSubscribe(true)
+      //   setAddPaymentPopUp(true)
+      // }
     }
   }
 
@@ -653,15 +655,17 @@ function UserPlans({
       // Free monthly plan - subscribe directly
       await handleSubscribePlan()
     } else {
+      setShouldAutoSubscribe(true)
+      setAddPaymentPopUp(true)
       // Paid monthly plan - check for payment method
-      if (hasPM) {
-        // User has PM - subscribe directly
-        await handleSubscribePlan()
-      } else {
-        // User doesn't have PM - show payment modal and set auto-subscribe flag
-        setShouldAutoSubscribe(true)
-        setAddPaymentPopUp(true)
-      }
+      // if (hasPM) {
+      //   // User has PM - subscribe directly
+      //   await handleSubscribePlan()
+      // } else {
+      //   // User doesn't have PM - show payment modal and set auto-subscribe flag
+      //   setShouldAutoSubscribe(true)
+      //   setAddPaymentPopUp(true)
+      // }
     }
 
     setShowYearlyPlanModal(false)

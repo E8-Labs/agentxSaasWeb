@@ -49,6 +49,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
+import AgentViewScriptModal from '@/components/dashboard/myagentX/AgentViewScriptModal'
 import ActionsTab from '@/components/dashboard/myagentX/ActionsTab'
 import AgentStatsCallsModal from '@/components/dashboard/myagentX/AgentStatsCallsModal'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
@@ -3415,7 +3416,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         {/* code to add new agent */}
         {agentsListSeparated.length > 0 && (
           <button
-            className="w-[80%] absolute bottom-5 py-6 flex justify-center items-center"
+            className="w-[80%] absolute bottom-5 h-[75px] flex justify-center items-center"
             style={{
               marginTop: 40,
               border: '1px dashed hsl(var(--brand-primary))',
@@ -3423,13 +3424,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               // borderColor: '#7902DF',
               boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
               backgroundColor: '#FBFCFF',
+              zIndex: 10,
             }}
             onClick={handleAddNewAgent}
           >
             <div
               className="flex flex-row items-center gap-1"
               style={{
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: '600',
                 color: '#000',
               }}
@@ -5874,409 +5876,55 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           </div>
         </Box>
       </Modal>
-      {/* code for script */}
-      <Modal
-        open={showScriptModal}
-        onClose={() => {
-          handleCloseScriptModal()
+      {/* Script modal */}
+      <AgentViewScriptModal
+        open={!!showScriptModal}
+        onClose={handleCloseScriptModal}
+        modalsStyle={styles.modalsStyle}
+        modalClassName="w-10/12 sm:w-[760px] p-8 rounded-[15px]"
+        backdropSx={{ backgroundColor: '#00000020' }}
+        showScriptModal={showScriptModal}
+        showScript={showScript}
+        SeledtedScriptKYC={SeledtedScriptKYC}
+        SeledtedScriptAdvanceSetting={SeledtedScriptAdvanceSetting}
+        onShowScript={handleShowScript}
+        onShowKycs={handleShowKycs}
+        onShowAdvanceSeting={handleShowAdvanceSeting}
+        uniqueColumns={uniqueColumns}
+        showMoreUniqueColumns={showMoreUniqueColumns}
+        onShowUniqueCols={handleShowUniqueCols}
+        kycsData={kycsData}
+        setKycsData={setKycsData}
+        scriptTagInput={scriptTagInput}
+        setScriptTagInput={setScriptTagInput}
+        setGreetingTagInput={setGreetingTagInput}
+        setShowScriptModal={setShowScriptModal}
+        showSaveChangesBtn={showSaveChangesBtn}
+        setShowSaveChangesBtn={setShowSaveChangesBtn}
+        setOldScriptTagInput={setOldScriptTagInput}
+        scrollOffset={scrollOffset}
+        updateAgent={updateAgent}
+        UpdateAgentLoader={UpdateAgentLoader}
+        setIntroVideoModal={setIntroVideoModal}
+        reduxUser={reduxUser}
+        showObjectives={showObjectives}
+        showGuardrails={showGuardrails}
+        showObjection={showObjection}
+        onShowObjectives={handleShowObjectives}
+        onShowGuardrails={handleShowGuardrails}
+        onShowObjection={handleShowObjection}
+        objective={objective}
+        setObjective={setObjective}
+        showObjectionsSaveBtn={showObjectionsSaveBtn}
+        setShowObjectionsSaveBtn={setShowObjectionsSaveBtn}
+        setOldObjective={setOldObjective}
+        MainAgentId={MainAgentId}
+        user={selectedUser}
+        selectedUser={selectedUser}
+        onSaveAndClose={async () => {
+          await updateAgent()
         }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-[760px] p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-        >
-          <div style={{ width: '100%' }}>
-            <div className="h-[90vh]" style={{ scrollbarWidth: 'none' }}>
-              <div
-                style={{
-                  height: '10%',
-                  width: '100%',
-                  direction: 'row',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                {/* <div style={{ width: "20%" }} /> */}
-                <div style={{ fontWeight: '600', fontSize: 22 }}>
-                  {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}
-                  {showScriptModal?.name?.slice(1)}
-                </div>
-                <div
-                  style={{
-                    direction: 'row',
-                    display: 'flex',
-                    justifyContent: 'end',
-                  }}
-                >
-                  <CloseBtn onClick={() => handleCloseScriptModal()} />
-                </div>
-              </div>
-
-              <div
-                className="mt-6 flex flex-row gap-6"
-                style={{ height: '', fontWeight: '500', fontSize: 15 }}
-              >
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom: showScript && '2px solid hsl(var(--brand-primary))',
-                  }}
-                  onClick={handleShowScript}
-                >
-                  Script
-                </button>
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom: SeledtedScriptKYC && '2px solid hsl(var(--brand-primary))',
-                  }}
-                  onClick={handleShowKycs}
-                >
-                  KYC
-                </button>
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom:
-                      SeledtedScriptAdvanceSetting && '2px solid hsl(var(--brand-primary))',
-                  }}
-                  onClick={handleShowAdvanceSeting}
-                >
-                  Advanced Settings
-                </button>
-              </div>
-
-              {showScript && (
-                <div style={{ height: '82%' }}>
-                  <div style={{ height: '90%' }}>
-                    <div className="bg-[#00000002] p-2 mt-6">
-                      <div
-                        style={styles.inputStyle}
-                        className="flex flex-row items-center gap-2"
-                      >
-                        <Image
-                          src={'/assets/lightBulb.png'}
-                          alt="*"
-                          height={24}
-                          width={24}
-                        />{' '}
-                        Editing Tips
-                      </div>
-                      <div
-                        style={styles.inputStyle}
-                        className="flex flex-row flex-wrap gap-2"
-                      >
-                        <div>You can use these variables:</div>
-                        {/* <div className='flex flex-row items-center gap-2'> */}
-                        <div
-                          style={{ width: 'fit-content' }}
-                          className="text-brand-primary flex flex-row gap-2"
-                        >
-                          {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
-                          {/* {`{First Name}`}, {`{Email}`}, */}
-                        </div>
-
-                        {uniqueColumns?.length > 0 && showMoreUniqueColumns ? (
-                          <div className="flex flex-row flex-wrap gap-2">
-                            {uniqueColumns.map((item, index) => (
-                              <div
-                                key={index}
-                                className="flex flex-row items-center gap-2 text-brand-primary"
-                              >
-                                {`{${item}}`},
-                              </div>
-                            ))}
-                            <button
-                              className="text-brand-primary outline-none"
-                              onClick={handleShowUniqueCols}
-                            >
-                              show less
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            {uniqueColumns?.length > 0 && (
-                              <button
-                                className="text-brand-primary flex flex-row items-center font-bold outline-none"
-                                onClick={() => {
-                                  handleShowUniqueCols()
-                                }}
-                              >
-                                <Plus
-                                  weight="bold"
-                                  size={15}
-                                  style={{
-                                    strokeWidth: 40, // Adjust as needed
-                                  }}
-                                />
-                                {uniqueColumns?.length}
-                              </button>
-                            )}
-                          </div>
-                        )}
-
-                        {/* </div> */}
-                      </div>
-                    </div>
-
-                    <div className="w-full">
-                      <div className="w-5/12">
-                        <VideoCard
-                          duration={(() => {
-                            const tutorial = getTutorialByType(
-                              HowToVideoTypes.Script,
-                            )
-                            return tutorial?.description || '13:56'
-                          })()}
-                          width="80"
-                          height="100"
-                          horizontal={false}
-                          playVideo={() => {
-                            setIntroVideoModal(true)
-                          }}
-                          title={
-                            getTutorialByType(HowToVideoTypes.Script)
-                              ?.title || 'Learn how to customize your script'
-                          }
-                        />
-                      </div>
-
-                      {/* <div
-                        className="mt-4"
-                        style={{ fontSize: 24, fontWeight: "700" }}
-                      >
-                        Script
-                      </div> */}
-
-                      <div
-                        style={{ fontSize: 24, fontWeight: '700' }}
-                        className="flex flex-row items-center center w-full justify-between"
-                      >
-                        <div>Script</div>
-                      </div>
-
-                      <div className="flex flex-row items-center justify-between">
-                        <div
-                          className="mt-2"
-                          style={{ ...styles.paragraph, color: '#00000060' }}
-                        >
-                          Greeting
-                        </div>
-
-                        <button
-                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
-                          style={{
-                            fontWeight: '500',
-                            fontSize: 15,
-                          }}
-                          onClick={() => {
-                            const scriptBuilderUrl =
-                              selectedUser?.agencySettings?.scriptWidgetUrl ??
-                              reduxUser?.agencySettings?.scriptWidgetUrl ??
-                              reduxUser?.userSettings?.scriptWidgetUrl ??
-                              PersistanceKeys.DefaultScriptBuilderUrl
-                            window.open(scriptBuilderUrl, '_blank')
-                          }}
-                        >
-                          Use {selectedUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
-                          <ArrowUpRight size={20} color="white" />
-                        </button>
-                      </div>
-
-                      <div className="mt-2">
-                        <GreetingTagInput
-                          greetTag={showScriptModal?.prompt?.greeting}
-                          kycsList={kycsData}
-                          uniqueColumns={uniqueColumns}
-                          tagValue={setGreetingTagInput}
-                          scrollOffset={scrollOffset}
-                        />
-                      </div>
-                      <div className="mt-4 w-full">
-                        <PromptTagInput
-                          promptTag={scriptTagInput}
-                          kycsList={kycsData}
-                          uniqueColumns={uniqueColumns}
-                          tagValue={setScriptTagInput}
-                          scrollOffset={scrollOffset}
-                          showSaveChangesBtn={showSaveChangesBtn}
-                        />
-
-                        {/* <DynamicDropdown /> */}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="" style={{ height: '' }}>
-                    {showSaveChangesBtn && (
-                      <div className="w-full pb-8">
-                        {UpdateAgentLoader ? (
-                          <div className="w-full flex flex-row justify-center">
-                            <CircularProgress size={35} />
-                          </div>
-                        ) : (
-                          <button
-                            className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
-                            style={{ fontWeight: '600', fontSize: 15 }}
-                            onClick={() => {
-                              updateAgent()
-                            }}
-                          >
-                            Save Changes
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {SeledtedScriptAdvanceSetting && (
-                <div style={{ height: '80%' }}>
-                  <div className="flex flex-row items-center gap-2 mt-4">
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showObjectives && '2px solid hsl(var(--brand-primary))',
-                      }}
-                      onClick={handleShowObjectives}
-                    >
-                      Objective
-                    </button>
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showGuardrails && '2px solid hsl(var(--brand-primary))',
-                      }}
-                      onClick={handleShowGuardrails}
-                    >
-                      Guardrails
-                    </button>
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showObjection && '2px solid hsl(var(--brand-primary))',
-                      }}
-                      onClick={handleShowObjection}
-                    >
-                      Objections
-                    </button>
-                  </div>
-
-                  {showObjection && (
-                    <div style={{ height: '80%' }}>
-                      <div style={{ marginTop: '40px', height: '80%' }}>
-                        <Objection
-                          showTitle={true}
-                          selectedAgentId={showScriptModal}
-                          kycsData={kycsData}
-                          uniqueColumns={uniqueColumns}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {showGuardrails && (
-                    <div style={{ height: '80%' }}>
-                      <div style={{ marginTop: '40px', height: '80%' }}>
-                        <GuarduanSetting
-                          showTitle={true}
-                          selectedAgentId={showScriptModal}
-                          kycsData={kycsData}
-                          uniqueColumns={uniqueColumns}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {showObjectives && (
-                    <div style={{ height: '80%' }}>
-                      <div style={{ marginTop: '40px', height: '80%' }}>
-                        {/* {showScriptModal?.prompt?.objective} */}
-                        <textarea
-                          className="outline-none rounded-xl focus:ring-0"
-                          // ref={objective}
-                          value={objective}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            // if (value !== oldObjective) {
-                            //   setShowObjectionsSaveBtn(true);
-                            // }
-                            // if (value === oldObjective) {
-                            //   setShowObjectionsSaveBtn(false);
-                            // }
-
-                            setObjective(value)
-                          }}
-                          placeholder="Add Objective"
-                          style={{
-                            fontSize: '15px',
-                            padding: '15px',
-                            width: '100%',
-                            fontWeight: '500',
-                            height: '100%', // Initial height
-                            maxHeight: '100%', // Maximum height before scrolling
-                            overflowY: 'auto', // Enable vertical scrolling when max-height is exceeded
-                            resize: 'none', // Disable manual resizing
-                            border: '1px solid #00000020',
-                          }}
-                        />
-                        <div>
-                          {showObjectionsSaveBtn && (
-                            <div>
-                              {UpdateAgentLoader ? (
-                                <div className="w-full flex flex-row justify-center">
-                                  <CircularProgress size={35} />
-                                </div>
-                              ) : (
-                                <button
-                                  className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
-                                  style={{ fontWeight: '600', fontSize: 15 }}
-                                  onClick={() => {
-                                    updateAgent()
-                                  }}
-                                >
-                                  Save Changes
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {SeledtedScriptKYC && (
-                <div
-                  style={{
-                    height: '80%',
-                    overflow: 'auto',
-                    scrollbarWidth: 'none',
-                    backgroundColor: '',
-                  }}
-                >
-                  <KYCs
-                    kycsDetails={setKycsData}
-                    mainAgentId={MainAgentId}
-                    user={selectedUser}
-                    selectedUser={selectedUser}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </Box>
-      </Modal>
+      />
       {/* Modal for video */}
       <IntroVideoModal
         open={introVideoModal}

@@ -91,7 +91,7 @@ function NoPerplexity({
 
       <TypographyTitle>Enrich Leads</TypographyTitle>
 
-      <TypographyBodyMedium className="w-[30vw] text-center text-black/80">
+      <TypographyBodyMedium className="text-center text-black/80">
         {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
       </TypographyBodyMedium>
 

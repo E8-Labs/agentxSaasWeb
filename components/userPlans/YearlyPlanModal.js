@@ -75,7 +75,7 @@ const YearlyPlanModal = ({
             ) : (
               <button
                 onClick={onContinueMonthly}
-                className="w-full bg-purple  text-white py-3 px-6 rounded-xl font-semibold text-base transition-colors"
+                className="w-full bg-brand-primary  text-white py-3 px-6 rounded-xl font-semibold text-base transition-colors"
               >
                 {`Continue on Free Plan`}
               </button>
@@ -84,7 +84,7 @@ const YearlyPlanModal = ({
             <div className="flex flex-row gap-3">
               <button
                 onClick={onContinueYearly}
-                className="w-full bg-purple text-white py-3 px-6 rounded-xl font-semibold text-base hover:bg-purple-700 transition-colors"
+                className="w-full bg-brand-primary text-white py-3 px-6 rounded-xl font-semibold text-base hover:bg-brand-primary/90 transition-colors"
               >
                 Get Yearly
               </button>

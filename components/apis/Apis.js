@@ -268,6 +268,7 @@ const Apis = {
   getAdminTransactions: `${BasePath}api/admin/transactions`,
   releaseHeldFunds: `${BasePath}api/admin/transactions/release`,
 
+  cadenceTemplates: `${BasePath}api/pipeline/cadenceTemplates`,
   templets: `${BasePath}api/templates`,
   gmailAccount: `${BasePath}api/mail/accounts`,
   connectGmailAccount: `${BasePath}api/mail/connect-gmail`,
@@ -441,6 +442,8 @@ const Apis = {
   markDraftAsSent: `${BasePath}api/mail/drafts`,
   discardDraft: `${BasePath}api/mail/drafts`,
   generateCallSummaryFollowUpDrafts: `${BasePath}api/mail/drafts/call-summary-follow-up`,
+  scheduleDraft: `${BasePath}api/mail/drafts/schedule`,
+  scheduleDraftBulk: `${BasePath}api/mail/drafts/schedule-bulk`,
   deleteProfileForAgencyRegistration: `${BasePath}api/user/deleteProfileForAgencyRegistration
 `,
 }

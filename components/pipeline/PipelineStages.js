@@ -1118,7 +1118,7 @@ const PipelineStages = ({
               provided.innerRef(el)
               droppableContainerRef.current = el
             }}
-            className="h-[57svh] overflow-y-auto pb-36 2xl:pb-24"
+            // className="h-[57svh] overflow-y-auto pb-36 2xl:pb-24"
             style={{
               // maxHeight: '100vh',
               // overflowY: "auto",
@@ -1323,26 +1323,20 @@ const PipelineStages = ({
 
                                     return (
                                       <div
-                                        key={row.id}
+                                        key={`cadence-${index}-${rowIndex}-${row.id}`}
                                         className="flex flex-row items-center justify-center mb-2"
                                       >
                                         <div className="w-[16px]">
-                                          {rowIndex > 0 ? (
-                                            <Tooltip title="Reorder steps" arrow>
-                                              <button
-                                                type="button"
-                                                onClick={() => setReorderCadenceModalStageIndex(index)}
-                                                className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-grab active:cursor-grabbing flex items-center justify-center"
-                                                aria-label="Reorder cadence steps"
-                                              > 
-                                                <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
-                                              </button>
-                                            </Tooltip>
-                                          ) : (
-                                            <div className="mt-2 flex items-center justify-center">
-                                              <GripVertical size={16} strokeWidth={2} className="text-[#00000040]" aria-hidden />
-                                            </div>
-                                          )}
+                                          <Tooltip title="Click to reorder steps" arrow>
+                                            <button
+                                              type="button"
+                                              onClick={() => setReorderCadenceModalStageIndex(index)}
+                                              className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-pointer flex items-center justify-center"
+                                              aria-label="Reorder cadence steps"
+                                            >
+                                              <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
+                                            </button>
+                                          </Tooltip>
                                         </div>
                                         <div
                                           className="mt-2 ms-2"
@@ -1360,6 +1354,7 @@ const PipelineStages = ({
                                                 Days
                                               </label>
                                               <input
+                                                id={`cadence-${index}-${rowIndex}-${row.id}-days`}
                                                 className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                                 style={{
                                                   ...styles.inputStyle,
@@ -1392,6 +1387,7 @@ const PipelineStages = ({
                                                 Hours
                                               </label>
                                               <input
+                                                id={`cadence-${index}-${rowIndex}-${row.id}-hours`}
                                                 className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                                 style={{
                                                   ...styles.inputStyle,
@@ -1424,6 +1420,7 @@ const PipelineStages = ({
                                                 Mins
                                               </label>
                                               <input
+                                                id={`cadence-${index}-${rowIndex}-${row.id}-minutes`}
                                                 className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                                 style={{
                                                   ...styles.inputStyle,

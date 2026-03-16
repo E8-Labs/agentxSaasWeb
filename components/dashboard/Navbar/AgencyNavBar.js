@@ -48,6 +48,7 @@ import AgentSelectSnackMessage, {
 import AgencyChecklist from './AgencyChecklist'
 import CheckList from './CheckList'
 import { PermissionProvider, useHasPermission, usePermission } from '@/contexts/PermissionContext'
+import { Form } from 'lucide-react';
 
 const stripePromise = getStripe()
 
@@ -57,7 +58,7 @@ function PermissionNavLink({ item, isActive, hasAccess }) {
   if (!hasAccess) {
     return null
   }
-  
+
   return <NavLinkItem item={item} isActive={isActive} />
 }
 
@@ -74,35 +75,40 @@ function NavLinkItem({ item, isActive }) {
             'w-full flex flex-row gap-2 items-center py-1 rounded-full',
           )}
         >
-          <div
-            className={cn(
-              isActive(item.href)
-                ? 'icon-brand-primary'
-                : 'icon-black',
-            )}
-            style={
-              isActive(item.href)
-                ? {
-                    '--icon-mask-image': `url(${
-                      isActive(item.href)
+          {typeof (isActive(item.href) ? item.selected : item.uneselected) === 'string' ? (
+            <div
+              className={cn(
+                isActive(item.href)
+                  ? 'icon-brand-primary'
+                  : 'icon-black',
+              )}
+              style={
+                isActive(item.href)
+                  ? {
+                    '--icon-mask-image': `url(${isActive(item.href)
                         ? item.selected
                         : item.uneselected
-                    })`,
+                      })`,
                   }
-                : {}
-            }
-          >
-            <Image
-              src={
-                isActive(item.href)
-                  ? item.selected
-                  : item.uneselected
+                  : {}
               }
-              height={24}
-              width={24}
-              alt="icon"
-            />
-          </div>
+            >
+              <Image
+                src={
+                  isActive(item.href)
+                    ? item.selected
+                    : item.uneselected
+                }
+                height={24}
+                width={24}
+                alt="icon"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center w-6 h-6">
+              {isActive(item.href) ? item.selected : item.uneselected}
+            </div>
+          )}
           <div
             className={cn(
               'text-sm font-medium',
@@ -123,12 +129,12 @@ const AgencyNavBarContent = () => {
   const router = useRouter()
   const pathname = usePathname()
   const permissionContext = usePermission()
-  
+
   // Get user data to check if they're an Invitee
   const [userRole, setUserRole] = useState(null)
   const [permissionsLoaded, setPermissionsLoaded] = useState(false)
   const [menuPermissions, setMenuPermissions] = useState({})
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const localData = localStorage.getItem('User')
@@ -142,11 +148,11 @@ const AgencyNavBarContent = () => {
       }
     }
   }, [])
-  
+
   // For non-Invitee users, show all links (they have full access)
   // For Invitee users, we'll filter based on permissions
   const isInvitee = userRole === 'Invitee'
-  
+
   // Define agency links with their required permissions (memoized to prevent unnecessary re-renders)
   const allAgencyLinks = useMemo(() => [
     {
@@ -209,8 +215,8 @@ const AgencyNavBarContent = () => {
       id: 8,
       name: 'Templates',
       href: '/agency/dashboard/templates',
-      selected: '/agencyNavbarIcons/selectedSubAccountIcon.png',
-      uneselected: '/agencyNavbarIcons/unSelectedSubAccountIcon.png',
+      selected: <Form size={20} color="hsl(var(--brand-primary))" />,
+      uneselected: <Form size={20} color="#000000" />,
       permissionKey: 'agency.templates.manage',
     },
   ], [])
@@ -222,19 +228,19 @@ const AgencyNavBarContent = () => {
       setPermissionsLoaded(true)
       return
     }
-    
+
     const checkAllPermissions = async () => {
       const permissions = {}
       const permissionChecks = allAgencyLinks.map(async (item) => {
         const hasAccess = await permissionContext.hasPermission(item.permissionKey)
         permissions[item.id] = hasAccess
       })
-      
+
       await Promise.all(permissionChecks)
       setMenuPermissions(permissions)
       setPermissionsLoaded(true)
     }
-    
+
     checkAllPermissions()
   }, [isInvitee, permissionContext, allAgencyLinks])
 
@@ -243,7 +249,7 @@ const AgencyNavBarContent = () => {
   const [currentPathname, setCurrentPathname] = useState(
     typeof window !== 'undefined' ? window.location.pathname : pathname
   )
-  
+
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -279,7 +285,7 @@ const AgencyNavBarContent = () => {
   // The currentPathname state ensures React re-renders when pathname changes
   const isActive = (href) => {
     if (typeof window === 'undefined') return pathname === href
-    
+
     // Use window.location.pathname directly - it's always the current, accurate pathname
     // The state update above ensures React re-renders when this value changes
     return window.location.pathname === href
@@ -323,7 +329,7 @@ const AgencyNavBarContent = () => {
 
   // Branding state for powered by icon
   const [poweredByIconUrl, setPoweredByIconUrl] = useState('/agencyIcons/poweredByIcon.png')
-  
+
   // Branding state for logo
   const [agencyLogoUrl, setAgencyLogoUrl] = useState(null)
 
@@ -422,7 +428,7 @@ const AgencyNavBarContent = () => {
         setShowAgencyWalkThrough(false)
       }
       // console.log("Response of update profile api is", response)
-    } catch (error) {}
+    } catch (error) { }
   }
 
   //get agency plans list
@@ -442,10 +448,10 @@ const AgencyNavBarContent = () => {
           if (response.data.status === true) {
             let plansList = response.data.data
             localStorage.setItem('agencyPlansList', JSON.stringify(plansList))
-          } else {}
+          } else { }
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   const getUserProfile = async () => {
@@ -518,7 +524,7 @@ const AgencyNavBarContent = () => {
         ) {
           setCanAcceptPaymentsAgencyccount(true)
         }
-      } else {}
+      } else { }
       if (LocalData.user.profile_status !== 'active') {
         setErrorSnack('Your account has been frozen.')
         setShowErrorSnack(true)
@@ -570,7 +576,7 @@ const AgencyNavBarContent = () => {
           isSubaccount = userRole === 'AgencySubAccount'
           isAgency = userRole === 'Agency'
         }
-      } catch (error) {}
+      } catch (error) { }
 
       const hostname = window.location.hostname
       const isAssignxDomain =
@@ -603,7 +609,7 @@ const AgencyNavBarContent = () => {
       if (brandingCookie) {
         try {
           branding = JSON.parse(decodeURIComponent(brandingCookie))
-        } catch (error) {}
+        } catch (error) { }
       }
 
       // Fallback to localStorage
@@ -612,7 +618,7 @@ const AgencyNavBarContent = () => {
         if (storedBranding) {
           try {
             branding = JSON.parse(storedBranding)
-          } catch (error) {}
+          } catch (error) { }
         }
       }
 
@@ -630,7 +636,7 @@ const AgencyNavBarContent = () => {
               branding = parsedUser.user.agency.agencyBranding
             }
           }
-        } catch (error) {}
+        } catch (error) { }
       }
 
       // Set logo URL if available
@@ -769,7 +775,7 @@ const AgencyNavBarContent = () => {
       fontWeight: 'bold',
       fontSize: 18,
       marginLeft: '10px',
-    whiteSpace: 'nowrap',
+      whiteSpace: 'nowrap',
     },
   }
 
@@ -908,7 +914,7 @@ const AgencyNavBarContent = () => {
                     <NavLinkItem key={item.id} item={item} isActive={isActive} />
                   )
                 }
-                
+
                 // For Invitee users, use pre-checked permissions
                 return (
                   <PermissionNavLink
@@ -967,12 +973,12 @@ const AgencyNavBarContent = () => {
             )}
 
             <div>
-            <div className="truncate text-[15px] font-medium text-foreground w-[100px]">
-              {reduxUser?.name?.split(' ')[0]}
-            </div>
-            <div className="truncate w-[120px] text-[15px] font-medium text-muted-foreground">
-              {reduxUser?.email}
-            </div>
+              <div className="truncate text-[15px] font-medium text-foreground w-[100px]">
+                {reduxUser?.name?.split(' ')[0]}
+              </div>
+              <div className="truncate w-[120px] text-[15px] font-medium text-muted-foreground">
+                {reduxUser?.email}
+              </div>
             </div>
           </Link>
         </div>
@@ -1064,8 +1070,8 @@ const AgencyNavBarContent = () => {
                       setShowErrorSnack(true)
                     }
                   }}
-                  // togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // togglePlan={""}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>

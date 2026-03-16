@@ -5,7 +5,7 @@ import {
   Switch,
   Tooltip,
 } from '@mui/material'
-import { Calendar, Info, Phone, PhoneCall } from 'lucide-react'
+import { Calendar, Info, ListStart, Phone, PhoneCall } from 'lucide-react'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
@@ -552,7 +552,7 @@ const LastStep = ({
                     // handleDateTimerDifference();
                   }}
                 >
-                  <PhoneCall size={16} className="flex-shrink-0" aria-hidden />
+                  <ListStart size={18} className="flex-shrink-0" aria-hidden />
                   <div style={styles.title}>Start Now</div>
                 </button>
                 <div className="w-1/2">
@@ -579,7 +579,7 @@ const LastStep = ({
                       setIsDisabled(false)
                     }}
                   >
-                    <Calendar size={16} className="flex-shrink-0" aria-hidden />
+                    <Calendar size={18} className="flex-shrink-0" aria-hidden />
                     <div style={styles.title}>Schedule</div>
                   </button>
                   {/* <div>

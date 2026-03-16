@@ -23,7 +23,7 @@ import { GreetingTagInput } from '../tagInputs/GreetingTagInput'
 import { PromptTagInput } from '../tagInputs/PromptTagInput'
 import EditModal from './EditObjectionGuardrailModal'
 
-const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
+const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns, userId = null }) => {
   const [ObjectionsList, setObjectionsList] = useState([])
   const [initialLoader, setInitialLoader] = useState(false)
   const [showAddObjForm, setShowAddObjForm] = useState(false)
@@ -104,6 +104,9 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
       if (agentId) {
         ApiPath += `&agentId=${agentId}`
       }
+      if (userId) {
+        ApiPath += `&userId=${userId}`
+      }
       // //console.log;
       // return
       const response = await axios.get(ApiPath, {
@@ -171,6 +174,7 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
         description: addObjDescription,
         type: 'objection',
         mainAgentId: mainAgentId,
+        ...(userId != null && { userId }),
       }
 
       // //console.log;
@@ -250,6 +254,9 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
 
       const formData = new FormData()
       formData.append('id', SelectedObjection.id)
+      if (userId != null) {
+        formData.append('userId', userId)
+      }
 
       for (let [key, value] of formData.entries()) {
         // //console.log
@@ -507,6 +514,13 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
                 <div className="" style={{ fontWeight: '500', fontSize: 15 }}>
                   {`Looks like you haven't added objections yet`}
                 </div>
+                <button
+                  className="text-brand-primary underline outline-none h-8"
+                  style={{ fontWeight: '700', fontSize: 16 }}
+                  onClick={() => setShowAddObjForm(true)}
+                >
+                  Add New
+                </button>
               </div>
             </div>
           )}
