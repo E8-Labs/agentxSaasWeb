@@ -999,7 +999,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             }
                           }
                         }}
-                        className={cn('h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary')}
+                        className={cn(`h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary ${apiKey === "••••••••••••••••••••••••••••••••" && "text-gray-400"}`)}
                       />
                       {apiKeyError && (
                         <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
