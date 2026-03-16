@@ -41,9 +41,76 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { format } from 'date-fns'
+import { CalendarIcon, Clock, ChevronDown } from 'lucide-react'
 
+// Schedule modal: time picker helpers (value: "HH:mm" 24h) - same as TaskForm.js
+function parseTime24(value) {
+  if (!value || !/^\d{1,2}:\d{2}$/.test(value)) return { hour12: 12, minute: 0, ampm: 'PM' }
+  const [h, m] = value.split(':').map(Number)
+  const hour24 = Math.min(23, Math.max(0, h))
+  const minute = Math.min(59, Math.max(0, m))
+  return { hour12: hour24 % 12 || 12, minute, ampm: hour24 >= 12 ? 'PM' : 'AM' }
+}
+function toTime24(hour12, minute, ampm) {
+  let h = ampm === 'PM' && hour12 !== 12 ? hour12 + 12 : hour12
+  if (ampm === 'AM' && hour12 === 12) h = 0
+  return `${String(h).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+function formatTime12(value) {
+  if (!value) return ''
+  const { hour12, minute, ampm } = parseTime24(value)
+  return `${hour12}:${String(minute).padStart(2, '0')} ${ampm}`
+}
 
-
+function CustomTimePicker({ value, onChange, onCancel }) {
+  const p = parseTime24(value || '12:00')
+  const [hour12, setHour12] = useState(p.hour12)
+  const [minute, setMinute] = useState(p.minute)
+  const [ampm, setAmpm] = useState(p.ampm)
+  useEffect(() => {
+    const next = parseTime24(value || '12:00')
+    setHour12(next.hour12)
+    setMinute(next.minute)
+    setAmpm(next.ampm)
+  }, [value])
+  const hours = Array.from({ length: 12 }, (_, i) => i + 1)
+  const minutes = Array.from({ length: 60 }, (_, i) => i)
+  const selectedClass = 'bg-brand-primary text-white'
+  const unselectedClass = 'text-foreground hover:bg-black/[0.06]'
+  const colClass = 'flex flex-col overflow-y-auto max-h-[200px] min-w-[52px] rounded-md border border-black/[0.08] bg-muted/30 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+  return (
+    <div className="p-3">
+      <div className="flex gap-2 mb-3">
+        <div className={colClass}>
+          {hours.map((h) => (
+            <button key={h} type="button" onClick={() => setHour12(h)} className={cn('flex items-center justify-center py-2 text-sm font-medium cursor-pointer transition-colors', hour12 === h ? selectedClass : unselectedClass)} aria-pressed={hour12 === h}>{h}</button>
+          ))}
+        </div>
+        <div className={colClass}>
+          {minutes.map((m) => (
+            <button key={m} type="button" onClick={() => setMinute(m)} className={cn('flex items-center justify-center py-2 text-sm font-medium cursor-pointer transition-colors', minute === m ? selectedClass : unselectedClass)} aria-pressed={minute === m}>{String(m).padStart(2, '0')}</button>
+          ))}
+        </div>
+        <div className={colClass}>
+          {['AM', 'PM'].map((a) => (
+            <button key={a} type="button" onClick={() => setAmpm(a)} className={cn('flex items-center justify-center py-2 text-sm font-medium cursor-pointer transition-colors', ampm === a ? selectedClass : unselectedClass)} aria-pressed={ampm === a}>{a}</button>
+          ))}
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
+        <Button type="button" size="sm" className="bg-brand-primary text-white hover:bg-brand-primary/90" onClick={() => { onChange(toTime24(hour12, minute, ampm)); }}>OK</Button>
+      </div>
+    </div>
+  )
+}
 
 
 
@@ -285,10 +352,12 @@ const MessageComposer = ({
   const bodyVarListRef = useRef(null)
   const bodyVarOptionRefs = useRef(Object.create(null))
 
-  // Schedule modal: date + time for "Schedule" option
+  // Schedule modal: date + time for "Schedule" option (same pickers as TaskForm)
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
-  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleDate, setScheduleDate] = useState(null)
   const [scheduleTime, setScheduleTime] = useState('')
+  const [scheduleDatePickerOpen, setScheduleDatePickerOpen] = useState(false)
+  const [scheduleTimePickerOpen, setScheduleTimePickerOpen] = useState(false)
   const scheduleDropdownAnchorRef = useRef(null)
   const [sendDropdownOpen, setSendDropdownOpen] = useState(false)
   const [sendDropdownRect, setSendDropdownRect] = useState(null)
@@ -3005,7 +3074,7 @@ const MessageComposer = ({
           document.body
         )}
 
-      {/* Schedule message modal */}
+      {/* Schedule message modal - same date/time pickers as TaskForm */}
       <Dialog open={scheduleModalOpen} onOpenChange={(open) => !open && setScheduleModalOpen(false)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -3013,29 +3082,91 @@ const MessageComposer = ({
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div className="grid gap-2">
-              <label htmlFor="schedule-date" className="text-sm font-medium text-gray-700">
-                Date
-              </label>
-              <input
-                id="schedule-date"
-                type="date"
-                value={scheduleDate}
-                min={new Date().toISOString().slice(0, 10)}
-                onChange={(e) => setScheduleDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
+              <label className="text-sm font-medium text-gray-700">Date</label>
+              <Popover open={scheduleDatePickerOpen} onOpenChange={setScheduleDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 w-full px-3 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 h-[40px] text-left text-sm"
+                  >
+                    <CalendarIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground">
+                      {scheduleDate ? format(scheduleDate, 'MM/dd/yy') : 'Pick a date'}
+                    </span>
+                    <ChevronDown className="h-3 w-3 text-muted-foreground ml-auto" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 1600 }}>
+                  <div className="p-3 space-y-3">
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={scheduleDate && format(scheduleDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          const today = new Date()
+                          today.setHours(0, 0, 0, 0)
+                          setScheduleDate(today)
+                        }}
+                      >
+                        Today
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={scheduleDate && format(scheduleDate, 'yyyy-MM-dd') === format(new Date(Date.now() + 86400000), 'yyyy-MM-dd') ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          const tomorrow = new Date()
+                          tomorrow.setDate(tomorrow.getDate() + 1)
+                          tomorrow.setHours(0, 0, 0, 0)
+                          setScheduleDate(tomorrow)
+                        }}
+                      >
+                        Tomorrow
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={scheduleDate ? 'outline' : 'default'}
+                        size="sm"
+                        onClick={() => setScheduleDate(null)}
+                      >
+                        Custom
+                      </Button>
+                    </div>
+                    <Calendar
+                      mode="single"
+                      selected={scheduleDate}
+                      onSelect={setScheduleDate}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="grid gap-2">
-              <label htmlFor="schedule-time" className="text-sm font-medium text-gray-700">
-                Time
-              </label>
-              <input
-                id="schedule-time"
-                type="time"
-                value={scheduleTime}
-                onChange={(e) => setScheduleTime(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
+              <label className="text-sm font-medium text-gray-700">Time</label>
+              <Popover open={scheduleTimePickerOpen} onOpenChange={setScheduleTimePickerOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      'flex h-[40px] w-full items-center gap-2 rounded-lg border border-black/[0.06] bg-white px-3 py-2 text-left text-[14px]',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:border-brand-primary cursor-pointer hover:border-black/10'
+                    )}
+                  >
+                    <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    {scheduleTime ? formatTime12(scheduleTime) : 'Due time (optional)'}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start" side="bottom" sideOffset={4} style={{ zIndex: 1600 }} onOpenAutoFocus={(e) => e.preventDefault()}>
+                  <CustomTimePicker
+                    value={scheduleTime}
+                    onChange={(next) => { setScheduleTime(next); setScheduleTimePickerOpen(false); }}
+                    onCancel={() => setScheduleTimePickerOpen(false)}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex gap-2 justify-end pt-2">
               <Button
@@ -3049,7 +3180,7 @@ const MessageComposer = ({
                 type="button"
                 onClick={() => {
                   if (!scheduleDate || !scheduleTime || !onScheduleMessage) return
-                  const at = new Date(`${scheduleDate}T${scheduleTime}`)
+                  const at = new Date(`${format(scheduleDate, 'yyyy-MM-dd')}T${scheduleTime}`)
                   if (isNaN(at.getTime()) || at.getTime() <= Date.now()) {
                     toast.error('Please pick a future date and time')
                     return
