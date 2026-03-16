@@ -1255,6 +1255,7 @@ const NewMessageModal = ({
 
   // Handle send
   const handleSend = async () => {
+    console.log("template id selected item is", selectedTemplate?.id, "save as template is", saveAsTemplate)
     console.log("editing row template id is", editingRow?.templateId)
     // return
     // Get the appropriate message body based on mode
@@ -1585,17 +1586,25 @@ const NewMessageModal = ({
             templateData.userId = userId
           }
 
-          console.log('📤 [Lead Mode] About to call createTemplete API with:', {
+          // Update existing template when "Update template" is checked and a template is selected (same as pipeline flow)
+          const isUpdatingTemplate = saveAsTemplate === true && selectedTemplate?.id
+          if (isUpdatingTemplate) {
+            templateData.templateType = 'user'
+          }
+
+          console.log('📤 [Lead Mode] About to call createTemplete/updateTemplete API with:', {
             templateData: JSON.stringify(templateData, null, 2),
             saveAsTemplate,
-            templateType: templateData.templateType
+            templateType: templateData.templateType,
+            isUpdatingTemplate,
+            selectedTemplateId: selectedTemplate?.id
           })
 
-          console.log("Api trigering for createTemplete API Lead mode")
+          const response = isUpdatingTemplate
+            ? await updateTemplete(templateData, selectedTemplate.id)
+            : await createTemplete(templateData)
 
-          const response = await createTemplete(templateData)
-
-          console.log('📥 [Lead Mode] createTemplete API response:', {
+          console.log('📥 [Lead Mode] createTemplete/updateTemplete API response:', {
             status: response?.data?.status,
             message: response?.data?.message,
             templateId: response?.data?.data?.id,
@@ -1603,7 +1612,7 @@ const NewMessageModal = ({
           })
 
           if (response?.data?.status === true && saveAsTemplate) {
-            toast.success('Template created successfully')
+            toast.success(isUpdatingTemplate ? 'Template updated successfully' : 'Template created successfully')
           }
         } catch (error) {
           console.error('Error creating template:', error)
@@ -1812,17 +1821,25 @@ const NewMessageModal = ({
             templateData.userId = userId
           }
 
-          console.log('📤 [Normal Send Mode] About to call createTemplete API with:', {
+          // Update existing template when "Update template" is checked and a template is selected (same as pipeline flow)
+          const isUpdatingTemplate = saveAsTemplate === true && selectedTemplate?.id
+          if (isUpdatingTemplate) {
+            templateData.templateType = 'user'
+          }
+
+          console.log('📤 [Normal Send Mode] About to call createTemplete/updateTemplete API with:', {
             templateData: JSON.stringify(templateData, null, 2),
             saveAsTemplate,
-            templateType: templateData.templateType
+            templateType: templateData.templateType,
+            isUpdatingTemplate,
+            selectedTemplateId: selectedTemplate?.id
           })
 
-          console.log("Api trigering for createTemplete API Normal template mode")
+          const response = isUpdatingTemplate
+            ? await updateTemplete(templateData, selectedTemplate.id)
+            : await createTemplete(templateData)
 
-          const response = await createTemplete(templateData)
-
-          console.log('📥 [Normal Send Mode] createTemplete API response:', {
+          console.log('📥 [Normal Send Mode] createTemplete/updateTemplete API response:', {
             status: response?.data?.status,
             message: response?.data?.message,
             templateId: response?.data?.data?.id,
@@ -1831,7 +1848,7 @@ const NewMessageModal = ({
           })
 
           if (response?.data?.status === true && saveAsTemplate) {
-            // toast.success('Template created successfully')
+            // toast.success(isUpdatingTemplate ? 'Template updated successfully' : 'Template created successfully')
           }
         } catch (error) {
           console.error('❌ [Normal Send Mode] Error creating template:', error)
