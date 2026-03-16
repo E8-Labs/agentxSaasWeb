@@ -137,6 +137,7 @@ const ReorderCadenceModal = ({
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
+                            {...provided.dragHandleProps}
                             className="flex flex-row items-center justify-between gap-3 py-2 px-3 rounded-lg border border-[#00000015] mb-2 select-none"
                             style={{
                               ...provided.draggableProps.style,
@@ -158,7 +159,6 @@ const ReorderCadenceModal = ({
                           >
                             <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
                               <div
-                                {...provided.dragHandleProps}
                                 className="p-1 rounded hover:bg-black/10 cursor-grab active:cursor-grabbing touch-none"
                                 aria-label="Drag to reorder"
                               >
