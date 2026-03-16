@@ -26,6 +26,7 @@ import { TypographyH3, TypographyBody, TypographyH3Semibold, TypographyCaption, 
 import { cn } from '@/lib/utils'
 import { sanitizeHTMLForEmailBody, sanitizeHTMLForSMS } from '@/utilities/textUtils'
 import CreateTaskFromNextStepsModal from '../leads/extras/CreateTaskFromNextStepsModal'
+import { PortalZIndexProvider } from '@/components/providers/portal-z-index-provider'
 import { Button } from '@/components/ui/button'
 import CloseIcon from '@mui/icons-material/Close'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -260,8 +261,9 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
         },
       }}
     >
-      <div className="flex h-full bg-background rounded-xl overflow-hidden w-[58vw]">
-        {/* Left column: header, profile, vertical tabs - header height matches right for aligned lines */}
+      <PortalZIndexProvider value={5010}>
+        <div className="flex h-full bg-background rounded-xl overflow-hidden w-[58vw]">
+          {/* Left column: header, profile, vertical tabs - header height matches right for aligned lines */}
         <div className="flex flex-col w-[20vw] shrink-0 border-r border-border bg-background">
           <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border">
             <span className="text-base font-semibold text-foreground">Team Member</span>
@@ -709,7 +711,8 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
           }
 
         </div>
-      </div>
+        </div>
+      </PortalZIndexProvider>
     </Drawer>
   )
 }

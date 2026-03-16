@@ -4,6 +4,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover'
 import * as React from 'react'
 
 import { AgentationDialogContext } from '@/components/providers/agentation-dialog-provider'
+import { PortalZIndexContext } from '@/components/providers/portal-z-index-provider'
 import { cn } from '@/lib/utils'
 
 /** True if target is inside Agentation toolbar, popup, or marker (prevents popover close when annotating) */
@@ -34,6 +35,7 @@ const PopoverAnchor = PopoverPrimitive.Anchor
 const PopoverContent = React.forwardRef(
   ({ className, align = 'center', sideOffset = 4, style, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
     const contentRef = React.useRef(null)
+    const portalZIndex = React.useContext(PortalZIndexContext)
     const setRef = React.useCallback(
       (el) => {
         contentRef.current = el
@@ -56,6 +58,7 @@ const PopoverContent = React.forwardRef(
       },
       [onInteractOutside],
     )
+    const resolvedZIndex = portalZIndex != null ? portalZIndex : (style?.zIndex ?? 200)
     return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
@@ -63,7 +66,8 @@ const PopoverContent = React.forwardRef(
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          'z-50 w-72 rounded-2xl border border-[#eaeaea] bg-popover p-4 text-popover-foreground shadow-[0_8px_30px_rgba(0,0,0,0.12)] outline-none duration-200 ease-out',
+          'w-72 rounded-2xl border border-[#eaeaea] bg-popover p-4 text-popover-foreground shadow-[0_8px_30px_rgba(0,0,0,0.12)] outline-none duration-200 ease-out',
+          portalZIndex == null && 'z-50',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[side=left]:data-[state=closed]:zoom-out-95 data-[side=left]:data-[state=open]:zoom-in-95 data-[side=left]:slide-in-from-right-2',
           'data-[side=right]:data-[state=closed]:zoom-out-95 data-[side=right]:data-[state=open]:zoom-in-95 data-[side=right]:slide-in-from-left-2',
@@ -73,7 +77,7 @@ const PopoverContent = React.forwardRef(
         )}
         style={{
           ...style,
-          zIndex: style?.zIndex || 200,
+          zIndex: resolvedZIndex,
           border: '1px solid #eaeaea',
           boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
           borderRadius: 12,
