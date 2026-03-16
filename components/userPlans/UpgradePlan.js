@@ -1690,18 +1690,14 @@ function UpgradePlanContent({
       open={open}
       onClose={() => handleClose(false)}
       closeAfterTransition
-      sx={{
-        zIndex: modalZIndex,
-      }}
+      sx={{ zIndex: modalZIndex }}
       BackdropProps={{
-        timeout: 100,
+        timeout: 250,
         sx: {
-          backgroundColor: '#00000020',
-          backdropFilter: 'blur(15px)',
+          backgroundColor: '#00000099',
           zIndex: modalZIndex,
         },
         onClick: (e) => {
-          // Close modal when clicking backdrop
           if (e.target === e.currentTarget) {
             handleClose(false)
           }
@@ -1709,37 +1705,31 @@ function UpgradePlanContent({
       }}
     >
       <Box
-        className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
+        className="flex w-full h-full justify-center items-center px-4 border-none"
         sx={{ ...styles.paymentModal, zIndex: modalZIndex + 1 }}
       >
-        <div className="flex flex-col justify-center w-full h-full">
-          <AgentSelectSnackMessage
-            isVisible={credentialsErr}
-            hide={() => setCredentialsErr(false)}
-            message={addCardErrtxt}
-          />
-          <AgentSelectSnackMessage
-            isVisible={addCardFailure}
-            hide={() => setAddCardFailure(false)}
-            message={addCardErrtxt}
-          />
-          <AgentSelectSnackMessage
-            isVisible={addCardSuccess}
-            hide={() => setAddCardSuccess(false)}
-            type={SnackbarTypes.Success}
-            message={addCardErrtxt || 'Card added successfully'}
-          />
-          <div
-            className="w-full flex flex-col border-white"
-            style={{
-              backgroundColor: '#ffffff',
-              padding: 0,
-              borderRadius: '13px',
-              maxHeight: '85vh',
-              height: 'auto',
-            }}
-          >
-            <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
+        <div className="w-[650px] max-w-[95vw] flex flex-col bg-white rounded-[12px] border border-[#eaeaea] shadow-[0_4px_36px_rgba(0,0,0,0.25)] overflow-hidden">
+          <div className="w-full flex flex-col">
+            <AgentSelectSnackMessage
+              isVisible={credentialsErr}
+              hide={() => setCredentialsErr(false)}
+              message={addCardErrtxt}
+            />
+            <AgentSelectSnackMessage
+              isVisible={addCardFailure}
+              hide={() => setAddCardFailure(false)}
+              message={addCardErrtxt}
+            />
+            <AgentSelectSnackMessage
+              isVisible={addCardSuccess}
+              hide={() => setAddCardSuccess(false)}
+              type={SnackbarTypes.Success}
+              message={addCardErrtxt || 'Card added successfully'}
+            />
+            <div
+              className="w-full flex flex-col max-h-[85vh]"
+            >
+              <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
               <CloseBtn
                 onClick={() => {
                   setIsPreSelectedPlanTriggered(false)
@@ -1747,31 +1737,11 @@ function UpgradePlanContent({
                   handleClose()
                 }}
               />
-            </div>
-
-            <div className="w-full flex flex-row items-stretch pb-4 content-div h-full overflow-hidden">
-              {/* Left Logo */}
-              <div
-                className="flex flex-col LeftInnerDiv1 items-start justify-center w-[20%]"
-                style={{
-                  flexShrink: 0,
-                }}
-              >
-                <Image
-                  alt="*"
-                  src={"/otherAssets/paymentCircle2.png"}
-                  height={240}
-                  width={190}
-                  style={{
-                    borderTopRightRadius: '200px',
-                    borderBottomRightRadius: '200px',
-                    boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)' // purple shadow
-                  }}
-                />
               </div>
 
+            <div className="w-full flex flex-col items-stretch pb-4 h-full overflow-hidden">
               <div
-                className="flex flex-col w-[75%] items-start flex-1 px-6 pb-4"
+                className="flex flex-col w-full items-start flex-1 px-6 pb-4"
                 style={{
                   scrollbarWidth: 'none',
                   maxHeight: '100%',
@@ -2324,6 +2294,7 @@ function UpgradePlanContent({
             </div>
           </div>
         </div>
+      </div>
       </Box>
     </Modal>
   )

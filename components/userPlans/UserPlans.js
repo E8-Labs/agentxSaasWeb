@@ -31,9 +31,70 @@ import UserAddCard from './UserAddCardModal'
 import { getSubscribeApiConfig, getUserLocalData, getUserPlans } from './UserPlanServices'
 import YearlyPlanModal from './YearlyPlanModal'
 import AppLogo from '@/components/common/AppLogo'
-import { Checkbox } from '@/components/ui/checkbox'
 import { logout } from '@/utilities/UserUtility'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+
+const FIGMA_BORDER = 'rgba(21,21,21,0.1)'
+
+function BoltIcon({ className = '' }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <path
+        d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function CheckIcon({ className = '' }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <path
+        d="M20 6L9 17l-5-5"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function CloseIcon({ className = '' }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <path
+        d="M18 6L6 18M6 6l12 12"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
 
 function UserPlans({
   handleContinue,
@@ -95,6 +156,7 @@ function UserPlans({
 
   const [showRoutingLoader, setShowRoutingLoader] = useState(false)
   const [shouldAutoSubscribe, setShouldAutoSubscribe] = useState(false)
+  const [gridAnimationId, setGridAnimationId] = useState(0)
 
   // Helper function to check if user has payment methods
   const hasPaymentMethod = () => {
@@ -176,6 +238,11 @@ function UserPlans({
     // Call getPlans with the detected user type
     getPlans(detectedFrom)
   }, [])
+
+  useEffect(() => {
+    // Bump animation key whenever billing duration changes
+    setGridAnimationId((prev) => prev + 1)
+  }, [selectedDuration.id])
 
   const handleClose = async (data) => {
     if (data) {
@@ -671,10 +738,16 @@ function UserPlans({
     setShowYearlyPlanModal(false)
   }
 
+  const isFeatureIncluded = (feature) => {
+    if (!feature || typeof feature !== 'object') return true
+    if (feature.included === false) return false
+    if (feature.available === false) return false
+    if (feature.enabled === false) return false
+    return true
+  }
+
   return (
-    <div
-      className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}
-    >
+    <div className={`w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'min-h-screen'}`}>
       <LoaderAnimation
         isOpen={showRoutingLoader}
         title="Redirecting to dashboard..."
@@ -690,438 +763,322 @@ function UserPlans({
         type={SnackbarTypes.Success}
         message={'Card added successfully'}
       />
-      <div
-        className={`flex flex-col items-center ${from === 'billing-modal' ? 'w-full px-6' : 'w-[90%]'} h-full overflow-y-auto`}
-        style={{
-          scrollbarWidth: 'none',
-        }}
-      >
-        {!hideProgressBar && (
+      {!hideProgressBar && (
+        <div className="w-full">
           <div
-            className="flex w-full flex-row items-center gap-2 mt-[5vh]"
-            style={{ backgroundColor: '' }}
+            className="bg-white border-b border-solid w-full flex items-center justify-between overflow-hidden px-[43px] py-[17px]"
+            style={{ borderColor: FIGMA_BORDER }}
           >
-            <AppLogo
-              height={30}
-              width={130}
-              alt="logo"
-            />
-
-            <div className={`w-[${from === 'billing-modal' ? '80%' : '100%'}] flex flex-row items-center gap-2`}>
-              <div className="flex-1">
-                <ProgressBar value={100} />
-              </div>
-              {/* Logout button right in front of progress line */}
-              <button
-                onClick={() => logout('User clicked logout from plans page')}
-                className="px-3 py-1.5 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
-                style={{
-                  fontSize: '13px',
-                  fontWeight: '400',
-                  color: '#6b7280',
-                  backgroundColor: '#f3f4f6',
-                }}
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div
-          className={`flex mb-6 flex-col md:flex-row items-start md:items-end justify-between w-full gap-4 md:gap-0 ${hideProgressBar ? 'mt-6' : 'mt-10'}`}
-        >
-          <div className="flex flex-col items-start w-full">
-            <div //className='text-4xl font-semibold'
-              // onClick={getPlans}
-              style={{
-                fontSize: 22,
-                fontWeight: '600',
-                // marginTop: 20,
-              }}
+            <AppLogo height={32} width={125} alt="logo" />
+            <button
+              type="button"
+              onClick={() => logout('User clicked logout from plans page')}
+              className="bg-[#efefef] min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] font-semibold text-[#0f172a] hover:bg-[#e7e7e7] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
             >
-              {`Grow Your Business`}
-            </div>
-            <div className="flex flex-row items-center gap-1 mt-1">
-              <span
-                style={{
-                  fontSize: 16,
-                  fontWeight: '500',
-                  color: '#808080',
-                }}
-              >
-                {`Gets more done than coffee. Cheaper too. ${reduxUser?.userRole != 'Agency' ? 'Cancel anytime.' : ''}`}
-                <span>😉</span>
-              </span>
-            </div>
+              Logout
+            </button>
           </div>
-          <div className="flex flex-col items-end w-full">
-            {isFrom !== 'SubAccount' && (
-              <div className="flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto">
-                {duration?.map(
-                  (item) =>
-                    item.save && (
-                      <div
-                        key={item.id}
-                        className={`text-xs font-semibold px-2 py-1 rounded-tl-lg rounded-tr-lg shadow-md  ${selectedDuration?.id === item.id ? "text-brand-primary" : "text-black "}`}
-                        // className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-sm shadow-brand-primary' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
-                        style={{ fontWeight: '600', fontSize: '13px' }}
-                      >
-                        Save {item.save}
-                      </div>
-                    ),
-                )}
-              </div>
-            )}
-            <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
-              {// count how many have length > 0
-                [
-                  monthlyPlans?.length > 0,
-                  quaterlyPlans?.length > 0,
-                  yearlyPlans?.length > 0,
-                ].filter(Boolean).length >= 2 && (
-                  <div
-                    // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
-                    className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start"
-                  >
-                    {duration?.map((item) => (
-                      <button
-                        key={item.id}
-                        // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                        className={`px-4 py-1 text-black ${selectedDuration.id === item.id ? ' bg-white shadow-md  rounded-full' : ''}`}
-                        onClick={() => {
-                          setSelectedDuration(item)
-                          // getCurrentPlans();
-                        }}
-                      >
-                        {item.title}
-                      </button>
-                    ))}
-                  </div>
-                )}
-            </div>
+          <div
+            className="bg-white border-b border-solid w-full"
+            style={{ borderColor: FIGMA_BORDER }}
+          >
+            <div className="h-[3px] w-full bg-brand-primary" />
           </div>
         </div>
+      )}
 
-        <div
-          className="flex flex-row gap-5 w-full h-auto mt-4 pb-8"
-          style={{
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            display: 'flex',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-            // marginTop: 20,
-            flexShrink: 0,
-            alignItems: 'stretch', // This makes all cards the same height
-            // justifyContent: 'center',
-            justifyContent: checkWindowInnerWidth()
-            // getCurrentPlans()?.length * 300 > window.innerWidth
-            //   ? 'start'
-            //   : 'center',
-          }}
-        >
-          {(() => {
-            // Log summary before rendering plans
-            const allPlans = getCurrentPlans()
-            if (allPlans?.length > 0) {
-              const matchedPlans = []
-              const unmatchedPlans = []
+      <div className="w-full px-6 pb-10">
+        <div className="mx-auto w-full max-w-[1500px] pt-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-6">
+            <div className="flex flex-col gap-2">
+              <div className="text-[#31302e] text-[28px] leading-[36px] font-semibold tracking-[-0.84px]">
+                Get an AI AaaS Agency
+              </div>
+              <div className="text-[14px] text-[#666] leading-[normal]">
+                {`Gets more done than coffee. Cheaper too. ${reduxUser?.userRole != 'Agency' ? 'Cancel anytime.' : ''}`}{' '}
+                <span>😉</span>
+              </div>
+            </div>
 
-              allPlans.forEach((plan) => {
-                const isCurrent = isCurrentPlan(plan)
-                if (isCurrent) {
-                  matchedPlans.push({
-                    id: plan.id,
-                    planId: plan.planId,
-                    title: plan.title || plan.name,
-                    name: plan.name,
-                    billingCycle: plan.billingCycle || plan.duration,
-                  })
-                } else {
-                  unmatchedPlans.push({
-                    id: plan.id,
-                    planId: plan.planId,
-                    title: plan.title || plan.name,
-                    name: plan.name,
-                    billingCycle: plan.billingCycle || plan.duration,
-                  })
-                }
-              })
-            }
-            return allPlans
-          })().length > 0 &&
-            getCurrentPlans()?.map((item, index) => {
-              const isCurrentUserPlan = isCurrentPlan(item)
-              const currentPlanStatus = reduxUser?.plan?.status
-              const isDisabled = disAblePlans || (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
-              console.log("current plans are", getCurrentPlans())
-
-              return (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    if (isDisabled) {
-                      return
-                    }
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleTogglePlanClick(item, index)
-                  }}
-                  onMouseEnter={() => {
-                    if (!isDisabled) setHoverPlan(item)
-                  }}
-                  onMouseLeave={() => {
-                    setHoverPlan(null)
-                  }}
-                  disabled={isDisabled}
-                  className={`flex flex-col items-center rounded-lg hover:shadow-md hover:shadow-brand-primary ${!isDisabled && 'hover:p-2 hover:bg-gradient-to-b from-brand-primary to-brand-primary/40'}
-                                 ${selectedPlan?.id === item.id && !isDisabled ? 'bg-gradient-to-b from-brand-primary to-brand-primary/40  p-2' : 'border p-2'}
-                                 ${isDisabled ? 'opacity-75 cursor-not-allowed' : ''}
-                                flex-shrink-0
-                                 `}
-                  style={{
-                    width: '20vw',
-                  }}
-                >
-                  <div className="flex flex-col items-center w-full h-full">
-                    <div className="pb-2">
-                      {item.status ? (
-                        <div className=" flex flex-row items-center gap-2">
-                          {(
-                            renderBrandedIcon('/svgIcons/power.svg', 24, 24)
-                          )}
-
-                          <div
-                            className={`text-base font-semibold ${selectedPlan?.id === item.id ||
-                              (hoverPlan?.id === item.id && !isDisabled)
-                              ? 'text-brand-primary'
-                              : 'text-brand-primary'
-                              }`}
-                            style={{}}
+            {[
+              monthlyPlans?.length > 0,
+              quaterlyPlans?.length > 0,
+              yearlyPlans?.length > 0,
+            ].filter(Boolean).length >= 2 && (
+              <div className="flex flex-col items-end gap-1">
+                {isFrom !== 'SubAccount' && (
+                  <div className="flex items-center gap-3 px-3">
+                    {duration?.filter((d) => Boolean(d.save)).map((d) => {
+                      const isActive = selectedDuration?.id === d.id
+                      return (
+                        <div
+                          key={d.id}
+                          className="backdrop-blur-[10px] bg-white px-3 py-[2px] rounded-tl-[12px] rounded-tr-[12px] shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)]"
+                        >
+                          <span
+                            className={`text-[12px] font-semibold tracking-[-0.36px] leading-[16px] ${isActive ? 'bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-[#ec15ff]' : 'text-[#666]'}`}
                           >
-                            {item.status}
-                          </div>
-                          {(
-                            renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
-                          )}
+                            Save {d.save}
+                          </span>
                         </div>
-                      ) : (
-                        <div className="h-[3vh]"></div>
+                      )
+                    })}
+                  </div>
+                )}
+
+                <div className="bg-[#f9f9f9] rounded-[27px] p-1 w-full md:w-[293px] flex items-center gap-[10px]">
+                  {duration?.map((d) => {
+                    const isActive = selectedDuration?.id === d.id
+                    return (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onClick={() => setSelectedDuration(d)}
+                        className={`flex-1 rounded-[27px] px-[10px] py-1 text-[14px] text-black transition-shadow ${isActive ? 'bg-white shadow-[0px_4px_10.4px_0px_rgba(0,0,0,0.18)]' : 'bg-transparent'}`}
+                      >
+                        {d.title}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="py-4">
+            <div
+              key={gridAnimationId}
+              className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 pt-6 px-6 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.33,1,0.68,1)]"
+            >
+              {getCurrentPlans()?.map((item, index) => {
+                const isCurrentUserPlan = isCurrentPlan(item)
+                const currentPlanStatus = reduxUser?.plan?.status
+                const isDisabled =
+                  disAblePlans ||
+                  (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
+
+                const isBadgeVisible = Boolean(item?.status)
+                const badgeText = String(item?.status ?? '')
+                const shouldEmphasizePrice =
+                  badgeText.toLowerCase().includes('best') ||
+                  badgeText.toLowerCase().includes('value')
+
+                return (
+                  <button
+                    key={item?.id ?? index}
+                    type="button"
+                    disabled={isDisabled}
+                    onClick={(e) => {
+                      if (isDisabled) return
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleTogglePlanClick(item, index)
+                    }}
+                    className={`relative bg-white border border-solid rounded-[12px] overflow-hidden pt-[14px] pb-[10px] flex flex-col text-left transition-shadow ${
+                      isDisabled
+                        ? 'opacity-80 cursor-not-allowed'
+                        : 'hover:shadow-[0px_10px_28px_rgba(0,0,0,0.05)]'
+                    } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30`}
+                    style={{ borderColor: FIGMA_BORDER }}
+                  >
+                    <div className="w-full flex flex-col gap-1">
+                      {isBadgeVisible &&
+                        item.discountedPrice !== 0 &&
+                        item.discountedPrice != null && (
+                        <div className="w-full flex items-center justify-center gap-1">
+                          <span className="text-brand-primary">
+                            <BoltIcon />
+                          </span>
+                          <span className="text-[14px] leading-[18px] font-semibold tracking-[-0.36px] text-brand-primary">
+                            {badgeText}
+                          </span>
+                        </div>
                       )}
-                    </div>
+                      <div className="w-full flex items-center justify-center">
+                        <span className="text-[18px] leading-[25px] font-semibold tracking-[-0.54px] text-black">
+                          {(item.name || item.title || '').toString()}
+                        </span>
+                      </div>
 
-                    <div className="flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full">
-                      {/* Header section - fixed height */}
-                      <div className="flex flex-col items-center w-full flex-shrink-0">
-                        <div className="text-3xl font-semibold mt-2 capitalize">
-                          {item.name || item.title}
-                        </div>
-
-                        <div className="flex flex-row items-center gap-2">
-                          {isFrom === 'SubAccount' &&
-                            item?.originalPrice > 0 && (
-                              <span className="text-[#00000020] line-through">
-                                ${formatFractional2(item?.originalPrice) || ''}
-                              </span>
-                            )}
-                          <span className="text-4xl mt-4 font-semibold text-black">
+                      <div className="w-full flex flex-col items-center justify-center gap-1 px-2 py-3">
+                        <div className="flex items-center gap-2">
+                          {isFrom === 'SubAccount' && item?.originalPrice > 0 && (
+                            <span className="text-[#8a8a8a] line-through text-[14px]">
+                              ${formatFractional2(item?.originalPrice) || ''}
+                            </span>
+                          )}
+                          <span
+                            className={`text-[28px] leading-[36px] font-semibold tracking-[-0.84px] ${shouldEmphasizePrice ? 'text-brand-primary' : 'text-black'}`}
+                          >
                             ${formatFractional2(item.discountedPrice || 0)}
                           </span>
                         </div>
+                        {(item.details || item.description || item.planDescription) && (
+                          <div className="text-center text-[14px] font-normal leading-[normal] text-[#666]">
+                            {item.details ||
+                              item.description ||
+                              item.planDescription}
+                          </div>
+                        )}
+                      </div>
 
-                        <div
-                          //  className='text-[14px] font-normal text-black/50 '
-                          className={`text-center mt-1 ${isDisabled && 'w-full border-b border-[#00000040] pb-2'}`}
-                          style={{ fontSize: 15, fontWeight: '400' }}
-                        >
-                          {item.details ||
-                            item.description ||
-                            item.planDescription}
-                        </div>
+                      <div className="w-full px-4 py-3">
+                        {subscribeLoader === item.id ? (
+                          <div className="flex justify-center">
+                            <CircularProgress size={18} />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={isDisabled}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              handleTogglePlanClick(item, index)
 
-                        {!isDisabled &&
-                          (subscribeLoader === item.id ? (
-                            <CircularProgress size={20} />
-                          ) : (
-                            <div
-                              className="w-[95%] py-3.5 h-[50px] mt-3 bg-brand-primary rounded-lg text-white cursor-pointer"
-                              disabled={isDisabled}
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                handleTogglePlanClick(item, index)
-                                if (
-                                  reduxUser?.consecutivePaymentFailures >= 3
-                                ) {
-                                  setTimeout(() => {
-                                    setShouldAutoSubscribe(true)
-                                    setAddPaymentPopUp(true)
-                                  }, 300)
-                                  return
-                                }
+                              if (isDisabled) return
 
-                                // If opened from billing modal, callback with selected plan
-                                if (
-                                  from === 'billing-modal' &&
-                                  onPlanSelected
-                                ) {
-                                  onPlanSelected(item)
-                                  return
-                                }
+                              if (reduxUser?.consecutivePaymentFailures >= 3) {
+                                setTimeout(() => {
+                                  setShouldAutoSubscribe(true)
+                                  setAddPaymentPopUp(true)
+                                }, 300)
+                                return
+                              }
 
-                                // Check if plan is free
-                                const isFreePlan =
-                                  item.discountedPrice === 0 ||
-                                  item.discountedPrice === null
+                              if (from === 'billing-modal' && onPlanSelected) {
+                                onPlanSelected(item)
+                                return
+                              }
 
-                                // Check if user has payment method
-                                const hasPM = hasPaymentMethod()
+                              const isFreePlan =
+                                item.discountedPrice === 0 ||
+                                item.discountedPrice === null
+                              const hasPM = hasPaymentMethod()
 
-                                // Handle Agency users
-                                if (
-                                  reduxUser?.userRole === 'Agency' ||
-                                  reduxUser?.user?.userRole === 'Agency'
-                                ) {
-                                  if (isFreePlan) {
-                                    // Free plan - subscribe directly
-                                    // handleSubscribePlan()
-                                    setAddPaymentPopUp(true)
-                                  } else {
-                                    setAddPaymentPopUp(true)
-                                    // Paid plan - check for payment method
-                                    // if (hasPM) {
-                                    //   // User has PM - subscribe directly
-                                    //   handleSubscribePlan()
-                                    // } else {
-                                    //   // User doesn't have PM - show payment modal and set auto-subscribe flag
-                                    //   setShouldAutoSubscribe(true)
-                                    //   setAddPaymentPopUp(true)
-                                    // }
-                                  }
-                                  return
-                                }
+                              if (
+                                reduxUser?.userRole === 'Agency' ||
+                                reduxUser?.user?.userRole === 'Agency'
+                              ) {
+                                setAddPaymentPopUp(true)
+                                return
+                              }
 
-                                // Handle AgentX users
-                                if (
-                                  reduxUser?.userRole === 'AgentX' ||
-                                  reduxUser?.user?.userRole === 'AgentX'
-                                ) {
-                                  if (
-                                    selectedDuration.id === 1 ||
-                                    selectedDuration.id === 2
-                                  ) {
-                                    // Monthly plan selected - show yearly plan modal
-                                    setSelectedMonthlyPlan(item)
-                                    setShowYearlyPlanModal(true)
-                                  } else {
-                                    // Yearly plan selected - check for payment method
-                                    if (isFreePlan) {
-                                      // Free plan - subscribe directly
-                                      // handleSubscribePlan()
-                                      setAddPaymentPopUp(true)
-                                    } else {
-                                      // Paid plan - check for payment method
-                                      if (hasPM) {
-                                        // User has PM - subscribe directly
-                                        // handleSubscribePlan()
-                                        setAddPaymentPopUp(true)
-                                      } else {
-                                        // User doesn't have PM - show payment modal and set auto-subscribe flag
-                                        setShouldAutoSubscribe(true)
-                                        setAddPaymentPopUp(true)
-                                      }
-                                    }
-                                  }
+                              if (
+                                reduxUser?.userRole === 'AgentX' ||
+                                reduxUser?.user?.userRole === 'AgentX'
+                              ) {
+                                if (selectedDuration.id === 1 || selectedDuration.id === 2) {
+                                  setSelectedMonthlyPlan(item)
+                                  setShowYearlyPlanModal(true)
                                 } else {
-                                  // Handle other user roles
                                   if (isFreePlan) {
-                                    // Free plan - subscribe directly
-                                    // handleSubscribePlan()
                                     setAddPaymentPopUp(true)
                                   } else {
-                                    // Paid plan - check for payment method
                                     if (hasPM) {
-                                      // User has PM - subscribe directly
-                                      // handleSubscribePlan()
                                       setAddPaymentPopUp(true)
                                     } else {
-                                      // User doesn't have PM - show payment modal and set auto-subscribe flag
                                       setShouldAutoSubscribe(true)
                                       setAddPaymentPopUp(true)
                                     }
                                   }
                                 }
-                              }}
-                            >
-                              {item?.hasTrial == true ? (
-                                <span
-                                  style={{
-                                    fontWeight: '600',
-                                    fontSize: 14,
-                                    // color: "white",
-                                  }}
-                                >
-                                  {item?.trialValidForDays} Day Free Trial
-                                </span>
-                              ) : (
-                                !isDisabled && (
-                                  <span className="text-base font-normal">
-                                    Get Started
-                                  </span>
-                                )
-                              )}
-                            </div>
-                          ))}
+                                return
+                              }
+
+                              if (isFreePlan) {
+                                setAddPaymentPopUp(true)
+                              } else {
+                                if (hasPM) {
+                                  setAddPaymentPopUp(true)
+                                } else {
+                                  setShouldAutoSubscribe(true)
+                                  setAddPaymentPopUp(true)
+                                }
+                              }
+                            }}
+                            className={`w-full min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] font-normal text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 ${
+                              isDisabled
+                                ? 'bg-[rgba(234,226,255,0.4)] text-black cursor-not-allowed'
+                                : 'bg-brand-primary text-white hover:bg-brand-primary/90'
+                            }`}
+                          >
+                            {isDisabled ? (
+                              'Current Plan'
+                            ) : item?.hasTrial == true ? (
+                              `${item?.trialValidForDays} Day Free Trial`
+                            ) : (
+                              'Get Started'
+                            )}
+                          </button>
+                        )}
                       </div>
 
-                      {/* Features container - scrollable */}
-                      <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
-                        {/* Previous plan heading */}
-                        {isFrom === 'SubAccount' || routedFrom === 'Agency' ? (
-                          ''
-                        ) : (
-                          <div className="w-full items-center">
-                            {index > 0 && (
-                              <div className="w-full items-center p-3 rounded-lg bg-gray-100 mb-3 flex-shrink-0">
-                                <div className="text-sm font-semibold text-black text-center">
-                                  Everything in{' '}
-                                  {getCurrentPlans()[index - 1]?.name || getCurrentPlans()[index - 1]?.title} and
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                      {(isFrom === 'SubAccount' || routedFrom === 'Agency') ? null : (
+                        <div className="w-full px-4 py-3">
+                          {index > 0 && (
+                            <div className="bg-[rgba(159,159,159,0.1)] border-[0.5px] border-dashed border-[#8a8a8a] min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
+                              Everything in{' '}
+                              {getCurrentPlans()[index - 1]?.name ||
+                                getCurrentPlans()[index - 1]?.title}{' '}
+                              and...
+                            </div>
+                          )}
+                        </div>
+                      )}
 
-                        <div className="flex flex-col items-start w-full flex-1 pr-2">
+                      <div className="w-full px-2">
+                        <div className="flex flex-col gap-1">
                           {Array.isArray(item.features) &&
-                            reorderPlanFeatures(item.features)?.map((feature, featureIndex) => (
-                              <div
-                                key={feature.text}
-                                className="flex flex-row items-start gap-3 mb-3 w-full"
-                              >
-                                <Checkbox
-                                  checked={true}
-                                  className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                                />
-
-                                <FeatureLine
-                                  text={getFeatureDisplayText(feature, index, getCurrentPlans()?.length ?? 0)}
-                                  info={feature.subtext}
-                                  max={16}
-                                  min={10}
-                                  gap={6}
-                                  iconSize={16}
-                                />
-                              </div>
-                            ))}
+                            reorderPlanFeatures(item.features)?.map((feature) => {
+                              const included = isFeatureIncluded(feature)
+                              return (
+                                <div
+                                  key={feature.text || feature?.id || JSON.stringify(feature)}
+                                  className="w-full flex items-start gap-3 px-2 py-2"
+                                >
+                                  <div
+                                    className="flex items-center justify-center p-[2px] rounded-full flex-shrink-0 mt-0.5"
+                                    style={{
+                                      backgroundColor: included
+                                        ? 'rgba(234,226,255,0.4)'
+                                        : 'rgba(255,78,78,0.05)',
+                                    }}
+                                  >
+                                    <span
+                                      className="inline-flex h-[12px] w-[12px] items-center justify-center"
+                                      style={{
+                                        color: included ? 'hsl(var(--primary))' : '#FF4E4E',
+                                      }}
+                                    >
+                                      {included ? <CheckIcon /> : <CloseIcon />}
+                                    </span>
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <FeatureLine
+                                      text={getFeatureDisplayText(
+                                        feature,
+                                        index,
+                                        getCurrentPlans()?.length ?? 0,
+                                      )}
+                                      info={feature.subtext}
+                                      max={14}
+                                      min={10}
+                                      gap={6}
+                                      iconSize={16}
+                                    />
+                                  </div>
+                                </div>
+                              )
+                            })}
                         </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
       <Elements stripe={stripePromise}>
@@ -1158,22 +1115,22 @@ function UserPlans({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: '#00000020',
-            backdropFilter: 'blur(15px)',
+            backgroundColor: '#00000040',
+            backdropFilter: 'blur(10px)',
           },
         }}
       >
         <Box
-          className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
+          className="flex w-full h-full items-center justify-center p-4 border-none"
           sx={styles.paymentModal}
         >
           <div className="flex flex-row justify-center w-full ">
             <div
-              className="w-full border-white"
+              className="w-full border-white shadow-[0px_20px_60px_rgba(0,0,0,0.2)]"
               style={{
                 backgroundColor: '#ffffff',
                 padding: 0,
-                borderRadius: '13px',
+                borderRadius: '12px',
               }}
             >
               <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
@@ -1183,11 +1140,12 @@ function UserPlans({
                     setShouldAutoSubscribe(false)
                     // setIsContinueMonthly(false);
                   }}
+                  className="rounded-full hover:bg-black/5 transition-colors"
                 >
                   <Image
                     src={'/assets/crossIcon.png'}
-                    height={40}
-                    width={40}
+                    height={32}
+                    width={32}
                     alt="*"
                   />
                 </button>
@@ -1222,12 +1180,13 @@ const styles = {
     bgcolor: 'transparent',
     // p: 2,
     mx: 'auto',
-    my: '50vh',
-    transform: 'translateY(-50%)',
-    borderRadius: 2,
+    my: 0,
+    borderRadius: 3,
     // border: "none",
     outline: 'none',
-    height: '60svh',
+    width: '100%',
+    maxWidth: 900,
+    maxHeight: '90vh',
   },
 }
 

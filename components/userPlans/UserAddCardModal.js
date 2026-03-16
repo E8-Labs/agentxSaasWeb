@@ -1086,39 +1086,8 @@ const UserAddCard = ({
               maxWidth: '720px',
             }}
           >
-            {/* Orb */}
-            <div
-              className="absolute left-0 top-[75%] -translate-y-1/2 flex justify-center items-center shrink-0"
-              style={{
-                width: isMediumScreen ? '150px' : '170px',
-                height: isMediumScreen ? '150px' : '170px',
-                marginLeft: '0px',
-              }}
-            >
-              <Image
-                alt="*"
-                src={'/otherAssets/paymentCircle2.png'}
-                height={isMediumScreen ? 170 : 190}
-                width={isMediumScreen ? 170 : 190}
-                style={{
-                  borderTopRightRadius: '200px',
-                  borderBottomRightRadius: '200px',
-                  boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
-                }}
-              />
-            </div>
-
             {/* Form */}
-            <div
-              className="flex flex-col justify-start flex-1 min-w-0"
-              style={
-                isSmallScreen
-                  ? {}
-                  : {
-                    paddingLeft: isMediumScreen ? '160px' : '200px',
-                  }
-              }
-            >
+            <div className="flex flex-col justify-start flex-1 min-w-0">
               {!isSmallScreen && (
                 <div className="flex w-full flex-row items-center justify-between">
                   <div style={{ fontWeight: '600', fontSize: 28 }}>
