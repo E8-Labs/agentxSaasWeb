@@ -874,18 +874,18 @@ function UserPlans({
                       e.stopPropagation()
                       handleTogglePlanClick(item, index)
                     }}
-                    className={`relative bg-white border border-solid rounded-[12px] overflow-hidden pt-[14px] pb-[10px] flex flex-col text-left transition-shadow ${
+                    className={`group relative bg-white border border-solid rounded-[12px] overflow-hidden pt-6 pb-[10px] flex flex-col text-left transition-all duration-200 ease-out ${
                       isDisabled
-                        ? 'opacity-80 cursor-not-allowed'
-                        : 'hover:shadow-[0px_10px_28px_rgba(0,0,0,0.05)]'
+                        ? 'opacity-80 cursor-not-allowed border-border'
+                        : 'border-border hover:-translate-y-[5px] hover:border-white hover:shadow-[0px_10px_28px_rgba(0,0,0,0.05)]'
                     } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30`}
-                    style={{ borderColor: FIGMA_BORDER }}
                   >
+                    <div className="absolute w-[200px] h-[150px] rounded-full bg-brand-primary blur-[50px] pointer-events-none opacity-25 left-0 top-0 -translate-y-full scale-100 transition-transform duration-300 ease-out group-hover:-translate-y-[70%] group-hover:scale-110" aria-hidden />
                     <div className="w-full flex flex-col gap-1">
                       {isBadgeVisible &&
                         item.discountedPrice !== 0 &&
                         item.discountedPrice != null && (
-                        <div className="w-full flex items-center justify-center gap-1">
+                        <div className="absolute top-2 right-2 flex items-center gap-1 py-1 px-2 rounded-md bg-brand-primary/8">
                           <span className="text-brand-primary">
                             <BoltIcon />
                           </span>
@@ -900,21 +900,19 @@ function UserPlans({
                         </span>
                       </div>
 
-                      <div className="w-full flex flex-col items-center justify-center gap-1 px-2 py-3">
+                      <div className="w-full flex flex-col items-center justify-center gap-2 px-2 py-3">
                         <div className="flex items-center gap-2">
                           {isFrom === 'SubAccount' && item?.originalPrice > 0 && (
                             <span className="text-[#8a8a8a] line-through text-[14px]">
                               ${formatFractional2(item?.originalPrice) || ''}
                             </span>
                           )}
-                          <span
-                            className={`text-[28px] leading-[36px] font-semibold tracking-[-0.84px] ${shouldEmphasizePrice ? 'text-brand-primary' : 'text-black'}`}
-                          >
+                          <span className="text-[42px] font-semibold tracking-[-1px] text-black leading-tight">
                             ${formatFractional2(item.discountedPrice || 0)}
                           </span>
                         </div>
                         {(item.details || item.description || item.planDescription) && (
-                          <div className="text-center text-[14px] font-normal leading-[normal] text-[#666]">
+                          <div className="text-center text-[14px] font-normal leading-[normal] text-black/80">
                             {item.details ||
                               item.description ||
                               item.planDescription}
@@ -997,7 +995,7 @@ function UserPlans({
                                 }
                               }
                             }}
-                            className={`w-full min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] font-normal text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 ${
+                            className={`w-full min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] font-normal text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 group-hover:shadow-[0_12px_24px_hsl(var(--brand-primary)_/_0.15)] ${
                               isDisabled
                                 ? 'bg-[rgba(234,226,255,0.4)] text-black cursor-not-allowed'
                                 : 'bg-brand-primary text-white hover:bg-brand-primary/90'
@@ -1110,46 +1108,28 @@ function UserPlans({
       />
       <Modal
         open={addPaymentPopUp}
-        // open={true}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000040',
-            backdropFilter: 'blur(10px)',
-          },
+          timeout: 250,
+          sx: { backgroundColor: '#00000099' },
         }}
       >
-        <Box
-          className="flex w-full h-full items-center justify-center p-4 border-none"
-          sx={styles.paymentModal}
-        >
-          <div className="flex flex-row justify-center w-full ">
-            <div
-              className="w-full border-white shadow-[0px_20px_60px_rgba(0,0,0,0.2)]"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 0,
-                borderRadius: '12px',
-              }}
-            >
-              <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
-                <button
-                  onClick={() => {
-                    setAddPaymentPopUp(false)
-                    setShouldAutoSubscribe(false)
-                    // setIsContinueMonthly(false);
-                  }}
-                  className="rounded-full hover:bg-black/5 transition-colors"
-                >
-                  <Image
-                    src={'/assets/crossIcon.png'}
-                    height={32}
-                    width={32}
-                    alt="*"
-                  />
-                </button>
-              </div>
+        <Box className="flex w-full h-full justify-center items-center p-4">
+          <div className="w-[715px] max-w-[90vw] flex flex-col overflow-hidden rounded-[12px] bg-white border border-[#eaeaea] shadow-[0_4px_36px_rgba(0,0,0,0.25)] max-h-[90vh]">
+            <div className="flex flex-row items-center justify-between px-4 py-3 border-b border-[#eaeaea] flex-shrink-0">
+              <h2 className="text-[16px] font-semibold text-foreground">Continue to Payment</h2>
+              <button
+                onClick={() => {
+                  setAddPaymentPopUp(false)
+                  setShouldAutoSubscribe(false)
+                }}
+                className="rounded-lg hover:bg-black/5 transition-colors p-1"
+                aria-label="Close"
+              >
+                <Image src="/assets/crossIcon.png" height={24} width={24} alt="" />
+              </button>
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4">
               <Elements stripe={stripePromise}>
                 <UserAddCard
                   handleClose={handleClose}
@@ -1163,11 +1143,11 @@ function UserPlans({
                   addCardFailure={addCardFailure}
                   addCardSuccess={addCardSuccess}
                   addCardErrtxt={addCardErrtxt}
-                // togglePlan={togglePlan}
+                  hasExternalHeader
                 />
               </Elements>
+              </div>
             </div>
-          </div>
         </Box>
       </Modal>
     </div>
