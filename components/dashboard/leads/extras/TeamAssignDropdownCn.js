@@ -55,6 +55,8 @@ const TeamAssignDropdownCn = ({
   const [autoReplyDisabled, setAutoReplyDisabled] = useState(false)
   const [cadenceDisabled, setCadenceDisabled] = useState(false)
   const [pendingCallsCount, setPendingCallsCount] = useState(0)
+  const [pendingEmailsCount, setPendingEmailsCount] = useState(0)
+  const [pendingSMSCount, setPendingSMSCount] = useState(0)
   const [loadingSettings, setLoadingSettings] = useState(false)
 
   // Initialize settings from props or fetch if leadId provided
@@ -64,6 +66,8 @@ const TeamAssignDropdownCn = ({
       setAutoReplyDisabled(false)
       setCadenceDisabled(false)
       setPendingCallsCount(0)
+      setPendingEmailsCount(0)
+      setPendingSMSCount(0)
       return
     }
 
@@ -72,6 +76,8 @@ const TeamAssignDropdownCn = ({
       setAutoReplyDisabled(leadSettings.autoReplyDisabled === true)
       setCadenceDisabled(leadSettings.cadenceDisabled === true)
       setPendingCallsCount(Number(leadSettings.pendingCallsCount) || 0)
+      setPendingEmailsCount(Number(leadSettings.pendingEmailsCount) || 0)
+      setPendingSMSCount(Number(leadSettings.pendingSMSCount) || 0)
     } else {
       // Fetch if no prop provided
       fetchLeadSettings()
@@ -103,6 +109,8 @@ const TeamAssignDropdownCn = ({
         setAutoReplyDisabled(data.autoReplyDisabled === true)
         setCadenceDisabled(data.cadenceDisabled === true)
         setPendingCallsCount(Number(data.pendingCallsCount) || 0)
+        setPendingEmailsCount(Number(data.pendingEmailsCount) || 0)
+        setPendingSMSCount(Number(data.pendingSMSCount) || 0)
       }
     } catch (error) {
       console.error('Error fetching lead settings:', error)
@@ -128,6 +136,9 @@ const TeamAssignDropdownCn = ({
         {
           autoReplyDisabled: checked,
           cadenceDisabled: cadenceDisabled,
+          pendingCallsCount: pendingCallsCount,
+          pendingEmailsCount: pendingEmailsCount,
+          pendingSMSCount: pendingSMSCount,
         },
         {
           headers: {
@@ -174,6 +185,9 @@ const TeamAssignDropdownCn = ({
         {
           autoReplyDisabled: autoReplyDisabled,
           cadenceDisabled: checked,
+          pendingCallsCount: pendingCallsCount,
+          pendingEmailsCount: pendingEmailsCount,
+          pendingSMSCount: pendingSMSCount,
         },
         {
           headers: {
@@ -188,6 +202,8 @@ const TeamAssignDropdownCn = ({
         setAutoReplyDisabled(updatedData.autoReplyDisabled === true)
         setCadenceDisabled(updatedData.cadenceDisabled === true)
         setPendingCallsCount(Number(updatedData.pendingCallsCount) || 0)
+        setPendingEmailsCount(Number(updatedData.pendingEmailsCount) || 0)
+        setPendingSMSCount(Number(updatedData.pendingSMSCount) || 0)
         toast.success(
           checked
             ? 'Cadence disabled - pending calls have been skipped'
@@ -289,7 +305,7 @@ const TeamAssignDropdownCn = ({
                   )}
                 </span>
 
-                
+
                 <div className="flex items-center gap-2 flex-1 text-[14px]">
 
                   {team.avatar ? (
@@ -332,7 +348,7 @@ const TeamAssignDropdownCn = ({
             </div>
 
             {/* Disable Cadence Toggle - Only show if there are pending calls */}
-            {Number(pendingCallsCount) > 0 && (
+            {Number(pendingCallsCount) || Number(pendingEmailsCount) || Number(pendingSMSCount) > 0 && (
               <div className="px-2 py-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex flex-col">
@@ -340,7 +356,9 @@ const TeamAssignDropdownCn = ({
                       Disable cadence
                     </TypographyBody>
                     <TypographyCaption className="text-xs text-muted-foreground">
-                      {pendingCallsCount} pending call{Number(pendingCallsCount) !== 1 ? 's' : ''}
+                      {pendingCallsCount > 0 && `${pendingCallsCount} call${Number(pendingCallsCount) !== 1 ? 's' : ''} | `}
+                      {pendingEmailsCount > 0 && `${pendingEmailsCount} email${Number(pendingEmailsCount) !== 1 ? 's' : ''} | `}
+                      {pendingSMSCount > 0 && `${pendingSMSCount} SMS${Number(pendingSMSCount) !== 1 ? 's' : ''}`}
                     </TypographyCaption>
                   </div>
                   <Switch

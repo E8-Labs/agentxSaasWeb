@@ -3149,7 +3149,13 @@ const NewMessageModal = ({
                       templates.map((template) => (
                         <Tooltip
                           key={template.id || template.templateId}
-                          title={selectedMode === 'sms' ? template.content : template.subject}
+                          title={(() => {
+                            const raw = selectedMode === 'sms' ? template.content : template.subject
+                            const plain = stripHTML(raw || '')
+                            if (!plain.trim()) return ' '
+                            return plain
+                            // return plain.length > 300 ? `${plain.slice(0, 297).trim()}...` : plain
+                          })()}
                           arrow
                           placement="right"
                           componentsProps={{

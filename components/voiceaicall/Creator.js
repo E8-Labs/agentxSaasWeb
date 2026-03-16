@@ -1476,7 +1476,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
             </div>
 
           </div>
-          <div className='absolute bottom-3 left-1/2 -translate-x-1/2'>
+          <div className='absolute bottom-3 left-1/2 -translate-x-1/2 z-[10000]'>
             <div
               className="flex flex-row items-center gap-1"
             >
