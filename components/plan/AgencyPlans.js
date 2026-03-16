@@ -160,13 +160,15 @@ function AgencyPlans({
     // }
   }
 
-  useEffect(() => {}, [selectedPlan, togglePlan])
+  useEffect(() => { }, [selectedPlan, togglePlan])
 
   //continue monthly plan
   const continueMonthly = () => {
     setIsContinueMonthly(true)
     setShowYearlyPlan(false)
-    handleSubscribePlan()
+    // handleSubscribePlan()
+    setAddPaymentPopUp(true)
+    handleTogglePlanClick()
   }
 
   //continue yearly plan
@@ -177,7 +179,9 @@ function AgencyPlans({
     // console.log("Selected plan is", planSelected);
     setTogglePlan(planSelected.id)
     setShowYearlyPlan(false)
-    handleSubscribePlan()
+    // handleSubscribePlan()
+    setAddPaymentPopUp(true)
+    handleTogglePlanClick(planSelected, selectedPlanIndex)
   }
 
   //check the profit state
@@ -194,11 +198,13 @@ function AgencyPlans({
   }
 
   //handle select plan
-  const handleTogglePlanClick = (item, index) => {
-    setSelectedPlanIndex(index)
-    setTogglePlan(item.id)
+  const handleTogglePlanClick = (item = null, index = null) => {
+    console.log('handleTogglePlanClick is triggered', "selectedPlan", selectedPlan, "togglePlan", togglePlan, "selectedPlanIndex", selectedPlanIndex, "item", item, "index", index)
+    // return
+      setSelectedPlanIndex(index || selectedPlanIndex)
+      setTogglePlan(item.id || togglePlan)
     // setSelectedPlan((prevId) => (prevId === item ? null : item));
-    setSelectedPlan(item)
+      setSelectedPlan(item || selectedPlan)
   }
 
   //claim early access
@@ -212,7 +218,7 @@ function AgencyPlans({
     setTogglePlan(item.id)
     // setSelectedPlan((prevId) => (prevId === item ? null : item));
     setSelectedPlan(item)
-    
+
     if (selectedDuration.id === 3) {
       setAddPaymentPopUp(true)
       return
@@ -333,7 +339,7 @@ function AgencyPlans({
             setYearlyPlans(yearly)
 
             selectDefaultPlan(monthly)
-          } else {}
+          } else { }
         }
       }
     } catch (error) {
@@ -373,7 +379,7 @@ function AgencyPlans({
         const ApiPath = Apis.subAgencyAndSubAccountPlans
         const formData = new FormData()
         formData.append('planId', actualPlanId)
-        for (let [key, value] of formData.entries()) {}
+        for (let [key, value] of formData.entries()) { }
 
         const response = await axios.post(ApiPath, formData, {
           headers: {
@@ -511,7 +517,7 @@ function AgencyPlans({
   const handleContinueClick = async () => {
 
     console.log('handleContinueClick is triggered')
-    
+
     if (!selectedPlan) return
 
     const hasPM = () => {
@@ -648,12 +654,12 @@ function AgencyPlans({
                 handleBack={() => {
                   setAddPaymentPopUp(false)
                   setSubPlanLoader(null)
-                  
+
                 }}
                 key="agency-add-card"
                 handleClose={handleClose}
                 selectedPlan={selectedPlan}
-              
+
               />
             </Elements>
           </Box>
@@ -860,7 +866,7 @@ function AgencyPlans({
                     setHoverPlan(null)
                   }}
                   className={
-                    `group flex flex-col items-center rounded-lg flex-shrink-0 hover:shadow-md hover:shadow-brand-primary border p-2 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-b hover:from-brand-primary hover:to-brand-primary/80' : ''} ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-b from-brand-primary to-brand-primary/80 p-2' : 'opacity-75 cursor-not-allowed' }`
+                    `group flex flex-col items-center rounded-lg flex-shrink-0 hover:shadow-md hover:shadow-brand-primary border p-2 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-b hover:from-brand-primary hover:to-brand-primary/80' : ''} ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-b from-brand-primary to-brand-primary/80 p-2' : 'opacity-75 cursor-not-allowed'}`
                   }
                   style={{
                     width: '28vw',

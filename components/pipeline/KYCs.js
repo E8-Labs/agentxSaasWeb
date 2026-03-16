@@ -62,7 +62,7 @@ const normalizeCategory = (c) => {
   return s === 'needs' ? 'need' : s
 }
 
-const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
+const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = null }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const [BuyerAnchor, setBuyerAnchor] = useState(null)
   const [kycsData, setKycsData] = useState([])
@@ -156,6 +156,9 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${mainAgentId}`
       } else {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`
+      }
+      if (userId) {
+        ApiPath += `&userId=${userId}`
       }
 
       // //console.log;
@@ -374,6 +377,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
 
       const ApiData = {
         kycId: selectedKyc.id,
+        ...(userId != null && { userId }),
       }
 
       const ApiPath = Apis.deleteKyc

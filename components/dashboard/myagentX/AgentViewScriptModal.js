@@ -53,19 +53,27 @@ const AgentViewScriptModal = ({
   MainAgentId,
   user,
   onSaveAndClose,
+  /** When set (e.g. admin context), used for script builder URL and passed as userId to nested API calls */
+  selectedUser = null,
+  /** Override modal container class (e.g. "w-10/12 sm:w-[760px] p-8 rounded-[15px]") */
+  modalClassName,
+  /** Override backdrop sx (e.g. { backgroundColor: '#00000020' }) */
+  backdropSx,
 }) => {
+  const userId = selectedUser?.id
+  const scriptUser = selectedUser ?? reduxUser
   return (
     <Modal
       open={open}
       onClose={onClose}
       BackdropProps={{
         timeout: 100,
-        sx: { backgroundColor: '#00000099' },
+        sx: backdropSx ?? { backgroundColor: '#00000099' },
       }}
     >
       <Box
-        className="w-8/12 h-[90%] sm:w-[608px] p-0 rounded-xl"
-        sx={{ ...modalsStyle, backgroundColor: 'white', padding: 0 }}
+        className={modalClassName ?? 'w-8/12 h-[90%] sm:w-[608px] p-0 rounded-xl'}
+        sx={{ ...modalsStyle, backgroundColor: 'white', padding: modalClassName ? undefined : 0 }}
       >
                 <div style={{ width: '100%' }}>
                     <div className="h-[90vh] text-sm flex flex-col gap-2 animate-in slide-in-from-bottom-2 duration-200 ease-out" style={{ scrollbarWidth: 'none', fontSize: 14 }}>
@@ -243,13 +251,13 @@ const AgentViewScriptModal = ({
                                                         className="flex flex-row items-center gap-1 h-[28px] rounded-lg bg-white text-brand-primary px-3 font-medium text-sm hover:opacity-90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 outline-none transition-all duration-150 [&_svg]:text-brand-primary"
                                                         onClick={() => {
                                                             const scriptBuilderUrl =
-                                                                reduxUser?.agencySettings?.scriptWidgetUrl ||
-                                                                reduxUser?.userSettings?.scriptWidgetUrl ||
+                                                                scriptUser?.agencySettings?.scriptWidgetUrl ||
+                                                                scriptUser?.userSettings?.scriptWidgetUrl ||
                                                                 PersistanceKeys.DefaultScriptBuilderUrl
                                                             window.open(scriptBuilderUrl, '_blank')
                                                         }}
                                                     >
-                                                        Use {reduxUser?.agencySettings?.scriptWidgetTitle ?? reduxUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
+                                                        Use {scriptUser?.agencySettings?.scriptWidgetTitle ?? scriptUser?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
                                                         <ArrowUpRight size={14} />
                                                     </button>
                                                 </div>
@@ -375,6 +383,7 @@ const AgentViewScriptModal = ({
                                                 selectedAgentId={showScriptModal}
                                                 kycsData={kycsData}
                                                 uniqueColumns={uniqueColumns}
+                                                userId={userId}
                                             />
                                         </div>
                                     </div>
@@ -388,6 +397,7 @@ const AgentViewScriptModal = ({
                                                 selectedAgentId={showScriptModal}
                                                 kycsData={kycsData}
                                                 uniqueColumns={uniqueColumns}
+                                                userId={userId}
                                             />
                                         </div>
                                     </div>
@@ -487,7 +497,9 @@ const AgentViewScriptModal = ({
                                     <KYCs
                                         kycsDetails={setKycsData}
                                         mainAgentId={MainAgentId}
-                                        user={user && user}
+                                        user={selectedUser ?? user}
+                                        selectedUser={selectedUser}
+                                        userId={userId}
                                     />
                                 </div>
                             </div>
