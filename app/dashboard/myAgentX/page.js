@@ -676,7 +676,7 @@ function Page() {
   const [loading, setLoading] = useState(false)
 
   const [search, setSearch] = useState('')
-  const [selectedTag, setSelectedTag] = useState(null) // null = All, string = filter by tag
+  const [selectedTags, setSelectedTags] = useState([]) // [] = All, string[] = filter by any of these tags
   const [duplicateLoader, setDuplicateLoader] = useState(false)
 
   //nedd help popup
@@ -3353,9 +3353,8 @@ function Page() {
   ) => {
     setPaginationLoader(true)
 
-    // Clear previous data if it's a new search or tag filter to prevent memory buildup
-    const tagFilter = arguments.length > 3 ? arguments[3] : selectedTag
-    if ((search && searchLoader) || (tagFilter != null && searchLoader)) {
+    // Clear previous data only for new search (not for tag filter) to avoid screen flash
+    if (search && searchLoader) {
       setMainAgentsList([])
       setAgentsListSeparated([])
     }
@@ -3374,10 +3373,11 @@ function Page() {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain,
       )
-      if (!agentLocalDetails || searchLoader) {
+      if (!agentLocalDetails || (searchLoader && search)) {
         setInitialLoader(true)
       }
-      const tagFilter = arguments.length > 3 ? arguments[3] : selectedTag
+      const tagFilterArg = arguments.length > 3 ? arguments[3] : selectedTags
+      const tagsForApi = Array.isArray(tagFilterArg) ? tagFilterArg : tagFilterArg != null && tagFilterArg !== '' ? [tagFilterArg] : []
       let offset = mainAgentsList.length
       let ApiPath = `${Apis.getAgents}?offset=${offset}` //?agentType=outbound
 
@@ -3385,11 +3385,12 @@ function Page() {
         offset = 0
         ApiPath = `${Apis.getAgents}?offset=${offset}&search=${encodeURIComponent(search)}`
       }
-      if (tagFilter != null && tagFilter !== '') {
+      if (tagsForApi.length > 0) {
         offset = 0
+        const tagParams = tagsForApi.map((t) => `tag=${encodeURIComponent(t)}`).join('&')
         ApiPath = search
-          ? `${Apis.getAgents}?offset=0&search=${encodeURIComponent(search)}&tag=${encodeURIComponent(tagFilter)}`
-          : `${Apis.getAgents}?offset=0&tag=${encodeURIComponent(tagFilter)}`
+          ? `${Apis.getAgents}?offset=0&search=${encodeURIComponent(search)}&${tagParams}`
+          : `${Apis.getAgents}?offset=0&${tagParams}`
       }
       // console.log("Api path is", ApiPath);
 
@@ -3454,46 +3455,28 @@ function Page() {
           setCanGetMore(false)
         }
 
-        if (search) {
-          let subAgents = []
-          agents.forEach((item) => {
-            if (item.agents && item.agents.length > 0) {
-              for (let i = 0; i < item.agents.length; i++) {
-                const agent = item.agents[i]
-                if (agent) {
-                  subAgents.push(agent)
-                }
-              }
-            }
-          })
+        const isTagFilter = tagsForApi.length > 0
+        const isReplaceMode = (search && searchLoader) || (isTagFilter && searchLoader)
 
-          setAgentsListSeparated(agents) //subAgents
-
-          // return
-        }
-
-        let newList = [...mainAgentsList] // makes a shallow copy
-
-        if (Array.isArray(agents) && agents.length > 0) {
-          newList.push(...agents) // append all agents at once
-        }
-
-        // console.log("Agents after pushing", newList);
-        if (!search) {
-          localStorage.setItem(
-            PersistanceKeys.LocalStoredAgentsListMain,
-            JSON.stringify(newList),
-          )
-        } else {
+        if (isReplaceMode) {
+          setMainAgentsList(agents)
           localStorage.setItem(
             PersistanceKeys.LocalStoredAgentsListMain,
             JSON.stringify(agents),
           )
-        }
-        // console.log("New list is", newList);
-        if (search) {
-          setMainAgentsList(agents)
+          const flattened = (agents || []).flatMap((ma) =>
+            (ma.agents || []).map((ag) => ({ ...ag, tags: ma.tags || [] })),
+          )
+          setAgentsListSeparated(flattened)
         } else {
+          let newList = [...mainAgentsList]
+          if (Array.isArray(agents) && agents.length > 0) {
+            newList.push(...agents)
+          }
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(newList),
+          )
           setMainAgentsList(newList)
         }
       }
@@ -3534,8 +3517,18 @@ function Page() {
           },
         },
       )
-      const searchLoader = true
-      getAgents(false, search, searchLoader, selectedTag)
+      setMainAgentsList((prev) => {
+        const updated = prev.map((ma) =>
+          ma.id === mainAgentId ? { ...ma, tags: [...(tags || [])] } : ma,
+        )
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(updated),
+          )
+        }
+        return updated
+      })
     } catch (err) {
       console.error('AssignAgentTags error:', err)
       setShowSnackMsg({
@@ -4212,8 +4205,8 @@ function Page() {
             showTasks={true}
           />
           </div>
-          <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3 flex-wrap">
-            <div className="flex flex-row items-center gap-2 flex-shrink-0 min-w-0">
+          <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3 flex-nowrap">
+            <div className="flex flex-row items-center gap-2 flex-shrink-0 min-w-0 flex-1 overflow-hidden">
               <div className="search-input-wrapper flex flex-row items-center gap-3 flex-shrink-0 border rounded-lg overflow-hidden h-[40px] w-full max-w-[400px] pl-3 pr-2">
                 <input
                 className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 min-w-0 text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
@@ -4232,7 +4225,7 @@ function Page() {
                     }
                     searchTimeoutRef.current = setTimeout(() => {
                       let searchLoader = true
-                      getAgents(false, e.target.value, searchLoader, selectedTag)
+                      getAgents(false, e.target.value, searchLoader, selectedTags)
                     }, 500)
                   }}
                 />
@@ -4245,31 +4238,37 @@ function Page() {
                   />
                 </button>
               </div>
-              <div className="flex flex-row items-center gap-1.5 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedTag(null)
-                    getAgents(false, search, true, null)
-                  }}
-                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${selectedTag === null ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
-                >
-                  All
-                </button>
-                {uniqueTags.map((t) => (
+              {uniqueTags.length > 0 && (
+                <div className="flex flex-row items-center gap-1.5 flex-nowrap shrink-0">
                   <button
-                    key={t}
                     type="button"
                     onClick={() => {
-                      setSelectedTag(t)
-                      getAgents(false, search, true, t)
+                      setSelectedTags([])
+                      getAgents(false, search, true, [])
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedTag === t ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                    className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${selectedTags.length === 0 ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
                   >
-                    {t}
+                    All
                   </button>
-                ))}
-              </div>
+                  {uniqueTags.map((t) => {
+                    const isSelected = selectedTags.includes(t)
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
+                          setSelectedTags(next)
+                          getAgents(false, search, true, next)
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                      >
+                        {t}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
             <button
               type="button"
@@ -4440,7 +4439,7 @@ function Page() {
                   getAgents(p, s, searchLoader, tagFilter)
                 }}
                 search={search}
-                selectedTag={selectedTag}
+                selectedTags={selectedTags}
                 uniqueTags={uniqueTags}
                 onAssignTag={handleAssignAgentTags}
                 setObjective={setObjective}

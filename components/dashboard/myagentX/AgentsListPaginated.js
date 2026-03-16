@@ -76,7 +76,7 @@ const AgentsListPaginated = ({
   scrollableTarget = 'scrollableAgentDiv',
   uniqueTags = [],
   onAssignTag,
-  selectedTag,
+  selectedTags = [],
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
@@ -174,7 +174,7 @@ const AgentsListPaginated = ({
     )
   }
   const fetchMoreAgents = async () => {
-    getAgents(true, search, undefined, selectedTag)
+    getAgents(true, search, undefined, selectedTags)
   }
 
   const handlePopoverOpen = (event, item) => {
@@ -294,6 +294,15 @@ const AgentsListPaginated = ({
               borderRadius: 2,
               boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
               border: 'none',
+              '& .MuiList-root': { py: 0.5 },
+              '& .MuiMenuItem-root': {
+                minHeight: '37px !important',
+                height: 'auto !important',
+                paddingTop: '8px !important',
+                paddingBottom: '8px !important',
+                marginBottom: '6px !important',
+              },
+              '& .MuiMenuItem-root:last-of-type': { marginBottom: 0 },
             },
           },
         }}
@@ -336,6 +345,8 @@ const AgentsListPaginated = ({
           return (
             <MenuItem
               key={tagLabel}
+              dense
+              disableGutters
               onClick={() => {
                 if (!assignTagAgent?.mainAgentId || !onAssignTag) return
                 const next = isSelected
@@ -346,10 +357,25 @@ const AgentsListPaginated = ({
                 setAssignTagAgent(null)
                 setAssignTagInput('')
               }}
-              sx={{ fontSize: 14 }}
+              sx={{
+                fontSize: 14,
+                minHeight: 37,
+                height: 'auto',
+                py: 0.75,
+                px: 1.5,
+                marginBottom: 6,
+                '&:last-of-type': { marginBottom: 0 },
+                ...(isSelected && {
+                  backgroundColor: 'hsl(var(--brand-primary) / 0.06)',
+                  color: 'hsl(var(--brand-primary))',
+                  '&:hover': {
+                    backgroundColor: 'hsl(var(--brand-primary) / 0.12)',
+                  },
+                }),
+              }}
             >
               {tagLabel}
-              {isSelected ? ' ✓' : ''}
+              {/* {isSelected ? ' ✓' : ''} */}
             </MenuItem>
           )
         })}
@@ -540,7 +566,7 @@ const AgentsListPaginated = ({
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-row items-center gap-3 text-xs font-medium text-black/80 underline decoration-dotted decoration-black/40 underline-offset-[3px]">
+                          <div className="flex flex-row items-center gap-3 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666]/60 underline-offset-[3px]">
                             <button
                               onClick={() => {
                                 console.log("item on click.kj is", item?.prompt);
@@ -577,23 +603,30 @@ const AgentsListPaginated = ({
                                     setAssignTagAgent(item)
                                     setAssignTagInput('')
                                   }}
-                                  className="flex items-center gap-0.5 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666] underline-offset-[3px] hover:opacity-80"
+                                  className="flex items-center gap-0.5 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666]/60 underline-offset-[3px] hover:opacity-20"
                                 >
                                   Assign Tag
-                                  <ChevronDown size={14} className="shrink-0" strokeWidth={2.5} style={{ color: '#666666' }} />
+                                  <ChevronDown size={14} className="shrink-0" strokeWidth={2.5} style={{ color: '#333333' }} />
                                 </button>
                               </>
                             )}
                           </div>
-                          {(item.tags && item.tags.length > 0) && (
-                            <div className="flex flex-row flex-wrap items-center gap-1.5 mt-1">
+                          {onAssignTag && item.tags && item.tags.length > 0 && (
+                            <div className="flex flex-row items-center gap-2 w-full min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin flex-nowrap" style={{ scrollbarWidth: 'thin' }}>
                               {item.tags.map((tagLabel) => (
-                                <span
+                                <button
                                   key={tagLabel}
-                                  className="px-2 py-0.5 rounded-md text-xs font-medium bg-black/[0.06] text-black/80"
+                                  type="button"
+                                  onClick={(e) => {
+                                    setAssignTagAnchor(e.currentTarget)
+                                    setAssignTagAgent(item)
+                                    setAssignTagInput('')
+                                  }}
+                                  className="inline-flex items-center max-h-[24px] gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#E5E7EB] text-[#374151] hover:bg-[#D1D5DB] transition-colors flex-none w-max border-0 "
                                 >
                                   {tagLabel}
-                                </span>
+                                  <ChevronDown size={12} className="shrink-0 flex-none" strokeWidth={2.5} style={{ color: '#6B7280' }} />
+                                </button>
                               ))}
                             </div>
                           )}
