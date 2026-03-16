@@ -7,6 +7,8 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 import LabelingHeader from './LabelingHeader'
+import { toast } from '@/utils/toast'
+
 
 const DomainConfig = ({ selectedAgency }) => {
   const [subdomain, setSubdomain] = useState(null)
@@ -136,6 +138,7 @@ const DomainConfig = ({ selectedAgency }) => {
     if (!customDomain) return false
     const domain = customDomain.trim().toLowerCase()
     if (domain.endsWith('assignx.ai')) {
+      toast.error('Not able to use assignx.ai toast message')
       return true
     }
     return false
