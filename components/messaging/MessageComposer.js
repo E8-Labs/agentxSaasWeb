@@ -2972,7 +2972,7 @@ const MessageComposer = ({
                   bottom: typeof window !== 'undefined' ? window.innerHeight - sendDropdownRect.top + 8 : 0,
                 }}
               >
-                <button
+                {/*<button
                   type="button"
                   className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
                   onClick={() => {
@@ -2983,7 +2983,7 @@ const MessageComposer = ({
                 >
                   <PaperPlaneTilt size={16} weight="fill" />
                   Send now
-                </button>
+                </button>*/}
                 <button
                   type="button"
                   className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
