@@ -129,6 +129,7 @@ const WebAgentChatDrawer = ({
   const [messages, setMessages] = useState([])
   const [messagesLoading, setMessagesLoading] = useState(false)
   const [sendLoading, setSendLoading] = useState(false)
+  const [sendTimedOut, setSendTimedOut] = useState(false)
   const [thinkingIndex, setThinkingIndex] = useState(0)
 
   // History panel
@@ -207,6 +208,7 @@ const WebAgentChatDrawer = ({
     if (open) {
       setClosing(false)
       setSessionError(null)
+      setSendTimedOut(false)
       const threadId = initialThreadId != null ? Number(initialThreadId) : null
       if (threadId != null && !Number.isNaN(threadId)) {
         setCurrentThreadId(threadId)
@@ -607,7 +609,8 @@ const WebAgentChatDrawer = ({
     }
 
     try {
-      const { data } = await axios.post('/api/public/web-chat/send', payload)
+      setSendTimedOut(false)
+      const { data } = await axios.post('/api/public/web-chat/send', payload, { timeout: 90000 })
       if (data?.status && data?.data?.message) {
         if (data?.data?.threadId != null) {
           setCurrentThreadId(data.data.threadId)
@@ -628,6 +631,8 @@ const WebAgentChatDrawer = ({
     } catch (err) {
       console.error('Web chat send:', err?.message)
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId))
+      const isTimeout = err?.code === 'ECONNABORTED' || (err?.message && String(err.message).toLowerCase().includes('timeout'))
+      if (isTimeout) setSendTimedOut(true)
     } finally {
       setSendLoading(false)
     }
@@ -1007,7 +1012,7 @@ const WebAgentChatDrawer = ({
                     className="text-center font-semibold text-[#0e0e0e] max-w-sm"
                     style={{ fontSize: '22px', lineHeight: '30px', letterSpacing: '-0.77px' }}
                   >
-                    {emptyStateMessage}hj
+                    {emptyStateMessage}
                   </p>
                 </div>
               )}
@@ -1015,6 +1020,33 @@ const WebAgentChatDrawer = ({
 
             {/* Footer: attached files + input (Plus = attach, Send) */}
             <div className="flex-shrink-0 px-4 pb-6 pt-4">
+              {sendTimedOut && (
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  <span>Request timed out.</span>
+                  <div className="flex items-center gap-2">
+                    {currentThreadId != null ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSendTimedOut(false)
+                          loadMessages(currentThreadId)
+                        }}
+                        className="shrink-0 font-medium text-amber-900 underline hover:no-underline"
+                      >
+                        Reload messages
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setSendTimedOut(false)}
+                        className="shrink-0 font-medium text-amber-900 underline hover:no-underline"
+                      >
+                        Dismiss
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
               {sessionError && (
                 <div className="mb-2 flex items-center justify-between gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
                   <span>{sessionError}</span>
