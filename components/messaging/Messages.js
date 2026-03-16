@@ -36,6 +36,9 @@ import { messageMarkdownToHtml } from './messageMarkdown'
 import SuperHumanModal from './SuperHumanModal'
 import { PersistanceKeys } from '@/constants/Constants'
 
+/** Only log Messages debug output in Development/Test (not Production). */
+const IS_MESSAGES_DEBUG = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
+
 /** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
 function plainTextToHtml(text) {
   if (!text || typeof text !== 'string') return ''
@@ -910,7 +913,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
         let actualOffset = offset
 
-        // For initial load, fetch a larger batch (includes sibling threads when same phone/email)
+        // For initial load, fetch a larger batch (includes sibling threads when same phone/email).
+        // includeSiblingThreads can cause the API to return the same message multiple times (once per
+        // thread); we de-duplicate by message id before setState to avoid duplicate bubbles in the UI.
         if (!append && offset === null) {
           const params = {
             limit: 500,
@@ -921,7 +926,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             params.userId = selectedUser.id
           }
 
-          console.log('[Messages] fetchMessages initial load', { threadId, params })
+          if (IS_MESSAGES_DEBUG) console.log('[Messages] fetchMessages initial load', { threadId, params })
 
           const response = await axios.get(
             `${Apis.getMessagesForThread}/${threadId}/messages`,
@@ -935,18 +940,40 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           )
 
           if (response.data?.status && response.data?.data) {
-            const allMessages = response.data.data
-            // Show full merged timeline (backend returns sibling messages in chronological order)
-            const fetchedMessages = allMessages
-            const oldestMessageOffset = Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
+            // Step 1: Print full API data for debugging duplicate messages (inspect in DevTools Console; only in non-Production)
+            if (IS_MESSAGES_DEBUG) {
+              console.log('[Messages] API response (full)', {
+                threadId,
+                fullResponse: response.data,
+                messagesArray: response.data.data,
+                messagesCount: response.data.data?.length,
+                messageIds: (response.data.data || []).map((m) => ({ id: m.id, createdAt: m.createdAt, direction: m.direction, subject: m.subject?.slice(0, 30) })),
+              })
+            }
 
-            console.log('[Messages] fetchMessages initial result', {
-              threadId,
-              requestedLimit: params.limit,
-              receivedCount: allMessages.length,
-              setInState: fetchedMessages.length,
-              starredCount: (response.data?.starredMessageIds || []).length,
+            const allMessages = response.data.data
+            // De-duplicate by message id (same message can appear when includeSiblingThreads merges threads)
+            const seenIds = new Set()
+            const fetchedMessages = allMessages.filter((m) => {
+              if (seenIds.has(m.id)) return false
+              seenIds.add(m.id)
+              return true
             })
+            const duplicateCount = allMessages.length - fetchedMessages.length
+            if (duplicateCount > 0 && IS_MESSAGES_DEBUG) {
+              console.warn('[Messages] Duplicate messages in API response (deduped)', { threadId, duplicateCount, totalReceived: allMessages.length, afterDedup: fetchedMessages.length })
+            }
+            const oldestMessageOffset = Math.max(0, fetchedMessages.length - MESSAGES_PER_PAGE)
+
+            if (IS_MESSAGES_DEBUG) {
+              console.log('[Messages] fetchMessages initial result', {
+                threadId,
+                requestedLimit: params.limit,
+                receivedCount: allMessages.length,
+                setInState: fetchedMessages.length,
+                starredCount: (response.data?.starredMessageIds || []).length,
+              })
+            }
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
@@ -957,7 +984,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             setMessages(fetchedMessages)
             const starred = response.data?.starredMessageIds || []
             setStarredMessageIds(new Set(starred))
-            if (starred.length > 0) {
+            if (starred.length > 0 && IS_MESSAGES_DEBUG) {
               console.log('[Messages] GET messages: starredMessageIds from API', starred.length, starred)
             }
 
@@ -967,7 +994,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             }
 
             // There are more older messages if we have more than one page (so we can load older)
-            setHasMoreMessages(allMessages.length > MESSAGES_PER_PAGE)
+            setHasMoreMessages(fetchedMessages.length > MESSAGES_PER_PAGE)
             setMessageOffset(oldestMessageOffset)
             messageOffsetRef.current = oldestMessageOffset
 
@@ -1014,7 +1041,27 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         )
 
         if (response.data?.status && response.data?.data) {
-          const fetchedMessages = response.data.data
+          // Step 1: Print API data for this path (older messages / replace; only in non-Production)
+          if (IS_MESSAGES_DEBUG) {
+            console.log('[Messages] API response (older/replace)', {
+              threadId,
+              append,
+              offset: actualOffset,
+              rawCount: response.data.data.length,
+              messageIds: response.data.data.map((m) => ({ id: m.id, createdAt: m.createdAt })),
+            })
+          }
+
+          const rawMessages = response.data.data
+          const seenIds = new Set()
+          const fetchedMessages = rawMessages.filter((m) => {
+            if (seenIds.has(m.id)) return false
+            seenIds.add(m.id)
+            return true
+          })
+          if (rawMessages.length !== fetchedMessages.length && IS_MESSAGES_DEBUG) {
+            console.warn('[Messages] Duplicate messages in API (older/replace path)', { duplicateCount: rawMessages.length - fetchedMessages.length })
+          }
 
           // Debug: Log messages with attachments and metadata structure
           fetchedMessages.forEach((msg) => {
@@ -1028,8 +1075,12 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             const scrollHeight = container?.scrollHeight || 0
             const scrollTop = container?.scrollTop || 0
 
-            // Prepend older messages at the top
-            setMessages((prev) => [...fetchedMessages, ...prev])
+            // Prepend older messages at the top (avoid duplicates with existing state)
+            setMessages((prev) => {
+              const existingIds = new Set(prev.map((m) => m.id))
+              const uniqueOlder = fetchedMessages.filter((m) => !existingIds.has(m.id))
+              return [...uniqueOlder, ...prev]
+            })
             setStarredMessageIds((prev) => new Set([...prev, ...(response.data?.starredMessageIds || [])]))
 
             // Restore scroll position after prepending — wait for DOM to update (double rAF = after layout/paint)
@@ -1050,12 +1101,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
             // Non-initial, non-append path (e.g. load with offset 0) — replaces full list
-            console.log('[Messages] fetchMessages replace path', {
-              threadId,
-              append: false,
-              offset: actualOffset,
-              setInState: fetchedMessages.length,
-            })
+            if (IS_MESSAGES_DEBUG) {
+              console.log('[Messages] fetchMessages replace path', {
+                threadId,
+                append: false,
+                offset: actualOffset,
+                setInState: fetchedMessages.length,
+              })
+            }
             setMessages(fetchedMessages)
             setStarredMessageIds(new Set(response.data?.starredMessageIds || []))
 
@@ -1398,11 +1451,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           params.userId = selectedUser.id
         }
 
-        console.log('[Messages] poll for new messages', {
-          threadId: selectedThread.id,
-          params,
-          currentLatestMessageId: currentLatestMessageId,
-        })
+        if (IS_MESSAGES_DEBUG) {
+          console.log('[Messages] poll for new messages', {
+            threadId: selectedThread.id,
+            params,
+            currentLatestMessageId: currentLatestMessageId,
+          })
+        }
 
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${selectedThread.id}/messages`,
@@ -1422,11 +1477,20 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             setStarredMessageIds(new Set(pollStarred))
           }
 
-          console.log('[Messages] poll response', {
-            threadId: selectedThread.id,
-            receivedCount: allFetchedMessages.length,
-            action: 'check for new only (do not replace list)',
-          })
+          // Step 1: Print API data from poll (for debugging duplicates; only in non-Production)
+          if (IS_MESSAGES_DEBUG) {
+            console.log('[Messages] API response (poll)', {
+              threadId: selectedThread.id,
+              fullMessagesFromApi: allFetchedMessages,
+              receivedCount: allFetchedMessages.length,
+              messageIds: allFetchedMessages.map((m) => ({ id: m.id, createdAt: m.createdAt, direction: m.direction })),
+            })
+            console.log('[Messages] poll response', {
+              threadId: selectedThread.id,
+              receivedCount: allFetchedMessages.length,
+              action: 'check for new only (do not replace list)',
+            })
+          }
 
           // Messages are returned in ascending order (oldest first), so get the last ones
           // Take the last 10 messages to check for new ones
