@@ -676,6 +676,7 @@ function Page() {
   const [loading, setLoading] = useState(false)
 
   const [search, setSearch] = useState('')
+  const [selectedTag, setSelectedTag] = useState(null) // null = All, string = filter by tag
   const [duplicateLoader, setDuplicateLoader] = useState(false)
 
   //nedd help popup
@@ -3352,8 +3353,9 @@ function Page() {
   ) => {
     setPaginationLoader(true)
 
-    // Clear previous data if it's a new search to prevent memory buildup
-    if (search && searchLoader) {
+    // Clear previous data if it's a new search or tag filter to prevent memory buildup
+    const tagFilter = arguments.length > 3 ? arguments[3] : selectedTag
+    if ((search && searchLoader) || (tagFilter != null && searchLoader)) {
       setMainAgentsList([])
       setAgentsListSeparated([])
     }
@@ -3375,12 +3377,19 @@ function Page() {
       if (!agentLocalDetails || searchLoader) {
         setInitialLoader(true)
       }
+      const tagFilter = arguments.length > 3 ? arguments[3] : selectedTag
       let offset = mainAgentsList.length
       let ApiPath = `${Apis.getAgents}?offset=${offset}` //?agentType=outbound
 
       if (search) {
         offset = 0
-        ApiPath = `${Apis.getAgents}?offset=${offset}&search=${search}`
+        ApiPath = `${Apis.getAgents}?offset=${offset}&search=${encodeURIComponent(search)}`
+      }
+      if (tagFilter != null && tagFilter !== '') {
+        offset = 0
+        ApiPath = search
+          ? `${Apis.getAgents}?offset=0&search=${encodeURIComponent(search)}&tag=${encodeURIComponent(tagFilter)}`
+          : `${Apis.getAgents}?offset=0&tag=${encodeURIComponent(tagFilter)}`
       }
       // console.log("Api path is", ApiPath);
 
@@ -3505,6 +3514,37 @@ function Page() {
         main.agents?.some((a) => a.agentType === sortBy),
     )
   }, [agentsListSeparated, sortBy])
+
+  // Unique tags across all main agents (for tag pills)
+  const uniqueTags = useMemo(() => {
+    const tags = (mainAgentsList || []).flatMap((m) => m.tags || [])
+    return [...new Set(tags)].filter(Boolean).sort()
+  }, [mainAgentsList])
+
+  const handleAssignAgentTags = async (mainAgentId, tags) => {
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.assignAgentTags,
+        { mainAgentId, tags },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      const searchLoader = true
+      getAgents(false, search, searchLoader, selectedTag)
+    } catch (err) {
+      console.error('AssignAgentTags error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.error,
+        message: err?.response?.data?.message || 'Failed to update agent tags',
+        isVisible: true,
+      })
+    }
+  }
 
   //function to add new agent by more agents popup
   const handleAddAgentByMoreAgentsPopup = () => {
@@ -3657,7 +3697,7 @@ function Page() {
           ////console.log;
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
-            agents.push(agent)
+            agents.push({ ...agent, tags: item.tags || [] })
           }
         }
       } else {
@@ -4172,8 +4212,9 @@ function Page() {
             showTasks={true}
           />
           </div>
-          <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3">
-            <div className="search-input-wrapper flex flex-row items-center gap-3 flex-shrink-0 border rounded-lg overflow-hidden h-[40px] w-full max-w-[400px] pl-3 pr-2">
+          <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3 flex-wrap">
+            <div className="flex flex-row items-center gap-2 flex-shrink-0 min-w-0">
+              <div className="search-input-wrapper flex flex-row items-center gap-3 flex-shrink-0 border rounded-lg overflow-hidden h-[40px] w-full max-w-[400px] pl-3 pr-2">
                 <input
                 className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 min-w-0 text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
                   placeholder="Search an agent"
@@ -4191,19 +4232,45 @@ function Page() {
                     }
                     searchTimeoutRef.current = setTimeout(() => {
                       let searchLoader = true
-                      getAgents(false, e.target.value, searchLoader)
+                      getAgents(false, e.target.value, searchLoader, selectedTag)
                     }, 500)
                   }}
                 />
-              <button type="button" className="outline-none border-none flex-shrink-0">
+                <button type="button" className="outline-none border-none flex-shrink-0">
                   <Image
                     src={'/assets/searchIcon.png'}
-                  height={18}
-                  width={18}
-                  alt="Search"
+                    height={18}
+                    width={18}
+                    alt="Search"
                   />
                 </button>
               </div>
+              <div className="flex flex-row items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedTag(null)
+                    getAgents(false, search, true, null)
+                  }}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${selectedTag === null ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                >
+                  All
+                </button>
+                {uniqueTags.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => {
+                      setSelectedTag(t)
+                      getAgents(false, search, true, t)
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedTag === t ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
               type="button"
               onClick={(e) => setSortByMenuAnchor(e.currentTarget)}
@@ -4369,11 +4436,13 @@ function Page() {
                 selectedImagesParam={selectedImages}
                 handlePopoverClose={handlePopoverClose}
                 user={user}
-                getAgents={(p, s) => {
-                  // console.log("p", s);
-                  getAgents(p, s) //user
+                getAgents={(p, s, searchLoader, tagFilter) => {
+                  getAgents(p, s, searchLoader, tagFilter)
                 }}
                 search={search}
+                selectedTag={selectedTag}
+                uniqueTags={uniqueTags}
+                onAssignTag={handleAssignAgentTags}
                 setObjective={setObjective}
                 setOldObjective={setOldObjective}
                 setGreetingTagInput={setGreetingTagInput}

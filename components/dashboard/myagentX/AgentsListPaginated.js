@@ -1,6 +1,6 @@
-import { Box, Fade, Modal, Popover } from '@mui/material'
+import { Box, Fade, Menu, MenuItem, Modal, Popover } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
-import { AlertTriangle, Calendar, Hourglass, MessageCircleMore, Zap } from 'lucide-react'
+import { AlertTriangle, Calendar, ChevronDown, Hourglass, MessageCircleMore, Zap } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -74,6 +74,9 @@ const AgentsListPaginated = ({
   initialLoader,
   selectedUser,
   scrollableTarget = 'scrollableAgentDiv',
+  uniqueTags = [],
+  onAssignTag,
+  selectedTag,
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
@@ -96,6 +99,9 @@ const AgentsListPaginated = ({
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null)
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null)
   const [hoveredAvatarIndex, setHoveredAvatarIndex] = useState(null)
+  const [assignTagAnchor, setAssignTagAnchor] = useState(null)
+  const [assignTagAgent, setAssignTagAgent] = useState(null)
+  const [assignTagInput, setAssignTagInput] = useState('')
 
   const open = Boolean(actionInfoEl)
 
@@ -168,8 +174,7 @@ const AgentsListPaginated = ({
     )
   }
   const fetchMoreAgents = async () => {
-    // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
-    getAgents(true, search)
+    getAgents(true, search, undefined, selectedTag)
   }
 
   const handlePopoverOpen = (event, item) => {
@@ -271,6 +276,84 @@ const AgentsListPaginated = ({
           </div>
         </div>
       </Popover>
+      <Menu
+        anchorEl={assignTagAnchor}
+        open={Boolean(assignTagAnchor)}
+        onClose={() => {
+          setAssignTagAnchor(null)
+          setAssignTagAgent(null)
+          setAssignTagInput('')
+        }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: 220,
+              maxHeight: 320,
+              borderRadius: 2,
+              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+              border: 'none',
+            },
+          },
+        }}
+      >
+        <Box sx={{ px: 1.5, pt: 1.5, pb: 1 }}>
+          <input
+            type="text"
+            value={assignTagInput}
+            onChange={(e) => setAssignTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && assignTagInput.trim()) {
+                e.preventDefault()
+                if (!assignTagAgent?.mainAgentId || !onAssignTag) return
+                const currentTags = assignTagAgent.tags || []
+                const next = currentTags.includes(assignTagInput.trim())
+                  ? currentTags
+                  : [...currentTags, assignTagInput.trim()]
+                onAssignTag(assignTagAgent.mainAgentId, next)
+                setAssignTagAnchor(null)
+                setAssignTagAgent(null)
+                setAssignTagInput('')
+              }
+            }}
+            placeholder="Type to add new tag..."
+            className="w-full outline-none rounded-lg px-2.5 py-2 text-sm font-medium text-[#111827] placeholder:text-[#6B7280] bg-white"
+            style={{
+              border: '1px solid #E5E7EB',
+              borderRadius: 8,
+            }}
+          />
+        </Box>
+        {uniqueTags.length === 0 && !assignTagInput && (
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <span style={{ fontSize: 14, color: '#6B7280' }}>No tag found...</span>
+          </Box>
+        )}
+        {uniqueTags.map((tagLabel) => {
+          const currentTags = assignTagAgent?.tags || []
+          const isSelected = currentTags.includes(tagLabel)
+          return (
+            <MenuItem
+              key={tagLabel}
+              onClick={() => {
+                if (!assignTagAgent?.mainAgentId || !onAssignTag) return
+                const next = isSelected
+                  ? currentTags.filter((t) => t !== tagLabel)
+                  : [...currentTags, tagLabel]
+                onAssignTag(assignTagAgent.mainAgentId, next)
+                setAssignTagAnchor(null)
+                setAssignTagAgent(null)
+                setAssignTagInput('')
+              }}
+              sx={{ fontSize: 14 }}
+            >
+              {tagLabel}
+              {isSelected ? ' ✓' : ''}
+            </MenuItem>
+          )
+        })}
+      </Menu>
       <WarningModal
         ShowWarningModal={ShowWarningModal}
         setShowWarningModal={setShowWarningModal}
@@ -484,7 +567,36 @@ const AgentsListPaginated = ({
                             >
                               <div>More info</div>
                             </button>
+                            {onAssignTag && (
+                              <>
+                                <div>|</div>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    setAssignTagAnchor(e.currentTarget)
+                                    setAssignTagAgent(item)
+                                    setAssignTagInput('')
+                                  }}
+                                  className="flex items-center gap-0.5 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666] underline-offset-[3px] hover:opacity-80"
+                                >
+                                  Assign Tag
+                                  <ChevronDown size={14} className="shrink-0" strokeWidth={2.5} style={{ color: '#666666' }} />
+                                </button>
+                              </>
+                            )}
                           </div>
+                          {(item.tags && item.tags.length > 0) && (
+                            <div className="flex flex-row flex-wrap items-center gap-1.5 mt-1">
+                              {item.tags.map((tagLabel) => (
+                                <span
+                                  key={tagLabel}
+                                  className="px-2 py-0.5 rounded-md text-xs font-medium bg-black/[0.06] text-black/80"
+                                >
+                                  {tagLabel}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
 
