@@ -549,7 +549,7 @@ const WebAgentModal = ({
     >
       <Fade in={open} timeout={250}>
         <Box
-          className="flex flex-col w-[400px] max-w-[90vw] overflow-hidden rounded-[12px] bg-white"
+          className="flex flex-col w-[500px] max-w-[90vw] overflow-hidden rounded-[12px] bg-white"
           sx={{
             boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
             border: '1px solid #eaeaea',
