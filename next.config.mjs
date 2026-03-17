@@ -56,6 +56,17 @@ const nextConfig = {
         hostname: "api.myagentx.com",
         pathname: "/agentx/uploads/**",
       },
+      // Facebook CDN for connected page profile images (e.g. currentPage.profileImageUrl)
+      {
+        protocol: "https",
+        hostname: "scontent-phx1-1.xx.fbcdn.net",
+      },
+      { protocol: "https", hostname: "scontent-phx1-1.xx.fbcdn.net" },
+      { protocol: "https", hostname: "scontent.xx.fbcdn.net" },
+      {
+        protocol: "https",
+        hostname: "*.fbcdn.net",
+      },
     ],
   },
   // Example: allow embedding /embed/vapi in an iframe
