@@ -188,11 +188,16 @@ const AdminAssignLead = ({
       }
 
       // //console.log;
+      const userId = selectedUser?.id ?? userProfile?.id
+      if (!userId) {
+        setInitialLoader(false)
+        return
+      }
 
       const ApiPath =
         Apis.getAgents +
         '?userId=' +
-        selectedUser.id +
+        userId +
         '&agentType=outbound&pipeline=true'
       // return
       const response = await axios.get(ApiPath, {
@@ -386,6 +391,12 @@ const AdminAssignLead = ({
         // //console.log;
       }
 
+      const effectiveUserId = userProfile?.id ?? selectedUser?.id
+      if (effectiveUserId == null) {
+        setLoader(false)
+        return
+      }
+
       let Apidata = {
         pipelineId: SelectedAgents[0].pipeline.id,
         mainAgentIds: SelectedAgents.map((item) => item.id),
@@ -394,7 +405,7 @@ const AdminAssignLead = ({
         batchSize: batchSize,
         selectedAll: selectedAll,
         dncCheck: isDncChecked ? true : false,
-        userId: userProfile.id,
+        userId: effectiveUserId,
       }
 
       // console.log("apidata is", Apidata)
@@ -409,6 +420,7 @@ const AdminAssignLead = ({
           selectedAll: selectedAll,
           dncCheck: isDncChecked ? true : false,
           sheetId: sheetId,
+          userId: effectiveUserId,
         }
       }
 
@@ -1110,7 +1122,7 @@ const AdminAssignLead = ({
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DateTimePicker
                                   // label="Select date and time"
-                                  minDateTime={dayjs().tz(userProfile.timeZone)}
+                                  minDateTime={dayjs().tz(userProfile?.timeZone ?? GetTimezone())}
                                   //   value={value}
                                   slotProps={{
                                     digitalClockSectionItem: {

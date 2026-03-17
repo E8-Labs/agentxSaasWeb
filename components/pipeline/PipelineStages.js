@@ -1321,19 +1321,19 @@ const PipelineStages = ({
                                     const tmpl = cadenceTemplatesList.find((t) => t.id === selected)
                                     return tmpl?.templateName || 'Select Template'
                                   }}
-                                  endAdornment={
-                                    selectedCadenceTemplateByStageId[item.id] ? (
-                                      <X
-                                        size={16}
-                                        className="cursor-pointer mr-4"
-                                        style={{ color: '#00000070' }}
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          onClearStageTemplate?.(item.id)
-                                        }}
-                                      />
-                                    ) : null
-                                  }
+                                  // endAdornment={
+                                  //   selectedCadenceTemplateByStageId[item.id] ? (
+                                  //     <X
+                                  //       size={16}
+                                  //       className="cursor-pointer mr-4"
+                                  //       style={{ color: '#00000070' }}
+                                  //       onClick={(e) => {
+                                  //         e.stopPropagation()
+                                  //         onClearStageTemplate?.(item.id)
+                                  //       }}
+                                  //     />
+                                  //   ) : null
+                                  // }
                                   MenuProps={{
                                     PaperProps: {
                                       sx: {
@@ -1381,18 +1381,40 @@ const PipelineStages = ({
                                     onKeyDown={(e) => e.stopPropagation()}
                                   >
                                     <span style={{ fontSize: 13, fontWeight: '600', color: '#000000' }}>Templates</span>
-                                    <Box
-                                      component="span"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        onClearStageTemplate?.(item.id)
-                                        setTemplateSelectOpenStageId(null)
-                                      }}
-                                      sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#00000080' }}
-                                    >
-                                      <X size={16} />
-                                    </Box>
                                   </MenuItem>
+                                  {selectedCadenceTemplateByStageId[item.id] && (
+                                    <MenuItem
+                                      value="__clear__"
+                                      // disabled
+                                      sx={{
+                                        opacity: 1,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        py: 1,
+                                        px: 2,
+                                        backgroundColor: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        minHeight: 'auto',
+                                        color: '#666666',
+                                      }}
+                                      onKeyDown={(e) => e.stopPropagation()}
+                                    >
+                                      <span style={{ fontSize: 13, fontWeight: '500', color: '#666666' }}>Unselect Template</span>
+                                      <Box
+                                        component="span"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          onClearStageTemplate?.(item.id)
+                                          setTemplateSelectOpenStageId(null)
+                                        }}
+                                        sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#00000080' }}
+                                      >
+                                        <X size={16} />
+                                      </Box>
+                                    </MenuItem>
+                                  )}
                                   {cadenceTemplatesList.map((tmpl) => (
                                     <MenuItem
                                       key={tmpl.id}
@@ -2557,54 +2579,54 @@ const PipelineStages = ({
                   initialTaskForEdit={
                     editingTaskRow?.taskPayload
                       ? (() => {
-                          const p = editingTaskRow.taskPayload
-                          const dueDate =
-                            p.dueDateOffsetDays != null || p.dueDateOffsetHours != null
-                              ? (() => {
-                                  const d = new Date()
-                                  d.setDate(d.getDate() + (p.dueDateOffsetDays || 0))
-                                  d.setHours(d.getHours() + (p.dueDateOffsetHours || 0))
-                                  return d
-                                })()
-                              : null
-                          return {
-                            title: p.title || '',
-                            description: p.description ?? '',
-                            status: p.status || 'todo',
-                            priority: p.priority || 'no-priority',
-                            dueDate,
-                            dueTime: '',
-                            assignedMembers: (p.assignedToUserIds || []).map((id) => ({ id })),
-                          }
-                        })()
+                        const p = editingTaskRow.taskPayload
+                        const dueDate =
+                          p.dueDateOffsetDays != null || p.dueDateOffsetHours != null
+                            ? (() => {
+                              const d = new Date()
+                              d.setDate(d.getDate() + (p.dueDateOffsetDays || 0))
+                              d.setHours(d.getHours() + (p.dueDateOffsetHours || 0))
+                              return d
+                            })()
+                            : null
+                        return {
+                          title: p.title || '',
+                          description: p.description ?? '',
+                          status: p.status || 'todo',
+                          priority: p.priority || 'no-priority',
+                          dueDate,
+                          dueTime: '',
+                          assignedMembers: (p.assignedToUserIds || []).map((id) => ({ id })),
+                        }
+                      })()
                       : null
                   }
                   onUpdateCadenceStep={
                     editingTaskRow != null && updateRow
                       ? (formData) => {
-                          const payload = {
-                            title: formData.title?.trim() || 'Task',
-                            description: formData.description ?? '',
-                            status: formData.status || 'todo',
-                            priority: formData.priority || 'no-priority',
-                            assignedToUserIds: Array.isArray(formData.assignedTo) ? formData.assignedTo : [],
-                          }
-                          if (formData.dueDate) {
-                            const due = new Date(formData.dueDate)
-                            const now = new Date()
-                            const diffMs = due.getTime() - now.getTime()
-                            payload.dueDateOffsetDays = Math.max(0, Math.floor(diffMs / (24 * 60 * 60 * 1000)))
-                            payload.dueDateOffsetHours = Math.max(0, Math.round((diffMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)))
-                          }
-                          updateRow(editingTaskStageIndex, editingTaskRow.id, {
-                            communicationType: 'task',
-                            taskPayload: payload,
-                          })
-                          setOpenTaskModal(false)
-                          setPendingTaskStageIndex(null)
-                          setEditingTaskRow(null)
-                          setEditingTaskStageIndex(null)
+                        const payload = {
+                          title: formData.title?.trim() || 'Task',
+                          description: formData.description ?? '',
+                          status: formData.status || 'todo',
+                          priority: formData.priority || 'no-priority',
+                          assignedToUserIds: Array.isArray(formData.assignedTo) ? formData.assignedTo : [],
                         }
+                        if (formData.dueDate) {
+                          const due = new Date(formData.dueDate)
+                          const now = new Date()
+                          const diffMs = due.getTime() - now.getTime()
+                          payload.dueDateOffsetDays = Math.max(0, Math.floor(diffMs / (24 * 60 * 60 * 1000)))
+                          payload.dueDateOffsetHours = Math.max(0, Math.round((diffMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)))
+                        }
+                        updateRow(editingTaskStageIndex, editingTaskRow.id, {
+                          communicationType: 'task',
+                          taskPayload: payload,
+                        })
+                        setOpenTaskModal(false)
+                        setPendingTaskStageIndex(null)
+                        setEditingTaskRow(null)
+                        setEditingTaskStageIndex(null)
+                      }
                       : undefined
                   }
                   onAddAsCadenceStep={(formData) => {
@@ -2638,8 +2660,8 @@ const PipelineStages = ({
               stageTitle={
                 reorderCadenceModalStageIndex !== null
                   ? (pipelineStages[reorderCadenceModalStageIndex]?.stageTitle ??
-                      selectedPipelineStages?.[reorderCadenceModalStageIndex]?.stageTitle) ??
-                    'Stage'
+                    selectedPipelineStages?.[reorderCadenceModalStageIndex]?.stageTitle) ??
+                  'Stage'
                   : ''
               }
               rows={reorderCadenceModalStageIndex !== null ? (rowsByIndex[reorderCadenceModalStageIndex] ?? []) : []}
