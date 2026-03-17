@@ -16,14 +16,16 @@ import SettingsTabContent from './SettingsTabContent'
  * Thread options dropdown with three tabs: Teams | Agents | Settings.
  * Replaces the single "Team" dropdown in the conversation header.
  *
+ * When composerMode is 'facebook' or 'instagram' (FB/IG DM tab), the Agents tab
+ * shows the social agent (socialSelectedAgentId) as selected and saves to message settings.
+ * Otherwise it shows the thread's selectedAgentId and saves to the thread.
+ *
  * Props:
  * - selectedThread: { id (threadId), leadId, selectedAgentId }
- * - teamOptions: [{ id, label, avatar, selected, raw }]
- * - leadSettings: { autoReplyDisabled, cadenceDisabled, pendingCallsCount }
- * - selectedUser: for API context
- * - onToggle: (teamId, team, shouldAssign) for team assign/unassign
- * - onSettingsUpdate: (updatedSettings) when lead settings change
- * - onThreadUpdated: (updatedThread) when thread is updated (e.g. selectedAgentId)
+ * - composerMode: 'sms' | 'email' | 'facebook' | 'instagram' | 'comment'
+ * - socialSelectedAgentId: from message settings (used when FB/IG tab is selected)
+ * - onSocialAgentSaved: (agentId) => void when user selects social agent
+ * - teamOptions, leadSettings, selectedUser, onToggle, onSettingsUpdate, onThreadUpdated
  */
 export default function ThreadOptionsDropdown({
   label = 'Assign',
@@ -35,6 +37,9 @@ export default function ThreadOptionsDropdown({
   onSettingsUpdate,
   onThreadUpdated,
   withoutBorder = false,
+  composerMode,
+  socialSelectedAgentId = null,
+  onSocialAgentSaved,
 }) {
   const selectedTeams = useMemo(
     () => teamOptions.filter((opt) => opt.selected),
@@ -43,7 +48,12 @@ export default function ThreadOptionsDropdown({
 
   const threadId = selectedThread?.id ?? selectedThread?.threadId
   const leadId = selectedThread?.leadId
-  const selectedAgentId = selectedThread?.selectedAgentId ?? null
+  const threadSelectedAgentId = selectedThread?.selectedAgentId ?? null
+
+  const isSocialChannel = composerMode === 'facebook' || composerMode === 'instagram'
+  const effectiveSelectedAgentId = isSocialChannel
+    ? (socialSelectedAgentId ?? null)
+    : threadSelectedAgentId
 
   return (
     <DropdownMenu>
@@ -121,12 +131,14 @@ export default function ThreadOptionsDropdown({
             <TeamsTabContent teamOptions={teamOptions} onToggle={onToggle} />
           </TabsContent>
           <TabsContent value="agents" className="flex-1 min-h-0 overflow-auto">
-            {threadId ? (
+            {threadId || isSocialChannel ? (
               <AgentsListForThread
                 selectedUser={selectedUser}
-                selectedAgentId={selectedAgentId}
+                selectedAgentId={effectiveSelectedAgentId}
                 threadId={threadId}
+                mode={isSocialChannel ? 'social' : 'thread'}
                 onSelectionSaved={onThreadUpdated}
+                onSocialAgentSaved={onSocialAgentSaved}
               />
             ) : (
               <div className="px-2 py-3 text-sm text-muted-foreground">

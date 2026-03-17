@@ -44,13 +44,16 @@ function setCachedAgents(list, userId = null) {
 /**
  * Fetches agents via GET Apis.getAgents, shows list with getAgentsListImage.
  * Loads from localStorage first (if any), then refreshes from API and updates cache.
- * On select: PATCH thread with selectedAgentId, then call onSelectionSaved(updatedThread).
+ * - When mode === 'thread': on select PATCH thread with selectedAgentId, then call onSelectionSaved(updatedThread).
+ * - When mode === 'social': on select call onSocialAgentSaved(agentId) (saves to message settings for FB/IG).
  */
 export default function AgentsListForThread({
   selectedUser,
   selectedAgentId,
   threadId,
+  mode = 'thread',
   onSelectionSaved,
+  onSocialAgentSaved,
 }) {
   // When agency/admin views a subaccount, selectedUser is the subaccount; scope cache by selectedUser.id
   const contextUserId = selectedUser?.id ?? null
@@ -124,6 +127,20 @@ export default function AgentsListForThread({
   }, [agentsList])
 
   const handleSelect = async (agentId) => {
+    if (mode === 'social') {
+      setSaving(true)
+      try {
+        await onSocialAgentSaved?.(agentId)
+        toast.success('Agent for social messages updated')
+      } catch (error) {
+        console.error('Error updating social agent:', error)
+        toast.error('Failed to update social agent')
+      } finally {
+        setSaving(false)
+      }
+      return
+    }
+
     if (!threadId) return
     const token = getToken()
     if (!token) {
