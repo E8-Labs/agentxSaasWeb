@@ -47,6 +47,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import MessageSettingsModal from '@/components/messaging/MessageSettingsModal'
 import { format } from 'date-fns'
 import { CalendarIcon, Clock, ChevronDown } from 'lucide-react'
 
@@ -323,6 +324,7 @@ const MessageComposer = ({
   const [connectForm, setConnectForm] = useState({ externalId: '', accessToken: '', displayName: '' })
   const [connectSubmitting, setConnectSubmitting] = useState(false)
   const [connectingOAuth, setConnectingOAuth] = useState(false)
+  const [socialSettingsModalOpen, setSocialSettingsModalOpen] = useState(false)
 
   // Variables state
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -1404,6 +1406,37 @@ const MessageComposer = ({
     setConnectModalOpen(true)
   }
 
+  const handleConnectClick = async () => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please sign in to connect')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    let apiUrl = `${Apis.BasePath}api/mail/settings`
+    if (selectedUser?.id) apiUrl += `?userId=${selectedUser.id}`
+    try {
+      const res = await axios.get(apiUrl, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      const settings = res.data?.status && res.data?.data ? res.data.data : null
+      const socialSettingsConfigured = settings && (
+        settings.socialReplyDelayEnabled === true ||
+        settings.socialSaveAsDraftEnabled === true ||
+        (settings.socialSelectedAgentId != null && settings.socialSelectedAgentId !== '')
+      )
+      if (socialSettingsConfigured) {
+        connectWithFacebookOAuth()
+      } else {
+        setSocialSettingsModalOpen(true)
+      }
+    } catch (err) {
+      console.error('Error fetching message settings:', err)
+      toast.error('Could not load settings. Try again.')
+    }
+  }
+
   const connectWithFacebookOAuth = async () => {
     const localData = localStorage.getItem('User')
     if (!localData) {
@@ -1682,8 +1715,8 @@ const MessageComposer = ({
                   Connect a Facebook page or Instagram page to send messages
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
-                    {connectingOAuth && <Loader2 className="w-3.5 h- mr-1.5 animate-spin" />}
+                  <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={handleConnectClick} disabled={connectingOAuth}>
+                    {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
                     Connect
                   </Button>
                   {/*
@@ -3278,6 +3311,18 @@ const MessageComposer = ({
           </div>
         </Box>
       </Modal>
+
+      {/* Social-only message settings modal (before first-time Connect OAuth) */}
+      <MessageSettingsModal
+        open={socialSettingsModalOpen}
+        onClose={() => setSocialSettingsModalOpen(false)}
+        selectedUser={selectedUser}
+        socialOnly
+        onSaved={() => {
+          setSocialSettingsModalOpen(false)
+          connectWithFacebookOAuth()
+        }}
+      />
 
       {/* Connect Facebook / Instagram modal */}
       <Dialog open={connectModalOpen} onOpenChange={(open) => !connectSubmitting && setConnectModalOpen(open)}>
