@@ -3365,10 +3365,11 @@ const MessageComposer = ({
               {templates.map((template, idx) => {
                 const key = template.id || template.templateId || idx
                 const tooltipTitle = composerMode === 'email' ? template.subject : template.content
+                const plain = stripHTML(tooltipTitle || '')
                 return (
                   <Tooltip
                     key={key}
-                    title={tooltipTitle}
+                    title={plain}
                     arrow
                     placement="right"
                     componentsProps={{

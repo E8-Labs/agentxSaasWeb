@@ -5,6 +5,7 @@ import { Check, ChevronRight, Circle } from 'lucide-react'
 import * as React from 'react'
 
 import { AgentationDialogContext } from '@/components/providers/agentation-dialog-provider'
+import { PortalZIndexContext } from '@/components/providers/portal-z-index-provider'
 import { cn } from '@/lib/utils'
 
 /** True if target is inside Agentation toolbar, popup, or marker (prevents dropdown close when annotating) */
@@ -71,8 +72,9 @@ function createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutsi
 }
 
 const DropdownMenuSubContent = React.forwardRef(
-  ({ className, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
+  ({ className, onInteractOutside, onPointerDownOutside, style, ...props }, ref) => {
     const contentRef = React.useRef(null)
+    const portalZIndex = React.useContext(PortalZIndexContext)
     const setRef = React.useCallback(
       (el) => {
         contentRef.current = el
@@ -85,13 +87,16 @@ const DropdownMenuSubContent = React.forwardRef(
       () => createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutside),
       [onInteractOutside, onPointerDownOutside],
     )
+    const contentStyle = portalZIndex != null ? { ...style, zIndex: portalZIndex } : style
     return (
       <DropdownMenuPrimitive.SubContent
         ref={setRef}
         className={cn(
-          'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          'min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          portalZIndex == null && 'z-50',
           className,
         )}
+        style={contentStyle}
         {...handlers}
         {...props}
       />
@@ -102,8 +107,9 @@ DropdownMenuSubContent.displayName =
   DropdownMenuPrimitive.SubContent.displayName
 
 const DropdownMenuContent = React.forwardRef(
-  ({ className, sideOffset = 4, avoidCollisions, onInteractOutside, onPointerDownOutside, ...props }, ref) => {
+  ({ className, sideOffset = 4, avoidCollisions, onInteractOutside, onPointerDownOutside, style, ...props }, ref) => {
     const contentRef = React.useRef(null)
+    const portalZIndex = React.useContext(PortalZIndexContext)
     const setRef = React.useCallback(
       (el) => {
         contentRef.current = el
@@ -116,6 +122,7 @@ const DropdownMenuContent = React.forwardRef(
       () => createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutside),
       [onInteractOutside, onPointerDownOutside],
     )
+    const contentStyle = portalZIndex != null ? { ...style, zIndex: portalZIndex } : style
     return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
@@ -123,7 +130,8 @@ const DropdownMenuContent = React.forwardRef(
         sideOffset={sideOffset}
         avoidCollisions={avoidCollisions}
         className={cn(
-          'z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+          'min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+          portalZIndex == null && 'z-50',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[side=left]:data-[state=closed]:zoom-out-95 data-[side=left]:data-[state=open]:zoom-in-95 data-[side=left]:slide-in-from-right-2',
           'data-[side=right]:data-[state=closed]:zoom-out-95 data-[side=right]:data-[state=open]:zoom-in-95 data-[side=right]:slide-in-from-left-2',
@@ -131,6 +139,7 @@ const DropdownMenuContent = React.forwardRef(
           'data-[side=bottom]:data-[state=open]:animate-dropdown-below-enter data-[side=bottom]:data-[state=closed]:animate-dropdown-below-exit',
           className,
         )}
+        style={contentStyle}
         {...handlers}
         {...props}
       />

@@ -7,12 +7,14 @@ import {
   Select,
   Switch,
 } from '@mui/material'
-import { ArrowUpRight, X } from '@phosphor-icons/react'
+import { ArrowUpRight, OpenAiLogoIcon, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { Input } from '@/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 
 import Apis from '../../apis/Apis'
@@ -50,6 +52,30 @@ const WebAgentModal = ({
   const formControlRef = useRef(null)
   const [selectMenuWidth, setSelectMenuWidth] = useState(null)
 
+  // API Key section (AI Provider) – same behaviour as MessageSettingsModal
+  const [selectedProvider, setSelectedProvider] = useState('openai')
+  const [apiKey, setApiKey] = useState('')
+  const [apiKeyError, setApiKeyError] = useState('')
+  const [isEditingApiKey, setIsEditingApiKey] = useState(false)
+  const [existingIntegrationId, setExistingIntegrationId] = useState(null)
+  const [existingApiKey, setExistingApiKey] = useState('')
+  const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('')
+  const [aiIntegrations, setAiIntegrations] = useState([])
+  const [loadingIntegrations, setLoadingIntegrations] = useState(false)
+  const [savingApiKey, setSavingApiKey] = useState(false)
+  const [enableChat, setEnableChat] = useState(false)
+
+  const providerFor = (int) =>
+    int?.provider === 'google' ? 'google' : int?.provider === 'anthropic' ? 'anthropic' : 'openai'
+
+  const maskApiKey = (key) => {
+    if (!key || key.length === 0) return ''
+    if (key.length <= 6) return '*'.repeat(key.length)
+    const last6 = key.slice(-6)
+    const stars = '*'.repeat(key.length - 6)
+    return stars + last6
+  }
+
   const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
     setSnackbar({
       isVisible: true,
@@ -63,7 +89,7 @@ const WebAgentModal = ({
     setSnackbar((prev) => ({ ...prev, isVisible: false }))
   }
 
-  useEffect(() => {}, [agentSmartRefillId])
+  useEffect(() => { }, [agentSmartRefillId])
 
   // Measure FormControl width when smart list section is visible so dropdown matches it
   useEffect(() => {
@@ -104,8 +130,8 @@ const WebAgentModal = ({
 
         // IMPORTANT: Only use legacy fields if new fields don't exist
         // If new fields exist (even if false/null), use them
-        const hasNewFields = 
-          agent.smartListEnabledForWeb !== undefined || 
+        const hasNewFields =
+          agent.smartListEnabledForWeb !== undefined ||
           agent.smartListIdForWeb !== undefined ||
           agent.smartListEnabledForEmbed !== undefined ||
           agent.smartListIdForEmbed !== undefined
@@ -132,11 +158,148 @@ const WebAgentModal = ({
         setRequireForm(false)
         setSelectedSmartList('')
       }
-      
-      // Fetch smart lists after initializing state
+
+      // Fetch smart lists and AI integrations after initializing state
       fetchSmartLists()
+      fetchAiIntegrations()
+      setIsEditingApiKey(false)
     }
-  }, [open, agent, fetureType, agentSmartRefill])
+  }, [open, agent, fetureType, agentSmartRefill, selectedUser?.id])
+
+  // Sync API key display from integrations by selected provider
+  useEffect(() => {
+    if (!open || isEditingApiKey || loadingIntegrations) return
+    const existingIntegration = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
+    if (!existingIntegration) {
+      setExistingIntegrationId(null)
+      setStoredApiKeyMasked('')
+      setExistingApiKey('')
+      setApiKey('••••••••••••••••••••••••••••••••')
+      return
+    }
+    setExistingIntegrationId(existingIntegration.id)
+    const masked = existingIntegration.apiKeyMasked || ''
+    const legacyRaw = existingIntegration.apiKey || ''
+    if (masked) {
+      setStoredApiKeyMasked(masked)
+      setApiKey(masked)
+    } else if (legacyRaw) {
+      setExistingApiKey(legacyRaw)
+      setApiKey(maskApiKey(legacyRaw))
+    } else {
+      setApiKey('••••••••••••••••••••••••••••••••')
+    }
+  }, [selectedProvider, aiIntegrations, isEditingApiKey, loadingIntegrations, open])
+
+  const fetchAiIntegrations = async () => {
+    try {
+      setLoadingIntegrations(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      const apiUrl = selectedUser?.id
+        ? `${Apis.BasePath}api/mail/ai-integrations?userId=${selectedUser.id}`
+        : `${Apis.BasePath}api/mail/ai-integrations`
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response.data?.status && Array.isArray(response.data?.data)) {
+        setAiIntegrations(response.data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching AI integrations:', error)
+    } finally {
+      setLoadingIntegrations(false)
+    }
+  }
+
+  const handleSaveApiKey = async () => {
+    setApiKeyError('')
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      showSnackbar('', 'Please log in to save API key.', SnackbarTypes.Error)
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    const trimmedApiKey = apiKey.trim()
+    const isMaskedKey =
+      (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
+      (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
+    const isPlaceholder = trimmedApiKey === '••••••••••••••••••••••••••••••••'
+    if (!trimmedApiKey || isMaskedKey || isPlaceholder) {
+      return
+    }
+    try {
+      setSavingApiKey(true)
+      if (existingIntegrationId) {
+        const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+        const updateResponse = await axios.put(
+          updateUrl,
+          { apiKey: trimmedApiKey },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        if (updateResponse.data?.status) {
+          setIsEditingApiKey(false)
+          const newMasked = maskApiKey(trimmedApiKey)
+          setStoredApiKeyMasked(newMasked)
+          setApiKey(newMasked)
+          showSnackbar('', 'API key updated successfully', SnackbarTypes.Success)
+        } else {
+          throw new Error(updateResponse.data?.message || 'Failed to update API key')
+        }
+      } else {
+        const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
+        const createResponse = await axios.post(
+          createUrl,
+          { provider: selectedProvider, apiKey: trimmedApiKey },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        if (createResponse.data?.status && createResponse.data?.data) {
+          const newId = createResponse.data.data.id
+          setExistingIntegrationId(newId)
+          setIsEditingApiKey(false)
+          const newMasked = maskApiKey(trimmedApiKey)
+          setStoredApiKeyMasked(newMasked)
+          setApiKey(newMasked)
+          await fetchAiIntegrations()
+          showSnackbar('', 'API key saved successfully', SnackbarTypes.Success)
+        } else {
+          throw new Error(createResponse.data?.message || 'Failed to save API key')
+        }
+      }
+    } catch (err) {
+      console.error('Error saving API key:', err)
+      setApiKeyError(
+        err.response?.data?.message || 'Failed to save API key. Please check the key and try again.',
+      )
+      showSnackbar(
+        '',
+        err.response?.data?.message || 'Failed to save API key. Please try again.',
+        SnackbarTypes.Error,
+      )
+    } finally {
+      setSavingApiKey(false)
+    }
+  }
+
+  const handleEnableChatChange = (event) => {
+    setEnableChat(event.target.checked)
+  }
 
   const fetchSmartLists = async () => {
     try {
@@ -181,7 +344,7 @@ const WebAgentModal = ({
               ? agent?.smartListIdForWebhook
               : agent?.smartListIdForWeb
           const fallbackId = agentSmartRefillId || agentSmartRefill
-          
+
           if (webSmartListId || fallbackId) {
             setSelectedSmartList(webSmartListId || fallbackId)
           } else if (response.data.data.length > 0) {
@@ -194,7 +357,7 @@ const WebAgentModal = ({
       showSnackbar(
         '',
         error.response?.data?.message ||
-          'Failed to fetch smart lists. Please try again.',
+        'Failed to fetch smart lists. Please try again.',
         SnackbarTypes.Error,
       )
     } finally {
@@ -420,159 +583,290 @@ const WebAgentModal = ({
 
           {/* Body */}
           <div className="flex-1 px-4 py-4" style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
-          {/* Require Form Section */}
-          <div
-            className="mb-4 rounded-lg p-4"
-            style={{
-              backgroundColor: 'rgba(0,0,0,0.02)',
-              border: '1px solid #eaeaea',
-            }}
-          >
-            <div className="mb-2 flex flex-row items-center justify-between">
-              <div style={{ fontWeight: 600, fontSize: 14 }}>
-                {fetureType === 'webhook'
-                  ? 'Add your leads to a smartlist'
-                  : 'Require users to complete a form?'}
-              </div>
-              <Switch
-                checked={requireForm}
-                onChange={handleToggleChange}
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: 'hsl(var(--brand-primary))',
-                    '& + .MuiSwitch-track': {
-                      backgroundColor: 'hsl(var(--brand-primary))',
+            {/* Require Form Section */}
+            <div
+              className="mb-4 rounded-lg p-4"
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.02)',
+                border: '1px solid #eaeaea',
+              }}
+            >
+              <div className="mb-2 flex flex-row items-center justify-between">
+                <div style={{ fontWeight: 600, fontSize: 14 }}>
+                  {fetureType === 'webhook'
+                    ? 'Add your leads to a smartlist'
+                    : 'Require users to complete a form?'}
+                </div>
+                <Switch
+                  checked={requireForm}
+                  onChange={handleToggleChange}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: 'hsl(var(--brand-primary))',
+                      '& + .MuiSwitch-track': {
+                        backgroundColor: 'hsl(var(--brand-primary))',
+                      },
                     },
-                  },
-                  '& .MuiSwitch-track': {
-                    backgroundColor: '#ccc',
-                  },
-                }}
-              />
+                    '& .MuiSwitch-track': {
+                      backgroundColor: '#ccc',
+                    },
+                  }}
+                />
+              </div>
+              <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
+                {fetureType === 'webhook'
+                  ? 'Organize the leads your AI talks to by adding them to a dedicated smartlist'
+                  : 'This prompts users to fill out a form before they engage in a conversation with your AI.'}
+              </div>
             </div>
-            <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>
-              {fetureType === 'webhook'
-                ? 'Organize the leads your AI talks to by adding them to a dedicated smartlist'
-                : 'This prompts users to fill out a form before they engage in a conversation with your AI.'}
-            </div>
-          </div>
 
-          {/* Smart List Selection */}
-          {requireForm && (
-            <div className="mb-4 w-full">
-              <div
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 16,
-                }}
-              >
+            {/* Smart List Selection */}
+            {requireForm && (
+              <div className="mb-4 w-full">
                 <div
                   style={{
-                    fontWeight: 'medium',
-                    color: 'rgba(0, 0, 0, 0.5)',
-                    fontSize: '16px',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 16,
                   }}
                 >
-                  Select Smart List
+                  <div
+                    style={{
+                      fontWeight: 'medium',
+                      color: 'rgba(0, 0, 0, 0.5)',
+                      fontSize: '16px',
+                    }}
+                  >
+                    Select Smart List
+                  </div>
+                  <button
+                    className="text-brand-primary underline text-transform-none font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleNewSmartList()
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      position: 'relative',
+                      zIndex: 10,
+                    }}
+                  >
+                    New Smartlist
+                  </button>
                 </div>
+
+                {loading ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      padding: '16px 0',
+                    }}
+                  >
+                    <div>Loading...</div>
+                  </div>
+                ) : smartLists.length > 0 ? (
+                  <div ref={formControlRef} className="w-full">
+                    <FormControl className="w-full h-[50px]">
+                      <Select
+                        value={selectedSmartList}
+                        onChange={(e) => setSelectedSmartList(e.target.value)}
+                        style={{
+                          border: '1px solid #E5E7EB',
+                          fontSize: '14px',
+                          padding: '12px',
+                          backgroundColor: '#fff',
+                          width: '100%',
+                          borderRadius: '6px',
+                          outline: 'none',
+                        }}
+                        sx={{
+                          height: '48px',
+                          borderRadius: '13px',
+                          border: '1px solid #00000020', // Default border
+                          '&:hover': {
+                            border: '1px solid #00000020', // Same border on hover
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Remove the default outline
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Remove outline on focus
+                          },
+                          '&.MuiSelect-select': {
+                            py: 0, // Optional padding adjustments
+                          },
+                        }}
+                        MenuProps={{
+                          onOpen: () => {
+                            if (formControlRef.current) {
+                              setSelectMenuWidth(formControlRef.current.offsetWidth)
+                            }
+                          },
+                          PaperProps: {
+                            style: {
+                              maxHeight: '30vh',
+                              overflow: 'auto',
+                              scrollbarWidth: 'none',
+                              width: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
+                              minWidth: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
+                            },
+                          },
+                        }}
+                      >
+                        {smartLists.map((list, index) => (
+                          <MenuItem key={list.id || index} value={list.id}>
+                            {list.sheetName}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
+                ) : (
+                  <div
+                    style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}
+                  >
+                    No smart lists available. Create a new one to get started.
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div
+              className="mb-4 rounded-lg p-4"
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.02)',
+                border: '1px solid #eaeaea',
+              }}
+            >
+              {/* API Key Section */}
+              <div className="flex flex-row items-center justify-between">
+                <div style={{ fontWeight: 600, fontSize: 14 }}>Enable chat?</div>
+                <div>
+                  <Switch
+                    checked={enableChat}
+                    onChange={handleEnableChatChange}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: 'hsl(var(--brand-primary))',
+                        '& + .MuiSwitch-track': {
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                        },
+                      },
+                      '& .MuiSwitch-track': {
+                        backgroundColor: '#ccc',
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+              <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}>This allows your users to chat with the agent.</div>
+            </div>
+
+            {enableChat && (
+              <div className="flex flex-col gap-3">
+                <label className="text-[14px] font-medium text-foreground">AI Provider</label>
+                <RadioGroup
+                  value={selectedProvider}
+                  onValueChange={(v) => setSelectedProvider(v)}
+                  className="flex flex-wrap gap-4"
+                >
+                  <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                    <RadioGroupItem value="openai" id="web-agent-ai-provider-openai" />
+                    <OpenAiLogoIcon size={19} className="text-brand-primary" />
+                    <span className="text-[14px] text-foreground">OpenAI</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                    <RadioGroupItem value="google" id="web-agent-ai-provider-google" />
+                    <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
+                    <span className="text-[14px] text-foreground">Gemini</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                    <RadioGroupItem value="anthropic" id="web-agent-ai-provider-anthropic" />
+                    <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
+                    <span className="text-[14px] text-foreground">Anthropic</span>
+                  </label>
+                </RadioGroup>
+
+                <p className="text-sm text-gray-600">
+                  {selectedProvider === 'google'
+                    ? 'Add Gemini API key to enable AI text + email + chat.'
+                    : selectedProvider === 'anthropic'
+                      ? 'Add Anthropic API key to enable AI text + email + chat.'
+                      : 'Add ChatGPT API key to enable AI text + email + chat.'}
+                </p>
+                <Input
+                  type={isEditingApiKey ? 'password' : 'text'}
+                  placeholder={
+                    existingIntegrationId
+                      ? 'Enter new API key to update'
+                      : selectedProvider === 'google'
+                        ? 'Enter your Gemini API key'
+                        : selectedProvider === 'anthropic'
+                          ? 'Enter your Anthropic API key'
+                          : 'Enter your OpenAI API key'
+                  }
+                  value={apiKey}
+                  onChange={(e) => {
+                    const newValue = e.target.value
+                    const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
+                    const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
+                    const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
+                    if (
+                      !isEditingApiKey &&
+                      (isPlaceholder ||
+                        isMaskedDisplay ||
+                        (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))
+                    ) {
+                      setIsEditingApiKey(true)
+                      setApiKey(newValue)
+                    } else {
+                      setApiKey(newValue)
+                    }
+                    setApiKeyError('')
+                  }}
+                  onBlur={() => {
+                    if (!apiKey.trim()) {
+                      setIsEditingApiKey(false)
+                      if (storedApiKeyMasked) {
+                        setApiKey(storedApiKeyMasked)
+                      } else if (existingApiKey) {
+                        setApiKey(maskApiKey(existingApiKey))
+                      } else if (existingIntegrationId) {
+                        setApiKey('••••••••••••••••••••••••••••••••')
+                      }
+                    }
+                  }}
+                  className={cn(
+                    'h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary',
+                    apiKey === '••••••••••••••••••••••••••••••••' && 'text-gray-400',
+                  )}
+                />
+                {apiKeyError && (
+                  <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                )}
                 <button
-                  className="text-brand-primary underline text-transform-none font-medium"
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleNewSmartList()
+                    handleSaveApiKey()
                   }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    position: 'relative',
-                    zIndex: 10,
-                  }}
+                  disabled={savingApiKey}
+                  className={cn(
+                    'mt-1 flex h-9 w-full items-center justify-center rounded-lg px-4 text-sm font-medium',
+                    'bg-brand-primary text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed',
+                    'transition-all duration-150 active:scale-[0.98]',
+                  )}
                 >
-                  New Smartlist
+                  {savingApiKey ? 'Saving...' : 'Save API key'}
                 </button>
               </div>
-
-              {loading ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    padding: '16px 0',
-                  }}
-                >
-                  <div>Loading...</div>
-                </div>
-              ) : smartLists.length > 0 ? (
-                <div ref={formControlRef} className="w-full">
-                  <FormControl className="w-full h-[50px]">
-                    <Select
-                      value={selectedSmartList}
-                      onChange={(e) => setSelectedSmartList(e.target.value)}
-                      style={{
-                        border: '1px solid #E5E7EB',
-                        fontSize: '14px',
-                        padding: '12px',
-                        backgroundColor: '#fff',
-                        width: '100%',
-                        borderRadius: '6px',
-                        outline: 'none',
-                      }}
-                      sx={{
-                        height: '48px',
-                        borderRadius: '13px',
-                        border: '1px solid #00000020', // Default border
-                        '&:hover': {
-                          border: '1px solid #00000020', // Same border on hover
-                        },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          border: 'none', // Remove the default outline
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          border: 'none', // Remove outline on focus
-                        },
-                        '&.MuiSelect-select': {
-                          py: 0, // Optional padding adjustments
-                        },
-                      }}
-                      MenuProps={{
-                        onOpen: () => {
-                          if (formControlRef.current) {
-                            setSelectMenuWidth(formControlRef.current.offsetWidth)
-                          }
-                        },
-                        PaperProps: {
-                          style: {
-                            maxHeight: '30vh',
-                            overflow: 'auto',
-                            scrollbarWidth: 'none',
-                            width: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
-                            minWidth: selectMenuWidth != null ? `${selectMenuWidth}px` : undefined,
-                          },
-                        },
-                      }}
-                    >
-                    {smartLists.map((list, index) => (
-                      <MenuItem key={list.id || index} value={list.id}>
-                        {list.sheetName}
-                      </MenuItem>
-                    ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              ) : (
-                <div
-                  style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}
-                >
-                  No smart lists available. Create a new one to get started.
-                </div>
-              )}
-            </div>
-          )}
+            )}
 
           </div>
 
