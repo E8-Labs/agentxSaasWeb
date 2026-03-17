@@ -881,15 +881,15 @@ function UserPlans({
                     } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30`}
                   >
                     <div className="absolute w-[200px] h-[150px] rounded-full bg-brand-primary blur-[50px] pointer-events-none opacity-25 left-0 top-0 -translate-y-full scale-100 transition-transform duration-300 ease-out group-hover:-translate-y-[70%] group-hover:scale-110" aria-hidden />
-                    <div className="w-full flex flex-col gap-1">
+                    <div className="w-full flex flex-col gap-1 px-[8px]">
                       {isBadgeVisible &&
                         item.discountedPrice !== 0 &&
                         item.discountedPrice != null && (
-                        <div className="absolute top-2 right-2 flex items-center gap-1 py-1 px-2 rounded-md bg-brand-primary/8">
+                        <div className="absolute top-2 right-2 flex items-center gap-1 py-1 px-2 rounded-[4px] bg-brand-primary/10 uppercase">
                           <span className="text-brand-primary">
                             <BoltIcon />
                           </span>
-                          <span className="text-[14px] leading-[18px] font-semibold tracking-[-0.36px] text-brand-primary">
+                          <span className="text-[12px] leading-[16px] font-semibold tracking-[-0.36px] text-brand-primary">
                             {badgeText}
                           </span>
                         </div>
@@ -1013,9 +1013,9 @@ function UserPlans({
                       </div>
 
                       {(isFrom === 'SubAccount' || routedFrom === 'Agency') ? null : (
-                        <div className="w-full px-4 py-3">
+                        <div className="w-full px-4 py-[2px]">
                           {index > 0 && (
-                            <div className="bg-[rgba(159,159,159,0.1)] border-[0.5px] border-dashed border-[#8a8a8a] min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
+                            <div className="min-h-[36px] px-4 py-[1px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
                               Everything in{' '}
                               {getCurrentPlans()[index - 1]?.name ||
                                 getCurrentPlans()[index - 1]?.title}{' '}

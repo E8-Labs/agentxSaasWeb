@@ -162,13 +162,7 @@ const MoreAgentsPopup = ({
           }}
         >
           {/* Header */}
-          <div
-            className="flex flex-row items-center justify-between px-4 py-3"
-            style={{ borderBottom: '1px solid #eaeaea' }}
-          >
-            <h2 className="text-[16px] font-semibold text-foreground">
-              Add Extra Agents
-            </h2>
+          <div className="flex flex-row items-center justify-end px-4 py-2">
             <CloseBtn onClick={handleClose} />
           </div>
 
@@ -190,6 +184,9 @@ const MoreAgentsPopup = ({
                 }}
               />
             )}
+            <h2 className="text-[24px] font-semibold text-foreground text-center mb-3">
+              Add Extra Agents
+            </h2>
             <p className="text-center mb-1">
               {`You've reached the maximum number of agents on your current plan.`}
             </p>
@@ -204,26 +201,26 @@ const MoreAgentsPopup = ({
 
           {/* Footer */}
           <div
-            className="flex flex-row items-center justify-between px-4 py-3"
+            className="flex flex-col gap-3 px-4 py-3"
             style={{ borderTop: '1px solid #eaeaea' }}
           >
-            <button
-              onClick={handleAddAgent}
-              onMouseDown={(e) => e.stopPropagation()}
-              type="button"
-              className="h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] cursor-pointer"
-              style={{ pointerEvents: 'auto', zIndex: 1402, position: 'relative' }}
-            >
-              Add Agent ${costPerAdditionalAgent} per month
-            </button>
             <button
               onClick={handleUpgrade}
               onMouseDown={(e) => e.stopPropagation()}
               type="button"
-              className="h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] cursor-pointer"
+              className="w-full h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] cursor-pointer"
               style={{ pointerEvents: 'auto', zIndex: 1402, position: 'relative' }}
             >
               Upgrade
+            </button>
+            <button
+              onClick={handleAddAgent}
+              onMouseDown={(e) => e.stopPropagation()}
+              type="button"
+              className="w-full h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] cursor-pointer"
+              style={{ pointerEvents: 'auto', zIndex: 1402, position: 'relative' }}
+            >
+              Add Agent ${costPerAdditionalAgent} per month
             </button>
           </div>
         </div>

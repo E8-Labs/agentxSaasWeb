@@ -149,7 +149,7 @@ const FeatureLine = ({
             </TooltipTrigger>
             <TooltipContent
               side="top"
-              className="rounded-lg bg-black px-3 py-2 text-xs font-medium text-white"
+              className="max-w-[200px] rounded-lg bg-black px-3 py-2 text-xs font-medium text-white break-words"
             >
               {info}
             </TooltipContent>
