@@ -16,6 +16,7 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
+import DelconfirmationModal from '@/components/globalExtras/DelconfirmationModal'
 import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import Image from 'next/image'
@@ -278,12 +279,13 @@ const MessageComposer = ({
   onSendSocialMessage,
   hasFacebookConnection = false,
   hasInstagramConnection = false,
-  pageName = null,
+  currentPage = null,
   onConnectionSuccess,
   onOpenAuthPopup,
   onCommentAdded,
   customDomain = null,
 }) => {
+
 
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [isExpanded, setIsExpanded] = useState(true)
@@ -323,6 +325,7 @@ const MessageComposer = ({
   const [connectForm, setConnectForm] = useState({ externalId: '', accessToken: '', displayName: '' })
   const [connectSubmitting, setConnectSubmitting] = useState(false)
   const [connectingOAuth, setConnectingOAuth] = useState(false)
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
 
   // Variables state
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -1823,11 +1826,11 @@ const MessageComposer = ({
                       <Button
                         type="button"
                         className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
-                        onClick={() => disconnectSocialOAuth('facebook')}
+                        onClick={() => setShowLogoutConfirmation(true)}
                         disabled={connectingOAuth}
                       >
-                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Image src={hasFacebookConnection ? "/facebook.png" : "/instagram.png"} width={20} height={20} alt="Facebook" />}
-                        Logout of {pageName}
+                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Image src={currentPage?.profileImageUrl ? currentPage?.profileImageUrl : currentPage?.platform === "facebook" ? "/facebook.png" : currentPage?.platform === "instagram" ? "/instagram.png" : "/facebook.png"} width={23} height={23} alt="Facebook" className="rounded-full" />}
+                        Logout of {currentPage?.displayName ? currentPage?.displayName : currentPage?.platform === "facebook" ? "Facebook" : currentPage?.platform === "instagram" ? "Instagram" : "Facebook"}
                       </Button>
                     )
                   }
@@ -3329,6 +3332,16 @@ const MessageComposer = ({
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Logout Facebook/Instagram confirmation */}
+      <DelconfirmationModal
+        showConfirmationPopuup={showLogoutConfirmation}
+        setShowConfirmationPopup={setShowLogoutConfirmation}
+        onContinue={() => {
+          setShowLogoutConfirmation(false)
+          disconnectSocialOAuth('facebook')
+        }}
+      />
 
       {/* Templates dropdown rendered in portal so it is not clipped by overflow and does not affect layout */}
       {typeof document !== 'undefined' && document.body && showTemplatesDropdown && createPortal(

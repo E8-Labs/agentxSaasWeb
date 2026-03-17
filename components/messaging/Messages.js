@@ -303,6 +303,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     // No access and no upgrade/request UI — do not open the modal
   }, [allowAIEmailAndText, shouldShowAllowAiEmailAndTextUpgrade, shouldShowAiEmailAndTextRequestFeature])
 
+  //temporarily print connections
+  // useEffect(() => {
+  //   console.log("C.JS socialConnections in Messages.js", socialConnections)
+  // }, [socialConnections])
+
   // Close email detail popover when clicking outside (but not when clicking Agentation toolbar)
   useEffect(() => {
     if (!openEmailDetailId) return
@@ -1703,6 +1708,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
+    // console.log("C.JS thread in handleThreadSelect", thread)
     setSelectedThread(thread)
     setMessageOffset(0)
     messageOffsetRef.current = 0
@@ -2531,6 +2537,15 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   useEffect(() => {
     fetchSocialConnections()
   }, [fetchSocialConnections])
+
+  //check which connection is for the selection thread
+  const checkselectedThreadSocialConnection = () => {
+    const threadConnectionMetaDataID = selectedThread?.metadata?.instagramAccountId || selectedThread?.metadata?.facebookPageId
+    // console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
+    const socialConnection = socialConnections.find((c) => c.externalId === threadConnectionMetaDataID)
+    // console.log("STSC.JS socialConnection", socialConnection)
+    return socialConnection
+  }
 
   // After Facebook/Instagram OAuth redirect: refetch connections, show toast, clean URL (once per landing)
   const handledSocialConnectRef = useRef(null)
@@ -4203,6 +4218,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
                         hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
                         pageName={socialConnections[0]?.displayName}
+                        currentPage={checkselectedThreadSocialConnection()}
                         onConnectionSuccess={fetchSocialConnections}
                         onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
                         onCommentAdded={(newMessage) => {
