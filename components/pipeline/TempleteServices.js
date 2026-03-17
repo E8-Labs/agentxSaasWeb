@@ -350,6 +350,9 @@ export const createCadenceTemplate = async (data) => {
     let token = AuthToken()
     let path = Apis.cadenceTemplates
 
+    console.log("Api data for create cadence template is", data)
+    // localStorage.setItem("cadenceTemplateData_Test", JSON.stringify(data))
+
     const response = await axios.post(path, data, {
       headers: {
         Authorization: 'Bearer ' + token,

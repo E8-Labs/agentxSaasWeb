@@ -620,7 +620,10 @@ const Pipeline1 = ({
       waitTimeMinutes: row.waitTimeMinutes || 0,
       communicationType: row.communicationType || row.action || 'call',
       referencePoint: row.referencePoint || 'regular_calls',
+      ...(row.templateId != null && { templateId: row.templateId }),
     }))
+
+    // console.log('rowsByIndex[stageIndex]:', rowsByIndex[stageIndex])
 
     return {
       stageIdentifier: stage.identifier || stage.stageTitle,
@@ -650,6 +653,8 @@ const Pipeline1 = ({
       communicationType: call.communicationType || 'call',
       action: call.communicationType || 'call',
       referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
+      ...(call.templateId != null && { templateId: call.templateId }),
+      // ...(call.emailAccountId != null && { emailAccountId: call.emailAccountId }),
     }))
 
     let newNextStageVal = nextStage[stageIndex]
@@ -771,6 +776,7 @@ const Pipeline1 = ({
 
         const oneStage = serializeStageAsTemplate(i)
         if (!oneStage) continue
+        // return
 
         const result = await createCadenceTemplate({
           templateName: name,

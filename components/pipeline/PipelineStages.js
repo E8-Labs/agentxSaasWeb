@@ -1311,6 +1311,11 @@ const PipelineStages = ({
                                   onChange={(e) => {
                                     const v = e.target.value
                                     if (v === '__header__') return
+                                    const clickedTemplate = cadenceTemplatesList.find((t) => t.id === v)
+                                    if (clickedTemplate) {
+                                      console.log('Clicked template:', clickedTemplate)
+                                    }
+                                    // return
                                     onStageTemplateSelect(item.id, v)
                                     setTemplateSelectOpenStageId(null)
                                   }}
@@ -1455,7 +1460,7 @@ const PipelineStages = ({
                             </div>
                             <div className="border rounded-xl py-4 px-4 mt-4">
                               <div>
-                                {(rowsByIndex[index] || []).map(
+                                {(console.log('rowsByIndex[index]', rowsByIndex[index]), (rowsByIndex[index] || []).map(
                                   (row, rowIndex) => {
                                     // Ensure row has referencePoint initialized
                                     // Check identifier from selectedPipelineStages (source of truth) or item as fallback
@@ -1719,6 +1724,7 @@ const PipelineStages = ({
                                                   <button
                                                     onClick={(e) => {
                                                       e.stopPropagation()
+                                                      console.log("Row clicked", row)
                                                       handleEditRow(index, row, e, rowIndex)
                                                     }}
                                                     type="button"
@@ -1747,7 +1753,7 @@ const PipelineStages = ({
                                         </div>
                                       </div>
                                     )
-                                  })}
+                                  }))}
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
