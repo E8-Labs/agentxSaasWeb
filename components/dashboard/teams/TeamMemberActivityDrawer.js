@@ -18,9 +18,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { getTasks } from '@/components/onboarding/services/apisServices/TaskService'
+import { getTasks, updateTask, deleteTask } from '@/components/onboarding/services/apisServices/TaskService'
+import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import Apis from '@/components/apis/Apis'
 import TaskCard from '@/components/messaging/TaskCard'
+import TaskForm from '@/components/messaging/TaskForm'
 import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { TypographyH3, TypographyBody, TypographyH3Semibold, TypographyCaption, TypographyTitle, TypographyButtonText, TypographyAlert, TypographyCaptionMedium } from '@/lib/typography'
 import { cn } from '@/lib/utils'
@@ -31,7 +33,7 @@ import { PortalZIndexProvider } from '@/components/providers/portal-z-index-prov
 import { Button } from '@/components/ui/button'
 import CloseIcon from '@mui/icons-material/Close'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { CircularProgress } from '@mui/material'
+import { Box, CircularProgress, Modal } from '@mui/material'
 
 /** Page size for activities (infinite scroll). Offset is passed to the API. */
 const ACTIVITIES_PAGE_SIZE = 10
@@ -101,6 +103,10 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   const [activeTab, setActiveTab] = useState('activity')
   const [tasks, setTasks] = useState([])
   const [tasksLoading, setTasksLoading] = useState(false)
+  const [teamMembers, setTeamMembers] = useState([])
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [selectedTaskForDelete, setSelectedTaskForDelete] = useState(null)
+  const [selectedTaskForEdit, setSelectedTaskForEdit] = useState(null)
   const [activities, setActivities] = useState([])
   const [totals, setTotals] = useState({ sms: 0, email: 0, calls: 0 })
   const [activitiesLoading, setActivitiesLoading] = useState(false)
@@ -149,6 +155,101 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       setTasksLoading(false)
     }
   }, [teamMemberUserId, taskStatusFilter])
+
+  const fetchTeamMembers = useCallback(async () => {
+    try {
+      const response = await getTeamsList(selectedUser?.id)
+      if (response) {
+        const members = []
+        if (response.admin) {
+          members.push({
+            id: response.admin.id,
+            name: response.admin.name,
+            email: response.admin.email,
+            thumb_profile_image: response.admin.thumb_profile_image,
+          })
+        }
+        if (response.data && Array.isArray(response.data)) {
+          response.data.forEach((team) => {
+            if (team.status === 'Accepted' && team.invitedUser) {
+              members.push({
+                id: team.invitedUser.id,
+                name: team.invitedUser.name,
+                email: team.invitedUser.email,
+                thumb_profile_image: team.invitedUser.thumb_profile_image,
+                invitedUserId: team.invitedUser.id,
+                invitedUser: team.invitedUser,
+              })
+            }
+          })
+        }
+        setTeamMembers(members)
+      }
+    } catch (error) {
+      console.error('Error fetching team members:', error)
+    }
+  }, [selectedUser?.id])
+
+  const handleUpdateTask = useCallback(async (taskId, updateData) => {
+    try {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                ...updateData,
+                ...(updateData.assignedTo && {
+                  assignedMembers: updateData.assignedTo.map((memberId) => {
+                    const member = teamMembers.find(
+                      (m) => (m.invitedUserId || m.invitedUser?.id || m.id) === memberId
+                    )
+                    return member
+                      ? {
+                          id: memberId,
+                          name: member.name || member.invitedUser?.name || 'Unknown',
+                          thumb_profile_image: member.thumb_profile_image || member.invitedUser?.thumb_profile_image,
+                        }
+                      : { id: memberId }
+                  }),
+                }),
+              }
+            : task
+        )
+      )
+      const response = await updateTask(taskId, updateData, selectedUser?.id)
+      if (response?.status) {
+        toast.success('Task updated successfully')
+        setSelectedTaskForEdit(null)
+        loadTasks()
+        window.dispatchEvent(new CustomEvent('tasksChanged'))
+      } else {
+        loadTasks()
+        toast.error(response?.message || 'Failed to update task')
+      }
+    } catch (error) {
+      console.error('Error updating task:', error)
+      loadTasks()
+      toast.error('Failed to update task')
+    }
+  }, [loadTasks, selectedUser?.id, teamMembers])
+
+  const handleDeleteTask = useCallback(async (taskId) => {
+    try {
+      const response = await deleteTask(taskId, selectedUser?.id)
+      if (response?.status) {
+        setShowDeleteConfirmation(false)
+        setSelectedTaskForDelete(null)
+        toast.success('Task deleted')
+        loadTasks()
+        window.dispatchEvent(new CustomEvent('tasksChanged'))
+      } else {
+        toast.error(response?.message || 'Failed to delete task')
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error)
+      toast.error('Failed to delete task')
+    }
+  }, [loadTasks, selectedUser?.id])
 
   const handleTaskCreatedFromDrawer = useCallback((taskData) => {
     setActiveTab('tasks')
@@ -223,8 +324,11 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
   }, [teamMemberUserId, range, customFromDate, customToDate, filter])
 
   useEffect(() => {
-    if (open && activeTab === 'tasks' && teamMemberUserId) loadTasks()
-  }, [open, activeTab, teamMemberUserId, taskStatusFilter, loadTasks])
+    if (open && activeTab === 'tasks' && teamMemberUserId) {
+      loadTasks()
+      fetchTeamMembers()
+    }
+  }, [open, activeTab, teamMemberUserId, taskStatusFilter, loadTasks, fetchTeamMembers])
 
   useEffect(() => {
     if (!open || activeTab !== 'activity' || !teamMemberUserId) return
@@ -274,7 +378,7 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
       }}
     >
       <PortalZIndexProvider value={5010}>
-        <div className="flex h-full bg-background rounded-xl overflow-hidden w-[58vw]">
+        <div className="flex h-full bg-background rounded-xl overflow-hidden w-[58vw]" data-team-member-drawer>
           {/* Left column: header, profile, vertical tabs - header height matches right for aligned lines */}
           <div className="flex flex-col w-[20vw] shrink-0 border-r border-border bg-background">
             <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-border">
@@ -353,79 +457,110 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
             {activeTab === 'tasks' && (
               <>
                 <span className="text-lg font-semibold text-foreground ml-2 mt-2 mb-3">Task</span>
-                <div
-                  // className="px-5 py-3 flex flex-wrap gap-2 border-b border-border"
-                  style={{
-                    backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                    width: 'fit-content',
-                    marginLeft: 15
-                  }}
-                  className={cn("px-3 py-2 flex flex-wrap gap-2 border-b border-border rounded-full", "flex flex-row items-center justify-center gap-2 rounded-full")}
-                >
-                  {STATUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setTaskStatusFilter(taskStatusFilter === opt.value ? null : opt.value)}
-                      // className={cn(
-                      //   'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
-                      //   taskStatusFilter === opt.value
-                      //     ? 'bg-brand-primary text-white'
-                      //     : 'bg-muted text-muted-foreground hover:bg-muted/80',
-                      // )}
-                      className={cn(
-                        "px-2 py-1 transition-colors",
-                        taskStatusFilter === opt.value ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
-                        taskStatusFilter === opt.value ? "rounded-full" : "rounded-none",
-                        // taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
-                        taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
-                      )}
+                {selectedTaskForEdit ? (
+                  <>
+                    <ScrollArea className="flex-1">
+                      <div className="p-5" id="team-member-drawer-task-form">
+                        <TaskForm
+                          task={selectedTaskForEdit}
+                          teamMembers={teamMembers}
+                          onSubmit={(data) => handleUpdateTask(selectedTaskForEdit.id, data)}
+                          onCancel={() => setSelectedTaskForEdit(null)}
+                          leadId={null}
+                          threadId={null}
+                          callId={null}
+                          showButtons={false}
+                        />
+                      </div>
+                    </ScrollArea>
+                    <div className="px-5 py-3 border-t border-border flex-shrink-0 flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setSelectedTaskForEdit(null)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        className="bg-brand-primary text-white hover:bg-brand-primary/90"
+                        onClick={() => {
+                          const form = document.querySelector('#team-member-drawer-task-form form')
+                          if (form) form.requestSubmit()
+                        }}
+                        type="button"
+                      >
+                        Update Task
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                        width: 'fit-content',
+                        marginLeft: 15
+                      }}
+                      className={cn("px-3 py-2 flex flex-wrap gap-2 border-b border-border rounded-full", "flex flex-row items-center justify-center gap-2 rounded-full")}
                     >
-                      {opt.label} {counts[opt.value] ?? 0}
-                    </button>
-                  ))}
-                  {/*<ToggleGroupCN
-                  options={STATUS_OPTIONS}
-                  value={taskStatusFilter}
-                  onChange={setTaskStatusFilter}
-                  height="p-1.5"
-                  roundedness="rounded-lg"
-                />*/}
-                </div>
-                <ScrollArea className="flex-1">
-                  <div className="p-5">
-                    {tasksLoading ? (
-                      <div className="flex justify-center py-12">
-                        <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                      {STATUS_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setTaskStatusFilter(taskStatusFilter === opt.value ? null : opt.value)}
+                          className={cn(
+                            "px-2 py-1 transition-colors",
+                            taskStatusFilter === opt.value ? 'bg-white text-brand-primary' : 'bg-transparent text-black',
+                            taskStatusFilter === opt.value ? "rounded-full" : "rounded-none",
+                            taskStatusFilter === opt.value && "shadow-[-4px_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_4px_6px_-1px_rgb(0_0_0_/_0.1),_4px_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
+                          )}
+                        >
+                          {opt.label} {counts[opt.value] ?? 0}
+                        </button>
+                      ))}
+                    </div>
+                    <ScrollArea className="flex-1">
+                      <div className="p-5">
+                        {tasksLoading ? (
+                          <div className="flex justify-center py-12">
+                            <div className="animate-spin h-8 w-8 border-2 border-brand-primary border-t-transparent rounded-full" />
+                          </div>
+                        ) : tasks.length === 0 ? (
+                          <TypographyBody className="text-muted-foreground italic py-8">No tasks assigned</TypographyBody>
+                        ) : (
+                          <div className="space-y-3">
+                            {tasks.map((task) => (
+                              <TaskCard
+                                key={task.id}
+                                task={task}
+                                onUpdate={handleUpdateTask}
+                                onDelete={() => {
+                                  setSelectedTaskForDelete(task)
+                                  setShowDeleteConfirmation(true)
+                                }}
+                                onEditClick={(taskId) => {
+                                  const taskToEdit = tasks.find((t) => t.id === taskId)
+                                  if (taskToEdit) setSelectedTaskForEdit(taskToEdit)
+                                }}
+                                statusOptions={[
+                                  { label: 'To Do', value: 'todo' },
+                                  { label: 'In Progress', value: 'in-progress' },
+                                  { label: 'Done', value: 'done' },
+                                ]}
+                                priorityOptions={[
+                                  { label: 'No Priority', value: 'no-priority' },
+                                  { label: 'Low', value: 'low' },
+                                  { label: 'Medium', value: 'medium' },
+                                  { label: 'High', value: 'high' },
+                                ]}
+                                teamMembers={teamMembers}
+                              />
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    ) : tasks.length === 0 ? (
-                      <TypographyBody className="text-muted-foreground italic py-8">No tasks assigned</TypographyBody>
-                    ) : (
-                      <div className="space-y-3">
-                        {tasks.map((task) => (
-                          <TaskCard
-                            key={task.id}
-                            task={task}
-                            onUpdate={loadTasks}
-                            onDelete={loadTasks}
-                            statusOptions={[
-                              { label: 'To Do', value: 'todo' },
-                              { label: 'In Progress', value: 'in-progress' },
-                              { label: 'Done', value: 'done' },
-                            ]}
-                            priorityOptions={[
-                              { label: 'No Priority', value: 'no-priority' },
-                              { label: 'Low', value: 'low' },
-                              { label: 'Medium', value: 'medium' },
-                              { label: 'High', value: 'high' },
-                            ]}
-                            teamMembers={[]}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
+                    </ScrollArea>
+                  </>
+                )}
               </>
             )}
 
@@ -736,6 +871,61 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
                 />
               )
             }
+
+            {showDeleteConfirmation && selectedTaskForDelete && (
+              <Modal
+                open={showDeleteConfirmation}
+                onClose={() => {
+                  setShowDeleteConfirmation(false)
+                  setSelectedTaskForDelete(null)
+                }}
+                sx={{ zIndex: 5011 }}
+                BackdropProps={{
+                  timeout: 200,
+                  sx: { backgroundColor: '#00000020' },
+                }}
+              >
+                <Box
+                  className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    backgroundColor: 'white',
+                    borderRadius: 2,
+                    outline: 'none',
+                  }}
+                >
+                  <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-[17px]">Delete Task</span>
+                    </div>
+                    <p className="font-medium text-[15px]">
+                      Are you sure you want to delete this task?
+                    </p>
+                    <div className="flex gap-2 w-full">
+                      <Button
+                        variant="outline"
+                        className="flex-1 text-left text-muted-foreground"
+                        onClick={() => {
+                          setShowDeleteConfirmation(false)
+                          setSelectedTaskForDelete(null)
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        className="flex-1 bg-brand-primary text-white hover:bg-brand-primary/90"
+                        onClick={() => handleDeleteTask(selectedTaskForDelete.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
+            )}
 
           </div>
         </div>

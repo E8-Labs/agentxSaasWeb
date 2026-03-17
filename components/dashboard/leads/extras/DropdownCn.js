@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
  */
 const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor, contentClassName, textSize = null, triggerClassName, selectedValue }) => {
   const [open, setOpen] = useState(false)
-  const scrollContainerRef = useRef(null)
+  const triggerWrapRef = useRef(null)
   const listWrapRef = useRef(null)
   const [pill, setPill] = useState({ top: 0, height: 0 })
   const [pillVisible, setPillVisible] = useState(false)
@@ -53,7 +53,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
     setOpen(newOpen)
   }
 
-  // Close dropdown on scroll to prevent floating issue
+  // Close dropdown on scroll to prevent floating issue (scope to task board or team member drawer when present)
   useEffect(() => {
     if (!open) return
 
@@ -61,8 +61,8 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
       setOpen(false)
     }
 
-    // Find the scroll container (ScrollArea in Sheet)
-    const scrollContainer = document.querySelector('[data-radix-scroll-area-viewport]')
+    const ancestor = triggerWrapRef.current?.closest?.('[data-task-board], [data-team-member-drawer]')
+    const scrollContainer = ancestor?.querySelector?.('[data-radix-scroll-area-viewport]') ?? document.querySelector('[data-radix-scroll-area-viewport]')
     if (scrollContainer) {
       scrollContainer.addEventListener('scroll', handleScroll, { passive: true })
       return () => {
@@ -74,7 +74,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
   const IconComponent = ChevronIcon || ChevronDown
 
   return (
-    <div className="relative">
+    <div className="relative" ref={triggerWrapRef}>
       <DropdownMenu open={open} onOpenChange={handleOpenChange}>
         <div className={cn("flex items-center h-[40px] w-auto whitespace-nowrap rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
           {onChevronClick ? (
