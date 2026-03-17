@@ -152,6 +152,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
   // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
+  // Full message settings (for Assign dropdown: social agent when FB/IG tab is selected)
+  const [messageSettings, setMessageSettings] = useState(null)
   // Single AI Chat drawer: only one instance in the app, opened from a call summary in SystemMessage
   const [aiChatContext, setAiChatContext] = useState(null)
   // When user selects Email/Text from AI actions inside the chat drawer, we close the drawer and open that follow-up on the matching SystemMessage
@@ -209,6 +211,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (selectedUser?.id) url += `?userId=${selectedUser.id}`
       const res = await axios.get(url, { headers })
       const data = res.data?.data
+      setMessageSettings(data || null)
       let hasKey = !!(data?.aiIntegrationId || (data?.aiIntegration && typeof data.aiIntegration === 'object'))
 
       // Fallback: if settings say no key but user has integrations (e.g. MessageSettings.aiIntegrationId was never set), treat as has key
@@ -223,6 +226,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       setMessageSettingsHasAiKey(hasKey)
     } catch {
       setMessageSettingsHasAiKey(false)
+      setMessageSettings(null)
     }
   }, [selectedUser?.id])
 
@@ -231,8 +235,31 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       fetchMessageSettingsHasAiKey()
     } else {
       setMessageSettingsHasAiKey(null)
+      setMessageSettings(null)
     }
   }, [selectedThread, fetchMessageSettingsHasAiKey])
+
+  const handleSocialAgentSaved = useCallback(
+    async (agentId) => {
+      try {
+        const localData = localStorage.getItem('User')
+        if (!localData) return
+        const userData = JSON.parse(localData)
+        const token = userData.token
+        let url = `${Apis.BasePath}api/mail/settings`
+        if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+        await axios.put(
+          url,
+          { socialSelectedAgentId: agentId == null || agentId === '' ? null : Number(agentId) },
+          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+        )
+        setMessageSettings((prev) => ({ ...(prev || {}), socialSelectedAgentId: agentId == null || agentId === '' ? null : Number(agentId) }))
+      } catch (err) {
+        console.error('Error saving social agent:', err)
+      }
+    },
+    [selectedUser?.id],
+  )
 
   // Refetch hasAiKey when message settings modal closes so we pick up a newly added key
   const prevShowMessageSettingsModal = useRef(false)
@@ -1708,7 +1735,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
-    // console.log("C.JS thread in handleThreadSelect", thread)
+    console.log("C.JS thread in handleThreadSelect", thread)
     setSelectedThread(thread)
     setMessageOffset(0)
     messageOffsetRef.current = 0
@@ -1918,19 +1945,44 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const getLeadName = (thread) => {
     // if (thread.lead?.source === 'messenger_dummy') return 'M'
     // if (thread.lead?.source === 'instagram_dummy') return 'I'
+    if (thread.lead?.profileImageUrl) {
+      return (
+        <Image src={thread.lead.profileImageUrl} alt={thread.lead.name} width={32} height={32} className="w-full h-full object-cover rounded-full" />
+      )
+    }
     if (thread.lead?.firstName) {
-      return thread.lead.firstName.charAt(0).toUpperCase()
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.lead.firstName.charAt(0).toUpperCase()}
+        </div>
+      )
     }
     if (thread.lead?.name) {
-      return thread.lead.name.charAt(0).toUpperCase()
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.lead.name.charAt(0).toUpperCase()}
+        </div>
+      )
     }
     if (thread.receiverPhoneNumber) {
-      return thread.receiverPhoneNumber.slice(-1)
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.receiverPhoneNumber.slice(-1)}
+        </div>
+      )
     }
     if (thread.receiverEmail) {
-      return thread.receiverEmail.charAt(0).toUpperCase()
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.receiverEmail.charAt(0).toUpperCase()}
+        </div>
+      )
     }
-    return 'L'
+    return (
+      <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+        L
+      </div>
+    )
   }
 
   // Get display name for thread (full name, not just initial)
@@ -2362,15 +2414,17 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Get agent/user avatar for outbound messages (agent first, then sender user)
   const getAgentAvatar = (message) => {
+    console.log("C.JS message in getAgentAvatar", message)
+    console.log("C.JS selectedThread in getAgentAvatar", selectedThread)
     // Priority 1: Agent thumb, voice, or initial (so SMS and email both show agent when message has an agent)
-    if (message.agent) {
-      if (message.agent.thumb_profile_image) {
-        const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
+    if (message?.agent) {
+      if (message?.agent?.thumb_profile_image) {
+        const agentLetter = (message?.agent?.name || 'A').charAt(0).toUpperCase()
         return (
           <div className="w-[32px] h-[32px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
             <img
-              src={message.agent.thumb_profile_image}
-              alt={message.agent.name || 'Agent'}
+              src={message?.agent?.thumb_profile_image}
+              alt={message?.agent?.name || 'Agent'}
               className="w-full h-full object-cover rounded-full"
               onError={(e) => {
                 e.target.style.display = 'none'
@@ -2384,7 +2438,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           </div>
         )
       }
-      if (message.agent.voiceId) {
+      if (message?.agent?.voiceId) {
         const selectedVoice = voicesList.find(
           (voice) => voice.voice_id === message.agent.voiceId,
         )
@@ -2541,9 +2595,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   //check which connection is for the selection thread
   const checkselectedThreadSocialConnection = () => {
     const threadConnectionMetaDataID = selectedThread?.metadata?.instagramAccountId || selectedThread?.metadata?.facebookPageId
-    // console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
+    console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
     const socialConnection = socialConnections.find((c) => c.externalId === threadConnectionMetaDataID)
-    // console.log("STSC.JS socialConnection", socialConnection)
+    console.log("STSC.JS socialConnection", socialConnection)
     return socialConnection
   }
 
@@ -4086,6 +4140,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     <ConversationHeader
                       selectedUser={selectedUser}
                       selectedThread={selectedThread}
+                      composerMode={composerMode}
+                      socialSelectedAgentId={messageSettings?.socialSelectedAgentId ?? null}
+                      onSocialAgentSaved={handleSocialAgentSaved}
                       getRecentMessageType={getRecentMessageType}
                       formatUnreadCount={formatUnreadCount}
                       getLeadName={getLeadName}

@@ -32,7 +32,7 @@ import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import PhoneInput from 'react-phone-input-2'
 
@@ -467,6 +467,7 @@ function Page() {
   const timerRef = useRef()
   const fileInputRef = useRef([])
   const searchTimeoutRef = useRef(null)
+  const getAgentsRequestIdRef = useRef(0) // ignore stale responses when filter changes quickly
   let attempts = 0
   const maxAttempts = 10
   // const fileInputRef = useRef(null);
@@ -676,6 +677,8 @@ function Page() {
   const [loading, setLoading] = useState(false)
 
   const [search, setSearch] = useState('')
+  const [selectedTags, setSelectedTags] = useState([]) // [] = All, string[] = filter by any of these tags
+  const tagFilterEffectMountedRef = useRef(false) // skip first run so tag clicks drive fetch with committed state
   const [duplicateLoader, setDuplicateLoader] = useState(false)
 
   //nedd help popup
@@ -3349,10 +3352,11 @@ function Page() {
     paginationStatus,
     search = null,
     searchLoader = false,
+    tagFilter = undefined,
   ) => {
     setPaginationLoader(true)
 
-    // Clear previous data if it's a new search to prevent memory buildup
+    // Clear previous data only for new search (not for tag filter) to avoid screen flash
     if (search && searchLoader) {
       setMainAgentsList([])
       setAgentsListSeparated([])
@@ -3372,21 +3376,32 @@ function Page() {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain,
       )
-      if (!agentLocalDetails || searchLoader) {
+      if (!agentLocalDetails || (searchLoader && search)) {
         setInitialLoader(true)
       }
+      const tagFilterArg = tagFilter !== undefined ? tagFilter : selectedTags
+      const tagsForApi = Array.isArray(tagFilterArg) ? tagFilterArg : tagFilterArg != null && tagFilterArg !== '' ? [tagFilterArg] : []
       let offset = mainAgentsList.length
       let ApiPath = `${Apis.getAgents}?offset=${offset}` //?agentType=outbound
 
       if (search) {
         offset = 0
-        ApiPath = `${Apis.getAgents}?offset=${offset}&search=${search}`
+        ApiPath = `${Apis.getAgents}?offset=${offset}&search=${encodeURIComponent(search)}`
+      }
+      if (tagsForApi.length > 0) {
+        offset = 0
+        const tagsParam = encodeURIComponent(tagsForApi.join(','))
+        ApiPath = search
+          ? `${Apis.getAgents}?offset=0&search=${encodeURIComponent(search)}&tags=${tagsParam}`
+          : `${Apis.getAgents}?offset=0&tags=${tagsParam}`
       }
       // console.log("Api path is", ApiPath);
 
       const Auth = AuthToken()
       ////console.log;
       // const AuthToken = userData.token;
+
+      const thisRequestId = ++getAgentsRequestIdRef.current
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -3437,6 +3452,15 @@ function Page() {
         setPaginationLoader(false)
         let agents = response.data.data || []
         // console.log("Agents from api", agents);
+
+        const isTagFilter = tagsForApi.length > 0
+        const isReplaceMode = (search && searchLoader) || (isTagFilter && searchLoader)
+
+        // Ignore stale response if user already changed filter/search (newer request in flight)
+        if (thisRequestId !== getAgentsRequestIdRef.current) {
+          return
+        }
+
         setOldAgentsList(agents)
         if (agents.length >= 6) {
           setCanGetMore(true)
@@ -3445,46 +3469,25 @@ function Page() {
           setCanGetMore(false)
         }
 
-        if (search) {
-          let subAgents = []
-          agents.forEach((item) => {
-            if (item.agents && item.agents.length > 0) {
-              for (let i = 0; i < item.agents.length; i++) {
-                const agent = item.agents[i]
-                if (agent) {
-                  subAgents.push(agent)
-                }
-              }
-            }
-          })
-
-          setAgentsListSeparated(agents) //subAgents
-
-          // return
-        }
-
-        let newList = [...mainAgentsList] // makes a shallow copy
-
-        if (Array.isArray(agents) && agents.length > 0) {
-          newList.push(...agents) // append all agents at once
-        }
-
-        // console.log("Agents after pushing", newList);
-        if (!search) {
-          localStorage.setItem(
-            PersistanceKeys.LocalStoredAgentsListMain,
-            JSON.stringify(newList),
-          )
-        } else {
+        if (isReplaceMode) {
+          setMainAgentsList(agents)
           localStorage.setItem(
             PersistanceKeys.LocalStoredAgentsListMain,
             JSON.stringify(agents),
           )
-        }
-        // console.log("New list is", newList);
-        if (search) {
-          setMainAgentsList(agents)
+          const flattened = (agents || []).flatMap((ma) =>
+            (ma.agents || []).map((ag) => ({ ...ag, tags: ma.tags || [] })),
+          )
+          setAgentsListSeparated(flattened)
         } else {
+          let newList = [...mainAgentsList]
+          if (Array.isArray(agents) && agents.length > 0) {
+            newList.push(...agents)
+          }
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(newList),
+          )
           setMainAgentsList(newList)
         }
       }
@@ -3496,6 +3499,15 @@ function Page() {
     }
   }
 
+  // When user changes tag filter (pill or All), fetch with committed selectedTags so we never send previous selection
+  useEffect(() => {
+    if (!tagFilterEffectMountedRef.current) {
+      tagFilterEffectMountedRef.current = true
+      return
+    }
+    getAgents(false, search, true, selectedTags)
+  }, [selectedTags])
+
   // Filter agents by sortBy (all / inbound / outbound) for Sort By dropdown
   const filteredAgentsList = useMemo(() => {
     if (sortBy === null || sortBy === 'all') return agentsListSeparated
@@ -3505,6 +3517,68 @@ function Page() {
         main.agents?.some((a) => a.agentType === sortBy),
     )
   }, [agentsListSeparated, sortBy])
+
+  // Unique tags for filter pills: loaded from API (all tags for user's agents), merged with any newly assigned tags
+  const [uniqueTags, setUniqueTags] = useState([])
+
+  const fetchAgentTags = useCallback(async () => {
+    try {
+      const Auth = AuthToken()
+      if (!Auth) return
+      const res = await axios.get(Apis.getAgentTags, {
+        headers: { Authorization: 'Bearer ' + Auth, 'Content-Type': 'application/json' },
+      })
+      const list = res?.data?.data
+      if (Array.isArray(list)) {
+        setUniqueTags(list.filter(Boolean).sort())
+      }
+    } catch (_) {
+      // non-blocking
+    }
+  }, [])
+
+  useEffect(() => {
+    const userData = localStorage.getItem('User')
+    if (userData) fetchAgentTags()
+  }, [fetchAgentTags])
+
+  const handleAssignAgentTags = async (mainAgentId, tags) => {
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.assignAgentTags,
+        { mainAgentId, tags },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setMainAgentsList((prev) => {
+        const updated = prev.map((ma) =>
+          ma.id === mainAgentId ? { ...ma, tags: [...(tags || [])] } : ma,
+        )
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(updated),
+          )
+        }
+        return updated
+      })
+      setUniqueTags((prev) =>
+        [...new Set([...prev, ...(tags || [])])].filter(Boolean).sort(),
+      )
+    } catch (err) {
+      console.error('AssignAgentTags error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.error,
+        message: err?.response?.data?.message || 'Failed to update agent tags',
+        isVisible: true,
+      })
+    }
+  }
 
   //function to add new agent by more agents popup
   const handleAddAgentByMoreAgentsPopup = () => {
@@ -3657,7 +3731,7 @@ function Page() {
           ////console.log;
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
-            agents.push(agent)
+            agents.push({ ...agent, tags: item.tags || [] })
           }
         }
       } else {
@@ -4172,8 +4246,9 @@ function Page() {
             showTasks={true}
           />
           </div>
-          <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3">
-            <div className="search-input-wrapper flex flex-row items-center gap-3 flex-shrink-0 border rounded-lg overflow-hidden h-[40px] w-full max-w-[400px] pl-3 pr-2">
+          <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3 flex-nowrap">
+            <div className="flex flex-row items-center gap-2 flex-shrink-0 min-w-0 flex-1 overflow-hidden">
+              <div className="search-input-wrapper flex flex-row items-center gap-3 flex-shrink-0 border rounded-lg overflow-hidden h-[40px] w-full max-w-[400px] pl-3 pr-2">
                 <input
                 className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 min-w-0 text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
                   placeholder="Search an agent"
@@ -4191,19 +4266,47 @@ function Page() {
                     }
                     searchTimeoutRef.current = setTimeout(() => {
                       let searchLoader = true
-                      getAgents(false, e.target.value, searchLoader)
+                      getAgents(false, e.target.value, searchLoader, selectedTags)
                     }, 500)
                   }}
                 />
-              <button type="button" className="outline-none border-none flex-shrink-0">
+                <button type="button" className="outline-none border-none flex-shrink-0">
                   <Image
                     src={'/assets/searchIcon.png'}
-                  height={18}
-                  width={18}
-                  alt="Search"
+                    height={18}
+                    width={18}
+                    alt="Search"
                   />
                 </button>
               </div>
+              {uniqueTags.length > 0 && (
+                <div className="flex flex-row items-center gap-1.5 flex-nowrap shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTags([])}
+                    className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${selectedTags.length === 0 ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                  >
+                    All
+                  </button>
+                  {uniqueTags.map((t) => {
+                    const isSelected = selectedTags.includes(t)
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
+                          setSelectedTags(next)
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                      >
+                        {t}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
             <button
               type="button"
               onClick={(e) => setSortByMenuAnchor(e.currentTarget)}
@@ -4369,11 +4472,13 @@ function Page() {
                 selectedImagesParam={selectedImages}
                 handlePopoverClose={handlePopoverClose}
                 user={user}
-                getAgents={(p, s) => {
-                  // console.log("p", s);
-                  getAgents(p, s) //user
+                getAgents={(p, s, searchLoader, tagFilter) => {
+                  getAgents(p, s, searchLoader, tagFilter)
                 }}
                 search={search}
+                selectedTags={selectedTags}
+                uniqueTags={uniqueTags}
+                onAssignTag={handleAssignAgentTags}
                 setObjective={setObjective}
                 setOldObjective={setOldObjective}
                 setGreetingTagInput={setGreetingTagInput}

@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { Box, Typography } from '@mui/material'
 
 const PURPLE_BG = '#6A0DAD'
@@ -20,6 +21,7 @@ const industryLabel = (industry) => {
 
 export default function CreateTemplatePreviewCard({
   industry,
+  industryIcon = null,
   name,
   agentRole,
   description,
@@ -58,17 +60,30 @@ export default function CreateTemplatePreviewCard({
           width: 80,
           height: 80,
           borderRadius: '50%',
-          background: 'radial-gradient(circle at 30% 30%, #e0e7ff 0%, #fce7f3 50%, #e0f2fe 100%)',
+          background: industryIcon
+            ? 'transparent'
+            : 'radial-gradient(circle at 30% 30%, #e0e7ff 0%, #fce7f3 50%, #e0f2fe 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           mx: 'auto',
           mb: 1.5,
+          overflow: 'hidden',
         }}
       >
-        <Typography sx={{ fontSize: '1.75rem', fontWeight: 600, color: '#151515' }}>
-          {name ? name.charAt(0).toUpperCase() : '?'}
-        </Typography>
+        {industryIcon ? (
+          <Image
+            src={industryIcon}
+            alt={typeLabel}
+            width={80}
+            height={80}
+            style={{ objectFit: 'cover', width: 80, height: 80 }}
+          />
+        ) : (
+          <Typography sx={{ fontSize: '1.75rem', fontWeight: 600, color: '#151515' }}>
+            {name ? name.charAt(0).toUpperCase() : '?'}
+          </Typography>
+        )}
       </Box>
       <Typography
         sx={{

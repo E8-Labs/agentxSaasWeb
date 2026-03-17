@@ -1,6 +1,6 @@
-import { Box, Fade, Modal, Popover } from '@mui/material'
+import { Box, Fade, Menu, MenuItem, Modal, Popover } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
-import { AlertTriangle, Calendar, Hourglass, MessageCircleMore, Zap } from 'lucide-react'
+import { AlertTriangle, Calendar, ChevronDown, Hourglass, MessageCircleMore, Zap } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -74,6 +74,9 @@ const AgentsListPaginated = ({
   initialLoader,
   selectedUser,
   scrollableTarget = 'scrollableAgentDiv',
+  uniqueTags = [],
+  onAssignTag,
+  selectedTags = [],
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
@@ -96,6 +99,9 @@ const AgentsListPaginated = ({
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null)
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null)
   const [hoveredAvatarIndex, setHoveredAvatarIndex] = useState(null)
+  const [assignTagAnchor, setAssignTagAnchor] = useState(null)
+  const [assignTagAgent, setAssignTagAgent] = useState(null)
+  const [assignTagInput, setAssignTagInput] = useState('')
 
   const open = Boolean(actionInfoEl)
 
@@ -168,8 +174,7 @@ const AgentsListPaginated = ({
     )
   }
   const fetchMoreAgents = async () => {
-    // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
-    getAgents(true, search)
+    getAgents(true, search, undefined, selectedTags)
   }
 
   const handlePopoverOpen = (event, item) => {
@@ -271,6 +276,110 @@ const AgentsListPaginated = ({
           </div>
         </div>
       </Popover>
+      <Menu
+        anchorEl={assignTagAnchor}
+        open={Boolean(assignTagAnchor)}
+        onClose={() => {
+          setAssignTagAnchor(null)
+          setAssignTagAgent(null)
+          setAssignTagInput('')
+        }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: 220,
+              maxHeight: 320,
+              borderRadius: 2,
+              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+              border: 'none',
+              '& .MuiList-root': { py: 0.5 },
+              '& .MuiMenuItem-root': {
+                minHeight: '37px !important',
+                height: 'auto !important',
+                paddingTop: '8px !important',
+                paddingBottom: '8px !important',
+                marginBottom: '6px !important',
+              },
+              '& .MuiMenuItem-root:last-of-type': { marginBottom: 0 },
+            },
+          },
+        }}
+      >
+        <Box sx={{ px: 1.5, pt: 1.5, pb: 1 }}>
+          <input
+            type="text"
+            value={assignTagInput}
+            onChange={(e) => setAssignTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && assignTagInput.trim()) {
+                e.preventDefault()
+                if (!assignTagAgent?.mainAgentId || !onAssignTag) return
+                const currentTags = assignTagAgent.tags || []
+                const next = currentTags.includes(assignTagInput.trim())
+                  ? currentTags
+                  : [...currentTags, assignTagInput.trim()]
+                onAssignTag(assignTagAgent.mainAgentId, next)
+                setAssignTagAnchor(null)
+                setAssignTagAgent(null)
+                setAssignTagInput('')
+              }
+            }}
+            placeholder="Type to add new tag..."
+            className="w-full outline-none rounded-lg px-2.5 py-2 text-sm font-medium text-[#111827] placeholder:text-[#6B7280] bg-white"
+            style={{
+              border: '1px solid #E5E7EB',
+              borderRadius: 8,
+            }}
+          />
+        </Box>
+        {uniqueTags.length === 0 && !assignTagInput && (
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <span style={{ fontSize: 14, color: '#6B7280' }}>No tag found...</span>
+          </Box>
+        )}
+        {uniqueTags.map((tagLabel) => {
+          const currentTags = assignTagAgent?.tags || []
+          const isSelected = currentTags.includes(tagLabel)
+          return (
+            <MenuItem
+              key={tagLabel}
+              dense
+              disableGutters
+              onClick={() => {
+                if (!assignTagAgent?.mainAgentId || !onAssignTag) return
+                const next = isSelected
+                  ? currentTags.filter((t) => t !== tagLabel)
+                  : [...currentTags, tagLabel]
+                onAssignTag(assignTagAgent.mainAgentId, next)
+                setAssignTagAnchor(null)
+                setAssignTagAgent(null)
+                setAssignTagInput('')
+              }}
+              sx={{
+                fontSize: 14,
+                minHeight: 37,
+                height: 'auto',
+                py: 0.75,
+                px: 1.5,
+                marginBottom: 6,
+                '&:last-of-type': { marginBottom: 0 },
+                ...(isSelected && {
+                  backgroundColor: 'hsl(var(--brand-primary) / 0.06)',
+                  color: 'hsl(var(--brand-primary))',
+                  '&:hover': {
+                    backgroundColor: 'hsl(var(--brand-primary) / 0.12)',
+                  },
+                }),
+              }}
+            >
+              {tagLabel}
+              {/* {isSelected ? ' ✓' : ''} */}
+            </MenuItem>
+          )
+        })}
+      </Menu>
       <WarningModal
         ShowWarningModal={ShowWarningModal}
         setShowWarningModal={setShowWarningModal}
@@ -457,7 +566,7 @@ const AgentsListPaginated = ({
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-row items-center gap-3 text-xs font-medium text-black/80 underline decoration-dotted decoration-black/40 underline-offset-[3px]">
+                          <div className="flex flex-row items-center gap-3 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666]/60 underline-offset-[3px]">
                             <button
                               onClick={() => {
                                 console.log("item on click.kj is", item?.prompt);
@@ -484,7 +593,43 @@ const AgentsListPaginated = ({
                             >
                               <div>More info</div>
                             </button>
+                            {onAssignTag && (
+                              <>
+                                <div>|</div>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    setAssignTagAnchor(e.currentTarget)
+                                    setAssignTagAgent(item)
+                                    setAssignTagInput('')
+                                  }}
+                                  className="flex items-center gap-0.5 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666]/60 underline-offset-[3px] hover:opacity-20"
+                                >
+                                  Assign Tag
+                                  <ChevronDown size={14} className="shrink-0" strokeWidth={2.5} style={{ color: '#333333' }} />
+                                </button>
+                              </>
+                            )}
                           </div>
+                          {onAssignTag && item.tags && item.tags.length > 0 && (
+                            <div className="flex flex-row items-center gap-2 w-full min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin flex-nowrap" style={{ scrollbarWidth: 'thin' }}>
+                              {item.tags.map((tagLabel) => (
+                                <button
+                                  key={tagLabel}
+                                  type="button"
+                                  onClick={(e) => {
+                                    setAssignTagAnchor(e.currentTarget)
+                                    setAssignTagAgent(item)
+                                    setAssignTagInput('')
+                                  }}
+                                  className="inline-flex items-center max-h-[24px] gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#E5E7EB] text-[#374151] hover:bg-[#D1D5DB] transition-colors flex-none w-max border-0 "
+                                >
+                                  {tagLabel}
+                                  <ChevronDown size={12} className="shrink-0 flex-none" strokeWidth={2.5} style={{ color: '#6B7280' }} />
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import {
   Box,
@@ -82,13 +82,13 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
   const [description, setDescription] = useState('')
   const [objective, setObjective] = useState('')
   const [kycNeeds, setKycNeeds] = useState(
-    () => (SellerKycsQuestions.DefaultSellerKycsNeed || []).map((q) => ({ ...q, selected: true }))
+    () => (SellerKycsQuestions.DefaultSellerKycsNeed || []).map((q) => ({ ...q, selected: false }))
   )
   const [kycMotivation, setKycMotivation] = useState(
-    () => (SellerKycsQuestions.DefaultSellerKycsMotivation || []).map((q) => ({ ...q, selected: true }))
+    () => (SellerKycsQuestions.DefaultSellerKycsMotivation || []).map((q) => ({ ...q, selected: false }))
   )
   const [kycUrgency, setKycUrgency] = useState(
-    () => (SellerKycsQuestions.DefaultSellerKycsUrgency || []).map((q) => ({ ...q, selected: true }))
+    () => (SellerKycsQuestions.DefaultSellerKycsUrgency || []).map((q) => ({ ...q, selected: false }))
   )
   const [activeKycTab, setActiveKycTab] = useState('Needs')
   const [kycAddingInline, setKycAddingInline] = useState(false)
@@ -104,7 +104,10 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
   const [objectionMenuAnchor, setObjectionMenuAnchor] = useState(null)
   const [objectionMenuIndex, setObjectionMenuIndex] = useState(null)
   const [objectionEditingIndex, setObjectionEditingIndex] = useState(null)
+  const objectionsScrollRef = useRef(null)
+  const kycScrollRef = useRef(null)
   const [guardrails, setGuardrails] = useState([])
+  const guardrailsScrollRef = useRef(null)
   const [guardrailsAddingInline, setGuardrailsAddingInline] = useState(false)
   const [guardrailDraftTitle, setGuardrailDraftTitle] = useState('')
   const [guardrailDraftDescription, setGuardrailDraftDescription] = useState('')
@@ -406,6 +409,42 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
     setObjectionMenuAnchor(null)
     setObjectionMenuIndex(null)
   }
+
+  // Auto-scroll objections panel to bottom when inline add form is shown
+  useEffect(() => {
+    if (!objectionsAddingInline || !objectionsScrollRef.current) return
+    const el = objectionsScrollRef.current
+    const run = () => {
+      el.scrollTop = el.scrollHeight - el.clientHeight
+    }
+    run()
+    const t = requestAnimationFrame(run)
+    return () => cancelAnimationFrame(t)
+  }, [objectionsAddingInline])
+
+  // Auto-scroll KYC panel to bottom when inline add form is shown
+  useEffect(() => {
+    if (!kycAddingInline || !kycScrollRef.current) return
+    const el = kycScrollRef.current
+    const run = () => {
+      el.scrollTop = el.scrollHeight - el.clientHeight
+    }
+    run()
+    const t = requestAnimationFrame(run)
+    return () => cancelAnimationFrame(t)
+  }, [kycAddingInline])
+
+  // Auto-scroll guardrails panel to bottom when inline add form is shown
+  useEffect(() => {
+    if (!guardrailsAddingInline || !guardrailsScrollRef.current) return
+    const el = guardrailsScrollRef.current
+    const run = () => {
+      el.scrollTop = el.scrollHeight - el.clientHeight
+    }
+    run()
+    const t = requestAnimationFrame(run)
+    return () => cancelAnimationFrame(t)
+  }, [guardrailsAddingInline])
 
   const addGuardrail = () => {
     setGuardrailEditingIndex(null)
@@ -724,7 +763,11 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
 
                     {/* Step 2: KYC */}
                     <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                      <Box sx={cardStyle}>
+                      <Box
+                        ref={kycScrollRef}
+                        className="max-h-[50svh] overflow-y-auto"
+                        sx={cardStyle}
+                      >
                         <Typography
                           sx={{
                             fontSize: 18,
@@ -932,7 +975,11 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
 
                     {/* Step 4: Objections */}
                     <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                      <Box sx={cardStyle}>
+                      <Box
+                        ref={objectionsScrollRef}
+                        className="max-h-[50svh] overflow-y-auto"
+                        sx={cardStyle}
+                      >
                         <Typography
                           sx={{
                             fontSize: 18,
@@ -1133,7 +1180,7 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
 
                     {/* Step 5: Guardrails */}
                     <Box sx={{ flex: '0 0 100%', px: 0.5 }}>
-                      <Box sx={cardStyle}>
+                      <Box ref={guardrailsScrollRef} className="max-h-[50svh] overflow-y-auto" sx={cardStyle}>
                         <Typography
                           sx={{
                             fontSize: 18,
@@ -1480,6 +1527,7 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
       >
         <CreateTemplatePreviewCard
           industry={industry}
+          industryIcon={UserTypeOptions.find((o) => o.userType === industry)?.icon}
           name={name}
           agentRole={agentRole}
           description={description}

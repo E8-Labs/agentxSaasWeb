@@ -34,6 +34,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import PipelineStages from './PipelineStages'
+import { getCadenceTemplates, createCadenceTemplate } from './TempleteServices'
 
 const EMPTY_CADENCE_SLICE = {
   assignedLeads: {},
@@ -165,6 +166,11 @@ const Pipeline1 = ({
     }
   }, [])
 
+  const [cadenceTemplatesList, setCadenceTemplatesList] = useState([])
+  const [selectedCadenceTemplateByStageId, setSelectedCadenceTemplateByStageId] = useState({})
+  const [saveStageAsTemplateByStageId, setSaveStageAsTemplateByStageId] = useState({})
+  const [stageTemplateNameByStageId, setStageTemplateNameByStageId] = useState({})
+
   const [reorderLoader, setReorderLoader] = useState(false)
   //code for new Lead calls
   // const [rows, setRows] = useState([]);
@@ -271,6 +277,12 @@ const Pipeline1 = ({
     //    // //console.log;
     // }
     getPipelines()
+
+    getCadenceTemplates().then((templates) => {
+      if (templates && Array.isArray(templates)) {
+        setCadenceTemplatesList(templates)
+      }
+    })
 
     const agentDetails = localStorage.getItem('agentDetails')
     if (agentDetails && agentDetails != 'undefined') {
@@ -560,6 +572,128 @@ const Pipeline1 = ({
     })
   }
 
+  const serializeCadenceAsTemplate = () => {
+    const stages = []
+    for (const [indexStr, isAssigned] of Object.entries(assignedLeads)) {
+      if (!isAssigned) continue
+      const index = Number(indexStr)
+      const stage = selectedPipelineStages[index]
+      if (!stage) continue
+
+      const moveToStageObj = selectedNextStage[index]
+      let moveToStageIdentifier = null
+      if (moveToStageObj) {
+        moveToStageIdentifier = moveToStageObj.identifier || moveToStageObj.stageTitle
+      }
+
+      const calls = (rowsByIndex[index] || []).map((row) => ({
+        waitTimeDays: row.waitTimeDays || 0,
+        waitTimeHours: row.waitTimeHours || 0,
+        waitTimeMinutes: row.waitTimeMinutes || 0,
+        communicationType: row.communicationType || row.action || 'call',
+        referencePoint: row.referencePoint || 'regular_calls',
+      }))
+
+      stages.push({
+        stageIdentifier: stage.identifier || stage.stageTitle,
+        stageTitle: stage.stageTitle,
+        moveToStageIdentifier,
+        calls,
+      })
+    }
+    return stages
+  }
+
+  const serializeStageAsTemplate = (stageIndex) => {
+    const stage = selectedPipelineStages[stageIndex]
+    if (!stage) return null
+
+    const moveToStageObj = selectedNextStage[stageIndex]
+    let moveToStageIdentifier = null
+    if (moveToStageObj) {
+      moveToStageIdentifier = moveToStageObj.identifier || moveToStageObj.stageTitle
+    }
+
+    const calls = (rowsByIndex[stageIndex] || []).map((row) => ({
+      waitTimeDays: row.waitTimeDays || 0,
+      waitTimeHours: row.waitTimeHours || 0,
+      waitTimeMinutes: row.waitTimeMinutes || 0,
+      communicationType: row.communicationType || row.action || 'call',
+      referencePoint: row.referencePoint || 'regular_calls',
+    }))
+
+    return {
+      stageIdentifier: stage.identifier || stage.stageTitle,
+      stageTitle: stage.stageTitle,
+      moveToStageIdentifier,
+      calls,
+    }
+  }
+
+  const handleSaveStageTemplateChange = (stageId, { save, name }) => {
+    setSaveStageAsTemplateByStageId((prev) => ({ ...prev, [stageId]: save }))
+    setStageTemplateNameByStageId((prev) => ({ ...prev, [stageId]: name ?? '' }))
+  }
+
+  const applyCadenceTemplateToStage = (stageIndex, template) => {
+    if (!template?.stages?.length || !selectedPipelineStages?.[stageIndex]) return
+    const stage = selectedPipelineStages[stageIndex]
+    // Apply the first (or only) stage's cadence from the template to this stage, regardless of stage name/identifier
+    const templateStage = template.stages[0]
+
+    const isBookingStage = stage.identifier === 'booked'
+    const newRows = (templateStage.calls || []).map((call, i) => ({
+      id: i + 1,
+      waitTimeDays: call.waitTimeDays || 0,
+      waitTimeHours: call.waitTimeHours || 0,
+      waitTimeMinutes: call.waitTimeMinutes || 0,
+      communicationType: call.communicationType || 'call',
+      action: call.communicationType || 'call',
+      referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
+    }))
+
+    let newNextStageVal = nextStage[stageIndex]
+    let newSelectedNextStageVal = selectedNextStage[stageIndex]
+    if (templateStage.moveToStageIdentifier) {
+      let moveToStage = selectedPipelineStages.find(
+        (s) => s.identifier && s.identifier === templateStage.moveToStageIdentifier,
+      )
+      if (!moveToStage) {
+        moveToStage = selectedPipelineStages.find(
+          (s) => s.stageTitle === templateStage.moveToStageIdentifier,
+        )
+      }
+      if (moveToStage) {
+        newNextStageVal = moveToStage.stageTitle
+        newSelectedNextStageVal = moveToStage
+      }
+    }
+
+    updateCurrentPipelineCadence((prev) => ({
+      assignedLeads: { ...prev.assignedLeads, [stageIndex]: true },
+      rowsByIndex: { ...prev.rowsByIndex, [stageIndex]: newRows },
+      nextStage: { ...prev.nextStage, [stageIndex]: newNextStageVal },
+      selectedNextStage: { ...prev.selectedNextStage, [stageIndex]: newSelectedNextStageVal },
+    }))
+  }
+
+  const handleStageTemplateSelect = (stageId, templateId) => {
+    if (templateId === '__new__' || !templateId) {
+      setSelectedCadenceTemplateByStageId((prev) => ({ ...prev, [stageId]: '' }))
+      return
+    }
+    setSelectedCadenceTemplateByStageId((prev) => ({ ...prev, [stageId]: templateId }))
+    const template = cadenceTemplatesList.find((t) => t.id === templateId)
+    if (!template) return
+    const stageIndex = selectedPipelineStages.findIndex((s) => s.id === stageId)
+    if (stageIndex === -1) return
+    applyCadenceTemplateToStage(stageIndex, template)
+  }
+
+  const handleClearStageTemplate = (stageId) => {
+    setSelectedCadenceTemplateByStageId((prev) => ({ ...prev, [stageId]: '' }))
+  }
+
   const printAssignedLeadsData = async () => {
     // return
     onContinueClick?.()
@@ -626,6 +760,30 @@ const Pipeline1 = ({
     if (cadenceData) {
       localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
     }
+
+    try {
+      for (let i = 0; i < selectedPipelineStages.length; i++) {
+        const stage = selectedPipelineStages[i]
+        if (!stage?.id) continue
+        const save = saveStageAsTemplateByStageId[stage.id]
+        const name = (stageTemplateNameByStageId[stage.id] || '').trim()
+        if (!save || !name) continue
+
+        const oneStage = serializeStageAsTemplate(i)
+        if (!oneStage) continue
+
+        const result = await createCadenceTemplate({
+          templateName: name,
+          stages: [oneStage],
+        })
+        if (result?.status && result?.data) {
+          setCadenceTemplatesList((prev) => [result.data, ...prev])
+        }
+      }
+    } catch (e) {
+      console.error('Failed to save cadence template:', e)
+    }
+
     handleContinue()
 
     // try {
@@ -941,9 +1099,6 @@ const Pipeline1 = ({
                             color: '#000000',
                           }}
                         >
-                          {/* <MenuItem value="">
-                                                        <div style={styles.dropdownMenu}>None</div>
-                                                    </MenuItem> */}
                           {pipelinesDetails.map((item, index) => (
                             <MenuItem
                               key={item.id}
@@ -953,8 +1108,6 @@ const Pipeline1 = ({
                               {item.title}
                             </MenuItem>
                           ))}
-                          {/* <MenuItem value={20}>03058191079</MenuItem>
-                                        <MenuItem value={30}>03281575712</MenuItem> */}
                         </Select>
                       </FormControl>
                     </Box>
@@ -1028,6 +1181,13 @@ const Pipeline1 = ({
                 onNewStageCreated={onNewStageCreated}
                 handleReOrder={handleReorder}
                 reorderRows={reorderRows}
+                saveStageAsTemplateByStageId={saveStageAsTemplateByStageId}
+                stageTemplateNameByStageId={stageTemplateNameByStageId}
+                onSaveStageTemplateChange={handleSaveStageTemplateChange}
+                cadenceTemplatesList={cadenceTemplatesList}
+                selectedCadenceTemplateByStageId={selectedCadenceTemplateByStageId}
+                onStageTemplateSelect={handleStageTemplateSelect}
+                onClearStageTemplate={handleClearStageTemplate}
               />
 
               {/* Reorder stage loader modal */}
@@ -1071,13 +1231,16 @@ const Pipeline1 = ({
           <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
-            <Footer
-              handleContinue={printAssignedLeadsData}
-              donotShowBack={true}
-              registerLoader={createPipelineLoader}
-              shouldContinue={shouldContinue}
-            />
+          <div className="flex items-center w-full px-4" style={{ minHeight: '50px' }}>
+            <div className="flex-1" />
+            <div className="flex items-center gap-3">
+              <Footer
+                handleContinue={printAssignedLeadsData}
+                donotShowBack={true}
+                registerLoader={createPipelineLoader}
+                shouldContinue={shouldContinue}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -11,13 +11,17 @@ import {
   Typography,
 } from '@mui/material'
 import axios from 'axios'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded'
 
 import Apis from '@/components/apis/Apis'
+import { UserTypeOptions } from '@/constants/UserTypeOptions'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import DelConfirmationModal from '@/components/common/DelConfirmationModal'
+import { toast } from '@/utils/toast'
 
 const cardShadow = '0 2px 12px rgba(0, 0, 0, 0.06)'
 const cardShadowHover = '0 8px 24px rgba(0, 0, 0, 0.1)'
@@ -56,6 +60,9 @@ export default function AgencyTemplatesList() {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
+  const [openConfirmationDelete, setOpenConfirmationDelete] = useState(false)
+  const [delLoader, setDelLoader] = useState(false)
+  const [draftLoader, setDraftLoader] = useState(false)
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -65,6 +72,7 @@ export default function AgencyTemplatesList() {
         headers: { Authorization: 'Bearer ' + AuthToken() },
       })
       if (res?.data?.status && res?.data?.data?.agencyTemplates) {
+        console.log("res.data.data.agencyTemplates", res.data.data.agencyTemplates)
         setTemplates(res.data.data.agencyTemplates)
       } else {
         setTemplates([])
@@ -97,6 +105,38 @@ export default function AgencyTemplatesList() {
     setSelectedTemplate(null)
   }
 
+  //function to pblish or draf template
+  const handleDraftClick = async () => {
+    try{
+      setDraftLoader(true)
+      const token = AuthToken()
+      console.log("template.status", token)
+      // {{template_id}}/status
+      const status_to_update = selectedTemplate.status === 'published' || selectedTemplate.status === "Published" ? 'draft' : 'published'
+      const ApiPath = `${Apis.draftTemplates}/${selectedTemplate.agentTemplateId}/status`
+      const ApiData = {
+        status: status_to_update
+      }
+      console.log("ApiPath for draft api", ApiPath)
+      const response = await axios.patch(ApiPath, ApiData, {
+        headers: { Authorization: 'Bearer ' + token },
+      })
+      console.log("response.data.data for draft api", response)
+      if(response.data.status){
+        toast.success('Template drafted successfully')
+        await fetchTemplates()
+        handleMenuClose()
+      } else {
+        toast.error(response.data.message || 'Failed to draft template')
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to draft template'
+      toast.error(msg)
+    } finally {
+      setDraftLoader(false)
+    }
+  }
+
   const handleEdit = () => {
     if (!selectedTemplate) return
     handleMenuClose()
@@ -104,21 +144,23 @@ export default function AgencyTemplatesList() {
   }
 
   const handleDelete = async () => {
-    if (!selectedTemplate) return
+    // Use template passed from modal (selectedDetails) so delete runs only when modal Delete is clicked
     const id = selectedTemplate.agentTemplateId
-    if (!window.confirm(`Delete template "${selectedTemplate.name || 'Unnamed'}"?`)) return
     setDeletingId(id)
+    setDelLoader(true)
     handleMenuClose()
     try {
       await axios.delete(`${Apis.getTemplates}/${id}`, {
         headers: { Authorization: 'Bearer ' + AuthToken() },
       })
       await fetchTemplates()
+      setOpenConfirmationDelete(false)
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Failed to delete template'
       window.alert(msg)
     } finally {
       setDeletingId(null)
+      setDelLoader(false)
     }
   }
 
@@ -184,8 +226,7 @@ export default function AgencyTemplatesList() {
       >
         {/* Template cards (Figma: node 24207-80889) */}
         {templates.map((t) => {
-          const status = t.status || 'Draft'
-          const isPublished = status === 'Published'
+          const status = t?.status.toLowerCase()
           return (
             <Card
               key={t.agentTemplateId}
@@ -251,7 +292,7 @@ export default function AgencyTemplatesList() {
                             width: 7.373,
                             height: 7.373,
                             borderRadius: '50%',
-                            bgcolor: isPublished ? successGreen : textSecondary,
+                            bgcolor: t?.status?.toLowerCase() === 'published' ? successGreen : textSecondary,
                           }}
                         />
                         <Typography
@@ -264,7 +305,7 @@ export default function AgencyTemplatesList() {
                             color: textPrimary,
                           }}
                         >
-                          {status}
+                          {t?.status}
                         </Typography>
                       </Box>
                       <Box
@@ -320,32 +361,55 @@ export default function AgencyTemplatesList() {
                       }}
                     >
                       <MenuItem onClick={handleEdit}>Edit</MenuItem>
+                      <MenuItem onClick={() => handleDraftClick(t)} disabled={draftLoader}>{draftLoader ? `${status === 'published' ? 'Drafting...' : 'Publishing...'}` : `${status === 'published' ? 'Draft' : 'Publish'}`}</MenuItem>
                       <MenuItem
-                        onClick={handleDelete}
+                        onClick={() => {
+                          setOpenConfirmationDelete(true)
+                        }}
                         disabled={deletingId === selectedTemplate?.agentTemplateId}
                       >
                         {deletingId === selectedTemplate?.agentTemplateId ? 'Deleting…' : 'Delete'}
                       </MenuItem>
                     </Menu>
                   </Box>
-                  {/* Avatar with gradient */}
-                  <Box
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle at 30% 30%, #e0e7ff 0%, #fce7f3 50%, #e0f2fe 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mt: 4,
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '1.75rem', fontWeight: 600, color: textPrimary }}>
-                      {t.name ? t.name.charAt(0).toUpperCase() : '?'}
-                    </Typography>
-                  </Box>
+                  {/* Avatar: industry icon or name initial */}
+                  {(() => {
+                    const industryIcon = t.industry
+                      ? UserTypeOptions.find((o) => o.userType === t.industry)?.icon
+                      : null
+                    return (
+                      <Box
+                        sx={{
+                          width: 100,
+                          height: 100,
+                          borderRadius: '50%',
+                          background: industryIcon
+                            ? 'transparent'
+                            : 'radial-gradient(circle at 30% 30%, #e0e7ff 0%, #fce7f3 50%, #e0f2fe 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          mt: 4,
+                          flexShrink: 0,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {industryIcon ? (
+                          <Image
+                            src={industryIcon}
+                            alt={industryLabel(t.industry)}
+                            width={100}
+                            height={100}
+                            style={{ objectFit: 'cover', width: 100, height: 100 }}
+                          />
+                        ) : (
+                          <Typography sx={{ fontSize: '1.75rem', fontWeight: 600, color: textPrimary }}>
+                            {t.name ? t.name.charAt(0).toUpperCase() : '?'}
+                          </Typography>
+                        )}
+                      </Box>
+                    )
+                  })()}
                   <Typography
                     sx={{
                       fontFamily: 'Inter, sans-serif',
@@ -484,6 +548,16 @@ export default function AgencyTemplatesList() {
             </Card>
           )
         })}
+
+        {/* Single delete confirmation modal (outside map so only one instance) */}
+        <DelConfirmationModal
+          showDelModal={openConfirmationDelete}
+          setShowDelModal={setOpenConfirmationDelete}
+          handleDelete={handleDelete}
+          delLoader={delLoader}
+          selectedDetails={selectedTemplate}
+          title="template"
+        />
 
         {/* New card Figma 24207-80562 */}
         {/* New Template card - always first (Figma: node 24207-80562) */}

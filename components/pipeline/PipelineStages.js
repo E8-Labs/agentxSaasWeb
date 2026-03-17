@@ -2,9 +2,11 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
   Alert,
   Box,
+  Checkbox,
   CircularProgress,
   Fade,
   FormControl,
+  FormControlLabel,
   Menu,
   MenuItem,
   Modal,
@@ -13,7 +15,7 @@ import {
   Snackbar,
   Tooltip,
 } from '@mui/material'
-import { CaretDown, CaretUp, Minus, PencilSimple } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, Minus, PencilSimple, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState, useCallback, useRef } from 'react'
@@ -29,6 +31,7 @@ import { UpgradeTagWithModal, UpgradeTag, getUserLocalData } from '../constants/
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
+import { Input } from '@/components/ui/input'
 import TagsInput from '../dashboard/leads/TagsInput'
 import ColorPicker from '../dashboardPipeline/ColorPicker'
 import { getAvailabePhoneNumbers } from '../globalExtras/GetAvailableNumbers'
@@ -69,6 +72,13 @@ const PipelineStages = ({
   handleReOrder,
   reorderRows,
   scrollContainerRef: scrollContainerRefProp,
+  saveStageAsTemplateByStageId = {},
+  stageTemplateNameByStageId = {},
+  onSaveStageTemplateChange,
+  cadenceTemplatesList = [],
+  selectedCadenceTemplateByStageId = {},
+  onStageTemplateSelect,
+  onClearStageTemplate,
 }) => {
   const [showSampleTip, setShowSampleTip] = useState(false)
 
@@ -175,6 +185,8 @@ const PipelineStages = ({
   const [editingTaskStageIndex, setEditingTaskStageIndex] = useState(null)
   // reorder cadence modal: stage index when open, null when closed
   const [reorderCadenceModalStageIndex, setReorderCadenceModalStageIndex] = useState(null)
+  // which stage's template dropdown is open (stage id or null)
+  const [templateSelectOpenStageId, setTemplateSelectOpenStageId] = useState(null)
 
   // useEffect(() => {
   //   console.log("targetUser key is is", targetUser)
@@ -1242,9 +1254,9 @@ const PipelineStages = ({
                               )}
                           </div>
                         ) : (
-                          <div>
-                            {assignedLeads[index] ? (
-                              <div>
+                          <div className="flex flex-col items-end gap-2">
+                            <div>
+                              {assignedLeads[index] ? (
                                 <button
                                   className="bg-[#00000020] flex flex-row items-center justify-center gap-1"
                                   style={{
@@ -1258,35 +1270,146 @@ const PipelineStages = ({
                                   <Minus size={18} weight="regular" />
                                   <div>Unassign</div>
                                 </button>
-                              </div>
-                            ) : (
-                              <button
-                                className="bg-brand-primary text-white flex flex-row items-center justify-center gap-2"
-                                style={{
-                                  ...styles.inputStyle,
-                                  borderRadius: '55px',
-                                  height: '38px',
-                                  width: '104px',
-                                }}
-                                onClick={() => assignNewStage(index)}
-                              >
-                                <div
+                              ) : (
+                                <button
+                                  className="bg-brand-primary text-white flex flex-row items-center justify-center gap-2"
                                   style={{
-                                    width: '16px',
-                                    height: '16px',
-                                    backgroundColor: '#FFFFFF',
-                                    WebkitMaskImage: 'url(/assets/addIcon.png)',
-                                    maskImage: 'url(/assets/addIcon.png)',
-                                    WebkitMaskSize: 'contain',
-                                    maskSize: 'contain',
-                                    WebkitMaskRepeat: 'no-repeat',
-                                    maskRepeat: 'no-repeat',
-                                    WebkitMaskPosition: 'center',
-                                    maskPosition: 'center',
+                                    ...styles.inputStyle,
+                                    borderRadius: '55px',
+                                    height: '38px',
+                                    width: '104px',
                                   }}
-                                />
-                                <div>Assign</div>
-                              </button>
+                                  onClick={() => assignNewStage(index)}
+                                >
+                                  <div
+                                    style={{
+                                      width: '16px',
+                                      height: '16px',
+                                      backgroundColor: '#FFFFFF',
+                                      WebkitMaskImage: 'url(/assets/addIcon.png)',
+                                      maskImage: 'url(/assets/addIcon.png)',
+                                      WebkitMaskSize: 'contain',
+                                      maskSize: 'contain',
+                                      WebkitMaskRepeat: 'no-repeat',
+                                      maskRepeat: 'no-repeat',
+                                      WebkitMaskPosition: 'center',
+                                      maskPosition: 'center',
+                                    }}
+                                  />
+                                  <div>Assign</div>
+                                </button>
+                              )}
+                            </div>
+                            {assignedLeads[index] && onStageTemplateSelect && (
+                              <FormControl size="small" sx={{ minWidth: 180 }}>
+                                <Select
+                                  displayEmpty
+                                  open={templateSelectOpenStageId === item.id}
+                                  onOpen={() => setTemplateSelectOpenStageId(item.id)}
+                                  onClose={() => setTemplateSelectOpenStageId(null)}
+                                  value={selectedCadenceTemplateByStageId[item.id] || ''}
+                                  onChange={(e) => {
+                                    const v = e.target.value
+                                    if (v === '__header__') return
+                                    onStageTemplateSelect(item.id, v)
+                                    setTemplateSelectOpenStageId(null)
+                                  }}
+                                  renderValue={(selected) => {
+                                    if (!selected) {
+                                      return <span style={{ color: '#00000070' }}>Select Template</span>
+                                    }
+                                    const tmpl = cadenceTemplatesList.find((t) => t.id === selected)
+                                    return tmpl?.templateName || 'Select Template'
+                                  }}
+                                  endAdornment={
+                                    selectedCadenceTemplateByStageId[item.id] ? (
+                                      <X
+                                        size={16}
+                                        className="cursor-pointer mr-4"
+                                        style={{ color: '#00000070' }}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          onClearStageTemplate?.(item.id)
+                                        }}
+                                      />
+                                    ) : null
+                                  }
+                                  MenuProps={{
+                                    PaperProps: {
+                                      sx: {
+                                        borderRadius: '12px',
+                                        boxShadow: '0px 4px 20px rgba(0,0,0,0.12)',
+                                        mt: 1.5,
+                                        overflow: 'visible',
+                                      },
+                                    },
+                                    MenuListProps: {
+                                      sx: { py: 0 },
+                                    },
+                                  }}
+                                  sx={{
+                                    fontSize: 13,
+                                    fontWeight: '500',
+                                    height: 36,
+                                    backgroundColor: '#FFFFFF',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                      border: 'none',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                      border: 'none',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                      border: 'none',
+                                    },
+                                  }}
+                                >
+                                  <MenuItem
+                                    value="__header__"
+                                    disabled
+                                    sx={{
+                                      opacity: 1,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'space-between',
+                                      py: 1,
+                                      px: 2,
+                                      backgroundColor: '#fafafa',
+                                      borderBottom: '1px solid #eee',
+                                      cursor: 'default',
+                                      minHeight: 'auto',
+                                    }}
+                                    onKeyDown={(e) => e.stopPropagation()}
+                                  >
+                                    <span style={{ fontSize: 13, fontWeight: '600', color: '#000000' }}>Templates</span>
+                                    <Box
+                                      component="span"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        onClearStageTemplate?.(item.id)
+                                        setTemplateSelectOpenStageId(null)
+                                      }}
+                                      sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#00000080' }}
+                                    >
+                                      <X size={16} />
+                                    </Box>
+                                  </MenuItem>
+                                  {cadenceTemplatesList.map((tmpl) => (
+                                    <MenuItem
+                                      key={tmpl.id}
+                                      value={tmpl.id}
+                                      sx={{ fontSize: 13, fontWeight: '500', py: 1.25 }}
+                                    >
+                                      {tmpl.templateName}
+                                    </MenuItem>
+                                  ))}
+                                  <MenuItem
+                                    value="__new__"
+                                    sx={{ fontSize: 13, fontWeight: '500', color: 'hsl(var(--brand-primary))', py: 1.25 }}
+                                  >
+                                    New Template
+                                  </MenuItem>
+                                </Select>
+                              </FormControl>
                             )}
                           </div>
                         )}
@@ -1885,6 +2008,50 @@ const PipelineStages = ({
                                   </FormControl>
                                 </Box>
                               </div>
+                              {onSaveStageTemplateChange && (
+                                <div className="flex flex-row items-center gap-2 mt-4">
+                                  <FormControlLabel
+                                    control={
+                                      <Checkbox
+                                        checked={!!saveStageAsTemplateByStageId[item.id]}
+                                        onChange={(e) =>
+                                          onSaveStageTemplateChange(item.id, {
+                                            save: e.target.checked,
+                                            name: stageTemplateNameByStageId[item.id] || '',
+                                          })
+                                        }
+                                        size="small"
+                                        sx={{
+                                          color: '#00000040',
+                                          '&.Mui-checked': {
+                                            color: 'hsl(var(--brand-primary))',
+                                          },
+                                        }}
+                                      />
+                                    }
+                                    label={
+                                      <span style={{ fontSize: 13, fontWeight: '500', color: '#000000' }}>
+                                        Save as template
+                                      </span>
+                                    }
+                                    sx={{ marginRight: 0 }}
+                                  />
+                                  {saveStageAsTemplateByStageId[item.id] && (
+                                    <Input
+                                      placeholder="Template name"
+                                      value={stageTemplateNameByStageId[item.id] || ''}
+                                      onChange={(e) =>
+                                        onSaveStageTemplateChange(item.id, {
+                                          save: true,
+                                          name: e.target.value,
+                                        })
+                                      }
+                                      className="border-2 border-[#00000020] rounded p-2 outline-none focus:outline-none focus:ring-0 focus:border-black"
+                                      style={{ width: 180, height: 34, fontSize: 13 }}
+                                    />
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
