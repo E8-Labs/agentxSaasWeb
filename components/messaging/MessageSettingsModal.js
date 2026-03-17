@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Info, ChevronRight, ArrowLeft, X } from 'lucide-react'
@@ -42,7 +43,7 @@ const getEffectivePlanCapabilities = (reduxUser) => {
   }
 }
 
-const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
+const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly = false, onSaved = null }) => {
   const { user: reduxUser, setUser: setReduxUser } = useUser()
   const planCapabilities = getEffectivePlanCapabilities(reduxUser)
   const hasAIEmailAndTextAccess = planCapabilities?.allowAIEmailAndText === true
@@ -58,6 +59,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     replyDelayEnabled: false,
     replyDelaySeconds: 30,
     saveAsDraftEnabled: false,
+    socialReplyDelayEnabled: false,
+    socialReplyDelaySeconds: 30,
+    socialSaveAsDraftEnabled: false,
+    socialSelectedAgentId: null,
     communicationStyle: null,
     tailoringCommunication: null,
     sentenceStructure: null,
@@ -83,6 +88,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('') // Server-provided masked key (*** + last 6 chars) for display/restore
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
   const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' | 'anthropic' for AI integration
+  const [socialAgentsList, setSocialAgentsList] = useState([]) // flat list of { id, name } for social agent dropdown
 
   /** Normalize agentSettings from API: may be string (JSON) or object; always return object or null */
   const parseAgentSettings = (raw) => {
@@ -111,11 +117,12 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     return stars + last6
   }
 
-  // Fetch current settings when modal opens
+  // Fetch current settings and agents when modal opens
   useEffect(() => {
     if (open) {
       fetchSettings()
       fetchAiIntegrations()
+      fetchSocialAgents()
       setIsEditingApiKey(false) // Reset editing state when modal opens
     }
   }, [open, selectedUser])
@@ -202,6 +209,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           replyDelayEnabled: data.replyDelayEnabled || false,
           replyDelaySeconds: data.replyDelaySeconds || 30,
           saveAsDraftEnabled: data.saveAsDraftEnabled || false,
+          socialReplyDelayEnabled: data.socialReplyDelayEnabled || false,
+          socialReplyDelaySeconds: data.socialReplyDelaySeconds ?? 30,
+          socialSaveAsDraftEnabled: data.socialSaveAsDraftEnabled || false,
+          socialSelectedAgentId: data.socialSelectedAgentId ?? null,
           communicationStyle: data.communicationStyle ?? null,
           tailoringCommunication: data.tailoringCommunication ?? null,
           sentenceStructure: data.sentenceStructure ?? null,
@@ -290,6 +301,35 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     }
   }
 
+  const fetchSocialAgents = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      const query = new URLSearchParams({ pagination: 'false' })
+      if (selectedUser?.id) query.set('userId', String(selectedUser.id))
+      const apiUrl = `${Apis.getAgents}?${query.toString()}`
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const list = response.data?.data && Array.isArray(response.data.data) ? response.data.data : []
+      const flat = list.flatMap((m) =>
+        (m.agents || []).map((a) => ({
+          id: a.id,
+          name: a.name || m.name || `Agent ${a.id}`,
+        }))
+      )
+      setSocialAgentsList(flat)
+    } catch (err) {
+      console.error('Error fetching agents for social settings:', err)
+      setSocialAgentsList([])
+    }
+  }
+
   const handleSave = async () => {
     try {
       setSaving(true)
@@ -308,40 +348,46 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         toast.error('Please set a valid delay time in seconds')
         return
       }
-
-      // Validate communication settings: each value must be in the allowed list for that key
-      const communicationFieldsToValidate = [
-        { key: 'communicationStyle', options: COMMUNICATION_STYLES },
-        { key: 'tailoringCommunication', options: TAILORING_COMMUNICATION_OPTIONS },
-        { key: 'sentenceStructure', options: SENTENCE_STRUCTURE_OPTIONS },
-        { key: 'expressingEnthusiasm', options: EXPRESSING_ENTHUSIASM_OPTIONS },
-        { key: 'explainingComplexConcepts', options: EXPLAINING_COMPLEX_CONCEPTS_OPTIONS },
-        { key: 'givingUpdates', options: GIVING_UPDATES_OPTIONS },
-        { key: 'handlingObjections', options: HANDLING_OBJECTIONS_OPTIONS },
-      ]
-      for (const { key, options } of communicationFieldsToValidate) {
-        const v = settings[key]
-        if (v != null && v !== '') {
-          const validValues = options.map((o) => o.value)
-          if (!validValues.includes(v)) {
-            toast.error(`Invalid value for ${key}. Please refresh and try again.`)
-            return
-          }
-        }
+      if (settings.socialReplyDelayEnabled && (settings.socialReplyDelaySeconds == null || settings.socialReplyDelaySeconds < 0)) {
+        toast.error('Please set a valid delay time in seconds for social messages')
+        return
       }
 
-      const integrationForSelected = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
-      let integrationId = integrationForSelected?.id ?? settings.aiIntegrationId
+      let integrationId = settings.aiIntegrationId
+      if (!socialOnly) {
+        // Validate communication settings: each value must be in the allowed list for that key
+        const communicationFieldsToValidate = [
+          { key: 'communicationStyle', options: COMMUNICATION_STYLES },
+          { key: 'tailoringCommunication', options: TAILORING_COMMUNICATION_OPTIONS },
+          { key: 'sentenceStructure', options: SENTENCE_STRUCTURE_OPTIONS },
+          { key: 'expressingEnthusiasm', options: EXPRESSING_ENTHUSIASM_OPTIONS },
+          { key: 'explainingComplexConcepts', options: EXPLAINING_COMPLEX_CONCEPTS_OPTIONS },
+          { key: 'givingUpdates', options: GIVING_UPDATES_OPTIONS },
+          { key: 'handlingObjections', options: HANDLING_OBJECTIONS_OPTIONS },
+        ]
+        for (const { key, options } of communicationFieldsToValidate) {
+          const v = settings[key]
+          if (v != null && v !== '') {
+            const validValues = options.map((o) => o.value)
+            if (!validValues.includes(v)) {
+              toast.error(`Invalid value for ${key}. Please refresh and try again.`)
+              return
+            }
+          }
+        }
 
-      // If API key is provided and it's not the masked version or placeholder, create or update the integration for this provider only
-      const trimmedApiKey = apiKey.trim()
-      const isMaskedKey = (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
-        (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
-      const isPlaceholder = trimmedApiKey === '••••••••••••••••••••••••••••••••'
+        const integrationForSelected = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
+        integrationId = integrationForSelected?.id ?? settings.aiIntegrationId
 
-      if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
-        try {
-          if (existingIntegrationId) {
+        // If API key is provided and it's not the masked version or placeholder, create or update the integration for this provider only
+        const trimmedApiKey = apiKey.trim()
+        const isMaskedKey = (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
+          (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
+        const isPlaceholder = trimmedApiKey === '••••••••••••••••••••••••••••••••'
+
+        if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
+          try {
+            if (existingIntegrationId) {
             // Update existing integration for this provider (send only apiKey so provider is not overwritten)
             const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
             const updateResponse = await axios.put(
@@ -405,26 +451,37 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           setSaving(false)
           return
         }
+        }
       }
 
-      // Save message settings (including communication settings from backend)
+      // Save message settings (socialOnly: only send social fields; otherwise full payload)
       const agentSettings = parseAgentSettings(settings.agentSettings)
-      const payload = {
-        aiIntegrationId: integrationId || null,
-        replyDelayEnabled: settings.replyDelayEnabled,
-        replyDelaySeconds: settings.replyDelayEnabled ? settings.replyDelaySeconds : null,
-        saveAsDraftEnabled: settings.saveAsDraftEnabled,
-        communicationStyle: settings.communicationStyle ?? null,
-        tailoringCommunication: settings.tailoringCommunication ?? null,
-        sentenceStructure: settings.sentenceStructure ?? null,
-        expressingEnthusiasm: settings.expressingEnthusiasm ?? null,
-        explainingComplexConcepts: settings.explainingComplexConcepts ?? null,
-        givingUpdates: settings.givingUpdates ?? null,
-        handlingObjections: settings.handlingObjections ?? null,
-        agentSettings: agentSettings ?? null,
-      }
+      const payload = socialOnly
+        ? {
+            socialReplyDelayEnabled: settings.socialReplyDelayEnabled,
+            socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
+            socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
+            socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+          }
+        : {
+            aiIntegrationId: integrationId || null,
+            replyDelayEnabled: settings.replyDelayEnabled,
+            replyDelaySeconds: settings.replyDelayEnabled ? settings.replyDelaySeconds : null,
+            saveAsDraftEnabled: settings.saveAsDraftEnabled,
+            socialReplyDelayEnabled: settings.socialReplyDelayEnabled,
+            socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
+            socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
+            socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+            communicationStyle: settings.communicationStyle ?? null,
+            tailoringCommunication: settings.tailoringCommunication ?? null,
+            sentenceStructure: settings.sentenceStructure ?? null,
+            expressingEnthusiasm: settings.expressingEnthusiasm ?? null,
+            explainingComplexConcepts: settings.explainingComplexConcepts ?? null,
+            givingUpdates: settings.givingUpdates ?? null,
+            handlingObjections: settings.handlingObjections ?? null,
+            agentSettings: agentSettings ?? null,
+          }
 
-      // Add userId if viewing subaccount from admin/agency
       if (selectedUser?.id) {
         payload.userId = selectedUser.id
       }
@@ -439,6 +496,9 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
       if (response.data?.status) {
         toast.success('Message settings saved successfully')
+        if (socialOnly && typeof onSaved === 'function') {
+          onSaved()
+        }
         onClose()
       } else {
         toast.error(response.data?.message || 'Failed to save settings')
@@ -490,6 +550,46 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     setSettings({
       ...settings,
       replyDelaySeconds: numValue >= 0 ? numValue : 0,
+    })
+  }
+
+  const handleSocialReplyDelayToggle = (enabled) => {
+    if (enabled) {
+      setSettings({
+        ...settings,
+        socialReplyDelayEnabled: true,
+        socialSaveAsDraftEnabled: false,
+      })
+    } else {
+      setSettings({
+        ...settings,
+        socialReplyDelayEnabled: false,
+        socialReplyDelaySeconds: null,
+      })
+    }
+  }
+
+  const handleSocialSaveAsDraftToggle = (enabled) => {
+    if (enabled) {
+      setSettings({
+        ...settings,
+        socialSaveAsDraftEnabled: true,
+        socialReplyDelayEnabled: false,
+      })
+    } else {
+      setSettings({
+        ...settings,
+        socialSaveAsDraftEnabled: false,
+      })
+    }
+  }
+
+  const handleSocialDelaySecondsChange = (value) => {
+    const numValue = parseInt(value, 10)
+    const safe = (Number.isNaN(numValue) || numValue < 0) ? 0 : numValue
+    setSettings({
+      ...settings,
+      socialReplyDelaySeconds: safe,
     })
   }
 
@@ -912,7 +1012,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             <div className="max-h-[75svh] overflow-hidden p-0 gap-[2px] flex flex-col">
               <div className="flex flex-col gap-[2px]">
                 <div className="w-full flex items-center justify-between h-auto min-h-0 py-3 px-4 border-b border-black/[0.06]">
-                  <DialogTitle className="text-[14px] font-semibold">AI Message Settings</DialogTitle>
+                  <DialogTitle className="text-[14px] font-semibold">{socialOnly ? 'Social message settings' : 'AI Message Settings'}</DialogTitle>
                   <DialogClose asChild>
                     <button
                       type="button"
@@ -930,6 +1030,71 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px]">
+                    {socialOnly ? (
+                    /* Social-only: only the Social (Facebook & Instagram DMs) block */
+                    <div className="flex flex-col gap-3 pt-3 pb-4">
+                      <h3 className="text-[14px] font-semibold text-foreground">Social (Facebook & Instagram DMs)</h3>
+                      <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                        <div className="flex items-center justify-between h-10 min-h-0">
+                          <div className="flex items-center gap-2">
+                            <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <Info size={16} />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                  <p className="text-xs">Auto-reply for Facebook and Instagram DMs after a delay.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <Switch checked={settings.socialReplyDelayEnabled} onCheckedChange={handleSocialReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
+                        </div>
+                        {settings.socialReplyDelayEnabled && (
+                          <div className="relative">
+                            <Input type="number" placeholder="Delay (seconds)" value={settings.socialReplyDelaySeconds ?? ''} onChange={(e) => handleSocialDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
+                            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between h-10 min-h-0">
+                          <div className="flex items-center gap-2">
+                            <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <Info size={16} />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                  <p className="text-xs">Save social auto-replies as drafts for you to review.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[14px] font-medium text-foreground">Agent for social messages</label>
+                        <Select value={settings.socialSelectedAgentId != null ? String(settings.socialSelectedAgentId) : 'none'} onValueChange={(v) => setSettings({ ...settings, socialSelectedAgentId: v === 'none' ? null : Number(v) })}>
+                          <SelectTrigger className="h-10 w-full">
+                            <SelectValue placeholder="Select agent" />
+                          </SelectTrigger>
+                          <SelectContent className="z-[1500]">
+                            <SelectItem value="none">None</SelectItem>
+                            {socialAgentsList.map((a) => (
+                              <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    ) : (
+                    <>
                     {/* API Key Section */}
                     <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-black/[0.06]">
                       <label className="text-[14px] font-medium text-foreground">AI Provider</label>
@@ -1006,7 +1171,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       )}
                     </div>
 
-                    {/* Set Auto Reply + Save as Draft Section */}
+                    {/* Email & text messages: Set Auto Reply + Save as Draft */}
+                    <h3 className="text-[14px] font-semibold text-foreground pt-1">Email & text messages</h3>
                     <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
                       <div className="flex items-center justify-between h-10 min-h-0">
                         <div className="flex items-center gap-2">
@@ -1088,6 +1254,67 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       </div>
                     </div>
 
+                    {/* Social (Facebook & Instagram DMs) */}
+                    <h3 className="text-[14px] font-semibold text-foreground pt-3">Social (Facebook & Instagram DMs)</h3>
+                    <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                      <div className="flex items-center justify-between h-10 min-h-0">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                  <Info size={16} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                <p className="text-xs">Auto-reply for Facebook and Instagram DMs after a delay.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Switch checked={settings.socialReplyDelayEnabled} onCheckedChange={handleSocialReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
+                      </div>
+                      {settings.socialReplyDelayEnabled && (
+                        <div className="relative">
+                          <Input type="number" placeholder="Set delay time (in seconds)" value={settings.socialReplyDelaySeconds ?? ''} onChange={(e) => handleSocialDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
+                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between h-10 min-h-0">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                  <Info size={16} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                <p className="text-xs">Save social auto-replies as drafts for you to review.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 pb-4 border-b border-black/[0.06]">
+                      <label className="text-[14px] font-medium text-foreground">Agent for social messages</label>
+                      <Select value={settings.socialSelectedAgentId != null ? String(settings.socialSelectedAgentId) : 'none'} onValueChange={(v) => setSettings({ ...settings, socialSelectedAgentId: v === 'none' ? null : Number(v) })}>
+                        <SelectTrigger className="h-10 w-full">
+                          <SelectValue placeholder="Select agent" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[1500]">
+                          <SelectItem value="none">None</SelectItem>
+                          {socialAgentsList.map((a) => (
+                            <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     {/* Communication Settings */}
                     <div className="flex flex-col gap-3 w-full py-3">
                       <h3 className="text-[14px] font-semibold text-foreground">Communication Settings</h3>
@@ -1160,25 +1387,29 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         </button>
                       </div>
                     </div>
+                  </>
+                    )}
                   </div>
                 )}
               </div>
 
               <DialogFooter className="gap-0.5 p-4 flex-row justify-between sm:flex-row sm:justify-between border-t border-black/[0.06]">
-                <Button
-                  variant="ghost"
-                  onClick={onClose}
-                  disabled={saving}
-                  className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] active:scale-[0.98] transition-all duration-150 ease-out"
-                >
-                  Cancel
-                </Button>
+                {!socialOnly && (
+                  <Button
+                    variant="ghost"
+                    onClick={onClose}
+                    disabled={saving}
+                    className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-black/[0.04] active:scale-[0.98] transition-all duration-150 ease-out"
+                  >
+                    Cancel
+                  </Button>
+                )}
                 <Button
                   onClick={handleSave}
                   disabled={saving || loading}
-                  className="h-10 rounded-lg px-4 py-2 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white active:scale-[0.98] transition-all duration-150 ease-out"
+                  className={cn('h-10 rounded-lg px-4 py-2 text-[14px] font-medium bg-brand-primary hover:bg-brand-primary/90 text-white active:scale-[0.98] transition-all duration-150 ease-out', socialOnly && 'w-full')}
                 >
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? 'Saving...' : socialOnly ? 'Save' : 'Save Changes'}
                 </Button>
               </DialogFooter>
             </div>

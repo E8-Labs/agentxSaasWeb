@@ -152,6 +152,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
   // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
   const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
+  // Full message settings (for Assign dropdown: social agent when FB/IG tab is selected)
+  const [messageSettings, setMessageSettings] = useState(null)
   // Single AI Chat drawer: only one instance in the app, opened from a call summary in SystemMessage
   const [aiChatContext, setAiChatContext] = useState(null)
   // When user selects Email/Text from AI actions inside the chat drawer, we close the drawer and open that follow-up on the matching SystemMessage
@@ -209,6 +211,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       if (selectedUser?.id) url += `?userId=${selectedUser.id}`
       const res = await axios.get(url, { headers })
       const data = res.data?.data
+      setMessageSettings(data || null)
       let hasKey = !!(data?.aiIntegrationId || (data?.aiIntegration && typeof data.aiIntegration === 'object'))
 
       // Fallback: if settings say no key but user has integrations (e.g. MessageSettings.aiIntegrationId was never set), treat as has key
@@ -223,6 +226,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       setMessageSettingsHasAiKey(hasKey)
     } catch {
       setMessageSettingsHasAiKey(false)
+      setMessageSettings(null)
     }
   }, [selectedUser?.id])
 
@@ -231,8 +235,31 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       fetchMessageSettingsHasAiKey()
     } else {
       setMessageSettingsHasAiKey(null)
+      setMessageSettings(null)
     }
   }, [selectedThread, fetchMessageSettingsHasAiKey])
+
+  const handleSocialAgentSaved = useCallback(
+    async (agentId) => {
+      try {
+        const localData = localStorage.getItem('User')
+        if (!localData) return
+        const userData = JSON.parse(localData)
+        const token = userData.token
+        let url = `${Apis.BasePath}api/mail/settings`
+        if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+        await axios.put(
+          url,
+          { socialSelectedAgentId: agentId == null || agentId === '' ? null : Number(agentId) },
+          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+        )
+        setMessageSettings((prev) => ({ ...(prev || {}), socialSelectedAgentId: agentId == null || agentId === '' ? null : Number(agentId) }))
+      } catch (err) {
+        console.error('Error saving social agent:', err)
+      }
+    },
+    [selectedUser?.id],
+  )
 
   // Refetch hasAiKey when message settings modal closes so we pick up a newly added key
   const prevShowMessageSettingsModal = useRef(false)
@@ -4086,6 +4113,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                     <ConversationHeader
                       selectedUser={selectedUser}
                       selectedThread={selectedThread}
+                      composerMode={composerMode}
+                      socialSelectedAgentId={messageSettings?.socialSelectedAgentId ?? null}
+                      onSocialAgentSaved={handleSocialAgentSaved}
                       getRecentMessageType={getRecentMessageType}
                       formatUnreadCount={formatUnreadCount}
                       getLeadName={getLeadName}

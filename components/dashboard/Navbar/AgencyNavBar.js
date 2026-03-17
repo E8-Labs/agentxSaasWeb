@@ -48,7 +48,7 @@ import AgentSelectSnackMessage, {
 import AgencyChecklist from './AgencyChecklist'
 import CheckList from './CheckList'
 import { PermissionProvider, useHasPermission, usePermission } from '@/contexts/PermissionContext'
-import { Form } from 'lucide-react';
+import { ClipboardList } from 'lucide-react';
 
 const stripePromise = getStripe()
 
@@ -215,8 +215,8 @@ const AgencyNavBarContent = () => {
       id: 8,
       name: 'Templates',
       href: '/agency/dashboard/templates',
-      selected: <Form size={20} color="hsl(var(--brand-primary))" />,
-      uneselected: <Form size={20} color="#000000" />,
+      selected: <ClipboardList size={20} color="hsl(var(--brand-primary))" />,
+      uneselected: <ClipboardList size={20} color="#000000" />,
       permissionKey: 'agency.templates.manage',
     },
   ], [])
