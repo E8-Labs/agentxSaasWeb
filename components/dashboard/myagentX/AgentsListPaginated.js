@@ -1,12 +1,13 @@
 import { Box, Fade, Menu, MenuItem, Modal, Popover } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
-import { AlertTriangle, Calendar, ChevronDown, Hourglass, MessageCircleMore, Zap } from 'lucide-react'
+import { AlertTriangle, Calendar, ChevronDown, Hourglass, MessageCircleMore, Trash, X, Zap } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { UserTypes } from '@/constants/UserTypes'
+import { toast } from '@/utils/toast'
 import {
   formatPhoneNumber,
   getAgentImage,
@@ -307,26 +308,36 @@ const AgentsListPaginated = ({
           },
         }}
       >
-        <Box sx={{ px: 1.5, pt: 1.5, pb: 1 }}>
+        <Box sx={{ pt: 1.5, pb: 1 }}>
           <input
             type="text"
             value={assignTagInput}
             onChange={(e) => setAssignTagInput(e.target.value)}
             onKeyDown={(e) => {
+              // Prevent Menu from stealing key events (e.g. typing "F" focusing "Feby")
+              if (e.key.length === 1) {
+                e.stopPropagation()
+              }
               if (e.key === 'Enter' && assignTagInput.trim()) {
                 e.preventDefault()
+                e.stopPropagation()
                 if (!assignTagAgent?.mainAgentId || !onAssignTag) return
                 const currentTags = assignTagAgent.tags || []
-                const next = currentTags.includes(assignTagInput.trim())
-                  ? currentTags
-                  : [...currentTags, assignTagInput.trim()]
-                onAssignTag(assignTagAgent.mainAgentId, next)
+                const tagToAdd = assignTagInput.trim()
+                const isDuplicate = currentTags.some(
+                  (t) => t.trim().toLowerCase() === tagToAdd.toLowerCase()
+                )
+                if (isDuplicate) {
+                  toast.warning('This tag is already assigned to the agent')
+                  return
+                }
+                onAssignTag(assignTagAgent.mainAgentId, [...currentTags, tagToAdd])
                 setAssignTagAnchor(null)
                 setAssignTagAgent(null)
                 setAssignTagInput('')
               }
             }}
-            placeholder="Type to add new tag..."
+            placeholder="Search or add"
             className="w-full outline-none rounded-lg px-2.5 py-2 text-sm font-medium text-[#111827] placeholder:text-[#6B7280] bg-white"
             style={{
               border: '1px solid #E5E7EB',
@@ -334,12 +345,21 @@ const AgentsListPaginated = ({
             }}
           />
         </Box>
-        {uniqueTags.length === 0 && !assignTagInput && (
-          <Box sx={{ px: 2, py: 1.5 }}>
-            <span style={{ fontSize: 14, color: '#6B7280' }}>No tag found...</span>
-          </Box>
-        )}
-        {uniqueTags.map((tagLabel) => {
+        {(() => {
+          const search = assignTagInput.trim().toLowerCase()
+          const filteredTags = search
+            ? uniqueTags.filter((tag) => tag.toLowerCase().includes(search))
+            : uniqueTags
+          if (filteredTags.length === 0) {
+            return (
+              <Box sx={{ px: 2, py: 1.5 }}>
+                <span style={{ fontSize: 14, color: '#6B7280' }}>
+                  {assignTagInput.trim() ? 'No matching tag' : 'No tag found...'}
+                </span>
+              </Box>
+            )
+          }
+          return filteredTags.map((tagLabel) => {
           const currentTags = assignTagAgent?.tags || []
           const isSelected = currentTags.includes(tagLabel)
           return (
@@ -365,6 +385,10 @@ const AgentsListPaginated = ({
                 px: 1.5,
                 marginBottom: 6,
                 '&:last-of-type': { marginBottom: 0 },
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1,
                 ...(isSelected && {
                   backgroundColor: 'hsl(var(--brand-primary) / 0.06)',
                   color: 'hsl(var(--brand-primary))',
@@ -372,13 +396,54 @@ const AgentsListPaginated = ({
                     backgroundColor: 'hsl(var(--brand-primary) / 0.12)',
                   },
                 }),
+                '& .assign-tag-del-btn': {
+                  opacity: 0,
+                  transition: 'opacity 0.15s ease',
+                },
+                '&:hover .assign-tag-del-btn': {
+                  opacity: 1,
+                },
+                '& .assign-tag-del-btn:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.08)',
+                },
               }}
             >
-              {tagLabel}
-              {/* {isSelected ? ' ✓' : ''} */}
+              <span>{tagLabel}</span>
+              {isSelected && (
+                <button
+                  type="button"
+                  className="assign-tag-del-btn"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (!assignTagAgent?.mainAgentId || !onAssignTag) return
+                    const next = currentTags.filter((t) => t !== tagLabel)
+                    onAssignTag(assignTagAgent.mainAgentId, next)
+                    setAssignTagAnchor(null)
+                    setAssignTagAgent(null)
+                    setAssignTagInput('')
+                  }}
+                  aria-label={`Remove tag ${tagLabel}`}
+                  style={{
+                    minWidth: 20,
+                    height: 20,
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    color: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 4,
+                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <Trash size={14} strokeWidth={2.5} />
+                </button>
+              )}
             </MenuItem>
           )
-        })}
+        })
+        })()}
       </Menu>
       <WarningModal
         ShowWarningModal={ShowWarningModal}
@@ -603,33 +668,29 @@ const AgentsListPaginated = ({
                                     setAssignTagAgent(item)
                                     setAssignTagInput('')
                                   }}
-                                  className="flex items-center gap-0.5 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666]/60 underline-offset-[3px] hover:opacity-20"
+                                  className="flex items-center gap-0.5 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666]/60 underline-offset-[3px] hover:opacity-90"
                                 >
-                                  Assign Tag
-                                  <ChevronDown size={14} className="shrink-0" strokeWidth={2.5} style={{ color: '#333333' }} />
+                                  {item.tags && item.tags.length > 0 ? (
+                                    <div className="flex flex-row items-center gap-2 w-full min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin flex-nowrap" style={{ scrollbarWidth: 'thin' }}>
+                                      {item.tags.slice(0, 3).map((tagLabel, index) => (
+                                        <div key={`${tagLabel}-${index}`}>
+                                          {tagLabel}
+                                        </div>
+                                      ))}
+                                      {item.tags.length > 3 && (
+                                        <div className="text-xs font-medium text-[#666666]">
+                                          +{item.tags.length - 3}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    "Assign Tag"
+                                  )}
+                                  <ChevronDown size={14} className="shrink-0" strokeWidth={2.5} style={{ color: '#666666' }} />
                                 </button>
                               </>
                             )}
                           </div>
-                          {onAssignTag && item.tags && item.tags.length > 0 && (
-                            <div className="flex flex-row items-center gap-2 w-full min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin flex-nowrap" style={{ scrollbarWidth: 'thin' }}>
-                              {item.tags.map((tagLabel) => (
-                                <button
-                                  key={tagLabel}
-                                  type="button"
-                                  onClick={(e) => {
-                                    setAssignTagAnchor(e.currentTarget)
-                                    setAssignTagAgent(item)
-                                    setAssignTagInput('')
-                                  }}
-                                  className="inline-flex items-center max-h-[24px] gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#E5E7EB] text-[#374151] hover:bg-[#D1D5DB] transition-colors flex-none w-max border-0 "
-                                >
-                                  {tagLabel}
-                                  <ChevronDown size={12} className="shrink-0 flex-none" strokeWidth={2.5} style={{ color: '#6B7280' }} />
-                                </button>
-                              ))}
-                            </div>
-                          )}
                         </div>
                       </div>
 

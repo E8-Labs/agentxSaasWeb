@@ -497,6 +497,7 @@ function Page() {
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false)
   const [initialLoader, setInitialLoader] = useState(true)
+  const [tagFilterLoader, setTagFilterLoader] = useState(false)
 
   //code for assigning the umber
   // const []
@@ -3353,6 +3354,7 @@ function Page() {
     search = null,
     searchLoader = false,
     tagFilter = undefined,
+    onComplete = undefined,
   ) => {
     setPaginationLoader(true)
 
@@ -3376,7 +3378,8 @@ function Page() {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain,
       )
-      if (!agentLocalDetails || (searchLoader && search)) {
+      // Show loader for search or tag filter (so user sees feedback when selecting a tag)
+      if (!agentLocalDetails || searchLoader) {
         setInitialLoader(true)
       }
       const tagFilterArg = tagFilter !== undefined ? tagFilter : selectedTags
@@ -3496,6 +3499,7 @@ function Page() {
       //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false)
+      onComplete?.()
     }
   }
 
@@ -3505,7 +3509,7 @@ function Page() {
       tagFilterEffectMountedRef.current = true
       return
     }
-    getAgents(false, search, true, selectedTags)
+    getAgents(false, search, true, selectedTags, () => setTagFilterLoader(false))
   }, [selectedTags])
 
   // Filter agents by sortBy (all / inbound / outbound) for Sort By dropdown
@@ -4283,8 +4287,11 @@ function Page() {
                 <div className="flex flex-row items-center gap-1.5 flex-nowrap shrink-0">
                   <button
                     type="button"
-                    onClick={() => setSelectedTags([])}
-                    className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${selectedTags.length === 0 ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                    onClick={() => {
+                      setTagFilterLoader(true)
+                      setSelectedTags([])
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedTags.length === 0 ? 'bg-black text-white' : 'bg-[#8A8A8A0D] text-black hover:bg-black/[0.08]'}`}
                   >
                     All
                   </button>
@@ -4295,10 +4302,11 @@ function Page() {
                         key={t}
                         type="button"
                         onClick={() => {
+                          setTagFilterLoader(true)
                           const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
                           setSelectedTags(next)
                         }}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-black/[0.06] text-black/80 hover:bg-black/[0.08]'}`}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-[#8A8A8A0D] text-black hover:bg-black/[0.08]'}`}
                       >
                         {t}
                       </button>
@@ -4460,8 +4468,8 @@ function Page() {
             className={`flex min-h-0 flex-1 flex-col overflow-auto w-full items-center ${filteredAgentsList.length > 0 ? 'pb-[170px]' : ''}`}
           >
             {/* code for agents list */}
-            {initialLoader ? (
-              <div className="flex flex-1 flex-row justify-center gap-4 py-8">
+            {initialLoader || tagFilterLoader ? (
+              <div className="flex flex-1 flex-row justify-center gap-4 py-8 w-full">
                 {/*<CircularProgress size={45} />*/}
                 <MyAgentXLoader />
               </div>

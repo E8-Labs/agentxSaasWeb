@@ -1,38 +1,51 @@
-import { Box, Skeleton } from '@mui/material'
 import React from 'react'
 
-function MyAgentXLoader({ fullScreen = true }) {
+function MyAgentXLoader() {
   return (
-    <div className="scroll-container w-full h-full flex flex-col items-start justify-start max-h-[70vh] overflow-auto">
-      <style jsx>{`
-        .scroll-container::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
-
-      <Box sx={{ width: '100%' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 3,
-          }}
-        >
-          {Array.from({ length: 7 }).map((_, idx) => (
-            <Skeleton
-              key={idx}
-              variant="rectangular"
-              sx={{
-                width: '100%',
-                height: 120,
-                mx: 'auto',
-                mt: 1,
-                borderRadius: 2,
-              }}
-            />
-          ))}
-        </Box>
-      </Box>
+    <div
+      role="status"
+      aria-label="Loading agents"
+      style={{
+        width: '100%',
+        // minWidth: 500,
+        maxWidth: 1028,
+        padding: '24px 0',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 16,
+      }}
+    >
+      <p
+        style={{
+          margin: 0,
+          fontSize: 14,
+          fontWeight: 500,
+          color: '#6b7280',
+        }}
+      >
+        Loading agents…
+      </p>
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
+      >
+        {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+          <div
+            key={i}
+            style={{
+              width: '100%',
+              height: 120,
+              borderRadius: 8,
+              backgroundColor: '#d1d5db',
+            }}
+          />
+        ))}
+      </div>
     </div>
   )
 }
