@@ -707,7 +707,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                             }
                         }}
                     >
-                        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+                        <div className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-black font-bold text-[14px]">
                             {getLeadName(selectedThread)}
                         </div>
                         {(selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram' || selectedThread?.threadType === 'email' || selectedThread?.threadType === 'sms') && (

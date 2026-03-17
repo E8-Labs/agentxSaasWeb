@@ -2137,15 +2137,20 @@ const LeadDetails = ({
                               <TooltipProvider delayDuration={0}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <span className="inline-flex cursor-pointer size-[38px]">
-                                      <Avatar className="h-[38px] w-[38px]">
-                                        {selectedLeadsDetails?.avatar ? (
-                                          <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
-                                        ) : (
-                                          <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
-                                        )}
-                                      </Avatar>
-                                    </span>
+                                    {
+                                      selectedLeadsDetails?.profileImageUrl ? (
+                                        <Image src={selectedLeadsDetails?.profileImageUrl} alt={"Profile Image"} width={32} height={32} className="object-cover rounded-full" />
+                                      ) : (
+                                        <span className="inline-flex cursor-pointer size-[38px]">
+                                          <Avatar className="h-[38px] w-[38px]">
+                                            {selectedLeadsDetails?.avatar ? (
+                                              <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
+                                            ) : (
+                                              <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
+                                            )}
+                                          </Avatar>
+                                        </span>
+                                      )}
                                   </TooltipTrigger>
                                   <TooltipContent side="top">
                                     Created on {selectedLeadsDetails?.createdAt ? GetFormattedDateString(selectedLeadsDetails.createdAt, true) : '—'}
