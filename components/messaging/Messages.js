@@ -1735,7 +1735,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
-    // console.log("C.JS thread in handleThreadSelect", thread)
+    console.log("C.JS thread in handleThreadSelect", thread)
     setSelectedThread(thread)
     setMessageOffset(0)
     messageOffsetRef.current = 0
@@ -1945,19 +1945,44 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const getLeadName = (thread) => {
     // if (thread.lead?.source === 'messenger_dummy') return 'M'
     // if (thread.lead?.source === 'instagram_dummy') return 'I'
+    if (thread.lead?.profileImageUrl) {
+      return (
+        <Image src={thread.lead.profileImageUrl} alt={thread.lead.name} width={32} height={32} className="w-full h-full object-cover rounded-full" />
+      )
+    }
     if (thread.lead?.firstName) {
-      return thread.lead.firstName.charAt(0).toUpperCase()
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.lead.firstName.charAt(0).toUpperCase()}
+        </div>
+      )
     }
     if (thread.lead?.name) {
-      return thread.lead.name.charAt(0).toUpperCase()
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.lead.name.charAt(0).toUpperCase()}
+        </div>
+      )
     }
     if (thread.receiverPhoneNumber) {
-      return thread.receiverPhoneNumber.slice(-1)
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.receiverPhoneNumber.slice(-1)}
+        </div>
+      )
     }
     if (thread.receiverEmail) {
-      return thread.receiverEmail.charAt(0).toUpperCase()
+      return (
+        <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+          {thread.receiverEmail.charAt(0).toUpperCase()}
+        </div>
+      )
     }
-    return 'L'
+    return (
+      <div className="w-[38px] h-[38px] rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-[14px]">
+        L
+      </div>
+    )
   }
 
   // Get display name for thread (full name, not just initial)
@@ -2389,15 +2414,17 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Get agent/user avatar for outbound messages (agent first, then sender user)
   const getAgentAvatar = (message) => {
+    console.log("C.JS message in getAgentAvatar", message)
+    console.log("C.JS selectedThread in getAgentAvatar", selectedThread)
     // Priority 1: Agent thumb, voice, or initial (so SMS and email both show agent when message has an agent)
-    if (message.agent) {
-      if (message.agent.thumb_profile_image) {
-        const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
+    if (message?.agent) {
+      if (message?.agent?.thumb_profile_image) {
+        const agentLetter = (message?.agent?.name || 'A').charAt(0).toUpperCase()
         return (
           <div className="w-[32px] h-[32px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
             <img
-              src={message.agent.thumb_profile_image}
-              alt={message.agent.name || 'Agent'}
+              src={message?.agent?.thumb_profile_image}
+              alt={message?.agent?.name || 'Agent'}
               className="w-full h-full object-cover rounded-full"
               onError={(e) => {
                 e.target.style.display = 'none'
@@ -2411,7 +2438,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
           </div>
         )
       }
-      if (message.agent.voiceId) {
+      if (message?.agent?.voiceId) {
         const selectedVoice = voicesList.find(
           (voice) => voice.voice_id === message.agent.voiceId,
         )
@@ -2568,9 +2595,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   //check which connection is for the selection thread
   const checkselectedThreadSocialConnection = () => {
     const threadConnectionMetaDataID = selectedThread?.metadata?.instagramAccountId || selectedThread?.metadata?.facebookPageId
-    // console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
+    console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
     const socialConnection = socialConnections.find((c) => c.externalId === threadConnectionMetaDataID)
-    // console.log("STSC.JS socialConnection", socialConnection)
+    console.log("STSC.JS socialConnection", socialConnection)
     return socialConnection
   }
 
