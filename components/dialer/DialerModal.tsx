@@ -1157,10 +1157,56 @@ function DialerModal({
       // 2. Network connectivity issues
       // 3. CORS or firewall blocking Twilio servers
 
-      // Listen for token expiration which might prevent registration
+      // Listen for token expiration — refresh token before it expires so the device stays registered
       twilioDevice.on('tokenWillExpire', () => {
-        // #region agent log
-        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:285', message: 'Token will expire soon', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+        ;(async () => {
+          try {
+            let authToken = localStorage.getItem('token')
+            if (!authToken) {
+              try {
+                const userStr = localStorage.getItem('User')
+                if (userStr) {
+                  const userData = JSON.parse(userStr)
+                  authToken = userData?.token
+                }
+              } catch (e) {
+                console.error('[DialerModal] Error parsing User from localStorage:', e)
+              }
+            }
+            if (!authToken) {
+              console.warn('[DialerModal] tokenWillExpire: no auth token, cannot refresh')
+              return
+            }
+            const tokenBody: { metadata: { leadId: number | null; leadName: string | null }; userId?: number } = {
+              metadata: {
+                leadId: leadId || null,
+                leadName: leadName || null,
+              },
+            }
+            if (dialerUserId) tokenBody.userId = dialerUserId
+            const response = await fetch('/api/dialer/calls/token', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(tokenBody),
+            })
+            const contentType = response.headers.get('content-type')
+            let data: any = {}
+            if (contentType && contentType.includes('application/json')) {
+              data = await response.json()
+            }
+            if (!response.ok || !data?.token) {
+              console.warn('[DialerModal] tokenWillExpire: refresh failed', response.status, data?.message)
+              return
+            }
+            twilioDevice.updateToken(data.token)
+            console.log('[DialerModal] Twilio token refreshed successfully')
+          } catch (err: any) {
+            console.error('[DialerModal] tokenWillExpire: refresh error', err?.message)
+          }
+        })()
       })
 
       // Check device state periodically to see if it's trying to register
@@ -1231,15 +1277,20 @@ function DialerModal({
         //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:322', message: 'Device error event', data: { errorCode: error.code, errorMessage: error.message, errorName: error.name, errorTwilioError: error.twilioError?.message, errorTwilioCode: error.twilioError?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
 
-        // Check for AccessTokenExpired (20104) error and automatically re-initialize
-        const isTokenExpired = error.code === 20104 ||
+        // Check for token invalid/expired (20101 AccessTokenInvalid, 20104 AccessTokenExpired) and re-initialize
+        const isTokenInvalidOrExpired =
+          error.code === 20101 ||
+          error.code === 20104 ||
+          error.twilioError?.code === 20101 ||
           error.twilioError?.code === 20104 ||
+          error.message?.includes('AccessTokenInvalid') ||
           error.message?.includes('AccessTokenExpired') ||
+          error.message?.includes('20101') ||
           error.message?.includes('20104')
 
-        if (isTokenExpired) {
+        if (isTokenInvalidOrExpired) {
           // #region agent log
-          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1224', message: 'AccessTokenExpired detected, re-initializing', data: { errorCode: error.code, errorTwilioCode: error.twilioError?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1224', message: 'AccessTokenInvalid/Expired detected, re-initializing', data: { errorCode: error.code, errorTwilioCode: error.twilioError?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
           // #endregion
           // Destroy current device and re-initialize
           try {
