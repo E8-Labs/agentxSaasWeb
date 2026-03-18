@@ -571,7 +571,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                                         fontWeight: '600',
                                         color: "black", //primaryColor
                                         textTransform: 'capitalize',
-                                      }}>{call.stage?.stageTitle || '-'}</div>
+                                      }}>{call.PipelineStages?.stageTitle || '-'}</div>
                                   </div>
                                 </div>
                                 <div className="text-[14px]" style={{ color: 'rgba(0,0,0,0.8)' }}>
