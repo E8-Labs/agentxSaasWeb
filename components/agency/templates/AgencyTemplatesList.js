@@ -2,12 +2,17 @@
 
 import {
   Box,
+  Button,
   Card,
   CardContent,
   CircularProgress,
   IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
   Menu,
   MenuItem,
+  Popover,
   Typography,
 } from '@mui/material'
 import axios from 'axios'
@@ -63,6 +68,15 @@ export default function AgencyTemplatesList() {
   const [openConfirmationDelete, setOpenConfirmationDelete] = useState(false)
   const [delLoader, setDelLoader] = useState(false)
   const [draftLoader, setDraftLoader] = useState(false)
+  // Assign template to subaccount modal
+  const [assignModalOpen, setAssignModalOpen] = useState(false)
+  const [assigningForTemplate, setAssigningForTemplate] = useState(null)
+  const [assignSubaccounts, setAssignSubaccounts] = useState([])
+  const [assignSubaccountsLoading, setAssignSubaccountsLoading] = useState(false)
+  const [assignAgentLoading, setAssignAgentLoading] = useState(false)
+  const [assignError, setAssignError] = useState(null)
+  const [selectedSubaccountId, setSelectedSubaccountId] = useState(null)
+  const [assignAnchorEl, setAssignAnchorEl] = useState(null)
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -141,6 +155,85 @@ export default function AgencyTemplatesList() {
     if (!selectedTemplate) return
     handleMenuClose()
     router.push(`/create-template?templateId=${selectedTemplate.agentTemplateId}`)
+  }
+
+  const handleAssignClick = () => {
+    if (!selectedTemplate) return
+    setAssignAnchorEl(menuAnchorEl)
+    setAssigningForTemplate(selectedTemplate)
+    setAssignModalOpen(true)
+    setAssignSubaccounts([])
+    setSelectedSubaccountId(null)
+    setAssignError(null)
+    handleMenuClose()
+  }
+
+  useEffect(() => {
+    if (!assignModalOpen || !assigningForTemplate) return
+    let cancelled = false
+    setAssignSubaccountsLoading(true)
+    setAssignError(null)
+    const token = AuthToken()
+    axios
+      .get('/api/agency/subaccounts', {
+        params: { limit: 50, offset: 0 },
+        headers: { Authorization: 'Bearer ' + token },
+      })
+      .then((res) => {
+        if (cancelled) return
+        const data = res?.data?.data ?? []
+        setAssignSubaccounts(Array.isArray(data) ? data : [])
+      })
+      .catch((err) => {
+        if (cancelled) return
+        setAssignSubaccounts([])
+        setAssignError(err?.response?.data?.message || err?.message || 'Failed to load subaccounts')
+      })
+      .finally(() => {
+        if (!cancelled) setAssignSubaccountsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [assignModalOpen, assigningForTemplate])
+
+  const handleAssignModalClose = () => {
+    setAssignModalOpen(false)
+    setAssignAnchorEl(null)
+    setAssigningForTemplate(null)
+    setAssignSubaccounts([])
+    setSelectedSubaccountId(null)
+    setAssignError(null)
+  }
+
+  const handleConfirmAssign = async () => {
+    if (!assigningForTemplate || selectedSubaccountId == null) return
+    const template = assigningForTemplate
+    const agentName = template.agentRole || template.name || 'Agent'
+    const formData = new FormData()
+    formData.append('userId', selectedSubaccountId)
+    formData.append('agentTemplateId', template.agentTemplateId)
+    formData.append('name', agentName)
+    formData.append('agentRole', template.agentRole || '')
+    formData.append('agentType', template.agentType || 'both')
+    formData.append('agentObjective', template.name || '')
+    formData.append('agentObjectiveDescription', template.description || '')
+    setAssignAgentLoading(true)
+    setAssignError(null)
+    try {
+      const res = await axios.post(Apis.buildAgent, formData, {
+        headers: { Authorization: 'Bearer ' + AuthToken() },
+      })
+      if (res?.data?.status) {
+        toast.success('Agent created successfully in selected subaccount.')
+        handleAssignModalClose()
+        fetchTemplates()
+      } else {
+        setAssignError(res?.data?.message || 'Failed to create agent')
+      }
+    } catch (err) {
+      setAssignError(err?.response?.data?.message || err?.message || 'Failed to create agent')
+    } finally {
+      setAssignAgentLoading(false)
+    }
   }
 
   const handleDelete = async () => {
@@ -361,6 +454,7 @@ export default function AgencyTemplatesList() {
                       }}
                     >
                       <MenuItem onClick={handleEdit}>Edit</MenuItem>
+                      <MenuItem onClick={handleAssignClick}>Assign</MenuItem>
                       <MenuItem onClick={() => handleDraftClick(t)} disabled={draftLoader}>{draftLoader ? `${status === 'published' ? 'Drafting...' : 'Publishing...'}` : `${status === 'published' ? 'Draft' : 'Publish'}`}</MenuItem>
                       <MenuItem
                         onClick={() => {
@@ -548,6 +642,88 @@ export default function AgencyTemplatesList() {
             </Card>
           )
         })}
+
+        {/* Assign template to subaccount popover */}
+        <Popover
+          open={assignModalOpen}
+          anchorEl={assignAnchorEl}
+          onClose={handleAssignModalClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          PaperProps={{
+            sx: {
+              borderRadius: '8px',
+              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+              minWidth: 320,
+              maxWidth: 400,
+              maxHeight: 'min(420px, 70vh)',
+              display: 'flex',
+              flexDirection: 'column',
+            },
+          }}
+        >
+          <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+            <Typography sx={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: textPrimary, fontSize: '1rem' }}>
+              Assign template to subaccount
+            </Typography>
+          </Box>
+          <Box sx={{ px: 2, flex: 1, minHeight: 0, overflow: 'auto' }}>
+            {assignSubaccountsLoading ? (
+              <Box display="flex" justifyContent="center" py={3}>
+                <CircularProgress size={32} sx={{ color: textSecondary }} />
+              </Box>
+            ) : assignError ? (
+              <Typography sx={{ color: '#b91c1c', fontSize: '0.875rem', py: 1 }}>
+                {assignError}
+              </Typography>
+            ) : assignSubaccounts.length === 0 ? (
+              <Typography sx={{ color: textSecondary, fontSize: '0.875rem', py: 2 }}>
+                No subaccounts found.
+              </Typography>
+            ) : (
+              <List dense sx={{ pt: 0 }}>
+                {assignSubaccounts.map((sub) => (
+                  <ListItemButton
+                    key={sub.id}
+                    selected={selectedSubaccountId === sub.id}
+                    onClick={() => setSelectedSubaccountId(sub.id)}
+                    sx={{
+                      borderRadius: '8px',
+                      mb: 0.5,
+                      '&.Mui-selected': { bgcolor: 'rgba(21,21,21,0.06)' },
+                    }}
+                  >
+                    <ListItemText
+                      primary={sub.name || sub.email || `Subaccount ${sub.id}`}
+                      secondary={sub.email && sub.name ? sub.email : null}
+                      primaryTypographyProps={{ sx: { fontWeight: 500, color: textPrimary } }}
+                      secondaryTypographyProps={{ sx: { fontSize: '0.75rem', color: textSecondary } }}
+                    />
+                  </ListItemButton>
+                ))}
+              </List>
+            )}
+          </Box>
+          <Box sx={{ px: 2, py: 2, pt: 1, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <Button onClick={handleAssignModalClose} color="inherit" sx={{ color: textSecondary }}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleConfirmAssign}
+              disabled={assignSubaccountsLoading || assignAgentLoading || !selectedSubaccountId || assignSubaccounts.length === 0}
+              sx={{
+                bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
+                color: '#fff !important',
+                '&:hover': {
+                  bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9) !important',
+                },
+              }}
+            >
+              {assignAgentLoading ? 'Creating…' : 'Assign'}
+            </Button>
+          </Box>
+        </Popover>
 
         {/* Single delete confirmation modal (outside map so only one instance) */}
         <DelConfirmationModal
