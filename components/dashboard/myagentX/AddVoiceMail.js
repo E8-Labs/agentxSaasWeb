@@ -129,47 +129,59 @@ function AddVoiceMail({
         onClose={() => setShowAddNewPopup(false)}
         closeAfterTransition
         BackdropProps={{
-          timeout: 1000,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000020',
-            ////backdropFilter: "blur(5px)"
+            backgroundColor: '#00000099',
           },
         }}
       >
         <Box
-          className="w-6/12"
-          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '100%',
+            maxWidth: 600,
+            bgcolor: 'white',
+            borderRadius: 3,
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
         >
           <AgentSelectSnackMessage
-            isVisible={showMessage != null ? true : false}
+            isVisible={showMessage != null}
             message={showMessage}
             type={messageType}
             hide={() => {
               setShowMessage(null)
             }}
           />
-          <div
-            className="h-[60vh] overflow-auto flex flex-col gap-3"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
-              <div style={{ fontSize: 18, fontWeight: '700' }}>
-                New Voicemail
-              </div>
-              <CloseBtn
-                onClick={() => {
-                  setShowAddNewPopup(false)
-                }}
-              />
-            </div>
 
-            <div style={{ fontSize: 18, fontWeight: '700' }}>
+          {/* Header */}
+          <div className="flex flex-row items-center justify-between px-4 py-3 border-b">
+            <div className="text-[16px] font-semibold text-black/90">
+              New Voicemail
+            </div>
+            <CloseBtn
+              onClick={() => {
+                setShowAddNewPopup(false)
+              }}
+            />
+          </div>
+
+          {/* Body */}
+          <div className="flex flex-col gap-4 px-4 py-4 max-h-[60vh] overflow-auto">
+            <div className="text-[14px] font-semibold text-black/90">
               Select From Template
             </div>
 
             <div
-              className="w-full flex-row flex items-center gap-3 h-[100px]"
-              style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
+              className="w-full flex-row flex items-center gap-3 h-[100px] overflow-x-auto"
+              style={{ scrollbarWidth: 'none' }}
             >
               {manue.map((item) => (
                 <button
@@ -179,11 +191,8 @@ function AddVoiceMail({
                   }
                 >
                   <div
-                    className="p-3 border-2 rounded-lg"
+                    className="px-4 py-2 border-2 rounded-[8px] text-sm font-medium whitespace-nowrap"
                     style={{
-                      fontSize: 14,
-                      fontWeight: '500',
-                      whiteSpace: 'nowrap',
                       borderColor:
                         selectedManu?.id === item.id ? '#7902df' : '#15151510',
                     }}
@@ -196,99 +205,45 @@ function AddVoiceMail({
 
             <div className="flex flex-row w-full items-center justify-between">
               <div className="flex flex-row items-center gap-2">
-                <div
-                  style={{
-                    fontSize: 15,
-                    fontWeight: '500',
-                  }}
-                >
-                  Voicemail
-                </div>
+                <div className="text-[14px] font-medium">Voicemail</div>
               </div>
 
               <button onClick={() => setMessage('')}>
-                <div
-                  className="text-purple"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: '500',
-                    textDecorationLine: 'underline',
-                  }}
-                >
+                <div className="text-[14px] font-medium text-purple underline">
                   Clear
                 </div>
               </button>
             </div>
 
-            {/*
-                            <textarea
-                                placeholder="Type here"
-                                className="w-full border rounded p-2 outline-none outline-none focus:ring-0"
-                                style={{
-                                    outline: "none",
-                                    border: "2px solid #00000010",
-                                    borderRadius: "5px",
-                                    padding: 12,
-                                    height: '156px',
-                                    resize: "none",
-                                }}
-                                maxLength={200}
-                                value={message}
-                                onChange={(e) => {
-                                    setMessage(e.target.value);
-    
-                                }}
-                            />
-                        */}
-
-            <div className="mt-4 w-full">
+            <div className="mt-2 w-full">
               <PromptTagInput
                 promptTag={message}
                 kycsList={kycsData}
                 uniqueColumns={uniqueColumns}
                 tagValue={setMessage}
-                // scrollOffset={scrollOffset}
                 showSaveChangesBtn={message}
                 from={'Voicemail'}
                 isEdit={false}
-                saveUpdates={async () => {
-                  // await updateAgent();
-                  // setShowObjectionsSaveBtn(false);
-                  // setOldObjective(objective);
-                }}
+                saveUpdates={async () => {}}
                 limit={200}
               />
-
-              {/* <DynamicDropdown /> */}
             </div>
 
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: '500',
-                marginTop: -5,
-                color: '#00000060',
-              }}
-            >
+            <div className="text-[15px] font-medium text-black/60 -mt-1">
               {message?.length}/200
             </div>
+          </div>
 
+          {/* Footer */}
+          <div className="flex flex-row items-center justify-end px-4 py-3 border-t">
             {loading ? (
-              <div style={{ alignSelf: 'flex-end' }}>
-                <CircularProgress size={25} />
-              </div>
+              <CircularProgress size={25} />
             ) : (
               <button
-                className="text-white bg-purple outline-none rounded-xl  mt-4"
-                style={{
-                  height: '50px',
-                  width: '100px',
-                  alignSelf: 'flex-end',
-                }}
+                className="inline-flex h-10 px-5 items-center justify-center rounded-[8px] bg-brand-primary text-[14px] font-semibold text-white shadow-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
                 onClick={() => {
                   const data = {
                     message,
-                    // voiceId: selectedVoice,
                     agentType: selectedManu.type,
                   }
                   addVoiceMail(data)

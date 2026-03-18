@@ -101,10 +101,9 @@ const MoreAgentsPopup = ({
       closeAfterTransition
       disableEscapeKeyDown={false}
       BackdropProps={{
-        timeout: 100,
+        timeout: 250,
         sx: {
-          backgroundColor: '#00000020',
-          backdropFilter: 'blur(15px)',
+          backgroundColor: '#00000099',
           zIndex: 1400,
         },
         onClick: (e) => {
@@ -148,33 +147,35 @@ const MoreAgentsPopup = ({
         }}
       >
         <div
-          className="bg-white rounded-2xl p-8 relative max-w-2xl w-full mx-4"
+          className="w-[400px] max-w-[90vw] flex flex-col overflow-hidden rounded-[12px] bg-white mx-4"
           onClick={(e) => {
-            // Prevent clicks inside modal from closing it, but allow button clicks
             if (e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
               e.stopPropagation()
             }
           }}
           style={{
-            boxShadow: '0px 20px 40px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
             pointerEvents: 'auto',
             zIndex: 1401,
             position: 'relative',
           }}
         >
-          <div className="w-full flex flex-col items-center">
-            <div className="flex flex-row items-center justify-between w-full">
-              <div></div>
-              {/* Close Button */}
-              <CloseBtn 
-                onClick={handleClose}
-              />
-            </div>
-            {/* Avatars */}
+          {/* Header */}
+          <div className="flex flex-row items-center justify-end px-4 py-2">
+            <CloseBtn onClick={handleClose} />
+          </div>
+
+          {/* Body */}
+          <div
+            className="flex flex-col items-center px-4 py-4"
+            style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+          >
             {mounted && (
               <img
                 src="/otherAssets/unlockAgents.png"
                 alt="Unlock Agents"
+                className="mb-3"
                 style={{
                   height: '100px',
                   width: 'auto',
@@ -183,52 +184,44 @@ const MoreAgentsPopup = ({
                 }}
               />
             )}
-
-            {/* Title */}
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-4 -mt-3">
+            <h2 className="text-[24px] font-semibold text-foreground text-center mb-3">
               Add Extra Agents
             </h2>
+            <p className="text-center mb-1">
+              {`You've reached the maximum number of agents on your current plan.`}
+            </p>
+            <p className="text-center">
+              You can upgrade your plan or add an agent for{' '}
+              <span className="font-semibold text-brand-primary">
+                ${costPerAdditionalAgent}
+              </span>{' '}
+              per month.
+            </p>
+          </div>
 
-            {/* Description */}
-            <div className="text-center text-gray-600 mb-8 space-y-2">
-              <p>{`You've reached the maximum number of agents on your current plan.`}</p>
-              <p>
-                You can upgrade your plan or add an agent for{' '}
-                <span className="font-semibold text-brand-primary">
-                  ${costPerAdditionalAgent}
-                </span>{' '}
-                per month.
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-4">
-              {/* Upgrade Button */}
-              <button
-                onClick={handleUpgrade}
-                onMouseDown={(e) => {
-                  e.stopPropagation()
-                }}
-                className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-colors cursor-pointer"
-                type="button"
-                style={{ pointerEvents: 'auto', zIndex: 1402, position: 'relative' }}
-              >
-                Upgrade
-              </button>
-
-              {/* Add Agent Button */}
-              <button
-                onClick={handleAddAgent}
-                onMouseDown={(e) => {
-                  e.stopPropagation()
-                }}
-                className="w-full text-brand-primary hover:text-brand-primary/80 font-semibold py-2 px-6 rounded-lg transition-colors block text-center cursor-pointer"
-                type="button"
-                style={{ pointerEvents: 'auto', zIndex: 1402, position: 'relative' }}
-              >
-                Add Agent ${costPerAdditionalAgent} per month
-              </button>
-            </div>
+          {/* Footer */}
+          <div
+            className="flex flex-col gap-3 px-4 py-3"
+            style={{ borderTop: '1px solid #eaeaea' }}
+          >
+            <button
+              onClick={handleUpgrade}
+              onMouseDown={(e) => e.stopPropagation()}
+              type="button"
+              className="w-full h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] cursor-pointer"
+              style={{ pointerEvents: 'auto', zIndex: 1402, position: 'relative' }}
+            >
+              Upgrade
+            </button>
+            <button
+              onClick={handleAddAgent}
+              onMouseDown={(e) => e.stopPropagation()}
+              type="button"
+              className="w-full h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] cursor-pointer"
+              style={{ pointerEvents: 'auto', zIndex: 1402, position: 'relative' }}
+            >
+              Add Agent ${costPerAdditionalAgent} per month
+            </button>
           </div>
         </div>
       </Box>

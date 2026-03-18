@@ -28,6 +28,7 @@ import { Checkbox } from '../ui/checkbox'
 import { logout } from '@/utilities/UserUtility'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import FeatureLine from '../userPlans/FeatureLine'
+import { getFeatureDisplayText, reorderPlanFeatures } from './PlansUtilities'
 import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
 import PlanSummaryMobile from '../onboarding/mobileUI/PlanSummaryMobile'
 import PlansListMobile from '../onboarding/mobileUI/PlansListMobile'
@@ -975,7 +976,7 @@ function AgencyPlans({
                             )}
 
                             {Array.isArray(item?.features) &&
-                              item?.features?.map((feature) => (
+                              reorderPlanFeatures(item.features)?.map((feature) => (
                                 <div
                                   key={feature.text}
                                   className="flex flex-row items-center gap-3 mb-3 w-full"
@@ -1001,7 +1002,7 @@ function AgencyPlans({
                                         borderWidth: 0,
                                       }}
                                     >
-                                      {feature.text}
+                                      {getFeatureDisplayText(feature, index, getCurrentPlans()?.length ?? 0)}
                                     </div>
                                     {feature?.subtext && (
                                       <div
