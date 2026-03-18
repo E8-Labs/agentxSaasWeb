@@ -1862,7 +1862,7 @@ const MessageComposer = ({
                         onClick={() => setShowLogoutConfirmation(true)}
                         disabled={connectingOAuth}
                       >
-                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Image src={currentPage?.profileImageUrl ? currentPage?.profileImageUrl : currentPage?.platform === "facebook" ? "/facebook.png" : currentPage?.platform === "instagram" ? "/instagram.png" : "/facebook.png"} width={23} height={23} alt="Facebook" className="rounded-full" />}
+                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <img src={currentPage?.profileImageUrl ? currentPage?.profileImageUrl : currentPage?.platform === "facebook" ? "/facebook.png" : currentPage?.platform === "instagram" ? "/instagram.png" : "/facebook.png"} width={23} height={23} alt="Facebook" className="rounded-full" />}
                         Logout of {currentPage?.displayName ? currentPage?.displayName : currentPage?.platform === "facebook" ? "Facebook" : currentPage?.platform === "instagram" ? "Instagram" : "Facebook"}
                       </Button>
                     )
