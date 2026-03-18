@@ -53,7 +53,7 @@ const DelConfirmationModal = ({
                         }}
                     >
                         <div className="font-bold text-xl mt-6">
-                            Are you sure you want to delete this {title?.toLowerCase()}
+                            Are you sure you want to delete this {title?.toLowerCase()}?
                         </div>
                         <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                             <button

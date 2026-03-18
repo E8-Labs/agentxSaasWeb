@@ -707,7 +707,7 @@ const WebAgentChatDrawer = ({
                 >
                   <X className="w-[18px] h-[18px]" />
                 </button>
-                {(headerAvatar || agentName) && (
+                {/*(headerAvatar || agentName) && (
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/90 border border-white/70 overflow-hidden flex items-center justify-center shadow-sm">
                     {typeof headerAvatar === 'string' && headerAvatar.trim().length > 0 ? (
                       <Image
@@ -723,7 +723,7 @@ const WebAgentChatDrawer = ({
                       </span>
                     )}
                   </div>
-                )}
+                )*/}
                 {titleEditing ? (
                   <input
                     ref={titleInputRef}
@@ -782,7 +782,7 @@ const WebAgentChatDrawer = ({
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" align="end">
-                      {shareLinkCopied ? 'Link copied' : currentThreadId != null ? 'Copy chat link to share' : 'Send a message to get a shareable link'}
+                      {shareLinkCopied ? 'Link copied' : currentThreadId != null ? ' Copy link to share' : 'Send a message to get a shareable link'}
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -900,7 +900,7 @@ const WebAgentChatDrawer = ({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex-shrink-0 cursor-default">
-                                  {agentThumb ? (
+                                  {/*agentThumb ? (
                                     <div className="w-8 h-8 rounded-full overflow-hidden bg-white flex-shrink-0">
                                       <Image
                                         src={agentThumb}
@@ -914,7 +914,8 @@ const WebAgentChatDrawer = ({
                                     <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0 mt-2">
                                       {(agentName || 'A').charAt(0).toUpperCase()}
                                     </div>
-                                  )}
+                                  )*/}
+                                  {agentImage(agent)}
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent side="right">{agentName || 'Agent'}</TooltipContent>
