@@ -1,7 +1,8 @@
+import { X } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 
-const CloseBtn = ({ onClick, showWhiteCross, className = '', iconSize = 16, ...props }) => {
+const CloseBtn = ({ onClick, showWhiteCross, className = '', iconSize = 14, ...props }) => {
   return (
     <button
       type="button"
@@ -10,14 +11,11 @@ const CloseBtn = ({ onClick, showWhiteCross, className = '', iconSize = 16, ...p
       aria-label="Close"
       {...props}
     >
-      <Image
-        alt=""
+      <X
+        size={iconSize}
+        className={`shrink-0 ${showWhiteCross ? 'text-white' : 'text-foreground'}`}
+        strokeWidth={2.5}
         aria-hidden
-        src="/assets/cross.png"
-        width={iconSize}
-        height={iconSize}
-        className="pointer-events-none shrink-0"
-        style={{ opacity: 0.8, filter: showWhiteCross ? 'invert(1)' : 'invert(0)' }}
       />
     </button>
   )

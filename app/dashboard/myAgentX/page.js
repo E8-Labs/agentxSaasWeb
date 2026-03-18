@@ -4315,6 +4315,8 @@ function Page() {
                 </div>
               )}
             </div>
+            {false && (
+            <>
             <button
               type="button"
               onClick={(e) => setSortByMenuAnchor(e.currentTarget)}
@@ -4462,6 +4464,8 @@ function Page() {
                 )}
               </MenuItem>
             </Menu>
+            </>
+            )}
           </div>
           <div
             id="agentsPageScrollContent"
@@ -5148,8 +5152,8 @@ function Page() {
                   <CloseBtn onClick={handleDrawerClose} />
                 </div>
                 </div>
-                <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0 py-0 px-4">
-                  <div className="flex flex-row items-start justify-start gap-3 w-full p-4">
+            <div className="flex flex-row items-start justify-between w-full gap-3 min-w-0 pt-0 pb-3 px-4">
+                  <div className="flex flex-row items-start justify-start gap-3 w-full px-4">
                     {/* Profile Image (left) */}
                     <div className="flex items-center justify-center w-[120px] h-[120px] rounded-[16px] shrink-0" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.02)' }}>
                       <button
@@ -5303,7 +5307,7 @@ function Page() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-2 py-3 self-stretch">
+                  <div className="flex flex-col items-center gap-2 py-0 self-stretch">
                     <div className="flex flex-col items-center justify-between gap-2 p-1 h-full [&>div:not(:last-child)]:border [&>div:not(:last-child)]:border-[#eaeaea] [&>div]:rounded-lg [&>div]:min-h-[40px]">
                       <div>
                         <DuplicateConfirmationPopup
@@ -5313,8 +5317,8 @@ function Page() {
                           duplicateLoader={duplicateLoader}
                         />
                         <div
-                          className="flex flex-row items-center gap-1.5 text-black/80 [&_svg]:text-black/80 [&_img]:opacity-80 border border-[#eaeaea] rounded-[64px] bg-white"
-                                        style={{
+                          className="flex flex-row items-center gap-1.5 text-black [&_svg]:text-black [&_img]:opacity-80 border border-[#eaeaea] rounded-[64px] bg-white"
+                          style={{
                             color: 'rgba(0,0,0,0.8)',
                             padding: 4,
                             boxShadow: '0 16px 30px rgba(0, 0, 0, 0.12)',
@@ -5340,7 +5344,7 @@ function Page() {
                               TransitionProps={{ timeout: { enter: 150, exit: 100 } }}
                             >
                               <button onClick={() => handleWebAgentClick(showDrawerSelectedAgent)}>
-                            <SquareArrowOutUpRight size={16} className="text-black shrink-0" style={{ color: '#000' }} />
+                                <SquareArrowOutUpRight size={16} className="text-black shrink-0" style={{ color: '#000' }} />
                           </button>
                           </Tooltip>
                         </div>
@@ -5419,7 +5423,7 @@ function Page() {
                         )
                       }
                       iconComponent={<Zap size={18} />}
-                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                       iconColor="text-brand-primary"
                     />
                   </div>
@@ -5435,7 +5439,7 @@ function Page() {
                         )
                       }
                       iconComponent={<MessageCircleMore size={18} />}
-                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                       iconColor="text-brand-primary"
                     />
                   </div>
@@ -5450,7 +5454,7 @@ function Page() {
                         </div>
                       }
                       iconComponent={<Zap size={18} />}
-                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                       iconColor="text-brand-primary"
                     />
                   </div>
@@ -5465,7 +5469,7 @@ function Page() {
                         </div>
                       }
                       iconComponent={<Calendar size={18} />}
-                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                       iconColor="text-brand-primary"
                     />
                   </div>
@@ -5489,7 +5493,7 @@ function Page() {
                         )
                       }
                       iconComponent={<Hourglass size={18} />}
-                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
+                      iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.05]"
                       iconColor="text-brand-primary"
                     />
                   </div>
@@ -6089,6 +6093,7 @@ function Page() {
                                 }}
                                 sx={{
                                   border: 'none', // Default border
+                                  '& .MuiOutlinedInput-root': { height: 40, minHeight: 40 },
                                   '&:hover': {
                                     border: 'none', // Same border on hover
                                   },
@@ -7266,7 +7271,7 @@ const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBra
   return (
     <div
       className="flex flex-col items-start gap-2"
-      style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}
+      style={{ fontSize: 15, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}
     >
       {/* Icon */}
       <div
@@ -7276,10 +7281,10 @@ const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBra
         {renderIcon()}
       </div>
 
-      <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
+      <div style={{ fontSize: 15, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
         {name}
       </div>
-      <div style={{ fontSize: 14, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
+      <div style={{ fontSize: 15, fontWeight: 400, color: 'rgba(0, 0, 0, 0.8)' }}>
         {value}
       </div>
     </div>

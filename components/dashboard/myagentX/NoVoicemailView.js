@@ -11,43 +11,34 @@ function NoVoicemailView({
   subTitle = "You don't have a voicemail added",
 }) {
   return (
-    <div className="flex flex-col items-center justify-center mt-6 w-full">
-      <Image
-        src={'/svgIcons/noVoicemailIcon.svg'}
-        height={50}
-        width={193}
-        alt="*"
-      />
+    <div className="flex flex-col items-center justify-center py-10 px-4 w-full">
+      <div className="flex w-full max-w-sm flex-col items-center justify-center gap-4">
+        <Image
+          src={'/svgIcons/noVoicemailIcon.svg'}
+          height={144}
+          width={144}
+          alt="No voicemail"
+          className="object-contain mx-auto"
+        />
 
-      <div style={{ fontSize: 22, fontWeight: '700', color: '#151515' }}>
-        {title}
-      </div>
+        <div className="text-[18px] font-semibold text-black/90 text-center">
+          {title}
+        </div>
 
-      <div
-        style={{
-          fontSize: 15,
-          fontWeight: '500',
-          color: '#151515',
-          marginTop: 10,
-        }}
-      >
-        {subTitle}
-      </div>
+        <div className="text-[14px] font-normal text-black/70 text-center">
+          {subTitle}
+        </div>
 
-      {showAddBtn && (
-        <button
-          className="flex h-[54px] items-center flex-row gap-2 bg-brand-primary p-2 px-8 rounded-lg"
-          onClick={openModal}
-        >
-          <Plus color="white"></Plus>
-          <div
-            className="flex items-center justify-center  text-black text-white font-medium"
-            // Fixed typo
+        {showAddBtn && (
+          <button
+            className="inline-flex h-11 px-6 items-center justify-center gap-2 rounded-[8px] bg-brand-primary text-[14px] font-semibold text-white shadow-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
+            onClick={openModal}
           >
-            Add New
-          </div>
-        </button>
-      )}
+            <Plus size={18} color="white" />
+            <span>Add New</span>
+          </button>
+        )}
+      </div>
     </div>
   )
 }

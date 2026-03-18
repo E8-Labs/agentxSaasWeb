@@ -519,73 +519,108 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   }
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: '#00000099',
+          },
+        },
+      }}
+    >
       <Box
-        className={'lg:w-[500px] w-[500px]'}
         sx={{
           position: 'absolute',
           top: '50%',
           left: '50%',
-          height: '60vh',
           transform: 'translate(-50%, -50%)',
-          //   width: 400,
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 3,
+          width: '100%',
+          maxWidth: 400,
+          bgcolor: 'white',
+          borderRadius: 3,
+          boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+          border: '1px solid #eaeaea',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          gap: 1,
+          overflow: 'hidden',
         }}
       >
-        <div className="flex flex-col h-full">
-          <Box
+        {/* Header */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 2,
+            py: 2,
+            borderBottom: '1px solid #eaeaea',
+          }}
+        >
+          <Typography
+            sx={{ fontSize: 16, fontWeight: 600, color: 'rgba(0,0,0,0.9)' }}
+          >
+            Knowledge Base
+          </Typography>
+          <CloseBtn
+            onClick={() => {
+              setTitle('')
+              setUrl('')
+              setSelectedDocument(null)
+              setSelectedFileName('')
+              setFileName('')
+              if (fileInputRef && fileInputRef.current) {
+                fileInputRef.current.value = ''
+              }
+              setText('')
+              setDocTitle('')
+              onClose()
+            }}
+          />
+        </Box>
+
+        {/* Body */}
+        <Box
+          sx={{
+            px: 2,
+            py: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+        >
+          <Typography
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              width: '100%',
-              mb: 2,
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'rgba(0,0,0,0.7)',
             }}
           >
-            <Typography variant="h6" fontWeight="bold">
-              Knowledge Base
-            </Typography>
-            <CloseBtn
-              onClick={() => {
-                setTitle('')
-                setUrl('')
-                setSelectedDocument(null)
-                setSelectedFileName('')
-                setFileName('')
-                if (fileInputRef && fileInputRef.current) {
-                  fileInputRef.current.value = ''
-                }
-                // setSelectedType("Text");
-                setText('')
-                setDocTitle('')
-                onClose()
-              }}
-            />
-          </Box>
-
-          <Typography variant="subtitle1" sx={{ mb: 2 }}>
             Select Type
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 2, overflowX: 'auto' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto' }}>
             <Button
               variant="outlined"
               startIcon={<InsertDriveFile />}
               onClick={() => handleTypeSelect('Document')}
               sx={{
-                borderColor: selectedType === 'Document' ? 'hsl(var(--brand-primary))' : '#ccc',
-                color: selectedType === 'Document' ? 'hsl(var(--brand-primary))' : 'black',
+                borderColor:
+                  selectedType === 'Document'
+                    ? 'hsl(var(--brand-primary))'
+                    : '#ddd',
+                color:
+                  selectedType === 'Document'
+                    ? 'hsl(var(--brand-primary))'
+                    : 'black',
                 borderWidth: selectedType === 'Document' ? 2 : 1,
-                borderRadius: 2,
-                paddingX: 2,
-                paddingY: 1,
-                // width: "30%",
+                borderRadius: 999,
+                px: 2.5,
+                py: 0.75,
+                textTransform: 'none',
+                fontSize: 12,
+                fontWeight: 500,
               }}
             >
               File
@@ -596,13 +631,21 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               startIcon={<TextFields />}
               onClick={() => handleTypeSelect('Text')}
               sx={{
-                borderColor: selectedType === 'Text' ? 'hsl(var(--brand-primary))' : '#ccc',
-                color: selectedType === 'Text' ? 'hsl(var(--brand-primary))' : 'black',
+                borderColor:
+                  selectedType === 'Text'
+                    ? 'hsl(var(--brand-primary))'
+                    : '#ddd',
+                color:
+                  selectedType === 'Text'
+                    ? 'hsl(var(--brand-primary))'
+                    : 'black',
                 borderWidth: selectedType === 'Text' ? 2 : 1,
-                borderRadius: 2,
-                paddingX: 2,
-                paddingY: 1,
-                // width: "30%",
+                borderRadius: 999,
+                px: 2.5,
+                py: 0.75,
+                textTransform: 'none',
+                fontSize: 12,
+                fontWeight: 500,
               }}
             >
               Text
@@ -613,13 +656,21 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               startIcon={<Link />}
               onClick={() => handleTypeSelect('Url')}
               sx={{
-                borderColor: selectedType === 'Url' ? 'hsl(var(--brand-primary))' : '#ccc',
-                color: selectedType === 'Url' ? 'hsl(var(--brand-primary))' : 'black',
+                borderColor:
+                  selectedType === 'Url'
+                    ? 'hsl(var(--brand-primary))'
+                    : '#ddd',
+                color:
+                  selectedType === 'Url'
+                    ? 'hsl(var(--brand-primary))'
+                    : 'black',
                 borderWidth: selectedType === 'Url' ? 2 : 1,
-                borderRadius: 2,
-                paddingX: 2,
-                paddingY: 1,
-                // width: "30%",
+                borderRadius: 999,
+                px: 2.5,
+                py: 0.75,
+                textTransform: 'none',
+                fontSize: 12,
+                fontWeight: 500,
               }}
             >
               Link
@@ -630,13 +681,21 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               startIcon={<Link />}
               onClick={() => handleTypeSelect('Youtube')}
               sx={{
-                borderColor: selectedType === 'Youtube' ? 'hsl(var(--brand-primary))' : '#ccc',
-                color: selectedType === 'Youtube' ? 'hsl(var(--brand-primary))' : 'black',
+                borderColor:
+                  selectedType === 'Youtube'
+                    ? 'hsl(var(--brand-primary))'
+                    : '#ddd',
+                color:
+                  selectedType === 'Youtube'
+                    ? 'hsl(var(--brand-primary))'
+                    : 'black',
                 borderWidth: selectedType === 'Youtube' ? 2 : 1,
-                borderRadius: 2,
-                paddingX: 2,
-                paddingY: 1,
-                // width: "30%",
+                borderRadius: 999,
+                px: 2.5,
+                py: 0.75,
+                textTransform: 'none',
+                fontSize: 12,
+                fontWeight: 500,
               }}
             >
               Youtube
@@ -644,9 +703,21 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
           </Box>
 
           {GetUiForOption()}
-        </div>
+        </Box>
 
-        {GetButtonUI()}
+        {/* Footer */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            px: 2,
+            py: 2,
+            borderTop: '1px solid #eaeaea',
+          }}
+        >
+          {GetButtonUI()}
+        </Box>
       </Box>
     </Modal>
   )

@@ -1,6 +1,12 @@
-import { Tooltip } from '@mui/material'
-import Image from 'next/image'
+import { Info } from 'lucide-react'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const FeatureLine = ({
   text,
@@ -114,100 +120,41 @@ const FeatureLine = ({
       </span>
 
       {info && (
-        <>
-          {isMobile ? (
-            <Tooltip
-              title={info}
-              arrow
-              placement="top"
-              open={tooltipOpen}
-              onClose={() => setTooltipOpen(false)}
-              disableHoverListener
-              disableFocusListener
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    backgroundColor: '#ffffff',
-                    color: '#333',
-                    fontSize: '10px',
-                    padding: '10px 15px',
-                    borderRadius: '8px',
-                    boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
-                  },
-                },
-                arrow: { sx: { color: '#ffffff' } },
-              }}
-            >
+        <TooltipProvider delayDuration={isMobile ? 0 : 200}>
+          <Tooltip
+            open={isMobile ? tooltipOpen : undefined}
+            onOpenChange={isMobile ? setTooltipOpen : undefined}
+          >
+            <TooltipTrigger asChild>
               <div
-                className="flex-shrink-0"
+                className="flex-shrink-0 inline-flex items-center justify-center cursor-pointer"
                 style={{
                   width: iconSize,
                   height: iconSize,
                   marginLeft: gap,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   transform: 'translateY(1px)',
-                  cursor: 'pointer',
                 }}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setTooltipOpen(!tooltipOpen)
-                }}
+                onClick={
+                  isMobile
+                    ? (e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setTooltipOpen((t) => !t)
+                      }
+                    : undefined
+                }
               >
-                <Image
-                  src="/agencyIcons/InfoIcon.jpg"
-                  alt="info"
-                  width={iconSize}
-                  height={iconSize}
-                  className="rounded-full"
-                />
+                <Info size={14} className="opacity-80" aria-hidden />
               </div>
-            </Tooltip>
-          ) : (
-            <Tooltip
-              title={info}
-              arrow
-              placement="top"
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    backgroundColor: '#ffffff',
-                    color: '#333',
-                    fontSize: '10px',
-                    padding: '10px 15px',
-                    borderRadius: '8px',
-                    boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
-                  },
-                },
-                arrow: { sx: { color: '#ffffff' } },
-              }}
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className="max-w-[200px] rounded-lg bg-black px-3 py-2 text-xs font-medium text-white break-words"
             >
-              <div
-                className="flex-shrink-0"
-                style={{
-                  width: iconSize,
-                  height: iconSize,
-                  marginLeft: gap,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transform: 'translateY(1px)',
-                  cursor: 'pointer',
-                }}
-              >
-                <Image
-                  src="/agencyIcons/InfoIcon.jpg"
-                  alt="info"
-                  width={iconSize}
-                  height={iconSize}
-                  className="rounded-full"
-                />
-              </div>
-            </Tooltip>
-          )}
-        </>
+              {info}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
     </div>
   )

@@ -109,11 +109,15 @@ const AgentInfoCard = ({
     )
   }
 
+  const showRate = subtitle && rate != null && rate !== ''
+
   return (
     <div className="flex w-full flex-col items-start gap-2">
-      {/* Icon - only element not full width */}
-      <div className="flex flex-row items-center gap-8">
-        {renderIcon()}
+      {/* Icon row */}
+      <div className="flex w-full flex-row items-center justify-between gap-3">
+        <div className="flex flex-row items-center gap-3">
+          {renderIcon()}
+        </div>
         {
           toolTip && rate != null && rate !== '' && (
             <TooltipProvider delayDuration={200}>
