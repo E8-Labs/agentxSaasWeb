@@ -282,7 +282,7 @@ const TaskCard = ({
     try {
       await onUpdate(task.id, {
         dueDate: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
-        dueTime: dueTime || null,
+        dueTime: dueTime ? dueTime : format(new Date(), 'HH:mm'),
       })
     } finally {
       setIsSavingDate(false)

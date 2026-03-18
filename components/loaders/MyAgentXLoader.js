@@ -16,7 +16,7 @@ function MyAgentXLoader() {
         {[1, 2, 3, 4, 5, 6, 7].map((i) => (
           <Skeleton
             key={i}
-            className={cn('h-[150px] w-full max-w-[750px]')}
+            className={cn('h-[150px] w-full max-w-full')}
           />
         ))}
       </div>
