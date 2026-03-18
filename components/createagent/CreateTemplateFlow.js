@@ -293,8 +293,10 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
         return
       }
       const payload = buildPayload()
+      console.log("Payload check 1 pass", payload)
       const isEdit = !!templateId
       const url = isEdit ? `${Apis.getTemplates}/${templateId}` : Apis.createTemplate
+      console.log("Is Edit check 1 pas", isEdit)
       const res = isEdit
         ? await axios.put(url, payload, { headers: { Authorization: 'Bearer ' + token } })
         : await axios.post(url, payload, { headers: { Authorization: 'Bearer ' + token } })
@@ -305,7 +307,25 @@ export default function CreateTemplateFlow({ templateId: templateIdProp, onSaved
         setError(res?.data?.message || 'Failed to save template')
       }
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to save template')
+      const status = err?.response?.status
+      const statusText = err?.response?.statusText
+      const responseData = err?.response?.data
+      console.error('[CreateTemplate] API error:', {
+        status,
+        statusText,
+        url: err?.config?.url,
+        method: err?.config?.method,
+        responseData: responseData,
+        fullError: err,
+      })
+      const message =
+        (typeof responseData === 'string' ? responseData : null) ||
+        responseData?.message ||
+        responseData?.error ||
+        (responseData && JSON.stringify(responseData)) ||
+        err?.message ||
+        'Failed to save template'
+      setError(message)
     } finally {
       setSaving(false)
     }
