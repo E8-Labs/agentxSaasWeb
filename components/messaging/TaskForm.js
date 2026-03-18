@@ -336,7 +336,7 @@ const TaskForm = ({
       priority,
       status,
       dueDate: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
-      dueTime: dueTime || null,
+      dueTime: dueTime ? dueTime : format(new Date(), 'HH:mm'),
       assignedTo: selectedAssignees,
       leadId,
       threadId,
