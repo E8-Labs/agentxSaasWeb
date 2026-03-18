@@ -1735,6 +1735,10 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
   const handleCloseAddStage = () => {
     setAddNewStageModal(false)
     setNewStageTitle('')
+    setAction("")
+    setShowAdvanceSettings(false)
+    setAssignLeadToMember([])
+    setTagsValue([])
     // setStageColor("");
     setInputs([
       {

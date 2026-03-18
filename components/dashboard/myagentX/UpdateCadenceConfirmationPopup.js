@@ -59,7 +59,7 @@ export const UpdateCadenceConfirmationPopup = ({
             className="px-4 py-4"
             style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
           >
-            By updating this, you'll pause all calls assigned to this agent.
+            By updating, you'll pause all activities assigned to this agent.
           </div>
 
           {/* Footer */}

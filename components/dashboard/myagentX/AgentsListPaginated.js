@@ -832,7 +832,7 @@ const AgentsListPaginated = ({
                         >
                           <AgentInfoCard
                             name="Calls"
-                            value={<div>{item.calls || '-'}</div>}
+                            value={<div>{item?.calls ? item.calls : '-'}</div>}
                             iconComponent={<Zap size={18} />}
                             iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                             iconColor="text-brand-primary"
@@ -853,7 +853,7 @@ const AgentsListPaginated = ({
                         >
                           <AgentInfoCard
                             name="Convos"
-                            value={<div>{item.callsGt10 ?? '-'}</div>}
+                            value={<div>{item?.callsGt10 ? item.callsGt10 : '-'}</div>}
                             iconComponent={<MessageCircleMore size={18} />}
                             iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                             iconColor="text-brand-primary"
@@ -881,7 +881,7 @@ const AgentsListPaginated = ({
                         >
                           <AgentInfoCard
                             name="Hot Leads"
-                            value={item.hotleads ?? '-'}
+                            value={item?.hotleads ? item.hotleads : '-'}
                             iconComponent={<Zap size={18} />}
                             iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                             iconColor="text-brand-primary"
@@ -908,8 +908,8 @@ const AgentsListPaginated = ({
                           style={{ minWidth: 0 }}
                         >
                           <AgentInfoCard
-                            name="Booked Meetings"
-                            value={item.booked ?? '-'}
+                            name="Booked"
+                            value={item?.booked ? item.booked : '-'}
                             iconComponent={<Calendar size={18} />}
                             iconWrapperClassName="w-10 h-10 rounded-[8px] bg-brand-primary/[0.08]"
                             iconColor="text-brand-primary"
