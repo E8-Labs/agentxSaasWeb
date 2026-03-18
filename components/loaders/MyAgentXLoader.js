@@ -1,3 +1,5 @@
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 import React from 'react'
 
 function MyAgentXLoader() {
@@ -5,44 +7,16 @@ function MyAgentXLoader() {
     <div
       role="status"
       aria-label="Loading agents"
-      style={{
-        width: '100%',
-        // minWidth: 500,
-        maxWidth: 1028,
-        padding: '24px 0',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 16,
-      }}
+      className="flex w-full max-w-[1028px] flex-col items-center gap-4 px-0 py-6"
     >
-      <p
-        style={{
-          margin: 0,
-          fontSize: 14,
-          fontWeight: 500,
-          color: '#6b7280',
-        }}
-      >
+      <p className="m-0 text-sm font-medium text-muted-foreground">
         Loading agents…
       </p>
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}
-      >
+      <div className="flex w-full flex-col items-center gap-3">
         {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-          <div
+          <Skeleton
             key={i}
-            style={{
-              width: '100%',
-              height: 120,
-              borderRadius: 8,
-              backgroundColor: '#d1d5db',
-            }}
+            className={cn('h-[150px] w-full max-w-[750px]')}
           />
         ))}
       </div>
