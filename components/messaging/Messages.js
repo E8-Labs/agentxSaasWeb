@@ -1947,7 +1947,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     // if (thread.lead?.source === 'instagram_dummy') return 'I'
     if (thread.lead?.profileImageUrl) {
       return (
-        <Image src={thread.lead.profileImageUrl} alt={thread.lead.name} width={32} height={32} className="w-full h-full object-cover rounded-full" />
+        <Image src={thread.lead.profileImageUrl} alt={"Profile url"} width={32} height={32} className="w-full h-full object-cover rounded-full" />
       )
     }
     if (thread.lead?.firstName) {

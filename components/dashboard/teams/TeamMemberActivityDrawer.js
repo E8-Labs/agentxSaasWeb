@@ -73,14 +73,14 @@ async function fetchTeamMemberActivities(teamMemberUserId, range, from, to, sele
 }
 
 const RANGE_OPTIONS = [
-  { value: 'all', label: 'All Activities' },
+  { value: 'all', label: 'All Time' },
   { value: 'last_24hrs', label: 'Last 24hrs' },
   { value: 'last_7days', label: 'Last 7days' },
   { value: 'custom', label: 'Custom' },
 ]
 
 const FILTER_OPTIONS = [
-  { value: 'all', label: 'All Time' },
+  { value: 'all', label: 'All Activities' },
   { value: 'calls', label: 'Calls' },
   { value: 'sms', label: 'SMS' },
   { value: 'email', label: 'Emails' },

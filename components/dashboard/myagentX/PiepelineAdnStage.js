@@ -529,13 +529,38 @@ const PipelineAndStage = ({
           className="flex flex-row items-center justify-between"
           style={firecrawlStyles.header}
         >
-          <span className="font-medium" style={{ color: 'rgba(0, 0, 0, 0.9)' }}>
-            Assigned Pipeline
-          </span>
-          {agentDetailsLoading ? (
-            <CircularProgress size={20} />
-          ) : (
-            <span>{agentDetails?.pipeline ? agentDetails?.pipeline?.title : '-'}</span>
+          <div className="flex flex-row items-center gap-2">
+            <span className="font-medium" style={{ color: 'rgba(0, 0, 0, 0.9)' }}>
+              Assigned Pipeline
+            </span>
+            <div className='font-medium'>|</div>
+            {agentDetailsLoading ? (
+              <CircularProgress size={20} />
+            ) : (
+              <span>{agentDetails?.pipeline ? agentDetails?.pipeline?.title : '-'}</span>
+            )}
+          </div>
+          {agentDetails?.pipeline && (
+            <div className="flex justify-start items-center">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (!removeFromPipelineLoading) setShowRemoveFromPipelinePopup(true)
+                }}
+                disabled={removeFromPipelineLoading}
+                className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-destructive outline-none transition-colors duration-150 focus:bg-destructive/10 active:scale-[0.98] disabled:opacity-60 [&_svg]:size-4 [&_svg]:shrink-0 bg-black/[0.05]"
+              >
+                {removeFromPipelineLoading ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : (
+                  <>
+                    <Trash2 size={16} strokeWidth={2} />
+                    Remove
+                  </>
+                )}
+              </button>
+            </div>
           )}
         </div>
 
@@ -662,7 +687,7 @@ const PipelineAndStage = ({
                 e.stopPropagation()
                 setShowConfirmationPopup(true)
               }}
-              className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-brand-primary outline-none transition-colors duration-150 hover:underline focus:bg-brand-primary/10 focus:text-brand-primary active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0"
+              className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-brand-primary outline-none transition-colors duration-150 hover:underline focus:bg-brand-primary/10 focus:text-brand-primary active:scale-[0.98] [&_svg]:size-4 [&_svg]:shrink-0 bg-black/[0.05]"
             >
               <Pencil size={16} strokeWidth={2} />
               Update
@@ -818,28 +843,6 @@ const PipelineAndStage = ({
           )}
         </div>
       </div>
-      {agentDetails?.pipeline && (
-        <div className="flex justify-start items-center pt-2 px-4 pb-3">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              if (!removeFromPipelineLoading) setShowRemoveFromPipelinePopup(true)
-            }}
-            disabled={removeFromPipelineLoading}
-            className="flex h-[40px] items-center gap-2 rounded-lg px-4 text-sm font-medium text-destructive outline-none transition-colors duration-150 focus:bg-destructive/10 active:scale-[0.98] disabled:opacity-60 [&_svg]:size-4 [&_svg]:shrink-0"
-          >
-            {removeFromPipelineLoading ? (
-              <CircularProgress size={16} color="inherit" />
-            ) : (
-              <>
-                <Trash2 size={16} strokeWidth={2} />
-                Remove from pipeline
-              </>
-            )}
-          </button>
-        </div>
-      )}
     </div>
   )
 }
