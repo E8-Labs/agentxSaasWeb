@@ -126,6 +126,7 @@ import RenameLead from './RenameLead'
 import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import { TrashIcon } from 'lucide-react'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import LeadDetailsLoader from '@/components/common/LeadDetailsLoader'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -2090,8 +2091,8 @@ const LeadDetails = ({
 
           <div className="w-full">
             {initialLoader ? (
-              <div className="w-full flex flex-row items-center justify-center mt-24">
-                <CircularProgress size={45} thickness={2} />
+              <div className="w-full flex flex-row items-center justify-center h-full">
+                <LeadDetailsLoader />
               </div>
             ) : (
               <div
