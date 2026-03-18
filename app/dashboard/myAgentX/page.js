@@ -4472,7 +4472,7 @@ function Page() {
             className={`flex min-h-0 flex-1 flex-col overflow-auto w-full items-center ${filteredAgentsList.length > 0 ? 'pb-[170px]' : ''}`}
           >
             {/* code for agents list */}
-            {!initialLoader || !tagFilterLoader ? (
+            {initialLoader || tagFilterLoader ? (
               <div className="flex flex-1 flex-row justify-center gap-4 py-8 w-full">
                 {/*<CircularProgress size={45} />*/}
                 <MyAgentXLoader />
