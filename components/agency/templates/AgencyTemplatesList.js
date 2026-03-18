@@ -204,6 +204,19 @@ export default function AgencyTemplatesList() {
     setAssignError(null)
   }
 
+  const isAgentLimitError = (message, status) => {
+    if (!message || typeof message !== 'string') return false
+    const lower = message.toLowerCase()
+    const limitRelated =
+      lower.includes('limit') &&
+      (lower.includes('agent') || lower.includes('plan limit') || lower.includes('maximum number'))
+    const knownLimitMessages =
+      lower.includes("you've reached the limit on agents") ||
+      lower.includes('maximum number of agents') ||
+      lower.includes('add a payment method to create additional agents')
+    return (status === 402 || status === 403) && (limitRelated || knownLimitMessages)
+  }
+
   const handleConfirmAssign = async () => {
     if (!assigningForTemplate || selectedSubaccountId == null) return
     const template = assigningForTemplate
@@ -227,10 +240,17 @@ export default function AgencyTemplatesList() {
         handleAssignModalClose()
         fetchTemplates()
       } else {
-        setAssignError(res?.data?.message || 'Failed to create agent')
+        const msg = res?.data?.message || 'Failed to create agent'
+        setAssignError(
+          isAgentLimitError(msg, res?.status) ? 'Subaccount agent limit reached' : msg,
+        )
       }
     } catch (err) {
-      setAssignError(err?.response?.data?.message || err?.message || 'Failed to create agent')
+      const msg = err?.response?.data?.message || err?.message || 'Failed to create agent'
+      const status = err?.response?.status
+      setAssignError(
+        isAgentLimitError(msg, status) ? 'Subaccount agent limit reached' : msg,
+      )
     } finally {
       setAssignAgentLoading(false)
     }
