@@ -994,31 +994,34 @@ const LeadDetails = ({
         ]
         // setLeadColumns(response.data.columns);
         // Filter out recently deleted tags to prevent them from being added back
-        // Preserve teamsAssigned from current state if it exists and has more recent data
-        // This ensures UI updates are not lost when API is called
+        // Preserve teamsAssigned from current state only when refetching the SAME lead
+        // (e.g. after assignment). When switching to a different lead, always use API data
+        // so we don't show the previous lead's assignments on the new lead.
+        const fetchedLeadId = response.data.data?.id
+        const isSameLead = fetchedLeadId != null && selectedLeadsDetails?.id != null &&
+          String(fetchedLeadId) === String(selectedLeadsDetails.id)
         const currentTeamsAssigned = selectedLeadsDetails?.teamsAssigned || []
         const apiTeamsAssigned = response.data.data?.teamsAssigned || []
 
-        // Use current teamsAssigned if it has more items (indicating recent assignment)
-        // Otherwise use API data, but merge to ensure we don't lose any assignments
         let finalTeamsAssigned = apiTeamsAssigned
-        if (currentTeamsAssigned.length > apiTeamsAssigned.length) {
-          // Current state has more teams, use it (more recent)
-          finalTeamsAssigned = currentTeamsAssigned
-        } else if (currentTeamsAssigned.length > 0 && apiTeamsAssigned.length > 0) {
-          // Both have data, merge them and remove duplicates
-          const merged = [...currentTeamsAssigned]
-          apiTeamsAssigned.forEach((apiTeam) => {
-            const apiTeamId = apiTeam.id || apiTeam.invitedUserId || apiTeam.invitedUser?.id
-            const exists = merged.some((currentTeam) => {
-              const currentTeamId = currentTeam.id || currentTeam.invitedUserId || currentTeam.invitedUser?.id
-              return String(currentTeamId) === String(apiTeamId)
+        if (isSameLead) {
+          // Same lead: preserve/merge so UI updates (e.g. just-assigned team) aren't lost
+          if (currentTeamsAssigned.length > apiTeamsAssigned.length) {
+            finalTeamsAssigned = currentTeamsAssigned
+          } else if (currentTeamsAssigned.length > 0 && apiTeamsAssigned.length > 0) {
+            const merged = [...currentTeamsAssigned]
+            apiTeamsAssigned.forEach((apiTeam) => {
+              const apiTeamId = apiTeam.id || apiTeam.invitedUserId || apiTeam.invitedUser?.id
+              const exists = merged.some((currentTeam) => {
+                const currentTeamId = currentTeam.id || currentTeam.invitedUserId || currentTeam.invitedUser?.id
+                return String(currentTeamId) === String(apiTeamId)
+              })
+              if (!exists) {
+                merged.push(apiTeam)
+              }
             })
-            if (!exists) {
-              merged.push(apiTeam)
-            }
-          })
-          finalTeamsAssigned = merged
+            finalTeamsAssigned = merged
+          }
         }
 
         const updatedLeadData = {

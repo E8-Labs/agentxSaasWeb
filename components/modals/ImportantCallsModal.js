@@ -219,6 +219,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
       if (response.data?.status === true && response.data?.data) {
         const newCalls = response.data.data.calls || []
         const newTotal = response.data.data.total ?? 0
+        console.log("agent new calls from api", newCalls)
         if (reset) {
           setAgentStatsCalls(newCalls)
           setAgentStatsOffset(agentStatsLimit)
@@ -608,7 +609,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                                   })
                                   setAgentStatsTotal((prev) => Math.max(0, prev - 1))
                                 }}
-                                hideDelete={false}
+                                hideDelete={true}
                                 isPipeline={false}
                                 noBackDrop={true}
                                 renderInline={true}
