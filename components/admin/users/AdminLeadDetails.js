@@ -1976,7 +1976,7 @@ const AdminLeadDetails = ({
                                     >
                                       {item?.invitedUser
                                         ?.thumb_profile_image ? (
-                                        <Image
+                                        <img
                                           className="rounded-full"
                                           src={
                                             item.invitedUser

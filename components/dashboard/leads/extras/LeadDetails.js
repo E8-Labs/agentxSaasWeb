@@ -2143,7 +2143,7 @@ const LeadDetails = ({
                                   <TooltipTrigger asChild>
                                     {
                                       selectedLeadsDetails?.profileImageUrl ? (
-                                        <Image src={selectedLeadsDetails?.profileImageUrl} alt={"Profile Image"} width={32} height={32} className="object-cover rounded-full" />
+                                        <img src={selectedLeadsDetails?.profileImageUrl} alt={"Profile Image"} width={32} height={32} className="object-cover rounded-full" />
                                       ) : (
                                         <span className="inline-flex cursor-pointer size-[38px]">
                                           <Avatar className="h-[38px] w-[38px]">
@@ -2771,7 +2771,7 @@ const LeadDetails = ({
                       <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
                         <div className="">
                           {myTeamAdmin?.thumb_profile_image ? (
-                            <Image
+                            <img
                               className="rounded-full"
                               src={myTeamAdmin.thumb_profile_image}
                               height={32}
@@ -2812,7 +2812,7 @@ const LeadDetails = ({
                                 }}
                               >
                                 {item?.invitedUser?.thumb_profile_image ? (
-                                  <Image
+                                  <img
                                     className="rounded-full"
                                     src={
                                       item.invitedUser?.thumb_profile_image
