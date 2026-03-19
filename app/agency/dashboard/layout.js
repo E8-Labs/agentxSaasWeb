@@ -7,6 +7,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import AgencyNavBar from '@/components/dashboard/Navbar/AgencyNavBar'
 import AgencySupportWidget from '@/components/agency/AgencySupportWidget'
 import DialerModal from '@/components/dialer/DialerModal'
+import NavigationLoader from '@/components/common/NavigationLoader'
 import IncomingCallBanner from '@/components/dialer/IncomingCallBanner'
 import {
   selectIsDialerOpen,
@@ -75,6 +76,7 @@ export default function DashboardLayout({ children }) {
 
           {/* Main Content */}
           <div className="w-10/12">
+            <NavigationLoader leftOffset="16.666667%" />
             <div>{/* <NoPlanPopup /> */}</div>
             {children}
           </div>
