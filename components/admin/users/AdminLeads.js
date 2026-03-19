@@ -20,6 +20,7 @@ import {
   CalendarDots,
   CaretDown,
   CaretUp,
+  Check,
   Cross,
   DotsThree,
   EnvelopeSimple,
@@ -41,7 +42,7 @@ import {
 } from '@/components/ui/popover'
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
-import { ListStart } from 'lucide-react'
+import { Download, ListStart, Settings2 } from 'lucide-react'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import { AuthToken, userLocalData } from '@/components/agency/plan/AuthDetails'
@@ -1753,32 +1754,9 @@ const AdminLeads = ({
           </div>
         }
         showTasks={true}
-        rightContent={
-          <button
-            style={{
-              backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
-              color: toggleClick.length > 0 ? 'white' : '#000000',
-            }}
-            className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
-            onClick={() => {
-              if (userLocalDetails?.plan) {
-                setAssignLeadModal(true)
-              } else {
-                setSnackMessage('Add payment method to continue')
-                setShowSnackMessage(true)
-                setMessageType(SnackbarTypes.Warning)
-              }
-            }}
-            disabled={!toggleClick.length > 0}
-          >
-            {toggleClick.length > 0 ? (
-              <ListStart size={18} className="flex-shrink-0" aria-hidden />
-            ) : (
-              <ListStart size={18} className="flex-shrink-0" aria-hidden />
-            )}
-            <span style={{fontWeight: 400, fontSize: 15}}>Start Campaign</span>
-          </button>
-        }
+        // rightContent={
+
+        // }
         selectedUser={selectedUser}
       />
       {/*<div
@@ -1896,201 +1874,176 @@ const AdminLeads = ({
               </div>
             </div>
 
-            <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-              <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
-                <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
-                  <input
-                    style={styles.paragraph}
-                    className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
-                    placeholder="Search by name, email or phone"
-                    value={searchLead}
-                    onChange={(e) => {
-                      const value = e.target.value
-                      setSearchLead(e.target.value)
-                      handleSearchChange(value)
-                    }}
-                  />
-                  <button className="outline-none border-none">
-                    <Image
-                      src={'/assets/searchIcon.png'}
-                      height={24}
-                      width={24}
-                      alt="*"
+            <div
+              className="sticky top-0 z-10 flex flex-col flex-shrink-0 bg-white w-full animate-in slide-in-from-bottom-2 duration-200 ease-out"
+              style={{ gap: 2 }}
+            >
+              <div
+                className="flex flex-row items-center justify-between w-full min-w-0 overflow-hidden px-3 py-3 h-auto border-0"
+                style={{ border: 'none' }}
+              >
+                <div className="flex flex-row items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                  <div className="flex flex-row items-center gap-3 w-[22vw] flex-shrink-0 border rounded-lg pe-2 search-input-wrapper">
+                    <input
+                      style={{ ...styles.paragraph, fontWeight: 400 }}
+                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full text-[14px] text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
+                      placeholder="Search by name, email or phone"
+                      value={searchLead}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setSearchLead(e.target.value)
+                        handleSearchChange(value)
+                      }}
                     />
-                  </button>
-                </div>
-                <button
-                  className="outline-none flex-shrink-0"
-                  onClick={() => {
-                    setShowFilterModal(true)
-                  }}
-                >
-                  <Image
-                    src={'/assets/filterIcon.png'}
-                    height={16}
-                    width={16}
-                    alt="*"
-                  />
-                </button>
-                {/* Show filters here in a row*/}
-                <div
-                  className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[60%] "
-                  style={{
-                    scrollbarColor: '#00000000',
-                    scrollbarWidth: 'none',
-                  }}
-                >
-                  {filtersSelected.map((filter, index) => {
-                    //////console.log;
-                    return (
-                      <div className="flex-shrink-0" key={filter.key + index}>
-                        <div
-                          className="px-4 py-2 bg-brand-primary/10 text-brand-primary  flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
-                          style={{ fontWeight: '500', fontSize: 15 }}
-                        >
-                          {getFilterTitle(filter)}
-                          <button
-                            className="outline-none"
-                            onClick={() => {
-                              let filters = []
-                              let stages = []
-                              let pipeline = null
-                              let fromDate = null
-                              let toDate = null
-                              filtersSelected.map((f, ind) => {
-                                if (index != ind) {
-                                  filters.push(f)
-                                  if (f.key == 'stage') {
-                                    stages.push(f.values[0])
-                                  }
-                                  if (f.key == 'pipeline') {
-                                    pipeline = f.values[0]
-                                  }
-                                  if (f.key == 'date') {
-                                    fromDate = f.values[0]
-                                    toDate = f.values[1]
-                                  }
-                                } else {
-                                }
-                              })
-
-                              //////console.log;
-                              //////console.log;
-                              //////console.log;
-                              // //console.log;
-                              setSelectedStage(stages)
-                              setSelectedFromDate(fromDate)
-                              setSelectedToDate(toDate)
-                              setSelectedPipeline(pipeline)
-                              //   setFilterLeads([]);
-                              //   setLeadsList([]);
-                              //   setTimeout(() => {
-                              //     let filterText = getFilterText();
-                              //     handleFilterLeads(0, filterText);
-                              //   }, 1000);
-
-                              //   filters.splice(index, 1);
-                              //////console.log;
-                              setFiltersSelected(filters)
-                            }}
-                          >
-                            <CloseBtn onClick={() => { }} />
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="flex flex-row items-center justify-end gap-2 w-[40%]">
-                {hasExportPermission && (
-                  exportLoading ? (
-                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                  ) : (
-                    <button
-                      className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
-                      style={{ fontWeight: 400, fontSize: 14 }}
-                      onClick={() => handleExportLeads()}
-                      disabled={exportLoading}
-                    >
-                      <div className="transition-colors duration-150">Export</div>
+                    <button className="outline-none border-none" type="button">
                       <Image
-                        src={'/otherAssets/exportIcon.png'}
-                        height={24}
-                        width={24}
-                        alt="Export"
-                        className="group-hover:hidden block transition-opacity duration-150"
-                      />
-                      <Image
-                        src={'/otherAssets/exportIconPurple.png'}
-                        height={24}
-                        width={24}
-                        alt="Export"
-                        className="hidden group-hover:block transition-opacity duration-150"
+                        src={'/assets/searchIcon.png'}
+                        height={18}
+                        width={18}
+                        alt="Search"
                       />
                     </button>
-                  )
-                )}
-                {toggleClick.length >= 0 && (
-                  <div>
-                    {toggleClick.length === FilterLeads.length ? (
-                      <div>
-                        {LeadsList.length > 0 && (
-                          <div className="flex flex-row items-center gap-2">
+                  </div>
+                  <button
+                    type="button"
+                    className="relative outline-none flex-shrink-0 flex flex-row items-center gap-2 px-3 h-10 rounded-lg border border-transparent bg-[#F9FAFB] hover:bg-white hover:border-[#E5E7EB] active:scale-[0.98] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
+                    onClick={() => {
+                      setShowFilterModal(true)
+                    }}
+                  >
+                    <Settings2 size={18} className="flex-shrink-0" aria-hidden />
+                    <span className="text-[14px] font-normal">Filter</span>
+                    {filtersSelected.length > 0 && (
+                      <span
+                        className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-brand-primary"
+                        aria-hidden
+                      />
+                    )}
+                  </button>
+                  {/* Show filters here in a row*/}
+                  <div
+                    className="flex flex-row items-center gap-2 flex-shrink-0 overflow-auto w-[65%]"
+                    style={{
+                      scrollbarColor: '#00000000',
+                      scrollbarWidth: 'none',
+                    }}
+                  >
+                    {filtersSelected.map((filter, index) => {
+                      return (
+                        <div className="flex-shrink-0" key={filter.key + index}>
+                          <div
+                            className="px-2 h-10 flex-shrink-0 rounded-lg flex flex-row items-center gap-1"
+                            style={{
+                              fontWeight: 400,
+                              fontSize: 14,
+                              color: 'rgba(0,0,0,0.8)',
+                              backgroundColor: 'rgba(0,0,0,0.05)',
+                            }}
+                          >
+                            {getFilterTitle(filter)}
                             <button
-                              className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
+                              type="button"
+                              className="outline-none"
                               onClick={() => {
-                                setToggleClick([])
-                                setSelectedAll(false)
+                                let filters = []
+                                let stages = []
+                                let pipeline = null
+                                let fromDate = null
+                                let toDate = null
+                                filtersSelected.map((f, ind) => {
+                                  if (index != ind) {
+                                    filters.push(f)
+                                    if (f.key == 'stage') {
+                                      stages.push(f.values[0])
+                                    }
+                                    if (f.key == 'pipeline') {
+                                      pipeline = f.values[0]
+                                    }
+                                    if (f.key == 'date') {
+                                      fromDate = f.values[0]
+                                      toDate = f.values[1]
+                                    }
+                                  } else {
+                                  }
+                                })
+
+                                setSelectedStage(stages)
+                                setSelectedFromDate(fromDate)
+                                setSelectedToDate(toDate)
+                                setSelectedPipeline(pipeline)
+                                setFiltersSelected(filters)
                               }}
                             >
                               <Image
-                                src={'/assets/whiteTick.png'}
-                                height={10}
-                                width={10}
-                                alt="*"
+                                src={'/otherAssets/crossIcon.png'}
+                                height={20}
+                                width={20}
+                                alt=""
                               />
                             </button>
-                            <div
-                              style={{
-                                fontSize: '15',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              Select All
-                            </div>
-                            <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
-                              {/*getLeadSelectedCount()*/}
-                              {totalLeads}
-                            </div>
                           </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex flex-row items-center gap-2">
-                        <button
-                          className="h-[20px] w-[20px] border-2 rounded outline-none"
-                          onClick={() => {
-                            setToggleClick(FilterLeads.map((item) => item.id))
-                            setSelectedAll(true)
-                          }}
-                        ></button>
-                        <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
-                          Select All
                         </div>
-                      </div>
-                    )}
+                      )
+                    })}
                   </div>
-                )}
+                </div>
 
-                {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
+                <div className="flex flex-row items-center justify-end gap-2 w-auto flex-shrink-0 text-[14px] font-normal">
+                  {hasExportPermission && (
+                    exportLoading ? (
+                      <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                    ) : (
+                      <button
+                        type="button"
+                        className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0"
+                        style={{
+                          fontWeight: 400,
+                          fontSize: 14,
+                          backgroundColor: '#f7f7f7',
+                          borderRadius: 8,
+                        }}
+                        onClick={() => handleExportLeads()}
+                        disabled={exportLoading}
+                      >
+                        <Download size={18} className="flex-shrink-0" aria-hidden />
+                        <span className="text-[14px]">Export</span>
+                      </button>
+                    )
+                  )}
+
+                  <button
+                    type="button"
+                    style={{
+                      fontWeight: 400,
+                      fontSize: 14,
+                      backgroundColor:
+                        toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '#f7f7f7',
+                      color: toggleClick.length > 0 ? 'white' : undefined,
+                      borderRadius: 8,
+                    }}
+                    className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 hover:opacity-90"
+                    onClick={() => {
+                      if (userLocalDetails?.plan) {
+                        setAssignLeadModal(true)
+                      } else {
+                        setSnackMessage('Add payment method to continue')
+                        setShowSnackMessage(true)
+                        setMessageType(SnackbarTypes.Warning)
+                      }
+                    }}
+                    disabled={!toggleClick.length > 0}
+                  >
+                    <ListStart size={18} className="flex-shrink-0" aria-hidden />
+                    <span className="text-[14px]">Start Campaign</span>
+                  </button>
+
+                  {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
                                         <span>
                                             Import
                                         </span>
                                         <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
                                     </button> */}
+                </div>
               </div>
             </div>
 
@@ -2343,6 +2296,7 @@ const AdminLeads = ({
                                 const isDateColumn = column.title === 'Date'
                                 const columnWidth =
                                   column.title === 'More' ? '200px' : '150px'
+                                const isNameColumn = column.title === 'Name'
                                 return (
                                   <th
                                     key={index}
@@ -2359,8 +2313,69 @@ const AdminLeads = ({
                                       maxWidth: columnWidth,
                                     }}
                                   >
-                                    {column.title.slice(0, 1).toUpperCase()}
-                                    {column.title.slice(1)}
+                                    {isNameColumn ? (
+                                      <div className="flex flex-row items-center gap-2 justify-between">
+                                        <div className="flex flex-row items-center gap-2">
+                                          {toggleClick.length === FilterLeads.length &&
+                                            LeadsList.length > 0 ? (
+                                            <>
+                                              <button
+                                                type="button"
+                                                className="h-[20px] w-[20px] shrink-0 border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
+                                                onClick={() => {
+                                                  setToggleClick([])
+                                                  setSelectedAll(false)
+                                                }}
+                                                aria-label="Clear selection"
+                                              >
+                                                <Image
+                                                  src={'/assets/whiteTick.png'}
+                                                  height={10}
+                                                  width={10}
+                                                  alt=""
+                                                />
+                                              </button>
+                                            </>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              className="h-[20px] w-[20px] shrink-0 border-2 rounded outline-none"
+                                              onClick={() => {
+                                                setToggleClick(
+                                                  FilterLeads.map((item) => item.id)
+                                                )
+                                                setSelectedAll(true)
+                                              }}
+                                              aria-label="Select all leads"
+                                            />
+                                          )}
+                                          <span className="min-w-0 truncate">
+                                            {column.title.slice(0, 1).toUpperCase()}
+                                            {column.title.slice(1)}
+                                          </span>
+                                        </div>
+                                        {toggleClick.length > 0 && (
+                                          <span
+                                            className="flex-shrink-0"
+                                            style={{
+                                              padding: '4px 8px',
+                                              fontSize: 12,
+                                              fontWeight: 500,
+                                              color: 'hsl(var(--brand-primary))',
+                                              backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                              borderRadius: 8,
+                                            }}
+                                          >
+                                            {totalLeads} {toggleClick.length === 1 ? 'LEAD' : 'LEADS'}
+                                          </span>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <>
+                                        {column.title.slice(0, 1).toUpperCase()}
+                                        {column.title.slice(1)}
+                                      </>
+                                    )}
                                   </th>
                                 )
                               })}
