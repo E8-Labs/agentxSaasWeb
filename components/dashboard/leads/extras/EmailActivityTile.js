@@ -8,15 +8,15 @@ const EmailActivityTile = ({
   item,
   isExpanded,
   onToggleExpand,
+  onCampaignStatClick,
 }) => {
-  // console.log("Item for email activity tile", item);
   return (
     <ActivityTile
       item={item}
       isExpanded={isExpanded}
       onToggleExpand={onToggleExpand}
     >
-      <EmailSmsTranscriptCN item={item} />
+      <EmailSmsTranscriptCN item={item} onCampaignStatClick={onCampaignStatClick} />
     </ActivityTile>
   )
 }

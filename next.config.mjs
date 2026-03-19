@@ -56,7 +56,11 @@ const nextConfig = {
         hostname: "api.myagentx.com",
         pathname: "/agentx/uploads/**",
       },
-      // Facebook CDN for connected page profile images (e.g. currentPage.profileImageUrl)
+      // Facebook CDN for profile images (e.g. ThreadsList avatars, connected page images)
+      {
+        protocol: "https",
+        hostname: "platform-lookaside.fbsbx.com",
+      },
       {
         protocol: "https",
         hostname: "scontent-phx1-1.xx.fbcdn.net",

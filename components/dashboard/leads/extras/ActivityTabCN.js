@@ -20,6 +20,7 @@ const ActivityTabCN = ({
   leadName = null,
   selectedUser = null,
   tooltipZIndex,
+  onCampaignStatClick,
 }) => {
   if (callActivity?.length < 1) {
     return (
@@ -46,7 +47,7 @@ const ActivityTabCN = ({
     // console.log("Common props activity tab", commonProps);
 
     if (item.communicationType === 'email') {
-      return <EmailActivityTile key={item.id} {...commonProps} />
+      return <EmailActivityTile key={item.id} {...commonProps} onCampaignStatClick={onCampaignStatClick} />
     } else if (item.communicationType === 'sms') {
       return <SmsActivityTile key={item.id} {...commonProps} />
     } else {

@@ -147,14 +147,14 @@ const EmailBubble = ({
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
 
       {message?.agent && onCampaignStatClick && (
-        <div className="flex justify-end items-center mt-2">
+        <div className="flex w-full justify-end items-center mt-2">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation()
               onCampaignStatClick(message.subject)
             }}
-            className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5"
+            className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 ml-auto"
             title="Campaign stat"
             aria-label="Campaign stat"
           >

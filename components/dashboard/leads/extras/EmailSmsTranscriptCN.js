@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { BarChart2 } from 'lucide-react'
 
 import {
   TypographyBody,
@@ -31,7 +32,7 @@ function unescapeHtmlEntities(str) {
     .replace(/&nbsp;/g, ' ')
 }
 
-const EmailSmsTranscriptCN = ({ item }) => {
+const EmailSmsTranscriptCN = ({ item, onCampaignStatClick }) => {
   const isEmail = item.communicationType === 'email'
   const rawContent = item.sentContent
 
@@ -98,6 +99,22 @@ const EmailSmsTranscriptCN = ({ item }) => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {item?.agent && onCampaignStatClick && isEmail && (
+        <div className="flex w-full justify-end items-center mt-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onCampaignStatClick(item.sentSubject)
+            }}
+            className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 ml-auto"
+            title="Campaign stat"
+            aria-label="Campaign stat"
+          >
+            <BarChart2 size={15} />
+          </button>
         </div>
       )}
     </div>
