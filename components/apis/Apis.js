@@ -430,6 +430,7 @@ const Apis = {
   sendSocialMessage: `${BasePath}api/user/messaging/threads`,
   shortlistLead: `${BasePath}api/user/messaging/shortlist`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
+  getEmailCampaignStats: `${BasePath}api/user/messaging/email-campaign-stats`,
   socialConnections: `${BasePath}api/mail/social-connections`,
   socialFacebookAuthorize: `${BasePath}api/mail/social/facebook/authorize`,
   disconnectSocialConnection: `${BasePath}api/mail/social-connections/all`,

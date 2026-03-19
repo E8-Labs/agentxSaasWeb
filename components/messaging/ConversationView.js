@@ -42,6 +42,7 @@ const ConversationView = ({
   onReplyClick,
   onOpenEmailTimeline,
   updateComposerFromMessage,
+  onCampaignStatClick,
   onOpenMessageSettings,
   onOpenAiChat,
   onGenerateCallSummaryDrafts,
@@ -431,6 +432,7 @@ const ConversationView = ({
                                   onReplyClick={onReplyClick}
                                   isLastMessage={isLastMessage}
                                   updateComposerFromMessage={updateComposerFromMessage}
+                                  onCampaignStatClick={onCampaignStatClick}
                                 />
                               </div>
                               {!isOutbound && onReplyClick && (
