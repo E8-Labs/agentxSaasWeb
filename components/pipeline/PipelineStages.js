@@ -1429,12 +1429,12 @@ const PipelineStages = ({
                                       {tmpl.templateName}
                                     </MenuItem>
                                   ))}
-                                  <MenuItem
+                                  {/*<MenuItem
                                     value="__new__"
                                     sx={{ fontSize: 13, fontWeight: '500', color: 'hsl(var(--brand-primary))', py: 1.25 }}
                                   >
                                     New Template
-                                  </MenuItem>
+                                  </MenuItem>*/}
                                 </Select>
                               </FormControl>
                             )}
