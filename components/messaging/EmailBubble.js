@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { BarChart2 } from 'lucide-react'
 import { sanitizeAndLinkifyHTML } from '@/utilities/textUtils'
 import AttachmentList from './AttachmentList'
 
@@ -19,6 +20,7 @@ const EmailBubble = ({
   onReplyClick,
   isLastMessage = false,
   updateComposerFromMessage,
+  onCampaignStatClick,
 }) => (
   <>
     <div
@@ -144,7 +146,22 @@ const EmailBubble = ({
 
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
 
-
+      {message?.agent && onCampaignStatClick && (
+        <div className="flex w-full justify-end items-center mt-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onCampaignStatClick(message.subject)
+            }}
+            className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 ml-auto"
+            title="Campaign stat"
+            aria-label="Campaign stat"
+          >
+            <BarChart2 size={15} />
+          </button>
+        </div>
+      )}
     </div>
     <div className="mt-1 mr-1 flex items-center justify-end gap-3">
       <span className={`text-[12px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>

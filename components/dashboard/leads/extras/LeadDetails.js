@@ -128,6 +128,8 @@ import { TrashIcon } from 'lucide-react'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import LeadDetailsLoader from '@/components/common/LeadDetailsLoader'
 
+
+
 const LeadDetails = ({
   showDetailsModal,
   selectedLead,
@@ -179,6 +181,12 @@ const LeadDetails = ({
   //code for audio play popup
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [showNoAudioPlay, setShowNoAudioPlay] = useState(false)
+
+  // Campaign stat modal (activity view email bubble)
+  const [showCampaignStatModal, setShowCampaignStatModal] = useState(false)
+  const [campaignStatSubject, setCampaignStatSubject] = useState('')
+  const [campaignStatLoading, setCampaignStatLoading] = useState(false)
+  const [campaignStatData, setCampaignStatData] = useState(null)
 
   //show custom variables
   const [showCustomVariables, setShowCustomVariables] = useState(false)
@@ -1086,6 +1094,45 @@ const LeadDetails = ({
       console.error('Error refreshing notes:', error)
     }
   }, [selectedLead, selectedLeadsDetails?.id])
+
+  const handleCampaignStatClick = useCallback(async (subject) => {
+    setCampaignStatSubject(subject ?? '')
+    setShowCampaignStatModal(true)
+    setCampaignStatData(null)
+    setCampaignStatLoading(true)
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        setCampaignStatData(null)
+        return
+      }
+      const userData = JSON.parse(localData)
+      const token = userData?.token
+      if (!token) {
+        setCampaignStatData(null)
+        return
+      }
+      const params = { subject: subject ?? '' }
+      if (selectedUser?.id) params.userId = selectedUser.id
+      const response = await axios.get(Apis.getEmailCampaignStats, {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response.data?.status && response.data?.data) {
+        setCampaignStatData(response.data.data)
+      } else {
+        setCampaignStatData(null)
+      }
+    } catch (err) {
+      console.error('Error fetching campaign stats:', err)
+      setCampaignStatData(null)
+    } finally {
+      setCampaignStatLoading(false)
+    }
+  }, [selectedUser?.id])
 
   // Handler to update tags after tag deletion (optimistic update only)
   const handleLeadDetailsUpdated = async (deletedTagName) => {
@@ -2935,6 +2982,7 @@ const LeadDetails = ({
                         leadName={selectedLeadsDetails?.firstName || selectedLeadsDetails?.name}
                         selectedUser={selectedUser}
                         tooltipZIndex={elevatedZIndex ? 5010 : undefined}
+                        onCampaignStatClick={handleCampaignStatClick}
                       />
                     )}
                   </div>
@@ -3100,6 +3148,52 @@ const LeadDetails = ({
               </div>
             </Box>
           </Modal>
+
+          {/* Campaign Stat modal (activity view email bubble) */}
+          <Dialog open={showCampaignStatModal} onOpenChange={(open) => { if (!open) setShowCampaignStatModal(false) }}>
+            <DialogContent className="max-w-sm" hideCloseButton={false}>
+              <DialogHeader>
+                <DialogTitle>Campaign Stat</DialogTitle>
+              </DialogHeader>
+              {campaignStatSubject && (
+                <p className="text-sm text-muted-foreground truncate" title={campaignStatSubject}>
+                  {campaignStatSubject}
+                </p>
+              )}
+              {campaignStatLoading ? (
+                <p className="text-sm text-muted-foreground">Loading…</p>
+              ) : campaignStatData ? (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span>Delivered</span>
+                    <span className="font-medium">
+                      {campaignStatData.sent
+                        ? `${Math.round((campaignStatData.delivered / campaignStatData.sent) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Opened</span>
+                    <span className="font-medium">
+                      {campaignStatData.sent
+                        ? `${Math.round((campaignStatData.opened / campaignStatData.sent) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Clicked</span>
+                    <span className="font-medium">
+                      {campaignStatData.sent
+                        ? `${Math.round((campaignStatData.clicked / campaignStatData.sent) * 100)}%`
+                        : '0%'}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                !campaignStatLoading && <p className="text-sm text-muted-foreground">No data available.</p>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
