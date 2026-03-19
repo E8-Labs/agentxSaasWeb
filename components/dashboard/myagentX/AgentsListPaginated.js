@@ -681,9 +681,9 @@ const AgentsListPaginated = ({
                                           onClick={(e) => {
                                             e.preventDefault()
                                             e.stopPropagation()
-                                            if (onUnassignTag && item.mainAgentId) {
-                                              onUnassignTag(item.mainAgentId, tagLabel)
-                                            }
+                                            // if (onUnassignTag && item.mainAgentId) {
+                                            //   onUnassignTag(item.mainAgentId, tagLabel)
+                                            // }
                                           }}
                                           className="px-2 py-0.5 rounded-md text-xs font-medium bg-black/6 hover:bg-black/10 transition-colors"
                                           title="Click to unassign this tag"

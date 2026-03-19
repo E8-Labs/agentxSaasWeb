@@ -3351,6 +3351,19 @@ function Page() {
     }
   }
 
+  const normalizeTags = (tags) => {
+    const seen = new Set()
+    return (tags || []).reduce((acc, rawTag) => {
+      const tag = typeof rawTag === 'string' ? rawTag.trim() : ''
+      if (!tag) return acc
+      const key = tag.toLowerCase()
+      if (seen.has(key)) return acc
+      seen.add(key)
+      acc.push(tag)
+      return acc
+    }, [])
+  }
+
   //code to get agents
   const getAgents = async (
     paginationStatus,
@@ -3387,7 +3400,8 @@ function Page() {
       }
       const tagFilterArg = tagFilter !== undefined ? tagFilter : selectedTags
       const tagsForApi = Array.isArray(tagFilterArg) ? tagFilterArg : tagFilterArg != null && tagFilterArg !== '' ? [tagFilterArg] : []
-      let offset = mainAgentsList.length
+      const isPagination = paginationStatus === true
+      let offset = isPagination ? mainAgentsList.length : 0
       let ApiPath = `${Apis.getAgents}?offset=${offset}` //?agentType=outbound
 
       if (search) {
@@ -3459,8 +3473,10 @@ function Page() {
         let agents = response.data.data || []
         // console.log("Agents from api", agents);
 
-        const isTagFilter = tagsForApi.length > 0
-        const isReplaceMode = (search && searchLoader) || (isTagFilter && searchLoader)
+        // Refetches driven by search debounce / tag pills (incl. "All") pass searchLoader=true and must
+        // replace mainAgentsList. Pagination passes paginationStatus=true and omits searchLoader — append.
+        // Only replacing when a tag filter is active makes "All" append onto the filtered list → duplicates.
+        const isReplaceMode = Boolean(searchLoader) && !isPagination
 
         // Ignore stale response if user already changed filter/search (newer request in flight)
         if (thisRequestId !== getAgentsRequestIdRef.current) {
@@ -3482,7 +3498,7 @@ function Page() {
             JSON.stringify(agents),
           )
           const flattened = (agents || []).flatMap((ma) =>
-            (ma.agents || []).map((ag) => ({ ...ag, tags: ma.tags || [] })),
+            (ma.agents || []).map((ag) => ({ ...ag, tags: normalizeTags(ma.tags) })),
           )
           setAgentsListSeparated(flattened)
         } else {
@@ -3537,7 +3553,7 @@ function Page() {
       })
       const list = res?.data?.data
       if (Array.isArray(list)) {
-        setUniqueTags(list.filter(Boolean).sort())
+        setUniqueTags(normalizeTags(list).sort())
       }
     } catch (_) {
       // non-blocking
@@ -3554,7 +3570,7 @@ function Page() {
       const Auth = AuthToken()
       await axios.post(
         Apis.assignAgentTags,
-        { mainAgentId, tags },
+        { mainAgentId, tags: normalizeTags(tags) },
         {
           headers: {
             Authorization: 'Bearer ' + Auth,
@@ -3563,8 +3579,9 @@ function Page() {
         },
       )
       setMainAgentsList((prev) => {
+        const nextTags = normalizeTags(tags)
         const updated = prev.map((ma) =>
-          ma.id === mainAgentId ? { ...ma, tags: [...(tags || [])] } : ma,
+          ma.id === mainAgentId ? { ...ma, tags: nextTags } : ma,
         )
         if (typeof localStorage !== 'undefined') {
           localStorage.setItem(
@@ -3575,7 +3592,7 @@ function Page() {
         return updated
       })
       setUniqueTags((prev) =>
-        [...new Set([...prev, ...(tags || [])])].filter(Boolean).sort(),
+        normalizeTags([...prev, ...(tags || [])]).sort(),
       )
     } catch (err) {
       console.error('AssignAgentTags error:', err)
@@ -3820,7 +3837,7 @@ function Page() {
           ////console.log;
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
-            agents.push({ ...agent, tags: item.tags || [] })
+            agents.push({ ...agent, tags: normalizeTags(item.tags) })
           }
         }
       } else {

@@ -31,7 +31,7 @@ import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
@@ -53,6 +53,7 @@ import AgentViewScriptModal from '@/components/dashboard/myagentX/AgentViewScrip
 import ActionsTab from '@/components/dashboard/myagentX/ActionsTab'
 import AgentStatsCallsModal from '@/components/dashboard/myagentX/AgentStatsCallsModal'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
+import DeleteTagConfirmModal from '@/components/dashboard/myagentX/DeleteTagConfirmModal'
 import AllSetModal from '@/components/dashboard/myagentX/AllSetModal'
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
 import DuplicateConfirmationPopup from '@/components/dashboard/myagentX/DuplicateConfirmationPopup'
@@ -443,6 +444,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [duplicateLoader, setDuplicateLoader] = useState(false)
 
   const searchTimeoutRef = useRef(null)
+  const getAgentsRequestIdRef = useRef(0)
+  const tagFilterEffectMountedRef = useRef(false)
+  const [selectedTags, setSelectedTags] = useState([])
+  const [uniqueTags, setUniqueTags] = useState([])
+  const [tagFilterLoader, setTagFilterLoader] = useState(false)
+  const [deleteTagConfirm, setDeleteTagConfirm] = useState({
+    open: false,
+    tag: null,
+  })
+  const [deleteTagLoading, setDeleteTagLoading] = useState(false)
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: null,
     message: '',
@@ -2456,7 +2467,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   useEffect(() => {
     getCalenders()
     setInitialLoader(true)
-    getAgents()
+    setSelectedTags([])
+    getAgents(false, null, false, [])
   }, [selectedUser])
 
   // Listen for agent created event from child window
@@ -2471,10 +2483,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         setMainAgentsList([])
         setAgentsListSeparated([])
         localStorage.removeItem(PersistanceKeys.LocalStoredAgentsListMain)
+        setSelectedTags([])
 
         // Reload agents from the beginning (offset 0)
         setInitialLoader(true)
-        getAgents(false, null, false)
+        getAgents(false, null, false, [])
 
         // Dispatch custom event for parent component to refresh selectedUser
         window.dispatchEvent(
@@ -2510,28 +2523,84 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
   }
 
+  const normalizeTags = (tags) => {
+    const seen = new Set()
+    return (tags || []).reduce((acc, rawTag) => {
+      const tag = typeof rawTag === 'string' ? rawTag.trim() : ''
+      if (!tag) return acc
+      const key = tag.toLowerCase()
+      if (seen.has(key)) return acc
+      seen.add(key)
+      acc.push(tag)
+      return acc
+    }, [])
+  }
+
   //code to get agents
   const getAgents = async (
     paginationStatus,
     search = null,
     searchLoader = false,
+    tagFilter = undefined,
+    onComplete = undefined,
   ) => {
     setPaginationLoader(true)
 
-    // console.log('search', search)
+    const flattenAgentsResponse = (agentsArr) => {
+      const subAgents = []
+      ;(agentsArr || []).forEach((item) => {
+        if (item.agents && item.agents.length > 0) {
+          for (let i = 0; i < item.agents.length; i++) {
+            const agent = item.agents[i]
+            if (agent) {
+              subAgents.push({
+                ...agent,
+                tags: normalizeTags(item.tags),
+                mainAgentId: agent.mainAgentId ?? item.id,
+              })
+            }
+          }
+        }
+      })
+      return subAgents
+    }
+
+    if (search && searchLoader) {
+      setMainAgentsList([])
+      setAgentsListSeparated([])
+    }
+
     try {
-      // If mainAgentsList is empty (fresh reload), start from offset 0
-      let offset = mainAgentsList.length > 0 ? mainAgentsList.length : 0
-      let ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser?.id}` //?agentType=outbound
+      const tagFilterArg =
+        tagFilter !== undefined ? tagFilter : selectedTags
+      const tagsForApi = Array.isArray(tagFilterArg)
+        ? tagFilterArg
+        : tagFilterArg != null && tagFilterArg !== ''
+          ? [tagFilterArg]
+          : []
+
+      const isPagination = paginationStatus === true
+      let offset = isPagination
+        ? mainAgentsList.length > 0
+          ? mainAgentsList.length
+          : 0
+        : 0
+      let ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser?.id}`
 
       if (search) {
         offset = 0
-        ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser?.id}&search=${search}`
+        ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser?.id}&search=${encodeURIComponent(search)}`
+      }
+      if (tagsForApi.length > 0) {
+        offset = 0
+        const tagsParam = encodeURIComponent(tagsForApi.join(','))
+        ApiPath = search
+          ? `${Apis.getAgents}?offset=0&userId=${selectedUser?.id}&search=${encodeURIComponent(search)}&tags=${tagsParam}`
+          : `${Apis.getAgents}?offset=0&userId=${selectedUser?.id}&tags=${tagsParam}`
       }
 
       const Auth = AuthToken()
-      ////console.log;
-      // const AuthToken = userData.token;
+      const thisRequestId = ++getAgentsRequestIdRef.current
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -2544,6 +2613,17 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         console.log('response of get agents api is', response)
         setPaginationLoader(false)
         let agents = response.data.data || []
+
+        // Any UI-driven refetch uses searchLoader=true (search debounce, tag pills incl. "All").
+        // Pagination uses paginationStatus=true and leaves searchLoader unset/false — must append.
+        // If we only replaced when tags were active, "All" would append full results onto a filtered
+        // mainAgentsList and duplicate agents after flatten.
+        const isReplaceMode = Boolean(searchLoader) && !isPagination
+
+        if (thisRequestId !== getAgentsRequestIdRef.current) {
+          return
+        }
+
         setOldAgentsList(agents)
         if (agents.length >= 6) {
           setCanGetMore(true)
@@ -2552,34 +2632,29 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           setCanGetMore(false)
         }
 
-        if (search) {
-          let subAgents = []
-          agents.forEach((item) => {
-            if (item.agents && item.agents.length > 0) {
-              for (let i = 0; i < item.agents.length; i++) {
-                const agent = item.agents[i]
-                if (agent) {
-                  subAgents.push(agent)
-                }
-              }
-            }
-          })
-
-          setAgentsListSeparated(subAgents)
+        if (isReplaceMode) {
+          setMainAgentsList(agents)
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(agents),
+          )
+          setAgentsListSeparated(flattenAgentsResponse(agents))
+        } else if (search) {
+          setAgentsListSeparated(flattenAgentsResponse(agents))
           return
+        } else {
+          let newList = [...mainAgentsList]
+
+          if (Array.isArray(agents) && agents.length > 0) {
+            newList.push(...agents)
+          }
+
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(newList),
+          )
+          setMainAgentsList(newList)
         }
-
-        let newList = [...mainAgentsList] // makes a shallow copy
-
-        if (Array.isArray(agents) && agents.length > 0) {
-          newList.push(...agents) // append all agents at once
-        }
-
-        localStorage.setItem(
-          PersistanceKeys.LocalStoredAgentsListMain,
-          JSON.stringify(newList),
-        )
-        setMainAgentsList(newList)
       } else {
         setInitialLoader(false)
         setPaginationLoader(false)
@@ -2592,6 +2667,168 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false)
+      onComplete?.()
+    }
+  }
+
+  useEffect(() => {
+    if (!tagFilterEffectMountedRef.current) {
+      tagFilterEffectMountedRef.current = true
+      return
+    }
+    getAgents(false, search, true, selectedTags, () =>
+      setTagFilterLoader(false),
+    )
+  }, [selectedTags])
+
+  const fetchAgentTags = useCallback(async () => {
+    try {
+      const Auth = AuthToken()
+      if (!Auth || !selectedUser?.id) return
+      const res = await axios.get(
+        `${Apis.getAgentTags}?userId=${selectedUser.id}`,
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      const list = res?.data?.data
+      if (Array.isArray(list)) {
+        setUniqueTags(normalizeTags(list).sort())
+      }
+    } catch (_) {
+      // non-blocking
+    }
+  }, [selectedUser?.id])
+
+  useEffect(() => {
+    if (selectedUser?.id) fetchAgentTags()
+  }, [selectedUser?.id, fetchAgentTags])
+
+  const handleAssignAgentTags = async (mainAgentId, tags) => {
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.assignAgentTags,
+        { mainAgentId, tags: normalizeTags(tags), userId: selectedUser?.id },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setMainAgentsList((prev) => {
+        const nextTags = normalizeTags(tags)
+        const updated = prev.map((ma) =>
+          ma.id === mainAgentId ? { ...ma, tags: nextTags } : ma,
+        )
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(updated),
+          )
+        }
+        return updated
+      })
+      setUniqueTags((prev) =>
+        normalizeTags([...prev, ...(tags || [])]).sort(),
+      )
+    } catch (err) {
+      console.error('AssignAgentTags error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.Error,
+        message: err?.response?.data?.message || 'Failed to update agent tags',
+        isVisible: true,
+      })
+    }
+  }
+
+  const handleUnassignAgentTag = async (mainAgentId, tag) => {
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.unassignAgentTag,
+        { mainAgentId, tag, userId: selectedUser?.id },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setMainAgentsList((prev) => {
+        const updated = prev.map((ma) =>
+          ma.id === mainAgentId
+            ? { ...ma, tags: (ma.tags || []).filter((t) => t !== tag) }
+            : ma,
+        )
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(updated),
+          )
+        }
+        return updated
+      })
+    } catch (err) {
+      console.error('UnassignAgentTag error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.Error,
+        message: err?.response?.data?.message || 'Failed to unassign tag',
+        isVisible: true,
+      })
+    }
+  }
+
+  const handleDeleteAgentTag = (tag) => {
+    setDeleteTagConfirm({ open: true, tag })
+  }
+
+  const handleConfirmDeleteTag = async () => {
+    const tag = deleteTagConfirm.tag
+    if (!tag) return
+    setDeleteTagLoading(true)
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.deleteAgentTag,
+        { tag, userId: selectedUser?.id },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setDeleteTagConfirm({ open: false, tag: null })
+      setUniqueTags((prev) => prev.filter((t) => t !== tag))
+      setSelectedTags((prev) => prev.filter((t) => t !== tag))
+      setTagFilterLoader(true)
+      await getAgents(
+        false,
+        search,
+        true,
+        selectedTags.filter((t) => t !== tag),
+        () => setTagFilterLoader(false),
+      )
+      fetchAgentTags()
+      setShowSnackMsg({
+        type: SnackbarTypes.Success,
+        message: `Tag "${tag}" deleted from all agents`,
+        isVisible: true,
+      })
+    } catch (err) {
+      console.error('DeleteAgentTag error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.Error,
+        message: err?.response?.data?.message || 'Failed to delete tag',
+        isVisible: true,
+      })
+    } finally {
+      setDeleteTagLoading(false)
     }
   }
 
@@ -2807,7 +3044,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           ////console.log;
           // Add a condition here if needed  //.agentType === 'outbound'
           if (agent) {
-            agents.push(agent)
+            agents.push({
+              ...agent,
+              tags: normalizeTags(item.tags),
+              mainAgentId: agent.mainAgentId ?? item.id,
+            })
           }
         }
       } else {
@@ -3265,6 +3506,21 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           type={SnackbarTypes.Error}
         />
       </div>
+      <AgentSelectSnackMessage
+        message={showSnackMsg.message}
+        type={showSnackMsg.type}
+        isVisible={showSnackMsg.isVisible}
+        hide={() =>
+          setShowSnackMsg({ type: null, message: '', isVisible: false })
+        }
+      />
+      <DeleteTagConfirmModal
+        open={deleteTagConfirm.open}
+        tag={deleteTagConfirm.tag}
+        onClose={() => setDeleteTagConfirm({ open: false, tag: null })}
+        onConfirm={handleConfirmDeleteTag}
+        loading={deleteTagLoading}
+      />
       <StandardHeader
         selectedUser={selectedUser}
         titleContent={
@@ -3327,47 +3583,83 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   </div>
                 </Tooltip>
               )}
+            <div className="flex flex-row items-center gap-2 flex-shrink-0 min-w-0 flex-1 overflow-hidden">
+              <div className="flex flex-row items-center gap-3 min-w-0 flex-1 border rounded-lg overflow-hidden h-[40px] max-w-[400px] pl-3 pr-2">
+                <input
+                  className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 min-w-0 text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
+                  placeholder="Search an agent"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    if (canGetMore === true) {
+                      setCanKeepLoading(true)
+                    } else {
+                      setCanKeepLoading(false)
+                    }
+
+                    // Clear existing timeout to prevent memory leaks
+                    if (searchTimeoutRef.current) {
+                      clearTimeout(searchTimeoutRef.current)
+                    }
+                    searchTimeoutRef.current = setTimeout(() => {
+                      let searchLoader = true
+                      getAgents(false, e.target.value, searchLoader, selectedTags)
+                    }, 500)
+                  }}
+                />
+                <button type="button" className="outline-none border-none flex-shrink-0">
+                  <Image
+                    src={'/assets/searchIcon.png'}
+                    height={18}
+                    width={18}
+                    alt="Search"
+                  />
+                </button>
+              </div>
+              {uniqueTags.length > 0 && (
+                <div className="flex flex-row items-center gap-1.5 flex-nowrap flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTagFilterLoader(true)
+                      setSelectedTags([])
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${selectedTags.length === 0 ? 'bg-black text-white' : 'bg-[#8A8A8A0D] text-black hover:bg-black/[0.08]'}`}
+                  >
+                    All
+                  </button>
+                  {uniqueTags.map((t) => {
+                    const isSelected = selectedTags.includes(t)
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          setTagFilterLoader(true)
+                          const next = isSelected
+                            ? selectedTags.filter((x) => x !== t)
+                            : [...selectedTags, t]
+                          setSelectedTags(next)
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-[#8A8A8A0D] text-black hover:bg-black/[0.08]'}`}
+                      >
+                        {t}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         }
         showTasks={true}
-        rightContent={
-          <div className="flex flex-row items-center gap-1 flex-shrink-0 border rounded-full px-4 h-[35px]">
-            <input
-              className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
-              placeholder="Search an agent"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-                if (canGetMore === true) {
-                  setCanKeepLoading(true)
-                } else {
-                  setCanKeepLoading(false)
-                }
+      // rightContent={
 
-                // Clear existing timeout to prevent memory leaks
-                if (searchTimeoutRef.current) {
-                  clearTimeout(searchTimeoutRef.current)
-                }
-                searchTimeoutRef.current = setTimeout(() => {
-                  let searchLoader = true
-                  getAgents(false, e.target.value, searchLoader)
-                }, 500)
-              }}
-            />
-            <button className="outline-none border-none">
-              <Image
-                src={'/assets/searchIcon.png'}
-                height={24}
-                width={24}
-                alt="*"
-              />
-            </button>
-          </div>
-        }
+      // }
       />
       <div className="w-full items-center h-[100%] overflow-hidden" style={{}}>
         {/* code for agents list */}
-        {initialLoader ? (
+        {initialLoader || tagFilterLoader ? (
           <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">
             <CircularProgress size={45} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
@@ -3379,10 +3671,15 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             handlePopoverClose={handlePopoverClose}
             user={user}
             agencyUser={agencyUser}
-            getAgents={(p, s) => {
-              getAgents(p, s) //user
+            getAgents={(p, s, searchLoader, tagFilter) => {
+              getAgents(p, s, searchLoader, tagFilter)
             }}
             search={search}
+            selectedTags={selectedTags}
+            uniqueTags={uniqueTags}
+            onAssignTag={handleAssignAgentTags}
+            onUnassignTag={handleUnassignAgentTag}
+            onDeleteTag={handleDeleteAgentTag}
             setObjective={setObjective}
             setOldObjective={setOldObjective}
             setGreetingTagInput={setGreetingTagInput}
@@ -3866,7 +4163,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     open={showDuplicateConfirmationPopup}
                     handleClose={() => setShowDuplicateConfirmationPopup(false)}
                     handleDuplicate={shouldDuplicateAgent}
-                    // handleDuplicate={handleDuplicate}
+                  // handleDuplicate={handleDuplicate}
                   />
                   {/* GPT Button */}
 
@@ -6000,7 +6297,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         agentId={showDrawerSelectedAgent?.id}
         onSubmit={() => {
           // Refresh agents list after adding scoring
-          getAgents(false, search)
+          getAgents(false, search, false, selectedTags)
         }}
       />
       {/* Web Agent Modals */}
