@@ -59,6 +59,7 @@ import AgentInfoCard from '@/components/dashboard/myagentX/AgentInfoCard'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
 import AllSetModal from '@/components/dashboard/myagentX/AllSetModal'
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
+import DeleteTagConfirmModal from '@/components/dashboard/myagentX/DeleteTagConfirmModal'
 import DuplicateConfirmationPopup from '@/components/dashboard/myagentX/DuplicateConfirmationPopup'
 import { EditPhoneNumberModal } from '@/components/dashboard/myagentX/EditPhoneNumberPopup'
 import EmbedModal from '@/components/dashboard/myagentX/EmbedModal'
@@ -705,6 +706,8 @@ function Page() {
   const [showWebAgentModal, setShowWebAgentModal] = useState(false)
   const [showNewSmartListModal, setShowNewSmartListModal] = useState(false)
   const [showAllSetModal, setShowAllSetModal] = useState(false)
+  const [deleteTagConfirm, setDeleteTagConfirm] = useState({ open: false, tag: null })
+  const [deleteTagLoading, setDeleteTagLoading] = useState(false)
   const [selectedAgentForWebAgent, setSelectedAgentForWebAgent] = useState(null)
 
   // Embed Modal states
@@ -3621,10 +3624,14 @@ function Page() {
     }
   }
 
-  const handleDeleteAgentTag = async (tag) => {
-    if (!window.confirm(`Delete tag "${tag}" from all agents? This cannot be undone.`)) {
-      return
-    }
+  const handleDeleteAgentTag = (tag) => {
+    setDeleteTagConfirm({ open: true, tag })
+  }
+
+  const handleConfirmDeleteTag = async () => {
+    const tag = deleteTagConfirm.tag
+    if (!tag) return
+    setDeleteTagLoading(true)
     try {
       const Auth = AuthToken()
       await axios.post(
@@ -3637,6 +3644,7 @@ function Page() {
           },
         },
       )
+      setDeleteTagConfirm({ open: false, tag: null })
       setUniqueTags((prev) => prev.filter((t) => t !== tag))
       setSelectedTags((prev) => prev.filter((t) => t !== tag))
       setTagFilterLoader(true)
@@ -3656,6 +3664,8 @@ function Page() {
         message: err?.response?.data?.message || 'Failed to delete tag',
         isVisible: true,
       })
+    } finally {
+      setDeleteTagLoading(false)
     }
   }
 
@@ -4257,6 +4267,13 @@ function Page() {
                 setShowSnackMsg({ type: null, message: '', isVisible: false })
               }
             />
+            <DeleteTagConfirmModal
+              open={deleteTagConfirm.open}
+              tag={deleteTagConfirm.tag}
+              onClose={() => setDeleteTagConfirm({ open: false, tag: null })}
+              onConfirm={handleConfirmDeleteTag}
+              loading={deleteTagLoading}
+            />
           </div>
           <div className="w-full flex-shrink-0">
             <StandardHeader
@@ -4583,6 +4600,7 @@ function Page() {
                 uniqueTags={uniqueTags}
                 onAssignTag={handleAssignAgentTags}
                 onUnassignTag={handleUnassignAgentTag}
+                onDeleteTag={handleDeleteAgentTag}
                 setObjective={setObjective}
                 setOldObjective={setOldObjective}
                 setGreetingTagInput={setGreetingTagInput}

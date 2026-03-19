@@ -78,6 +78,7 @@ const AgentsListPaginated = ({
   uniqueTags = [],
   onAssignTag,
   onUnassignTag,
+  onDeleteTag,
   selectedTags = [],
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
@@ -411,19 +412,20 @@ const AgentsListPaginated = ({
               }}
             >
               <span>{tagLabel}</span>
-              {isSelected && onUnassignTag && (
+              {onDeleteTag && (
                 <button
                   type="button"
                   className="assign-tag-del-btn"
-                  onClick={(e) => {
+                  onMouseDown={(e) => {
+                    e.preventDefault()
                     e.stopPropagation()
-                    if (!assignTagAgent?.mainAgentId) return
-                    onUnassignTag(assignTagAgent.mainAgentId, tagLabel)
+                    onDeleteTag(tagLabel)
                     setAssignTagAnchor(null)
                     setAssignTagAgent(null)
                     setAssignTagInput('')
                   }}
-                  aria-label={`Remove tag ${tagLabel}`}
+                  aria-label={`Delete tag ${tagLabel} permanently from all agents`}
+                  title="Delete tag from all agents"
                   style={{
                     minWidth: 20,
                     height: 20,
@@ -436,7 +438,6 @@ const AgentsListPaginated = ({
                     justifyContent: 'center',
                     borderRadius: 4,
                   }}
-                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <Trash size={14} strokeWidth={2.5} />
                 </button>
