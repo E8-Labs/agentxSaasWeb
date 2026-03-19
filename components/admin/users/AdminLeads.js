@@ -20,6 +20,7 @@ import {
   CalendarDots,
   CaretDown,
   CaretUp,
+  Check,
   Cross,
   DotsThree,
   EnvelopeSimple,
@@ -1753,32 +1754,9 @@ const AdminLeads = ({
           </div>
         }
         showTasks={true}
-        rightContent={
-          <button
-            style={{
-              backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
-              color: toggleClick.length > 0 ? 'white' : '#000000',
-            }}
-            className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
-            onClick={() => {
-              if (userLocalDetails?.plan) {
-                setAssignLeadModal(true)
-              } else {
-                setSnackMessage('Add payment method to continue')
-                setShowSnackMessage(true)
-                setMessageType(SnackbarTypes.Warning)
-              }
-            }}
-            disabled={!toggleClick.length > 0}
-          >
-            {toggleClick.length > 0 ? (
-              <ListStart size={18} className="flex-shrink-0" aria-hidden />
-            ) : (
-              <ListStart size={18} className="flex-shrink-0" aria-hidden />
-            )}
-            <span style={{fontWeight: 400, fontSize: 15}}>Start Campaign</span>
-          </button>
-        }
+        // rightContent={
+
+        // }
         selectedUser={selectedUser}
       />
       {/*<div
@@ -1897,7 +1875,7 @@ const AdminLeads = ({
             </div>
 
             <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-              <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
+              <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[60%]">
                 <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
                   <input
                     style={styles.paragraph}
@@ -2004,8 +1982,8 @@ const AdminLeads = ({
               </div>
 
               <div className="flex flex-row items-center justify-end gap-2 w-[40%]">
-                {hasExportPermission && (
-                  exportLoading ? (
+                {/*{hasExportPermission && (}*/}
+                  {exportLoading ? (
                     <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (
                     <button
@@ -2030,60 +2008,33 @@ const AdminLeads = ({
                         className="hidden group-hover:block transition-opacity duration-150"
                       />
                     </button>
-                  )
-                )}
-                {toggleClick.length >= 0 && (
-                  <div>
-                    {toggleClick.length === FilterLeads.length ? (
-                      <div>
-                        {LeadsList.length > 0 && (
-                          <div className="flex flex-row items-center gap-2">
-                            <button
-                              className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
-                              onClick={() => {
-                                setToggleClick([])
-                                setSelectedAll(false)
-                              }}
-                            >
-                              <Image
-                                src={'/assets/whiteTick.png'}
-                                height={10}
-                                width={10}
-                                alt="*"
-                              />
-                            </button>
-                            <div
-                              style={{
-                                fontSize: '15',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              Select All
-                            </div>
-                            <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
-                              {/*getLeadSelectedCount()*/}
-                              {totalLeads}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex flex-row items-center gap-2">
-                        <button
-                          className="h-[20px] w-[20px] border-2 rounded outline-none"
-                          onClick={() => {
-                            setToggleClick(FilterLeads.map((item) => item.id))
-                            setSelectedAll(true)
-                          }}
-                        ></button>
-                        <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
-                          Select All
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                  )}
+                {/* )} */}
+
+                <button
+                  style={{
+                    backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
+                    color: toggleClick.length > 0 ? 'white' : '#000000',
+                  }}
+                  className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
+                  onClick={() => {
+                    if (userLocalDetails?.plan) {
+                      setAssignLeadModal(true)
+                    } else {
+                      setSnackMessage('Add payment method to continue')
+                      setShowSnackMessage(true)
+                      setMessageType(SnackbarTypes.Warning)
+                    }
+                  }}
+                  disabled={!toggleClick.length > 0}
+                >
+                  {toggleClick.length > 0 ? (
+                    <ListStart size={18} className="flex-shrink-0" aria-hidden />
+                  ) : (
+                    <ListStart size={18} className="flex-shrink-0" aria-hidden />
+                  )}
+                  <span style={{ fontWeight: 400, fontSize: 15 }}>Start Campaign</span>
+                </button>
 
                 {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
                                         <span>
@@ -2343,6 +2294,7 @@ const AdminLeads = ({
                                 const isDateColumn = column.title === 'Date'
                                 const columnWidth =
                                   column.title === 'More' ? '200px' : '150px'
+                                const isNameColumn = column.title === 'Name'
                                 return (
                                   <th
                                     key={index}
@@ -2359,8 +2311,69 @@ const AdminLeads = ({
                                       maxWidth: columnWidth,
                                     }}
                                   >
-                                    {column.title.slice(0, 1).toUpperCase()}
-                                    {column.title.slice(1)}
+                                    {isNameColumn ? (
+                                      <div className="flex flex-row items-center gap-2 justify-between">
+                                        <div className="flex flex-row items-center gap-2">
+                                          {toggleClick.length === FilterLeads.length &&
+                                            LeadsList.length > 0 ? (
+                                            <>
+                                              <button
+                                                type="button"
+                                                className="h-[20px] w-[20px] shrink-0 border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
+                                                onClick={() => {
+                                                  setToggleClick([])
+                                                  setSelectedAll(false)
+                                                }}
+                                                aria-label="Clear selection"
+                                              >
+                                                <Image
+                                                  src={'/assets/whiteTick.png'}
+                                                  height={10}
+                                                  width={10}
+                                                  alt=""
+                                                />
+                                              </button>
+                                            </>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              className="h-[20px] w-[20px] shrink-0 border-2 rounded outline-none"
+                                              onClick={() => {
+                                                setToggleClick(
+                                                  FilterLeads.map((item) => item.id)
+                                                )
+                                                setSelectedAll(true)
+                                              }}
+                                              aria-label="Select all leads"
+                                            />
+                                          )}
+                                          <span className="min-w-0 truncate">
+                                            {column.title.slice(0, 1).toUpperCase()}
+                                            {column.title.slice(1)}
+                                          </span>
+                                        </div>
+                                        {toggleClick.length > 0 && (
+                                          <span
+                                            className="flex-shrink-0"
+                                            style={{
+                                              padding: '4px 8px',
+                                              fontSize: 12,
+                                              fontWeight: 500,
+                                              color: 'hsl(var(--brand-primary))',
+                                              backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                              borderRadius: 8,
+                                            }}
+                                          >
+                                            {totalLeads} {toggleClick.length === 1 ? 'LEAD' : 'LEADS'}
+                                          </span>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <>
+                                        {column.title.slice(0, 1).toUpperCase()}
+                                        {column.title.slice(1)}
+                                      </>
+                                    )}
                                   </th>
                                 )
                               })}
