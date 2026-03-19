@@ -19,6 +19,9 @@ import {
   Select,
   Snackbar,
   Tooltip as MuiTooltip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
@@ -127,6 +130,7 @@ import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import { TrashIcon } from 'lucide-react'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import LeadDetailsLoader from '@/components/common/LeadDetailsLoader'
+import { DialogHeader } from '@/components/ui/dialog'
 
 
 
