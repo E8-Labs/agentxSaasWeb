@@ -4246,7 +4246,7 @@ function Page() {
                       </Tooltip>
                     )}
                   <div className="flex flex-row items-center gap-2 flex-shrink-0 min-w-0 flex-1 overflow-hidden">
-                    <div className="search-input-wrapper flex flex-row items-center gap-3 flex-shrink-0 border rounded-lg overflow-hidden h-[40px] w-full max-w-[400px] pl-3 pr-2">
+                    <div className="search-input-wrapper flex flex-row items-center gap-3 min-w-0 flex-1 border rounded-lg overflow-hidden h-[40px] max-w-[400px] pl-3 pr-2">
                       <input
                         className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 min-w-0 text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] transition-colors duration-200"
                         placeholder="Search an agent"
@@ -4278,7 +4278,7 @@ function Page() {
                       </button>
                     </div>
                     {uniqueTags.length > 0 && (
-                      <div className="flex flex-row items-center gap-1.5 flex-nowrap shrink-0">
+                      <div className="flex flex-row items-center gap-1.5 flex-nowrap flex-shrink-0">
                         <button
                           type="button"
                           onClick={() => {
