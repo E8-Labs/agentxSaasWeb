@@ -77,6 +77,7 @@ const AgentsListPaginated = ({
   scrollableTarget = 'scrollableAgentDiv',
   uniqueTags = [],
   onAssignTag,
+  onUnassignTag,
   selectedTags = [],
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);

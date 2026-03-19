@@ -22,7 +22,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Calendar, Check, ChevronDown, ChevronUp, Code, Hourglass, MessageCircleMore, SquareArrowOutUpRight, Webhook, X, Zap } from 'lucide-react'
+import { Calendar, Check, ChevronDown, ChevronUp, Code, Hourglass, MessageCircleMore, SquareArrowOutUpRight, Trash, Webhook, X, Zap } from 'lucide-react'
 import { ArrowUpRight, Info, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import imageCompression from 'browser-image-compression'
@@ -3640,12 +3640,12 @@ function Page() {
       setUniqueTags((prev) => prev.filter((t) => t !== tag))
       setSelectedTags((prev) => prev.filter((t) => t !== tag))
       setTagFilterLoader(true)
-      getAgents(false, search, true, selectedTags.filter((t) => t !== tag), () =>
-        setTagFilterLoader(false),
+      getAgents(false, search, true, selectedTags.filter((t) => t !== tag)).then(
+        () => setTagFilterLoader(false),
       )
       fetchAgentTags()
       setShowSnackMsg({
-        type: SnackbarTypes.success,
+        type: SnackbarTypes.Success,
         message: `Tag "${tag}" deleted from all agents`,
         isVisible: true,
       })
@@ -4373,18 +4373,34 @@ function Page() {
                   {uniqueTags.map((t) => {
                     const isSelected = selectedTags.includes(t)
                     return (
-                      <button
+                      <div
                         key={t}
-                        type="button"
-                        onClick={() => {
-                          setTagFilterLoader(true)
-                          const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
-                          setSelectedTags(next)
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-[#8A8A8A0D] text-black hover:bg-black/[0.08]'}`}
+                        className={`flex flex-row items-center gap-1 rounded-lg ${isSelected ? 'bg-black text-white' : 'bg-[#8A8A8A0D] text-black'}`}
                       >
-                        {t}
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTagFilterLoader(true)
+                            const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
+                            setSelectedTags(next)
+                          }}
+                          className="px-3 py-1.5 text-sm font-medium transition-colors hover:opacity-90 rounded-l-lg"
+                        >
+                          {t}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDeleteAgentTag(t)
+                          }}
+                          className="p-1 rounded-r-lg hover:bg-black/10 transition-colors"
+                          title="Delete tag from all agents"
+                          aria-label={`Delete tag ${t}`}
+                        >
+                          <Trash size={14} strokeWidth={2} />
+                        </button>
+                      </div>
                     )
                   })}
                 </div>
@@ -4566,6 +4582,7 @@ function Page() {
                 selectedTags={selectedTags}
                 uniqueTags={uniqueTags}
                 onAssignTag={handleAssignAgentTags}
+                onUnassignTag={handleUnassignAgentTag}
                 setObjective={setObjective}
                 setOldObjective={setOldObjective}
                 setGreetingTagInput={setGreetingTagInput}
