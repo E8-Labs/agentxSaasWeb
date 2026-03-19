@@ -21,6 +21,11 @@ const EmailBubble = ({
   isLastMessage = false,
   updateComposerFromMessage,
   onCampaignStatClick,
+  onCampaignStatMouseLeave,
+  campaignStatAnchorMessageId,
+  campaignStatData,
+  campaignStatLoading,
+  campaignStatSubject,
 }) => (
   <>
     <div
@@ -147,7 +152,7 @@ const EmailBubble = ({
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
 
       {message?.agent && (message.openedAt != null || message.clicked != null || onCampaignStatClick) && (
-        <div className="flex w-full justify-between items-center mt-2 gap-2">
+        <div className="flex w-full justify-between items-center mt-2 gap-2 relative">
           <span className="text-[12px] text-gray-500 italic min-w-0">
             {message.openedAt
               ? `Opened at ${moment(message.openedAt).format('h:mm A')}`
@@ -156,18 +161,87 @@ const EmailBubble = ({
             {message.clicked ?? 0} click{(message.clicked ?? 0) !== 1 ? 's' : ''}
           </span>
           {onCampaignStatClick && (
-            <button
-              type="button"
-              onClick={(e) => {
+            <span
+              className="relative inline-block"
+              onMouseEnter={(e) => {
                 e.stopPropagation()
-                onCampaignStatClick(message.subject)
+                onCampaignStatClick(message)
               }}
-              className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 shrink-0"
-              title="Campaign stat"
-              aria-label="Campaign stat"
+              onMouseLeave={(e) => {
+                e.stopPropagation()
+                onCampaignStatMouseLeave?.()
+              }}
             >
-              <BarChart2 size={15} />
-            </button>
+              <button
+                type="button"
+                className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 shrink-0"
+                title="Campaign stat"
+                aria-label="Campaign stat"
+              >
+                <BarChart2 size={15} />
+              </button>
+              {campaignStatAnchorMessageId === message.id && (
+                <div
+                  className={`absolute z-50 w-auto min-w-[200px] max-w-[90vw] rounded-lg border border-[#1515151A10] shadow-[0_4px_20px_rgba(0,0,0,0.08)] bg-white text-gray-900 ${isLastMessage
+                    ? 'bottom-full mb-1 right-0'
+                    : 'top-full mt-1 right-0'
+                    }`}
+                  onMouseEnter={(e) => {
+                    e.stopPropagation()
+                    // keep open while hovering popover
+                  }}
+                  onMouseLeave={(e) => {
+                    e.stopPropagation()
+                    onCampaignStatMouseLeave?.()
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <div className="px-2.5 py-2 border-b border-[#1515151A10]">
+                    <span className="text-[12px] font-medium text-[#666666]">Campaign Stat</span>
+                  </div>
+                  <div className="px-2.5 py-2 text-[12px] space-y-1">
+                    {/*campaignStatSubject && (
+                      <p className="text-muted-foreground text-[#666666] text-[12px] truncate mb-2" title={campaignStatSubject}>
+                        {campaignStatSubject}
+                      </p>
+                    )*/}
+                    {campaignStatLoading ? (
+                      <p className="text-muted-foreground text-[#666666] text-[14px]">Loading…</p>
+                    ) : campaignStatData ? (
+                      <div className="space-y-2 text-[12px]">
+                        <div className="flex justify-between items-center gap-4">
+                          <span className="text-[#666666]">Delivered</span>
+                          <span className="font-medium">
+                            {campaignStatData.sent
+                              ? `${Math.round((campaignStatData.delivered / campaignStatData.sent) * 100)}%`
+                              : '0%'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center gap-4">
+                          <span className="text-[#666666]">Opened</span>
+                          <span className="font-medium">
+                            {campaignStatData.sent
+                              ? `${Math.round((campaignStatData.opened / campaignStatData.sent) * 100)}%`
+                              : '0%'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center gap-4">
+                          <span className="text-[#666666]">Clicked</span>
+                          <span className="font-medium">
+                            {campaignStatData.sent
+                              ? `${Math.round((campaignStatData.clicked / campaignStatData.sent) * 100)}%`
+                              : '0%'}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      !campaignStatLoading && <p className="text-muted-foreground">No data available.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </span>
           )}
         </div>
       )}
