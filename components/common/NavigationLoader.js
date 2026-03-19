@@ -5,10 +5,10 @@ import { usePathname } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 
 /**
- * NavigationLoader - Shows a loading indicator during navigation
- * Detects link clicks and pathname changes to show loading overlay
+ * NavigationLoader - Shows a loading indicator during navigation.
+ * leftOffset controls where the content area starts (sidebar width).
  */
-export default function NavigationLoader() {
+export default function NavigationLoader({ leftOffset = '250px' }) {
   const pathname = usePathname()
   const [isLoading, setIsLoading] = useState(false)
   const previousPathname = useRef(pathname)
@@ -139,8 +139,8 @@ export default function NavigationLoader() {
       style={{
         backgroundColor: 'rgba(255, 255, 255, 0.85)',
         zIndex: 1200, // Below dialer (z-[1401]) but above most content
-        // Position to cover only the right content area (85% width, starting at 15% from left)
-        left: "250px",
+        // Position to cover only the main content area.
+        left: leftOffset,
         right: 0,
         top: 0,
         bottom: 0,
