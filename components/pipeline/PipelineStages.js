@@ -45,9 +45,11 @@ import {
   createTemplete,
   updateTemplete,
   getTempleteDetails,
+  deleteCadenceTemplate,
 } from './TempleteServices'
 import { GripVertical, MessageSquareDot, PlusIcon } from 'lucide-react'
 import CreateTaskFromNextStepsModal from '../dashboard/leads/extras/CreateTaskFromNextStepsModal'
+import { toast } from '@/utils/toast'
 
 /** @hello-pangea/dnd: isolate stage list drags from cadence row drags */
 const DND_TYPE_PIPELINE_STAGE = 'PIPELINE_STAGE'
@@ -190,6 +192,9 @@ const PipelineStages = ({
   const [editingTaskStageIndex, setEditingTaskStageIndex] = useState(null)
   // which stage's template dropdown is open (stage id or null)
   const [templateSelectOpenStageId, setTemplateSelectOpenStageId] = useState(null)
+  const [deletingCadenceTemplateId, setDeletingCadenceTemplateId] = useState(null)
+  const [deletingCadenceTemplateIdLoader, setDeletingCadenceTemplateIdLoader] = useState(null)
+  const [deletedCadenceTemplateIds, setDeletedCadenceTemplateIds] = useState([])
 
   // useEffect(() => {
   //   console.log("targetUser key is is", targetUser)
@@ -1101,6 +1106,40 @@ const PipelineStages = ({
     }
   }
 
+  const handleDeleteCadenceTemplate = async (templateId, stageId) => {
+    if (!templateId || deletingCadenceTemplateId === templateId) return
+
+    try {
+      setDeletingCadenceTemplateIdLoader(templateId)
+      setDeletingCadenceTemplateId(templateId)
+      if (selectedCadenceTemplateByStageId?.[stageId] === templateId) {
+        onClearStageTemplate?.(stageId)
+      }
+      const response = await deleteCadenceTemplate(templateId)
+
+      if (response?.status === true) {
+        setDeletingCadenceTemplateIdLoader(null)
+        setDeletedCadenceTemplateIds((prev) => (
+          prev.includes(templateId) ? prev : [...prev, templateId]
+        ))
+        setTemplateSelectOpenStageId(null)
+        // setSuccessSnack(response?.message || 'Template deleted successfully')
+        toast.success(response?.message || 'Template deleted successfully')
+        return
+      }
+
+      toast.error(response?.message || 'Failed to delete template')
+      setErrorSnack(true)
+    } catch (error) {
+      toast.error('Failed to delete template')
+      setErrorSnack(true)
+      setDeletingCadenceTemplateIdLoader(null)
+    } finally {
+      setDeletingCadenceTemplateId(null)
+      setDeletingCadenceTemplateIdLoader(null)
+    }
+  }
+
   const styles = {
     headingStyle: {
       fontSize: 16,
@@ -1448,15 +1487,36 @@ const PipelineStages = ({
                                       </Box>
                                     </MenuItem>
                                   )}
-                                  {cadenceTemplatesList.map((tmpl) => (
-                                    <MenuItem
-                                      key={tmpl.id}
-                                      value={tmpl.id}
-                                      sx={{ fontSize: 13, fontWeight: '500', py: 1.25 }}
-                                    >
-                                      {tmpl.templateName}
-                                    </MenuItem>
-                                  ))}
+                                  {cadenceTemplatesList
+                                    .filter((tmpl) => !deletedCadenceTemplateIds.includes(tmpl.id))
+                                    .map((tmpl) => (
+                                      <MenuItem
+                                        key={tmpl.id}
+                                        value={tmpl.id}
+                                        sx={{ fontSize: 13, fontWeight: '500', py: 1.25 }}
+                                      >
+                                        <div className='flex flex-row items-center justify-between w-full justify-between'>
+                                          <div>
+                                            {tmpl.templateName}
+                                          </div>
+                                          {deletingCadenceTemplateIdLoader === tmpl.id ? (
+                                            <CircularProgress size={16} />
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                handleDeleteCadenceTemplate(tmpl.id, item.id)
+                                              }}
+                                              disabled={deletingCadenceTemplateId === tmpl.id}
+                                            >
+                                              <X size={16} />
+                                            </button>
+                                          )}
+                                        </div>
+                                      </MenuItem>
+                                    ))}
                                   {/*<MenuItem
                                     value="__new__"
                                     sx={{ fontSize: 13, fontWeight: '500', color: 'hsl(var(--brand-primary))', py: 1.25 }}
@@ -1497,502 +1557,502 @@ const PipelineStages = ({
                                     {...cadenceDropProvided.droppableProps}
                                   >
                                     {(rowsByIndex[index] || []).map(
-                                  (row, rowIndex) => {
-                                    // Ensure row has referencePoint initialized
-                                    // Check identifier from selectedPipelineStages (source of truth) or item as fallback
-                                    const stageForCheck = selectedPipelineStages?.[index] || item
-                                    const isBookingStage = stageForCheck?.identifier === 'booked'
-                                    const rowWithReferencePoint = {
-                                      ...row,
-                                      referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
-                                    }
+                                      (row, rowIndex) => {
+                                        // Ensure row has referencePoint initialized
+                                        // Check identifier from selectedPipelineStages (source of truth) or item as fallback
+                                        const stageForCheck = selectedPipelineStages?.[index] || item
+                                        const isBookingStage = stageForCheck?.identifier === 'booked'
+                                        const rowWithReferencePoint = {
+                                          ...row,
+                                          referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
+                                        }
 
-                                    return (
-                                      <Draggable
-                                        key={`cadence-${item.id}-${row.id}`}
-                                        draggableId={`cadence-row-${item.id}-${row.id}`}
-                                        index={rowIndex}
-                                        type={DND_TYPE_CADENCE_STEP}
-                                      >
-                                        {(cadenceDragProvided, cadenceSnapshot) => (
-                                      <div
-                                        ref={cadenceDragProvided.innerRef}
-                                        {...cadenceDragProvided.draggableProps}
-                                        className="flex flex-row items-center justify-center mb-2"
-                                        style={{
-                                          ...cadenceDragProvided.draggableProps.style,
-                                          ...(cadenceSnapshot.isDragging
-                                            ? {
-                                                boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                                                borderRadius: 8,
-                                              }
-                                            : {}),
-                                        }}
-                                      >
-                                        <div className="w-[16px] shrink-0">
-                                          <div
-                                            className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-grab active:cursor-grabbing flex items-center justify-center touch-none"
-                                            {...cadenceDragProvided.dragHandleProps}
-                                            title="Drag to reorder steps"
-                                            role="button"
-                                            aria-label="Drag to reorder step"
+                                        return (
+                                          <Draggable
+                                            key={`cadence-${item.id}-${row.id}`}
+                                            draggableId={`cadence-row-${item.id}-${row.id}`}
+                                            index={rowIndex}
+                                            type={DND_TYPE_CADENCE_STEP}
                                           >
-                                            <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
-                                          </div>
-                                        </div>
-                                        <div
-                                          className="mt-2 ms-2"
-                                          style={styles.headingStyle}
-                                        >
-                                          Wait
-                                        </div>
-                                        <div className="ms-6 flex flex-row items-center w-full justify-between">
-                                          <div className="flex flex-row items-center">
-                                            <div>
-                                              <label
-                                                className="ms-1 px-2"
-                                                style={styles.labelStyle}
-                                              >
-                                                Days
-                                              </label>
-                                              <input
-                                                id={`cadence-${index}-${rowIndex}-${row.id}-days`}
-                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                                style={{
-                                                  ...styles.inputStyle,
-                                                  height: '42px',
-                                                  width: '80px',
-                                                  border: '1px solid #00000020',
-                                                  borderTopLeftRadius: '10px',
-                                                  borderBottomLeftRadius: '10px',
-                                                }}
-                                                placeholder="Days"
-                                                value={row.waitTimeDays}
-                                                onChange={(e) =>
-                                                  handleInputChange(
-                                                    index,
-                                                    row.id,
-                                                    'waitTimeDays',
-                                                    e.target.value.replace(
-                                                      /[^0-9]/g,
-                                                      '',
-                                                    ),
-                                                  )
-                                                }
-                                              />
-                                            </div>
-                                            <div>
-                                              <label
-                                                className="ms-1 px-2"
-                                                style={styles.labelStyle}
-                                              >
-                                                Hours
-                                              </label>
-                                              <input
-                                                id={`cadence-${index}-${rowIndex}-${row.id}-hours`}
-                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                                style={{
-                                                  ...styles.inputStyle,
-                                                  height: '42px',
-                                                  width: '80px',
-                                                  border: '1px solid #00000020',
-                                                  borderRight: 'none',
-                                                  borderLeft: 'none',
-                                                }}
-                                                placeholder="Hours"
-                                                value={row.waitTimeHours}
-                                                onChange={(e) =>
-                                                  handleInputChange(
-                                                    index,
-                                                    row.id,
-                                                    'waitTimeHours',
-                                                    e.target.value.replace(
-                                                      /[^0-9]/g,
-                                                      '',
-                                                    ),
-                                                  )
-                                                }
-                                              />
-                                            </div>
-                                            <div>
-                                              <label
-                                                className="ms-1 px-2"
-                                                style={styles.labelStyle}
-                                              >
-                                                Mins
-                                              </label>
-                                              <input
-                                                id={`cadence-${index}-${rowIndex}-${row.id}-minutes`}
-                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                                style={{
-                                                  ...styles.inputStyle,
-                                                  height: '42px',
-                                                  width: '80px',
-                                                  border: '1px solid #00000020',
-                                                  borderTopRightRadius: '10px',
-                                                  borderBottomRightRadius: '10px',
-                                                }}
-                                                placeholder="Minutes"
-                                                value={row.waitTimeMinutes}
-                                                onChange={(e) =>
-                                                  handleInputChange(
-                                                    index,
-                                                    row.id,
-                                                    'waitTimeMinutes',
-                                                    e.target.value.replace(
-                                                      /[^0-9]/g,
-                                                      '',
-                                                    ),
-                                                  )
-                                                }
-                                              />
-                                            </div>
-                                            <div
-                                              className="ms-4 mt-2 flex flex-row items-center"
-                                              style={styles.inputStyle}
-                                            >
-                                              {isBookingStage ? (
-                                                <div className="flex flex-row items-center gap-2">
-                                                  <FormControl size="small" sx={{ minWidth: 140 }}>
-                                                    <Select
-                                                      value={
-                                                        rowWithReferencePoint.referencePoint ?? ''
-                                                      }
-                                                      onChange={(e) =>
-                                                        handleInputChange(
-                                                          index,
-                                                          row.id,
-                                                          'referencePoint',
-                                                          e.target.value,
-                                                        )
-                                                      }
-                                                      displayEmpty
-                                                      sx={{
-                                                        height: 32,
-                                                        fontSize: 14,
-                                                        backgroundColor: 'white',
-                                                        border: '1px solid #d1d5db',
-                                                        borderRadius: '6px',
-                                                        '& .MuiOutlinedInput-notchedOutline': {
-                                                          border: 'none',
-                                                        },
-                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                          border: 'none',
-                                                        },
-                                                      }}
-                                                    >
-                                                      <MenuItem value="before_meeting">
-                                                        before the meeting
-                                                      </MenuItem>
-                                                      <MenuItem value="after_booking">
-                                                        after booking
-                                                      </MenuItem>
-                                                    </Select>
-                                                  </FormControl>
-                                                  , then{' '}
-                                                </div>
-                                              ) : (
-                                                <div>, then{' '}</div>
-                                              )}
+                                            {(cadenceDragProvided, cadenceSnapshot) => (
                                               <div
-                                                className="ml-2"
-                                                style={{ fontWeight: '600' }}
+                                                ref={cadenceDragProvided.innerRef}
+                                                {...cadenceDragProvided.draggableProps}
+                                                className="flex flex-row items-center justify-center mb-2"
+                                                style={{
+                                                  ...cadenceDragProvided.draggableProps.style,
+                                                  ...(cadenceSnapshot.isDragging
+                                                    ? {
+                                                      boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                                                      borderRadius: 8,
+                                                    }
+                                                    : {}),
+                                                }}
                                               >
-                                                <div className="flex flex-row items-cetner gap-2 p-2 rounded"
-                                                  style={{
-                                                    backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                                  }}
-                                                >
-                                                  {(row.communicationType === 'email' || row.communicationType === 'sms') && row.templateId ? (
-                                                    <Tooltip
-                                                      title={
-                                                        rowHoverTemplate?.rowKey === `${index}-${row.id}`
-                                                          ? rowHoverTemplate.loading
-                                                            ? 'Loading...'
-                                                            : String(rowHoverTemplate.data?.content ?? '')
-                                                              .replace(/<[^>]*>/g, '')
-                                                              .replace(/&nbsp;/g, ' ')
-                                                              .trim()
-                                                          : ''
-                                                      }
-                                                      arrow
-                                                      componentsProps={{
-                                                        tooltip: {
-                                                          sx: {
-                                                            backgroundColor: '#ffffff', //'hsl(var(--brand-primary))',
-                                                            color: '#000000',
-                                                            fontSize: '12px',
-                                                            maxWidth: 320,
-                                                            whiteSpace: 'pre-wrap',
-                                                            wordBreak: 'break-word',
-                                                          },
-                                                        },
-                                                        arrow: {
-                                                          sx: {
-                                                            color: '#ffffff' //'hsl(var(--brand-primary))',
-                                                          },
-                                                        },
-                                                      }}
-                                                    >
-                                                      <div
-                                                        className="text-brand-primary text-[12px] cursor-default"
-                                                        onMouseEnter={async () => {
-                                                          const rowKey = `${index}-${row.id}`
-                                                          const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${row.templateId}`
-                                                          try {
-                                                            const cached = localStorage.getItem(cacheKey)
-                                                            if (cached) {
-                                                              const data = JSON.parse(cached)
-                                                              setRowHoverTemplate({ rowKey, data, loading: false })
-                                                              return
-                                                            }
-                                                          } catch (_) { /* ignore invalid cache */ }
-                                                          setRowHoverTemplate({ rowKey, loading: true })
-                                                          try {
-                                                            const data = await getTempleteDetails({ templateId: row.templateId })
-                                                            if (data) {
-                                                              localStorage.setItem(cacheKey, JSON.stringify(data))
-                                                            }
-                                                            setRowHoverTemplate((prev) =>
-                                                              prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
-                                                            )
-                                                          } catch (err) {
-                                                            setRowHoverTemplate((prev) =>
-                                                              prev?.rowKey === rowKey ? { rowKey, data: null, loading: false } : prev
-                                                            )
-                                                          }
-                                                        }}
-                                                        onMouseLeave={() => setRowHoverTemplate(null)}
-                                                      >
-                                                        {stepActionDisplayText(row)}
-                                                      </div>
-                                                    </Tooltip>
-                                                  ) : (
-                                                    <div className="text-brand-primary text-[12px]">
-                                                      {stepActionDisplayText(row)}
-                                                    </div>
-                                                  )}
-
-                                                  <button
-                                                    onClick={(e) => {
-                                                      e.stopPropagation()
-                                                      console.log("Row clicked", row)
-                                                      handleEditRow(index, row, e, rowIndex)
-                                                    }}
-                                                    type="button"
-                                                    className="cursor-pointer"
-                                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                                <div className="w-[16px] shrink-0">
+                                                  <div
+                                                    className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-grab active:cursor-grabbing flex items-center justify-center touch-none"
+                                                    {...cadenceDragProvided.dragHandleProps}
+                                                    title="Drag to reorder steps"
+                                                    role="button"
+                                                    aria-label="Drag to reorder step"
                                                   >
-                                                    <PencilSimple
-                                                      size={16}
-                                                      weight="regular"
-                                                      style={{
-                                                        color: 'hsl(var(--brand-primary))',
-                                                      }}
+                                                    <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
+                                                  </div>
+                                                </div>
+                                                <div
+                                                  className="mt-2 ms-2"
+                                                  style={styles.headingStyle}
+                                                >
+                                                  Wait
+                                                </div>
+                                                <div className="ms-6 flex flex-row items-center w-full justify-between">
+                                                  <div className="flex flex-row items-center">
+                                                    <div>
+                                                      <label
+                                                        className="ms-1 px-2"
+                                                        style={styles.labelStyle}
+                                                      >
+                                                        Days
+                                                      </label>
+                                                      <input
+                                                        id={`cadence-${index}-${rowIndex}-${row.id}-days`}
+                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                        style={{
+                                                          ...styles.inputStyle,
+                                                          height: '42px',
+                                                          width: '80px',
+                                                          border: '1px solid #00000020',
+                                                          borderTopLeftRadius: '10px',
+                                                          borderBottomLeftRadius: '10px',
+                                                        }}
+                                                        placeholder="Days"
+                                                        value={row.waitTimeDays}
+                                                        onChange={(e) =>
+                                                          handleInputChange(
+                                                            index,
+                                                            row.id,
+                                                            'waitTimeDays',
+                                                            e.target.value.replace(
+                                                              /[^0-9]/g,
+                                                              '',
+                                                            ),
+                                                          )
+                                                        }
+                                                      />
+                                                    </div>
+                                                    <div>
+                                                      <label
+                                                        className="ms-1 px-2"
+                                                        style={styles.labelStyle}
+                                                      >
+                                                        Hours
+                                                      </label>
+                                                      <input
+                                                        id={`cadence-${index}-${rowIndex}-${row.id}-hours`}
+                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                        style={{
+                                                          ...styles.inputStyle,
+                                                          height: '42px',
+                                                          width: '80px',
+                                                          border: '1px solid #00000020',
+                                                          borderRight: 'none',
+                                                          borderLeft: 'none',
+                                                        }}
+                                                        placeholder="Hours"
+                                                        value={row.waitTimeHours}
+                                                        onChange={(e) =>
+                                                          handleInputChange(
+                                                            index,
+                                                            row.id,
+                                                            'waitTimeHours',
+                                                            e.target.value.replace(
+                                                              /[^0-9]/g,
+                                                              '',
+                                                            ),
+                                                          )
+                                                        }
+                                                      />
+                                                    </div>
+                                                    <div>
+                                                      <label
+                                                        className="ms-1 px-2"
+                                                        style={styles.labelStyle}
+                                                      >
+                                                        Mins
+                                                      </label>
+                                                      <input
+                                                        id={`cadence-${index}-${rowIndex}-${row.id}-minutes`}
+                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                        style={{
+                                                          ...styles.inputStyle,
+                                                          height: '42px',
+                                                          width: '80px',
+                                                          border: '1px solid #00000020',
+                                                          borderTopRightRadius: '10px',
+                                                          borderBottomRightRadius: '10px',
+                                                        }}
+                                                        placeholder="Minutes"
+                                                        value={row.waitTimeMinutes}
+                                                        onChange={(e) =>
+                                                          handleInputChange(
+                                                            index,
+                                                            row.id,
+                                                            'waitTimeMinutes',
+                                                            e.target.value.replace(
+                                                              /[^0-9]/g,
+                                                              '',
+                                                            ),
+                                                          )
+                                                        }
+                                                      />
+                                                    </div>
+                                                    <div
+                                                      className="ms-4 mt-2 flex flex-row items-center"
+                                                      style={styles.inputStyle}
+                                                    >
+                                                      {isBookingStage ? (
+                                                        <div className="flex flex-row items-center gap-2">
+                                                          <FormControl size="small" sx={{ minWidth: 140 }}>
+                                                            <Select
+                                                              value={
+                                                                rowWithReferencePoint.referencePoint ?? ''
+                                                              }
+                                                              onChange={(e) =>
+                                                                handleInputChange(
+                                                                  index,
+                                                                  row.id,
+                                                                  'referencePoint',
+                                                                  e.target.value,
+                                                                )
+                                                              }
+                                                              displayEmpty
+                                                              sx={{
+                                                                height: 32,
+                                                                fontSize: 14,
+                                                                backgroundColor: 'white',
+                                                                border: '1px solid #d1d5db',
+                                                                borderRadius: '6px',
+                                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                                  border: 'none',
+                                                                },
+                                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                  border: 'none',
+                                                                },
+                                                              }}
+                                                            >
+                                                              <MenuItem value="before_meeting">
+                                                                before the meeting
+                                                              </MenuItem>
+                                                              <MenuItem value="after_booking">
+                                                                after booking
+                                                              </MenuItem>
+                                                            </Select>
+                                                          </FormControl>
+                                                          , then{' '}
+                                                        </div>
+                                                      ) : (
+                                                        <div>, then{' '}</div>
+                                                      )}
+                                                      <div
+                                                        className="ml-2"
+                                                        style={{ fontWeight: '600' }}
+                                                      >
+                                                        <div className="flex flex-row items-cetner gap-2 p-2 rounded"
+                                                          style={{
+                                                            backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                                          }}
+                                                        >
+                                                          {(row.communicationType === 'email' || row.communicationType === 'sms') && row.templateId ? (
+                                                            <Tooltip
+                                                              title={
+                                                                rowHoverTemplate?.rowKey === `${index}-${row.id}`
+                                                                  ? rowHoverTemplate.loading
+                                                                    ? 'Loading...'
+                                                                    : String(rowHoverTemplate.data?.content ?? '')
+                                                                      .replace(/<[^>]*>/g, '')
+                                                                      .replace(/&nbsp;/g, ' ')
+                                                                      .trim()
+                                                                  : ''
+                                                              }
+                                                              arrow
+                                                              componentsProps={{
+                                                                tooltip: {
+                                                                  sx: {
+                                                                    backgroundColor: '#ffffff', //'hsl(var(--brand-primary))',
+                                                                    color: '#000000',
+                                                                    fontSize: '12px',
+                                                                    maxWidth: 320,
+                                                                    whiteSpace: 'pre-wrap',
+                                                                    wordBreak: 'break-word',
+                                                                  },
+                                                                },
+                                                                arrow: {
+                                                                  sx: {
+                                                                    color: '#ffffff' //'hsl(var(--brand-primary))',
+                                                                  },
+                                                                },
+                                                              }}
+                                                            >
+                                                              <div
+                                                                className="text-brand-primary text-[12px] cursor-default"
+                                                                onMouseEnter={async () => {
+                                                                  const rowKey = `${index}-${row.id}`
+                                                                  const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${row.templateId}`
+                                                                  try {
+                                                                    const cached = localStorage.getItem(cacheKey)
+                                                                    if (cached) {
+                                                                      const data = JSON.parse(cached)
+                                                                      setRowHoverTemplate({ rowKey, data, loading: false })
+                                                                      return
+                                                                    }
+                                                                  } catch (_) { /* ignore invalid cache */ }
+                                                                  setRowHoverTemplate({ rowKey, loading: true })
+                                                                  try {
+                                                                    const data = await getTempleteDetails({ templateId: row.templateId })
+                                                                    if (data) {
+                                                                      localStorage.setItem(cacheKey, JSON.stringify(data))
+                                                                    }
+                                                                    setRowHoverTemplate((prev) =>
+                                                                      prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
+                                                                    )
+                                                                  } catch (err) {
+                                                                    setRowHoverTemplate((prev) =>
+                                                                      prev?.rowKey === rowKey ? { rowKey, data: null, loading: false } : prev
+                                                                    )
+                                                                  }
+                                                                }}
+                                                                onMouseLeave={() => setRowHoverTemplate(null)}
+                                                              >
+                                                                {stepActionDisplayText(row)}
+                                                              </div>
+                                                            </Tooltip>
+                                                          ) : (
+                                                            <div className="text-brand-primary text-[12px]">
+                                                              {stepActionDisplayText(row)}
+                                                            </div>
+                                                          )}
+
+                                                          <button
+                                                            onClick={(e) => {
+                                                              e.stopPropagation()
+                                                              console.log("Row clicked", row)
+                                                              handleEditRow(index, row, e, rowIndex)
+                                                            }}
+                                                            type="button"
+                                                            className="cursor-pointer"
+                                                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                                          >
+                                                            <PencilSimple
+                                                              size={16}
+                                                              weight="regular"
+                                                              style={{
+                                                                color: 'hsl(var(--brand-primary))',
+                                                              }}
+                                                            />
+                                                          </button>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                  {rowIndex > 0 && (
+                                                    <CloseBtn
+                                                      onClick={() =>
+                                                        removeRow(index, row.id)
+                                                      }
                                                     />
-                                                  </button>
+                                                  )}
                                                 </div>
                                               </div>
-                                            </div>
-                                          </div>
-                                          {rowIndex > 0 && (
-                                            <CloseBtn
-                                              onClick={() =>
-                                                removeRow(index, row.id)
-                                              }
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                        )}
-                                      </Draggable>
-                                    )
-                                  })}
+                                            )}
+                                          </Draggable>
+                                        )
+                                      })}
                                     {cadenceDropProvided.placeholder}
                                   </div>
                                 )}
                               </Droppable>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    e.preventDefault()
-                                    openAddMenu(index, e)
-                                  }}
-                                  style={styles.inputStyle}
-                                  className="text-brand-primary mt-4 cursor-pointer"
-                                  type="button"
-                                >
-                                  + Add
-                                </button>
-                                <Menu
-                                  anchorEl={addMenuAnchor[index] || null}
-                                  open={Boolean(addMenuAnchor[index])}
-                                  onClose={() => {
-                                    if (isModalOpenRef.current) {
-                                      // Modal is open — only dismiss the menu anchor, don't reset editing state
-                                      setAddMenuAnchor((prev) => ({ ...prev, [index]: null }))
-                                    } else {
-                                      closeAddMenu(index)
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  openAddMenu(index, e)
+                                }}
+                                style={styles.inputStyle}
+                                className="text-brand-primary mt-4 cursor-pointer"
+                                type="button"
+                              >
+                                + Add
+                              </button>
+                              <Menu
+                                anchorEl={addMenuAnchor[index] || null}
+                                open={Boolean(addMenuAnchor[index])}
+                                onClose={() => {
+                                  if (isModalOpenRef.current) {
+                                    // Modal is open — only dismiss the menu anchor, don't reset editing state
+                                    setAddMenuAnchor((prev) => ({ ...prev, [index]: null }))
+                                  } else {
+                                    closeAddMenu(index)
+                                  }
+                                  localStorage.removeItem(
+                                    PersistanceKeys.isDefaultCadenceEditing,
+                                  )
+                                }}
+                                disableAutoFocusItem={false}
+                                MenuListProps={{
+                                  'aria-labelledby': 'action-menu',
+                                }}
+                                PaperProps={{
+                                  style: {
+                                    boxShadow:
+                                      '0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)', // custom purple shadow
+                                    borderRadius: '12px',
+                                  },
+                                }}
+                              >
+                                {ACTIONS.map((a) => (
+                                  <Tooltip
+                                    key={a.value}
+                                    title={
+                                      shouldDisable(a) &&
+                                        user?.planCapabilities
+                                          .allowTextMessages === true
+                                        ? 'You need to complete A2P to text'
+                                        : ''
                                     }
-                                    localStorage.removeItem(
-                                      PersistanceKeys.isDefaultCadenceEditing,
-                                    )
-                                  }}
-                                  disableAutoFocusItem={false}
-                                  MenuListProps={{
-                                    'aria-labelledby': 'action-menu',
-                                  }}
-                                  PaperProps={{
-                                    style: {
-                                      boxShadow:
-                                        '0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)', // custom purple shadow
-                                      borderRadius: '12px',
-                                    },
-                                  }}
-                                >
-                                  {ACTIONS.map((a) => (
-                                    <Tooltip
-                                      key={a.value}
-                                      title={
-                                        shouldDisable(a) &&
-                                          user?.planCapabilities
-                                            .allowTextMessages === true
-                                          ? 'You need to complete A2P to text'
-                                          : ''
-                                      }
-                                      arrow
-                                      disableHoverListener={!shouldDisable(a)}
-                                      disableFocusListener={!shouldDisable(a)}
-                                      disableTouchListener={!shouldDisable(a)}
-                                      componentsProps={{
-                                        tooltip: {
-                                          sx: {
-                                            backgroundColor: '#ffffff', // Ensure white background
-                                            color: '#333', // Dark text color
-                                            fontSize: '16px',
-                                            fontWeight: '500',
-                                            padding: '10px 15px',
-                                            borderRadius: '8px',
-                                            boxShadow:
-                                              '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                                          },
+                                    arrow
+                                    disableHoverListener={!shouldDisable(a)}
+                                    disableFocusListener={!shouldDisable(a)}
+                                    disableTouchListener={!shouldDisable(a)}
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          backgroundColor: '#ffffff', // Ensure white background
+                                          color: '#333', // Dark text color
+                                          fontSize: '16px',
+                                          fontWeight: '500',
+                                          padding: '10px 15px',
+                                          borderRadius: '8px',
+                                          boxShadow:
+                                            '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
                                         },
-                                        arrow: {
-                                          sx: {
-                                            color: '#ffffff', // Match tooltip background
-                                          },
+                                      },
+                                      arrow: {
+                                        sx: {
+                                          color: '#ffffff', // Match tooltip background
                                         },
-                                      }}
-                                    >
-                                      <div>
-                                        <MenuItem
-                                          sx={{
-                                            width: 180,
-                                            '&:hover .action-icon': {
-                                              display: 'none',
-                                            },
-                                            '&:hover .action-icon-hover': {
-                                              display: 'block',
-                                            },
-                                          }}
-                                          onClick={() =>
-                                            handleSelectAdd(index, a.value)
-                                          }
-                                        >
-                                          {tempLoader === a.value ? (
-                                            <CircularProgress size={20} />
-                                          ) : (
-                                            <div className="flex flex-row items-center justify-between w-full">
-                                              <div className="flex flex-row items-center gap-3">
-                                                {/* default icon - Text uses MessageSquareDot from lucide-react */}
-                                                {a.value === 'sms' ? (
-                                                  <MessageSquareDot
-                                                    size={a.value === 'create_task' ? 16 : 20}
-                                                    className="action-icon"
-                                                    style={{ display: 'block', flexShrink: 0 }}
-                                                  />
-                                                ) : typeof a.icon === 'function' ? (
-                                                  <a.icon
-                                                    size={20}
-                                                    className="action-icon"
-                                                    style={{ display: 'block', flexShrink: 0 }}
-                                                  />
-                                                ) : (
-                                                  <Image
-                                                    src={a.icon}
-                                                    height={a.value === 'create_task' ? 16 : 20}
-                                                    width={a.value === 'create_task' ? 16 : 20}
-                                                    alt="*"
-                                                    className="action-icon"
-                                                    style={{ display: 'block' }}
-                                                  />
-                                                )}
-                                                {/* hover icon */}
-                                                {a.value === 'sms' ? (
-                                                  <MessageSquareDot
-                                                    size={20}
-                                                    className="action-icon-hover"
-                                                    style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
-                                                  />
-                                                ) : typeof a.focusedIcon === 'function' ? (
-                                                  <a.focusedIcon
-                                                    // size={20}
-                                                    size={a.value === 'create_task' ? 16 : 20}
-                                                    className="action-icon-hover"
-                                                    style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
-                                                  />
-                                                ) : (
-                                                  <Image
-                                                    src={a.focusedIcon}
-                                                    height={a.value === 'create_task' ? 16 : 20}
-                                                    width={a.value === 'create_task' ? 16 : 20}
-                                                    alt="*"
-                                                    className="action-icon-hover"
-                                                    style={{ display: 'none' }}
-                                                  />
-                                                )}
+                                      },
+                                    }}
+                                  >
+                                    <div>
+                                      <MenuItem
+                                        sx={{
+                                          width: 180,
+                                          '&:hover .action-icon': {
+                                            display: 'none',
+                                          },
+                                          '&:hover .action-icon-hover': {
+                                            display: 'block',
+                                          },
+                                        }}
+                                        onClick={() =>
+                                          handleSelectAdd(index, a.value)
+                                        }
+                                      >
+                                        {tempLoader === a.value ? (
+                                          <CircularProgress size={20} />
+                                        ) : (
+                                          <div className="flex flex-row items-center justify-between w-full">
+                                            <div className="flex flex-row items-center gap-3">
+                                              {/* default icon - Text uses MessageSquareDot from lucide-react */}
+                                              {a.value === 'sms' ? (
+                                                <MessageSquareDot
+                                                  size={a.value === 'create_task' ? 16 : 20}
+                                                  className="action-icon"
+                                                  style={{ display: 'block', flexShrink: 0 }}
+                                                />
+                                              ) : typeof a.icon === 'function' ? (
+                                                <a.icon
+                                                  size={20}
+                                                  className="action-icon"
+                                                  style={{ display: 'block', flexShrink: 0 }}
+                                                />
+                                              ) : (
+                                                <Image
+                                                  src={a.icon}
+                                                  height={a.value === 'create_task' ? 16 : 20}
+                                                  width={a.value === 'create_task' ? 16 : 20}
+                                                  alt="*"
+                                                  className="action-icon"
+                                                  style={{ display: 'block' }}
+                                                />
+                                              )}
+                                              {/* hover icon */}
+                                              {a.value === 'sms' ? (
+                                                <MessageSquareDot
+                                                  size={20}
+                                                  className="action-icon-hover"
+                                                  style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
+                                                />
+                                              ) : typeof a.focusedIcon === 'function' ? (
+                                                <a.focusedIcon
+                                                  // size={20}
+                                                  size={a.value === 'create_task' ? 16 : 20}
+                                                  className="action-icon-hover"
+                                                  style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
+                                                />
+                                              ) : (
+                                                <Image
+                                                  src={a.focusedIcon}
+                                                  height={a.value === 'create_task' ? 16 : 20}
+                                                  width={a.value === 'create_task' ? 16 : 20}
+                                                  alt="*"
+                                                  className="action-icon-hover"
+                                                  style={{ display: 'none' }}
+                                                />
+                                              )}
 
-                                                <div
-                                                  style={{
-                                                    fontSize: 15,
-                                                    fontWeight: '400',
-                                                  }}
-                                                >
-                                                  {a.label}
-                                                </div>
-                                                {a.value === 'email' && (emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
-                                                  <UpgradeTag
-                                                    onClick={handleEmailUpgradeClick}
-                                                    requestFeature={emailCapability.showRequestFeature}
-                                                  />
-                                                )}
-                                                {a.value === 'sms' && (smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
-                                                  <UpgradeTag
-                                                    onClick={handleSMSUpgradeClick}
-                                                    requestFeature={smsCapability.showRequestFeature}
-                                                  />
-                                                )}
+                                              <div
+                                                style={{
+                                                  fontSize: 15,
+                                                  fontWeight: '400',
+                                                }}
+                                              >
+                                                {a.label}
                                               </div>
-                                              {shouldDisable(a) &&
-                                                user?.planCapabilities
-                                                  .allowTextMessages != false &&
-                                                a.label == 'Text' && (
-                                                  <Image
-                                                    src={
-                                                      '/otherAssets/redInfoIcon.png'
-                                                    }
-                                                    height={16}
-                                                    width={16}
-                                                    alt="*"
-                                                  />
-                                                )}
+                                              {a.value === 'email' && (emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+                                                <UpgradeTag
+                                                  onClick={handleEmailUpgradeClick}
+                                                  requestFeature={emailCapability.showRequestFeature}
+                                                />
+                                              )}
+                                              {a.value === 'sms' && (smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+                                                <UpgradeTag
+                                                  onClick={handleSMSUpgradeClick}
+                                                  requestFeature={smsCapability.showRequestFeature}
+                                                />
+                                              )}
                                             </div>
-                                          )}
-                                        </MenuItem>
-                                      </div>
-                                    </Tooltip>
-                                  ))}
-                                </Menu>
+                                            {shouldDisable(a) &&
+                                              user?.planCapabilities
+                                                .allowTextMessages != false &&
+                                              a.label == 'Text' && (
+                                                <Image
+                                                  src={
+                                                    '/otherAssets/redInfoIcon.png'
+                                                  }
+                                                  height={16}
+                                                  width={16}
+                                                  alt="*"
+                                                />
+                                              )}
+                                          </div>
+                                        )}
+                                      </MenuItem>
+                                    </div>
+                                  </Tooltip>
+                                ))}
+                              </Menu>
                               <div className="flex flex-row items-center gap-2 mt-4">
                                 <div style={styles.inputStyle}>
                                   Then move to
