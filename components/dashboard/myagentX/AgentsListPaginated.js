@@ -77,6 +77,8 @@ const AgentsListPaginated = ({
   scrollableTarget = 'scrollableAgentDiv',
   uniqueTags = [],
   onAssignTag,
+  onUnassignTag,
+  onDeleteTag,
   selectedTags = [],
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
@@ -368,11 +370,12 @@ const AgentsListPaginated = ({
               dense
               disableGutters
               onClick={() => {
-                if (!assignTagAgent?.mainAgentId || !onAssignTag) return
-                const next = isSelected
-                  ? currentTags.filter((t) => t !== tagLabel)
-                  : [...currentTags, tagLabel]
-                onAssignTag(assignTagAgent.mainAgentId, next)
+                if (!assignTagAgent?.mainAgentId) return
+                if (isSelected && onUnassignTag) {
+                  onUnassignTag(assignTagAgent.mainAgentId, tagLabel)
+                } else if (!isSelected && onAssignTag) {
+                  onAssignTag(assignTagAgent.mainAgentId, [...currentTags, tagLabel])
+                }
                 setAssignTagAnchor(null)
                 setAssignTagAgent(null)
                 setAssignTagInput('')
@@ -409,20 +412,20 @@ const AgentsListPaginated = ({
               }}
             >
               <span>{tagLabel}</span>
-              {isSelected && (
+              {onDeleteTag && (
                 <button
                   type="button"
                   className="assign-tag-del-btn"
-                  onClick={(e) => {
+                  onMouseDown={(e) => {
+                    e.preventDefault()
                     e.stopPropagation()
-                    if (!assignTagAgent?.mainAgentId || !onAssignTag) return
-                    const next = currentTags.filter((t) => t !== tagLabel)
-                    onAssignTag(assignTagAgent.mainAgentId, next)
+                    onDeleteTag(tagLabel)
                     setAssignTagAnchor(null)
                     setAssignTagAgent(null)
                     setAssignTagInput('')
                   }}
-                  aria-label={`Remove tag ${tagLabel}`}
+                  aria-label={`Delete tag ${tagLabel} permanently from all agents`}
+                  title="Delete tag from all agents"
                   style={{
                     minWidth: 20,
                     height: 20,
@@ -435,7 +438,6 @@ const AgentsListPaginated = ({
                     justifyContent: 'center',
                     borderRadius: 4,
                   }}
-                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <Trash size={14} strokeWidth={2.5} />
                 </button>
@@ -673,9 +675,21 @@ const AgentsListPaginated = ({
                                   {item.tags && item.tags.length > 0 ? (
                                     <div className="flex flex-row items-center gap-2 w-full min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin flex-nowrap" style={{ scrollbarWidth: 'thin' }}>
                                       {item.tags.slice(0, 3).map((tagLabel, index) => (
-                                        <div key={`${tagLabel}-${index}`}>
+                                        <button
+                                          key={`${tagLabel}-${index}`}
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            if (onUnassignTag && item.mainAgentId) {
+                                              onUnassignTag(item.mainAgentId, tagLabel)
+                                            }
+                                          }}
+                                          className="px-2 py-0.5 rounded-md text-xs font-medium bg-black/6 hover:bg-black/10 transition-colors"
+                                          title="Click to unassign this tag"
+                                        >
                                           {tagLabel}
-                                        </div>
+                                        </button>
                                       ))}
                                       {item.tags.length > 3 && (
                                         <div className="text-xs font-medium text-[#666666]">

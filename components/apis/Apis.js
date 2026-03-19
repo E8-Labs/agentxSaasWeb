@@ -54,6 +54,8 @@ const Apis = {
   getAgents: `${BasePath}api/agent/getAgents`,
   getAgentTags: `${BasePath}api/agent/getAgentTags`,
   assignAgentTags: `${BasePath}api/agent/assignAgentTags`,
+  unassignAgentTag: `${BasePath}api/agent/unassignAgentTag`,
+  deleteAgentTag: `${BasePath}api/agent/deleteAgentTag`,
   attachSmartList: `${BasePath}api/agent/attachSmartList`,
   assignLeadToPipeLine: `${BasePath}api/pipeline/assignLeadsToPipeline`,
   uniqueColumns: `${BasePath}api/leads/getUniqueColumns`,

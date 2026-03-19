@@ -22,7 +22,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Calendar, Check, ChevronDown, ChevronUp, Code, Hourglass, MessageCircleMore, SquareArrowOutUpRight, Webhook, X, Zap } from 'lucide-react'
+import { Calendar, Check, ChevronDown, ChevronUp, Code, Hourglass, MessageCircleMore, SquareArrowOutUpRight, Trash, Webhook, X, Zap } from 'lucide-react'
 import { ArrowUpRight, Info, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import imageCompression from 'browser-image-compression'
@@ -59,6 +59,7 @@ import AgentInfoCard from '@/components/dashboard/myagentX/AgentInfoCard'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
 import AllSetModal from '@/components/dashboard/myagentX/AllSetModal'
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
+import DeleteTagConfirmModal from '@/components/dashboard/myagentX/DeleteTagConfirmModal'
 import DuplicateConfirmationPopup from '@/components/dashboard/myagentX/DuplicateConfirmationPopup'
 import { EditPhoneNumberModal } from '@/components/dashboard/myagentX/EditPhoneNumberPopup'
 import EmbedModal from '@/components/dashboard/myagentX/EmbedModal'
@@ -705,6 +706,8 @@ function Page() {
   const [showWebAgentModal, setShowWebAgentModal] = useState(false)
   const [showNewSmartListModal, setShowNewSmartListModal] = useState(false)
   const [showAllSetModal, setShowAllSetModal] = useState(false)
+  const [deleteTagConfirm, setDeleteTagConfirm] = useState({ open: false, tag: null })
+  const [deleteTagLoading, setDeleteTagLoading] = useState(false)
   const [selectedAgentForWebAgent, setSelectedAgentForWebAgent] = useState(null)
 
   // Embed Modal states
@@ -3584,6 +3587,88 @@ function Page() {
     }
   }
 
+  const handleUnassignAgentTag = async (mainAgentId, tag) => {
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.unassignAgentTag,
+        { mainAgentId, tag },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setMainAgentsList((prev) => {
+        const updated = prev.map((ma) =>
+          ma.id === mainAgentId
+            ? { ...ma, tags: (ma.tags || []).filter((t) => t !== tag) }
+            : ma,
+        )
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(updated),
+          )
+        }
+        return updated
+      })
+    } catch (err) {
+      console.error('UnassignAgentTag error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.error,
+        message: err?.response?.data?.message || 'Failed to unassign tag',
+        isVisible: true,
+      })
+    }
+  }
+
+  const handleDeleteAgentTag = (tag) => {
+    setDeleteTagConfirm({ open: true, tag })
+  }
+
+  const handleConfirmDeleteTag = async () => {
+    const tag = deleteTagConfirm.tag
+    if (!tag) return
+    setDeleteTagLoading(true)
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.deleteAgentTag,
+        { tag },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setDeleteTagConfirm({ open: false, tag: null })
+      setUniqueTags((prev) => prev.filter((t) => t !== tag))
+      setSelectedTags((prev) => prev.filter((t) => t !== tag))
+      setTagFilterLoader(true)
+      getAgents(false, search, true, selectedTags.filter((t) => t !== tag)).then(
+        () => setTagFilterLoader(false),
+      )
+      fetchAgentTags()
+      setShowSnackMsg({
+        type: SnackbarTypes.Success,
+        message: `Tag "${tag}" deleted from all agents`,
+        isVisible: true,
+      })
+    } catch (err) {
+      console.error('DeleteAgentTag error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.error,
+        message: err?.response?.data?.message || 'Failed to delete tag',
+        isVisible: true,
+      })
+    } finally {
+      setDeleteTagLoading(false)
+    }
+  }
+
   //function to add new agent by more agents popup
   const handleAddAgentByMoreAgentsPopup = () => {
     try {
@@ -4182,6 +4267,13 @@ function Page() {
                 setShowSnackMsg({ type: null, message: '', isVisible: false })
               }
             />
+            <DeleteTagConfirmModal
+              open={deleteTagConfirm.open}
+              tag={deleteTagConfirm.tag}
+              onClose={() => setDeleteTagConfirm({ open: false, tag: null })}
+              onConfirm={handleConfirmDeleteTag}
+              loading={deleteTagLoading}
+            />
           </div>
           <div className="w-full flex-shrink-0">
             <StandardHeader
@@ -4315,7 +4407,6 @@ function Page() {
             />
           </div>
           <div className="w-full max-w-[1028px] mx-auto px-4 flex-shrink-0 py-3 flex flex-row items-center justify-between gap-3 flex-nowrap">
-
             {false && (
               <>
                 <button
@@ -4492,6 +4583,8 @@ function Page() {
                 selectedTags={selectedTags}
                 uniqueTags={uniqueTags}
                 onAssignTag={handleAssignAgentTags}
+                onUnassignTag={handleUnassignAgentTag}
+                onDeleteTag={handleDeleteAgentTag}
                 setObjective={setObjective}
                 setOldObjective={setOldObjective}
                 setGreetingTagInput={setGreetingTagInput}
