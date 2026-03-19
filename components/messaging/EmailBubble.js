@@ -146,20 +146,29 @@ const EmailBubble = ({
 
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
 
-      {message?.agent && onCampaignStatClick && (
-        <div className="flex w-full justify-end items-center mt-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onCampaignStatClick(message.subject)
-            }}
-            className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 ml-auto"
-            title="Campaign stat"
-            aria-label="Campaign stat"
-          >
-            <BarChart2 size={15} />
-          </button>
+      {message?.agent && (message.openedAt != null || message.clicked != null || onCampaignStatClick) && (
+        <div className="flex w-full justify-between items-center mt-2 gap-2">
+          <span className="text-[12px] text-gray-500 italic min-w-0">
+            {message.openedAt
+              ? `Opened at ${moment(message.openedAt).format('h:mm A')}`
+              : '—'}
+            {' · '}
+            {message.clicked ?? 0} click{(message.clicked ?? 0) !== 1 ? 's' : ''}
+          </span>
+          {onCampaignStatClick && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onCampaignStatClick(message.subject)
+              }}
+              className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 shrink-0"
+              title="Campaign stat"
+              aria-label="Campaign stat"
+            >
+              <BarChart2 size={15} />
+            </button>
+          )}
         </div>
       )}
     </div>
