@@ -48,7 +48,12 @@ import {
 } from './TempleteServices'
 import { GripVertical, MessageSquareDot, PlusIcon } from 'lucide-react'
 import CreateTaskFromNextStepsModal from '../dashboard/leads/extras/CreateTaskFromNextStepsModal'
-import ReorderCadenceModal from './ReorderCadenceModal'
+
+/** @hello-pangea/dnd: isolate stage list drags from cadence row drags */
+const DND_TYPE_PIPELINE_STAGE = 'PIPELINE_STAGE'
+const DND_TYPE_CADENCE_STEP = 'CADENCE_STEP'
+
+const cadenceDroppableId = (stageId) => `cadence-${stageId}`
 
 const PipelineStages = ({
   stages,
@@ -183,8 +188,6 @@ const PipelineStages = ({
   // when editing an existing task step: row and stage index
   const [editingTaskRow, setEditingTaskRow] = useState(null)
   const [editingTaskStageIndex, setEditingTaskStageIndex] = useState(null)
-  // reorder cadence modal: stage index when open, null when closed
-  const [reorderCadenceModalStageIndex, setReorderCadenceModalStageIndex] = useState(null)
   // which stage's template dropdown is open (stage id or null)
   const [templateSelectOpenStageId, setTemplateSelectOpenStageId] = useState(null)
 
@@ -839,10 +842,40 @@ const PipelineStages = ({
 
       const { source, destination } = result
 
-      if (!destination || source.index === 0 || destination.index === 0) {
-        if (!destination) {
+      if (!destination) {
+        if (source.droppableId === 'pipelineStages') {
           setShowRearrangeErr('Cannot rearrange when stage is dropped outside the container.')
-        } else if (destination.index === 0) {
+          setIsVisibleSnack(true)
+          setSnackType('Error')
+        }
+        return
+      }
+
+      // Cadence rows: same inner droppable
+      if (
+        source.droppableId === destination.droppableId &&
+        source.droppableId.startsWith('cadence-')
+      ) {
+        if (source.index === destination.index) return
+        const stageIdStr = source.droppableId.slice('cadence-'.length)
+        const stageIndex = pipelineStages.findIndex(
+          (s) => String(s.id) === stageIdStr,
+        )
+        if (stageIndex === -1 || !reorderRows) return
+        reorderRows(stageIndex, source.index, destination.index)
+        return
+      }
+
+      // Pipeline stages: outer droppable only
+      if (
+        source.droppableId !== 'pipelineStages' ||
+        destination.droppableId !== 'pipelineStages'
+      ) {
+        return
+      }
+
+      if (source.index === 0 || destination.index === 0) {
+        if (destination.index === 0) {
           setShowRearrangeErr('Cannot rearrange when stage is dropped at the first position.');
         } else if (source.index === 0) {
           setShowRearrangeErr('Cannot rearrange when stage source is dropped at the first position.');
@@ -851,13 +884,6 @@ const PipelineStages = ({
         setSnackType('Error')
         return
       }
-
-      // if (!destination || source.index === 0 || destination.index === 0) {
-      //   setShowRearrangeErr('Cannot rearrange when stage is expanded.')
-      //   setIsVisibleSnack(true)
-      //   setSnackType('Error')
-      //   return
-      // }
 
       const items = Array.from(pipelineStages)
       const [reorderedItem] = items.splice(source.index, 1)
@@ -880,6 +906,7 @@ const PipelineStages = ({
       pipelineStages,
       onUpdateOrder,
       handleReOrder,
+      reorderRows,
     ])
 
   //functions to move to stage after deleting one
@@ -1122,7 +1149,7 @@ const PipelineStages = ({
       onDragStart={handleOnDragStart}
       onDragEnd={handleOnDragEnd}
     >
-      <Droppable droppableId="pipelineStages">
+      <Droppable droppableId="pipelineStages" type={DND_TYPE_PIPELINE_STAGE}>
         {(provided) => (
           <div
             {...provided.droppableProps}
@@ -1148,6 +1175,7 @@ const PipelineStages = ({
                 draggableId={item.id.toString()}
                 index={index}
                 isDragDisabled={index === 0}
+                type={DND_TYPE_PIPELINE_STAGE}
               >
                 {(provided) => (
                   <div
@@ -1459,8 +1487,16 @@ const PipelineStages = ({
                               </div>
                             </div>
                             <div className="border rounded-xl py-4 px-4 mt-4">
-                              <div>
-                                {(console.log('rowsByIndex[index]', rowsByIndex[index]), (rowsByIndex[index] || []).map(
+                              <Droppable
+                                droppableId={cadenceDroppableId(item.id)}
+                                type={DND_TYPE_CADENCE_STEP}
+                              >
+                                {(cadenceDropProvided) => (
+                                  <div
+                                    ref={cadenceDropProvided.innerRef}
+                                    {...cadenceDropProvided.droppableProps}
+                                  >
+                                    {(rowsByIndex[index] || []).map(
                                   (row, rowIndex) => {
                                     // Ensure row has referencePoint initialized
                                     // Check identifier from selectedPipelineStages (source of truth) or item as fallback
@@ -1472,21 +1508,37 @@ const PipelineStages = ({
                                     }
 
                                     return (
-                                      <div
-                                        key={`cadence-${index}-${rowIndex}-${row.id}`}
-                                        className="flex flex-row items-center justify-center mb-2"
+                                      <Draggable
+                                        key={`cadence-${item.id}-${row.id}`}
+                                        draggableId={`cadence-row-${item.id}-${row.id}`}
+                                        index={rowIndex}
+                                        type={DND_TYPE_CADENCE_STEP}
                                       >
-                                        <div className="w-[16px]">
-                                          <Tooltip title="Click to reorder steps" arrow>
-                                            <button
-                                              type="button"
-                                              onClick={() => setReorderCadenceModalStageIndex(index)}
-                                              className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-pointer flex items-center justify-center"
-                                              aria-label="Reorder cadence steps"
-                                            >
-                                              <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
-                                            </button>
-                                          </Tooltip>
+                                        {(cadenceDragProvided, cadenceSnapshot) => (
+                                      <div
+                                        ref={cadenceDragProvided.innerRef}
+                                        {...cadenceDragProvided.draggableProps}
+                                        className="flex flex-row items-center justify-center mb-2"
+                                        style={{
+                                          ...cadenceDragProvided.draggableProps.style,
+                                          ...(cadenceSnapshot.isDragging
+                                            ? {
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                                                borderRadius: 8,
+                                              }
+                                            : {}),
+                                        }}
+                                      >
+                                        <div className="w-[16px] shrink-0">
+                                          <div
+                                            className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-grab active:cursor-grabbing flex items-center justify-center touch-none"
+                                            {...cadenceDragProvided.dragHandleProps}
+                                            title="Drag to reorder steps"
+                                            role="button"
+                                            aria-label="Drag to reorder step"
+                                          >
+                                            <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
+                                          </div>
                                         </div>
                                         <div
                                           className="mt-2 ms-2"
@@ -1752,8 +1804,14 @@ const PipelineStages = ({
                                           )}
                                         </div>
                                       </div>
+                                        )}
+                                      </Draggable>
                                     )
-                                  }))}
+                                  })}
+                                    {cadenceDropProvided.placeholder}
+                                  </div>
+                                )}
+                              </Droppable>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -1935,7 +1993,6 @@ const PipelineStages = ({
                                     </Tooltip>
                                   ))}
                                 </Menu>
-                              </div>
                               <div className="flex flex-row items-center gap-2 mt-4">
                                 <div style={styles.inputStyle}>
                                   Then move to
@@ -2659,22 +2716,6 @@ const PipelineStages = ({
                 />
               )
             }
-
-            <ReorderCadenceModal
-              open={reorderCadenceModalStageIndex !== null}
-              onClose={() => setReorderCadenceModalStageIndex(null)}
-              stageTitle={
-                reorderCadenceModalStageIndex !== null
-                  ? (pipelineStages[reorderCadenceModalStageIndex]?.stageTitle ??
-                    selectedPipelineStages?.[reorderCadenceModalStageIndex]?.stageTitle) ??
-                  'Stage'
-                  : ''
-              }
-              rows={reorderCadenceModalStageIndex !== null ? (rowsByIndex[reorderCadenceModalStageIndex] ?? []) : []}
-              stageIndex={reorderCadenceModalStageIndex ?? 0}
-              onReorderRows={reorderRows}
-              stepActionDisplayText={stepActionDisplayText}
-            />
 
             {/* Code for add stage modal */}
             <Modal
