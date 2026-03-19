@@ -3038,12 +3038,17 @@ function DialerModal({
                             style: {
                               maxHeight: '300px',
                               width: '300px',
-                              zIndex: 1500,
+                              zIndex: 5200,
                             },
                           }}
-                          style={{ zIndex: 1500 }}
+                          style={{ zIndex: 5200 }}
                           MenuListProps={{
-                            style: { zIndex: 1500 },
+                            style: { zIndex: 5200 },
+                          }}
+                          slotProps={{
+                            root: {
+                              style: { zIndex: 5200 },
+                            },
                           }}
                           container={() => document.body}
                           disablePortal={false}
