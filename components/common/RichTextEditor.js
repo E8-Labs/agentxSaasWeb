@@ -10,6 +10,8 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { Box, Modal } from '@mui/material'
+
 import { Input } from '@/components/ui/input'
 
 // Dynamically import ReactQuill to avoid SSR issues
@@ -283,40 +285,53 @@ const RichTextEditor = forwardRef(
           )}
         </div>
 
-        {/* Custom Link Modal */}
-        {showLinkModal && (
-          <>
-            <div 
-              className="fixed inset-0 z-[10001] bg-black/20"
-              onClick={handleLinkCancel}
-            />
-            <div className="fixed left-1/2 top-1/2 z-[10002] -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-black/[0.06] p-4 min-w-[300px]">
-              <div className="mb-3">
-                <label className="text-[14px] font-medium text-foreground block mb-2">
-                  Enter link:
-                </label>
-                <Input
-                  type="text"
-                  value={linkUrl}
-                  onChange={(e) => setLinkUrl(e.target.value)}
-                  onKeyDown={handleLinkKeyDown}
-                  placeholder="https://example.com"
-                  className="w-full"
-                  autoFocus
-                />
-              </div>
-              <div className="flex justify-center ">
-                <button
-                  onClick={handleLinkSave}
-                  className="px-4 py-1.5 bg-brand-primary text-white rounded hover:bg-brand-primary/90 transition-colors w-[60%]"
-                  style={{ fontSize: '12px' }}
-                >
-                  Save
-                </button>
-              </div>
+        {/* Custom Link Modal - MUI Modal portals to body so position works in Safari */}
+        <Modal
+          open={showLinkModal}
+          onClose={handleLinkCancel}
+          closeAfterTransition
+          aria-labelledby="link-modal-label"
+          aria-modal="true"
+          BackdropProps={{
+            timeout: 100,
+            sx: { backgroundColor: '#00000020' },
+          }}
+          sx={{ zIndex: 10002 }}
+        >
+          <Box
+            className="bg-white rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-black/[0.06] p-4 min-w-[300px]"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <div className="mb-3">
+              <label id="link-modal-label" className="text-[14px] font-medium text-foreground block mb-2">
+                Enter link:
+              </label>
+              <Input
+                type="text"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyDown={handleLinkKeyDown}
+                placeholder="https://example.com"
+                className="w-full"
+                autoFocus
+              />
             </div>
-          </>
-        )}
+            <div className="flex justify-center ">
+              <button
+                onClick={handleLinkSave}
+                className="px-4 py-1.5 bg-brand-primary text-white rounded hover:bg-brand-primary/90 transition-colors w-[60%]"
+                style={{ fontSize: '12px' }}
+              >
+                Save
+              </button>
+            </div>
+          </Box>
+        </Modal>
 
         <style jsx global>{`
           .rich-text-editor-container {
