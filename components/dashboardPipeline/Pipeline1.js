@@ -4854,6 +4854,7 @@ const Pipeline1 = () => {
                 // transform: expandSideView ? "translateX(0)" : "translateX(100%)",
                 bottom: 100,
                 right: 0,
+                zIndex: 1000,
               }}
               onClick={() => { }}
             >
@@ -4908,17 +4909,7 @@ const Pipeline1 = () => {
                     </div>
                   </div>
                   <div className="flex flex-col items-center -mt-2 -ml-2">
-                    <button
-                      className="text-purple"
-                      onClick={() => {
-                        setExpandSideView(false)
-                      }}
-                    >
-                      <img
-                        src="/svgIcons/cross.svg"
-                        style={{ height: 24, width: 24 }}
-                      />
-                    </button>
+                    <CloseBtn onClick={() => setExpandSideView(false)} />
                   </div>
                 </div>
               ) : (

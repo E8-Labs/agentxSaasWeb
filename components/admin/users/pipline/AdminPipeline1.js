@@ -4607,6 +4607,7 @@ const AdminPipeline1 = ({ selectedUser, enablePermissionChecks = false }) => {
             // transform: expandSideView ? "translateX(0)" : "translateX(100%)",
             bottom: 100,
             right: 0,
+            zIndex: 1000,
           }}
           onClick={() => { }}
         >
