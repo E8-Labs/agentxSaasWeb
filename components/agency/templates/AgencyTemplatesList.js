@@ -418,7 +418,7 @@ export default function AgencyTemplatesList() {
                             color: textPrimary,
                           }}
                         >
-                          {t?.status}
+                          {t?.status ? t.status.charAt(0).toUpperCase() + t.status.slice(1) : ''}
                         </Typography>
                       </Box>
                       <Box

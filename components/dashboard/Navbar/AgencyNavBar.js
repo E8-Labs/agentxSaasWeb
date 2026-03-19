@@ -458,15 +458,17 @@ const AgencyNavBarContent = () => {
     const data = localStorage.getItem('User')
     if (data) {
       const LocalData = JSON.parse(data)
-      let stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount || false
       if (showAgencyWalkThrough) return //if walkthrough is shown, don't check stripe status
-      setCheckStripeStatus(!stripeStatus)
       // setUserDetails(LocalData);
 
       const agencyProfile = await getProfileDetails()
       if (agencyProfile) {
         // route  on plans if paymnet failed 3 times
         const agencyProfileData = agencyProfile.data.data
+
+        // Use API response for Stripe banner so it's not overwritten by stale localStorage
+        const stripeConnected = agencyProfileData?.canAcceptPaymentsAgencyccount ?? false
+        setCheckStripeStatus(!stripeConnected)
 
         // Check profile_status from API response
         if (
@@ -524,7 +526,11 @@ const AgencyNavBarContent = () => {
         ) {
           setCanAcceptPaymentsAgencyccount(true)
         }
-      } else { }
+      } else {
+        // Fallback to localStorage when API doesn't return profile
+        const stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount ?? false
+        setCheckStripeStatus(!stripeStatus)
+      }
       if (LocalData.user.profile_status !== 'active') {
         setErrorSnack('Your account has been frozen.')
         setShowErrorSnack(true)
