@@ -613,6 +613,7 @@ const MessageComposer = ({
         '{Email}',
         '{Phone}',
         '{Address}',
+        '{Assigned Team Member}',
       ]
 
       let res = await getUniquesColumn(userId)
@@ -634,6 +635,7 @@ const MessageComposer = ({
         '{Email}',
         '{Phone}',
         '{Address}',
+        '{Assigned Team Member}',
       ])
     }
   }
