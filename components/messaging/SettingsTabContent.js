@@ -22,6 +22,13 @@ export default function SettingsTabContent({
   const [pendingEmailsCount, setPendingEmailsCount] = useState(0)
   const [pendingSMSCount, setPendingSMSCount] = useState(0)
   const [loadingSettings, setLoadingSettings] = useState(false)
+  const pendingCadenceSummary = [
+    pendingCallsCount > 0 ? `${pendingCallsCount} call${Number(pendingCallsCount) !== 1 ? 's' : ''}` : null,
+    pendingEmailsCount > 0 ? `${pendingEmailsCount} email${Number(pendingEmailsCount) !== 1 ? 's' : ''}` : null,
+    pendingSMSCount > 0 ? `${pendingSMSCount} text${Number(pendingSMSCount) !== 1 ? 's' : ''}` : null,
+  ]
+    .filter(Boolean)
+    .join(' | ')
 
   useEffect(() => {
     if (!leadId) {
@@ -179,14 +186,12 @@ export default function SettingsTabContent({
           disabled={loadingSettings}
         />
       </div>
-      {Number(pendingCallsCount) || Number(pendingEmailsCount) || Number(pendingSMSCount) > 0 && (
+      {(Number(pendingCallsCount) > 0 || Number(pendingEmailsCount) > 0 || Number(pendingSMSCount) > 0) && (
         <div className="flex items-center justify-between gap-2 p-3 h-10 min-h-0">
           <div className="flex flex-col">
             <TypographyBody className="text-sm text-foreground">Disable cadence</TypographyBody>
             <TypographyCaption className="text-xs text-muted-foreground">
-              {pendingCallsCount > 0 && `${pendingCallsCount} call${Number(pendingCallsCount) !== 1 ? 's' : ''} | `}
-              {pendingEmailsCount > 0 && `${pendingEmailsCount} email${Number(pendingEmailsCount) !== 1 ? 's' : ''} | `}
-              {pendingSMSCount > 0 && `${pendingSMSCount} SMS${Number(pendingSMSCount) !== 1 ? 's' : ''}`}
+              {pendingCadenceSummary}
             </TypographyCaption>
           </div>
           <Switch
