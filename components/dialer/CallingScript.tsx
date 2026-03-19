@@ -137,6 +137,7 @@ export default function CallingScript({
         '{Email}',
         '{Phone}',
         '{Address}',
+        '{Assigned Team Member}',
       ]
 
       const columns = await getUniquesColumn()
@@ -162,6 +163,7 @@ export default function CallingScript({
         '{Phone}',
         '{Phone Number}',
         '{Address}',
+        '{Assigned Team Member}',
       ])
     }
   }

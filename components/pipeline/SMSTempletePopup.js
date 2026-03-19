@@ -356,10 +356,23 @@ function SMSTempletePopup({
   }
 
   const getColumns = async () => {
+    const defaultColumns = [
+      '{First Name}',
+      '{Last Name}',
+      '{Email}',
+      '{Phone}',
+      '{Address}',
+      '{Assigned Team Member}',
+    ]
     let res = await getUniquesColumn()
-    // console.log('res', res)
-    if (res) {
-      setUniqueColumns(res)
+    if (res && Array.isArray(res)) {
+      const merged = [
+        ...defaultColumns,
+        ...res.filter((col) => !defaultColumns.includes(col)),
+      ]
+      setUniqueColumns(merged)
+    } else {
+      setUniqueColumns(defaultColumns)
     }
   }
 

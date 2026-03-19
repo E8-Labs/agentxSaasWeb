@@ -773,6 +773,7 @@ const NewMessageModal = ({
         '{Email}',
         '{Phone}',
         '{Address}',
+        '{Assigned Team Member}',
       ]
 
       const bookingVariables = [
@@ -810,6 +811,7 @@ const NewMessageModal = ({
         '{Email}',
         '{Phone}',
         '{Address}',
+        '{Assigned Team Member}',
       ]
       if (isBookingStage) {
         fallback.push('{Appointment DateTime}', '{Timezone}', '{Duration}', '{Meeting Location}')

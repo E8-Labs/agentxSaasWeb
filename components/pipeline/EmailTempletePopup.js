@@ -166,6 +166,7 @@ function EmailTempletePopup({
       '{Email}',
       '{Phone}',
       '{Address}',
+      '{Assigned Team Member}',
     ]
 
     let res = await getUniquesColumn(selectedUser?.id)
