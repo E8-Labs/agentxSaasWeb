@@ -3584,6 +3584,81 @@ function Page() {
     }
   }
 
+  const handleUnassignAgentTag = async (mainAgentId, tag) => {
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.unassignAgentTag,
+        { mainAgentId, tag },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setMainAgentsList((prev) => {
+        const updated = prev.map((ma) =>
+          ma.id === mainAgentId
+            ? { ...ma, tags: (ma.tags || []).filter((t) => t !== tag) }
+            : ma,
+        )
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(updated),
+          )
+        }
+        return updated
+      })
+    } catch (err) {
+      console.error('UnassignAgentTag error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.error,
+        message: err?.response?.data?.message || 'Failed to unassign tag',
+        isVisible: true,
+      })
+    }
+  }
+
+  const handleDeleteAgentTag = async (tag) => {
+    if (!window.confirm(`Delete tag "${tag}" from all agents? This cannot be undone.`)) {
+      return
+    }
+    try {
+      const Auth = AuthToken()
+      await axios.post(
+        Apis.deleteAgentTag,
+        { tag },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      setUniqueTags((prev) => prev.filter((t) => t !== tag))
+      setSelectedTags((prev) => prev.filter((t) => t !== tag))
+      setTagFilterLoader(true)
+      getAgents(false, search, true, selectedTags.filter((t) => t !== tag), () =>
+        setTagFilterLoader(false),
+      )
+      fetchAgentTags()
+      setShowSnackMsg({
+        type: SnackbarTypes.success,
+        message: `Tag "${tag}" deleted from all agents`,
+        isVisible: true,
+      })
+    } catch (err) {
+      console.error('DeleteAgentTag error:', err)
+      setShowSnackMsg({
+        type: SnackbarTypes.error,
+        message: err?.response?.data?.message || 'Failed to delete tag',
+        isVisible: true,
+      })
+    }
+  }
+
   //function to add new agent by more agents popup
   const handleAddAgentByMoreAgentsPopup = () => {
     try {
