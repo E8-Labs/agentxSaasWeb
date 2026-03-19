@@ -131,6 +131,8 @@ import { TrashIcon } from 'lucide-react'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import LeadDetailsLoader from '@/components/common/LeadDetailsLoader'
 
+
+
 const LeadDetails = ({
   showDetailsModal,
   selectedLead,
@@ -3153,9 +3155,7 @@ const LeadDetails = ({
           {/* Campaign Stat modal (activity view email bubble) */}
           <Dialog open={showCampaignStatModal} onOpenChange={(open) => { if (!open) setShowCampaignStatModal(false) }}>
             <DialogContent className="max-w-sm" hideCloseButton={false}>
-              <DialogHeader>
-                <DialogTitle>Campaign Stat</DialogTitle>
-              </DialogHeader>
+              <DialogTitle>Campaign Stat</DialogTitle>
               {campaignStatSubject && (
                 <p className="text-sm text-muted-foreground truncate" title={campaignStatSubject}>
                   {campaignStatSubject}
