@@ -127,12 +127,7 @@ import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import { TrashIcon } from 'lucide-react'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import LeadDetailsLoader from '@/components/common/LeadDetailsLoader'
-<<<<<<< HEAD
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-=======
-
->>>>>>> fix/Ham/BugSheet-March-19
-
 
 const LeadDetails = ({
   showDetailsModal,
