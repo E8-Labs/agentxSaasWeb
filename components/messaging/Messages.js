@@ -32,7 +32,6 @@ import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import MessageSettingsModal from './MessageSettingsModal'
 import AiChatModal from './AiChatModal'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { messageMarkdownToHtml } from './messageMarkdown'
 import SuperHumanModal from './SuperHumanModal'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -141,7 +140,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [emailTimelineMessages, setEmailTimelineMessages] = useState([])
   const [emailTimelineLoading, setEmailTimelineLoading] = useState(false)
   const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
-  const [showCampaignStatModal, setShowCampaignStatModal] = useState(false)
+  const [campaignStatAnchorMessageId, setCampaignStatAnchorMessageId] = useState(null)
   const [campaignStatSubject, setCampaignStatSubject] = useState('')
   const [campaignStatLoading, setCampaignStatLoading] = useState(false)
   const [campaignStatData, setCampaignStatData] = useState(null)
@@ -3603,9 +3602,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [selectedUser])
 
-  const handleCampaignStatClick = useCallback(async (subject) => {
-    setCampaignStatSubject(subject ?? '')
-    setShowCampaignStatModal(true)
+  const handleCampaignStatClick = useCallback(async (message) => {
+    const subject = message?.subject ?? ''
+    setCampaignStatAnchorMessageId(message?.id ?? null)
+    setCampaignStatSubject(subject)
     setCampaignStatData(null)
     setCampaignStatLoading(true)
     try {
@@ -3620,7 +3620,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         setCampaignStatData(null)
         return
       }
-      const params = { subject: subject ?? '' }
+      const params = { subject }
       if (selectedUser?.id) params.userId = selectedUser.id
       const response = await axios.get(Apis.getEmailCampaignStats, {
         params,
@@ -3641,6 +3641,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       setCampaignStatLoading(false)
     }
   }, [selectedUser?.id])
+
+  const handleCampaignStatMouseLeave = useCallback(() => {
+    setCampaignStatAnchorMessageId(null)
+  }, [])
 
   // Fetch email timeline when modal opens
   useEffect(() => {
@@ -4250,6 +4254,11 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                           onOpenEmailTimeline={handleOpenEmailTimeline}
                           updateComposerFromMessage={updateComposerFromMessage}
                           onCampaignStatClick={handleCampaignStatClick}
+                          onCampaignStatMouseLeave={handleCampaignStatMouseLeave}
+                          campaignStatAnchorMessageId={campaignStatAnchorMessageId}
+                          campaignStatData={campaignStatData}
+                          campaignStatLoading={campaignStatLoading}
+                          campaignStatSubject={campaignStatSubject}
                           onOpenMessageSettings={handleOpenMessageSettings}
                           onOpenAiChat={setAiChatContext}
                           onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
@@ -4547,52 +4556,6 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                   </div>
                 </div>
               )}
-
-              {/* Campaign Stat Modal */}
-              <Dialog open={showCampaignStatModal} onOpenChange={(open) => { if (!open) setShowCampaignStatModal(false) }}>
-                <DialogContent className="max-w-sm" hideCloseButton={false}>
-                  <DialogHeader>
-                    <DialogTitle>Campaign Stat</DialogTitle>
-                  </DialogHeader>
-                  {campaignStatSubject && (
-                    <p className="text-sm text-muted-foreground truncate" title={campaignStatSubject}>
-                      {campaignStatSubject}
-                    </p>
-                  )}
-                  {campaignStatLoading ? (
-                    <p className="text-sm text-muted-foreground">Loading…</p>
-                  ) : campaignStatData ? (
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span>Delivered</span>
-                        <span className="font-medium">
-                          {campaignStatData.sent
-                            ? `${Math.round((campaignStatData.delivered / campaignStatData.sent) * 100)}%`
-                            : '0%'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>Opened</span>
-                        <span className="font-medium">
-                          {campaignStatData.sent
-                            ? `${Math.round((campaignStatData.opened / campaignStatData.sent) * 100)}%`
-                            : '0%'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>Clicked</span>
-                        <span className="font-medium">
-                          {campaignStatData.sent
-                            ? `${Math.round((campaignStatData.clicked / campaignStatData.sent) * 100)}%`
-                            : '0%'}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    !campaignStatLoading && <p className="text-sm text-muted-foreground">No data available.</p>
-                  )}
-                </DialogContent>
-              </Dialog>
 
               {/* Email Timeline Modal */}
               {

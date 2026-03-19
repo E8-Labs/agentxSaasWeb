@@ -43,6 +43,11 @@ const ConversationView = ({
   onOpenEmailTimeline,
   updateComposerFromMessage,
   onCampaignStatClick,
+  onCampaignStatMouseLeave,
+  campaignStatAnchorMessageId,
+  campaignStatData,
+  campaignStatLoading,
+  campaignStatSubject,
   onOpenMessageSettings,
   onOpenAiChat,
   onGenerateCallSummaryDrafts,
@@ -433,6 +438,11 @@ const ConversationView = ({
                                   isLastMessage={isLastMessage}
                                   updateComposerFromMessage={updateComposerFromMessage}
                                   onCampaignStatClick={onCampaignStatClick}
+                                  onCampaignStatMouseLeave={onCampaignStatMouseLeave}
+                                  campaignStatAnchorMessageId={campaignStatAnchorMessageId}
+                                  campaignStatData={campaignStatData}
+                                  campaignStatLoading={campaignStatLoading}
+                                  campaignStatSubject={campaignStatSubject}
                                 />
                               </div>
                               {!isOutbound && onReplyClick && (
