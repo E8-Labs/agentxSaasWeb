@@ -154,7 +154,7 @@ export default function SettingsTabContent({
         setPendingSMSCount(Number(updatedData.pendingSMSCount) || 0)
         console.log("leadSettingsProp passed updatedData are", updatedData)
         toast.success(
-          checked ? 'Cadence disabled - pending calls have been skipped' : 'Cadence enabled',
+          checked ? 'Cadence disabled - pending cadence steps have been skipped' : 'Cadence enabled',
         )
         onSettingsUpdate?.(updatedData)
       } else {
