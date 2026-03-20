@@ -17,6 +17,21 @@ import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
 import { TypographyBody, TypographyBodySemibold, TypographyCaption, TypographyBodyMedium } from '@/lib/typography'
 
+const parseDateOnlyToLocalDate = (dateStr) => {
+  if (!dateStr || typeof dateStr !== 'string') return null
+  const [y, m, d] = dateStr.split('-').map(Number)
+  if (!y || !m || !d) return null
+  return new Date(y, m - 1, d)
+}
+
+const formatLocalDateToDateOnly = (date) => {
+  if (!date) return null
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 // Time picker helpers (value: "HH:mm" 24h)
 function parseTime24(value) {
   if (!value || !/^\d{1,2}:\d{2}$/.test(value)) return { hour12: 12, minute: 0, ampm: 'PM' }
@@ -152,7 +167,7 @@ const TaskForm = ({
   const [description, setDescription] = useState(task?.description || initialDescription || '')
   const [priority, setPriority] = useState(task?.priority || 'no-priority')
   const [status, setStatus] = useState(task?.status || 'todo')
-  const [dueDate, setDueDate] = useState(task?.dueDate ? new Date(task.dueDate) : null)
+  const [dueDate, setDueDate] = useState(parseDateOnlyToLocalDate(task?.dueDate))
   const [dueTime, setDueTime] = useState(task?.dueTime || '')
   const [selectedAssignees, setSelectedAssignees] = useState(
     task?.assignedMembers?.map((m) => m.id) || defaultAssignees || [],
@@ -335,7 +350,7 @@ const TaskForm = ({
       description: description.trim() || null,
       priority,
       status,
-      dueDate: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
+      dueDate: formatLocalDateToDateOnly(dueDate),
       dueTime: dueTime ? dueTime : format(new Date(), 'HH:mm'),
       assignedTo: selectedAssignees,
       leadId,
@@ -525,7 +540,7 @@ const TaskForm = ({
             onOpenChange={(open) => {
               if (!open && !isSavingDate) {
                 // Save changes when closing if this is an edit form
-                if (task && (dueDate?.getTime() !== (task.dueDate ? new Date(task.dueDate).getTime() : null) || dueTime !== (task.dueTime || ''))) {
+                if (task && (formatLocalDateToDateOnly(dueDate) !== (task.dueDate || null) || dueTime !== (task.dueTime || ''))) {
                   // For edit mode, we'd need to call onSubmit, but since this is just the form,
                   // the parent will handle it when the form is submitted
                   // For now, just close

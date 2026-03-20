@@ -22,6 +22,21 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
+const parseDateOnlyToLocalDate = (dateStr) => {
+  if (!dateStr || typeof dateStr !== 'string') return null
+  const [y, m, d] = dateStr.split('-').map(Number)
+  if (!y || !m || !d) return null
+  return new Date(y, m - 1, d)
+}
+
+const formatLocalDateToDateOnly = (date) => {
+  if (!date) return null
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 // Time picker helpers (value: "HH:mm" 24h) - same as TaskForm.js
 function parseTime24(value) {
   if (!value || !/^\d{1,2}:\d{2}$/.test(value)) return { hour12: 12, minute: 0, ampm: 'PM' }
@@ -155,7 +170,8 @@ const TaskCard = ({
   // Format due date
   const formatDueDate = () => {
     if (!task.dueDate) return null
-    const dueDate = new Date(task.dueDate)
+    const dueDate = parseDateOnlyToLocalDate(task.dueDate)
+    if (!dueDate) return null
     const now = new Date()
     now.setHours(0, 0, 0, 0)
     dueDate.setHours(0, 0, 0, 0)
@@ -262,14 +278,14 @@ const TaskCard = ({
   // Date picker state
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [timePickerOpen, setTimePickerOpen] = useState(false)
-  const [dueDate, setDueDate] = useState(task.dueDate ? new Date(task.dueDate) : null)
+  const [dueDate, setDueDate] = useState(parseDateOnlyToLocalDate(task.dueDate))
   const [dueTime, setDueTime] = useState(task.dueTime || '')
   const [isSavingDate, setIsSavingDate] = useState(false)
   const savingRef = useRef(false) // Prevent duplicate saves
 
   // Sync state with task prop changes
   useEffect(() => {
-    setDueDate(task.dueDate ? new Date(task.dueDate) : null)
+    setDueDate(parseDateOnlyToLocalDate(task.dueDate))
     setDueTime(task.dueTime || '')
   }, [task.dueDate, task.dueTime])
 
@@ -281,7 +297,7 @@ const TaskCard = ({
     setIsSavingDate(true)
     try {
       await onUpdate(task.id, {
-        dueDate: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
+        dueDate: formatLocalDateToDateOnly(dueDate),
         dueTime: dueTime ? dueTime : format(new Date(), 'HH:mm'),
       })
     } finally {
@@ -419,9 +435,9 @@ const TaskCard = ({
           // Only handle closing if not already saving
           if (!open && !isSavingDate && !savingRef.current) {
             // Check if date/time changed
-            const taskDueDate = task.dueDate ? new Date(task.dueDate) : null
+            const taskDueDate = task.dueDate || null
             const taskDueTime = task.dueTime || ''
-            const hasChanges = dueDate?.getTime() !== taskDueDate?.getTime() || dueTime !== taskDueTime
+            const hasChanges = formatLocalDateToDateOnly(dueDate) !== taskDueDate || dueTime !== taskDueTime
             
             if (hasChanges) {
               // Only save if there are actual changes
