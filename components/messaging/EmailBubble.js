@@ -175,7 +175,6 @@ const EmailBubble = ({
               <button
                 type="button"
                 className="p-1 rounded text-gray-500 hover:text-gray-700 hover:bg-black/5 shrink-0"
-                title="Campaign stat"
                 aria-label="Campaign stat"
               >
                 <BarChart2 size={15} />
@@ -211,7 +210,7 @@ const EmailBubble = ({
                     ) : campaignStatData ? (
                       <div className="space-y-2 text-[12px]">
                         <div className="flex justify-between items-center gap-4">
-                          <span className="text-[#666666]">Delivered</span>
+                          <span className="text-[#666666]">{campaignStatData.delivered} Delivered</span>
                           <span className="font-medium">
                             {campaignStatData.sent
                               ? `${Math.round((campaignStatData.delivered / campaignStatData.sent) * 100)}%`
@@ -219,7 +218,7 @@ const EmailBubble = ({
                           </span>
                         </div>
                         <div className="flex justify-between items-center gap-4">
-                          <span className="text-[#666666]">Opened</span>
+                          <span className="text-[#666666]">{campaignStatData.opened} Opened</span>
                           <span className="font-medium">
                             {campaignStatData.sent
                               ? `${Math.round((campaignStatData.opened / campaignStatData.sent) * 100)}%`
@@ -227,7 +226,7 @@ const EmailBubble = ({
                           </span>
                         </div>
                         <div className="flex justify-between items-center gap-4">
-                          <span className="text-[#666666]">Clicked</span>
+                          <span className="text-[#666666]">{campaignStatData.clicked} Clicked</span>
                           <span className="font-medium">
                             {campaignStatData.sent
                               ? `${Math.round((campaignStatData.clicked / campaignStatData.sent) * 100)}%`

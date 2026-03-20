@@ -131,7 +131,7 @@ export default function AgentsListForThread({
       setSaving(true)
       try {
         await onSocialAgentSaved?.(agentId)
-        toast.success('Agent for social messages updated')
+        toast.success('Agent to handle DMs updated')
       } catch (error) {
         console.error('Error updating social agent:', error)
         toast.error('Failed to update social agent')

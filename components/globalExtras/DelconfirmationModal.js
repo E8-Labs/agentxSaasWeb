@@ -48,7 +48,7 @@ const DelconfirmationModal = ({
                             className="font-semibold"
                             style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
                         >
-                            Delete Confirmation
+                            Logout
                         </span>
                         <CloseBtn onClick={handleClose} />
                     </div>
@@ -78,7 +78,7 @@ const DelconfirmationModal = ({
                             onClick={() => onContinue()}
                             className="flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold bg-red text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] outline-none"
                         >
-                            Delete
+                            Logout
                         </button>
                     </div>
                 </Box>
