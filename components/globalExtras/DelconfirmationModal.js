@@ -55,7 +55,7 @@ const DelconfirmationModal = ({
 
                     {/* Body */}
                     <div
-                        className="px-4 py-4"
+                        className="px-4 py-4 w-full text-center"
                         style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
                     >
                         Are you sure you want to logout of this account?

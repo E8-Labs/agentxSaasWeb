@@ -16,6 +16,7 @@ import { formatNextStepsForDescription } from './activityUtils'
 import { toast } from 'sonner'
 import { TypographyH3 } from '@/lib/typography'
 import { cn } from '@/lib/utils'
+import { PortalZIndexProvider } from '@/components/providers/portal-z-index-provider'
 
 const CreateTaskFromNextStepsModal = ({
   open,
@@ -111,7 +112,10 @@ const CreateTaskFromNextStepsModal = ({
 
     try {
       setIsSubmitting(true)
-      const response = await createTask(taskData, selectedUser?.id)
+      console.log("Task data to pass is", taskData)
+      console.log("Selected user id to pass is", selectedUser)
+      const userSelectedId = selectedUser?.invitedUser?.id || selectedUser?.id
+      const response = await createTask(taskData, userSelectedId)
       if (response.status) {
         toast.success('Task created successfully')
 
@@ -171,25 +175,27 @@ const CreateTaskFromNextStepsModal = ({
         <div className="border-b border-gray-200 mx-6 hidden" aria-hidden />
 
         <div className="flex-1 overflow-y-auto px-4 py-3">
-          <TaskForm
-            task={initialTaskForEdit}
-            teamMembers={teamMembers}
-            onSubmit={handleSubmit}
-            onCancel={onClose}
-            leadId={leadId}
-            callId={callId}
-            showButtons={false}
-            shouldShowLeadMention={true}
-            leadName={leadName}
-            initialDescription={formattedDescription}
-            hideBorder={true}
-            isValidForm={isValidForm}
-            setIsValidForm={setIsValidForm}
-            selectedUser={selectedUser}
-            elevatedZIndex={elevatedZIndex}
-            defaultAssignees={defaultAssignees.length > 0 ? defaultAssignees : undefined}
-            requireDescription={!cadenceStepMode && !isEditingCadenceTask}
-          />
+          <PortalZIndexProvider value={elevatedZIndex ? 6100 : null}>
+            <TaskForm
+              task={initialTaskForEdit}
+              teamMembers={teamMembers}
+              onSubmit={handleSubmit}
+              onCancel={onClose}
+              leadId={leadId}
+              callId={callId}
+              showButtons={false}
+              shouldShowLeadMention={true}
+              leadName={leadName}
+              initialDescription={formattedDescription}
+              hideBorder={true}
+              isValidForm={isValidForm}
+              setIsValidForm={setIsValidForm}
+              selectedUser={selectedUser}
+              elevatedZIndex={elevatedZIndex}
+              defaultAssignees={defaultAssignees.length > 0 ? defaultAssignees : undefined}
+              requireDescription={!cadenceStepMode && !isEditingCadenceTask}
+            />
+          </PortalZIndexProvider>
         </div>
 
         {/* Action Buttons - Fixed at bottom */}

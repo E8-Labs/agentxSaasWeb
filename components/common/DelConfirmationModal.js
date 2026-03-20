@@ -52,7 +52,7 @@ const DelConfirmationModal = ({
                             borderRadius: '13px',
                         }}
                     >
-                        <div className="font-bold text-xl mt-6">
+                        <div className="font-bold text-xl mt-6 w-full text-center">
                             Are you sure you want to delete this {title?.toLowerCase()}?
                         </div>
                         <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
