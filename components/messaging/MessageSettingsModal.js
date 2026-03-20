@@ -27,6 +27,7 @@ import { OpenAiLogoIcon } from '@phosphor-icons/react'
 import Image from 'next/image'
 import { useUser } from '@/hooks/redux-hooks'
 import { UpgradeTagWithModal } from '@/components/constants/constants'
+import { getAgentsListImage } from '@/utilities/agentUtilities'
 
 // Resolve planCapabilities from Redux or localStorage (localStorage can have fresher full profile with planCapabilities)
 const getEffectivePlanCapabilities = (reduxUser) => {
@@ -88,7 +89,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
   const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('') // Server-provided masked key (*** + last 6 chars) for display/restore
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
   const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' | 'anthropic' for AI integration
-  const [socialAgentsList, setSocialAgentsList] = useState([]) // flat list of { id, name } for social agent dropdown
+  const [socialAgentsList, setSocialAgentsList] = useState([]) // flat list of { id, name, raw } for social agent dropdown
 
   /** Normalize agentSettings from API: may be string (JSON) or object; always return object or null */
   const parseAgentSettings = (raw) => {
@@ -321,12 +322,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
         (m.agents || []).map((a) => ({
           id: a.id,
           name: a.name || m.name || `Agent ${a.id}`,
+          raw: a,
         }))
       )
       setSocialAgentsList(flat)
     } catch (err) {
       console.error('Error fetching agents for social settings:', err)
       setSocialAgentsList([])
+    }
+  }
+
+  const handleSocialAgentsDropdownOpenChange = (isOpen) => {
+    if (isOpen) {
+      console.log('Social DMs agent dropdown — agents list:', socialAgentsList)
     }
   }
 
@@ -388,69 +396,69 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
         if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
           try {
             if (existingIntegrationId) {
-            // Update existing integration for this provider (send only apiKey so provider is not overwritten)
-            const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
-            const updateResponse = await axios.put(
-              updateUrl,
-              {
-                apiKey: trimmedApiKey,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
+              // Update existing integration for this provider (send only apiKey so provider is not overwritten)
+              const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+              const updateResponse = await axios.put(
+                updateUrl,
+                {
+                  apiKey: trimmedApiKey,
                 },
-              }
-            )
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
 
-            if (updateResponse.data?.status) {
-              integrationId = existingIntegrationId
-              setExistingApiKey(trimmedApiKey)
-              setIsEditingApiKey(false)
-              const newMasked = maskApiKey(trimmedApiKey)
-              setStoredApiKeyMasked(newMasked)
-              setApiKey(newMasked)
-              toast.success('API key updated successfully')
+              if (updateResponse.data?.status) {
+                integrationId = existingIntegrationId
+                setExistingApiKey(trimmedApiKey)
+                setIsEditingApiKey(false)
+                const newMasked = maskApiKey(trimmedApiKey)
+                setStoredApiKeyMasked(newMasked)
+                setApiKey(newMasked)
+                toast.success('API key updated successfully')
+              } else {
+                throw new Error(updateResponse.data?.message || 'Failed to update API key')
+              }
             } else {
-              throw new Error(updateResponse.data?.message || 'Failed to update API key')
-            }
-          } else {
-            // Create new integration
-            const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
-            const createResponse = await axios.post(
-              createUrl,
-              {
-                provider: selectedProvider,
-                apiKey: trimmedApiKey,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
+              // Create new integration
+              const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
+              const createResponse = await axios.post(
+                createUrl,
+                {
+                  provider: selectedProvider,
+                  apiKey: trimmedApiKey,
                 },
-              }
-            )
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
 
-            if (createResponse.data?.status && createResponse.data?.data) {
-              integrationId = createResponse.data.data.id
-              setExistingIntegrationId(integrationId)
-              setExistingApiKey(trimmedApiKey)
-              setIsEditingApiKey(false)
-              const newMasked = maskApiKey(trimmedApiKey)
-              setStoredApiKeyMasked(newMasked)
-              setApiKey(newMasked)
-              setSettings(prev => ({ ...prev, aiIntegrationId: integrationId }))
-              await fetchAiIntegrations()
-            } else {
-              throw new Error(createResponse.data?.message || 'Failed to save API key')
+              if (createResponse.data?.status && createResponse.data?.data) {
+                integrationId = createResponse.data.data.id
+                setExistingIntegrationId(integrationId)
+                setExistingApiKey(trimmedApiKey)
+                setIsEditingApiKey(false)
+                const newMasked = maskApiKey(trimmedApiKey)
+                setStoredApiKeyMasked(newMasked)
+                setApiKey(newMasked)
+                setSettings(prev => ({ ...prev, aiIntegrationId: integrationId }))
+                await fetchAiIntegrations()
+              } else {
+                throw new Error(createResponse.data?.message || 'Failed to save API key')
+              }
             }
+          } catch (apiKeyError) {
+            console.error('Error saving API key:', apiKeyError)
+            setApiKeyError(apiKeyError.response?.data?.message || 'Failed to save API key. Please check the key and try again.')
+            setSaving(false)
+            return
           }
-        } catch (apiKeyError) {
-          console.error('Error saving API key:', apiKeyError)
-          setApiKeyError(apiKeyError.response?.data?.message || 'Failed to save API key. Please check the key and try again.')
-          setSaving(false)
-          return
-        }
         }
       }
 
@@ -458,29 +466,29 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
       const agentSettings = parseAgentSettings(settings.agentSettings)
       const payload = socialOnly
         ? {
-            socialReplyDelayEnabled: settings.socialReplyDelayEnabled,
-            socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
-            socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
-            socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
-          }
+          socialReplyDelayEnabled: settings.socialReplyDelayEnabled,
+          socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
+          socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
+          socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+        }
         : {
-            aiIntegrationId: integrationId || null,
-            replyDelayEnabled: settings.replyDelayEnabled,
-            replyDelaySeconds: settings.replyDelayEnabled ? settings.replyDelaySeconds : null,
-            saveAsDraftEnabled: settings.saveAsDraftEnabled,
-            socialReplyDelayEnabled: settings.socialReplyDelayEnabled,
-            socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
-            socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
-            socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
-            communicationStyle: settings.communicationStyle ?? null,
-            tailoringCommunication: settings.tailoringCommunication ?? null,
-            sentenceStructure: settings.sentenceStructure ?? null,
-            expressingEnthusiasm: settings.expressingEnthusiasm ?? null,
-            explainingComplexConcepts: settings.explainingComplexConcepts ?? null,
-            givingUpdates: settings.givingUpdates ?? null,
-            handlingObjections: settings.handlingObjections ?? null,
-            agentSettings: agentSettings ?? null,
-          }
+          aiIntegrationId: integrationId || null,
+          replyDelayEnabled: settings.replyDelayEnabled,
+          replyDelaySeconds: settings.replyDelayEnabled ? settings.replyDelaySeconds : null,
+          saveAsDraftEnabled: settings.saveAsDraftEnabled,
+          socialReplyDelayEnabled: settings.socialReplyDelayEnabled,
+          socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
+          socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
+          socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+          communicationStyle: settings.communicationStyle ?? null,
+          tailoringCommunication: settings.tailoringCommunication ?? null,
+          sentenceStructure: settings.sentenceStructure ?? null,
+          expressingEnthusiasm: settings.expressingEnthusiasm ?? null,
+          explainingComplexConcepts: settings.explainingComplexConcepts ?? null,
+          givingUpdates: settings.givingUpdates ?? null,
+          handlingObjections: settings.handlingObjections ?? null,
+          agentSettings: agentSettings ?? null,
+        }
 
       if (selectedUser?.id) {
         payload.userId = selectedUser.id
@@ -1031,363 +1039,385 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                 ) : (
                   <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px]">
                     {socialOnly ? (
-                    /* Social-only: only the Social (Facebook & Instagram DMs) block */
-                    <div className="flex flex-col gap-3 pt-3 pb-4">
-                      <h3 className="text-[14px] font-semibold text-foreground">Social (Facebook & Instagram DMs)</h3>
-                      <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
-                        <div className="flex items-center justify-between h-10 min-h-0">
-                          <div className="flex items-center gap-2">
-                            <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                    <Info size={16} />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
-                                  <p className="text-xs">Auto-reply for Facebook and Instagram DMs after a delay.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                          <Switch checked={settings.socialReplyDelayEnabled} onCheckedChange={handleSocialReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
-                        </div>
-                        {settings.socialReplyDelayEnabled && (
-                          <div className="relative">
-                            <Input type="number" placeholder="Delay (seconds)" value={settings.socialReplyDelaySeconds ?? ''} onChange={(e) => handleSocialDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
-                            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between h-10 min-h-0">
-                          <div className="flex items-center gap-2">
-                            <label className="text-[14px] font-medium text-foreground">Save as draft</label>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                    <Info size={16} />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
-                                  <p className="text-xs">Save social auto-replies as drafts for you to review.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                          <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[14px] font-medium text-foreground">Agent for social messages</label>
-                        <Select value={settings.socialSelectedAgentId != null ? String(settings.socialSelectedAgentId) : 'none'} onValueChange={(v) => setSettings({ ...settings, socialSelectedAgentId: v === 'none' ? null : Number(v) })}>
-                          <SelectTrigger className="h-10 w-full">
-                            <SelectValue placeholder="Select agent" />
-                          </SelectTrigger>
-                          <SelectContent className="z-[1500]">
-                            <SelectItem value="none">None</SelectItem>
-                            {socialAgentsList.map((a) => (
-                              <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    ) : (
-                    <>
-                    {/* API Key Section */}
-                    <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-black/[0.06]">
-                      <label className="text-[14px] font-medium text-foreground">AI Provider</label>
-                      <RadioGroup
-                        value={selectedProvider}
-                        onValueChange={(v) => setSelectedProvider(v)}
-                        className="flex flex-wrap gap-4"
-                      >
-                        <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                          <RadioGroupItem value="openai" id="ai-provider-openai" />
-                          <OpenAiLogoIcon size={19} className="text-brand-primary" />
-                          <span className="text-[14px] text-foreground">OpenAI</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                          <RadioGroupItem value="google" id="ai-provider-google" />
-                          <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
-                          <span className="text-[14px] text-foreground">Gemini</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                          <RadioGroupItem value="anthropic" id="ai-provider-anthropic" />
-                          <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
-                          <span className="text-[14px] text-foreground">Anthropic</span>
-                        </label>
-                      </RadioGroup>
-
-                      <p className="text-sm text-gray-600">
-                        {selectedProvider === 'google'
-                          ? 'Add Gemini API key to enable AI text + email + chat.'
-                          : selectedProvider === 'anthropic'
-                            ? 'Add Anthropic API key to enable AI text + email + chat.'
-                            : 'Add ChatGPT API key to enable AI text + email + chat.'}
-                      </p>
-                      <Input
-                        type={isEditingApiKey ? "password" : "text"}
-                        placeholder={
-                          existingIntegrationId
-                            ? 'Enter new API key to update'
-                            : selectedProvider === 'google'
-                              ? 'Enter your Gemini API key'
-                              : selectedProvider === 'anthropic'
-                                ? 'Enter your Anthropic API key'
-                                : 'Enter your OpenAI API key'
-                        }
-                        value={apiKey}
-                        onChange={(e) => {
-                          const newValue = e.target.value
-                          const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
-                          const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
-                          const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
-                          if (!isEditingApiKey && (isPlaceholder || isMaskedDisplay || (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))) {
-                            setIsEditingApiKey(true)
-                            setApiKey(newValue)
-                          } else {
-                            setApiKey(newValue)
-                          }
-                          setApiKeyError('')
-                        }}
-                        onBlur={() => {
-                          if (!apiKey.trim()) {
-                            setIsEditingApiKey(false)
-                            if (storedApiKeyMasked) {
-                              setApiKey(storedApiKeyMasked)
-                            } else if (existingApiKey) {
-                              setApiKey(maskApiKey(existingApiKey))
-                            } else if (existingIntegrationId) {
-                              setApiKey('••••••••••••••••••••••••••••••••')
-                            }
-                          }
-                        }}
-                        className={cn(`h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary ${apiKey === "••••••••••••••••••••••••••••••••" && "text-gray-400"}`)}
-                      />
-                      {apiKeyError && (
-                        <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
-                      )}
-                    </div>
-
-                    {/* Email & text messages: Set Auto Reply + Save as Draft */}
-                    <h3 className="text-[14px] font-semibold text-foreground pt-1">Email & text messages</h3>
-                    <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
-                      <div className="flex items-center justify-between h-10 min-h-0">
-                        <div className="flex items-center gap-2">
-                          <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                  <Info size={16} />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                align="start"
-                                sideOffset={8}
-                                className="max-w-xs bg-black text-white z-[1500]"
-                                collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
-                              >
-                                <p className="text-xs">
-                                  This allows your AI to reply back to emails and text after a certain time. By default, this is set to 30 seconds.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <Switch
-                          checked={settings.replyDelayEnabled}
-                          onCheckedChange={handleReplyDelayToggle}
-                          className="data-[state=checked]:bg-brand-primary"
-                        />
-                      </div>
-                      {settings.replyDelayEnabled && (
-                        <div className="relative">
-                          <Input
-                            type="number"
-                            placeholder="Set delay time (in seconds)"
-                            value={settings.replyDelaySeconds || ''}
-                            onChange={(e) => handleDelaySecondsChange(e.target.value)}
-                            min={0}
-                            className="w-full pr-10"
-                          />
-                          <span
-                            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
-                            aria-hidden
+                      /* Social-only: only the Social (Facebook & Instagram DMs) block */
+                      <div className="flex flex-col gap-3 pt-3 pb-4 mt-2">
+                        <h3 className="text-[14px] font-semibold text-foreground">Social (Facebook & Instagram DMs)</h3>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[14px] font-medium text-foreground">Select Agent to handle DMs</label>
+                          <Select
+                            value={settings.socialSelectedAgentId != null ? String(settings.socialSelectedAgentId) : 'none'}
+                            onValueChange={(v) => setSettings({ ...settings, socialSelectedAgentId: v === 'none' ? null : Number(v) })}
+                            onOpenChange={handleSocialAgentsDropdownOpenChange}
                           >
-                            sec
-                          </span>
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue placeholder="Select agent" />
+                            </SelectTrigger>
+                            <SelectContent className="z-[1500]">
+                              <SelectItem value="none">None</SelectItem>
+                              {socialAgentsList.map((a) => (
+                                <SelectItem key={a.id} value={String(a.id)}>
+                                  <span className="flex items-center gap-2 min-w-0">
+                                    <span className="shrink-0 flex items-center justify-center">
+                                      {getAgentsListImage(a.raw, 24, 24)}
+                                    </span>
+                                    <span className="truncate">{a.name}</span>
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
-                      )}
-                      <div className="flex items-center justify-between h-10 min-h-0">
-                        <div className="flex items-center gap-2">
-                          <label className="text-[14px] font-medium text-foreground">Save as draft</label>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                  <Info size={16} />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                align="start"
-                                sideOffset={8}
-                                className="max-w-xs bg-black text-white z-[1500]"
-                                collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                        <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Auto-reply for Facebook and Instagram DMs after a delay.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.socialReplyDelayEnabled} onCheckedChange={handleSocialReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
+                          {settings.socialReplyDelayEnabled && (
+                            <div className="relative">
+                              <Input type="number" placeholder="Delay (seconds)" value={settings.socialReplyDelaySeconds ?? ''} onChange={(e) => handleSocialDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
+                              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Save social auto-replies as drafts for you to review.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* API Key Section */}
+                        <div className="flex flex-col gap-3 pt-3 pb-4 border-b border-black/[0.06]">
+                          <label className="text-[14px] font-medium text-foreground">AI Provider</label>
+                          <RadioGroup
+                            value={selectedProvider}
+                            onValueChange={(v) => setSelectedProvider(v)}
+                            className="flex flex-wrap gap-4"
+                          >
+                            <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                              <RadioGroupItem value="openai" id="ai-provider-openai" />
+                              <OpenAiLogoIcon size={19} className="text-brand-primary" />
+                              <span className="text-[14px] text-foreground">OpenAI</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                              <RadioGroupItem value="google" id="ai-provider-google" />
+                              <Image src="/gemini.png" alt="Gemini" width={22} height={22} className="text-brand-primary" />
+                              <span className="text-[14px] text-foreground">Gemini</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
+                              <RadioGroupItem value="anthropic" id="ai-provider-anthropic" />
+                              <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
+                              <span className="text-[14px] text-foreground">Anthropic</span>
+                            </label>
+                          </RadioGroup>
+
+                          <p className="text-sm text-gray-600">
+                            {selectedProvider === 'google'
+                              ? 'Add Gemini API key to enable AI text + email + chat.'
+                              : selectedProvider === 'anthropic'
+                                ? 'Add Anthropic API key to enable AI text + email + chat.'
+                                : 'Add ChatGPT API key to enable AI text + email + chat.'}
+                          </p>
+                          <Input
+                            type={isEditingApiKey ? "password" : "text"}
+                            placeholder={
+                              existingIntegrationId
+                                ? 'Enter new API key to update'
+                                : selectedProvider === 'google'
+                                  ? 'Enter your Gemini API key'
+                                  : selectedProvider === 'anthropic'
+                                    ? 'Enter your Anthropic API key'
+                                    : 'Enter your OpenAI API key'
+                            }
+                            value={apiKey}
+                            onChange={(e) => {
+                              const newValue = e.target.value
+                              const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
+                              const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
+                              const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
+                              if (!isEditingApiKey && (isPlaceholder || isMaskedDisplay || (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))) {
+                                setIsEditingApiKey(true)
+                                setApiKey(newValue)
+                              } else {
+                                setApiKey(newValue)
+                              }
+                              setApiKeyError('')
+                            }}
+                            onBlur={() => {
+                              if (!apiKey.trim()) {
+                                setIsEditingApiKey(false)
+                                if (storedApiKeyMasked) {
+                                  setApiKey(storedApiKeyMasked)
+                                } else if (existingApiKey) {
+                                  setApiKey(maskApiKey(existingApiKey))
+                                } else if (existingIntegrationId) {
+                                  setApiKey('••••••••••••••••••••••••••••••••')
+                                }
+                              }
+                            }}
+                            className={cn(`h-10 focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary ${apiKey === "••••••••••••••••••••••••••••••••" && "text-gray-400"}`)}
+                          />
+                          {apiKeyError && (
+                            <p className="text-xs text-red-600 mt-1">{apiKeyError}</p>
+                          )}
+                        </div>
+
+                        {/* Email & text messages: Set Auto Reply + Save as Draft */}
+                        <h3 className="text-[14px] font-semibold text-foreground pt-1">Email & text messages</h3>
+                        <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    align="start"
+                                    sideOffset={8}
+                                    className="max-w-xs bg-black text-white z-[1500]"
+                                    collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                                  >
+                                    <p className="text-xs">
+                                      This allows your AI to reply back to emails and text after a certain time. By default, this is set to 30 seconds.
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch
+                              checked={settings.replyDelayEnabled}
+                              onCheckedChange={handleReplyDelayToggle}
+                              className="data-[state=checked]:bg-brand-primary"
+                            />
+                          </div>
+                          {settings.replyDelayEnabled && (
+                            <div className="relative">
+                              <Input
+                                type="number"
+                                placeholder="Set delay time (in seconds)"
+                                value={settings.replyDelaySeconds || ''}
+                                onChange={(e) => handleDelaySecondsChange(e.target.value)}
+                                min={0}
+                                className="w-full pr-10"
+                              />
+                              <span
+                                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+                                aria-hidden
                               >
-                                <p className="text-xs">
-                                  Have your AI draft the response for you to review before sending.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                                sec
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    align="start"
+                                    sideOffset={8}
+                                    className="max-w-xs bg-black text-white z-[1500]"
+                                    collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                                  >
+                                    <p className="text-xs">
+                                      Have your AI draft the response for you to review before sending.
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch
+                              checked={settings.saveAsDraftEnabled}
+                              onCheckedChange={handleSaveAsDraftToggle}
+                              className="data-[state=checked]:bg-brand-primary"
+                            />
+                          </div>
                         </div>
-                        <Switch
-                          checked={settings.saveAsDraftEnabled}
-                          onCheckedChange={handleSaveAsDraftToggle}
-                          className="data-[state=checked]:bg-brand-primary"
-                        />
-                      </div>
-                    </div>
 
-                    {/* Social (Facebook & Instagram DMs) */}
-                    <h3 className="text-[14px] font-semibold text-foreground pt-3">Social (Facebook & Instagram DMs)</h3>
-                    <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
-                      <div className="flex items-center justify-between h-10 min-h-0">
-                        <div className="flex items-center gap-2">
-                          <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                  <Info size={16} />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
-                                <p className="text-xs">Auto-reply for Facebook and Instagram DMs after a delay.</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                        {/* Social (Facebook & Instagram DMs) */}
+                        <h3 className="text-[14px] font-semibold text-foreground pt-3">Social (Facebook & Instagram DMs)</h3>
+                        <div className="flex flex-col gap-2 pb-4 border-b border-black/[0.06] mt-2">
+                          <label className="text-[14px] font-medium text-foreground">Select Agent to handle DMs</label>
+                          <Select
+                            value={settings.socialSelectedAgentId != null ? String(settings.socialSelectedAgentId) : 'none'}
+                            onValueChange={(v) => setSettings({ ...settings, socialSelectedAgentId: v === 'none' ? null : Number(v) })}
+                            onOpenChange={handleSocialAgentsDropdownOpenChange}
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue placeholder="Select agent" />
+                            </SelectTrigger>
+                            <SelectContent className="z-[1500]">
+                              <SelectItem value="none">None</SelectItem>
+                              {socialAgentsList.map((a) => (
+                                <SelectItem key={a.id} value={String(a.id)}>
+                                  <span className="flex items-center gap-2 min-w-0">
+                                    <span className="shrink-0 flex items-center justify-center">
+                                      {getAgentsListImage(a.raw, 24, 24)}
+                                    </span>
+                                    <span className="truncate">{a.name}</span>
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <Switch checked={settings.socialReplyDelayEnabled} onCheckedChange={handleSocialReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
-                      </div>
-                      {settings.socialReplyDelayEnabled && (
-                        <div className="relative">
-                          <Input type="number" placeholder="Set delay time (in seconds)" value={settings.socialReplyDelaySeconds ?? ''} onChange={(e) => handleSocialDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
-                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
+                        <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Auto-reply for Facebook and Instagram DMs after a delay.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.socialReplyDelayEnabled} onCheckedChange={handleSocialReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
+                          {settings.socialReplyDelayEnabled && (
+                            <div className="relative">
+                              <Input type="number" placeholder="Set delay time (in seconds)" value={settings.socialReplyDelaySeconds ?? ''} onChange={(e) => handleSocialDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
+                              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Save social auto-replies as drafts for you to review.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
                         </div>
-                      )}
-                      <div className="flex items-center justify-between h-10 min-h-0">
-                        <div className="flex items-center gap-2">
-                          <label className="text-[14px] font-medium text-foreground">Save as draft</label>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                                  <Info size={16} />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
-                                <p className="text-xs">Save social auto-replies as drafts for you to review.</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2 pb-4 border-b border-black/[0.06]">
-                      <label className="text-[14px] font-medium text-foreground">Agent for social messages</label>
-                      <Select value={settings.socialSelectedAgentId != null ? String(settings.socialSelectedAgentId) : 'none'} onValueChange={(v) => setSettings({ ...settings, socialSelectedAgentId: v === 'none' ? null : Number(v) })}>
-                        <SelectTrigger className="h-10 w-full">
-                          <SelectValue placeholder="Select agent" />
-                        </SelectTrigger>
-                        <SelectContent className="z-[1500]">
-                          <SelectItem value="none">None</SelectItem>
-                          {socialAgentsList.map((a) => (
-                            <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
 
-                    {/* Communication Settings */}
-                    <div className="flex flex-col gap-3 w-full py-3">
-                      <h3 className="text-[14px] font-semibold text-foreground">Communication Settings</h3>
-                      <div className="flex flex-col gap-3 rounded-lg overflow-hidden">
-                        {communicationRowsConfig.map((row) => {
-                          const value = settings[row.settingsKey]
-                          const selectedLabel = getLabelForValue(row.options, value)
-                          return (
+                        {/* Communication Settings */}
+                        <div className="flex flex-col gap-3 w-full py-3">
+                          <h3 className="text-[14px] font-semibold text-foreground">Communication Settings</h3>
+                          <div className="flex flex-col gap-3 rounded-lg overflow-hidden">
+                            {communicationRowsConfig.map((row) => {
+                              const value = settings[row.settingsKey]
+                              const selectedLabel = getLabelForValue(row.options, value)
+                              return (
+                                <button
+                                  key={row.key}
+                                  type="button"
+                                  onClick={() => {
+                                    if (showCommunicationUpgradeOrRequest) {
+                                      setTriggerCommunicationUpgradeModal(true)
+                                      return
+                                    }
+                                    setSubModalKey(row.key)
+                                    setSubModalSelectedValue(settings[row.settingsKey] ?? null)
+                                  }}
+                                  className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
+                                >
+                                  <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
+                                    <div className="text-[14px] font-medium text-foreground">{row.label}</div>
+                                    {selectedLabel && (
+                                      <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-md text-[14px] font-normal bg-black/[0.04] text-muted-foreground truncate">
+                                        {selectedLabel}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
+                                </button>
+                              )
+                            })}
                             <button
-                              key={row.key}
                               type="button"
                               onClick={() => {
                                 if (showCommunicationUpgradeOrRequest) {
                                   setTriggerCommunicationUpgradeModal(true)
                                   return
                                 }
-                                setSubModalKey(row.key)
-                                setSubModalSelectedValue(settings[row.settingsKey] ?? null)
+                                const meter = settings.agentSettings?.agentMeterSettings
+                                if (meter && typeof meter === 'object') {
+                                  setAgentMeterDraft({
+                                    salesDrive: typeof meter.salesDrive === 'number' && meter.salesDrive >= 1 && meter.salesDrive <= 10 ? meter.salesDrive : 5,
+                                    persuasiveness: typeof meter.persuasiveness === 'number' && meter.persuasiveness >= 1 && meter.persuasiveness <= 10 ? meter.persuasiveness : 5,
+                                    clientHandling: typeof meter.clientHandling === 'number' && meter.clientHandling >= 1 && meter.clientHandling <= 10 ? meter.clientHandling : 5,
+                                  })
+                                }
+                                setSubModalKey('agentMeter')
                               }}
                               className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
                             >
                               <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
-                                <div className="text-[14px] font-medium text-foreground">{row.label}</div>
-                                {selectedLabel && (
-                                  <span className="inline-block w-fit max-w-full mt-1 px-2 py-0.5 rounded-md text-[14px] font-normal bg-black/[0.04] text-muted-foreground truncate">
-                                    {selectedLabel}
-                                  </span>
+                                <div className="text-[14px] font-medium text-foreground">Agent meter</div>
+                                {settings.agentSettings?.agentMeterSettings && (
+                                  <div className="flex flex-wrap gap-1.5 mt-1">
+                                    <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
+                                      Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
+                                    </span>
+                                    <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
+                                      Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
+                                    </span>
+                                    <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
+                                      Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
+                                    </span>
+                                  </div>
                                 )}
                               </div>
                               <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
                             </button>
-                          )
-                        })}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (showCommunicationUpgradeOrRequest) {
-                              setTriggerCommunicationUpgradeModal(true)
-                              return
-                            }
-                            const meter = settings.agentSettings?.agentMeterSettings
-                            if (meter && typeof meter === 'object') {
-                              setAgentMeterDraft({
-                                salesDrive: typeof meter.salesDrive === 'number' && meter.salesDrive >= 1 && meter.salesDrive <= 10 ? meter.salesDrive : 5,
-                                persuasiveness: typeof meter.persuasiveness === 'number' && meter.persuasiveness >= 1 && meter.persuasiveness <= 10 ? meter.persuasiveness : 5,
-                                clientHandling: typeof meter.clientHandling === 'number' && meter.clientHandling >= 1 && meter.clientHandling <= 10 ? meter.clientHandling : 5,
-                              })
-                            }
-                            setSubModalKey('agentMeter')
-                          }}
-                          className="w-full flex items-center justify-between gap-2 px-3 py-3 text-left transition-all duration-150 ease-out bg-white hover:bg-black/[0.04] rounded-lg border border-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 active:scale-[0.98]"
-                        >
-                          <div className="min-w-0 flex-1 flex flex-col gap-2 text-left">
-                            <div className="text-[14px] font-medium text-foreground">Agent meter</div>
-                            {settings.agentSettings?.agentMeterSettings && (
-                              <div className="flex flex-wrap gap-1.5 mt-1">
-                                <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
-                                  Sales: {settings.agentSettings.agentMeterSettings.salesDrive ?? '—'}
-                                </span>
-                                <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
-                                  Persuasion: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
-                                </span>
-                                <span className="inline-block w-auto max-w-full px-2 py-0.5 rounded-md text-[14px] font-medium bg-black/[0.04] text-muted-foreground truncate">
-                                  Client: {settings.agentSettings.agentMeterSettings.clientHandling ?? '—'}
-                                </span>
-                              </div>
-                            )}
                           </div>
-                          <ChevronRight className="shrink-0 w-5 h-5 text-muted-foreground" />
-                        </button>
-                      </div>
-                    </div>
-                  </>
+                        </div>
+                      </>
                     )}
                   </div>
                 )}

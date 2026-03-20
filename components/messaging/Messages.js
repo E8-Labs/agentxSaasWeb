@@ -3630,6 +3630,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         },
       })
       if (response.data?.status && response.data?.data) {
+        console.log("Response of campaign stats is", response.data.data)
         setCampaignStatData(response.data.data)
       } else {
         setCampaignStatData(null)

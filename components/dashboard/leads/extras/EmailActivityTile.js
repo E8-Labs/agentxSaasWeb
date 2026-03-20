@@ -9,6 +9,11 @@ const EmailActivityTile = ({
   isExpanded,
   onToggleExpand,
   onCampaignStatClick,
+  onCampaignStatMouseLeave,
+  campaignStatAnchorActivityId,
+  campaignStatData,
+  campaignStatLoading,
+  isLastActivityItem = false,
 }) => {
   return (
     <ActivityTile
@@ -16,7 +21,15 @@ const EmailActivityTile = ({
       isExpanded={isExpanded}
       onToggleExpand={onToggleExpand}
     >
-      <EmailSmsTranscriptCN item={item} onCampaignStatClick={onCampaignStatClick} />
+      <EmailSmsTranscriptCN
+        item={item}
+        onCampaignStatClick={onCampaignStatClick}
+        onCampaignStatMouseLeave={onCampaignStatMouseLeave}
+        campaignStatAnchorActivityId={campaignStatAnchorActivityId}
+        campaignStatData={campaignStatData}
+        campaignStatLoading={campaignStatLoading}
+        isLastActivityItem={isLastActivityItem}
+      />
     </ActivityTile>
   )
 }

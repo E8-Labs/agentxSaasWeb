@@ -19,9 +19,6 @@ import {
   Select,
   Snackbar,
   Tooltip as MuiTooltip,
-  Dialog,
-  DialogContent,
-  DialogTitle,
 } from '@mui/material'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
@@ -185,9 +182,8 @@ const LeadDetails = ({
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [showNoAudioPlay, setShowNoAudioPlay] = useState(false)
 
-  // Campaign stat modal (activity view email bubble)
-  const [showCampaignStatModal, setShowCampaignStatModal] = useState(false)
-  const [campaignStatSubject, setCampaignStatSubject] = useState('')
+  // Campaign stat hover popover (activity email tiles — same pattern as messaging EmailBubble)
+  const [campaignStatAnchorActivityId, setCampaignStatAnchorActivityId] = useState(null)
   const [campaignStatLoading, setCampaignStatLoading] = useState(false)
   const [campaignStatData, setCampaignStatData] = useState(null)
 
@@ -1098,9 +1094,9 @@ const LeadDetails = ({
     }
   }, [selectedLead, selectedLeadsDetails?.id])
 
-  const handleCampaignStatClick = useCallback(async (subject) => {
-    setCampaignStatSubject(subject ?? '')
-    setShowCampaignStatModal(true)
+  const handleCampaignStatClick = useCallback(async (activityItem) => {
+    const subject = activityItem?.sentSubject ?? ''
+    setCampaignStatAnchorActivityId(activityItem?.id ?? null)
     setCampaignStatData(null)
     setCampaignStatLoading(true)
     try {
@@ -1115,7 +1111,7 @@ const LeadDetails = ({
         setCampaignStatData(null)
         return
       }
-      const params = { subject: subject ?? '' }
+      const params = { subject }
       if (selectedUser?.id) params.userId = selectedUser.id
       const response = await axios.get(Apis.getEmailCampaignStats, {
         params,
@@ -1136,6 +1132,10 @@ const LeadDetails = ({
       setCampaignStatLoading(false)
     }
   }, [selectedUser?.id])
+
+  const handleCampaignStatMouseLeave = useCallback(() => {
+    setCampaignStatAnchorActivityId(null)
+  }, [])
 
   // Handler to update tags after tag deletion (optimistic update only)
   const handleLeadDetailsUpdated = async (deletedTagName) => {
@@ -2986,6 +2986,10 @@ const LeadDetails = ({
                         selectedUser={selectedUser}
                         tooltipZIndex={elevatedZIndex ? 5010 : undefined}
                         onCampaignStatClick={handleCampaignStatClick}
+                        onCampaignStatMouseLeave={handleCampaignStatMouseLeave}
+                        campaignStatAnchorActivityId={campaignStatAnchorActivityId}
+                        campaignStatData={campaignStatData}
+                        campaignStatLoading={campaignStatLoading}
                       />
                     )}
                   </div>
@@ -3152,49 +3156,6 @@ const LeadDetails = ({
             </Box>
           </Modal>
 
-          {/* Campaign Stat modal (activity view email bubble) */}
-          <Dialog open={showCampaignStatModal} onOpenChange={(open) => { if (!open) setShowCampaignStatModal(false) }}>
-            <DialogContent className="max-w-sm" hideCloseButton={false}>
-              <DialogTitle>Campaign Stat</DialogTitle>
-              {campaignStatSubject && (
-                <p className="text-sm text-muted-foreground truncate" title={campaignStatSubject}>
-                  {campaignStatSubject}
-                </p>
-              )}
-              {campaignStatLoading ? (
-                <p className="text-sm text-muted-foreground">Loading…</p>
-              ) : campaignStatData ? (
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span>Delivered</span>
-                    <span className="font-medium">
-                      {campaignStatData.sent
-                        ? `${Math.round((campaignStatData.delivered / campaignStatData.sent) * 100)}%`
-                        : '0%'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Opened</span>
-                    <span className="font-medium">
-                      {campaignStatData.sent
-                        ? `${Math.round((campaignStatData.opened / campaignStatData.sent) * 100)}%`
-                        : '0%'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Clicked</span>
-                    <span className="font-medium">
-                      {campaignStatData.sent
-                        ? `${Math.round((campaignStatData.clicked / campaignStatData.sent) * 100)}%`
-                        : '0%'}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                !campaignStatLoading && <p className="text-sm text-muted-foreground">No data available.</p>
-              )}
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 

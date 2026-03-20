@@ -21,6 +21,10 @@ const ActivityTabCN = ({
   selectedUser = null,
   tooltipZIndex,
   onCampaignStatClick,
+  onCampaignStatMouseLeave,
+  campaignStatAnchorActivityId,
+  campaignStatData,
+  campaignStatLoading,
 }) => {
   if (callActivity?.length < 1) {
     return (
@@ -35,7 +39,7 @@ const ActivityTabCN = ({
     )
   }
 
-  const renderActivityTile = (item) => {
+  const renderActivityTile = (item, isLastInList) => {
     const isExpanded = isExpandedActivity.includes(item.id)
     
     const commonProps = {
@@ -47,7 +51,18 @@ const ActivityTabCN = ({
     // console.log("Common props activity tab", commonProps);
 
     if (item.communicationType === 'email') {
-      return <EmailActivityTile key={item.id} {...commonProps} onCampaignStatClick={onCampaignStatClick} />
+      return (
+        <EmailActivityTile
+          key={item.id}
+          {...commonProps}
+          onCampaignStatClick={onCampaignStatClick}
+          onCampaignStatMouseLeave={onCampaignStatMouseLeave}
+          campaignStatAnchorActivityId={campaignStatAnchorActivityId}
+          campaignStatData={campaignStatData}
+          campaignStatLoading={campaignStatLoading}
+          isLastActivityItem={isLastInList}
+        />
+      )
     } else if (item.communicationType === 'sms') {
       return <SmsActivityTile key={item.id} {...commonProps} />
     } else {
@@ -70,7 +85,9 @@ const ActivityTabCN = ({
 
   return (
     <div className='ps-4'>
-      {callActivity.map((item) => renderActivityTile(item))}
+      {callActivity.map((item, index) =>
+        renderActivityTile(item, index === callActivity.length - 1),
+      )}
     </div>
   )
 }
