@@ -91,6 +91,7 @@ export const createTask = async (taskData, userId = null) => {
       },
     })
 
+    console.log("Response of create task api is", response)
     return response.data
   } catch (error) {
     console.error('Error creating task:', error)
