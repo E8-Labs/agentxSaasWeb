@@ -137,6 +137,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       const response = await getTasks(params)
       if (response.status) {
         const newData = response.data || []
+        console.log("New data fetched in task board is", newData)
         if (append) {
           setTasks((prev) => [...prev, ...newData])
         } else {
