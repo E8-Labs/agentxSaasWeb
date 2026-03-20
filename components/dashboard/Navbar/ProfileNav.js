@@ -153,9 +153,9 @@ const ProfileNav = () => {
 
   // Sliding pill for nav links hover
   const [hoveredNavIndex, setHoveredNavIndex] = useState(null)
-  const [navPillStyle, setNavPillStyle] = useState(/** @type {{ top: number; left: number; width: number; height: number } | null} */ (null))
-  const navLinksContainerRef = useRef(/** @type {HTMLDivElement | null} */ (null))
-  const navLinkItemRefs = useRef(/** @type {(HTMLDivElement | null)[]} */ ([]))
+  const [navPillStyle, setNavPillStyle] = useState(/** @type {{ top: number; left: number; width: number; height: number } | null} */(null))
+  const navLinksContainerRef = useRef(/** @type {HTMLDivElement | null} */(null))
+  const navLinkItemRefs = useRef(/** @type {(HTMLDivElement | null)[]} */([]))
 
   // Custom domain detection and branding application
   useEffect(() => {
@@ -191,9 +191,9 @@ const ProfileNav = () => {
 
             // Add class to body for CSS-based icon filtering
             document.body.classList.add('custom-domain-branding')
-          } catch (error) {}
+          } catch (error) { }
         }
-      } catch (error) {}
+      } catch (error) { }
     }
 
     // Listen for branding updates
@@ -213,7 +213,7 @@ const ProfileNav = () => {
             if (!document.body.classList.contains('custom-domain-branding')) {
               document.body.classList.add('custom-domain-branding')
             }
-          } catch (error) {}
+          } catch (error) { }
         }
       }
     }
@@ -236,9 +236,9 @@ const ProfileNav = () => {
   }, [pathname])
 
   //walkthroughWatched popup
-  // useEffect(() => {
-  //   getShowWalkThrough();
-  // }, []);
+  useEffect(() => {
+    console.log("reduxUser in profile nav is", reduxUser)
+  }, [reduxUser]);
 
   //update profile if walkthrough is true
   useEffect(() => {
@@ -338,7 +338,7 @@ const ProfileNav = () => {
         // onProgress: (batch, total) => {
         //   console.log(`Uploading batch ${batch}/${total}`);
         // },
-        onComplete: () => {},
+        onComplete: () => { },
       });
     }
   }, []);
@@ -868,7 +868,7 @@ const ProfileNav = () => {
       }
       return
     }
-    
+
     const checkAllPermissions = async () => {
       const permissions = {}
       try {
@@ -909,15 +909,15 @@ const ProfileNav = () => {
           permissions[item.id] = false
         }
       })
-      
+
       await Promise.all(permissionChecks)
-      
+
       console.log('[ProfileNav][Permissions] All checks completed, setting state', {
         permissions,
         permissionsKeys: Object.keys(permissions),
         permissionsValues: Object.values(permissions),
       })
-      
+
       setMenuPermissions(permissions)
       setPermissionsLoaded(true)
 
@@ -930,7 +930,7 @@ const ProfileNav = () => {
         console.error('[ProfileNav][Permissions] Error in completion log', e)
       }
     }
-    
+
     checkAllPermissions().catch((error) => {
       console.error('[ProfileNav][Permissions] Error in checkAllPermissions', error)
       setPermissionsLoaded(true)
@@ -1040,6 +1040,9 @@ const ProfileNav = () => {
             if (!userPlan && Data?.userRole !== "AgencySubAccount") {
               router.push("/plan")
               return
+            } else if(userPlan && userPlan.status === 'active' && user.paymentFailed === true && user.totalSecondsAvailable < 120) {
+              router.push("/plan")
+              return
             }
           }
           if (
@@ -1048,16 +1051,19 @@ const ProfileNav = () => {
             // ||
             // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
           ) {
-            console.log('[Subaccount check], Data', Data.plan.status, Data.totalSecondsAvailable)
+            console.log('[Subaccount check], Data', Data.plan.status, Data.totalSecondsAvailable, "payment failed status", Data.paymentFailed)
 
             let redirectPath = null
-            if(Data.plan.status !== 'active' && Data.totalSecondsAvailable <= 120){
+            if (Data.plan.status !== 'active' && Data.totalSecondsAvailable <= 120) {
+              redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+            } else if (Data.plan.status === 'active' && Data.paymentFailed === true && Data.totalSecondsAvailable < 120) {
+              console.log("[Subaccount check],  Nisha Poomi")
               redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
             } else {
               redirectPath = null
             }
             // console.log('[Subaccount check], redirectPath', redirectPath)
-            if(redirectPath){
+            if (redirectPath) {
               const fromDashboard = { fromDashboard: true };
               localStorage.setItem(
                 "fromDashboard",
@@ -1065,9 +1071,9 @@ const ProfileNav = () => {
               );
               router.push("/subaccountInvite/subscribeSubAccountPlan");
             }
-            
+
           } else if (Data?.userRole === "AgencySubAccount" || Data?.userRole === "AgentX") {
-           if (Data?.plan?.status === "paused") {
+            if (Data?.plan?.status === "paused") {
               setShowPlanPausedBar(true)
             } else if (
 
@@ -1100,7 +1106,7 @@ const ProfileNav = () => {
 
 
           setTogglePlan(planType);
-        } else {}
+        } else { }
       } else {
         logout("API failure/no response from getProfile");
         router.push("/");
@@ -1526,7 +1532,7 @@ const ProfileNav = () => {
       <IntroVideoModal
         open={walkthroughWatched}
         onClose={() => setWalkthroughWatched(false)}
-        videoTitle={`Welcome to ${reduxUser?.agencyBranding?reduxUser?.agencyBranding?.companyName:"AssignX"}`}
+        videoTitle={`Welcome to ${reduxUser?.agencyBranding ? reduxUser?.agencyBranding?.companyName : "AssignX"}`}
         videoDescription="This short video will show you where everything is. Enjoy!"
         videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
         showLoader={updateProfileLoader}
@@ -1598,12 +1604,12 @@ const ProfileNav = () => {
                   if (!isInvitee || !item.permissionKey) {
                     return <NavLinkItem item={item} />
                   }
-                  
+
                   // Don't render if no permission (hide the link)
                   if (!hasAccess) {
                     return null
                   }
-                  
+
                   return <NavLinkItem item={item} />
                 }
 
@@ -1640,8 +1646,8 @@ const ProfileNav = () => {
                               style={
                                 isSelected
                                   ? {
-                                      '--icon-mask-image': `url(${item.selected})`,
-                                    }
+                                    '--icon-mask-image': `url(${item.selected})`,
+                                  }
                                   : {}
                               }
                             >
@@ -2140,7 +2146,7 @@ const ProfileNav = () => {
         {/* UpgradePlan Modal */}
         <Elements stripe={stripePromise}>
           <UpgradePlan
-            setSelectedPlan={() => {}}
+            setSelectedPlan={() => { }}
             currentFullPlan={reduxUser?.plan}
             open={showUpgradePlanModal2}
             handleClose={(upgradeResult) => {
@@ -2152,7 +2158,7 @@ const ProfileNav = () => {
                 setShowPlanPausedBar(false)
               }
             }}
-            setShowSnackMsg={() => {}}
+            setShowSnackMsg={() => { }}
           />
         </Elements>
       </div>
