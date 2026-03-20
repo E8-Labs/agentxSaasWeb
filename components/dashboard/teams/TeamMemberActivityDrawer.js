@@ -196,23 +196,23 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
         prevTasks.map((task) =>
           task.id === taskId
             ? {
-                ...task,
-                ...updateData,
-                ...(updateData.assignedTo && {
-                  assignedMembers: updateData.assignedTo.map((memberId) => {
-                    const member = teamMembers.find(
-                      (m) => (m.invitedUserId || m.invitedUser?.id || m.id) === memberId
-                    )
-                    return member
-                      ? {
-                          id: memberId,
-                          name: member.name || member.invitedUser?.name || 'Unknown',
-                          thumb_profile_image: member.thumb_profile_image || member.invitedUser?.thumb_profile_image,
-                        }
-                      : { id: memberId }
-                  }),
+              ...task,
+              ...updateData,
+              ...(updateData.assignedTo && {
+                assignedMembers: updateData.assignedTo.map((memberId) => {
+                  const member = teamMembers.find(
+                    (m) => (m.invitedUserId || m.invitedUser?.id || m.id) === memberId
+                  )
+                  return member
+                    ? {
+                      id: memberId,
+                      name: member.name || member.invitedUser?.name || 'Unknown',
+                      thumb_profile_image: member.thumb_profile_image || member.invitedUser?.thumb_profile_image,
+                    }
+                    : { id: memberId }
                 }),
-              }
+              }),
+            }
             : task
         )
       )
@@ -845,18 +845,18 @@ export default function TeamMemberActivityDrawer({ open, onClose, teamMember, ad
               </div>
             )}
 
-            {/*
-            activeTab !== "lead_details" && (
-              <div className="w-full flex flex-row justify-end pb-4 pe-4">
-                <Button
-                  className="bg-brand-primary text-white hover:bg-brand-primary/90"
-                  onClick={() => setTaskModalOpen(true)}
-                >
-                  + New Task
-                </Button>
-              </div>
-            )
-          }*/}
+            {
+              activeTab === "tasks" && activeTab !== "lead_details" && (
+                <div className="w-full flex flex-row justify-end pb-4 pe-4">
+                  <Button
+                    className="bg-brand-primary text-white hover:bg-brand-primary/90"
+                    onClick={() => setTaskModalOpen(true)}
+                  >
+                    + New Task
+                  </Button>
+                </div>
+              )
+            }
             {
               taskModalOpen && (
                 <CreateTaskFromNextStepsModal
