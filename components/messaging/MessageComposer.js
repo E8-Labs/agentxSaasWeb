@@ -1704,7 +1704,7 @@ const MessageComposer = ({
 
         {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
           <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
-            {(!hasFacebookConnection || !hasInstagramConnection) ? (
+            {(!hasFacebookConnection && !hasInstagramConnection) ? (
               <div className="flex flex-col items-center gap-2">
                 <Image
                   src="/fbInsta.png"
@@ -1736,11 +1736,6 @@ const MessageComposer = ({
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Select a Messenger or Instagram conversation from the list to reply here.
-              </p>
-            )}
-            {hasFacebookConnection || hasInstagramConnection && (
               <p className="text-sm text-muted-foreground">
                 Select a Messenger or Instagram conversation from the list to reply here.
               </p>
