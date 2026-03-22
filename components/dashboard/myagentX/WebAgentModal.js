@@ -76,6 +76,15 @@ const WebAgentModal = ({
     return stars + last6
   }
 
+  /** Empty, bullet placeholder, or still showing masked value — nothing new to save */
+  const isInvalidOrUnchangedApiKeyInput = (trimmed) => {
+    if (!trimmed) return true
+    if (trimmed === '••••••••••••••••••••••••••••••••') return true
+    if (existingApiKey && trimmed === maskApiKey(existingApiKey)) return true
+    if (storedApiKeyMasked && trimmed === storedApiKeyMasked) return true
+    return false
+  }
+
   const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
     setSnackbar({
       isVisible: true,
@@ -227,11 +236,7 @@ const WebAgentModal = ({
     const userData = JSON.parse(localData)
     const token = userData.token
     const trimmedApiKey = apiKey.trim()
-    const isMaskedKey =
-      (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
-      (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
-    const isPlaceholder = trimmedApiKey === '••••••••••••••••••••••••••••••••'
-    if (!trimmedApiKey || isMaskedKey || isPlaceholder) {
+    if (isInvalidOrUnchangedApiKeyInput(trimmedApiKey)) {
       return
     }
     try {
@@ -856,7 +861,7 @@ const WebAgentModal = ({
                     e.stopPropagation()
                     handleSaveApiKey()
                   }}
-                  disabled={savingApiKey}
+                  disabled={savingApiKey || isInvalidOrUnchangedApiKeyInput(apiKey.trim())}
                   className={cn(
                     'mt-1 flex h-9 w-full items-center justify-center rounded-lg px-4 text-sm font-medium',
                     'bg-brand-primary text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed',

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
+import React, { useMemo, useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Modal } from '@mui/material'
 import dynamic from 'next/dynamic'
@@ -58,6 +58,8 @@ const EMPTY_STATE_MESSAGES = [
 
 const EXPAND_DURATION_MS = 320
 const TITLE_MAX_LENGTH = 28
+/** After send, scroll so the view stops ~this far below the last user message (avoids jumping to the end of a long reply). */
+const SCROLL_BELOW_LAST_USER_MESSAGE_PX = 500
 
 function truncateTitle(title) {
   if (!title || typeof title !== 'string') return title || ''
@@ -143,6 +145,58 @@ const WebAgentChatDrawer = ({
   const [shareLinkLoading, setShareLinkLoading] = useState(false)
   const [shareLinkCopied, setShareLinkCopied] = useState(false)
   const [shareLinkUrl, setShareLinkUrl] = useState(null)
+
+  const messagesScrollRef = useRef(null)
+  const lastUserMessageRowRef = useRef(null)
+  /** Set when user sends; consumed in useLayoutEffect to scroll after DOM reflects new messages */
+  const scrollChatToBottomAfterSendRef = useRef(false)
+  /** Set when user picks a thread from History; scroll to true bottom after messages load */
+  const scrollToFullBottomAfterHistoryLoadRef = useRef(false)
+
+  const lastInboundMessageId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].direction === 'inbound') return messages[i].id
+    }
+    return null
+  }, [messages])
+
+  const scrollBelowLastUserMessage = useCallback(() => {
+    const container = messagesScrollRef.current
+    if (!container) return
+    const anchor = lastUserMessageRowRef.current
+    if (!anchor) {
+      const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
+      container.scrollTo({ top: maxScroll, behavior: 'smooth' })
+      return
+    }
+    const cRect = container.getBoundingClientRect()
+    const aRect = anchor.getBoundingClientRect()
+    const scrollTop = container.scrollTop
+    const anchorBottomInContent = scrollTop + (aRect.bottom - cRect.top)
+    const targetScrollTop =
+      anchorBottomInContent + SCROLL_BELOW_LAST_USER_MESSAGE_PX - container.clientHeight
+    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
+    const next = Math.min(maxScroll, Math.max(0, targetScrollTop))
+    container.scrollTo({ top: next, behavior: 'smooth' })
+  }, [])
+
+  const scrollChatToFullBottom = useCallback(() => {
+    const el = messagesScrollRef.current
+    if (!el) return
+    const maxScroll = Math.max(0, el.scrollHeight - el.clientHeight)
+    el.scrollTo({ top: maxScroll, behavior: 'smooth' })
+  }, [])
+
+  useLayoutEffect(() => {
+    if (scrollToFullBottomAfterHistoryLoadRef.current) {
+      scrollToFullBottomAfterHistoryLoadRef.current = false
+      scrollChatToFullBottom()
+      return
+    }
+    if (!scrollChatToBottomAfterSendRef.current) return
+    scrollChatToBottomAfterSendRef.current = false
+    scrollBelowLastUserMessage()
+  }, [messages, scrollBelowLastUserMessage, scrollChatToFullBottom])
 
   const closeHistory = useCallback(() => {
     setHistoryClosing(true)
@@ -321,6 +375,7 @@ const WebAgentChatDrawer = ({
   }, [currentThreadId, agentId, titleEditValue, currentThreadTitle])
 
   const selectHistoryThread = (thread) => {
+    scrollToFullBottomAfterHistoryLoadRef.current = true
     setCurrentThreadId(thread.id)
     setCurrentSessionId(null)
     setCurrentThreadTitle(thread.title || null)
@@ -586,6 +641,7 @@ const WebAgentChatDrawer = ({
       messageType: 'web',
       metadata: optimisticAttachments.length ? { attachments: optimisticAttachments } : undefined,
     }
+    scrollChatToBottomAfterSendRef.current = true
     setMessages((prev) => [...prev, optimisticMessage])
     setInputValue('')
     setAttachedFiles([])
@@ -615,6 +671,7 @@ const WebAgentChatDrawer = ({
           setCurrentSessionId(null)
           if (data?.data?.threadTitle) setCurrentThreadTitle(data.data.threadTitle)
         }
+        scrollChatToBottomAfterSendRef.current = true
         setMessages((prev) => {
           const withoutOpt = prev.filter((m) => m.id !== optimisticId)
           const next = [...withoutOpt, data.data.message]
@@ -874,7 +931,10 @@ const WebAgentChatDrawer = ({
             </div>
 
             {/* Body: messages or empty state */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col px-4 py-4 relative z-0">
+            <div
+              ref={messagesScrollRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 flex flex-col px-4 py-4 relative z-0"
+            >
               {messagesLoading ? (
                 <div className="flex-1 flex items-center justify-center py-8">
                   <p className="text-sm text-gray-500">Loading...</p>
@@ -887,9 +947,11 @@ const WebAgentChatDrawer = ({
                     const imageAttachments = attachments.filter((a) => a.type === 'image' && a.dataUrl)
                     const agentThumbRaw = agent?.thumb_profile_image || (typeof agentAvatar === 'string' ? agentAvatar : null)
                     const agentThumb = typeof agentThumbRaw === 'string' && agentThumbRaw.trim().length > 0 ? agentThumbRaw : null
+                    const isLastUserMessage = isInbound && m.id === lastInboundMessageId
                     return (
                       <div
                         key={m.id}
+                        ref={isLastUserMessage ? lastUserMessageRowRef : undefined}
                         className={cn(
                           'flex items-start gap-2 w-full',
                           isInbound ? 'justify-end' : 'justify-start'
