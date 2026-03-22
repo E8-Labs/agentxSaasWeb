@@ -251,15 +251,17 @@ const TemFix = () => {
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     width: '100%',
-    height: '100svh',
-    overflow: 'hidden',
+    minHeight: '100svh',
+    overflowX: 'hidden',
+    overflowY: 'auto',
+    position: 'relative',
   }
 
   return (
     <ErrorBoundary>
       <div
         style={backgroundImage}
-        className="overflow-y-none flex flex-row justify-center items-center"
+        className="flex flex-row justify-center items-start"
       >
         {windowSize > 640 && (
           <div

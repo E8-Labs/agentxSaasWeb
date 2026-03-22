@@ -464,8 +464,9 @@ const Page = () => {
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     width: '100%',
-    height: '100svh',
-    overflow: 'hidden',
+    minHeight: '100svh',
+    overflowX: 'hidden',
+    overflowY: 'auto',
     position: 'relative',
     ...(shouldShowGradient && gradientBackground ? { background: gradientBackground } : {}),
   }
@@ -476,7 +477,7 @@ const Page = () => {
       <Suspense>
         <div
           style={backgroundImage}
-          className={`main-div overflow-y-none flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
+          className={`main-div flex flex-row justify-center items-start ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
         >
           {!shouldShowGradient && (
             <div

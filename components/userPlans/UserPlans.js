@@ -787,14 +787,14 @@ function UserPlans({
         </div>
       )}
 
-      <div className="w-full px-6 pb-10">
-        <div className="mx-auto w-full max-w-[1500px] pt-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-6">
-            <div className="flex flex-col gap-2">
-              <div className="text-[#31302e] text-[28px] leading-[36px] font-semibold tracking-[-0.84px]">
+      <div className="w-full px-4 pb-8 sm:px-6 sm:pb-10">
+        <div className="mx-auto w-full max-w-[1500px] pt-6 sm:pt-8">
+          <div className="flex flex-col gap-5 sm:gap-6 md:flex-row md:items-center md:justify-between px-0 sm:px-6">
+            <div className="flex flex-col gap-2 text-center md:text-left">
+              <div className="text-[#31302e] text-[22px] leading-[28px] sm:text-[28px] sm:leading-[36px] font-semibold tracking-[-0.84px]">
                 Get an AI AaaS Agency
               </div>
-              <div className="text-[14px] text-[#666] leading-[normal]">
+              <div className="text-[13px] sm:text-[14px] text-[#666] leading-[normal]">
                 {`Gets more done than coffee. Cheaper too. ${reduxUser?.userRole != 'Agency' ? 'Cancel anytime.' : ''}`}{' '}
                 <span>😉</span>
               </div>
@@ -805,9 +805,9 @@ function UserPlans({
               quaterlyPlans?.length > 0,
               yearlyPlans?.length > 0,
             ].filter(Boolean).length >= 2 && (
-              <div className="flex flex-col items-end gap-1">
+              <div className="flex flex-col items-center gap-1 md:items-end">
                 {isFrom !== 'SubAccount' && (
-                  <div className="flex items-center gap-3 px-3">
+                  <div className="flex items-center justify-center gap-3 px-3 md:justify-end">
                     {duration?.filter((d) => Boolean(d.save)).map((d) => {
                       const isActive = selectedDuration?.id === d.id
                       return (
@@ -845,11 +845,12 @@ function UserPlans({
             )}
           </div>
 
-          <div className="py-4">
-            <div
-              key={gridAnimationId}
-              className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 pt-6 px-6 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.33,1,0.68,1)]"
-            >
+          <div className="py-3 sm:py-4">
+            <div className="overflow-x-auto overflow-y-visible scroll-smooth scroll-px-4 sm:scroll-px-6 -mx-4 px-4 sm:-mx-6 sm:px-6 [scrollbar-width:thin] snap-x snap-mandatory pb-1">
+              <div
+                key={gridAnimationId}
+                className="mx-auto flex w-max flex-nowrap gap-3 pt-4 pb-2 sm:gap-4 sm:pt-6 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.33,1,0.68,1)]"
+              >
               {getCurrentPlans()?.map((item, index) => {
                 const isCurrentUserPlan = isCurrentPlan(item)
                 const currentPlanStatus = reduxUser?.plan?.status
@@ -874,7 +875,7 @@ function UserPlans({
                       e.stopPropagation()
                       handleTogglePlanClick(item, index)
                     }}
-                    className={`group relative bg-white border border-solid rounded-[12px] overflow-hidden pt-6 pb-[10px] flex flex-col text-left transition-all duration-200 ease-out ${
+                    className={`group relative shrink-0 snap-start snap-always w-[clamp(260px,min(360px,calc(100vw-1.5rem)),360px)] max-w-[360px] bg-white border border-solid rounded-[12px] overflow-hidden pt-6 pb-[10px] flex flex-col text-left transition-all duration-200 ease-out ${
                       isDisabled
                         ? 'opacity-80 cursor-not-allowed border-border'
                         : 'border-border hover:-translate-y-[5px] hover:border-white hover:shadow-[0px_10px_28px_rgba(0,0,0,0.05)]'
@@ -1075,6 +1076,7 @@ function UserPlans({
                   </button>
                 )
               })}
+              </div>
             </div>
           </div>
         </div>
