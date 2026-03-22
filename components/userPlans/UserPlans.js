@@ -846,10 +846,11 @@ function UserPlans({
           </div>
 
           <div className="py-4">
-            <div
-              key={gridAnimationId}
-              className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 pt-6 px-6 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.33,1,0.68,1)]"
-            >
+            <div className="overflow-x-auto overflow-y-visible scroll-smooth -mx-6 px-6">
+              <div
+                key={gridAnimationId}
+                className="flex flex-nowrap gap-3 pt-6 pb-2 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.33,1,0.68,1)]"
+              >
               {getCurrentPlans()?.map((item, index) => {
                 const isCurrentUserPlan = isCurrentPlan(item)
                 const currentPlanStatus = reduxUser?.plan?.status
@@ -874,7 +875,7 @@ function UserPlans({
                       e.stopPropagation()
                       handleTogglePlanClick(item, index)
                     }}
-                    className={`group relative bg-white border border-solid rounded-[12px] overflow-hidden pt-6 pb-[10px] flex flex-col text-left transition-all duration-200 ease-out ${
+                    className={`group relative shrink-0 w-[min(300px,calc(100vw-3rem))] min-w-[260px] max-w-[300px] bg-white border border-solid rounded-[12px] overflow-hidden pt-6 pb-[10px] flex flex-col text-left transition-all duration-200 ease-out ${
                       isDisabled
                         ? 'opacity-80 cursor-not-allowed border-border'
                         : 'border-border hover:-translate-y-[5px] hover:border-white hover:shadow-[0px_10px_28px_rgba(0,0,0,0.05)]'
@@ -1075,6 +1076,7 @@ function UserPlans({
                   </button>
                 )
               })}
+              </div>
             </div>
           </div>
         </div>
