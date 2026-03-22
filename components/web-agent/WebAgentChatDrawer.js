@@ -14,6 +14,7 @@ import AgentXOrb from '@/components/common/AgentXOrb'
 import WebAgentChatInput from './WebAgentChatInput'
 import Apis from '@/components/apis/Apis'
 import { MessageMarkdown } from '@/components/messaging/messageMarkdown'
+import { WEB_AGENT_THINKING_MESSAGES } from '@/constants/Constants'
 
 /**
  * Normalize message content so **bold** renders correctly.
@@ -37,14 +38,6 @@ try {
   // fallback if path differs
 }
 
-const THINKING_MESSAGES = [
-  'Sipping coffee...',
-  'Typing...',
-  'Creating...',
-  'Still on it...',
-  'Don\'t leave yet...',
-]
-
 import { getVisitorId } from './visitorId'
 import { OpenAiLogoIcon } from '@phosphor-icons/react'
 
@@ -58,6 +51,17 @@ const EMPTY_STATE_MESSAGES = [
 
 const EXPAND_DURATION_MS = 320
 const TITLE_MAX_LENGTH = 28
+
+function randomWebAgentThinkingIndex(excludeIndex) {
+  const len = WEB_AGENT_THINKING_MESSAGES.length
+  if (len <= 1) return 0
+  let next = excludeIndex
+  let guard = 0
+  while (next === excludeIndex && guard++ < 32) {
+    next = Math.floor(Math.random() * len)
+  }
+  return next
+}
 /** After send, scroll so the view stops ~this far below the last user message (avoids jumping to the end of a long reply). */
 const SCROLL_BELOW_LAST_USER_MESSAGE_PX = 500
 
@@ -592,8 +596,8 @@ const WebAgentChatDrawer = ({
   useEffect(() => {
     if (!sendLoading) return
     const id = setInterval(() => {
-      setThinkingIndex((prev) => (prev + 1) % THINKING_MESSAGES.length)
-    }, 4000)
+      setThinkingIndex((prev) => randomWebAgentThinkingIndex(prev))
+    }, 3500)
     return () => clearInterval(id)
   }, [sendLoading])
 
@@ -645,6 +649,7 @@ const WebAgentChatDrawer = ({
     setMessages((prev) => [...prev, optimisticMessage])
     setInputValue('')
     setAttachedFiles([])
+    setThinkingIndex(Math.floor(Math.random() * WEB_AGENT_THINKING_MESSAGES.length))
     setSendLoading(true)
 
     const visitorId = getVisitorId()
@@ -1043,7 +1048,7 @@ const WebAgentChatDrawer = ({
                       </div>
                       <div className="rounded-2xl rounded-tl-sm px-4 py-3 bg-white/95 border border-white/80 min-w-[140px] shadow-[0_1px_4px_rgba(15,23,42,0.08)]">
                         <span className="text-sm text-gray-600">
-                          {THINKING_MESSAGES[thinkingIndex]}
+                          {WEB_AGENT_THINKING_MESSAGES[thinkingIndex]}
                         </span>
                       </div>
                     </div>
