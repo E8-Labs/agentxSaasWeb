@@ -991,7 +991,8 @@ const WebAgentChatDrawer = ({
                         )}
                         <div
                           className={cn(
-                            'max-w-[85%] min-w-0 overflow-hidden break-words',
+                            // overflow-hidden breaks list-outside markers; break-words + min-w-0 still constrain text
+                            'max-w-[85%] min-w-0 break-words',
                             'text-[14px] font-normal leading-[1.5] text-[#0e0e0e]',
                             isInbound
                               ? 'rounded-bl-[12px] rounded-br-[12px] rounded-tl-[12px] px-3 py-2 bg-white'

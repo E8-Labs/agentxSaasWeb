@@ -25,37 +25,27 @@ import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import voicesList from '@/components/createagent/Voices'
 import remarkGfm from 'remark-gfm'
+import {
+  buildMarkdownComponents,
+  normalizeOrderedListBlankLines,
+} from '@/components/messaging/messageMarkdown'
 
 const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
 
+function AiChatMarkdownParagraph({ children }) {
+  return <p className="mb-2 last:mb-0">{children}</p>
+}
+
 // Markdown components for AI replies: compact styling inside the chat bubble
-// li > p as inline so "1." and "Identify the Bottleneck:" stay on same line (remark-gfm wraps list text in <p>)
 const markdownComponents = {
-  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+  ...buildMarkdownComponents({
+    Paragraph: AiChatMarkdownParagraph,
+    unwrappedSpanClass: 'leading-normal',
+    orderedLeading: 'leading-normal',
+  }),
   h1: ({ children }) => <h1 className="text-base font-semibold mb-1.5 mt-2 first:mt-0">{children}</h1>,
   h2: ({ children }) => <h2 className="text-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h2>,
   h3: ({ children }) => <h3 className="text-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
-  strong: ({ children }) => <strong className="font-bold">{children}</strong>,
-  ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
-  ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
-  li: ({ children }) => (
-    <li className="leading-relaxed [&>p]:inline [&>p]:m-0 [&>p:not(:last-child)]:mr-1">
-      {children}
-    </li>
-  ),
-  pre: ({ children }) => (
-    <pre className="whitespace-pre-wrap break-words max-w-full my-2 p-2 rounded bg-muted text-sm">
-      {children}
-    </pre>
-  ),
-  code: ({ className, children }) => {
-    const isBlock = className?.includes('language-')
-    return isBlock ? (
-      <code className={cn(className, 'whitespace-pre-wrap break-words')}>{children}</code>
-    ) : (
-      <code className="break-words rounded px-1 py-0.5 bg-muted">{children}</code>
-    )
-  },
 }
 
 // Lottie animation for "Thinking..." state (load once)
@@ -817,7 +807,7 @@ const AiChatModal = ({
 
                     {/* Message bubble */}
                     <div
-                      className={`max-w-[75%] min-w-[100px] min-w-0 overflow-hidden break-words px-4 py-2.5 text-sm leading-relaxed ${isUser
+                      className={`max-w-[75%] min-w-[100px] min-w-0 break-words px-4 py-2.5 text-sm leading-relaxed ${isUser
                         ? 'text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
                         : 'bg-gray-100 text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
                         }`}
@@ -827,7 +817,7 @@ const AiChatModal = ({
                         msg.content
                       ) : (
                         <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                          {msg.content || ''}
+                          {normalizeOrderedListBlankLines(msg.content || '')}
                         </ReactMarkdown>
                       )}
                     </div>
