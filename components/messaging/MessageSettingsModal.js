@@ -88,7 +88,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
   const [existingApiKey, setExistingApiKey] = useState('') // Legacy: actual key when available (client-masked)
   const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('') // Server-provided masked key (*** + last 6 chars) for display/restore
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
-  const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' | 'anthropic' for AI integration
+  const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' | 'claude' for AI integration
   const [socialAgentsList, setSocialAgentsList] = useState([]) // flat list of { id, name, raw } for social agent dropdown
 
   /** Normalize agentSettings from API: may be string (JSON) or object; always return object or null */
@@ -105,9 +105,9 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
     return null
   }
 
-  // Normalize integration provider to 'openai' | 'google' | 'anthropic'
+  // Normalize integration provider to 'openai' | 'google' | 'claude'
   const providerFor = (int) =>
-    int?.provider === 'google' ? 'google' : int?.provider === 'anthropic' ? 'anthropic' : 'openai'
+    int?.provider === 'google' ? 'google' : int?.provider === 'claude' ? 'claude' : 'openai'
 
   // Helper function to mask API key (show last 6 chars, rest as stars) - used only when server sends raw key (legacy)
   const maskApiKey = (key) => {
@@ -235,7 +235,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
         // If there's an existing integration, show apiKeyMasked (last 6 chars from server) or placeholder
         if (data.aiIntegration?.id) {
           setExistingIntegrationId(data.aiIntegration.id)
-          const provider = data.aiIntegration.provider === 'google' ? 'google' : data.aiIntegration.provider === 'anthropic' ? 'anthropic' : 'openai'
+          const provider = data.aiIntegration.provider === 'google' ? 'google' : data.aiIntegration.provider === 'claude' ? 'claude' : 'openai'
           setSelectedProvider(provider)
           const masked = data.aiIntegration.apiKeyMasked || ''
           const legacyRaw = data.aiIntegration.apiKey || ''
@@ -1133,17 +1133,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                               <span className="text-[14px] text-foreground">Gemini</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                              <RadioGroupItem value="anthropic" id="ai-provider-anthropic" />
+                              <RadioGroupItem value="claude" id="ai-provider-claude" />
                               <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
-                              <span className="text-[14px] text-foreground">Anthropic</span>
+                              <span className="text-[14px] text-foreground">Claude</span>
                             </label>
                           </RadioGroup>
 
                           <p className="text-sm text-gray-600">
                             {selectedProvider === 'google'
                               ? 'Add Gemini API key to enable AI text + email + chat.'
-                              : selectedProvider === 'anthropic'
-                                ? 'Add Anthropic API key to enable AI text + email + chat.'
+                              : selectedProvider === 'claude'
+                                ? 'Add Claude API key to enable AI text + email + chat.'
                                 : 'Add ChatGPT API key to enable AI text + email + chat.'}
                           </p>
                           <Input
@@ -1153,8 +1153,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                                 ? 'Enter new API key to update'
                                 : selectedProvider === 'google'
                                   ? 'Enter your Gemini API key'
-                                  : selectedProvider === 'anthropic'
-                                    ? 'Enter your Anthropic API key'
+                                  : selectedProvider === 'claude'
+                                    ? 'Enter your Claude API key'
                                     : 'Enter your OpenAI API key'
                             }
                             value={apiKey}

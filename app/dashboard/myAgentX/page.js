@@ -125,6 +125,7 @@ import VoiceMailTab from '../../../components/dashboard/myagentX/VoiceMailTab'
 import AdvancedSettingsModalCN from '@/components/ui/AdvancedSettingsModalCN'
 import ProtectedRoute from '@/components/permissions/ProtectedRoute'
 import { PermissionProvider } from '@/contexts/PermissionContext'
+import { toast } from '@/utils/toast'
 
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
@@ -4407,8 +4408,8 @@ function Page() {
                               type="button"
                               onClick={() => {
                                 setTagFilterLoader(true)
-                                const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
-                                setSelectedTags(next)
+                                // const next = isSelected ? selectedTags.filter((x) => x !== t) : [...selectedTags, t]
+                                setSelectedTags(t)
                               }}
                               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? 'bg-black text-white' : 'bg-[#8A8A8A0D] text-black hover:bg-black/[0.08]'}`}
                             >
