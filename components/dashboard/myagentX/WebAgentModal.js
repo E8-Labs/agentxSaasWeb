@@ -67,7 +67,7 @@ const WebAgentModal = ({
   const [savingChatToggle, setSavingChatToggle] = useState(false)
 
   const providerFor = (int) =>
-    int?.provider === 'google' ? 'google' : int?.provider === 'anthropic' ? 'anthropic' : 'openai'
+    int?.provider === 'google' ? 'google' : int?.provider === 'claude' ? 'claude' : 'openai'
 
   const maskApiKey = (key) => {
     if (!key || key.length === 0) return ''
@@ -873,17 +873,17 @@ const WebAgentModal = ({
                     <span className="text-[14px] text-foreground">Gemini</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer py-2 rounded-md px-2 -ml-2 hover:bg-black/[0.04] transition-colors">
-                    <RadioGroupItem value="anthropic" id="web-agent-ai-provider-anthropic" />
+                    <RadioGroupItem value="claude" id="web-agent-ai-provider-claude" />
                     <Image src="/Claude.jpeg" alt="Claude" width={22} height={22} className="text-brand-primary" />
-                    <span className="text-[14px] text-foreground">Anthropic</span>
+                    <span className="text-[14px] text-foreground">Claude</span>
                   </label>
                 </RadioGroup>
 
                 <p className="text-sm text-gray-600">
                   {selectedProvider === 'google'
                     ? 'Add Gemini API key to enable AI text + email + chat.'
-                    : selectedProvider === 'anthropic'
-                      ? 'Add Anthropic API key to enable AI text + email + chat.'
+                    : selectedProvider === 'claude'
+                      ? 'Add Claude API key to enable AI text + email + chat.'
                       : 'Add ChatGPT API key to enable AI text + email + chat.'}
                 </p>
                 <Input
@@ -893,8 +893,8 @@ const WebAgentModal = ({
                       ? 'Enter new API key to update'
                       : selectedProvider === 'google'
                         ? 'Enter your Gemini API key'
-                        : selectedProvider === 'anthropic'
-                          ? 'Enter your Anthropic API key'
+                        : selectedProvider === 'claude'
+                          ? 'Enter your Claude API key'
                           : 'Enter your OpenAI API key'
                   }
                   value={apiKey}
