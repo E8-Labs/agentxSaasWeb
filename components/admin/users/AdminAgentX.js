@@ -926,6 +926,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
           smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
           smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+          additionalSettings: selectedAgentForWebAgent.additionalSettings ?? agentToUse.additionalSettings,
         }
       }
 
@@ -4420,6 +4421,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
                                 smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
                                 smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+                                additionalSettings: selectedAgentForWebAgent.additionalSettings ?? agentToUse.additionalSettings,
                               }
                             }
 
@@ -6343,6 +6345,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             }
             if (updatedAgent.smartListEnabledForWebhook !== undefined) {
               updates.smartListEnabledForWebhook = updatedAgent.smartListEnabledForWebhook
+            }
+            if (updatedAgent.additionalSettings !== undefined) {
+              updates.additionalSettings = updatedAgent.additionalSettings
             }
             if (Object.keys(updates).length > 0) {
               updateAgentInMainList(agentIdToUpdate, updates)
