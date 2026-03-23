@@ -832,6 +832,7 @@ function Page() {
             smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agent.smartListEnabledForWebhook,
             smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agent.smartListIdForEmbed,
             smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agent.smartListEnabledForEmbed,
+            additionalSettings: selectedAgentForWebAgent.additionalSettings ?? agent.additionalSettings,
           }
         }
         setSelectedAgentForWebAgent(agentToUse)
@@ -5493,7 +5494,7 @@ function Page() {
                                   } else {
                                     let agentToUse = showDrawerSelectedAgent
                                     if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
-                                      agentToUse = { ...showDrawerSelectedAgent, smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb, smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb, smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook, smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook, smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed, smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed }
+                                      agentToUse = { ...showDrawerSelectedAgent, smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb, smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb, smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook, smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook, smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed, smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed, additionalSettings: selectedAgentForWebAgent.additionalSettings ?? showDrawerSelectedAgent.additionalSettings }
                                     }
                                     setFetureType('webhook')
                                     setSelectedAgentForWebAgent(agentToUse)
@@ -7246,6 +7247,9 @@ function Page() {
                 }
                 if (updatedAgent.smartListEnabledForWebhook !== undefined) {
                   updates.smartListEnabledForWebhook = updatedAgent.smartListEnabledForWebhook
+                }
+                if (updatedAgent.additionalSettings !== undefined) {
+                  updates.additionalSettings = updatedAgent.additionalSettings
                 }
                 if (Object.keys(updates).length > 0) {
                   updateAgentInMainList(agentIdToUpdate, updates)

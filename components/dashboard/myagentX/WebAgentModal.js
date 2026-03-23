@@ -64,6 +64,7 @@ const WebAgentModal = ({
   const [loadingIntegrations, setLoadingIntegrations] = useState(false)
   const [savingApiKey, setSavingApiKey] = useState(false)
   const [enableChat, setEnableChat] = useState(false)
+  const [savingChatToggle, setSavingChatToggle] = useState(false)
 
   const providerFor = (int) =>
     int?.provider === 'google' ? 'google' : int?.provider === 'anthropic' ? 'anthropic' : 'openai'
@@ -158,14 +159,17 @@ const WebAgentModal = ({
         } else {
           setSelectedSmartList('')
         }
+        setEnableChat(getChatEnabledFromAgent(agent))
       } else if (agentSmartRefill) {
         // Fallback to legacy behavior if agent prop not provided
         setRequireForm(true)
         setSelectedSmartList(agentSmartRefill)
+        setEnableChat(false)
       } else {
         // No agent data and no refill - reset to defaults
         setRequireForm(false)
         setSelectedSmartList('')
+        setEnableChat(false)
       }
 
       // Fetch smart lists and AI integrations after initializing state
@@ -302,8 +306,84 @@ const WebAgentModal = ({
     }
   }
 
+  const getAgentType = () => (fetureType === 'webhook' ? 'webhook' : 'web')
+
+  const parseAdditionalSettings = (settings) => {
+    if (!settings) return {}
+    if (typeof settings === 'object') return settings
+    if (typeof settings === 'string') {
+      try {
+        return JSON.parse(settings)
+      } catch {
+        return {}
+      }
+    }
+    return {}
+  }
+
+  const getChatEnabledFromAgent = (currentAgent) => {
+    if (!currentAgent) return false
+    const additionalSettings = parseAdditionalSettings(currentAgent.additionalSettings)
+    return getAgentType() === 'webhook'
+      ? Boolean(additionalSettings.webChatEnabledForWebhook)
+      : Boolean(additionalSettings.webChatEnabledForWeb)
+  }
+
+  const persistEnableChat = async (nextValue) => {
+    const previousValue = enableChat
+    setEnableChat(nextValue)
+    try {
+      setSavingChatToggle(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        throw new Error('Please log in to update chat settings.')
+      }
+      const userData = JSON.parse(localData)
+      const formData = new FormData()
+      formData.append('agentId', agentId)
+      formData.append('agentType', getAgentType())
+      formData.append('enableChat', String(nextValue))
+      if (selectedUser?.id) {
+        formData.append('userId', selectedUser.id)
+      }
+
+      const response = await axios.post(Apis.updateAgentSupportButton, formData, {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+        },
+      })
+      if (!response.data?.status) {
+        throw new Error(response.data?.message || 'Failed to update chat setting')
+      }
+
+      if (agent && onAgentUpdate) {
+        const additionalSettings = parseAdditionalSettings(agent.additionalSettings)
+        const updatedAdditionalSettings = {
+          ...additionalSettings,
+          ...(getAgentType() === 'webhook'
+            ? { webChatEnabledForWebhook: nextValue }
+            : { webChatEnabledForWeb: nextValue }),
+        }
+        onAgentUpdate({
+          ...agent,
+          additionalSettings: updatedAdditionalSettings,
+        })
+      }
+    } catch (error) {
+      console.error('Error updating web chat setting:', error)
+      setEnableChat(previousValue)
+      showSnackbar(
+        '',
+        error?.response?.data?.message || error?.message || 'Failed to update chat setting',
+        SnackbarTypes.Error,
+      )
+    } finally {
+      setSavingChatToggle(false)
+    }
+  }
+
   const handleEnableChatChange = (event) => {
-    setEnableChat(event.target.checked)
+    void persistEnableChat(event.target.checked)
   }
 
   const fetchSmartLists = async () => {
@@ -756,6 +836,7 @@ const WebAgentModal = ({
                   <Switch
                     checked={enableChat}
                     onChange={handleEnableChatChange}
+                    disabled={savingChatToggle}
                     sx={{
                       '& .MuiSwitch-switchBase.Mui-checked': {
                         color: 'hsl(var(--brand-primary))',
