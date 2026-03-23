@@ -1999,6 +1999,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
             vertical: 'top',
             horizontal: 'center', // Ensures the Popover's top right corner aligns with the anchor point
           }}
+          slotProps={{
+            root: {
+              sx: { zIndex: 1350 },
+            },
+          }}
           PaperProps={{
             elevation: 1, // This will remove the shadow
             style: {
@@ -2060,6 +2065,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           <button
             className="underline text-brand-primary p-2 hover:bg-[hsl(var(--brand-primary) / 0.1)] w-full text-start"
             onClick={() => {
+              setcolumnAnchorEl(null)
+              setSelectedItem(null)
               setShowPopUp(true)
             }}
           >
@@ -2072,88 +2079,82 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           open={showPopUp}
           onClose={() => setShowPopUp(false)}
           closeAfterTransition
+          sx={{ zIndex: 1400 }}
           BackdropProps={{
-            timeout: 1000,
+            timeout: 250,
             sx: {
-              backgroundColor: '#00000020',
-              // //backdropFilter: "blur(5px)",
+              backgroundColor: '#00000099',
             },
           }}
         >
-          <Box className="lg:w-4/12 sm:w-6/12 w-10/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
+          <Box
+            className="w-[400px] max-w-[90vw] flex flex-col overflow-hidden rounded-[12px] bg-white mx-auto outline-none"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #eaeaea',
+            }}
+          >
+            <div
+              className="flex flex-row items-center justify-between px-4 py-3 flex-shrink-0"
+              style={{ borderBottom: '1px solid #eaeaea' }}
+            >
+              <h2 className="text-[16px] font-semibold text-foreground">
+                Add Column
+              </h2>
+              <CloseBtn
+                onClick={() => {
+                  setShowPopUp(false)
+                }}
+              />
+            </div>
+            <div
+              className="px-4 py-4 flex flex-col gap-2 flex-shrink-0"
+              style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+            >
+              <div style={styles.subHeadingStyle}>Column Name</div>
+              <input
+                ref={addColRef}
+                type="text"
+                className="border outline-none rounded-lg p-2 w-full h-[42px] focus:ring-0 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                value={updateColumnValue}
+                onChange={(e) => {
+                  const regex = /^[a-zA-Z0-9_ ]*$/
+                  if (regex.test(e.target.value)) {
+                    setUpdateColumnValue(e.target.value)
+                  }
+                }}
+                placeholder="Type here..."
+                style={{ border: '1px solid #00000020' }}
+              />
+            </div>
+            <div
+              className="flex flex-row items-center justify-end px-4 py-3 flex-shrink-0"
+              style={{ borderTop: '1px solid #eaeaea' }}
+            >
+              <button
+                type="button"
+                className="h-[40px] w-full rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={!updateColumnValue}
+                onClick={() => {
+                  if (
+                    NewColumnsObtained?.some(
+                      (item) =>
+                        item?.UserFacingName?.toLowerCase() ===
+                        updateColumnValue?.toLowerCase(),
+                    )
+                  ) {
+                    setWarningModal(true)
+                  } else {
+                    ChangeColumnName(updateColumnValue)
+                  }
                 }}
               >
-                <div className="flex flex-row justify-end">
-                  <CloseBtn
-                    onClick={() => {
-                      setShowPopUp(false)
-                    }}
-                  />
-                </div>
-                <div
-                  className="w-full text-center mt-2"
-                  style={{ fontSize: 22, fontWeight: '600' }}
-                >
-                  Add Column
-                </div>
-                <div className="mt-2" style={styles.subHeadingStyle}>
-                  Column Name
-                </div>
-
-                <input
-                  ref={addColRef}
-                  type="text"
-                  className="border outline-none rounded p-2 mt-2 w-full focus:ring-0"
-                  value={updateColumnValue}
-                  // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
-                  onChange={(e) => {
-                    const regex = /^[a-zA-Z0-9_ ]*$/ // Allow only alphabets
-                    if (regex.test(e.target.value)) {
-                      setUpdateColumnValue(e.target.value)
-                    }
-                  }}
-                  placeholder="Type here..."
-                  style={{ border: '1px solid #00000020' }}
-                />
-
-                <button
-                  className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-8"
-                  style={{
-                    ...styles.subHeadingStyle,
-                    backgroundColor: !updateColumnValue ? '#00000020' : '',
-                    color: !updateColumnValue ? 'black' : '',
-                  }}
-                  disabled={!updateColumnValue}
-                  onClick={() => {
-                    if (
-                      NewColumnsObtained?.some(
-                        (item) =>
-                          item?.UserFacingName?.toLowerCase() ===
-                          updateColumnValue?.toLowerCase(),
-                      )
-                    ) {
-                      // //console.log;
-                      // return
-                      setWarningModal(true)
-                    } else {
-                      // //console.log;
-                      ChangeColumnName(updateColumnValue)
-                    }
-                  }}
-                >
-                  Add
-                </button>
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
+                Add
+              </button>
             </div>
           </Box>
         </Modal>

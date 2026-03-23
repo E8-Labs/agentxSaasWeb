@@ -2149,7 +2149,8 @@ const Leads1 = () => {
           }}
           slotProps={{
             root: {
-              sx: { zIndex: 9999 },
+              /* Below nested “Add Column” modal (z-index 1400); above base upload modal (1300) */
+              sx: { zIndex: 1350 },
             },
           }}
           PaperProps={{
@@ -2253,6 +2254,8 @@ const Leads1 = () => {
               className="w-full text-start px-3 py-2 mt-0.5 rounded-lg hover:bg-black/[0.04] transition-colors duration-200 border-t border-[#eaeaea]"
               style={{ fontSize: 14, fontWeight: 400, color: 'hsl(var(--brand-primary))' }}
               onClick={() => {
+                setcolumnAnchorEl(null)
+                setSelectedItem(null)
                 setShowPopUp(true)
               }}
             >
@@ -2266,107 +2269,103 @@ const Leads1 = () => {
           open={showPopUp}
           onClose={() => setShowPopUp(false)}
           closeAfterTransition
+          sx={{ zIndex: 1400 }}
           BackdropProps={{
-            timeout: 1000,
+            timeout: 250,
             sx: {
-              backgroundColor: '#00000020',
-              // //backdropFilter: "blur(5px)",
+              backgroundColor: '#00000099',
             },
           }}
         >
-          <Box className="lg:w-4/12 sm:w-6/12 w-10/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
+          <Box
+            className="w-[400px] max-w-[90vw] flex flex-col overflow-hidden rounded-[12px] bg-white mx-auto outline-none"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #eaeaea',
+            }}
+          >
+            <div
+              className="flex flex-row items-center justify-between px-4 py-3 flex-shrink-0"
+              style={{ borderBottom: '1px solid #eaeaea' }}
+            >
+              <h2 className="text-[16px] font-semibold text-foreground">
+                Add Column
+              </h2>
+              <CloseBtn
+                onClick={() => {
+                  setShowPopUp(false)
+                }}
+              />
+            </div>
+            <div
+              className="px-4 py-4 flex flex-col gap-2 flex-shrink-0"
+              style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+            >
+              <div className="start-campaign-label">Column Name</div>
+              <input
+                ref={addColRef}
+                type="text"
+                className="start-campaign-input w-full h-[42px]"
+                value={updateColumnValue}
+                onChange={(e) => {
+                  const regex = /^[a-zA-Z0-9_ ]*$/
+                  if (regex.test(e.target.value)) {
+                    setUpdateColumnValue(e.target.value)
+                  }
+                }}
+                placeholder="Type here..."
+              />
+            </div>
+            <div
+              className="flex flex-row items-center justify-end px-4 py-3 flex-shrink-0"
+              style={{ borderTop: '1px solid #eaeaea' }}
+            >
+              <button
+                type="button"
+                className="h-[40px] w-full rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={!updateColumnValue}
+                onClick={() => {
+                  const customNameExists = NewColumnsObtained?.some(
+                    (item) =>
+                      item?.UserFacingName?.toLowerCase() ===
+                      updateColumnValue?.toLowerCase(),
+                  )
+
+                  const defaultColumnExists = Object.keys(
+                    LeadDefaultColumns,
+                  ).find(
+                    (key) =>
+                      LeadDefaultColumns[key].UserFacingName.toLowerCase() ===
+                      updateColumnValue?.toLowerCase(),
+                  )
+
+                  const defaultAlreadyMapped =
+                    defaultColumnExists &&
+                    NewColumnsObtained?.some(
+                      (item) =>
+                        item?.matchedColumn?.dbName === defaultColumnExists,
+                    )
+
+                  if (customNameExists) {
+                    setErrSnack('Custom column name already exists.')
+                    setShowErrSnack(true)
+                  } else if (defaultAlreadyMapped) {
+                    setErrSnackTitle('Column already mapped')
+                    setErrSnack(
+                      'This default column is already mapped to another column.',
+                    )
+                    setShowErrSnack(true)
+                  } else {
+                    ChangeColumnName(updateColumnValue)
+                  }
                 }}
               >
-                <div className="flex flex-row justify-end">
-                  <CloseBtn
-                    onClick={() => {
-                      setShowPopUp(false)
-                    }}
-                  />
-                </div>
-                <div
-                  className="w-full text-center mt-2"
-                  style={{ fontSize: 22, fontWeight: '600' }}
-                >
-                  Add Column
-                </div>
-                <div className="mt-2 start-campaign-label">
-                  Column Name
-                </div>
-
-                <input
-                  ref={addColRef}
-                  type="text"
-                  className="start-campaign-input w-full h-[42px] mt-2"
-                  value={updateColumnValue}
-                  onChange={(e) => {
-                    const regex = /^[a-zA-Z0-9_ ]*$/ // Allow only alphabets
-                    if (regex.test(e.target.value)) {
-                      setUpdateColumnValue(e.target.value)
-                    }
-                  }}
-                  placeholder="Type here..."
-                />
-
-                <button
-                  className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-8"
-                  style={{
-                    ...styles.subHeadingStyle,
-                    backgroundColor: !updateColumnValue ? '#00000020' : '',
-                    color: !updateColumnValue ? 'black' : '',
-                  }}
-                  disabled={!updateColumnValue}
-                  onClick={() => {
-                    // Check if custom column name already exists
-                    const customNameExists = NewColumnsObtained?.some(
-                      (item) =>
-                        item?.UserFacingName?.toLowerCase() ===
-                        updateColumnValue?.toLowerCase(),
-                    )
-
-                    // Check if trying to use a default column name that's already mapped
-                    const defaultColumnExists = Object.keys(
-                      LeadDefaultColumns,
-                    ).find(
-                      (key) =>
-                        LeadDefaultColumns[key].UserFacingName.toLowerCase() ===
-                        updateColumnValue?.toLowerCase(),
-                    )
-
-                    const defaultAlreadyMapped =
-                      defaultColumnExists &&
-                      NewColumnsObtained?.some(
-                        (item) =>
-                          item?.matchedColumn?.dbName === defaultColumnExists,
-                      )
-
-                    if (customNameExists) {
-                      setErrSnack('Custom column name already exists.')
-                      setShowErrSnack(true)
-                    } else if (defaultAlreadyMapped) {
-                      setErrSnackTitle('Column already mapped')
-                      setErrSnack(
-                        'This default column is already mapped to another column.',
-                      )
-                      setShowErrSnack(true)
-                    } else {
-                      ChangeColumnName(updateColumnValue)
-                    }
-                  }}
-                >
-                  Add
-                </button>
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
+                Add
+              </button>
             </div>
           </Box>
         </Modal>
