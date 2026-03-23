@@ -119,6 +119,10 @@ const UserCalender = ({
     token: reduxToken,
   } = useUser()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [availabilityRequestComplete, setAvailabilityRequestComplete] =
+    useState('')
+  const [phrasesLoading, setPhrasesLoading] = useState(false)
+  const [phrasesSaving, setPhrasesSaving] = useState(false)
 
   const [introVideoModal, setIntroVideoModal] = useState(false)
 
@@ -165,8 +169,82 @@ const UserCalender = ({
   useEffect(() => {
     if (selectedActionTab === 1) {
       getCalenders()
+      getCalendarToolPhrases()
     }
   }, [selectedActionTab])
+
+  const getCalendarToolPhrases = async () => {
+    try {
+      setPhrasesLoading(true)
+      const localData = localStorage.getItem('User')
+      let authToken = null
+      if (localData) {
+        const userDetails = JSON.parse(localData)
+        authToken = userDetails.token
+      }
+
+      let apiPath = Apis.getCalendarToolPhrases
+      if (selectedUser) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+      }
+      const response = await axios.get(apiPath, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status && response?.data?.data) {
+        setAvailabilityRequestComplete(
+          response.data.data.availabilityRequestComplete || '',
+        )
+      }
+    } catch (error) {
+      // no-op, keep existing defaults from backend
+    } finally {
+      setPhrasesLoading(false)
+    }
+  }
+
+  const saveCalendarPhrase = async () => {
+    try {
+      setPhrasesSaving(true)
+      const localData = localStorage.getItem('User')
+      let authToken = null
+      if (localData) {
+        const userDetails = JSON.parse(localData)
+        authToken = userDetails.token
+      }
+      const payload = {
+        availability: {
+          requestComplete: availabilityRequestComplete,
+        },
+      }
+      if (selectedUser) {
+        payload.userId = selectedUser.id
+      }
+      const response = await axios.put(Apis.updateCalendarToolPhrases, payload, {
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status) {
+        setType(SnackbarTypes.success)
+        setMessage('Availability phrase updated')
+        setIsVisible(true)
+      } else {
+        setType(SnackbarTypes.error)
+        setMessage(response?.data?.message || 'Unable to update phrase')
+        setIsVisible(true)
+      }
+    } catch (error) {
+      setType(SnackbarTypes.error)
+      setMessage('Unable to update phrase')
+      setIsVisible(true)
+    } finally {
+      setPhrasesSaving(false)
+    }
+  }
 
   const getCalenders = async () => {
     try {
@@ -636,6 +714,27 @@ const UserCalender = ({
             {allCalendars?.length > 0 ? (
               <div className="w-full flex flex-col w-full items-center mt-4">
                 <div className="w-full">
+                <div className="w-[97%] mx-auto mb-4 p-3 border rounded-[10px] border-[#0000001a]">
+                  <div className="text-[13px] font-[600] mb-2">
+                    Availability Request Complete Phrase
+                  </div>
+                  <textarea
+                    value={availabilityRequestComplete}
+                    onChange={(e) => setAvailabilityRequestComplete(e.target.value)}
+                    rows={2}
+                    className="w-full border border-[#00000020] rounded-[8px] p-2 text-[13px] outline-none"
+                    placeholder="Phrase spoken after availability tool completes"
+                  />
+                  <div className="w-full flex justify-end mt-2">
+                    <button
+                      className="text-[12px] font-[600] text-white bg-brand-primary rounded-[8px] px-3 py-1 disabled:opacity-50"
+                      onClick={saveCalendarPhrase}
+                      disabled={phrasesSaving || phrasesLoading}
+                    >
+                      {phrasesSaving ? 'Saving...' : 'Save phrase'}
+                    </button>
+                  </div>
+                </div>
                   {calenderLoader ? (
                     <div className="w-full flex flex-row justify-center">
                       <CircularProgress size={30} />
