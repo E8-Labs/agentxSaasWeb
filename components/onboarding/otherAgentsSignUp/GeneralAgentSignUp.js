@@ -33,6 +33,7 @@ import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
 import { Input } from '@/components/ui/input'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 const GeneralAgentSignUp = ({
   handleContinue,
@@ -43,6 +44,7 @@ const GeneralAgentSignUp = ({
 }) => {
   const verifyInputRef = useRef([])
   const timerRef = useRef(null)
+  const emailValidationTimerRef = useRef(null)
 
   let inputsFields = useRef([])
 
@@ -374,7 +376,7 @@ const GeneralAgentSignUp = ({
               userName,
               response.data.data.user?.id,
             )
-          } else {}
+          } else { }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -578,10 +580,10 @@ const GeneralAgentSignUp = ({
             <div
               className="w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
-              // onClick={()=>{
-              //   console.log('push',)
-              //   router.push("/createagent")
-              // }}
+            // onClick={()=>{
+            //   console.log('push',)
+            //   router.push("/createagent")
+            // }}
             >
               Your Contact Information
             </div>
@@ -686,31 +688,42 @@ const GeneralAgentSignUp = ({
                   if (timerRef.current) {
                     clearTimeout(timerRef.current)
                   }
+                  if (emailValidationTimerRef.current) {
+                    clearTimeout(emailValidationTimerRef.current)
+                  }
 
                   setEmailCheckResponse(null)
 
                   if (!value) {
-                    // //console.log;
                     setValidEmail('')
                     return
                   }
 
-                  if (!validateEmail(value)) {
-                    // //console.log;
-                    setValidEmail('Invalid')
-                  } else {
-                    // //console.log;
-                    if (value) {
-                      // Set a new timeout
+                  emailValidationTimerRef.current = setTimeout(() => {
+                    if (checkEmailFormat(value)) {
+                      setValidEmail(EmailFormatMessage.emailErrMsg)
+                      return
+                    } else {
+                      setValidEmail('')
+                    }
+
+                    const domainAfterAt = value.split('@')[1] ?? ''
+                    if (domainAfterAt && !domainAfterAt.includes('.')) {
+                      setValidEmail('Incorrect email format')
+                      return
+                    }
+
+                    if (!validateEmail(value)) {
+                      setValidEmail('Invalid')
+                    } else if (value) {
                       timerRef.current = setTimeout(() => {
                         checkEmail(value)
                       }, 300)
                     } else {
-                      // Reset the response if input is cleared
                       setEmailCheckResponse(null)
                       setValidEmail('')
                     }
-                  }
+                  }, 300)
                 }}
                 onKeyDown={(e) => {
                   const timer = setTimeout(() => {
@@ -787,58 +800,58 @@ const GeneralAgentSignUp = ({
               </div>
 
               <div style={{ marginTop: '8px' }}>
-              <PhoneInput
-              ref={(el) => (inputsFields.current[2] = el)}
-              containerClass="phone-input-container"
-              className="outline-none bg-white focus:ring-0"
-              country={'us'} // Default country
-              onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US, Canada, and Mexico
-              disableDropdown={false} // Enable dropdown to switch between US/CA
-              countryCodeEditable={false}
-              disableCountryCode={false}
-              value={userPhoneNumber}
-              onChange={handlePhoneNumberChange}
-              placeholder={
-                locationLoader
-                  ? 'Loading location ...'
-                  : 'Enter Phone Number'
-              }
-              disabled={loading} // Disable input if still loading
-              style={{
-                borderRadius: '7px',
-                border: '2px solid #00000020',
-                outline: 'none',
-                boxShadow: 'none',
-              }}
-              inputStyle={{
-                width: '100%',
-                borderWidth: '0px',
-                backgroundColor: 'transparent',
-                // paddingLeft: "30px",
-                paddingTop: '20px',
-                paddingBottom: '20px',
-                outline: 'none',
-                boxShadow: 'none',
-              }}
-              buttonStyle={{
-                border: 'none',
-                backgroundColor: 'transparent',
-                outline: 'none',
-                // display: 'flex',
-                // alignItems: 'center',
-                // justifyContent: 'center',
-              }}
-              dropdownStyle={{
-                maxHeight: '150px',
-                overflowY: 'auto',
-              }}
-              defaultMask={loading ? 'Loading...' : undefined}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === 'Done') {
-                  inputsFields.current[3]?.focus() // Move to the second input
-                }
-              }}
-            />
+                <PhoneInput
+                  ref={(el) => (inputsFields.current[2] = el)}
+                  containerClass="phone-input-container"
+                  className="outline-none bg-white focus:ring-0"
+                  country={'us'} // Default country
+                  onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US, Canada, and Mexico
+                  disableDropdown={false} // Enable dropdown to switch between US/CA
+                  countryCodeEditable={false}
+                  disableCountryCode={false}
+                  value={userPhoneNumber}
+                  onChange={handlePhoneNumberChange}
+                  placeholder={
+                    locationLoader
+                      ? 'Loading location ...'
+                      : 'Enter Phone Number'
+                  }
+                  disabled={loading} // Disable input if still loading
+                  style={{
+                    borderRadius: '7px',
+                    border: '2px solid #00000020',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  inputStyle={{
+                    width: '100%',
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent',
+                    // paddingLeft: "30px",
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  buttonStyle={{
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    outline: 'none',
+                    // display: 'flex',
+                    // alignItems: 'center',
+                    // justifyContent: 'center',
+                  }}
+                  dropdownStyle={{
+                    maxHeight: '150px',
+                    overflowY: 'auto',
+                  }}
+                  defaultMask={loading ? 'Loading...' : undefined}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[3]?.focus() // Move to the second input
+                    }
+                  }}
+                />
               </div>
 
               <div style={styles.headingStyle} className="mt-6">

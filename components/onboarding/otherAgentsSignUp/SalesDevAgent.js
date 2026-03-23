@@ -30,6 +30,7 @@ import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
 import { Input } from '@/components/ui/input'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -301,7 +302,7 @@ const SalesDevAgent = ({
       const agencyUuid = getAgencyUUIDForAPI()
       if (agencyUuid) {
         formData.append('agencyUuid', agencyUuid)
-      } else {}
+      } else { }
 
       // Add hostname for auto-detecting agency from custom domain/subdomain
       let hostname = null
@@ -354,7 +355,7 @@ const SalesDevAgent = ({
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
           //console.log;
           try {
@@ -670,6 +671,13 @@ const SalesDevAgent = ({
                     return
                   }
 
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
+                  }
+
                   if (!validateEmail(value)) {
                     // //console.log;
                     setValidEmail('Invalid')
@@ -758,7 +766,7 @@ const SalesDevAgent = ({
                   containerClass="phone-input-container"
                   className="outline-none bg-white focus:ring-0"
                   country={'us'} // Default country
-                  onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US, Canada, and Mexico
+                  onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US, Canada, and Mexico
                   disableDropdown={false} // Enable dropdown to switch between US/CA
                   countryCodeEditable={false}
                   disableCountryCode={false}

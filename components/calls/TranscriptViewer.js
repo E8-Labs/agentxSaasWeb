@@ -59,7 +59,7 @@ export function TranscriptBubble({
         </div>
         {isBot && (
           <div className="flex gap-2 mt-1 pl-2">
-            {showLikeDislike || callDetails?.callOrigin !== 'dialer' && (
+            {(showLikeDislike || callDetails?.callOrigin !== 'dialer') && (
               <>
                 <button
                   ref={likeBtnRef}

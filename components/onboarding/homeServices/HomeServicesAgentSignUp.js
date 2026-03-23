@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/input'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 const TECHNICIANS_OPTIONS = [
   { id: 'just_me', title: 'Just me' },
@@ -468,6 +469,12 @@ const HomeServicesAgentSignUp = ({
                   if (!value) {
                     setValidEmail('')
                     return
+                  }
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
                   }
                   if (!validateEmail(value)) setValidEmail('Invalid')
                   else {

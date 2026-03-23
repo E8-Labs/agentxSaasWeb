@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/input'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 const PRIMARY_SELL_OPTIONS = [
   { id: 'high_ticket_coaching', title: 'High-Ticket Coaching ($3k+)' },
@@ -447,6 +448,12 @@ const CreatorAgentSignUp = ({
                   if (!value) {
                     setValidEmail('')
                     return
+                  }
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
                   }
                   if (!validateEmail(value)) setValidEmail('Invalid')
                   else {

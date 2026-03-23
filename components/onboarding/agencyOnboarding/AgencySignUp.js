@@ -36,6 +36,7 @@ import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
 import { forceApplyBranding } from '@/utilities/applyBranding'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 const AgencySignUp = ({
   handleContinue,
@@ -226,7 +227,7 @@ const AgencySignUp = ({
   // Handler to confirm reset and show verify popup
   const handleConfirmReset = async () => {
     setShowResetConfirmation(false)
-   
+
     await handleVerifyPopup()
   }
 
@@ -414,7 +415,7 @@ const AgencySignUp = ({
       formData.append('verificationCode', VerifyCode.join(''))
 
       // //console.log;
-      for (let [key, value] of formData.entries()) {}
+      for (let [key, value] of formData.entries()) { }
 
       // return;
       const response = await axios.post(ApiPath, formData)
@@ -442,7 +443,7 @@ const AgencySignUp = ({
               userName,
               response.data.data.user?.id,
             )
-          } else {}
+          } else { }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -547,7 +548,7 @@ const AgencySignUp = ({
         } else {
           if (response.data.message.includes('Taken')) {
             setShowResetBtn(true)
-          } 
+          }
           setCheckPhoneResponse(response.data)
         }
       }
@@ -740,6 +741,13 @@ const AgencySignUp = ({
                       return
                     }
 
+                    if (checkEmailFormat(value)) {
+                      setValidEmail(EmailFormatMessage.emailErrMsg)
+                      return
+                    } else {
+                      setValidEmail('')
+                    }
+
                     if (!validateEmail(value)) {
                       // //console.log;
                       setValidEmail('Invalid')
@@ -837,7 +845,7 @@ const AgencySignUp = ({
                     containerClass="phone-input-container"
                     className="outline-none bg-white focus:ring-0"
                     country={'us'} // Default country
-                    onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US, Canada, and Mexico
+                    onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US, Canada, and Mexico
                     disableDropdown={false} // Enable dropdown to switch between US/CA
                     countryCodeEditable={false}
                     disableCountryCode={false}
