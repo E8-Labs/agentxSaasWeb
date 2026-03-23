@@ -2,17 +2,19 @@ import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 
 import Image from 'next/image'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { getUserPlans } from '@/components/userPlans/UserPlanServices'
 import { next30Days } from '@/constants/Constants'
 import { useUser } from '@/hooks/redux-hooks'
 import { getFeaturesToLose, getFreePlan } from '@/utilities/PlanComparisonUtils'
-import { Checkbox } from '@/components/ui/checkbox'
+import PlanFeatureCheckRow from '@/components/userPlans/PlanFeatureCheckRow'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function CancelConfirmation({
   handleContinue,
   isSubaccount = false,
   selectedUser = null,
+  onClose = null,
 }) {
   const [confirmChecked, setConfirmChecked] = useState(false)
   const [features, setFeatures] = useState([])
@@ -95,32 +97,44 @@ function CancelConfirmation({
           // Use getFeaturesToLose function to get actual features that will be lost
           const featuresToLose = getFeaturesToLose(currentPlanDetails, freePlan)
 
-          // Convert to the format expected by the UI
-          const planFeatures = featuresToLose.map((feature, index) => ({
-            id: index + 1,
-            title: feature,
-          }))
+          const planFeatures = featuresToLose.map((title, index) => {
+            let info
+            if (Array.isArray(currentPlanDetails.features)) {
+              const match = currentPlanDetails.features.find(
+                (f) => f.text === title,
+              )
+              if (match?.subtext) {
+                info = match.subtext
+              }
+            }
+            return {
+              id: index + 1,
+              title,
+              ...(info ? { info } : {}),
+            }
+          })
 
           setFeatures(planFeatures)
         } else if (isSubaccount) {
-          let currentPlanFeatures = currentPlanDetails.features
-          if (typeof currentPlanFeatures === 'object') {
-            currentPlanFeatures = currentPlanFeatures.map(
-              (feature) => feature.text,
-            )
-          } else if (typeof currentPlanFeatures === 'string') {
-            //convert to json array
-            let planFeaturesJson = JSON.parse(currentPlanFeatures)
-            currentPlanFeatures = planFeaturesJson.map(
-              (feature) => feature.text,
-            )
+          let raw = currentPlanDetails?.features
+          if (typeof raw === 'string') {
+            raw = JSON.parse(raw)
           }
-          const featuresToLose = currentPlanFeatures.map((feature, index) => {
-            return {
-              id: index,
-              title: feature,
-            }
-          })
+          if (!Array.isArray(raw)) {
+            raw = []
+          }
+          const featuresToLose = raw
+            .map((feature, index) => {
+              if (typeof feature === 'string') {
+                return { id: index, title: feature }
+              }
+              return {
+                id: index,
+                title: feature?.text,
+                ...(feature?.subtext ? { info: feature.subtext } : {}),
+              }
+            })
+            .filter((f) => f.title)
 
           setFeatures(featuresToLose)
         } else {
@@ -161,114 +175,147 @@ function CancelConfirmation({
     ]
   }
 
+  const featureList = (
+    <>
+      {loading ? (
+        <div className="flex w-full items-center justify-center py-8">
+          <div className="text-center">
+            <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-brand-primary" />
+            <div className="text-xs text-muted-foreground">
+              Loading features...
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 grid w-full grid-cols-2 gap-x-2 gap-y-1 text-left">
+          {Array.isArray(features) &&
+            features.map((item, index) => (
+              <PlanFeatureCheckRow
+                key={item.id ?? index}
+                text={item.title}
+                info={item.info}
+              />
+            ))}
+        </div>
+      )}
+    </>
+  )
+
+  const footerSection = (
+    <div className="flex w-full flex-shrink-0 flex-col gap-3 border-t border-[#eaeaea] bg-background px-4 py-3">
+      <div className="flex w-full flex-row items-start justify-start gap-2">
+        <button
+          type="button"
+          className="mt-0.5 flex-shrink-0"
+          onClick={() => {
+            setConfirmChecked(!confirmChecked)
+          }}
+        >
+          {confirmChecked ? (
+            <div
+              className="flex flex-row items-center justify-center rounded border-2 border-brand-primary bg-brand-primary"
+              style={{ height: '20px', width: '20px' }}
+            >
+              <Image
+                src="/assets/whiteTick.png"
+                alt=""
+                width={12}
+                height={12}
+                className="object-contain"
+              />
+            </div>
+          ) : (
+            <div
+              className="flex flex-row items-center justify-center rounded border-2 border-input bg-transparent"
+              style={{ height: '20px', width: '20px' }}
+            />
+          )}
+        </button>
+
+        <div className="text-left text-sm font-normal text-muted-foreground">
+          I confirm that my account will be cancelled and lose access.
+        </div>
+      </div>
+
+      <button
+        type="button"
+        className={`flex h-10 w-full items-center justify-center rounded-lg px-4 text-sm font-semibold transition-all duration-150 active:scale-[0.98] ${!confirmChecked ? 'cursor-not-allowed bg-muted text-muted-foreground' : 'bg-brand-primary text-white hover:opacity-90'}`}
+        style={{ outline: 'none' }}
+        disabled={!confirmChecked}
+        onClick={() => {
+          const nextAction = 'finalStep'
+          handleContinue(nextAction)
+        }}
+      >
+        Confirm Cancellation
+      </button>
+    </div>
+  )
+
+  if (onClose) {
+    return (
+      <div className="flex h-auto flex-col">
+        <div className="flex flex-shrink-0 flex-row items-center justify-between border-b border-[#eaeaea] px-4 py-3">
+          <h2 className="text-base font-semibold text-foreground">
+            Confirm Your Cancellation
+          </h2>
+          <CloseBtn onClick={onClose} />
+        </div>
+
+        <div
+          className="overflow-x-hidden px-4 py-4 text-sm text-muted-foreground"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          <div className="flex flex-col items-center">
+            {renderBrandedIcon('/otherAssets/IconAccount.png', 48, 48)}
+            <div className="mt-3 w-full text-center leading-snug">
+              {`Cancelling means you'll lose access to the features below starting `}
+              <span className="font-semibold text-foreground">{nxtCharge}</span>
+              {`. Still want to move forward?`}
+            </div>
+            <div className="mt-3 w-full text-center font-normal text-foreground">
+              You&apos;ll lose access to
+            </div>
+            {featureList}
+          </div>
+        </div>
+
+        {footerSection}
+      </div>
+    )
+  }
+
   return (
-    <div className="grid grid-rows-[1fr_auto] h-full gap-2 lg:gap-3">
-      {/* Scrollable content area */}
+    <div className="flex h-auto flex-col gap-2 lg:gap-3">
       <div
-        className="overflow-y-auto overflow-x-hidden h-auto"
+        className="overflow-x-hidden px-4"
         style={{
           scrollbarWidth: 'none',
         }}
       >
-        <div className="flex flex-col items-center px-1 lg:px-0 pb-3 lg:pb-4">
+        <div className="flex flex-col items-center pb-3 pt-1 lg:pb-4">
           {renderBrandedIcon('/otherAssets/IconAccount.png', 48, 48)}
-          <div className="text-center mt-1 lg:mt-2 text-lg lg:text-xl font-semibold">
+          <div className="mt-1 text-center text-lg font-semibold lg:mt-2 lg:text-xl">
             Confirm Your Cancellation
           </div>
 
-          <div className="flex flex-col items-center justify-center w-full mt-1 lg:mt-2">
-            <div className="text-center text-sm lg:text-base font-normal leading-tight lg:leading-normal">
-              {`Cancelling means you'll lose access to the features below starting  `}
-              <span className="font-bold">{nxtCharge}</span>
+          <div className="mt-1 flex w-full flex-col items-center justify-center lg:mt-2">
+            <div className="text-center text-sm font-normal leading-snug lg:text-base">
+              {`Cancelling means you'll lose access to the features below starting `}
+              <span className="font-semibold text-foreground">{nxtCharge}</span>
               {` . Still want to move forward?`}
             </div>
 
-            <div className="text-center text-sm lg:text-base font-normal mt-2 lg:mt-3">
-              {`You'll lose access to`}
+            <div className="mt-2 text-center text-sm font-normal lg:mt-3 lg:text-base">
+              You&apos;ll lose access to
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center w-full mt-3 lg:mt-4 py-6 lg:py-8">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 lg:h-8 lg:w-8 border-b-2 border-brand-primary mx-auto mb-2"></div>
-                  <div className="text-xs lg:text-sm text-gray-600">
-                    Loading features...
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-y-2 lg:gap-y-3 w-full mt-3 lg:mt-4">
-                {Array.isArray(features) &&
-                  features.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-row items-center gap-1.5 lg:gap-2 flex-1 basis-1/2 min-w-0"
-                    >
-                      <Checkbox
-                        checked={true}
-                        className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                      />
-                      <div className="text-xs lg:text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
-                        {item.title}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
+            {featureList}
           </div>
         </div>
       </div>
 
-      {/* Fixed bottom section with checkbox and button */}
-      <div className="flex-shrink-0 flex flex-col w-full gap-2 lg:gap-3 pt-3 lg:pt-4 border-t border-gray-200 bg-white">
-        <div className="flex flex-row items-center w-full justify-start gap-2">
-          <button
-            onClick={() => {
-              setConfirmChecked(!confirmChecked)
-            }}
-          >
-            {confirmChecked ? (
-              <div
-                className="bg-brand-primary flex flex-row items-center justify-center rounded border-2 border-brand-primary"
-                style={{ height: '20px', width: '20px' }}
-              >
-                <Image
-                  src="/assets/whiteTick.png"
-                  alt=""
-                  width={12}
-                  height={12}
-                  className="object-contain"
-                />
-              </div>
-            ) : (
-              <div
-                className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                style={{ height: '20px', width: '20px' }}
-              ></div>
-            )}
-          </button>
-
-          <div className="text-xs font-normal">
-            I confirm that my account will be cancelled and lose access.
-          </div>
-        </div>
-
-        <button
-          className={`w-full flex items-center rounded-lg justify-center border h-[44px] lg:h-[50px] ${!confirmChecked ? 'bg-gray-300 text-black' : 'bg-brand-primary text-white'}`}
-          style={{
-            fontWeight: '400',
-            fontSize: 14,
-            outline: 'none',
-          }}
-          disabled={!confirmChecked}
-          onClick={() => {
-            let nextAction = 'finalStep'
-            handleContinue(nextAction)
-          }}
-        >
-          Confirm Cancellation
-        </button>
-      </div>
+      {footerSection}
     </div>
   )
 }
