@@ -77,6 +77,8 @@ export default function AgencyTemplatesList() {
   const [assignError, setAssignError] = useState(null)
   const [selectedSubaccountId, setSelectedSubaccountId] = useState(null)
   const [assignAnchorEl, setAssignAnchorEl] = useState(null)
+  const [assignOutboundSelected, setAssignOutboundSelected] = useState(true)
+  const [assignInboundSelected, setAssignInboundSelected] = useState(true)
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -159,6 +161,9 @@ export default function AgencyTemplatesList() {
 
   const handleAssignClick = () => {
     if (!selectedTemplate) return
+    const templateType = (selectedTemplate?.agentType || 'both').toLowerCase()
+    setAssignOutboundSelected(templateType === 'both' || templateType === 'outbound')
+    setAssignInboundSelected(templateType === 'both' || templateType === 'inbound')
     setAssignAnchorEl(menuAnchorEl)
     setAssigningForTemplate(selectedTemplate)
     setAssignModalOpen(true)
@@ -201,6 +206,8 @@ export default function AgencyTemplatesList() {
     setAssigningForTemplate(null)
     setAssignSubaccounts([])
     setSelectedSubaccountId(null)
+    setAssignOutboundSelected(true)
+    setAssignInboundSelected(true)
     setAssignError(null)
   }
 
@@ -221,12 +228,19 @@ export default function AgencyTemplatesList() {
     if (!assigningForTemplate || selectedSubaccountId == null) return
     const template = assigningForTemplate
     const agentName = template.agentRole || template.name || 'Agent'
+    let selectedAgentType = 'both'
+    if (assignOutboundSelected && !assignInboundSelected) selectedAgentType = 'outbound'
+    if (!assignOutboundSelected && assignInboundSelected) selectedAgentType = 'inbound'
+    if (!assignOutboundSelected && !assignInboundSelected) {
+      setAssignError('Select outbound, inbound, or both.')
+      return
+    }
     const formData = new FormData()
     formData.append('userId', selectedSubaccountId)
     formData.append('agentTemplateId', template.agentTemplateId)
     formData.append('name', agentName)
     formData.append('agentRole', template.agentRole || '')
-    formData.append('agentType', template.agentType || 'both')
+    formData.append('agentType', selectedAgentType)
     formData.append('agentObjective', template.name || '')
     formData.append('agentObjectiveDescription', template.description || '')
     setAssignAgentLoading(true)
@@ -686,6 +700,58 @@ export default function AgencyTemplatesList() {
             <Typography sx={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: textPrimary, fontSize: '1rem' }}>
               Assign template to subaccount
             </Typography>
+            <Box sx={{ mt: 1.25 }}>
+              <Typography sx={{ fontSize: '0.75rem', color: textSecondary, mb: 0.75 }}>
+                Select agent type
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Button
+                  size="small"
+                  variant={assignOutboundSelected ? 'contained' : 'outlined'}
+                  onClick={() => setAssignOutboundSelected((prev) => !prev)}
+                  sx={{
+                    minWidth: 94,
+                    textTransform: 'none',
+                    borderRadius: '999px',
+                    ...(assignOutboundSelected
+                      ? {
+                          bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
+                          color: '#fff !important',
+                        }
+                      : {
+                          borderColor: 'rgba(21,21,21,0.2)',
+                          color: textPrimary,
+                        }),
+                  }}
+                >
+                  Outbound
+                </Button>
+                <Button
+                  size="small"
+                  variant={assignInboundSelected ? 'contained' : 'outlined'}
+                  onClick={() => setAssignInboundSelected((prev) => !prev)}
+                  sx={{
+                    minWidth: 86,
+                    textTransform: 'none',
+                    borderRadius: '999px',
+                    ...(assignInboundSelected
+                      ? {
+                          bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
+                          color: '#fff !important',
+                        }
+                      : {
+                          borderColor: 'rgba(21,21,21,0.2)',
+                          color: textPrimary,
+                        }),
+                  }}
+                >
+                  Inbound
+                </Button>
+              </Box>
+              <Typography sx={{ fontSize: '0.7rem', color: textSecondary, mt: 0.6 }}>
+                Selecting both will create 2 agents.
+              </Typography>
+            </Box>
           </Box>
           <Box sx={{ px: 2, flex: 1, minHeight: 0, overflow: 'auto' }}>
             {assignSubaccountsLoading ? (
@@ -731,7 +797,13 @@ export default function AgencyTemplatesList() {
             <Button
               variant="contained"
               onClick={handleConfirmAssign}
-              disabled={assignSubaccountsLoading || assignAgentLoading || !selectedSubaccountId || assignSubaccounts.length === 0}
+              disabled={
+                assignSubaccountsLoading ||
+                assignAgentLoading ||
+                !selectedSubaccountId ||
+                assignSubaccounts.length === 0 ||
+                (!assignOutboundSelected && !assignInboundSelected)
+              }
               sx={{
                 bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
                 color: '#fff !important',
