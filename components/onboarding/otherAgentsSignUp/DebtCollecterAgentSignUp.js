@@ -29,6 +29,7 @@ import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
 import { Input } from '@/components/ui/input'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -396,7 +397,7 @@ const DebtCollerterAgentSignUp = ({
               userName,
               response.data.data.user?.id,
             )
-          } else {}
+          } else { }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -646,6 +647,13 @@ const DebtCollerterAgentSignUp = ({
                     return
                   }
 
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
+                  }
+
                   if (!validateEmail(value)) {
                     // //console.log;
                     setValidEmail('Invalid')
@@ -734,7 +742,7 @@ const DebtCollerterAgentSignUp = ({
                   containerClass="phone-input-container"
                   className="outline-none bg-white focus:ring-0"
                   country={'us'} // restrict to US only
-                  onlyCountries={['us', 'mx','sv', 'ec']}
+                  onlyCountries={['us', 'mx', 'sv', 'ec']}
                   disableDropdown={true}
                   countryCodeEditable={false}
                   disableCountryCode={false}

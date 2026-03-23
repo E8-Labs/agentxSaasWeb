@@ -29,6 +29,7 @@ import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
 import { Input } from '@/components/ui/input'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -364,7 +365,7 @@ const MarketerAgentSignUp = ({
               userName,
               response.data.data.user?.id,
             )
-          } else {}
+          } else { }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -657,6 +658,13 @@ const MarketerAgentSignUp = ({
                     return
                   }
 
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
+                  }
+
                   if (!validateEmail(value)) {
                     // //console.log;
                     setValidEmail('Invalid')
@@ -745,7 +753,7 @@ const MarketerAgentSignUp = ({
                   containerClass="phone-input-container"
                   className="outline-none bg-white focus:ring-0"
                   country={'us'} // Default country
-                  onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US, Canada, and Mexico
+                  onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US, Canada, and Mexico
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={

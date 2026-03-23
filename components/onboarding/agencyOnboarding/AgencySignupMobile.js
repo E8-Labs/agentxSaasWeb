@@ -29,6 +29,7 @@ import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
 import { forceApplyBranding } from '@/utilities/applyBranding'
 import SignupHeaderMobile from '../mobileUI/SignupHeaderMobile'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 const AgencySignupMobile = ({
   handleContinue,
@@ -580,6 +581,13 @@ const AgencySignupMobile = ({
                       return
                     }
 
+                    if (checkEmailFormat(value)) {
+                      setValidEmail(EmailFormatMessage.emailErrMsg)
+                      return
+                    } else {
+                      setValidEmail('')
+                    }
+
                     if (!validateEmail(value)) {
                       setValidEmail('Invalid')
                     } else {
@@ -669,7 +677,7 @@ const AgencySignupMobile = ({
                     containerClass="phone-input-container"
                     className="outline-none bg-white focus:ring-0"
                     country={'us'}
-                    onlyCountries={['us', 'ca', 'mx','sv', 'ec']}
+                    onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']}
                     disableDropdown={false}
                     countryCodeEditable={false}
                     disableCountryCode={false}

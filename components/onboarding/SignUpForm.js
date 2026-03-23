@@ -32,6 +32,7 @@ import SendVerificationCode from './services/AuthVerification/AuthService'
 import SnackMessages from './services/AuthVerification/SnackMessages'
 import { getLocalLocation } from './services/apisServices/ApiService'
 import { Input } from '@/components/ui/input'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 const SignUpForm = ({
   handleContinue,
@@ -377,7 +378,7 @@ const SignUpForm = ({
               userName,
               response.data.data.user?.id,
             )
-          } else {}
+          } else { }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -581,10 +582,10 @@ const SignUpForm = ({
             <div
               className="w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
-              // onClick={()=>{
-              //   console.log('push',)
-              //   router.push("/createagent")
-              // }}
+            // onClick={()=>{
+            //   console.log('push',)
+            //   router.push("/createagent")
+            // }}
             >
               Your Contact Information
             </div>
@@ -698,6 +699,13 @@ const SignUpForm = ({
                     return
                   }
 
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
+                  }
+
                   if (!validateEmail(value)) {
                     // //console.log;
                     setValidEmail('Invalid')
@@ -795,7 +803,7 @@ const SignUpForm = ({
                   containerClass="phone-input-container"
                   className="outline-none bg-white focus:ring-0"
                   country={'us'} // Default country
-                  onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US and Canada only
+                  onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US and Canada only
                   disableDropdown={false} // Enable dropdown to switch between US/CA
                   countryCodeEditable={false}
                   disableCountryCode={false}
@@ -1123,7 +1131,7 @@ const SignUpForm = ({
                             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
                               typeof navigator !== 'undefined' ? navigator.userAgent : ''
                             )
-                            
+
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
                               // Mobile: Navigate to payment step (step 4) to allow subscription
                               router.push('/createagent?step=4')

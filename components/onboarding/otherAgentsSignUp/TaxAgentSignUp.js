@@ -30,6 +30,7 @@ import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
 import { Input } from '@/components/ui/input'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -359,7 +360,7 @@ const TaxAgentSignUp = ({
               userName,
               response.data.data.user?.id,
             )
-          } else {}
+          } else { }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -667,6 +668,13 @@ const TaxAgentSignUp = ({
                     return
                   }
 
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
+                  }
+
                   if (!validateEmail(value)) {
                     // //console.log;
                     setValidEmail('Invalid')
@@ -750,39 +758,39 @@ const TaxAgentSignUp = ({
                 </div>
               </div>
 
-                <div style={{ marginTop: '8px' }}>
-                  <PhoneInput
-                    containerClass="phone-input-container"
-                    className="outline-none bg-white focus:ring-0"
-                    country={'us'} // Default country
-                    onlyCountries={['us', 'ca', 'mx','sv', 'ec']} // Allow US, Canada, and Mexico
-                    disableDropdown={false} // Enable dropdown to switch between US/CA
-                    countryCodeEditable={false}
-                    disableCountryCode={false}
-                    value={userPhoneNumber}
-                    onChange={handlePhoneNumberChange}
-                    placeholder={
-                      locationLoader
-                        ? 'Loading location ...'
-                        : 'Enter Phone Number'
-                    }
-                    disabled={loading} // Disable input if still loading
-                    style={{
-                      borderRadius: '7px',
-                      border: '2px solid #00000020',
-                      outline: 'none',
-                      boxShadow: 'none',
-                    }}
-                    inputStyle={{
-                      width: '100%',
-                      borderWidth: '0px',
-                      backgroundColor: 'transparent',
-                      paddingLeft: '60px',
-                      paddingTop: '20px',
-                      paddingBottom: '20px',
-                      outline: 'none',
-                      boxShadow: 'none',
-                    }}
+              <div style={{ marginTop: '8px' }}>
+                <PhoneInput
+                  containerClass="phone-input-container"
+                  className="outline-none bg-white focus:ring-0"
+                  country={'us'} // Default country
+                  onlyCountries={['us', 'ca', 'mx', 'sv', 'ec']} // Allow US, Canada, and Mexico
+                  disableDropdown={false} // Enable dropdown to switch between US/CA
+                  countryCodeEditable={false}
+                  disableCountryCode={false}
+                  value={userPhoneNumber}
+                  onChange={handlePhoneNumberChange}
+                  placeholder={
+                    locationLoader
+                      ? 'Loading location ...'
+                      : 'Enter Phone Number'
+                  }
+                  disabled={loading} // Disable input if still loading
+                  style={{
+                    borderRadius: '7px',
+                    border: '2px solid #00000020',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  inputStyle={{
+                    width: '100%',
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent',
+                    paddingLeft: '60px',
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
                   buttonStyle={{
                     border: 'none',
                     backgroundColor: 'transparent',

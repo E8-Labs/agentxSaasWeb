@@ -29,6 +29,7 @@ import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
 import { Input } from '@/components/ui/input'
+import { checkEmailFormat, EmailFormatMessage } from '@/utilities/CheckEmailValididtlyUtility'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -421,7 +422,7 @@ const LawAgentSignUp = ({
               userName,
               response.data.data.user?.id,
             )
-          } else {}
+          } else { }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -715,6 +716,13 @@ const LawAgentSignUp = ({
                     // //console.log;
                     setValidEmail('')
                     return
+                  }
+
+                  if (checkEmailFormat(value)) {
+                    setValidEmail(EmailFormatMessage.emailErrMsg)
+                    return
+                  } else {
+                    setValidEmail('')
                   }
 
                   if (!validateEmail(value)) {
