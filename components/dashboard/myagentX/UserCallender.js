@@ -50,6 +50,8 @@ const UserCalender = ({
   showTools = false,
   selectedActionTab,
 }) => {
+  const DEFAULT_AVAILABILITY_REQUEST_COMPLETE =
+    'Ok, lets see, do you prefer mornings or afternoons?'
   const justLoggedIn = useRef(false)
 
   // console.log("calender passed is", selectedAgent);
@@ -119,8 +121,9 @@ const UserCalender = ({
     token: reduxToken,
   } = useUser()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [availabilityRequestComplete, setAvailabilityRequestComplete] =
-    useState('')
+  const [availabilityRequestComplete, setAvailabilityRequestComplete] = useState(
+    DEFAULT_AVAILABILITY_REQUEST_COMPLETE,
+  )
   const [phrasesLoading, setPhrasesLoading] = useState(false)
   const [phrasesSaving, setPhrasesSaving] = useState(false)
 
@@ -195,11 +198,12 @@ const UserCalender = ({
       })
       if (response?.data?.status && response?.data?.data) {
         setAvailabilityRequestComplete(
-          response.data.data.availabilityRequestComplete || '',
+          response.data.data.availabilityRequestComplete ||
+            DEFAULT_AVAILABILITY_REQUEST_COMPLETE,
         )
       }
     } catch (error) {
-      // no-op, keep existing defaults from backend
+      setAvailabilityRequestComplete(DEFAULT_AVAILABILITY_REQUEST_COMPLETE)
     } finally {
       setPhrasesLoading(false)
     }
