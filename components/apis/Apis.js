@@ -90,6 +90,8 @@ const Apis = {
   createPipeLine: `${BasePath}api/pipeline/createPipeline`,
   testAI: `${BasePath}api/agent/testAi`,
   addCalender: `${BasePath}api/calendar/createCalendar`,
+  getCalendarToolPhrases: `${BasePath}api/calendar/toolPhrases`,
+  updateCalendarToolPhrases: `${BasePath}api/calendar/toolPhrases`,
   addLeadNote: `${BasePath}api/leads/addLeadNote`,
   updateLeadNote: `/api/leads`, // Will be used with noteId in path
   deleteLeadNote: `/api/leads`, // Will be used with noteId in path
