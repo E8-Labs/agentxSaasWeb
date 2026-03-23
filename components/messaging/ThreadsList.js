@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2, MessageSquareDot, X, Star, Settings, Sparkles, Check } from 'lucide-react'
 import PlatformIcon from './PlatformIcon'
@@ -79,6 +79,30 @@ const ThreadsList = ({
   const [filterPillStyle, setFilterPillStyle] = useState({ top: 0, height: 0 })
   const filterListRef = useRef(null)
   const filterOptionRefs = useRef(Object.create(null))
+  const threadRowRefs = useRef(Object.create(null))
+
+  const selectedThreadId = selectedThread?.id
+  const selectedThreadIndex =
+    selectedThreadId != null ? threads.findIndex((t) => t.id === selectedThreadId) : -1
+
+  useLayoutEffect(() => {
+    if (selectedThreadId == null || selectedThreadIndex < 0) return
+    const container = scrollContainerRef.current
+    const el = threadRowRefs.current[selectedThreadId]
+    if (!container || !el || !container.contains(el)) return
+
+    const containerRect = container.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    const scrollTop = container.scrollTop
+    const elTopInContent = elRect.top - containerRect.top + scrollTop
+    const elHeight = elRect.height
+    const viewHeight = container.clientHeight
+    const targetScrollTop = elTopInContent + elHeight / 2 - viewHeight / 2
+    const maxScroll = Math.max(0, container.scrollHeight - viewHeight)
+    const clampedTop = Math.max(0, Math.min(maxScroll, targetScrollTop))
+
+    container.scrollTo({ top: clampedTop, behavior: 'smooth' })
+  }, [selectedThreadId, selectedThreadIndex])
 
   const setScrollContainerRef = useCallback((el) => {
     scrollContainerRef.current = el
@@ -501,6 +525,10 @@ const ThreadsList = ({
                 return (
                   <div
                     key={thread.id}
+                    ref={(el) => {
+                      if (el) threadRowRefs.current[thread.id] = el
+                      else delete threadRowRefs.current[thread.id]
+                    }}
                     onClick={() => onSelectThread(thread)}
                     className={cn(
                       "relative py-4 px-3 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-none transition-transform duration-150 ease-out active:scale-[0.98]",
