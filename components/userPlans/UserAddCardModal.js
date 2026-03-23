@@ -358,20 +358,22 @@ const UserAddCard = ({
     }
   }, [inviteCode, selectedPlan?.id])
 
+  // Stripe iframes do not resolve host-page CSS variables — hsl(var(--…)) becomes invalid and text can render invisible on white.
   const elementOptions = {
     style: {
       base: {
         backgroundColor: 'transparent',
-        color: 'hsl(var(--foreground))',
-        fontSize: '14px',
+        color: '#0f172a',
+        fontSize: '16px',
         lineHeight: '42px',
-        fontFamily: 'inherit',
+        fontFamily:
+          'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         '::placeholder': {
-          color: 'hsl(var(--muted-foreground))',
+          color: '#64748b',
         },
       },
       invalid: {
-        color: 'hsl(var(--destructive))',
+        color: '#dc2626',
       },
     },
   }
@@ -816,21 +818,23 @@ const UserAddCard = ({
                   Expiry
                 </label>
                 <div className="min-h-[42px] border border-border rounded-lg px-3 bg-white flex items-center transition-[box-shadow,border-color] duration-150 focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 focus-within:outline-none">
-                  <CardExpiryElement
-                    options={elementOptions}
-                    onChange={(event) => {
-                      handleFieldChange(event, cardCvcRef)
-                      if (event.complete) {
-                        setCardExpiry(true)
-                      } else {
-                        setCardExpiry(false)
-                      }
-                    }}
-                    ref={cardExpiryRef}
-                    onReady={(element) => {
-                      cardExpiryRef.current = element
-                    }}
-                  />
+                  <div className="w-full min-w-0 flex-1">
+                    <CardExpiryElement
+                      options={elementOptions}
+                      onChange={(event) => {
+                        handleFieldChange(event, cardCvcRef)
+                        if (event.complete) {
+                          setCardExpiry(true)
+                        } else {
+                          setCardExpiry(false)
+                        }
+                      }}
+                      ref={cardExpiryRef}
+                      onReady={(element) => {
+                        cardExpiryRef.current = element
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex-1">
@@ -838,23 +842,25 @@ const UserAddCard = ({
                   CVC
                 </label>
                 <div className="min-h-[42px] border border-border rounded-lg px-3 bg-white flex items-center transition-[box-shadow,border-color] duration-150 focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 focus-within:outline-none">
-                  <CardCvcElement
-                    options={{
-                      ...elementOptions,
-                      placeholder: 'CVC',
-                    }}
-                    ref={cardCvcRef}
-                    onReady={(element) => {
-                      cardCvcRef.current = element
-                    }}
-                    onChange={(event) => {
-                      if (event.complete) {
-                        setCVC(true)
-                      } else {
-                        setCVC(false)
-                      }
-                    }}
-                  />
+                  <div className="w-full min-w-0 flex-1">
+                    <CardCvcElement
+                      options={{
+                        ...elementOptions,
+                        placeholder: 'CVC',
+                      }}
+                      ref={cardCvcRef}
+                      onReady={(element) => {
+                        cardCvcRef.current = element
+                      }}
+                      onChange={(event) => {
+                        if (event.complete) {
+                          setCVC(true)
+                        } else {
+                          setCVC(false)
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1152,21 +1158,23 @@ const UserAddCard = ({
                           Exp Date
                         </label>
                         <div className="min-h-[42px] px-3 border border-border rounded-lg bg-white flex items-center transition-[box-shadow,border-color] duration-150 focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 focus-within:outline-none">
-                          <CardExpiryElement
-                            options={elementOptions}
-                            onChange={(event) => {
-                              handleFieldChange(event, cardCvcRef)
-                              if (event.complete) {
-                                setCardExpiry(true)
-                              } else {
-                                setCardExpiry(false)
-                              }
-                            }}
-                            ref={cardExpiryRef}
-                            onReady={(element) => {
-                              cardExpiryRef.current = element
-                            }}
-                          />
+                          <div className="w-full min-w-0 flex-1">
+                            <CardExpiryElement
+                              options={elementOptions}
+                              onChange={(event) => {
+                                handleFieldChange(event, cardCvcRef)
+                                if (event.complete) {
+                                  setCardExpiry(true)
+                                } else {
+                                  setCardExpiry(false)
+                                }
+                              }}
+                              ref={cardExpiryRef}
+                              onReady={(element) => {
+                                cardExpiryRef.current = element
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                       <div className={isSmallScreen ? 'w-full' : 'flex-1 min-w-0'}>
@@ -1174,23 +1182,25 @@ const UserAddCard = ({
                           CVV
                         </label>
                         <div className="min-h-[42px] px-3 border border-border rounded-lg bg-white flex items-center transition-[box-shadow,border-color] duration-150 focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 focus-within:outline-none">
-                          <CardCvcElement
-                            options={{
-                              ...elementOptions,
-                              placeholder: 'CVV',
-                            }}
-                            ref={cardCvcRef}
-                            onReady={(element) => {
-                              cardCvcRef.current = element
-                            }}
-                            onChange={(event) => {
-                              if (event.complete) {
-                                setCVC(true)
-                              } else {
-                                setCVC(false)
-                              }
-                            }}
-                          />
+                          <div className="w-full min-w-0 flex-1">
+                            <CardCvcElement
+                              options={{
+                                ...elementOptions,
+                                placeholder: 'CVV',
+                              }}
+                              ref={cardCvcRef}
+                              onReady={(element) => {
+                                cardCvcRef.current = element
+                              }}
+                              onChange={(event) => {
+                                if (event.complete) {
+                                  setCVC(true)
+                                } else {
+                                  setCVC(false)
+                                }
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
