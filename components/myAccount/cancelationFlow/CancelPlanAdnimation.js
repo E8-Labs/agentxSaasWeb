@@ -179,22 +179,18 @@ export default function CancelPlanAnimation({
   return (
     <Modal
       open={showModal}
-      // onClose={() => {
-      //     handleClose();
-      // }}
-      // BackdropProps={{
-      //     timeout: 200,
-      //     sx: {
-      //         backgroundColor: "#00000020",
-      //         zIndex: 1200, // Keep backdrop below Drawer
-      //     },
-      // }}
+      closeAfterTransition
+      BackdropProps={{
+        timeout: 250,
+        sx: {
+          backgroundColor: '#00000099',
+        },
+      }}
       sx={{
         zIndex: 1300, // Keep Modal below the Drawer
-        // backgroundColor: "red"
       }}
     >
-      <Box className="rounded-xl w-7/12 shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
+      <Box className="absolute left-1/2 top-1/2 flex max-h-[90vh] w-[min(92vw,720px)] max-w-[720px] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl border-none shadow-none">
         <div className="relative flex justify-center items-center w-full">
           <AnimatePresence initial={false} custom={direction}>
             {currentIndex === 0 && (
@@ -296,57 +292,42 @@ export default function CancelPlanAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[70%] bg-white h-[75vh] p-3 lg:p-6 border-none outline-none flex flex-col"
-                // style={styles.motionDiv}
+                className="flex h-auto max-h-[90vh] w-full max-w-[min(92vw,500px)] flex-col overflow-y-auto rounded-[12px] border border-[#eaeaea] bg-white shadow-[0_4px_36px_rgba(0,0,0,0.25)] outline-none"
               >
-                <div className="flex flex-col h-full min-h-0">
-                  <div className="flex flex-row justify-end flex-shrink-0">
-                    <CloseBtn
-                      onClick={() => {
-                        handleClose()
-                        setCurrentIndex(-1)
-                      }}
-                    />
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    <CancelConfirmation
-                      handleContinue={handleContinue}
-                      setShowSnak={setShowSnak}
-                      isSubaccount={isAgencySubAccount}
-                      selectedUser={selectedUser}
-                    />
-                  </div>
-                </div>
+                <CancelConfirmation
+                  handleContinue={handleContinue}
+                  setShowSnak={setShowSnak}
+                  isSubaccount={isAgencySubAccount}
+                  selectedUser={selectedUser}
+                  onClose={() => {
+                    handleClose()
+                    setCurrentIndex(-1)
+                  }}
+                />
               </motion.div>
             )}
 
             {currentIndex === 4 && (
               <motion.div
-                key="box2"
+                key="box-final"
                 custom={direction}
                 variants={boxVariants}
                 initial="enter"
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[70%] bg-white h-auto p-6 border-none outline-none"
-                // style={styles.motionDiv}
+                className="flex h-auto max-h-[90vh] w-full max-w-[min(92vw,500px)] flex-col overflow-y-auto rounded-[12px] border border-[#eaeaea] bg-white shadow-[0_4px_36px_rgba(0,0,0,0.25)] outline-none"
               >
-                <div className="">
-                  <div className="flex flex-row justify-end">
-                    <CloseBtn
-                      onClick={() => {
-                        handleClose()
-                        setCurrentIndex(-1)
-                      }}
-                    />
-                  </div>
-                  <CancelationFinalStep
-                    handleContinue={handleContinue}
-                    setShowSnak={setShowSnak}
-                    selectedUser={selectedUser}
-                  />
-                </div>
+                <CancelationFinalStep
+                  handleContinue={handleContinue}
+                  setShowSnak={setShowSnak}
+                  selectedUser={selectedUser}
+                  onClose={() => {
+                    handleClose()
+                    setCurrentIndex(-1)
+                  }}
+                  onBack={handleBack}
+                />
               </motion.div>
             )}
 

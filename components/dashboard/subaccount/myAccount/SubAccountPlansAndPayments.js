@@ -1601,24 +1601,24 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser, agencyView, isAgen
         open={showCancelConfirmation}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000030',
+            backgroundColor: '#00000099',
           },
         }}
       >
         <Box
-          className="w-5/12"
+          className="w-full max-w-[min(92vw,500px)] px-4"
           sx={styles.paymentModal}
         >
-          <div className="bg-white rounded-2xl p-6 w-[90%] relative shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex flex-row justify-between items-center w-full mb-4">
-              <div style={{ fontWeight: '600', fontSize: 22 }}>
-                {`What You'll Lose`}
+          <div className="relative flex h-auto max-h-[90vh] w-full max-w-[500px] flex-col overflow-y-auto rounded-[12px] border border-[#eaeaea] bg-white shadow-[0_4px_36px_rgba(0,0,0,0.25)]">
+            <div className="flex w-full flex-shrink-0 flex-row items-center justify-between border-b border-[#eaeaea] px-4 py-3">
+              <div className="text-base font-semibold text-foreground">
+                What You&apos;ll Lose
               </div>
               <CloseBtn onClick={() => setShowCancelConfirmation(false)} />
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex flex-col">
               <CancelConfirmation
                 handleContinue={(nextAction) => {
                   if (nextAction === 'finalStep') {
