@@ -410,7 +410,7 @@ const ConversationView = ({
                             <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
                               {getLeadName(selectedThread)}
                             </div>
-                            {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                            {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'whatsapp' || message.messageType === 'email' || message.messageType === 'sms') && (
                               <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
                             )}
                           </div>
@@ -462,7 +462,7 @@ const ConversationView = ({
                             <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} getImageUrl={getImageUrl} getPlayableUrl={getPlayableUrl} />
                           )}
                           {!isEmail && !isOutbound && message.metadata?.suggestedLeads?.length && selectedThread?.id && onLinkToLeadFromMessage && (() => {
-                            const isDummyLead = selectedThread.lead?.source === 'messenger_dummy' || selectedThread.lead?.source === 'instagram_dummy'
+                            const isDummyLead = selectedThread.lead?.source === 'messenger_dummy' || selectedThread.lead?.source === 'instagram_dummy' || selectedThread.lead?.source === 'whatsapp_dummy'
                             const notYetLinked = !selectedThread.leadId || isDummyLead
                             const notDismissed = !selectedThread.metadata?.suggestedLeadLinksDismissed
                             return notYetLinked && notDismissed
@@ -516,7 +516,7 @@ const ConversationView = ({
                             >
                               <div className="relative flex-shrink-0">
                                 {getAgentAvatar(message)}
-                                {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'email' || message.messageType === 'sms') && (
+                                {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'whatsapp' || message.messageType === 'email' || message.messageType === 'sms') && (
                                   <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
                                 )}
                               </div>

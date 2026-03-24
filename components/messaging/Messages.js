@@ -1296,12 +1296,13 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         emailBody: messageMarkdownToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
-    } else if (draft.messageType === 'messenger' || draft.messageType === 'instagram') {
+    } else if (draft.messageType === 'messenger' || draft.messageType === 'instagram' || draft.messageType === 'whatsapp') {
       setComposerData(prev => ({
         ...prev,
         socialBody: messageMarkdownToHtml(draft.content || ''),
       }))
-      setComposerMode(draft.messageType === 'instagram' ? 'instagram' : 'facebook')
+      if (draft.messageType === 'whatsapp') setComposerMode('whatsapp')
+      else setComposerMode(draft.messageType === 'instagram' ? 'instagram' : 'facebook')
     } else {
       setComposerData(prev => ({
         ...prev,
@@ -2598,7 +2599,10 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   //check which connection is for the selection thread
   const checkselectedThreadSocialConnection = () => {
-    const threadConnectionMetaDataID = selectedThread?.metadata?.instagramAccountId || selectedThread?.metadata?.facebookPageId
+    const threadConnectionMetaDataID =
+      selectedThread?.metadata?.whatsappPhoneNumberId ||
+      selectedThread?.metadata?.instagramAccountId ||
+      selectedThread?.metadata?.facebookPageId
     console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
     const socialConnection = socialConnections.find((c) => c.externalId === threadConnectionMetaDataID)
     console.log("STSC.JS socialConnection", socialConnection)
@@ -2618,7 +2622,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     handledSocialConnectRef.current = key
     fetchSocialConnections()
     if (socialConnect === 'success') {
-      toast.success('Facebook/Instagram connected')
+      toast.success('Facebook / Instagram / WhatsApp connection updated')
       // Backend saves connections in the background; refetch again so new connections appear
       const t = setTimeout(() => fetchSocialConnections(), 2500)
       return () => clearTimeout(t)
@@ -4329,6 +4333,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         onSendSocialMessage={handleSendSocialMessage}
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
                         hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
+                        hasWhatsAppConnection={socialConnections.some((c) => c.platform === 'whatsapp')}
                         pageName={socialConnections[0]?.displayName}
                         currentPage={checkselectedThreadSocialConnection()}
                         onConnectionSuccess={fetchSocialConnections}

@@ -60,7 +60,8 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     const [showLinkToLeadModal, setShowLinkToLeadModal] = useState(false)
     const isDummySocialThread =
         selectedThread?.lead?.source === 'messenger_dummy' ||
-        selectedThread?.lead?.source === 'instagram_dummy'
+        selectedThread?.lead?.source === 'instagram_dummy' ||
+        selectedThread?.lead?.source === 'whatsapp_dummy'
     const displayName = getThreadDisplayName ? getThreadDisplayName(selectedThread) : (selectedThread?.lead?.firstName || selectedThread?.lead?.name || 'Unknown Lead')
     const isUnlinkedPlaceholder = displayName === 'Messenger (unlinked)' || displayName === 'Instagram (unlinked)'
     const showLinkToLeadButton = isDummySocialThread && isUnlinkedPlaceholder && onThreadLinked
@@ -710,7 +711,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                         <div className="w-[38px] h-[38px] rounded-full flex items-center justify-center text-black font-bold text-[14px]">
                             {getLeadName(selectedThread)}
                         </div>
-                        {(selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram' || selectedThread?.threadType === 'email' || selectedThread?.threadType === 'sms') && (
+                        {(selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram' || selectedThread?.threadType === 'whatsapp' || selectedThread?.threadType === 'email' || selectedThread?.threadType === 'sms') && (
                             <PlatformIcon type={selectedThread.threadType} size={10} showInBadge />
                         )}
                     </div>
