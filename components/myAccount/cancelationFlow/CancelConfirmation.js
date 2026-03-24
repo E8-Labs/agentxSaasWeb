@@ -239,7 +239,7 @@ function CancelConfirmation({
 
   const footerSection = (
     <div className="flex w-full flex-shrink-0 flex-col gap-3 border-t border-[#eaeaea] bg-background px-4 py-3">
-      {!onClose ? confirmationRow : null}
+      {confirmationRow}
 
       <button
         type="button"
@@ -259,11 +259,8 @@ function CancelConfirmation({
   if (onClose) {
     return (
       <div className="flex h-auto flex-col">
-        <div className="flex flex-shrink-0 flex-row items-center px-4 py-2">
-          <div className="ml-auto flex items-center gap-3">
-            <div className="flex">{confirmationRow}</div>
-            <CloseBtn onClick={onClose} />
-          </div>
+        <div className="flex flex-shrink-0 flex-row items-center justify-end px-4 py-2">
+          <CloseBtn onClick={onClose} />
         </div>
 
         <div
