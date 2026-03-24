@@ -458,6 +458,11 @@ const Page = () => {
     return () => clearTimeout(timeout)
   }, [isSubaccount, subAccount, isAgencyUser])
 
+  const isCreateAgentDesktopStep1 =
+    index === 1 &&
+    windowSize !== null &&
+    windowSize >= 640
+
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',
     backgroundSize: 'cover',
@@ -468,7 +473,9 @@ const Page = () => {
     overflowX: 'hidden',
     overflowY: 'auto',
     position: 'relative',
-    ...(shouldShowGradient && gradientBackground ? { background: gradientBackground } : {}),
+    ...(shouldShowGradient && gradientBackground && !isCreateAgentDesktopStep1
+      ? { background: gradientBackground }
+      : {}),
   }
 
   return (
@@ -476,10 +483,21 @@ const Page = () => {
       {/* <Suspense fallback={<div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>}> */}
       <Suspense>
         <div
-          style={backgroundImage}
-          className={`main-div flex flex-row justify-center items-start ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
+          style={
+            isCreateAgentDesktopStep1
+              ? {
+                  ...backgroundImage,
+                  background: '#ffffff',
+                  overflow: 'hidden',
+                  overflowY: 'hidden',
+                  height: '100svh',
+                  maxHeight: '100svh',
+                }
+              : backgroundImage
+          }
+          className={`main-div flex flex-row ${isCreateAgentDesktopStep1 ? 'min-h-0 justify-start items-stretch' : 'justify-center items-start'} ${shouldShowGradient && !isCreateAgentDesktopStep1 ? '' : isCreateAgentDesktopStep1 ? 'bg-white' : 'bg-brand-primary'}`}
         >
-          {!shouldShowGradient && (
+          {!shouldShowGradient && !isCreateAgentDesktopStep1 && (
             <div
               style={{
                 position: 'absolute',
@@ -494,7 +512,14 @@ const Page = () => {
             </div>
           )}
 
-          <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+          <div
+            style={{ position: 'relative', zIndex: 1, width: '100%' }}
+            className={
+              isCreateAgentDesktopStep1
+                ? 'flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden'
+                : undefined
+            }
+          >
             <CurrentComp
               handleContinue={handleContinue}
               handleBack={handleBack}

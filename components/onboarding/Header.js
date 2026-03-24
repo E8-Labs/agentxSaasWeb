@@ -16,6 +16,8 @@ const Header = ({
   showSkip,
   handleContinue,
   user,
+  /** Slim logo-only bar for create-agent step 1 (Figma toolbar) */
+  variant,
 }) => {
   const router = useRouter()
   const [isSubaccount, setIsSubaccount] = useState(false)
@@ -258,6 +260,28 @@ const Header = ({
     }
     
     return null
+  }
+
+  if (variant === 'createAgentToolbar') {
+    return (
+      <div className="flex h-[65px] w-full shrink-0 items-center border-b border-[rgba(21,21,21,0.1)] px-8">
+        {isSubaccount && agencyLogoUrl ? (
+          <Image
+            src={agencyLogoUrl}
+            alt="Agency logo"
+            height={32}
+            width={130}
+            style={{ objectFit: 'contain', maxHeight: '32px' }}
+          />
+        ) : (
+          <AppLogo
+            height={32}
+            width={130}
+            alt="logo"
+          />
+        )}
+      </div>
+    )
   }
 
   return (

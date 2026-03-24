@@ -1,16 +1,13 @@
-import { Box, CircularProgress, Modal, Popover, Tooltip } from '@mui/material'
-import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { Box, CircularProgress, Fade, Modal, Popover, Tooltip } from '@mui/material'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 
-import Body from '@/components/onboarding/Body'
-import Footer from '@/components/onboarding/Footer'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 import Header from '@/components/onboarding/Header'
-import ProgressBar from '@/components/onboarding/ProgressBar'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import {
   HowToVideoTypes,
   HowtoVideos,
@@ -34,6 +31,63 @@ import { isPlanActive } from '../userPlans/UserPlanServices'
 import IntroVideoModal from './IntroVideoModal'
 // Removed Google Maps imports for simple string input
 import VideoCard from './VideoCard'
+
+function SelectRadio({ checked }) {
+  return (
+    <div
+      className={cn(
+        'relative flex size-4 shrink-0 items-center justify-center rounded-full border bg-white',
+        checked
+          ? 'border-[hsl(var(--brand-primary))]'
+          : 'border-[rgba(21,21,21,0.1)]',
+      )}
+      aria-hidden
+    >
+      {checked ? (
+        <div className="size-2 rounded-full bg-[hsl(var(--brand-primary))]" />
+      ) : null}
+    </div>
+  )
+}
+
+/** Firecrawl-style inputs: soft border, brand ring on focus (see NewMessageModal / MessageComposer) */
+const fcInputClassName = cn(
+  'h-10 w-full rounded-lg border border-black/[0.06] bg-white px-3 text-sm leading-[1.6] text-foreground shadow-none',
+  'transition-all duration-150',
+  'placeholder:text-muted-foreground',
+  'focus:outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary/40',
+)
+
+const togglePressClassName =
+  'transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 focus-visible:ring-offset-2'
+
+/** Step 1 progress segment (first of ~3 steps) */
+const CREATE_AGENT_STEP1_PROGRESS_PCT = 33
+
+function createAgentEnterEase() {
+  return 'cubic-bezier(0.22, 1, 0.36, 1)'
+}
+
+function createAgentHeaderEnterClass(entered) {
+  return cn(
+    'transition-[opacity,transform] duration-500 will-change-[opacity,transform]',
+    entered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1.5',
+  )
+}
+
+function createAgentBlockEnterClass(entered) {
+  return cn(
+    'transition-[opacity,transform] duration-[520ms] will-change-[opacity,transform]',
+    entered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2',
+  )
+}
+
+function createAgentBlockEnterStyle(entered, delayMs) {
+  return {
+    transitionDelay: entered ? `${delayMs}ms` : '0ms',
+    transitionTimingFunction: createAgentEnterEase(),
+  }
+}
 
 const CreateAgent1 = ({
   handleContinue,
@@ -95,6 +149,11 @@ const CreateAgent1 = ({
   const [pendingAgentSelection, setPendingAgentSelection] = useState(null) // Track what selection was attempted
   const [hasAgreedToExtraCost, setHasAgreedToExtraCost] = useState(false) // Track if user agreed to pay extra
   const [userInitiallyHadPlan, setUserInitiallyHadPlan] = useState(false) // Track if user initially had a plan
+
+  /** Soft sequential entry (overlapping) + progress fill on load */
+  const [step1ShellEntered, setStep1ShellEntered] = useState(false)
+  const [step1ProgressPct, setStep1ProgressPct] = useState(0)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   // Redux state
   const { user: reduxUser, setUser: setReduxUser } = useUser()
@@ -221,6 +280,29 @@ const CreateAgent1 = ({
     window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     return () => {
       window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    setPrefersReducedMotion(reduced)
+    if (reduced) {
+      setStep1ShellEntered(true)
+      setStep1ProgressPct(CREATE_AGENT_STEP1_PROGRESS_PCT)
+      return
+    }
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setStep1ShellEntered(true)
+      })
+    })
+    const fillTimer = window.setTimeout(() => {
+      setStep1ProgressPct(CREATE_AGENT_STEP1_PROGRESS_PCT)
+    }, 280)
+    return () => {
+      cancelAnimationFrame(rafId)
+      clearTimeout(fillTimer)
     }
   }, [])
 
@@ -368,7 +450,7 @@ const CreateAgent1 = ({
       .getPropertyValue('--brand-primary')
       .trim()
 
-    const selectedColor = brandVar ? `hsl(${brandVar})` : 'hsl(270 75% 50%)'
+    const selectedColor = brandVar ? `hsl(${brandVar})` : 'hsl(var(--brand-primary))'
     const unselectedColor = '#000000'
 
     return (
@@ -1224,23 +1306,9 @@ const CreateAgent1 = ({
     },
   }
 
-  const isAgencyUser =
-    user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
-  const useTransparentBackground =
-    isSubaccount || isAgencyUser || isSubaccountContext || isAgencyContext
-
   return (
-    <div
-      style={{ width: '100%' }}
-      className="overflow-y-hidden flex flex-row justify-center items-center  w-full"
-    >
-      <div
-        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
-        style={{
-          scrollbarWidth: 'none',
-          // backgroundColor: useTransparentBackground ? 'transparent' : '#ffffff',
-        }}
-      >
+    <div className="flex h-full min-h-0 w-full max-w-[100vw] flex-1 overflow-hidden">
+      <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden bg-[#f9f9f9] lg:w-[65%]">
         <AgentSelectSnackMessage
           message={snackMessage}
           type={msgType}
@@ -1252,108 +1320,77 @@ const CreateAgent1 = ({
           }}
         />
 
-        <div className="h-[95svh] sm:h-[92svh] overflow-hidden flex flex-col">
-          {/* Video card */}
+        <IntroVideoModal
+          open={introVideoModal}
+          onClose={() => setIntroVideoModal(false)}
+          videoTitle={
+            getTutorialByType(HowToVideoTypes.GettingStarted)?.title ||
+            'Learn about getting started'
+          }
+          videoUrl={
+            getVideoUrlByType(HowToVideoTypes.GettingStarted) ||
+            HowtoVideos.GettingStarted
+          }
+        />
 
-          <IntroVideoModal
-            open={introVideoModal}
-            onClose={() => setIntroVideoModal(false)}
-            videoTitle={
-              getTutorialByType(HowToVideoTypes.GettingStarted)?.title ||
-              'Learn about getting started'
-            }
-            videoUrl={
-              getVideoUrlByType(HowToVideoTypes.GettingStarted) ||
-              HowtoVideos.GettingStarted
-            }
-          />
+        <div
+          className={cn(
+            'relative z-20 shrink-0 bg-[#f9f9f9] shadow-[0_1px_0_0_rgba(21,21,21,0.08)]',
+            createAgentHeaderEnterClass(step1ShellEntered),
+          )}
+          style={{ transitionTimingFunction: createAgentEnterEase() }}
+        >
+          <Header variant="createAgentToolbar" />
+        </div>
 
-          {/* header */}
-          <div className="absolute top-0 left-0 right-0">
-            <Header />
-          </div>
-          {/* Video */}
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
           <div
-            className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
-            style={{
-              position: 'absolute',
-              // left: "18%",
-              // translate: "-50%",
-              // left: "14%",
-              top: '20%',
-              // backgroundColor: "red"
-            }}
+            ref={scrollAreaRef}
+            className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-brand-primary flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-6 pb-4 pt-3"
           >
-            <VideoCard
-              duration={(() => {
-                const tutorial = getTutorialByType(
-                  HowToVideoTypes.GettingStarted,
-                )
-                return tutorial?.description || '1:47'
-              })()}
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal(true)
-              }}
-              title={
-                getTutorialByType(HowToVideoTypes.GettingStarted)?.title ||
-                'Learn about getting started'
-              }
-            />
-          </div>
-          <div className="flex flex-col items-center px-4 w-full flex-1 min-h-0">
-            <button
-              className="w-11/12 md:text-4xl text-lg font-[700] mt-4"
-              style={{
-                textAlign: 'center',
-                // Move title up when orb is hidden (same logic as Header component)
-                // Orb is hidden when: custom domain OR (subaccount with logo) OR (agency creating for subaccount)
-                // marginTop: (isCustomDomain || (isSubaccount && hasAgencyLogo) || isAgencyCreatingForSubaccount) ? '-40px' : undefined,
-              }}
-              // onClick={handleContinue}
-            >
-              Get started with your AI agent
-            </button>
-            <div
-              ref={scrollAreaRef}
-              className="w-full flex flex-col items-center flex-1 min-h-0 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-40"
-            >
+            <div className="mx-auto flex w-full max-w-[600px] flex-col gap-3 px-0 pt-3">
               <div
-                className="mt-8 w-6/12  gap-4 flex flex-col  px-2 "
-                style={{ scrollbarWidth: 'none' }}
+                className={createAgentBlockEnterClass(step1ShellEntered)}
+                style={createAgentBlockEnterStyle(step1ShellEntered, 72)}
               >
-                <div className="w-[95%] flex flex-row items-center justify-between">
-                  <div
-                    style={styles.headingStyle}
-                    className="flex flex-row items-center gap-2"
-                    // onClick={handleContinue}
-                  >
-                    {`What's this AI agent's name?`}
-                    <div
-                      aria-owns={open ? 'mouse-over-popover' : undefined}
-                      aria-haspopup="true"
-                      onMouseEnter={handlePopoverOpen}
-                      onMouseLeave={handlePopoverClose}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <Image
-                        src={'/svgIcons/infoIcon.svg'}
-                        height={20}
-                        width={20}
-                        alt="*"
-                        style={{ filter: 'brightness(0)' }}
-                      />
+                <h1 className="text-center text-[22px] font-semibold leading-[30px] tracking-[-0.77px] text-foreground">
+                  Get started with your AI agent
+                </h1>
+              </div>
+              <div
+                className={cn(
+                  'flex flex-col gap-6 pb-8',
+                  createAgentBlockEnterClass(step1ShellEntered),
+                )}
+                style={{
+                  scrollbarWidth: 'none',
+                  ...createAgentBlockEnterStyle(step1ShellEntered, 128),
+                }}
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-row items-center justify-between gap-2">
+                    <div className="flex flex-row items-center gap-2 text-sm font-normal leading-[1.6] text-foreground">
+                      {`What's this AI agent's name?`}
+                      <div
+                        aria-owns={open ? 'mouse-over-popover' : undefined}
+                        aria-haspopup="true"
+                        onMouseEnter={handlePopoverOpen}
+                        onMouseLeave={handlePopoverClose}
+                        className="cursor-pointer"
+                      >
+                        <Image
+                          src={'/svgIcons/infoIcon.svg'}
+                          height={16}
+                          width={16}
+                          alt=""
+                          style={{ filter: 'brightness(0)' }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-xs font-normal text-muted-foreground">
+                      {agentName.length}/40
                     </div>
                   </div>
-                  <div
-                    className="text-[12px] font-[400]"
-                    style={{
-                      color: '#00000060',
-                    }}
-                  >
-                    {agentName.length}/40
-                  </div>
-                </div>
                 {/* Info popover */}
                 <Popover
                   id="mouse-over-popover"
@@ -1388,11 +1425,7 @@ const CreateAgent1 = ({
                   onChange={(e) => {
                     setAgentName(e.target.value)
                   }}
-                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
-                  style={{
-                    ...styles.inputStyle,
-                    border: '1px solid #00000020',
-                  }}
+                  className={fcInputClassName}
                   placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
                   autoComplete="off"
                   autoCorrect="off"
@@ -1400,11 +1433,10 @@ const CreateAgent1 = ({
                   enterKeyHint="done"
                   maxLength={40}
                 />
+                </div>
 
-                <div
-                  className="mt-2 flex flex-row items-center gap-2"
-                  style={styles.headingStyle}
-                >
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-row items-center gap-2 text-sm font-normal leading-[1.6] text-foreground">
                   {`What's this AI agent's task?`}
                   <Tooltip
                     title="Inbound and Outbound calls need to be handled by different agents."
@@ -1429,94 +1461,94 @@ const CreateAgent1 = ({
                       },
                     }}
                   >
-                    <div style={{ cursor: 'pointer' }}>
+                    <div className="cursor-pointer">
                       <Image
                         src={'/svgIcons/infoIcon.svg'}
-                        height={20}
-                        width={20}
-                        alt="info"
+                        height={16}
+                        width={16}
+                        alt=""
                         style={{ filter: 'brightness(0)' }}
                       />
                     </div>
                   </Tooltip>
                 </div>
 
-                <div className="sm:flex sm:flex-row items-center gap-4">
-                  <div
-                    className="flex flex-row cursor-pointer items-center justify-center gap-2 h-[60px] w-full sm:w-[240px] px-6"
-                    style={{
-                      borderRadius: '23px',
-                      border: OutBoundCalls
-                        ? '2px solid hsl(var(--brand-primary))'
-                        : '2px solid #00000010',
-                    }}
+                <div className="flex w-full flex-row items-stretch gap-2.5">
+                  <button
+                    type="button"
+                    className={cn(
+                      togglePressClassName,
+                      'flex min-h-0 flex-1 cursor-pointer flex-row items-center gap-4 rounded-lg px-3 py-4 text-left',
+                      OutBoundCalls
+                        ? 'border-2 border-[hsl(var(--brand-primary))] bg-brand-primary/12 hover:border-[hsl(var(--brand-primary))]'
+                        : 'border border-[rgba(21,21,21,0.1)] bg-white hover:border-black/15 hover:bg-black/[0.02]',
+                    )}
                     onClick={handleOutBoundCallClick}
                   >
-                    <div
-                      style={{
-                        width: '24px',
-                        height: '24px',
-                        backgroundColor: OutBoundCalls
-                          ? 'hsl(var(--brand-primary))'
-                          : '#000000',
-                        WebkitMaskImage: 'url(/assets/callOut.png)',
-                        maskImage: 'url(/assets/callOut.png)',
-                        WebkitMaskSize: 'contain',
-                        maskSize: 'contain',
-                        WebkitMaskRepeat: 'no-repeat',
-                        maskRepeat: 'no-repeat',
-                        WebkitMaskPosition: 'center',
-                        maskPosition: 'center',
-                      }}
-                    />
-                    <div
-                      className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
-                      style={{
-                        ...styles.inputStyle,
-                        // transition: "0.4s ease",
-                        // scale: "0.9"
-                      }}
-                    >
-                      Making Outbound Calls
+                    <div className="flex shrink-0 items-center rounded-lg bg-brand-primary/10 p-2">
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: OutBoundCalls
+                            ? 'hsl(var(--brand-primary))'
+                            : '#000000',
+                          WebkitMaskImage: 'url(/assets/callOut.png)',
+                          maskImage: 'url(/assets/callOut.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
+                      />
                     </div>
-                  </div>
-                  <div
-                    className="flex flex-row cursor-pointer items-center justify-center gap-2  h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] px-6"
-                    style={{
-                      borderRadius: '23px',
-                      border: InBoundCalls
-                        ? '2px solid hsl(var(--brand-primary))'
-                        : '2px solid #00000010',
-                    }}
+                    <span className="min-w-0 flex-1 text-sm font-normal leading-[1.6] text-foreground">
+                      Making Outbound Calls
+                    </span>
+                    <SelectRadio checked={OutBoundCalls} />
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(
+                      togglePressClassName,
+                      'flex min-h-0 flex-1 cursor-pointer flex-row items-center gap-4 rounded-lg px-3 py-4 text-left',
+                      InBoundCalls
+                        ? 'border-2 border-[hsl(var(--brand-primary))] bg-brand-primary/12 hover:border-[hsl(var(--brand-primary))]'
+                        : 'border border-[rgba(21,21,21,0.1)] bg-white hover:border-black/15 hover:bg-black/[0.02]',
+                    )}
                     onClick={handleInboundCallClick}
                   >
-                    <div
-                      style={{
-                        width: '24px',
-                        height: '24px',
-                        backgroundColor: InBoundCalls
-                          ? 'hsl(var(--brand-primary))'
-                          : '#000000',
-                        WebkitMaskImage: 'url(/assets/callIn.png)',
-                        maskImage: 'url(/assets/callIn.png)',
-                        WebkitMaskSize: 'contain',
-                        maskSize: 'contain',
-                        WebkitMaskRepeat: 'no-repeat',
-                        maskRepeat: 'no-repeat',
-                        WebkitMaskPosition: 'center',
-                        maskPosition: 'center',
-                      }}
-                    />
-                    <div
-                      className="text-start ms-2 sm:text-center sm:ms-0"
-                      style={styles.inputStyle}
-                    >
-                      Taking Inbound Calls
+                    <div className="flex shrink-0 items-center rounded-lg bg-brand-primary/10 p-2">
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: InBoundCalls
+                            ? 'hsl(var(--brand-primary))'
+                            : '#000000',
+                          WebkitMaskImage: 'url(/assets/callIn.png)',
+                          maskImage: 'url(/assets/callIn.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
+                      />
                     </div>
-                  </div>
+                    <span className="min-w-0 flex-1 text-sm font-normal leading-[1.6] text-foreground">
+                      Taking Inbound Calls
+                    </span>
+                    <SelectRadio checked={InBoundCalls} />
+                  </button>
+                </div>
                 </div>
 
-                <div className="mt-2" style={styles.headingStyle}>
+                <div className="flex flex-col gap-2">
+                <div className="text-sm font-normal leading-[1.6] text-foreground">
                   {`What's this AI agent's title?`}
                 </div>
                 <Input
@@ -1525,86 +1557,74 @@ const CreateAgent1 = ({
                   spellCheck="true"
                   enterKeyHint="done"
                   placeholder="Ex: Senior Property Acquisition Specialist"
-                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black transition-colors"
-                  style={{
-                    ...styles.inputStyle,
-                    border: '1px solid #00000020',
-                  }}
+                  className={fcInputClassName}
                   value={agentRole}
                   onChange={(e) => {
                     setAgentRole(e.target.value)
                   }}
                 />
+                </div>
 
                 {canShowObjectives() && (
-                  <div className="mt-2" style={styles.headingStyle}>
-                    {`What's this AI agent's primary objective during the call?`}
-                  </div>
-                )}
-
-                {canShowObjectives() && (
-                  <div style={styles.inputStyle}>
-                    Select only one. You can create new agents to dedicate them
-                    to other objectives.
-                  </div>
-                )}
-                {canShowObjectives() && (
-                  <div className="flex flex-wrap">
-                    {(templateOptions && templateOptions.length > 0 ? templateOptions : AgentObjective).map((item) => (
-                      <div
-                        key={item.id}
-                        className="w-full text-start md:w-1/2 pe-2 flex py-4"
-                      >
-                        <button
-                          className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
-                          onClick={() => {
-                            handleToggleClick(item)
-                          }}
-                          style={{
-                            borderColor:
-                              item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
-                            backgroundColor:
-                              item.id === toggleClick ? 'hsl(var(--brand-primary) / 0.1)' : '',
-                          }}
-                        >
-                          {renderBrandedIcon(
-                            item.focusIcn || item.unFocusIcon,
-                            30,
-                            item.id === toggleClick,
-                          )}
-                          <div className="mt-8" style={styles.headingTitle}>
-                            {item.title}
-                          </div>
-                          <div
-                            className="mt-4"
-                            style={{ fontSize: 11, fontWeight: '300' }}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 text-sm font-normal leading-[1.6]">
+                      <p className="text-foreground">
+                        {`What's this AI agent's primary objective during the call?`}
+                      </p>
+                      <p className="text-muted-foreground">
+                        Select only one. You can create new agents to dedicate
+                        them to other objectives.
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {(templateOptions && templateOptions.length > 0
+                        ? templateOptions
+                        : AgentObjective
+                      ).map((item) => {
+                        const selected = item.id === toggleClick
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className={cn(
+                              togglePressClassName,
+                              'flex w-full cursor-pointer flex-row items-start gap-4 rounded-lg px-3 py-4 text-left',
+                              selected
+                                ? 'border-2 border-[hsl(var(--brand-primary))] bg-brand-primary/12 hover:border-[hsl(var(--brand-primary))]'
+                                : 'border border-[rgba(21,21,21,0.1)] bg-white hover:border-black/15 hover:bg-black/[0.02]',
+                            )}
+                            onClick={() => {
+                              handleToggleClick(item)
+                            }}
                           >
-                            {item.details}
-                          </div>
-                        </button>
-                      </div>
-                    ))}
+                            <div className="flex shrink-0 items-center rounded-lg bg-brand-primary/10 p-2">
+                              {renderBrandedIcon(
+                                item.focusIcn || item.unFocusIcon,
+                                16,
+                                selected,
+                              )}
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col gap-3 text-sm font-normal leading-[1.6]">
+                              <span className="text-foreground">{item.title}</span>
+                              <span className="text-muted-foreground">
+                                {item.details}
+                              </span>
+                            </div>
+                            <SelectRadio checked={selected} />
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 )}
                 {showOtherObjective && (
-                  <div>
-                    <div style={styles.headingStyle}>{`Agent's Objective`}</div>
-                    {/* <input ref={bottomRef}
-                                            placeholder="Type Here.... "
-                                            className='border   rounded p-3 outline-none w-full mt-1 mx-2'
-                                            style={styles.inputStyle}
-                                            value={otherObjVal}
-                                            onChange={(e) => { setOtherObjVal(e.target.value) }}
-                                        /> */}
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm font-normal leading-[1.6] text-foreground">{`Agent's Objective`}</div>
                     <Input
                       ref={bottomRef}
                       enterKeyHint="done"
                       placeholder="Type Here...."
-                      className="border w-6/12 rounded px-3 py-2.5 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0 focus:border-black transition-colors"
-                      style={{
-                        ...styles.inputStyle,
-                        border: '1px solid #00000020',
-                      }}
+                      className={fcInputClassName}
                       value={otherObjVal}
                       onChange={(e) => setOtherObjVal(e.target.value)}
                     />
@@ -1798,152 +1818,223 @@ const CreateAgent1 = ({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Fixed Footer */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
-          <div className="px-4 pt-3 pb-2">
-            <ProgressBar value={33} />
+          <div className="pointer-events-none absolute inset-0 z-[15] flex items-end justify-end p-6 pr-8 pb-[92px] max-lg:pb-[100px]">
+            <div
+              className="pointer-events-auto w-[min(100%,280px)] max-w-[min(280px,calc(100vw-3rem))] rounded-[12px] bg-white"
+              style={{
+                border: '1px solid #eaeaea',
+                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              <VideoCard
+                duration={(() => {
+                  const tutorial = getTutorialByType(
+                    HowToVideoTypes.GettingStarted,
+                  )
+                  return tutorial?.description || '1:47'
+                })()}
+                horizontal={false}
+                playVideo={() => {
+                  setIntroVideoModal(true)
+                }}
+                title={
+                  getTutorialByType(HowToVideoTypes.GettingStarted)?.title ||
+                  'Learn about getting started'
+                }
+                className="rounded-[12px] border-0 bg-transparent shadow-none"
+              />
+            </div>
           </div>
-          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
-            <Footer
-              handleContinue={handleBuildAgent}
-              donotShowBack={true}
-              registerLoader={buildAgentLoader}
-              shouldContinue={!canContinue()}
-            />
+          <div
+            className={cn(
+              'relative z-20 shrink-0 border-t border-[rgba(21,21,21,0.1)] bg-[#f9f9f9] shadow-[0_-1px_0_0_rgba(21,21,21,0.06)]',
+              createAgentBlockEnterClass(step1ShellEntered),
+            )}
+            style={createAgentBlockEnterStyle(step1ShellEntered, 188)}
+          >
+            <div className="flex w-full flex-col border-t border-[rgba(21,21,21,0.1)] px-0 py-[0.5px]">
+              <div className="h-1 w-full overflow-hidden rounded-full bg-black/5">
+                <div
+                  className="h-full rounded-full bg-[hsl(var(--brand-primary))]"
+                  style={{
+                    width: `${step1ProgressPct}%`,
+                    transition: prefersReducedMotion
+                      ? 'none'
+                      : `width 780ms ${createAgentEnterEase()}`,
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex h-[65px] shrink-0 items-center justify-end border-t border-[rgba(21,21,21,0.1)] px-8">
+              {buildAgentLoader ? (
+                <LoaderAnimation loaderModal={buildAgentLoader} />
+              ) : (
+                <button
+                  type="button"
+                  disabled={!canContinue()}
+                  className={cn(
+                    'flex min-h-[36px] items-center justify-center rounded-lg px-4 py-[7.5px] text-sm font-semibold tracking-[0.07px] transition-all duration-150',
+                    canContinue()
+                      ? 'bg-[hsl(var(--brand-primary))] text-primary-foreground hover:opacity-90 active:scale-[0.98]'
+                      : 'cursor-not-allowed bg-[#efefef] text-foreground',
+                  )}
+                  onClick={handleBuildAgent}
+                >
+                  Continue
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      <div
+        className={cn(
+          'relative hidden h-full min-h-0 min-w-0 overflow-hidden bg-[hsl(var(--brand-primary))] lg:flex lg:w-[35%]',
+          createAgentBlockEnterClass(step1ShellEntered),
+        )}
+        style={createAgentBlockEnterStyle(step1ShellEntered, 145)}
+      >
+        <div
+          className="pointer-events-none absolute left-1/2 top-[230px] h-[570px] w-[1146px] -translate-x-1/2 rounded-sm border border-white/[0.29] bg-white/[0.01] opacity-[0.38]"
+        />
+        <div
+          className="pointer-events-none absolute left-1/2 top-[-30px] h-[1090px] w-[460px] -translate-x-1/2 rounded-sm border border-white/[0.29] bg-white/[0.01] opacity-[0.38]"
+        />
+      </div>
+
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
         closeAfterTransition
         BackdropProps={{
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(5px)",
+            backgroundColor: '#00000099',
           },
         }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
-        <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full h-[70vh]">
-            <div
-              className="w-full overflow-auto"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div
-                className="w-full px-2 h-[90%] overflow-auto"
-                style={{ scrollbarWidth: 'none', zIndex: 12 }}
+        <Fade in={showModal} timeout={250}>
+          <Box
+            className={cn(
+              'flex max-h-[min(90vh,640px)] flex-shrink-0 flex-col overflow-hidden rounded-[12px] bg-white',
+            )}
+            sx={{
+              width: '400px',
+              maxWidth: '90vw',
+              boxSizing: 'border-box',
+              boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #eaeaea',
+              outline: 'none',
+              '@keyframes communityUpdateModalEnter': {
+                '0%': { transform: 'scale(0.95)' },
+                '100%': { transform: 'scale(1)' },
+              },
+              animation:
+                'communityUpdateModalEnter 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+            }}
+          >
+            <div className="flex flex-shrink-0 flex-row items-center justify-between border-b border-[#eaeaea] px-4 py-3">
+              <span
+                className="text-base font-semibold"
+                style={{ color: 'rgba(0, 0, 0, 0.9)' }}
               >
-                <div className="flex flex-row items-center justify-end w-full">
-                  <button
-                    className="outline-none border-none"
-                    onClick={() => {
-                      setShowModal(false)
-                    }}
-                  >
-                    <Image
-                      src={'/assets/crossIcon.png'}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
+                Community Update
+              </span>
+              <CloseBtn onClick={() => setShowModal(false)} />
+            </div>
 
-                <div
-                  className="text-center"
-                  style={{ fontWeight: '600', fontSize: 24 }}
-                >
-                  Community Update
-                </div>
-
-                <div style={styles.headingStyle} className="mt-4">
-                  {`What's the status?`}
-                </div>
-
-                <div className="flex flex-row flex-wrap gap-4 mt-4">
-                  {status.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={(e) => {
-                        handleSelectStatus(item)
-                      }}
-                      className="px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none"
-                      style={{
-                        border:
-                          selectedStatus?.id === item.id
-                            ? '2px solid hsl(var(--brand-primary))'
-                            : '',
-                        backgroundColor:
-                          selectedStatus?.id === item.id ? 'hsl(var(--brand-primary) / 0.1)' : '',
-                      }}
-                    >
-                      {item.title}
-                    </button>
-                  ))}
+            <div
+              className="min-h-0 flex-1 overflow-y-auto px-4 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.8)' }}
+            >
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    What&apos;s the status?
+                  </p>
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                    {status.map((item) => {
+                      const selected = selectedStatus?.id === item.id
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleSelectStatus(item)}
+                          className={cn(
+                            togglePressClassName,
+                            'flex min-h-[48px] w-full items-center justify-center rounded-lg px-3 py-2.5 text-center text-sm font-normal leading-snug text-foreground',
+                            selected
+                              ? 'border-2 border-[hsl(var(--brand-primary))] bg-brand-primary/12 hover:border-[hsl(var(--brand-primary))]'
+                              : 'border border-[rgba(21,21,21,0.1)] bg-white hover:border-black/15 hover:bg-black/[0.02]',
+                          )}
+                        >
+                          {item.title}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 {showSomtthingElse && (
                   <div>
-                    <div style={styles.headingStyle} className="mt-4">
-                      {`What's that`}
-                    </div>
-
-                    <div className="mt-1">
-                      <Input
-                        className="h-[50px] border rounded-lg px-3 py-2.5 w-full focus:outline-none focus:ring-0 focus:border-black transition-colors"
-                        placeholder="Type here..."
-                        value={otherStatus}
-                        onChange={(e) => setOtherStatus(e.target.value)}
-                        style={{
-                          ...styles.inputStyle,
-                          border: '1px solid #00000020',
-                        }}
-                      />
-                    </div>
+                    <p className="mb-2 text-sm font-medium text-foreground">
+                      What&apos;s that
+                    </p>
+                    <Input
+                      className={fcInputClassName}
+                      placeholder="Type here..."
+                      value={otherStatus}
+                      onChange={(e) => setOtherStatus(e.target.value)}
+                    />
                   </div>
                 )}
 
-                <div style={styles.headingStyle} className="mt-4">
-                  {`What's the address`}
-                </div>
-                {/* Simple address input */}
-                <div className="mt-1 pb-4">
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    What&apos;s the address
+                  </p>
                   <Input
-                    className="w-full h-[50px] rounded-lg outline-none focus:ring-0 focus:border-black px-3 py-2.5 transition-colors"
-                    style={{ border: '1px solid #00000020' }}
+                    className={fcInputClassName}
                     placeholder="Enter property address..."
                     value={addressValue}
                     onChange={handleAddressChange}
                   />
                 </div>
               </div>
-
-              <div
-                className="w-full flex flex-row items-center justify-center"
-                style={{ position: 'absolute', bottom: 0, left: 0 }}
-              >
-                <button
-                  className="text-white w-11/12 h-[50px] rounded-lg bg-brand-primary mb-8"
-                  onClick={() => {
-                    setShowModal(false)
-                  }}
-                >
-                  Continue
-                </button>
-              </div>
-
-              {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
-          </div>
-        </Box>
+
+            <div className="flex flex-shrink-0 flex-row items-center justify-between border-t border-[#eaeaea] px-4 py-3">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className={cn(
+                  'flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-medium',
+                  'bg-muted text-foreground hover:bg-muted/80',
+                  'transition-colors duration-150 active:scale-[0.98]',
+                )}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className={cn(
+                  'flex h-[40px] items-center justify-center rounded-lg px-4 text-sm font-semibold',
+                  'bg-brand-primary text-white hover:opacity-90',
+                  'transition-all duration-150 active:scale-[0.98]',
+                )}
+              >
+                Continue
+              </button>
+            </div>
+          </Box>
+        </Fade>
       </Modal>
       <LoaderAnimation loaderModal={loaderModal} />
       {/* <Modal

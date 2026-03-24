@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { cn } from "@/lib/utils";
+
 /**
  * Formats duration string to mm:ss format
  * Handles formats like:
@@ -31,12 +33,16 @@ const VideoCard = ({
   duration = "2 mins",
   width = "60",
   height = "60",
+  className,
 }) => {
   const formattedDuration = formatDuration(duration);
   return (
     <div
-      className={`flex ${horizontal ? "flex-row items-center" : "flex-col items-start"
-        } gap-3 p-4 rounded-lg border border-[#eaeaea] w-full cursor-pointer bg-white shadow-sm hover:border-gray-200 transition-colors`}
+      className={cn(
+        `flex ${horizontal ? "flex-row items-center" : "flex-col items-start"
+        } gap-3 p-4 rounded-lg border border-[#eaeaea] w-full cursor-pointer bg-white shadow-sm transition-colors hover:border-brand-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40`,
+        className,
+      )}
       onClick={() => {
         playVideo();
       }}
