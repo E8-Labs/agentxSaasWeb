@@ -202,10 +202,10 @@ function AgencyPlans({
   const handleTogglePlanClick = (item = null, index = null) => {
     console.log('handleTogglePlanClick is triggered', "selectedPlan", selectedPlan, "togglePlan", togglePlan, "selectedPlanIndex", selectedPlanIndex, "item", item, "index", index)
     // return
-      setSelectedPlanIndex(index || selectedPlanIndex)
-      setTogglePlan(item.id || togglePlan)
+    setSelectedPlanIndex(index || selectedPlanIndex)
+    setTogglePlan(item.id || togglePlan)
     // setSelectedPlan((prevId) => (prevId === item ? null : item));
-      setSelectedPlan(item || selectedPlan)
+    setSelectedPlan(item || selectedPlan)
   }
 
   //claim early access
@@ -1128,7 +1128,7 @@ function AgencyPlans({
           }}
         >
           <Box
-            className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
+            className="flex w-[715px] max-w-[90vw] justify-center items-center border-none"
             sx={styles.paymentModal}
           >
             <div className="flex flex-row justify-center w-full ">
@@ -1140,7 +1140,10 @@ function AgencyPlans({
                   borderRadius: '13px',
                 }}
               >
-                <div className="flex flex-row justify-end w-full items-center pe-4 pt-4">
+                <div className="flex flex-row justify-between w-full items-center px-4 py-4 mb-4 border-b border-border">
+                  <div style={{ fontWeight: '600', fontSize: 16 }}>
+                    Continue to Payment
+                  </div>
                   <CloseBtn
                     onClick={() => {
                       setAddPaymentPopUp(false)

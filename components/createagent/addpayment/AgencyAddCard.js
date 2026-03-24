@@ -300,7 +300,7 @@ const AgencyAddCard = ({
         backgroundColor: 'transparent',
         color: '#000000',
         fontSize: '18px',
-        lineHeight: '40px',
+        lineHeight: '35px',
         borderRadius: 10,
         padding: 10,
         '::placeholder': {
@@ -632,7 +632,7 @@ const AgencyAddCard = ({
   }
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%' }} className="px-4 pb-4">
       <AgentSelectSnackMessage
         isVisible={credentialsErr}
         hide={() => setCredentialsErr(false)}
@@ -782,7 +782,7 @@ const AgencyAddCard = ({
                 onChange={(e) => {
                   setInviteCode(e.target.value)
                 }}
-                className="w-full h-[50px] px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20"
+                className="w-full h-[45px] px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20"
                 style={{
                   color: '#000000',
                   backgroundColor: 'white',
@@ -910,99 +910,100 @@ const AgencyAddCard = ({
               <div className="mb-6 pt-4 border-t border-gray-200">
                 <h2 className="text-lg font-bold text-black mb-4">Order Summary</h2>
 
-                {/* Plan Title and Monthly Price */}
-                <div className="flex flex-row items-start justify-between w-full mb-4">
-                  <div>
+                <div className="mb-4 rounded-lg bg-black/[0.02] p-4">
+                  {/* Plan Title and Monthly Price */}
+                  <div className="flex flex-row items-start justify-between w-full mb-4">
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: 15 }}>
+                        {selectedPlan?.title || 'No Plan Selected'}
+                      </div>
+                      <div style={{ fontWeight: '400', fontSize: 13, marginTop: 4 }}>
+                        Total Annual Commitment: $
+                        {(selectedPlan?.originalPrice * 12)?.toLocaleString()}
+                      </div>
+                    </div>
                     <div style={{ fontWeight: '600', fontSize: 15 }}>
-                      {selectedPlan?.title || 'No Plan Selected'}
-                    </div>
-                    <div style={{ fontWeight: '400', fontSize: 13, marginTop: 4 }}>
-                      Total Annual Commitment: $
-                      {(selectedPlan?.originalPrice * 12)?.toLocaleString()}
+                      ${formatFractional2(selectedPlan?.originalPrice)}
                     </div>
                   </div>
-                  <div style={{ fontWeight: '600', fontSize: 15 }}>
-                    ${formatFractional2(selectedPlan?.originalPrice)}
-                  </div>
-                </div>
 
-                {/* Calculate discount if promo code is applied */}
-                {(() => {
-                  const discountCalculation = promoCodeDetails
-                    ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
-                    : null
+                  {/* Calculate discount if promo code is applied */}
+                  {(() => {
+                    const discountCalculation = promoCodeDetails
+                      ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
+                      : null
 
-                  const billingMonths = GetMonthCountFronBillingCycle(
-                    selectedPlan?.billingCycle || selectedPlan?.duration,
-                  )
-                  const monthlyPrice =
-                    selectedPlan?.discountPrice ||
-                    selectedPlan?.discountedPrice ||
-                    selectedPlan?.originalPrice ||
-                    0
-                  const originalTotal = billingMonths * monthlyPrice
-                  const est = promoCodeDetails?.estimatedDiscount
-                  const useApiTotals =
-                    est != null && !Number.isNaN(Number(est.finalPrice))
-                  const finalTotal = useApiTotals
-                    ? Number(est.finalPrice)
-                    : discountCalculation
-                      ? discountCalculation.finalPrice
-                      : originalTotal
-                  const displayDiscountAmount = useApiTotals
-                    ? Number(est.discountAmount)
-                    : discountCalculation?.discountAmount ?? 0
+                    const billingMonths = GetMonthCountFronBillingCycle(
+                      selectedPlan?.billingCycle || selectedPlan?.duration,
+                    )
+                    const monthlyPrice =
+                      selectedPlan?.discountPrice ||
+                      selectedPlan?.discountedPrice ||
+                      selectedPlan?.originalPrice ||
+                      0
+                    const originalTotal = billingMonths * monthlyPrice
+                    const est = promoCodeDetails?.estimatedDiscount
+                    const useApiTotals =
+                      est != null && !Number.isNaN(Number(est.finalPrice))
+                    const finalTotal = useApiTotals
+                      ? Number(est.finalPrice)
+                      : discountCalculation
+                        ? discountCalculation.finalPrice
+                        : originalTotal
+                    const displayDiscountAmount = useApiTotals
+                      ? Number(est.discountAmount)
+                      : discountCalculation?.discountAmount ?? 0
 
-                  return (
-                    <>
-                      {promoCodeDetails && (
-                        <div className="flex flex-row items-start justify-between w-full mb-4">
-                          <div>
+                    return (
+                      <>
+                        {promoCodeDetails && (
+                          <div className="flex flex-row items-start justify-between w-full mb-4">
+                            <div>
+                              <div
+                                style={{
+                                  fontWeight: '600',
+                                  fontSize: 15,
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                Promo Code Applied
+                              </div>
+                              <div
+                                style={{
+                                  fontWeight: '400',
+                                  fontSize: 13,
+                                  marginTop: 4,
+                                }}
+                              >
+                                {promoCodeDetails?.discountType === 'percentage'
+                                  ? `${promoCodeDetails?.discountValue}% off`
+                                  : `$${promoCodeDetails?.discountValue} off`}
+                                {promoCodeDetails?.discountDurationMonths
+                                  ? ` for ${promoCodeDetails?.discountDurationMonths} month${promoCodeDetails?.discountDurationMonths > 1 ? 's' : ''}`
+                                  : ''}
+                              </div>
+                            </div>
                             <div
                               style={{
                                 fontWeight: '600',
                                 fontSize: 15,
-                                color: 'hsl(var(--brand-primary))',
+                                color: '#7902DF',
                               }}
                             >
-                              Promo Code Applied
-                            </div>
-                            <div
-                              style={{
-                                fontWeight: '400',
-                                fontSize: 13,
-                                marginTop: 4,
-                              }}
-                            >
-                              {promoCodeDetails?.discountType === 'percentage'
-                                ? `${promoCodeDetails?.discountValue}% off`
-                                : `$${promoCodeDetails?.discountValue} off`}
-                              {promoCodeDetails?.discountDurationMonths
-                                ? ` for ${promoCodeDetails?.discountDurationMonths} month${promoCodeDetails?.discountDurationMonths > 1 ? 's' : ''}`
-                                : ''}
+                              -${formatFractional2(displayDiscountAmount)}
                             </div>
                           </div>
-                          <div
-                            style={{
-                              fontWeight: '600',
-                              fontSize: 15,
-                              color: '#7902DF',
-                            }}
-                          >
-                            -${formatFractional2(displayDiscountAmount)}
-                          </div>
-                        </div>
-                      )}
+                        )}
 
-                      <div className="flex flex-row items-start justify-between w-full mb-4">
-                        <div>
-                          <div
-                            className="capitalize"
-                            style={{ fontWeight: '600', fontSize: 15 }}
-                          >
-                            {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
-                          </div>
-                          {/* <div
+                        <div className="flex flex-row items-start justify-between w-full mb-4">
+                          <div>
+                            <div
+                              className="capitalize"
+                              style={{ fontWeight: '600', fontSize: 15 }}
+                            >
+                              {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
+                            </div>
+                            {/* <div
                             style={{
                               fontWeight: '400',
                               fontSize: 13,
@@ -1011,46 +1012,47 @@ const AgencyAddCard = ({
                           >
                             Next Charge Date {getNextChargeDate(selectedPlan)}
                           </div> */}
-                        </div>
-                        <div style={{ fontWeight: '600', fontSize: 15 }}>
-                          {(() => {
-                            // Check if plan has trial and user is subscribing for the first time
-                            const hasTrial = selectedPlan?.hasTrial === true
-                            const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                          </div>
+                          <div style={{ fontWeight: '600', fontSize: 15 }}>
+                            {(() => {
+                              // Check if plan has trial and user is subscribing for the first time
+                              const hasTrial = selectedPlan?.hasTrial === true
+                              const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
 
-                            // If plan has trial and user has no previous plan, show $0
-                            if (hasTrial && isFirstTimeSubscription) {
-                              return '$0'
-                            }
+                              // If plan has trial and user has no previous plan, show $0
+                              if (hasTrial && isFirstTimeSubscription) {
+                                return '$0'
+                              }
 
-                            return discountCalculation
-                              ? `$${formatFractional2(finalTotal)}`
-                              : `$${formatFractional2(originalTotal)}`
-                          })()}
-                        </div>
-                      </div>
-
-                      {inviteCode && !promoCodeDetails && (
-                        <div className="flex flex-row items-start justify-between w-full mb-4">
-                          <div>
-                            <div style={{ fontWeight: '600', fontSize: 15 }}>
-                              Referral Code
-                            </div>
-                            <div
-                              style={{
-                                fontWeight: '400',
-                                fontSize: 13,
-                                marginTop: 4,
-                              }}
-                            >
-                              {referralMessage}
-                            </div>
+                              return discountCalculation
+                                ? `$${formatFractional2(finalTotal)}`
+                                : `$${formatFractional2(originalTotal)}`
+                            })()}
                           </div>
                         </div>
-                      )}
-                    </>
-                  )
-                })()}
+
+                        {inviteCode && !promoCodeDetails && (
+                          <div className="flex flex-row items-start justify-between w-full mb-4">
+                            <div>
+                              <div style={{ fontWeight: '600', fontSize: 15 }}>
+                                Referral Code
+                              </div>
+                              <div
+                                style={{
+                                  fontWeight: '400',
+                                  fontSize: 13,
+                                  marginTop: 4,
+                                }}
+                              >
+                                {referralMessage}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )
+                  })()}
+                </div>
 
                 {/* Divider */}
                 <div className="my-4 h-[1px] w-full bg-[#00000035]"></div>
@@ -1180,49 +1182,15 @@ const AgencyAddCard = ({
       ) : (
         // Desktop Layout - Keep existing design
         <div
-          className={`w-full flex flex-row items-start gap-6`}
+          className={`w-full flex flex-row items-start gap-2`}
           style={{ backgroundColor: 'transparent' }}
         >
           <div
-            className="relative flex-1"
-            style={{
-              minWidth: 0,
-              maxWidth: '720px',
-            }}
+            className="flex-1 w-1/2"
           >
-            {/* Orb */}
-            <div
-              className="absolute left-0 top-[72%] -translate-y-1/2 flex justify-center items-center shrink-0"
-              style={{
-                width: isMediumScreen ? '150px' : '170px',
-                height: isMediumScreen ? '150px' : '170px',
-                marginLeft: '0px',
-              }}
-            >
-              <Image
-                alt="*"
-                src={'/otherAssets/paymentCircle2.png'}
-                height={isMediumScreen ? 170 : 190}
-                width={isMediumScreen ? 170 : 190}
-                style={{
-                  borderTopRightRadius: '200px',
-                  borderBottomRightRadius: '200px',
-                  boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
-                }}
-              />
-            </div>
-
             {/* Form */}
-            <div
-              className="flex flex-col justify-start flex-1 min-w-0"
-              style={{
-                paddingLeft: isMediumScreen ? '160px' : '200px',
-              }}
-            >
-              <div className="flex w-full flex-row items-center justify-between">
-                <div style={{ fontWeight: '600', fontSize: 28 }}>
-                  Continue to Payment
-                </div>
+            <div className="flex flex-col justify-start flex-1 min-w-0">
+              <div className="flex w-full flex-row items-center justify-end">
                 {
                   showAddCardForm && (
                     <button
@@ -1414,7 +1382,7 @@ const AgencyAddCard = ({
                         onChange={(e) => {
                           setInviteCode(e.target.value)
                         }}
-                        className="outline-none focus:ring-0 w-full h-[50px]"
+                        className="outline-none focus:ring-0 w-full h-[45px]"
                         style={{
                           color: '#000000',
                           backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -1570,174 +1538,172 @@ const AgencyAddCard = ({
           {/* Order Summary - Desktop only */}
           {!isSmallScreen && (
             <div
-              className="w-[42%] flex flex-col justify-start items-center pe-4 rounded-lg"
+              className="w-1/2 flex flex-col justify-start items-center rounded-lg"
               style={{ backgroundColor: 'transparent' }}
             >
               <div
-                className=" rounded-lg p-4 w-[90%]"
+                className=" rounded-lg p-2 w-[100%] rounded-xl border border-border bg-card"
                 style={{ backgroundColor: '#ffffffcc' }}
               >
-                <div style={{ fontSize: 22, fontWeight: '600' }}>Order Summary</div>
-                <div className="flex flex-row items-start justify-between w-full mt-6">
-                  <div>
-                    <div style={{ fontWeight: '600', fontSize: 15 }}>
-                      {selectedPlan?.title || 'No Plan Selected'}
-                    </div>
-                    {/*
+                <div style={{ fontSize: 16, fontWeight: '600' }}>Order Summary</div>
+                <div className="mt-4 rounded-lg bg-black/[0.02] p-2">
+                  <div className="flex flex-row items-start justify-between w-full">
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: 15 }}>
+                        {selectedPlan?.title || 'No Plan Selected'}
+                      </div>
+                      {/*
                                       <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.duration} subscription</div>
                                   */}
-                    <div style={{ fontWeight: '400', fontSize: 13, marginTop: '' }}>
-                      Total Annual Commitment: $
-                      {(selectedPlan?.originalPrice * 12)?.toLocaleString()}
+                      <div style={{ fontWeight: '400', fontSize: 13, marginTop: '' }}>
+                        Total Annual Commitment: $
+                        {(selectedPlan?.originalPrice * 12)?.toLocaleString()}
+                      </div>
+                    </div>
+                    <div style={{ fontWeight: '600', fontSize: 15 }}>
+                      ${formatFractional2(selectedPlan?.originalPrice)}
                     </div>
                   </div>
-                  <div style={{ fontWeight: '600', fontSize: 15 }}>
-                    ${formatFractional2(selectedPlan?.originalPrice)}
-                  </div>
-                </div>
 
-                {/* Calculate discount if promo code is applied */}
-                {(() => {
-                  const discountCalculation = promoCodeDetails
-                    ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
-                    : null
+                  {/* Calculate discount if promo code is applied */}
+                  {(() => {
+                    const discountCalculation = promoCodeDetails
+                      ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
+                      : null
 
-                  const billingMonths = GetMonthCountFronBillingCycle(
-                    selectedPlan?.billingCycle || selectedPlan?.duration,
-                  )
-                  const monthlyPrice =
-                    selectedPlan?.discountPrice ||
-                    selectedPlan?.discountedPrice ||
-                    selectedPlan?.originalPrice ||
-                    0
-                  const originalTotal = billingMonths * monthlyPrice
-                  const est = promoCodeDetails?.estimatedDiscount
-                  const useApiTotals =
-                    est != null && !Number.isNaN(Number(est.finalPrice))
-                  const finalTotal = useApiTotals
-                    ? Number(est.finalPrice)
-                    : discountCalculation
-                      ? discountCalculation.finalPrice
-                      : originalTotal
-                  const displayDiscountAmount = useApiTotals
-                    ? Number(est.discountAmount)
-                    : discountCalculation?.discountAmount ?? 0
+                    const billingMonths = GetMonthCountFronBillingCycle(
+                      selectedPlan?.billingCycle || selectedPlan?.duration,
+                    )
+                    const monthlyPrice =
+                      selectedPlan?.discountPrice ||
+                      selectedPlan?.discountedPrice ||
+                      selectedPlan?.originalPrice ||
+                      0
+                    const originalTotal = billingMonths * monthlyPrice
+                    const est = promoCodeDetails?.estimatedDiscount
+                    const useApiTotals =
+                      est != null && !Number.isNaN(Number(est.finalPrice))
+                    const finalTotal = useApiTotals
+                      ? Number(est.finalPrice)
+                      : discountCalculation
+                        ? discountCalculation.finalPrice
+                        : originalTotal
+                    const displayDiscountAmount = useApiTotals
+                      ? Number(est.discountAmount)
+                      : discountCalculation?.discountAmount ?? 0
 
-                  return (
-                    <>
-                      {promoCodeDetails && (
-                        <div className="flex flex-row items-start justify-between w-full mt-4">
-                          <div>
-                            <div
-                              style={{
-                                fontWeight: '600',
-                                fontSize: 15,
-                                color: 'hsl(var(--brand-primary))',
-                              }}
-                            >
-                              Promo Code Applied
-                            </div>
-                            <div
-                              style={{
-                                fontWeight: '400',
-                                fontSize: 13,
-                                marginTop: '4px',
-                              }}
-                            >
-                              {promoCodeDetails?.discountType === 'percentage'
-                                ? `${promoCodeDetails?.discountValue}% off`
-                                : `$${promoCodeDetails?.discountValue} off`}
-                              {promoCodeDetails?.discountDurationMonths
-                                ? ` for ${promoCodeDetails?.discountDurationMonths} month${promoCodeDetails?.discountDurationMonths > 1 ? 's' : ''}`
-                                : ''}
-                            </div>
-                          </div>
-                          <div
-                            style={{
-                              fontWeight: '600',
-                              fontSize: 15,
-                              color: '#7902DF',
-                            }}
-                          >
-                            -$
-                            {formatFractional2(displayDiscountAmount)}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex flex-row items-start justify-between w-full mt-6">
-                        <div>
-                          <div
-                            className="capitalize"
-                            style={{ fontWeight: '600', fontSize: 15 }}
-                          >
-                            {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
-                          </div>
-                          <div
-                            className=""
-                            style={{
-                              fontWeight: '400',
-                              fontSize: 13,
-                              marginTop: '',
-                            }}
-                          >
-                            Next Charge Date {promoCodeDetails?.nextChargeDateFormatted || getNextChargeDate(selectedPlan)}
-                          </div>
-                        </div>
-                        <div
-                          className=""
-                          style={{ fontWeight: '600', fontSize: 15 }}
-                        >
-                          {(() => {
-                            // Check if plan has trial and user is subscribing for the first time
-                            const hasTrial = selectedPlan?.hasTrial === true
-                            const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                            // If plan has trial and user has no previous plan, show $0
-                            if (hasTrial && isFirstTimeSubscription) {
-                              return '$0'
-                            }
-
-                            return discountCalculation
-                              ? `$${formatFractional2(finalTotal)}`
-                              : `$${formatFractional2(originalTotal)}`
-                          })()}
-                        </div>
-                      </div>
-
-                      {inviteCode && !promoCodeDetails && (
-                        <div>
-                          <div className="flex flex-row items-start justify-between w-full mt-6">
+                    return (
+                      <>
+                        {promoCodeDetails && (
+                          <div className="flex flex-row items-start justify-between w-full mt-4">
                             <div>
-                              <div style={{ fontWeight: '600', fontSize: 15 }}>
-                                Referral Code
+                              <div
+                                style={{
+                                  fontWeight: '600',
+                                  fontSize: 15,
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                Promo Code Applied
                               </div>
                               <div
                                 style={{
                                   fontWeight: '400',
                                   fontSize: 13,
-                                  marginTop: '',
+                                  marginTop: '4px',
                                 }}
                               >
-                                {referralMessage}
+                                {promoCodeDetails?.discountType === 'percentage'
+                                  ? `${promoCodeDetails?.discountValue}% off`
+                                  : `$${promoCodeDetails?.discountValue} off`}
+                                {promoCodeDetails?.discountDurationMonths
+                                  ? ` for ${promoCodeDetails?.discountDurationMonths} month${promoCodeDetails?.discountDurationMonths > 1 ? 's' : ''}`
+                                  : ''}
+                              </div>
+                            </div>
+                            <div
+                              style={{
+                                fontWeight: '600',
+                                fontSize: 15,
+                                color: '#7902DF',
+                              }}
+                            >
+                              -$
+                              {formatFractional2(displayDiscountAmount)}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex flex-row items-start justify-between w-full mt-6">
+                          <div>
+                            <div
+                              className="capitalize"
+                              style={{ fontWeight: '600', fontSize: 15 }}
+                            >
+                              {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
+                            </div>
+                            <div
+                              className=""
+                              style={{
+                                fontWeight: '400',
+                                fontSize: 13,
+                                marginTop: '',
+                              }}
+                            >
+                              Next Charge Date {promoCodeDetails?.nextChargeDateFormatted || getNextChargeDate(selectedPlan)}
+                            </div>
+                          </div>
+                          <div
+                            className=""
+                            style={{ fontWeight: '600', fontSize: 15 }}
+                          >
+                            {(() => {
+                              // Check if plan has trial and user is subscribing for the first time
+                              const hasTrial = selectedPlan?.hasTrial === true
+                              const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+
+                              // If plan has trial and user has no previous plan, show $0
+                              if (hasTrial && isFirstTimeSubscription) {
+                                return '$0'
+                              }
+
+                              return discountCalculation
+                                ? `$${formatFractional2(finalTotal)}`
+                                : `$${formatFractional2(originalTotal)}`
+                            })()}
+                          </div>
+                        </div>
+
+                        {inviteCode && !promoCodeDetails && (
+                          <div>
+                            <div className="flex flex-row items-start justify-between w-full mt-6">
+                              <div>
+                                <div style={{ fontWeight: '600', fontSize: 15 }}>
+                                  Referral Code
+                                </div>
+                                <div
+                                  style={{
+                                    fontWeight: '400',
+                                    fontSize: 13,
+                                    marginTop: '',
+                                  }}
+                                >
+                                  {referralMessage}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </>
-                  )
-                })()}
+                        )}
+                      </>
+                    )
+                  })()}
+                </div>
 
-                {!inviteCode && !promoCodeDetails && (
-                  <div className="w-full h-10 mt-6"></div>
-                )}
-
-                <div className="mt-6 h-[1px] w-full bg-[#00000035]"></div>
-                <div className="flex flex-row items-start justify-between w-full mt-6">
-                  <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
+                <div className="mt-4 h-[1px] w-full bg-[#00000035]"></div>
+                <div className="flex flex-row items-start justify-between w-full mt-4">
+                  <div className="text-sm font-semibold text-foreground">Total:</div>
                   <div className="flex flex-col items-end">
-                    <div style={{ fontWeight: '600', fontSize: 22 }}>
+                    <div className="text-base font-semibold text-foreground">
                       {(() => {
                         if (!selectedPlan) return '$0'
 
@@ -1791,13 +1757,13 @@ const AgencyAddCard = ({
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
+                <div className="flex flex-col items-center gap-2 w-full flex justify-center mt-4">
                   {addCardLoader ? (
-                    <div className="flex flex-row justify-center items-center mt-8 w-full">
+                    <div className="flex flex-row justify-center items-center w-full">
                       <CircularProgress size={30} />
                     </div>
                   ) : (
-                    <div className="flex flex-row justify-end items-center mt-8 w-full">
+                    <div className="flex flex-row justify-end items-center w-full">
                       {CardAdded && CardExpiry && CVC ? (
                         <button
                           onClick={() => {
