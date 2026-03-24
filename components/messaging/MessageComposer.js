@@ -1459,7 +1459,11 @@ const MessageComposer = ({
         (settings.socialSelectedAgentId != null && settings.socialSelectedAgentId !== '')
       )
       if (socialSettingsConfigured) {
-        connectWithFacebookOAuth()
+        if (isWhatsAppMode) {
+          connectWithWhatsAppOAuth()
+        } else {
+          connectWithFacebookOAuth()
+        }
       } else {
         setSocialSettingsModalOpen(true)
       }
@@ -1536,6 +1540,83 @@ const MessageComposer = ({
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not start Facebook connect')
+      setConnectingOAuth(false)
+    }
+  }
+
+  const connectWithWhatsAppOAuth = async () => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please sign in to connect')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const callbackPath = '/social-connect/callback'
+    const redirectUrl = origin ? `${origin}${callbackPath}` : ''
+    try {
+      setConnectingOAuth(true)
+      let url = Apis.socialWhatsAppAuthorize
+      const params = new URLSearchParams()
+      if (redirectUrl) params.set('redirectUrl', redirectUrl)
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      if (params.toString()) url += `?${params.toString()}`
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.data?.url) {
+        const popup = window.open(
+          res.data.url,
+          'whatsapp-oauth',
+          'width=520,height=700,scrollbars=yes,resizable=yes',
+        )
+        if (!popup) {
+          toast.error('Please allow popups for this site to connect WhatsApp')
+          setConnectingOAuth(false)
+          return
+        }
+        popupRef.current = popup
+        const SOCIAL_RESULT_KEY = 'social_connect_result'
+        const MAX_AGE_MS = 3 * 60 * 1000
+        const startedAt = Date.now()
+        socialConnectPollIntervalRef.current = setInterval(() => {
+          if (!popupRef.current || !popupRef.current.closed) {
+            if (Date.now() - startedAt > MAX_AGE_MS) {
+              clearInterval(socialConnectPollIntervalRef.current)
+              socialConnectPollIntervalRef.current = null
+              setConnectingOAuth(false)
+            }
+            return
+          }
+          popupRef.current = null
+          clearInterval(socialConnectPollIntervalRef.current)
+          socialConnectPollIntervalRef.current = null
+          try {
+            const raw = localStorage.getItem(SOCIAL_RESULT_KEY)
+            if (raw) {
+              const data = JSON.parse(raw)
+              if (data && typeof data.ts === 'number' && Date.now() - data.ts < MAX_AGE_MS) {
+                applySocialConnectResult(!!data.success, data.error || null)
+              } else {
+                setConnectingOAuth(false)
+              }
+              localStorage.removeItem(SOCIAL_RESULT_KEY)
+            } else {
+              setConnectingOAuth(false)
+            }
+          } catch (_) {
+            setConnectingOAuth(false)
+          }
+        }, 500)
+      } else {
+        toast.error(res.data?.message || 'Could not start WhatsApp connect')
+        setConnectingOAuth(false)
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Could not start WhatsApp connect')
+      // Fallback: if OAuth setup is missing, allow manual connect.
+      openConnectModal('whatsapp')
       setConnectingOAuth(false)
     }
   }
@@ -3392,7 +3473,11 @@ const MessageComposer = ({
         socialOnly
         onSaved={() => {
           setSocialSettingsModalOpen(false)
-          connectWithFacebookOAuth()
+          if (isWhatsAppMode) {
+            connectWithWhatsAppOAuth()
+          } else {
+            connectWithFacebookOAuth()
+          }
         }}
       />
 
