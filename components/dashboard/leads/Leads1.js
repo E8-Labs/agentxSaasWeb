@@ -1688,11 +1688,98 @@ const Leads1 = () => {
                   }}
                 >
                   <div style={{ fontSize: 18, fontWeight: 600 }}>Leads</div>
-                  <CloseBtn
-                    onClick={() => {
-                      setShowUploadLeadModal(false)
-                    }}
-                  />
+                  <div className="ml-auto flex flex-row items-center gap-3">
+                    <div className="flex flex-row items-center gap-2">
+                      <Tooltip
+                        title="Our AI will search the web to pull all current data on your leads."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff',
+                              color: '#333',
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              padding: '10px 15px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: '#ffffff',
+                            },
+                          },
+                        }}
+                      >
+                        <div className="flex flex-row items-center gap-2">
+                          <div style={{ fontSize: 14, fontWeight: '500' }}>
+                            Enrich Leads
+                          </div>
+                          <Image
+                            src={'/svgIcons/infoIcon.svg'}
+                            height={16}
+                            width={16}
+                            alt=""
+                            className="hidden"
+                            aria-hidden
+                            style={{ filter: 'brightness(0)' }}
+                          />
+                        </div>
+                      </Tooltip>
+                      <Switch
+                        checked={isEnrichToggle}
+                        onChange={(event) => {
+                          if (isEnrichToggle === true) {
+                            setIsEnrichToggle(false)
+                          } else {
+                            setIsEnrichToggle(true)
+                            setShowenrichModal(true)
+                          }
+                        }}
+                        sx={{
+                          width: 44,
+                          height: 24,
+                          padding: 0,
+                          '& .MuiSwitch-switchBase': {
+                            padding: 0,
+                            margin: '2px',
+                            transitionDuration: '250ms',
+                            '&.Mui-checked': {
+                              transform: 'translateX(20px)',
+                              color: '#fff',
+                              '& + .MuiSwitch-track': {
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                opacity: 1,
+                                border: 'none',
+                              },
+                            },
+                          },
+                          '& .MuiSwitch-thumb': {
+                            boxSizing: 'border-box',
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            backgroundColor: '#fff',
+                            boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+                            transition:
+                              'background-color 250ms, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                          },
+                          '& .MuiSwitch-track': {
+                            borderRadius: 12,
+                            backgroundColor: '#e0e0e0',
+                            opacity: 1,
+                            transition: 'background-color 250ms, opacity 250ms',
+                          },
+                        }}
+                      />
+                    </div>
+                    <CloseBtn
+                      onClick={() => {
+                        setShowUploadLeadModal(false)
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {uploadContentLoading ? (
@@ -1722,90 +1809,6 @@ const Leads1 = () => {
                   }}
                 >
                   <span className="start-campaign-label">List Name</span>{' '}
-                  <div className="flex flex-row items-center gap-2 ">
-                    <Tooltip
-                      title="Our AI will search the web to pull all current data on your leads."
-                      arrow
-                      componentsProps={{
-                        tooltip: {
-                          sx: {
-                            backgroundColor: '#ffffff', // Ensure white background
-                            color: '#333', // Dark text color
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            padding: '10px 15px',
-                            borderRadius: '8px',
-                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                          },
-                        },
-                        arrow: {
-                          sx: {
-                            color: '#ffffff', // Match tooltip background
-                          },
-                        },
-                      }}
-                    >
-                      <div className="flex flex-row items-center gap-2">
-                        <div style={{ fontSize: 14, fontWeight: '500' }}>
-                          Enrich Leads
-                        </div>
-                        <Image
-                          src={'/svgIcons/infoIcon.svg'}
-                          height={16}
-                          width={16}
-                          alt=""
-                          className="hidden"
-                          aria-hidden
-                          style={{ filter: 'brightness(0)' }}
-                        />
-                      </div>
-                    </Tooltip>
-                    <Switch
-                      checked={isEnrichToggle}
-                      onChange={(event) => {
-                        if (isEnrichToggle === true) {
-                          setIsEnrichToggle(false)
-                        } else {
-                          setIsEnrichToggle(true)
-                          setShowenrichModal(true)
-                        }
-                      }}
-                      sx={{
-                        width: 44,
-                        height: 24,
-                        padding: 0,
-                        '& .MuiSwitch-switchBase': {
-                          padding: 0,
-                          margin: '2px',
-                          transitionDuration: '250ms',
-                          '&.Mui-checked': {
-                            transform: 'translateX(20px)',
-                            color: '#fff',
-                            '& + .MuiSwitch-track': {
-                              backgroundColor: 'hsl(var(--brand-primary))',
-                              opacity: 1,
-                              border: 'none',
-                            },
-                          },
-                        },
-                        '& .MuiSwitch-thumb': {
-                          boxSizing: 'border-box',
-                          width: 20,
-                          height: 20,
-                          borderRadius: '50%',
-                          backgroundColor: '#fff',
-                          boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
-                          transition: 'background-color 250ms, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        },
-                        '& .MuiSwitch-track': {
-                          borderRadius: 12,
-                          backgroundColor: '#e0e0e0',
-                          opacity: 1,
-                          transition: 'background-color 250ms, opacity 250ms',
-                        },
-                      }}
-                    />
-                  </div>
                 </div>
 
                 <div className="w-full">

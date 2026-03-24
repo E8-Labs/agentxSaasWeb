@@ -30,7 +30,7 @@ export default function PlanFeatureCheckRow({
   textMin = 10,
 }) {
   return (
-    <div className="flex w-full min-w-0 items-start gap-3 px-2 py-2">
+    <div className="flex w-full min-w-0 items-start gap-3 px-0 py-2">
       <div
         className="mt-0.5 flex flex-shrink-0 items-center justify-center rounded-full p-[2px]"
         style={{ backgroundColor: 'rgba(234,226,255,0.4)' }}

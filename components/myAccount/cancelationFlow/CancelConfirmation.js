@@ -201,41 +201,45 @@ function CancelConfirmation({
     </>
   )
 
+  const confirmationRow = (
+    <div className="flex flex-row items-center justify-start gap-2">
+      <button
+        type="button"
+        className="mt-0.5 flex-shrink-0"
+        onClick={() => {
+          setConfirmChecked(!confirmChecked)
+        }}
+      >
+        {confirmChecked ? (
+          <div
+            className="flex flex-row items-center justify-center rounded border-2 border-brand-primary bg-brand-primary"
+            style={{ height: '20px', width: '20px' }}
+          >
+            <Image
+              src="/assets/whiteTick.png"
+              alt=""
+              width={12}
+              height={12}
+              className="object-contain"
+            />
+          </div>
+        ) : (
+          <div
+            className="flex flex-row items-center justify-center rounded border-2 border-input bg-transparent"
+            style={{ height: '20px', width: '20px' }}
+          />
+        )}
+      </button>
+
+      <div className="text-left text-sm font-normal text-muted-foreground">
+        I confirm that my account will be cancelled and lose access.
+      </div>
+    </div>
+  )
+
   const footerSection = (
     <div className="flex w-full flex-shrink-0 flex-col gap-3 border-t border-[#eaeaea] bg-background px-4 py-3">
-      <div className="flex w-full flex-row items-start justify-start gap-2">
-        <button
-          type="button"
-          className="mt-0.5 flex-shrink-0"
-          onClick={() => {
-            setConfirmChecked(!confirmChecked)
-          }}
-        >
-          {confirmChecked ? (
-            <div
-              className="flex flex-row items-center justify-center rounded border-2 border-brand-primary bg-brand-primary"
-              style={{ height: '20px', width: '20px' }}
-            >
-              <Image
-                src="/assets/whiteTick.png"
-                alt=""
-                width={12}
-                height={12}
-                className="object-contain"
-              />
-            </div>
-          ) : (
-            <div
-              className="flex flex-row items-center justify-center rounded border-2 border-input bg-transparent"
-              style={{ height: '20px', width: '20px' }}
-            />
-          )}
-        </button>
-
-        <div className="text-left text-sm font-normal text-muted-foreground">
-          I confirm that my account will be cancelled and lose access.
-        </div>
-      </div>
+      {!onClose ? confirmationRow : null}
 
       <button
         type="button"
@@ -255,11 +259,11 @@ function CancelConfirmation({
   if (onClose) {
     return (
       <div className="flex h-auto flex-col">
-        <div className="flex flex-shrink-0 flex-row items-center justify-between border-b border-[#eaeaea] px-4 py-3">
-          <h2 className="text-base font-semibold text-foreground">
-            Confirm Your Cancellation
-          </h2>
-          <CloseBtn onClick={onClose} />
+        <div className="flex flex-shrink-0 flex-row items-center px-4 py-2">
+          <div className="ml-auto flex items-center gap-3">
+            <div className="flex">{confirmationRow}</div>
+            <CloseBtn onClick={onClose} />
+          </div>
         </div>
 
         <div
@@ -268,6 +272,9 @@ function CancelConfirmation({
         >
           <div className="flex flex-col items-center">
             {renderBrandedIcon('/otherAssets/IconAccount.png', 48, 48)}
+            <h2 className="mt-2 w-full text-center text-base font-semibold text-foreground">
+              Confirm Your Cancellation
+            </h2>
             <div className="mt-3 w-full text-center leading-snug">
               {`Cancelling means you'll lose access to the features below starting `}
               <span className="font-semibold text-foreground">{nxtCharge}</span>

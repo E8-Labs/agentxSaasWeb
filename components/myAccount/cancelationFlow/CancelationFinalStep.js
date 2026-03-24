@@ -79,16 +79,16 @@ function CancelationFinalStep({
         message={showError}
       />
 
-      <div className="flex flex-shrink-0 flex-row items-center justify-between border-b border-[#eaeaea] px-4 py-3">
-        <h2 className="pr-2 text-base font-semibold text-foreground">
-          One Final Step to Cancel
-        </h2>
+      <div className="flex flex-shrink-0 flex-row items-center justify-end px-4 py-2">
         {onClose ? <CloseBtn onClick={onClose} /> : null}
       </div>
 
       <div className="overflow-x-hidden px-4 py-4 text-sm text-muted-foreground">
         <div className="flex flex-col items-center">
           {renderBrandedIcon('/otherAssets/feedbackIcon2.png', 48, 48)}
+          <h2 className="mt-2 w-full text-center text-base font-semibold text-foreground">
+            One Final Step to Cancel
+          </h2>
           <p className="mt-3 w-full text-center font-normal text-foreground">
             Help Us Understand What’s Missing!
           </p>
@@ -108,7 +108,7 @@ function CancelationFinalStep({
                   handleSelectReason(item)
                 }}
                 key={item.id ?? index}
-                className="mt-1.5 flex w-full flex-row items-center gap-3 rounded-md py-1.5 text-left text-[15px] font-medium text-foreground outline-none ring-brand-primary transition-colors hover:bg-muted/50 focus-visible:ring-2"
+                className="mt-1.5 flex w-full flex-row items-center gap-3 rounded-md py-1.5 text-left text-[14px] font-normal text-foreground outline-none ring-brand-primary transition-colors hover:bg-muted/50 focus-visible:ring-2"
               >
                 <span
                   className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2"

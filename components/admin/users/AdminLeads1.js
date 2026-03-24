@@ -1574,82 +1574,83 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   borderRadius: '13px',
                 }}
               >
-                <div className="flex flex-row justify-end">
-                  <CloseBtn
-                    onClick={() => {
-                      setShowUploadLeadModal(false)
-                    }}
-                  />
-                </div>
-                <div className="mt-2" style={styles.subHeadingStyle}>
-                  Leads
+                <div className="flex flex-row items-center justify-between w-full border-b border-[#eaeaea] pb-3">
+                  <div className="" style={styles.subHeadingStyle}>
+                    Leads
+                  </div>
+                  <div className="ml-auto flex flex-row items-center gap-3">
+                    <div className="flex flex-row items-center gap-2 ">
+                      <Tooltip
+                        title="Our AI will search the web to pull all current data on your leads."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff', // Ensure white background
+                              color: '#333', // Dark text color
+                              fontSize: '16px',
+                              fontWeight: '500',
+                              padding: '10px 15px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: '#ffffff', // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <div className="flex flex-row items-center gap-2">
+                          <div style={{ fontSize: 14, fontWeight: '500' }}>
+                            Enrich Leads
+                          </div>
+                          <Image
+                            src={'/svgIcons/infoIcon.svg'}
+                            height={16}
+                            width={16}
+                            alt=""
+                            className="hidden"
+                            aria-hidden
+                          />
+                        </div>
+                      </Tooltip>
+                      <Switch
+                        checked={isEnrichToggle}
+                        // color="hsl(var(--brand-primary))"
+                        // exclusive
+                        onChange={(event) => {
+                          //console.log;
+                          if (isEnrichToggle === true) {
+                            setIsEnrichToggle(false)
+                          } else {
+                            setIsEnrichToggle(true)
+                            setShowenrichModal(true)
+                          }
+                        }}
+                        sx={{
+                          '& .MuiSwitch-switchBase.Mui-checked': {
+                            color: 'hsl(var(--brand-primary))',
+                          },
+                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                          {
+                            backgroundColor: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                      />
+                    </div>
+                    <CloseBtn
+                      onClick={() => {
+                        setShowUploadLeadModal(false)
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2 mt-8">
                 <div className="flex flex-row items-center justify-between gap-2">
                   <span style={styles.subHeadingStyle}>List Name</span>{' '}
-                  <div className="flex flex-row items-center gap-2 ">
-                    <Switch
-                      checked={isEnrichToggle}
-                      // color="hsl(var(--brand-primary))"
-                      // exclusive
-                      onChange={(event) => {
-                        //console.log;
-                        if (isEnrichToggle === true) {
-                          setIsEnrichToggle(false)
-                        } else {
-                          setIsEnrichToggle(true)
-                          setShowenrichModal(true)
-                        }
-                      }}
-                      sx={{
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: 'hsl(var(--brand-primary))',
-                        },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                        {
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                        },
-                      }}
-                    />
-
-                    <Tooltip
-                      title="Our AI will search the web to pull all current data on your leads."
-                      arrow
-                      componentsProps={{
-                        tooltip: {
-                          sx: {
-                            backgroundColor: '#ffffff', // Ensure white background
-                            color: '#333', // Dark text color
-                            fontSize: '16px',
-                            fontWeight: '500',
-                            padding: '10px 15px',
-                            borderRadius: '8px',
-                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                          },
-                        },
-                        arrow: {
-                          sx: {
-                            color: '#ffffff', // Match tooltip background
-                          },
-                        },
-                      }}
-                    >
-                      <div className="flex flex-row items-center gap-2">
-                        <div style={{ fontSize: 14, fontWeight: '500' }}>
-                          Enrich Leads
-                        </div>
-                        <Image
-                          src={'/svgIcons/infoIcon.svg'}
-                          height={16}
-                          width={16}
-                          alt=""
-                          className="hidden"
-                          aria-hidden
-                        />
-                      </div>
-                    </Tooltip>
-                  </div>
                 </div>
 
                 <div className="w-full" style={styles.subHeadingStyle}>
