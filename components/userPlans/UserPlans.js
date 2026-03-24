@@ -25,7 +25,12 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import FeatureLine from './FeatureLine'
 import FitText from './FitText'
-import { getFeatureDisplayText, reorderPlanFeatures } from '../plan/PlansUtilities'
+import {
+  getDisplayFeaturesForPlan,
+  getFeatureDisplayText,
+  getInheritedPlanTitle,
+  reorderPlanFeatures,
+} from '../plan/PlansUtilities'
 import UpgradePlan from './UpgradePlan'
 import UserAddCard from './UserAddCardModal'
 import { getSubscribeApiConfig, getUserLocalData, getUserPlans } from './UserPlanServices'
@@ -1015,11 +1020,10 @@ function UserPlans({
 
                       {(isFrom === 'SubAccount' || routedFrom === 'Agency') ? null : (
                         <div className="w-full px-4 py-[2px]">
-                          {index > 0 && (
+                          {getInheritedPlanTitle(item, getCurrentPlans()) && (
                             <div className="min-h-[36px] px-4 py-[1px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
                               Everything in{' '}
-                              {getCurrentPlans()[index - 1]?.name ||
-                                getCurrentPlans()[index - 1]?.title}{' '}
+                              {getInheritedPlanTitle(item, getCurrentPlans())}{' '}
                               and...
                             </div>
                           )}
@@ -1029,7 +1033,9 @@ function UserPlans({
                       <div className="w-full px-2">
                         <div className="flex flex-col gap-1">
                           {Array.isArray(item.features) &&
-                            reorderPlanFeatures(item.features)?.map((feature) => {
+                            reorderPlanFeatures(
+                              getDisplayFeaturesForPlan(item, getCurrentPlans()),
+                            )?.map((feature) => {
                               const included = isFeatureIncluded(feature)
                               return (
                                 <div

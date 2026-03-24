@@ -591,6 +591,9 @@ export default function PlanConfiguration({
     formData.append('tag', basicsData?.tag)
     formData.append('subscriptionDuration', basicsData?.planDuration)
     formData.append('credits', basicsData?.minutes)
+    if (Object.prototype.hasOwnProperty.call(basicsData || {}, 'inheritsFromPlanId')) {
+      formData.append('inheritsFromPlanId', basicsData?.inheritsFromPlanId || '')
+    }
 
     formData.append('numberOfAgents', noOfAgents)
     formData.append('numberOfContacts', noOfContacts)
