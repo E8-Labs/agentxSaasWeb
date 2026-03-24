@@ -3424,40 +3424,50 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [selectedThread, composerMode])
 
-  // Auto-select thread when threads are loaded (prioritize threadId from query params)
+  // Auto-select thread when threads are loaded (prioritize threadId from query params).
+  // When already on /dashboard/messages, router.push only changes the query string; the page
+  // does not remount, so we must switch threads when URL threadId differs from the selection
+  // (e.g. email/SMS notification clicks from the drawer).
   useEffect(() => {
-    if (!selectedThread && threads.length > 0) {
-      // Check if threadId is provided in query params (from notification click)
-      const threadIdFromParams = searchParams?.get('threadId')
-      const messageIdFromParams = searchParams?.get('messageId')
+    if (threads.length === 0) return
 
-      let threadToSelect = null
+    const threadIdFromParams = searchParams?.get('threadId')
 
-      if (threadIdFromParams) {
-        // Find the thread matching the threadId from query params
-        threadToSelect = threads.find(
-          (t) => t.id.toString() === threadIdFromParams.toString()
-        )
+    let threadToSelect = null
+    if (threadIdFromParams) {
+      threadToSelect = threads.find(
+        (t) => t.id.toString() === threadIdFromParams.toString()
+      )
+    }
+
+    const applyThreadSelection = (thread) => {
+      setSelectedThread(thread)
+      setMessageOffset(0)
+      messageOffsetRef.current = 0
+      setHasMoreMessages(true)
+      setMessages([])
+      setStarredMessageIds(new Set())
+      fetchMessages(thread.id, null, false)
+      if (thread.unreadCount > 0) {
+        markThreadAsRead(thread.id)
       }
+      setThreadIdInUrl(thread.id)
+    }
 
-      // Fallback to first thread if no match found or no query param
+    if (!selectedThread) {
       if (!threadToSelect) {
         threadToSelect = threads[0]
       }
-
       if (threadToSelect) {
-        setSelectedThread(threadToSelect)
-        setMessageOffset(0)
-        messageOffsetRef.current = 0
-        setHasMoreMessages(true)
-        setMessages([])
-        fetchMessages(threadToSelect.id, null, false)
-        // Drafts will be fetched automatically by the messages effect when messages load
-        if (threadToSelect.unreadCount > 0) {
-          markThreadAsRead(threadToSelect.id)
-        }
-        setThreadIdInUrl(threadToSelect.id)
+        applyThreadSelection(threadToSelect)
       }
+      return
+    }
+
+    const selectedId = selectedThread.id != null ? String(selectedThread.id) : null
+    const targetId = threadToSelect ? String(threadToSelect.id) : null
+    if (threadToSelect && targetId !== selectedId) {
+      applyThreadSelection(threadToSelect)
     }
   }, [threads, selectedThread, fetchMessages, markThreadAsRead, searchParams, setThreadIdInUrl])
 
