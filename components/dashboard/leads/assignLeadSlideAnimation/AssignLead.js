@@ -1116,7 +1116,7 @@ const AssignLead = ({
                           cursor: 'pointer',
                         }}
                       >
-                        Check DNC List
+                        Check DNC
                       </div>
                     </Tooltip>
                     <Info

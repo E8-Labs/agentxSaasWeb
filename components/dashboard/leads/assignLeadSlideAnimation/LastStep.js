@@ -422,7 +422,7 @@ const LastStep = ({
                         cursor: 'pointer',
                       }}
                     >
-                      Check DNC List
+                      Check DNC
                     </div>
                     <Info
                       size={16}
