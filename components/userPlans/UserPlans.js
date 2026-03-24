@@ -1018,17 +1018,15 @@ function UserPlans({
                         )}
                       </div>
 
-                      {(isFrom === 'SubAccount' || routedFrom === 'Agency') ? null : (
-                        <div className="w-full px-4 py-[2px]">
-                          {getInheritedPlanTitle(item, getCurrentPlans()) && (
-                            <div className="min-h-[36px] px-4 py-[1px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
-                              Everything in{' '}
-                              {getInheritedPlanTitle(item, getCurrentPlans())}{' '}
-                              and...
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <div className="w-full px-4 py-[2px]">
+                        {getInheritedPlanTitle(item, getCurrentPlans()) && (
+                          <div className="min-h-[36px] px-4 py-[1px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
+                            Everything in{' '}
+                            {getInheritedPlanTitle(item, getCurrentPlans())}{' '}
+                            and...
+                          </div>
+                        )}
+                      </div>
 
                       <div className="w-full px-2">
                         <div className="flex flex-col gap-1">
