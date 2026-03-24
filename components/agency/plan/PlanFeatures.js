@@ -13,6 +13,7 @@ export default function PlanFeatures({
   features,
   setFeatures,
   featuresList,
+  lockedInheritedFeatureKeys = [],
   trialValidForDays,
   setTrialValidForDays,
   agencyAllowedFeatures,
@@ -38,8 +39,9 @@ export default function PlanFeatures({
       </div>
       <div className="flex flex-col gap-1 w-full mt-6">
         {featuresList.map((item) => {
-          const isLocked = !agencyAllowedFeatures[item.stateKey]
-          const isDisabled = isLocked
+          const isAgencyLocked = !agencyAllowedFeatures[item.stateKey]
+          const isInheritedLocked = lockedInheritedFeatureKeys.includes(item.stateKey)
+          const isDisabled = isAgencyLocked || isInheritedLocked
           return (
             <div key={item.stateKey}>
               <div className="flex flex-row items-center justify-between w-full">
@@ -91,6 +93,11 @@ export default function PlanFeatures({
                     >
                       Upgrade
                     </button>
+                  )}
+                  {isInheritedLocked && (
+                    <span className="text-xs text-white bg-[#1d4ed8] rounded-full px-2 py-[3px]">
+                      Inherited
+                    </span>
                   )}
                 </div>
 

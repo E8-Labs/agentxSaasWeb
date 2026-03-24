@@ -28,7 +28,12 @@ import { Checkbox } from '../ui/checkbox'
 import { logout } from '@/utilities/UserUtility'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import FeatureLine from '../userPlans/FeatureLine'
-import { getFeatureDisplayText, reorderPlanFeatures } from './PlansUtilities'
+import {
+  getDisplayFeaturesForPlan,
+  getFeatureDisplayText,
+  getInheritedPlanTitle,
+  reorderPlanFeatures,
+} from './PlansUtilities'
 import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
 import PlanSummaryMobile from '../onboarding/mobileUI/PlanSummaryMobile'
 import PlansListMobile from '../onboarding/mobileUI/PlansListMobile'
@@ -966,17 +971,19 @@ function AgencyPlans({
                         {/* Features container - scrollable */}
                         <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
                           <div className="flex flex-col items-start w-full flex-1 pr-2">
-                            {index > 0 && (
+                            {getInheritedPlanTitle(item, getCurrentPlans()) && (
                               <div className="w-full mb-3 flex-shrink-0 items-center p-3 rounded-lg bg-gray-100">
                                 <div className="text-sm font-semibold text-foreground text-center">
                                   Everything in{' '}
-                                  {getCurrentPlans()[index - 1]?.title} and
+                                  {getInheritedPlanTitle(item, getCurrentPlans())} and
                                 </div>
                               </div>
                             )}
 
                             {Array.isArray(item?.features) &&
-                              reorderPlanFeatures(item.features)?.map((feature) => (
+                              reorderPlanFeatures(
+                                getDisplayFeaturesForPlan(item, getCurrentPlans()),
+                              )?.map((feature) => (
                                 <div
                                   key={feature.text}
                                   className="flex flex-row items-center gap-3 mb-3 w-full"

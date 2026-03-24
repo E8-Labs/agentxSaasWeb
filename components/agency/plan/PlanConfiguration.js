@@ -67,6 +67,9 @@ export default function PlanConfiguration({
   //upgrade Plan popup variable
   const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
   const [currentAgencyPlan, setCurrentAgencyPlan] = useState(null)
+  const [availableBasePlans, setAvailableBasePlans] = useState([])
+  const [inheritsFromPlanId, setInheritsFromPlanId] = useState('')
+  const [lockedInheritedFeatureKeys, setLockedInheritedFeatureKeys] = useState([])
   //custom features
   const [customFeatures, setCustomFeatures] = useState([])
   const [allowedFeatures, setAllowedFeatures] = useState([])
@@ -106,6 +109,23 @@ export default function PlanConfiguration({
     allowTeamSeats: false,
     allowLeadSource: false,
   })
+
+  const baseDynamicToLocalFeatureKeyMap = {
+    allowLanguageSelection: 'allowLanguageSelection',
+    allowToolsAndActions: 'toolsActions',
+    allowCalendars: 'calendars',
+    allowLiveTransfer: 'liveTransfer',
+    allowRAGKnowledgeBase: 'ragKnowledgeBase',
+    allowEmbedBrowserWebhookAgent: 'embedBrowserWebhookAgent',
+    allowAPIKey: 'apiKey',
+    allowVoicemail: 'voicemail',
+    allowTextMessages: 'allowTextMessages',
+    allowEmails: 'allowEmails',
+    allowAIEmailAndText: 'allowAIEmailAndText',
+    allowDialer: 'allowDialer',
+    allowTwilio: 'twilio',
+    allowLeadSource: 'allowLeadSource',
+  }
 
   //features list
   const featuresList = [
@@ -235,8 +255,71 @@ export default function PlanConfiguration({
       setAllowedFeatures([])
       setNoOfSeats('')
       setCostPerAdditionalSeat('')
+      setInheritsFromPlanId('')
+      setLockedInheritedFeatureKeys([])
     }
   }, [open, isEditPlan, configurationData])
+
+  useEffect(() => {
+    if (!open) return
+
+    const localPlans = localStorage.getItem('agencyMonthlyPlans')
+    if (!localPlans) {
+      setAvailableBasePlans([])
+      return
+    }
+
+    try {
+      const parsed = JSON.parse(localPlans)
+      const plansList = Array.isArray(parsed) ? parsed : []
+      const filteredPlans = plansList.filter((plan) => {
+        if (!plan?.id) return false
+        if (isEditPlan && selectedPlan?.id && Number(plan.id) === Number(selectedPlan.id)) {
+          return false
+        }
+        return true
+      })
+      setAvailableBasePlans(filteredPlans)
+    } catch (error) {
+      setAvailableBasePlans([])
+    }
+  }, [open, isEditPlan, selectedPlan?.id])
+
+  useEffect(() => {
+    if (!inheritsFromPlanId) {
+      setLockedInheritedFeatureKeys([])
+      return
+    }
+
+    const basePlan = availableBasePlans.find(
+      (plan) => String(plan?.id) === String(inheritsFromPlanId),
+    )
+    if (!basePlan?.dynamicFeatures) {
+      setLockedInheritedFeatureKeys([])
+      return
+    }
+
+    const nextLockedKeys = Object.entries(baseDynamicToLocalFeatureKeyMap)
+      .filter(([baseKey, localKey]) => {
+        if (!localKey) return false
+        const value = basePlan.dynamicFeatures?.[baseKey]
+        return value === true
+      })
+      .map(([, localKey]) => localKey)
+
+    setLockedInheritedFeatureKeys(nextLockedKeys)
+
+    // When switching base plans, reset inheritable toggles to the selected base plan defaults.
+    // Users can still manually enable non-inherited toggles afterwards.
+    setFeatures((prev) => {
+      const next = { ...prev }
+      Object.entries(baseDynamicToLocalFeatureKeyMap).forEach(([baseKey, localKey]) => {
+        if (!localKey) return
+        next[localKey] = basePlan.dynamicFeatures?.[baseKey] === true
+      })
+      return next
+    })
+  }, [inheritsFromPlanId, availableBasePlans])
 
   // Initialize current agency plan when component opens or selectedAgency changes
   useEffect(() => {
@@ -497,6 +580,13 @@ export default function PlanConfiguration({
       setTrialValidForDays(configurationData?.trialValidForDays)
       setNoOfSeats(configurationData?.noOfSeats)
       setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat)
+      setInheritsFromPlanId(
+        configurationData?.inheritsFromPlanId
+          ? String(configurationData.inheritsFromPlanId)
+          : basicsData?.inheritsFromPlanId
+            ? String(basicsData.inheritsFromPlanId)
+            : '',
+      )
       const incomingLanguage =
         typeof configurationData?.language === 'string'
           ? configurationData.language.trim().toLowerCase()
@@ -512,6 +602,14 @@ export default function PlanConfiguration({
       setCustomFeatures(configurationData?.customFeatures || [])
     }
   }, [configurationData])
+
+  useEffect(() => {
+    if (!configurationData && basicsData) {
+      setInheritsFromPlanId(
+        basicsData?.inheritsFromPlanId ? String(basicsData.inheritsFromPlanId) : '',
+      )
+    }
+  }, [configurationData, basicsData])
 
   useEffect(() => {
     if (!agencyAllowedFeatures.allowLanguageSelection) {
@@ -556,6 +654,8 @@ export default function PlanConfiguration({
     })
     setCustomFeatures([])
     setAllowedFeatures([])
+    setInheritsFromPlanId('')
+    setLockedInheritedFeatureKeys([])
     setShowUpgradePlanPopup(false)
     setShowTrailWarning(false)
     setCreatePlanLoader(false)
@@ -591,6 +691,7 @@ export default function PlanConfiguration({
     formData.append('tag', basicsData?.tag)
     formData.append('subscriptionDuration', basicsData?.planDuration)
     formData.append('credits', basicsData?.minutes)
+    formData.append('inheritsFromPlanId', inheritsFromPlanId || '')
 
     formData.append('numberOfAgents', noOfAgents)
     formData.append('numberOfContacts', noOfContacts)
@@ -869,6 +970,7 @@ export default function PlanConfiguration({
       languageTitle: languageTitle,
       language: language,
       customFeatures: customFeatures,
+      inheritsFromPlanId: inheritsFromPlanId || null,
     })
     handleBack()
   }
@@ -948,6 +1050,10 @@ export default function PlanConfiguration({
   }
   //switch btns for plan features
   const handleToggle = (key) => {
+    if (lockedInheritedFeatureKeys.includes(key)) {
+      return
+    }
+
     if (
       key === 'allowLanguageSelection' &&
       !agencyAllowedFeatures.allowLanguageSelection
@@ -1250,10 +1356,29 @@ export default function PlanConfiguration({
                   }}
                 />
               </div>
+              <div className="w-full flex flex-row items-center justify-between gap-2 mb-4">
+                <label style={styles.labels}>Base Plan</label>
+                <select
+                  style={styles.inputs}
+                  className="w-1/2 border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 bg-white"
+                  value={inheritsFromPlanId}
+                  onChange={(e) => {
+                    setInheritsFromPlanId(e.target.value)
+                  }}
+                >
+                  <option value="">None</option>
+                  {availableBasePlans.map((plan) => (
+                    <option key={plan.id} value={String(plan.id)}>
+                      {plan.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <PlanFeatures
                 featuresList={featuresList}
                 features={features}
                 agencyAllowedFeatures={agencyAllowedFeatures}
+                lockedInheritedFeatureKeys={lockedInheritedFeatureKeys}
                 setFeatures={setFeatures}
                 customFeatures={customFeatures}
                 handleChangeCustomFeature={handleChangeCustomFeature}

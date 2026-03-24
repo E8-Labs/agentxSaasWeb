@@ -4,7 +4,12 @@ import Image from 'next/image'
 import { Checkbox } from '@/components/ui/checkbox'
 import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
 import FeatureLine from '@/components/userPlans/FeatureLine'
-import { getFeatureDisplayText, reorderPlanFeatures } from '@/components/plan/PlansUtilities'
+import {
+    getDisplayFeaturesForPlan,
+    getFeatureDisplayText,
+    getInheritedPlanTitle,
+    reorderPlanFeatures
+} from '@/components/plan/PlansUtilities'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import SignupHeaderMobile from './SignupHeaderMobile'
 import { useSelector } from 'react-redux'
@@ -192,17 +197,19 @@ function PlansListMobile({
                                             {showPlanDetails && plan.id === selectedPlan?.id && (
                                                 <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
                                                     <div className="flex flex-col items-start w-full flex-1 pr-2">
-                                                        {index > 0 && (
+                                                        {getInheritedPlanTitle(plan, getCurrentPlans()) && (
                                                             <div className="w-full mb-3 flex-shrink-0">
                                                                 <div className="text-sm font-semibold text-foreground mb-2 text-left">
-                                                                    Everything in {getCurrentPlans()[index - 1]?.title},
+                                                                    Everything in {getInheritedPlanTitle(plan, getCurrentPlans())},
                                                                     and:
                                                                 </div>
                                                             </div>
                                                         )}
 
                                                         {Array.isArray(plan?.features) &&
-                                                            reorderPlanFeatures(plan.features)?.map((feature) => (
+                                                            reorderPlanFeatures(
+                                                                getDisplayFeaturesForPlan(plan, getCurrentPlans()),
+                                                            )?.map((feature) => (
                                                                 <div
                                                                     key={feature.text}
                                                                     className="flex flex-row items-center gap-3 mb-3 w-full"
