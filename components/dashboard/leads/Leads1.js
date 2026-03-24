@@ -1796,9 +1796,9 @@ const Leads1 = () => {
                     </div>
                   </div>
                 ) : (
-                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingTop: 12, paddingLeft: 16, paddingRight: 16 }}>
-                <div className="flex flex-row items-start" style={{ gap: 12, paddingLeft: 0, paddingRight: 0 }}>
-                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12 }}>
+                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ gap: 12, fontSize: 14, fontWeight: 400, paddingTop: 12, paddingLeft: 0, paddingRight: 0 }}>
+                <div className="flex flex-row items-start" style={{ gap: 12, paddingLeft: 16, paddingRight: 16, paddingTop: 12 }}>
+                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4 }}>
                 <div
                   className="flex flex-row items-center justify-between gap-2"
                   style={{
@@ -1824,7 +1824,7 @@ const Leads1 = () => {
                 </div>
                 </div>
 
-                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12, padding: 0 }}>
+                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4, padding: 0 }}>
                   <div className="start-campaign-label">
                     Create a tag for leads
                   </div>
