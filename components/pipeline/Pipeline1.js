@@ -66,6 +66,8 @@ const Pipeline1 = ({
   // Skip re-restoring from localStorage when pipelinesDetails is updated in-place (e.g. after adding a stage)
   // so we don't overwrite current in-memory assignments.
   const restoredCadenceForPipelineRef = useRef(new Set())
+  /** Prevents overlapping Continue: duplicate clicks were re-running cadence-template saves. */
+  const continueActionInProgressRef = useRef(false)
   const [createPipelineLoader, setPipelineLoader] = useState(false)
   const [isInboundAgent, setIsInboundAgent] = useState(false)
   const [showRearrangeErr, setShowRearrangeErr] = useState(null)
@@ -621,6 +623,10 @@ const Pipeline1 = ({
       communicationType: row.communicationType || row.action || 'call',
       referencePoint: row.referencePoint || 'regular_calls',
       ...(row.templateId != null && { templateId: row.templateId }),
+      ...(row.emailAccountId != null &&
+        row.emailAccountId !== '' && { emailAccountId: row.emailAccountId }),
+      ...(row.smsPhoneNumberId != null &&
+        row.smsPhoneNumberId !== '' && { smsPhoneNumberId: row.smsPhoneNumberId }),
     }))
 
     // console.log('rowsByIndex[stageIndex]:', rowsByIndex[stageIndex])
@@ -654,7 +660,10 @@ const Pipeline1 = ({
       action: call.communicationType || 'call',
       referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
       ...(call.templateId != null && { templateId: call.templateId }),
-      // ...(call.emailAccountId != null && { emailAccountId: call.emailAccountId }),
+      ...(call.emailAccountId != null &&
+        call.emailAccountId !== '' && { emailAccountId: call.emailAccountId }),
+      ...(call.smsPhoneNumberId != null &&
+        call.smsPhoneNumberId !== '' && { smsPhoneNumberId: call.smsPhoneNumberId }),
     }))
 
     let newNextStageVal = nextStage[stageIndex]
@@ -700,7 +709,11 @@ const Pipeline1 = ({
   }
 
   const printAssignedLeadsData = async () => {
-    // return
+    if (continueActionInProgressRef.current) {
+      return
+    }
+    continueActionInProgressRef.current = true
+    try {
     onContinueClick?.()
     setPipelineLoader(true)
 
@@ -766,6 +779,7 @@ const Pipeline1 = ({
       localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
     }
 
+    const stageIdsSavedAsTemplate = []
     try {
       for (let i = 0; i < selectedPipelineStages.length; i++) {
         const stage = selectedPipelineStages[i]
@@ -784,10 +798,28 @@ const Pipeline1 = ({
         })
         if (result?.status && result?.data) {
           setCadenceTemplatesList((prev) => [result.data, ...prev])
+          stageIdsSavedAsTemplate.push(stage.id)
         }
       }
     } catch (e) {
       console.error('Failed to save cadence template:', e)
+    }
+
+    if (stageIdsSavedAsTemplate.length > 0) {
+      setSaveStageAsTemplateByStageId((prev) => {
+        const next = { ...prev }
+        stageIdsSavedAsTemplate.forEach((id) => {
+          delete next[id]
+        })
+        return next
+      })
+      setStageTemplateNameByStageId((prev) => {
+        const next = { ...prev }
+        stageIdsSavedAsTemplate.forEach((id) => {
+          delete next[id]
+        })
+        return next
+      })
     }
 
     handleContinue()
@@ -848,6 +880,9 @@ const Pipeline1 = ({
     //    // //console.log;
     //     setPipelineLoader(false);
     // }
+    } finally {
+      continueActionInProgressRef.current = false
+    }
   }
 
   const handleToggleClick = (id) => {
