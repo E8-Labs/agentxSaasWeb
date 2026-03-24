@@ -1357,7 +1357,7 @@ export default function PlanConfiguration({
                 />
               </div>
               <div className="w-full flex flex-row items-center justify-between gap-2 mb-4">
-                <label style={styles.labels}>Base Plan</label>
+                <label style={styles.labels}>Everything in...</label>
                 <select
                   style={styles.inputs}
                   className="w-1/2 border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 bg-white"

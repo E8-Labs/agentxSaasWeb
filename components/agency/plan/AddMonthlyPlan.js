@@ -977,7 +977,7 @@ export default function AddMonthlyPlan({
                       }}
                     />
 
-              <label style={styles.labels}>Base Plan (Optional)</label>
+              {/*<label style={styles.labels}>Base Plan (Optional)</label>
               <select
                 style={styles.inputs}
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1 bg-white"
@@ -992,7 +992,7 @@ export default function AddMonthlyPlan({
                     {plan.title}
                   </option>
                 ))}
-              </select>
+              </select>*/}
                   </div>
 
                   {/*minCostErr && (
