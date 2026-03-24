@@ -912,13 +912,14 @@ const AdminAssignLead = ({
                           cursor: 'pointer',
                         }}
                       >
-                        Check DNC List
+                        Check DNC
                       </div>
                     </Tooltip>
                     <Info
                       size={16}
                       style={{ color: 'rgba(0,0,0,0.7)', flexShrink: 0 }}
                       aria-hidden
+                      className="ms-1"
                     />
                     <Switch
                       checked={isDncChecked}
