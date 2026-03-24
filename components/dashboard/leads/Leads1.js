@@ -1688,11 +1688,98 @@ const Leads1 = () => {
                   }}
                 >
                   <div style={{ fontSize: 18, fontWeight: 600 }}>Leads</div>
-                  <CloseBtn
-                    onClick={() => {
-                      setShowUploadLeadModal(false)
-                    }}
-                  />
+                  <div className="ml-auto flex flex-row items-center gap-3">
+                    <div className="flex flex-row items-center gap-2">
+                      <Tooltip
+                        title="Our AI will search the web to pull all current data on your leads."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff',
+                              color: '#333',
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              padding: '10px 15px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: '#ffffff',
+                            },
+                          },
+                        }}
+                      >
+                        <div className="flex flex-row items-center gap-2">
+                          <div style={{ fontSize: 14, fontWeight: '500' }}>
+                            Enrich Leads
+                          </div>
+                          <Image
+                            src={'/svgIcons/infoIcon.svg'}
+                            height={16}
+                            width={16}
+                            alt=""
+                            className="hidden"
+                            aria-hidden
+                            style={{ filter: 'brightness(0)' }}
+                          />
+                        </div>
+                      </Tooltip>
+                      <Switch
+                        checked={isEnrichToggle}
+                        onChange={(event) => {
+                          if (isEnrichToggle === true) {
+                            setIsEnrichToggle(false)
+                          } else {
+                            setIsEnrichToggle(true)
+                            setShowenrichModal(true)
+                          }
+                        }}
+                        sx={{
+                          width: 44,
+                          height: 24,
+                          padding: 0,
+                          '& .MuiSwitch-switchBase': {
+                            padding: 0,
+                            margin: '2px',
+                            transitionDuration: '250ms',
+                            '&.Mui-checked': {
+                              transform: 'translateX(20px)',
+                              color: '#fff',
+                              '& + .MuiSwitch-track': {
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                opacity: 1,
+                                border: 'none',
+                              },
+                            },
+                          },
+                          '& .MuiSwitch-thumb': {
+                            boxSizing: 'border-box',
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            backgroundColor: '#fff',
+                            boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+                            transition:
+                              'background-color 250ms, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                          },
+                          '& .MuiSwitch-track': {
+                            borderRadius: 12,
+                            backgroundColor: '#e0e0e0',
+                            opacity: 1,
+                            transition: 'background-color 250ms, opacity 250ms',
+                          },
+                        }}
+                      />
+                    </div>
+                    <CloseBtn
+                      onClick={() => {
+                        setShowUploadLeadModal(false)
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {uploadContentLoading ? (
@@ -1709,9 +1796,9 @@ const Leads1 = () => {
                     </div>
                   </div>
                 ) : (
-                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ gap: 8, fontSize: 14, fontWeight: 400, paddingTop: 12, paddingLeft: 16, paddingRight: 16 }}>
-                <div className="flex flex-row items-start" style={{ gap: 12, paddingLeft: 0, paddingRight: 0 }}>
-                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12 }}>
+                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ gap: 12, fontSize: 14, fontWeight: 400, paddingTop: 12, paddingLeft: 0, paddingRight: 0 }}>
+                <div className="flex flex-row items-start" style={{ gap: 12, paddingLeft: 16, paddingRight: 16, paddingTop: 12 }}>
+                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4 }}>
                 <div
                   className="flex flex-row items-center justify-between gap-2"
                   style={{
@@ -1722,90 +1809,6 @@ const Leads1 = () => {
                   }}
                 >
                   <span className="start-campaign-label">List Name</span>{' '}
-                  <div className="flex flex-row items-center gap-2 ">
-                    <Tooltip
-                      title="Our AI will search the web to pull all current data on your leads."
-                      arrow
-                      componentsProps={{
-                        tooltip: {
-                          sx: {
-                            backgroundColor: '#ffffff', // Ensure white background
-                            color: '#333', // Dark text color
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            padding: '10px 15px',
-                            borderRadius: '8px',
-                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                          },
-                        },
-                        arrow: {
-                          sx: {
-                            color: '#ffffff', // Match tooltip background
-                          },
-                        },
-                      }}
-                    >
-                      <div className="flex flex-row items-center gap-2">
-                        <div style={{ fontSize: 14, fontWeight: '500' }}>
-                          Enrich Leads
-                        </div>
-                        <Image
-                          src={'/svgIcons/infoIcon.svg'}
-                          height={16}
-                          width={16}
-                          alt=""
-                          className="hidden"
-                          aria-hidden
-                          style={{ filter: 'brightness(0)' }}
-                        />
-                      </div>
-                    </Tooltip>
-                    <Switch
-                      checked={isEnrichToggle}
-                      onChange={(event) => {
-                        if (isEnrichToggle === true) {
-                          setIsEnrichToggle(false)
-                        } else {
-                          setIsEnrichToggle(true)
-                          setShowenrichModal(true)
-                        }
-                      }}
-                      sx={{
-                        width: 44,
-                        height: 24,
-                        padding: 0,
-                        '& .MuiSwitch-switchBase': {
-                          padding: 0,
-                          margin: '2px',
-                          transitionDuration: '250ms',
-                          '&.Mui-checked': {
-                            transform: 'translateX(20px)',
-                            color: '#fff',
-                            '& + .MuiSwitch-track': {
-                              backgroundColor: 'hsl(var(--brand-primary))',
-                              opacity: 1,
-                              border: 'none',
-                            },
-                          },
-                        },
-                        '& .MuiSwitch-thumb': {
-                          boxSizing: 'border-box',
-                          width: 20,
-                          height: 20,
-                          borderRadius: '50%',
-                          backgroundColor: '#fff',
-                          boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
-                          transition: 'background-color 250ms, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        },
-                        '& .MuiSwitch-track': {
-                          borderRadius: 12,
-                          backgroundColor: '#e0e0e0',
-                          opacity: 1,
-                          transition: 'background-color 250ms, opacity 250ms',
-                        },
-                      }}
-                    />
-                  </div>
                 </div>
 
                 <div className="w-full">
@@ -1821,7 +1824,7 @@ const Leads1 = () => {
                 </div>
                 </div>
 
-                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12, padding: 0 }}>
+                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4, padding: 0 }}>
                   <div className="start-campaign-label">
                     Create a tag for leads
                   </div>
@@ -2149,7 +2152,8 @@ const Leads1 = () => {
           }}
           slotProps={{
             root: {
-              sx: { zIndex: 9999 },
+              /* Below nested “Add Column” modal (z-index 1400); above base upload modal (1300) */
+              sx: { zIndex: 1350 },
             },
           }}
           PaperProps={{
@@ -2253,6 +2257,8 @@ const Leads1 = () => {
               className="w-full text-start px-3 py-2 mt-0.5 rounded-lg hover:bg-black/[0.04] transition-colors duration-200 border-t border-[#eaeaea]"
               style={{ fontSize: 14, fontWeight: 400, color: 'hsl(var(--brand-primary))' }}
               onClick={() => {
+                setcolumnAnchorEl(null)
+                setSelectedItem(null)
                 setShowPopUp(true)
               }}
             >
@@ -2266,107 +2272,103 @@ const Leads1 = () => {
           open={showPopUp}
           onClose={() => setShowPopUp(false)}
           closeAfterTransition
+          sx={{ zIndex: 1400 }}
           BackdropProps={{
-            timeout: 1000,
+            timeout: 250,
             sx: {
-              backgroundColor: '#00000020',
-              // //backdropFilter: "blur(5px)",
+              backgroundColor: '#00000099',
             },
           }}
         >
-          <Box className="lg:w-4/12 sm:w-6/12 w-10/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
+          <Box
+            className="w-[400px] max-w-[90vw] flex flex-col overflow-hidden rounded-[12px] bg-white mx-auto outline-none"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #eaeaea',
+            }}
+          >
+            <div
+              className="flex flex-row items-center justify-between px-4 py-3 flex-shrink-0"
+              style={{ borderBottom: '1px solid #eaeaea' }}
+            >
+              <h2 className="text-[16px] font-semibold text-foreground">
+                Add Column
+              </h2>
+              <CloseBtn
+                onClick={() => {
+                  setShowPopUp(false)
+                }}
+              />
+            </div>
+            <div
+              className="px-4 py-4 flex flex-col gap-2 flex-shrink-0"
+              style={{ fontSize: 14, color: 'rgba(0,0,0,0.8)' }}
+            >
+              <div className="start-campaign-label">Column Name</div>
+              <input
+                ref={addColRef}
+                type="text"
+                className="start-campaign-input w-full h-[42px]"
+                value={updateColumnValue}
+                onChange={(e) => {
+                  const regex = /^[a-zA-Z0-9_ ]*$/
+                  if (regex.test(e.target.value)) {
+                    setUpdateColumnValue(e.target.value)
+                  }
+                }}
+                placeholder="Type here..."
+              />
+            </div>
+            <div
+              className="flex flex-row items-center justify-end px-4 py-3 flex-shrink-0"
+              style={{ borderTop: '1px solid #eaeaea' }}
+            >
+              <button
+                type="button"
+                className="h-[40px] w-full rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={!updateColumnValue}
+                onClick={() => {
+                  const customNameExists = NewColumnsObtained?.some(
+                    (item) =>
+                      item?.UserFacingName?.toLowerCase() ===
+                      updateColumnValue?.toLowerCase(),
+                  )
+
+                  const defaultColumnExists = Object.keys(
+                    LeadDefaultColumns,
+                  ).find(
+                    (key) =>
+                      LeadDefaultColumns[key].UserFacingName.toLowerCase() ===
+                      updateColumnValue?.toLowerCase(),
+                  )
+
+                  const defaultAlreadyMapped =
+                    defaultColumnExists &&
+                    NewColumnsObtained?.some(
+                      (item) =>
+                        item?.matchedColumn?.dbName === defaultColumnExists,
+                    )
+
+                  if (customNameExists) {
+                    setErrSnack('Custom column name already exists.')
+                    setShowErrSnack(true)
+                  } else if (defaultAlreadyMapped) {
+                    setErrSnackTitle('Column already mapped')
+                    setErrSnack(
+                      'This default column is already mapped to another column.',
+                    )
+                    setShowErrSnack(true)
+                  } else {
+                    ChangeColumnName(updateColumnValue)
+                  }
                 }}
               >
-                <div className="flex flex-row justify-end">
-                  <CloseBtn
-                    onClick={() => {
-                      setShowPopUp(false)
-                    }}
-                  />
-                </div>
-                <div
-                  className="w-full text-center mt-2"
-                  style={{ fontSize: 22, fontWeight: '600' }}
-                >
-                  Add Column
-                </div>
-                <div className="mt-2 start-campaign-label">
-                  Column Name
-                </div>
-
-                <input
-                  ref={addColRef}
-                  type="text"
-                  className="start-campaign-input w-full h-[42px] mt-2"
-                  value={updateColumnValue}
-                  onChange={(e) => {
-                    const regex = /^[a-zA-Z0-9_ ]*$/ // Allow only alphabets
-                    if (regex.test(e.target.value)) {
-                      setUpdateColumnValue(e.target.value)
-                    }
-                  }}
-                  placeholder="Type here..."
-                />
-
-                <button
-                  className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-8"
-                  style={{
-                    ...styles.subHeadingStyle,
-                    backgroundColor: !updateColumnValue ? '#00000020' : '',
-                    color: !updateColumnValue ? 'black' : '',
-                  }}
-                  disabled={!updateColumnValue}
-                  onClick={() => {
-                    // Check if custom column name already exists
-                    const customNameExists = NewColumnsObtained?.some(
-                      (item) =>
-                        item?.UserFacingName?.toLowerCase() ===
-                        updateColumnValue?.toLowerCase(),
-                    )
-
-                    // Check if trying to use a default column name that's already mapped
-                    const defaultColumnExists = Object.keys(
-                      LeadDefaultColumns,
-                    ).find(
-                      (key) =>
-                        LeadDefaultColumns[key].UserFacingName.toLowerCase() ===
-                        updateColumnValue?.toLowerCase(),
-                    )
-
-                    const defaultAlreadyMapped =
-                      defaultColumnExists &&
-                      NewColumnsObtained?.some(
-                        (item) =>
-                          item?.matchedColumn?.dbName === defaultColumnExists,
-                      )
-
-                    if (customNameExists) {
-                      setErrSnack('Custom column name already exists.')
-                      setShowErrSnack(true)
-                    } else if (defaultAlreadyMapped) {
-                      setErrSnackTitle('Column already mapped')
-                      setErrSnack(
-                        'This default column is already mapped to another column.',
-                      )
-                      setShowErrSnack(true)
-                    } else {
-                      ChangeColumnName(updateColumnValue)
-                    }
-                  }}
-                >
-                  Add
-                </button>
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
+                Add
+              </button>
             </div>
           </Box>
         </Modal>

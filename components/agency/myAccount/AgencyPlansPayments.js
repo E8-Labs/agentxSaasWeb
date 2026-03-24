@@ -1754,49 +1754,27 @@ function AgencyPlansPayments({ selectedAgency }) {
         open={showCancelFeaturesModal}
         closeAfterTransition
         BackdropProps={{
-          timeout: 100,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000030',
+            backgroundColor: '#00000099',
           },
         }}
       >
         <Box
-          className="md:8/12 lg:w-[55%] sm:w-11/12 w-full"
+          className="w-full max-w-[min(92vw,500px)] px-4"
           sx={styles.paymentModal}
         >
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="sm:w-7/12 w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-                height: '90vh',
-                maxHeight: '600px',
+          <div className="flex h-auto max-h-[90vh] w-full max-w-[500px] flex-col overflow-y-auto rounded-[12px] border border-[#eaeaea] bg-white shadow-[0_4px_36px_rgba(0,0,0,0.25)]">
+            <AgencyCancelConfirmation
+              onClose={() => setShowCancelFeaturesModal(false)}
+              handleContinue={() => {
+                handleCancelFeaturesContinue()
+                setShowCancelFeaturesModal(false)
               }}
-            >
-              <div className="flex flex-row justify-end mb-2">
-                <button onClick={() => setShowCancelFeaturesModal(false)}>
-                  <Image
-                    src={'/assets/crossIcon.png'}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
-              </div>
-              <div className="flex flex-col h-[calc(100%-60px)]">
-                <AgencyCancelConfirmation
-                  handleContinue={() => {
-                    handleCancelFeaturesContinue()
-                    setShowCancelFeaturesModal(false)
-                  }}
-                  currentPlanDetails={currentPlanDetails}
-                  userLocalData={userLocalData}
-                  selectedAgency={selectedAgency}
-                />
-              </div>
-            </div>
+              currentPlanDetails={currentPlanDetails}
+              userLocalData={userLocalData}
+              selectedAgency={selectedAgency}
+            />
           </div>
         </Box>
       </Modal>

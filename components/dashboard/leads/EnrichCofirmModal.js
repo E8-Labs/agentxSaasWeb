@@ -2,7 +2,6 @@ import CloseIcon from '@mui/icons-material/Close'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import {
   Box,
-  Button,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -216,31 +215,47 @@ export default function EnrichConfirmModal({
     <Dialog
       open={showenrichConfirmModal}
       onClose={() => setShowenrichConfirmModal(true)}
+      closeAfterTransition
+      slotProps={{
+        backdrop: {
+          timeout: 250,
+          sx: {
+            backgroundColor: '#00000099',
+          },
+        },
+      }}
       PaperProps={{
         sx: {
-          borderRadius: '16px',
-          padding: '24px',
-          width: '500px',
+          borderRadius: '12px',
+          border: '1px solid #eaeaea',
+          boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+          width: '400px',
           maxWidth: '90%',
+          margin: 0,
+          overflow: 'hidden',
         },
       }}
     >
-      {/* Close Button */}
-      <IconButton
-        onClick={() => setShowenrichConfirmModal(false)}
+      <DialogTitle
         sx={{
-          position: 'absolute',
-          top: 12,
-          right: 12,
-          color: '#000',
+          borderBottom: '1px solid #eaeaea',
+          px: 2,
+          py: 1.5,
+          m: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        <CloseIcon />
-      </IconButton>
-
-      {/* Modal Title */}
-      <DialogTitle sx={{ fontWeight: 'bold', fontSize: '20px', mt: 1 }}>
-        Confirm Lead Enrichment
+        <Typography sx={{ fontWeight: 600, fontSize: 16, color: '#111827' }}>
+          Confirm Lead Enrichment
+        </Typography>
+        <IconButton
+          onClick={() => setShowenrichConfirmModal(false)}
+          sx={{ color: '#000', p: 0.5 }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
       </DialogTitle>
 
       {/* Info Box */}
@@ -253,7 +268,9 @@ export default function EnrichConfirmModal({
           backgroundColor: '#F6F0FF',
           padding: '8px 12px',
           borderRadius: '8px',
-          mb: 1,
+          mb: 2,
+          mx: 2,
+          mt: 2,
         }}
       >
         {isMinimumEnforced && minimumCost && (
@@ -318,18 +335,18 @@ export default function EnrichConfirmModal({
       </Box>
 
       {/* Modal Content */}
-      <DialogContent>
+      <DialogContent sx={{ px: 2, py: 0, color: 'rgba(0,0,0,0.8)' }}>
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            mb: 3,
+            mb: 1.5,
           }}
         >
-          <Typography sx={{ color: '#000', fontSize: '16px' }}>
+          <Typography sx={{ color: '#000', fontSize: '14px' }}>
             Total Leads
           </Typography>
-          <Typography sx={{ fontWeight: 'medium', fontSize: '16px' }}>
+          <Typography sx={{ fontWeight: 500, fontSize: '14px' }}>
             {displayLeadCount}
           </Typography>
         </Box>
@@ -338,13 +355,13 @@ export default function EnrichConfirmModal({
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            mb: 2,
+            mb: 1.5,
           }}
         >
-          <Typography sx={{ color: '#000', fontSize: '16px' }}>
+          <Typography sx={{ color: '#000', fontSize: '14px' }}>
             Cost Per Lead
           </Typography>
-          <Typography sx={{ fontWeight: 'medium', fontSize: '16px' }}>
+          <Typography sx={{ fontWeight: 500, fontSize: '14px' }}>
             ${displayPricePerLead}
           </Typography>
         </Box>
@@ -353,26 +370,33 @@ export default function EnrichConfirmModal({
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            mt: 2,
+            mt: 1.5,
             pt: 1,
             borderTop: '1px solid #ddd',
           }}
         >
-          <Typography sx={{ color: '#000', fontSize: '16px' }}>
+          <Typography sx={{ color: '#000', fontSize: '14px' }}>
             Total Cost
           </Typography>
-          <Typography sx={{ fontWeight: 'medium', fontSize: '16px' }}>
+          <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
             ${displayTotalCost}
           </Typography>
         </Box>
       </DialogContent>
 
       {/* Buttons */}
-      <DialogActions sx={{ justifyContent: 'space-between', mt: 3 }}>
+      <DialogActions
+        sx={{
+          justifyContent: 'space-between',
+          borderTop: '1px solid #eaeaea',
+          px: 2,
+          py: 1.5,
+          mt: 2,
+        }}
+      >
         <div
           onClick={() => setShowenrichConfirmModal(false)}
-          className=" flex w-[45%] text-[#6b7280]font-bold text-[16px]  py-3 rounded-lg
-                     items-center justify-center"
+          className="flex h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98] items-center justify-center"
           style={{ textTransform: 'none', cursor: 'pointer' }}
         >
           Cancel
@@ -381,18 +405,12 @@ export default function EnrichConfirmModal({
           <CircularProgress size={27} />
         ) : (
           <div
-            className="cursor-pointer w-[45%] flex justify-center items-center bg-brand-primary font-bold rounded-lg text-white text-center py-3"
+            className="cursor-pointer h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] flex justify-center items-center"
             onClick={() => {
               handleAddLead(true)
             }}
             style={{
-              borderColor: '#ddd',
-              color: '#fff',
-              fontWeight: 'bold',
               textTransform: 'none',
-              padding: '0.8rem',
-              borderRadius: '10px',
-              width: '45%',
             }}
           >
             Confirm & Pay
