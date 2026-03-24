@@ -87,13 +87,14 @@ const DropdownMenuSubContent = React.forwardRef(
       () => createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutside),
       [onInteractOutside, onPointerDownOutside],
     )
-    const contentStyle = portalZIndex != null ? { ...style, zIndex: portalZIndex } : style
+    const resolvedZIndex =
+      portalZIndex != null ? portalZIndex : (style?.zIndex ?? 2000)
+    const contentStyle = { ...style, zIndex: resolvedZIndex }
     return (
       <DropdownMenuPrimitive.SubContent
         ref={setRef}
         className={cn(
           'min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-          portalZIndex == null && 'z-50',
           className,
         )}
         style={contentStyle}
@@ -122,7 +123,9 @@ const DropdownMenuContent = React.forwardRef(
       () => createOutsideHandlers(contentRef, onInteractOutside, onPointerDownOutside),
       [onInteractOutside, onPointerDownOutside],
     )
-    const contentStyle = portalZIndex != null ? { ...style, zIndex: portalZIndex } : style
+    const resolvedZIndex =
+      portalZIndex != null ? portalZIndex : (style?.zIndex ?? 2000)
+    const contentStyle = { ...style, zIndex: resolvedZIndex }
     return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
@@ -131,7 +134,6 @@ const DropdownMenuContent = React.forwardRef(
         avoidCollisions={avoidCollisions}
         className={cn(
           'min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
-          portalZIndex == null && 'z-50',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[side=left]:data-[state=closed]:zoom-out-95 data-[side=left]:data-[state=open]:zoom-in-95 data-[side=left]:slide-in-from-right-2',
           'data-[side=right]:data-[state=closed]:zoom-out-95 data-[side=right]:data-[state=open]:zoom-in-95 data-[side=right]:slide-in-from-left-2',

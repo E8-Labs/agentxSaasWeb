@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/popover'
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
-import { Download, ListStart, Settings2 } from 'lucide-react'
+import { Download, ListFilter, ListStart, Settings2, UserPlus } from 'lucide-react'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import { AuthToken, userLocalData } from '@/components/agency/plan/AuthDetails'
@@ -66,10 +66,17 @@ import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
 import { getBrandPrimaryHex } from '@/utilities/colorUtils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
   handleShowUserLeads,
+  handleShowNewContactDrawer,
   newListAdded,
   shouldSet,
   setSetData,
@@ -2200,16 +2207,77 @@ const AdminLeads = ({
                     )}
                   </Droppable>
                 </DragDropContext>
-                <button
-                  className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
-                  style={styles.paragraph}
-                  onClick={() => {
-                    handleShowAddLeadModal(true)
-                  }}
-                >
-                  <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
-                  <span>New Leads</span>
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex flex-row items-center gap-2 h-10 min-h-0 px-3 rounded-lg transition-all duration-150 border-0 flex-shrink-0 whitespace-nowrap outline-none"
+                      style={{
+                        fontWeight: 400,
+                        fontSize: 14,
+                        backgroundColor: '#f7f7f7',
+                        borderRadius: 8,
+                      }}
+                      aria-haspopup="menu"
+                      aria-label="New leads options"
+                    >
+                      <Plus
+                        size={18}
+                        color="hsl(var(--brand-primary))"
+                        weight="bold"
+                        className="flex-shrink-0"
+                        aria-hidden
+                      />
+                      <span className="text-[14px]">New Leads</span>
+                      <CaretDown
+                        size={14}
+                        className="flex-shrink-0 text-primary"
+                        aria-hidden
+                      />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    side="bottom"
+                    className="min-w-[180px] z-[2200]"
+                  >
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        handleShowAddLeadModal(true)
+                      }}
+                      className="flex flex-row items-center gap-2 cursor-pointer"
+                    >
+                      <UserPlus
+                        size={22}
+                        className="text-primary shrink-0"
+                        aria-hidden
+                      />
+                      <span>Upload Leads</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setShowAddNewSheetModal(true)
+                      }}
+                      className="flex flex-row items-center gap-2 cursor-pointer"
+                    >
+                      <ListFilter
+                        size={22}
+                        className="text-primary shrink-0"
+                        aria-hidden
+                      />
+                      <span>Create Smartlist</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        handleShowNewContactDrawer?.(true)
+                      }}
+                      className="flex flex-row items-center gap-2 cursor-pointer"
+                    >
+                      <Plus size={22} className="text-primary" aria-hidden />
+                      <span>New Contact</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
 
