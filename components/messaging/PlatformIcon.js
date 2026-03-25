@@ -2,11 +2,12 @@ import React from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Mail, MessageSquareDot } from 'lucide-react'
+import { WhatsappLogo } from '@phosphor-icons/react'
 
 /**
  * Renders the platform/source icon for a message or thread (Facebook, Instagram, Email, SMS).
  * Messenger and Instagram use PNGs from public/svgIcons.
- * @param { 'messenger' | 'instagram' | 'email' | 'sms' } type - messageType or threadType
+ * @param { 'messenger' | 'instagram' | 'whatsapp' | 'email' | 'sms' } type - messageType or threadType
  * @param { object } props - optional className, size (number, default 14), showInBadge (wrap in white circle), badgeSize ('sm' | 'md')
  */
 function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSize = 'md' }) {
@@ -14,7 +15,7 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
   if (type === 'email') sizePx = Math.round(sizePx * 1.5 * 1.6 * 0.9)
   else if (type === 'sms') sizePx = Math.round(sizePx * 1.5 * 1.6)
   if (showInBadge && badgeSize === 'sm') sizePx = Math.min(sizePx, 8)
-  const isRoundedColored = type === 'messenger' || type === 'instagram'
+  const isRoundedColored = type === 'messenger' || type === 'instagram' || type === 'whatsapp'
   const badgeSizeClass = badgeSize === 'sm' ? 'w-4 h-4' : 'w-[19.44px] h-[19.44px]' // 10% smaller than previous (21.6px)
   const badgeTranslate = showInBadge ? 'translate-y-[calc(50%-8px)]' : 'translate-y-1/2'
   const badgeClass =
@@ -89,6 +90,16 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
             width: showInBadge ? '100%' : sizePx,
             height: showInBadge ? '100%' : sizePx,
           }}
+        />
+      )
+    }
+    if (type === 'whatsapp') {
+      return (
+        <WhatsappLogo
+          size={Math.max(10, Math.round(sizePx))}
+          weight="fill"
+          className="text-[#25D366]"
+          aria-label="WhatsApp"
         />
       )
     }

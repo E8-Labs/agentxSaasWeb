@@ -50,7 +50,7 @@ export default function ThreadOptionsDropdown({
   const leadId = selectedThread?.leadId
   const threadSelectedAgentId = selectedThread?.selectedAgentId ?? null
 
-  const isSocialChannel = composerMode === 'facebook' || composerMode === 'instagram'
+  const isSocialChannel = composerMode === 'facebook' || composerMode === 'instagram' || composerMode === 'whatsapp'
   const effectiveSelectedAgentId = isSocialChannel
     ? (socialSelectedAgentId ?? null)
     : threadSelectedAgentId
