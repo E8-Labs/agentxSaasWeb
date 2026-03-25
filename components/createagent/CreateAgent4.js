@@ -612,12 +612,29 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     borderRadius: '12px',
     border: '1px solid rgba(0,0,0,0.10)',
     boxShadow:
-      '0 18px 60px rgba(0,0,0,0.12), 0 2px 10px rgba(0,0,0,0.06)',
+      '0 18px 60px rgba(0,0,0,0.08), 0 2px 10px rgba(0,0,0,0.04)',
     overflow: 'hidden',
   }
 
   const firecrawlMenuListSx = {
     p: 0.75,
+    position: 'relative',
+    // Sliding pill hover indicator (Firecrawl-style)
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      left: 6,
+      right: 6,
+      height: 'var(--fc-pill-h, 40px)',
+      transform: 'translateY(var(--fc-pill-y, -9999px))',
+      backgroundColor: 'rgba(0,0,0,0.02)',
+      borderRadius: '12px',
+      opacity: 'var(--fc-pill-o, 0)',
+      transition:
+        'transform 140ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 120ms ease',
+      pointerEvents: 'none',
+      willChange: 'transform, opacity',
+    },
     '& .MuiMenuItem-root': {
       borderRadius: '10px',
       minHeight: 40,
@@ -625,9 +642,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       fontSize: 14,
       fontWeight: 400,
       transition:
-        'background-color 140ms ease, transform 140ms ease, color 140ms ease',
+        'transform 140ms ease, color 140ms ease',
       '&:hover': {
-        backgroundColor: 'rgba(0,0,0,0.04)',
+        backgroundColor: 'transparent',
       },
       '&:active': {
         transform: 'scale(0.99)',
@@ -638,7 +655,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         opacity: 1,
       },
       '&.Mui-selected:hover': {
-        backgroundColor: 'rgba(0,0,0,0.02)',
+        backgroundColor: 'transparent',
       },
     },
   }
@@ -676,6 +693,53 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     transformOrigin: { vertical: 'top', horizontal: 'left' },
     PaperProps: { sx: firecrawlMenuPaperSx },
     MenuListProps: { sx: firecrawlMenuListSx },
+  }
+
+  const applySlidingPillToMenuList = (menuListEl, itemEl) => {
+    if (!menuListEl || !itemEl) return
+    const menuListRect = menuListEl.getBoundingClientRect()
+    const itemRect = itemEl.getBoundingClientRect()
+    const y = itemRect.top - menuListRect.top
+    menuListEl.style.setProperty('--fc-pill-y', `${Math.max(0, y)}px`)
+    menuListEl.style.setProperty('--fc-pill-h', `${itemRect.height}px`)
+    menuListEl.style.setProperty('--fc-pill-o', '1')
+  }
+
+  const getFirecrawlMenuListEvents = () => {
+    return {
+      onMouseMove: (e) => {
+        const menuListEl = e.currentTarget
+        const itemEl = e.target?.closest?.('[role="option"]')
+        if (!itemEl) return
+        applySlidingPillToMenuList(menuListEl, itemEl)
+      },
+      onMouseLeave: (e) => {
+        const menuListEl = e.currentTarget
+        menuListEl?.style?.setProperty('--fc-pill-o', '0')
+      },
+    }
+  }
+
+  const ChevronIcon = (props) => {
+    return (
+      <svg
+        {...props}
+        width="16"
+        height="16"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M5 7.5L10 12.5L15 7.5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    )
   }
 
   const FauxCheckbox = ({ checked, onToggle, label }) => {
@@ -810,7 +874,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           open={openCalimNumDropDown}
                           onClose={() => setOpenCalimNumDropDown(false)}
                           onOpen={() => setOpenCalimNumDropDown(true)}
-                          MenuProps={firecrawlSelectMenuProps}
+                          MenuProps={{
+                            ...firecrawlSelectMenuProps,
+                            MenuListProps: {
+                              ...firecrawlSelectMenuProps.MenuListProps,
+                              ...getFirecrawlMenuListEvents(),
+                            },
+                          }}
+                          IconComponent={ChevronIcon}
                           displayEmpty
                           value={selectNumber}
                           onChange={(e) => {
@@ -1069,7 +1140,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           displayEmpty
                           value={callbackSelectValue}
                           disabled={isCallbackOfficeMode}
-                          MenuProps={firecrawlSelectMenuProps}
+                          MenuProps={{
+                            ...firecrawlSelectMenuProps,
+                            MenuListProps: {
+                              ...firecrawlSelectMenuProps.MenuListProps,
+                              ...getFirecrawlMenuListEvents(),
+                            },
+                          }}
+                          IconComponent={ChevronIcon}
                           onChange={(e) => {
                             const value = e.target.value
                             const selected = previousNumber.find((n) => {
