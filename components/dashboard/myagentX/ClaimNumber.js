@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal } from '@mui/material'
+import { Box, CircularProgress, Fade, Modal } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
@@ -264,6 +264,9 @@ const ClaimNumber = ({
     },
   }
 
+  const fcInputClassName =
+    'h-[40px] w-full rounded-[8px] border-[0.5px] border-black/10 bg-white px-[10px] text-[14px] font-normal text-black placeholder:text-black/50 outline-none transition-all duration-150 focus:border-brand-primary/50 focus:ring-2 focus:ring-brand-primary/20'
+
   return (
     <div>
       <Modal
@@ -281,36 +284,48 @@ const ClaimNumber = ({
           zIndex: 1500, // Higher than LeadDetails drawer (1400) to appear on top
         }}
         BackdropProps={{
-          timeout: 1000,
+          timeout: 250,
           sx: {
-            // zIndex: 1400,
-            backgroundColor: '#00000020',
-            zIndex: 1500, // Match Modal z-index
-            // //backdropFilter: "blur(20px)",
+            backgroundColor: '#00000099',
+            zIndex: 1500,
           },
         }}
 
       >
-        <Box
-          className="lg:w-8/12 sm:w-full w-8/12"
-          sx={{
-            ...styles.claimPopup,
-            zIndex: 1501, // Higher than backdrop (1500) to appear on top
-            position: 'relative',
-          }}
-        >
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="sm:w-8/12 w-full min-h-[50vh] max-h-[84vh] flex flex-col justify-between"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-                overflow: 'auto',
-                scrollbarWidth: 'none',
-              }}
-            >
-              <div className=" h-[88%] overflow-hidden">
+        <Fade in={showClaimPopup} timeout={250}>
+          <Box
+            sx={{
+              ...styles.claimPopup,
+              zIndex: 1501,
+              position: 'relative',
+              outline: 'none',
+            }}
+          >
+            <div className="mx-auto w-[400px] max-w-[90vw] overflow-hidden rounded-[12px] bg-white shadow-[0_4px_36px_rgba(0,0,0,0.25)] border border-[#eaeaea]">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 px-4 py-3 border-b border-[#eaeaea]">
+                <div className="min-w-0">
+                  <div className="text-[16px] font-semibold text-black">
+                    {`Let's claim your phone number`}
+                  </div>
+                  <div className="hidden" aria-hidden="true">
+                    Enter the 3 digit area code you would like to use
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseClaimPopup}
+                  className="shrink-0 h-9 w-9 rounded-full bg-black/[0.04] hover:bg-black/[0.06] transition-colors duration-150 flex items-center justify-center"
+                  aria-label="Close"
+                >
+                  <span className="text-[18px] leading-none text-black/70">
+                    ×
+                  </span>
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="px-4 py-4">
                 {isSnackVisible && (
                   <AgentSelectSnackMessage
                     message={openPurchaseErrSnack}
@@ -323,49 +338,14 @@ const ClaimNumber = ({
                     }}
                   />
                 )}
-                <div className="flex flex-row justify-end">
-                  <button onClick={handleCloseClaimPopup}>
-                    <Image
-                      src={'/assets/crossIcon.png'}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: '700',
-                    textAlign: 'center',
-                  }}
-                >
-                  {`Let's claim your phone number`}
-                </div>
-                <div
-                  className="mt-2"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: '700',
-                    textAlign: 'center',
-                  }}
-                >
+
+                <div className="text-[13px] font-medium text-black/40">
                   Enter the 3 digit area code you would like to use
-                </div>
-                <div
-                  className="mt-4"
-                  style={{
-                    fontSize: 13,
-                    fontWeight: '500',
-                    color: '#15151550',
-                  }}
-                >
-                  Number
                 </div>
                 <div className="mt-2">
                   <input
-                    className="border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0"
-                    type=""
+                    className={fcInputClassName}
+                    type="text"
                     placeholder="Ex: 619, 213, 313"
                     value={findNumber}
                     maxLength={3}
@@ -377,129 +357,118 @@ const ClaimNumber = ({
 
                       const value = e.target.value
                       setFindNumber(value.replace(/[^0-9]/g, ''))
-                      // setFindNumber(e.target.value.replace(/[^0-9]/g, ""));
-                      // handleFindeNumbers(value)
                       if (value) {
                         timerRef.current = setTimeout(() => {
                           handleFindeNumbers(value)
                         }, 500)
                       } else {
-                        // //console.log;
                         return
                       }
                     }}
                   />
                 </div>
 
-                {findNumber ? (
-                  <div>
-                    {findeNumberLoader ? (
-                      <div className="flex flex-row justify-center mt-6">
-                        <CircularProgress size={35} />
-                      </div>
-                    ) : (
-                      <div
-                        className="mt-6 max-h-[40vh] overflow-auto"
-                        style={{ scrollbarWidth: 'none' }}
-                      >
-                        {foundeNumbers.length > 0 ? (
-                          <div className="w-full pb-12 ">
-                            {foundeNumbers.map((item, index) => (
-                              <div
-                                key={index}
-                                className="h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4 "
-                                style={{
-                                  border:
-                                    index === selectedPurchasedIndex
-                                      ? '2px solid hsl(var(--brand-primary))'
-                                      : '1px solid #00000020',
-                                  backgroundColor:
-                                    index === selectedPurchasedIndex
-                                      ? 'hsl(var(--brand-primary) / 0.05)'
-                                      : '',
-                                }}
-                              >
-                                <button
-                                  className="flex flex-row items-start justify-between outline-none"
-                                  onClick={(e) => {
-                                    handlePurchaseNumberClick(item, index)
-                                  }}
-                                >
-                                  <div>
-                                    <div style={styles.findNumberTitle}>
-                                      {item.phoneNumber}
-                                    </div>
-                                    <div
-                                      className="text-start mt-2"
-                                      style={styles.findNumberDescription}
-                                    >
-                                      {item.locality} {item.region}
-                                    </div>
+                <div className="mt-4 max-h-[46vh] overflow-auto pr-1">
+                  {findNumber ? (
+                    <>
+                      {findeNumberLoader ? (
+                        <div className="flex flex-row justify-center py-6">
+                          <CircularProgress size={28} />
+                        </div>
+                      ) : foundeNumbers.length > 0 ? (
+                        <div className="flex flex-col gap-3">
+                          {foundeNumbers.map((item, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => handlePurchaseNumberClick(item, index)}
+                              className="w-full text-left rounded-[12px] border bg-white p-3 transition-all duration-150 hover:border-brand-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                              style={{
+                                borderColor:
+                                  index === selectedPurchasedIndex
+                                    ? 'hsl(var(--brand-primary))'
+                                    : 'rgba(0,0,0,0.10)',
+                                backgroundColor:
+                                  index === selectedPurchasedIndex
+                                    ? 'rgba(0,0,0,0.02)'
+                                    : '#ffffff',
+                              }}
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <div className="text-[14px] font-medium text-black">
+                                    {item.phoneNumber}
                                   </div>
-                                  <div className="flex flex-row items-start gap-4">
-                                    <div style={styles.findNumberTitle}>
-                                      ${item.price}/mo
-                                    </div>
-                                    <div>
-                                      <Checkbox
-                                        checked={index === selectedPurchasedIndex}
-                                        className="h-5 w-5"
-                                      />
-                                    </div>
+                                  <div className="mt-1 text-[13px] font-normal text-black/60">
+                                    {item.locality} {item.region}
                                   </div>
-                                </button>
+                                </div>
+                                <div className="flex items-start gap-3 shrink-0">
+                                  <div className="text-[14px] font-medium text-black">
+                                    ${item.price}/mo
+                                  </div>
+                                  <Checkbox
+                                    checked={index === selectedPurchasedIndex}
+                                    className="h-5 w-5"
+                                  />
+                                </div>
                               </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-xl font-[600] text-center mt-4">
-                            Those numbers seem to be taken. Try a new search
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-xl font-[600] text-center mt-4">
-                    Enter number to search
-                  </div>
-                )}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="py-6 text-[14px] font-semibold text-center text-black/70">
+                          Those numbers seem to be taken. Try a new search
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="py-6 text-[14px] font-semibold text-center text-black/70">
+                      Enter number to search
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Footer */}
               {!openPurchaseSuccessModal && (
-                <div className="h-[50px] ">
-                  <div>
-                    {purchaseLoader ? (
-                      <div className="w-full flex flex-row justify-center mt-4">
-                        <CircularProgress size={32} />
-                      </div>
-                    ) : (
-                      <div>
-                        {selectedPurchasedNumber && (
-                          <button
-                            className="text-white bg-brand-primary w-full h-[50px] rounded-lg"
-                            onClick={() => {
-                              let userData = getUserLocalData()
-                              if (userData) {
-                                if (userData.user?.cards?.length === 0) {
-                                  setShowAddCard(true)
-                                } else {
-                                  // setOpenPurchaseSuccessModal(true)
-                                  handlePurchaseNumber()
-                                }
-                              }
-                            }}
-                          >
-                            Proceed to Buy
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                <div className="flex items-center justify-between gap-3 px-4 py-3 border-t border-[#eaeaea]">
+                  <button
+                    type="button"
+                    onClick={handleCloseClaimPopup}
+                    className="h-[40px] rounded-lg px-4 text-sm font-medium bg-black/[0.04] text-black hover:bg-black/[0.06] transition-colors duration-150 active:scale-[0.98]"
+                  >
+                    Cancel
+                  </button>
+
+                  {purchaseLoader ? (
+                    <div className="h-[40px] w-[132px] flex items-center justify-center">
+                      <CircularProgress size={22} />
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={!selectedPurchasedNumber}
+                      className="h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] disabled:bg-black/10 disabled:text-black/60 disabled:hover:opacity-100 disabled:active:scale-100"
+                      onClick={() => {
+                        const userData = getUserLocalData()
+                        if (userData) {
+                          if (userData.user?.cards?.length === 0) {
+                            setShowAddCard(true)
+                          } else {
+                            handlePurchaseNumber()
+                          }
+                        }
+                      }}
+                    >
+                      Proceed to Buy
+                    </button>
+                  )}
                 </div>
               )}
             </div>
-          </div>
-        </Box>
+          </Box>
+        </Fade>
       </Modal>
       {/* Code for Purchase number success popup */}
       <Modal

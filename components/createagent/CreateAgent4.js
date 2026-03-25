@@ -1,6 +1,6 @@
 import 'react-phone-input-2/lib/style.css'
 
-import { CircularProgress, Modal, Popover } from '@mui/material'
+import { CircularProgress, Grow, Modal, Popover } from '@mui/material'
 //import for input drop down menu
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
@@ -246,6 +246,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const handleToggleClick = () => {
     setToggleClick(!toggleClick)
   }
+
+  const isCallbackOfficeMode = useOfficeNumber
 
   //code to use office number
   const handleOfficeNumberClick = () => {
@@ -597,50 +599,180 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     },
   }
 
-  return (
-    <div
+  const labelClassName = 'text-[14px] font-normal leading-[1.6] text-black'
 
-      className="relative overflow-y-hidden flex flex-row justify-center items-center"
-      style={{ with: '100%', overflowY: 'hidden', overflowX: 'visible' }}
-    >
-      {/* Video positioned outside left border - similar to CreateAgent1 */}
-      <div
-        className="hidden lg:block -ml-4 xl:w-[260px] lg:w-[240px] "
-        style={{
-          position: 'absolute',
-          top: '20%',
-          zIndex: 1000,
-          left: '8%',
-        }}
+  const inputShellClassName =
+    'bg-white border-[0.5px] border-black/10 rounded-[8px] h-[40px] w-full flex items-center px-[10px] gap-3 transition-colors focus-within:border-brand-primary/50 focus-within:ring-2 focus-within:ring-brand-primary/20'
+
+  const checkboxShellClassName =
+    'flex items-start gap-3 px-3 py-2 w-full select-none rounded-[8px] transition-colors hover:bg-black/[0.02] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30'
+
+  const firecrawlMenuPaperSx = {
+    mt: 1,
+    borderRadius: '12px',
+    border: '1px solid rgba(0,0,0,0.10)',
+    boxShadow:
+      '0 18px 60px rgba(0,0,0,0.12), 0 2px 10px rgba(0,0,0,0.06)',
+    overflow: 'hidden',
+  }
+
+  const firecrawlMenuListSx = {
+    p: 0.75,
+    '& .MuiMenuItem-root': {
+      borderRadius: '10px',
+      minHeight: 40,
+      padding: '10px 10px',
+      fontSize: 14,
+      fontWeight: 400,
+      transition:
+        'background-color 140ms ease, transform 140ms ease, color 140ms ease',
+      '&:hover': {
+        backgroundColor: 'rgba(0,0,0,0.04)',
+      },
+      '&:active': {
+        transform: 'scale(0.99)',
+      },
+      '&.Mui-selected': {
+        backgroundColor: 'rgba(0,0,0,0.02)',
+        color: 'rgba(0,0,0,1)',
+        opacity: 1,
+      },
+      '&.Mui-selected:hover': {
+        backgroundColor: 'rgba(0,0,0,0.02)',
+      },
+    },
+  }
+
+  const firecrawlSelectSx = (disabled = false) => ({
+    ...styles.dropdownMenu,
+    backgroundColor: '#FFFFFF',
+    height: 40,
+    borderRadius: '8px',
+    width: '100%',
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 'none',
+    },
+    '& .MuiSelect-select': {
+      display: 'flex',
+      alignItems: 'center',
+      height: 40,
+      padding: 0,
+    },
+    '& .MuiSelect-icon': {
+      color: 'rgba(0,0,0,0.7)',
+      transition: 'transform 160ms ease',
+    },
+    '&[aria-expanded="true"] .MuiSelect-icon': {
+      transform: 'rotate(180deg)',
+    },
+    opacity: disabled ? 0.55 : 1,
+    transition: 'opacity 160ms ease, background-color 160ms ease',
+  })
+
+  const firecrawlSelectMenuProps = {
+    TransitionComponent: Grow,
+    transitionDuration: { enter: 170, exit: 120 },
+    anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+    transformOrigin: { vertical: 'top', horizontal: 'left' },
+    PaperProps: { sx: firecrawlMenuPaperSx },
+    MenuListProps: { sx: firecrawlMenuListSx },
+  }
+
+  const FauxCheckbox = ({ checked, onToggle, label }) => {
+    return (
+      <button
+        type="button"
+        onClick={onToggle}
+        className={checkboxShellClassName}
+        aria-pressed={checked}
       >
-        <VideoCard
-          duration={'1:52'}
-          horizontal={false}
-          playVideo={() => {
-            setIntroVideoModal(true)
-          }}
-          title="Learn about phone numbers"
-          videoUrl={
-            getVideoUrlByType(HowToVideoTypes.PhoneNumbers) ||
-            HowtoVideos.LetsTalkDigits
-          }
-        />
-      </div>
-      <div
-        className="relative bg-white sm:rounded-2xl w-10/12 h-[96svh] py-4 px-4 sm:px-6 flex flex-col"
-        style={{ overflowY: 'hidden', overflowX: 'visible' }}
-      // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-      >
-        <AgentSelectSnackMessage
-          message={showSnackMsg.message}
-          type={showSnackMsg.type}
-          isVisible={showSnackMsg.isVisible}
-          hide={() =>
-            setShowSnackMsg({ type: null, message: '', isVisible: false })
-          }
-        />
-        <div className="flex-1 flex flex-col h-[90svh] overflow-y-hidden relative" style={{ overflowX: 'visible' }}>
-          {/* Video Card - positioned on main div with high z-index */}
+        <span
+          aria-hidden="true"
+          className={[
+            'relative inline-flex size-4 items-center justify-center rounded-[4px] border shadow-[0px_1px_2px_rgba(0,0,0,0.05)] transition-colors',
+            checked
+              ? 'border-brand-primary bg-brand-primary'
+              : 'border-black/10 bg-white',
+          ].join(' ')}
+        >
+          {checked ? (
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="block"
+            >
+              <path
+                d="M10 3.5L5 8.5L2 5.5"
+                stroke="#ffffff"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          ) : null}
+        </span>
+        <span className="text-[14px] leading-[1.6] tracking-[-0.06px] text-[#666] text-left">
+          {label}
+        </span>
+      </button>
+    )
+  }
+
+  const normalizePhone = (value) => {
+    if (!value) return ''
+    return String(value).replaceAll(' ', '').replaceAll('-', '')
+  }
+
+  const callbackSelectValue =
+    userSelectedNumber?.phoneNumber && !isCallbackOfficeMode
+      ? userSelectedNumber.phoneNumber
+      : ''
+
+  return (
+    <div className="bg-white w-full h-[100svh] overflow-hidden">
+      <div className="relative flex w-full h-[100svh]">
+        {/* Left panel */}
+        <div className="relative bg-[#f9f9f9] w-full lg:basis-[65%] lg:flex-[0_0_65%] flex flex-col h-[100svh] overflow-hidden">
+          {/* Video positioned outside left border */}
+          <div className="pointer-events-none absolute inset-0 z-[15] hidden lg:flex items-end justify-end p-6 pr-8 pb-[92px]">
+            <div
+              className="pointer-events-auto w-fit rounded-[12px] bg-white"
+              style={{
+                border: '1px solid #eaeaea',
+                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              <VideoCard
+                duration={'1:52'}
+                horizontal={false}
+                playVideo={() => {
+                  setIntroVideoModal(true)
+                }}
+                title="Learn about phone numbers"
+                videoUrl={
+                  getVideoUrlByType(HowToVideoTypes.PhoneNumbers) ||
+                  HowtoVideos.LetsTalkDigits
+                }
+                hoverReveal
+                hideCta
+                className="rounded-[12px] border-0 bg-transparent shadow-none"
+              />
+            </div>
+          </div>
+
+          <AgentSelectSnackMessage
+            message={showSnackMsg.message}
+            type={showSnackMsg.type}
+            isVisible={showSnackMsg.isVisible}
+            hide={() =>
+              setShowSnackMsg({ type: null, message: '', isVisible: false })
+            }
+          />
+
+          {/* Video modal */}
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
@@ -651,50 +783,38 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             }
           />
 
-
-
           {/* header */}
-          <div className="absolute top-0 left-0 right-0">
-            <Header />
+          <div className="sticky top-0 z-40 shrink-0 bg-[#f9f9f9] shadow-[0_1px_0_0_rgba(21,21,21,0.08)]">
+            <Header variant="createAgentToolbar" />
           </div>
-          {/* Body */}
-          <div className="flex flex-col items-center w-full relative h-[100%] mt-6 overflow-y-auto" style={{ overflowX: 'visible' }}>
-            <div className="w-full flex flex-col gap-8 items-center px-4">
-              <div className="w-11/12 md:text-4xl text-xl font-[700] text-center">
+
+          {/* body wrapper */}
+          <div className="flex-1 w-full flex justify-center overflow-y-auto">
+            <div className="w-full max-w-[600px] flex flex-col items-center gap-3 p-6">
+              <div className="w-full text-center text-[22px] font-semibold leading-[30px] tracking-[-0.77px] text-black">
                 {`Let's talk digits`}
               </div>
 
-              <div className="w-full flex flex-col lg:flex-row items-start justify-center gap-10 relative" style={{ overflowX: 'visible' }}>
-
-                {/* Centered form content - container is centered, but items inside are left-aligned */}
-                <div className="flex flex-col gap-6 w-full lg:w-auto items-start" style={{ maxWidth: '600px' }}>
-                  <div style={styles.headingStyle} className="w-full text-left">
+              <div className="w-full flex flex-col items-start gap-3 pb-6 pt-3">
+                {/* Call-with number */}
+                <div className="w-full flex flex-col gap-2 items-start">
+                  <div className={labelClassName}>
                     {`Select a phone number you'd like to use to call with`}
                   </div>
 
-                  <div
-                    className="border rounded-lg focus-within:border-black transition-colors w-full"
-                    style={{
-                      height: 'clamp(45px, 50px, 55px)',
-                      fontSize: 'clamp(11px, 2vw, 13px)',
-                      overflow: 'hidden',
-                      boxSizing: 'border-box',
-                      border: '1px solid #00000020',
-                    }}
-                  >
-                    <Box className="w-full h-full">
-                      <FormControl className="w-full h-full  justify-center">
+                  <div className={inputShellClassName}>
+                    <Box className="w-full">
+                      <FormControl className="w-full">
                         <Select
                           ref={selectRef}
                           open={openCalimNumDropDown}
                           onClose={() => setOpenCalimNumDropDown(false)}
                           onOpen={() => setOpenCalimNumDropDown(true)}
-                          className="border-none rounded-2xl outline-none"
+                          MenuProps={firecrawlSelectMenuProps}
                           displayEmpty
                           value={selectNumber}
-                          // onChange={handleSelectNumber}
                           onChange={(e) => {
-                            let value = e.target.value
+                            const value = e.target.value
                             if (agentType?.agentType !== 'inbound') {
                               setSelectNumber(value)
                               setOpenCalimNumDropDown(false)
@@ -702,52 +822,41 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           }}
                           renderValue={(selected) => {
                             if (selected === '') {
-                              return <div>Select Number</div>
+                              return (
+                                <div className="text-black/70 text-[14px] leading-[1.6]">
+                                  Select Number
+                                </div>
+                              )
                             }
-                            return selected
+                            return (
+                              <div className="text-black text-[14px] leading-[1.6]">
+                                {selected}
+                              </div>
+                            )
                           }}
-                          sx={{
-                            ...styles.dropdownMenu,
-                            backgroundColor: '#FFFFFF',
-                            height: '100%',
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none',
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              border: 'none',
-                            },
-                            '& .MuiSelect-select': {
-                              display: 'flex',
-                              alignItems: 'center',
-                              height: '100%',
-                            },
-                            '&:focus': {
-                              outline: 'none',
-                            },
-                          }}
+                          sx={firecrawlSelectSx(false)}
                         >
                           {previousNumber.map((item, index) => (
+                            (() => {
+                              const itemValue = item?.phoneNumber?.startsWith('+')
+                                ? item?.phoneNumber.slice(1)
+                                : item?.phoneNumber
+                              const isSelected =
+                                normalizePhone(selectNumber) ===
+                                normalizePhone(itemValue)
+                              return (
                             <MenuItem
                               key={index}
-                              style={{
-                                ...styles.dropdownMenu,
-                                fontSize: 'clamp(11px, 2vw, 13px)',
-                                padding: 'clamp(4px, 0.8vw, 8px)',
-                                minHeight: 'clamp(30px, 35px, 40px)',
-                              }}
-                              value={
-                                item?.phoneNumber?.startsWith('+')
-                                  ? item?.phoneNumber.slice(1)
-                                  : item?.phoneNumber
-                              }
+                              style={styles.dropdownMenu}
+                              value={itemValue}
+                              selected={isSelected}
                               disabled={
                                 typeof selectNumber === 'string' &&
                                 selectNumber.replace('+', '') ===
-                                item.phoneNumber.replace('+', '')
+                                  item.phoneNumber.replace('+', '')
                               }
                               className="flex flex-row items-center gap-2"
                               onClick={(e) => {
-                                // return;
                                 if (showReassignBtn && item?.claimedBy) {
                                   e.stopPropagation()
                                   setShowConfirmationModal(item)
@@ -757,14 +866,29 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 }
                               }}
                             >
-                              <div
-                              // (
-                              //   console.log(
-                              //     `Comparing names: agentName="${agentType?.agentName}", claimedBy="${item.claimedBy.name}", equal=${agentType?.agentName?.trim() === item.claimedBy.name?.trim()}`
-                              //   ),
-                              //   agentType?.agentName?.trim() !== item.claimedBy.name?.trim() &&
-                              >
-                                {item.phoneNumber}
+                              <div className="flex w-full items-center gap-3">
+                                <div className="flex-1 min-w-0 truncate">
+                                  {item.phoneNumber}
+                                </div>
+                                {isSelected ? (
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                    className="shrink-0"
+                                  >
+                                    <path
+                                      d="M13.3333 4.66675L6.66667 11.3334L3.33333 8.00008"
+                                      stroke="hsl(var(--brand-primary))"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                ) : null}
                               </div>
                               {showReassignBtn && (
                                 <div>
@@ -782,16 +906,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                         (Claimed by {item.claimedBy.name})
                                       </div>
                                       {reassignLoader?.claimedBy?.id ===
-                                        item.claimedBy.id ? (
+                                      item.claimedBy.id ? (
                                         <CircularProgress size={15} />
                                       ) : (
                                         <button
                                           className="text-brand-primary underline"
                                           onClick={(e) => {
                                             e.stopPropagation()
-                                            // handleReassignNumber(item);
                                             setShowConfirmationModal(item)
-                                            // handleReassignNumber(e.target.value)
                                           }}
                                         >
                                           Reassign
@@ -802,26 +924,62 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 </div>
                               )}
                             </MenuItem>
+                              )
+                            })()
                           ))}
-                          {showGlobalBtn && getGlobalPhoneNumber(userData,isFromAdminOrAgency) && (
-                            <MenuItem
-                              style={styles.dropdownMenu}
-                              value={
-                                getGlobalPhoneNumber(userData,isFromAdminOrAgency)?.replace('+', '') || ''
-                              }
-                            >
-                              {getGlobalPhoneNumber(userData,isFromAdminOrAgency)}
-                              {' (available for testing calls only)'}
-                            </MenuItem>
-                          )}
-                          <div
-                            className="ms-4"
-                            style={{ ...styles.inputStyle, color: '#00000070' }}
-                          >
+                          {showGlobalBtn &&
+                            getGlobalPhoneNumber(userData, isFromAdminOrAgency) && (
+                              (() => {
+                                const globalValue =
+                                  getGlobalPhoneNumber(
+                                    userData,
+                                    isFromAdminOrAgency,
+                                  )?.replace('+', '') || ''
+                                const isSelected =
+                                  normalizePhone(selectNumber) ===
+                                  normalizePhone(globalValue)
+                                return (
+                              <MenuItem
+                                style={styles.dropdownMenu}
+                                value={globalValue}
+                                selected={isSelected}
+                              >
+                                <div className="flex w-full items-center gap-3">
+                                  <div className="flex-1 min-w-0 truncate">
+                                    {getGlobalPhoneNumber(
+                                      userData,
+                                      isFromAdminOrAgency,
+                                    )}
+                                    {' (available for testing calls only)'}
+                                  </div>
+                                  {isSelected ? (
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 16 16"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      aria-hidden="true"
+                                      className="shrink-0"
+                                    >
+                                      <path
+                                        d="M13.3333 4.66675L6.66667 11.3334L3.33333 8.00008"
+                                        stroke="hsl(var(--brand-primary))"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                    </svg>
+                                  ) : null}
+                                </div>
+                              </MenuItem>
+                                )
+                              })()
+                            )}
+                          <div className="ms-4 py-2 text-[14px] leading-[1.6] text-black/70">
                             <i>Get your own unique phone number.</i>{' '}
                             <button
                               className="text-brand-primary underline"
-                              style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}
                               onClick={() => {
                                 setShowClaimPopup(true)
                               }}
@@ -895,90 +1053,140 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     </Box>
                   </Modal>
 
-                  <button
-                    onClick={() => {
-                      // setOpenPurchaseSuccessModal(true);
-                    }}
-                    style={styles.headingStyle}
-                    className="text-left w-full"
-                  >
+                </div>
+
+                {/* Callback number (dropdown + office checkbox) */}
+                <div className="w-full flex flex-col gap-2 items-start">
+                  <div className={labelClassName}>
                     What callback number should we use if someone requests one
                     during a call?
-                  </button>
-
-                  <div
-                    className="flex flex-row items-center overflow-x-auto justify-start w-full"
-                    style={{
-                      scrollbarWidth: 'none',
-                      overflowY: 'visible',
-                      flexShrink: 0,
-                      paddingTop: '6px',
-                      paddingBottom: '6px',
-                      gap: 'clamp(5px, 1.2vw, 10px)',
-                      WebkitOverflowScrolling: 'touch',
-                    }}
-                  >
-                    <div
-                      className="flex flex-row items-center flex-nowrap flex-shrink-0"
-                      style={{ gap: 'clamp(5px, 1.2vw, 10px)' }}
-                    >
-                      {previousNumber.map((item, index) => (
-                        <button
-                          key={index}
-                          className="flex flex-row items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0"
-                          style={{
-                            ...styles.callBackStyles,
-                            width: 'clamp(100px, 22vw, 220px)',
-                            height: 'clamp(30px, 35px, 40px)',
-                            fontSize: 'clamp(9px, 1.8vw, 13px)',
-                            border:
-                              userSelectedNumber === item
-                                ? '2px solid hsl(var(--brand-primary))'
-                                : '1px solid #15151550',
-                            backgroundColor:
-                              userSelectedNumber === item ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
-                            minWidth: 'clamp(85px, 18vw, 150px)',
-                            maxWidth: '220px',
-                            whiteSpace: 'nowrap',
-                            padding: 'clamp(5px, 0.8vw, 10px)',
-                          }}
-                          onClick={() => handleSelectedNumberClick(item)}
-                        >
-                          Use {formatPhoneNumber(item.phoneNumber)}
-                        </button>
-                      ))}
-                      <button
-                        className="flex flex-row items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0"
-                        style={{
-                          ...styles.callBackStyles,
-                          // width: 'clamp(100px, 22vw, 200px)',
-                          height: 'clamp(30px, 35px, 40px)',
-                          fontSize: 'clamp(9px, 1.8vw, 13px)',
-                          border: useOfficeNumber
-                            ? '2px solid hsl(var(--brand-primary))'
-                            : '1px solid #15151550',
-                          backgroundColor: useOfficeNumber ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
-                          minWidth: 'clamp(85px, 18vw, 150px)',
-                          maxWidth: '200px',
-                          whiteSpace: 'nowrap',
-                          padding: 'clamp(5px, 0.8vw, 9px)',
-                        }}
-                        onClick={handleOfficeNumberClick}
-                      >
-                        Use my cell or office number
-                      </button>
-                    </div>
                   </div>
 
+                  <div className={inputShellClassName}>
+                    <Box className="w-full">
+                      <FormControl className="w-full">
+                        <Select
+                          displayEmpty
+                          value={callbackSelectValue}
+                          disabled={isCallbackOfficeMode}
+                          MenuProps={firecrawlSelectMenuProps}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const selected = previousNumber.find((n) => {
+                              return (
+                                normalizePhone(n?.phoneNumber) ===
+                                  normalizePhone(value) ||
+                                normalizePhone(
+                                  n?.phoneNumber?.replace('+', ''),
+                                ) === normalizePhone(value)
+                              )
+                            })
+                            setUserSelectedNumber(selected || '')
+                            if (selected) {
+                              setUseOfficeNumber(false)
+                              setShowOfficeNumberInput(false)
+                              setOfficeNumber('')
+                            }
+                          }}
+                          renderValue={(selected) => {
+                            if (!selected) {
+                              return (
+                                <div className="text-black/70 text-[14px] leading-[1.6]">
+                                  Select Number
+                                </div>
+                              )
+                            }
+                            const selectedItem = previousNumber.find((n) => {
+                              return (
+                                normalizePhone(n?.phoneNumber) ===
+                                  normalizePhone(selected) ||
+                                normalizePhone(
+                                  n?.phoneNumber?.replace('+', ''),
+                                ) === normalizePhone(selected)
+                              )
+                            })
+                            return (
+                              <div className="text-black text-[14px] leading-[1.6]">
+                                {selectedItem?.phoneNumber
+                                  ? formatPhoneNumber(selectedItem.phoneNumber)
+                                  : selected}
+                              </div>
+                            )
+                          }}
+                          sx={firecrawlSelectSx(isCallbackOfficeMode)}
+                        >
+                          {previousNumber.map((item, index) => (
+                            (() => {
+                              const isSelected =
+                                normalizePhone(callbackSelectValue) ===
+                                normalizePhone(item.phoneNumber)
+                              return (
+                            <MenuItem
+                              key={index}
+                              style={styles.dropdownMenu}
+                              value={item.phoneNumber}
+                              selected={isSelected}
+                            >
+                              <div className="flex w-full items-center gap-3">
+                                <div className="flex-1 min-w-0 truncate">
+                                  {formatPhoneNumber(item.phoneNumber)}
+                                </div>
+                                {isSelected ? (
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                    className="shrink-0"
+                                  >
+                                    <path
+                                      d="M13.3333 4.66675L6.66667 11.3334L3.33333 8.00008"
+                                      stroke="hsl(var(--brand-primary))"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                ) : null}
+                              </div>
+                            </MenuItem>
+                              )
+                            })()
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Box>
+                  </div>
+
+                  <FauxCheckbox
+                    checked={isCallbackOfficeMode}
+                    onToggle={() => {
+                      if (isCallbackOfficeMode) {
+                        setUseOfficeNumber(false)
+                        setShowOfficeNumberInput(false)
+                        setOfficeNumber('')
+                      } else {
+                        setUserSelectedNumber('')
+                        setUseOfficeNumber(true)
+                        setShowOfficeNumberInput(true)
+                      }
+                    }}
+                    label="Use my cell or office number"
+                  />
+
                   {showOfficeNumberInput ? (
-                    <div className="w-full flex flex-col items-start">
-                      <div className="mt-2" style={styles.dropdownMenu}>
+                    <div className="w-full flex flex-col items-start gap-2">
+                      <div className="text-[14px] font-normal leading-[1.6] text-black">
                         Enter your cell or office number
                       </div>
 
-                      <PhoneInput
-                        containerClass="phone-input-container"
-                        className="outline-none bg-white focus:ring-0"
+                      <div className="w-full">
+                        <div className={inputShellClassName}>
+                          <PhoneInput
+                            containerClass="phone-input-container"
+                            className="outline-none bg-transparent focus:ring-0 w-full"
                         country={'us'} // restrict to US only
                         onlyCountries={['us', 'mx','sv', 'ec']}
                         disableDropdown={true}
@@ -988,22 +1196,26 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         onChange={handleOfficeNumberChange}
                         placeholder={'Enter Phone Number'}
                         style={{
-                          borderRadius: '7px',
-                          border: '1px solid #00000020',
+                          borderRadius: '8px',
+                          border: 'none',
                           outline: 'none',
                           boxShadow: 'none',
                           width: '100%',
+                          height: '40px',
                         }}
                         inputStyle={{
                           width: '100%',
                           borderWidth: '0px',
                           backgroundColor: 'transparent',
                           paddingLeft: '60px',
-                          paddingTop: '14px',
-                          paddingBottom: '14px',
-                          paddingRight: '16px',
+                          paddingTop: '0px',
+                          paddingBottom: '0px',
+                          paddingRight: '0px',
                           outline: 'none',
                           boxShadow: 'none',
+                          height: '40px',
+                          fontSize: '14px',
+                          fontWeight: 400,
                         }}
                         buttonStyle={{
                           border: 'none',
@@ -1014,7 +1226,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           maxHeight: '150px',
                           overflowY: 'auto',
                         }}
-                      />
+                          />
+                        </div>
+                      </div>
                       {officeErrorMessage && (
                         <div
                           className="mt-2"
@@ -1027,12 +1241,99 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   ) : (
                     ''
                   )}
+                  {/* <Body /> */}
+                </div>
 
-                  {/* Phone number input here */}
-                  {userData?.userRole === 'AgencySubAccount' &&
-                    userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
-                    // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true)
-                    (<div className="w-full h-[35vh]  flex items-center justify-center">
+                {/* Phone number input here */}
+                {userData?.userRole === 'AgencySubAccount' &&
+                userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
+                  <div className="w-full h-[35vh] flex items-center justify-center">
+                    <UpgardView
+                      setShowSnackMsg={setShowSnackMsg}
+                      title={'Enable Live Transfer'}
+                      subTitle={
+                        'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
+                      }
+                      userData={userData}
+                      onUpgradeSuccess={(userData) => {
+                        setUpdatedUserData(userData)
+                        setUserData(userData)
+
+                        setTimeout(() => {
+                          const localStorageData = localStorage.getItem('User')
+                        }, 100)
+                      }}
+                    />
+                  </div>
+                ) : isFromAgencyOrAdmin?.planCapabilities?.allowLiveCallTransfer ===
+                    true ||
+                  (!isFromAgencyOrAdmin &&
+                    userData?.planCapabilities?.allowLiveCallTransfer ===
+                      true) ? (
+                  <div className="w-full flex flex-col items-start gap-2">
+                    <div className={labelClassName}>
+                      What number should we forward live transfers to when a lead
+                      wants to talk to you?
+                    </div>
+                    <div className="w-full">
+                      <div className={inputShellClassName}>
+                        <PhoneInput
+                          containerClass="phone-input-container"
+                          className="outline-none bg-transparent focus:ring-0 w-full"
+                          country={'us'} // restrict to US only
+                          onlyCountries={['us', 'mx', 'sv', 'ec']}
+                          disableDropdown={true}
+                          countryCodeEditable={false}
+                          disableCountryCode={false}
+                          value={callBackNumber}
+                          onChange={handleCallBackNumberChange}
+                          placeholder={'Enter Phone Number'}
+                          style={{
+                            borderRadius: '8px',
+                            border: 'none',
+                            outline: 'none',
+                            boxShadow: 'none',
+                            width: '100%',
+                            height: '40px',
+                          }}
+                          inputStyle={{
+                            width: '100%',
+                            borderWidth: '0px',
+                            backgroundColor: 'transparent',
+                            paddingLeft: '60px',
+                            paddingTop: '0px',
+                            paddingBottom: '0px',
+                            paddingRight: '0px',
+                            outline: 'none',
+                            boxShadow: 'none',
+                            height: '40px',
+                            fontSize: '14px',
+                            fontWeight: 400,
+                          }}
+                          buttonStyle={{
+                            border: 'none',
+                            backgroundColor: 'transparent',
+                            outline: 'none',
+                          }}
+                          dropdownStyle={{
+                            maxHeight: '150px',
+                            overflowY: 'auto',
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ fontWeight: '500', fontSize: 11, color: 'red' }}>
+                      {errorMessage}
+                    </div>
+                    <FauxCheckbox
+                      checked={toggleClick}
+                      onToggle={handleToggleClick}
+                      label={`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full flex items-center justify-center">
+                    <div className="w-full h-[35vh] flex items-center justify-center">
                       <UpgardView
                         setShowSnackMsg={setShowSnackMsg}
                         title={'Enable Live Transfer'}
@@ -1044,182 +1345,60 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           setUpdatedUserData(userData)
                           setUserData(userData)
 
-                          // Verify localStorage was updated
                           setTimeout(() => {
                             const localStorageData = localStorage.getItem('User')
                           }, 100)
                         }}
-                      // handleContinue={handleContinue}
                       />
-                    </div>)
-                  ) : isFromAgencyOrAdmin?.planCapabilities
-                    ?.allowLiveCallTransfer === true ||
-                    (!isFromAgencyOrAdmin &&
-                      userData?.planCapabilities?.allowLiveCallTransfer ===
-                      true) ? (
-                    <div className="w-full">
-                      <div className="w-full flex flex-col items-start">
-                        <div style={styles.headingStyle} className="text-left w-full">
-                          What number should we forward live transfers to when a
-                          lead wants to talk to you?
-                        </div>
-                        <PhoneInput
-                          containerClass="phone-input-container"
-                          className="outline-none bg-white mt-2 focus:ring-0"
-                          country={'us'} // restrict to US only
-                          onlyCountries={['us', 'mx','sv', 'ec']}
-                          disableDropdown={true}
-                          countryCodeEditable={false}
-                          disableCountryCode={false}
-                          value={callBackNumber}
-                          onChange={handleCallBackNumberChange}
-                          // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                          placeholder={'Enter Phone Number'}
-                          // disabled={loading} // Disable input if still loading
-                          style={{
-                            borderRadius: '7px',
-                            border: '1px solid #00000020',
-                            outline: 'none',
-                            boxShadow: 'none',
-                            width: '100%',
-                          }}
-                          inputStyle={{
-                            width: '100%',
-                            borderWidth: '0px',
-                            backgroundColor: 'transparent',
-                            paddingLeft: '60px',
-                            paddingTop: '14px',
-                            paddingBottom: '14px',
-                            paddingRight: '16px',
-                            outline: 'none',
-                            boxShadow: 'none',
-                          }}
-                          buttonStyle={{
-                            border: 'none',
-                            backgroundColor: 'transparent',
-                            outline: 'none',
-                          }}
-                          dropdownStyle={{
-                            maxHeight: '150px',
-                            overflowY: 'auto',
-                          }}
-                        // defaultMask={locationLoader ? "Loading..." : undefined}
-                        />
-                        <div
-                          style={{ fontWeight: '500', fontSize: 11, color: 'red' }}
-                        >
-                          {errorMessage}
-                        </div>
-                        {/*<div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: '500',
-                            marginTop: 16,
-                            width: '100%',
-                          }}
-                        >
-                          Message spoken during transfer
-                        </div>
-                        <input
-                          type="text"
-                          value={liveTransferMessage}
-                          onChange={(e) =>
-                            setLiveTransferMessage(e.target.value)}
-                          placeholder="e.g. Let me connect you to a live agent"
-                          className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:ring-0 mt-1"
-                          style={{
-                            border: '1px solid #00000020',
-                            borderRadius: '7px',
-                          }}
-                          maxLength={500}
-                        />*/}
-                      </div>
-                      <div className="flex flex-row items-center gap-4 justify-start w-full">
-                        <button onClick={handleToggleClick}>
-                          {toggleClick ? (
-                            <div
-                              className="bg-brand-primary flex flex-row items-center justify-center rounded"
-                              style={{ height: '24px', width: '24px' }}
-                            >
-                              <Image
-                                src={'/assets/whiteTick.png'}
-                                height={8}
-                                width={10}
-                                alt="*"
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                              style={{ height: '24px', width: '24px' }}
-                            ></div>
-                          )}
-                        </button>
-                        <div
-                          style={{
-                            color: '#151515',
-                            fontSize: 15,
-                            fontWeight: '500',
-                            marginLeft: '8px',
-                          }}
-                        >
-                          {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
-                        </div>
-                      </div>
                     </div>
-                  ) : (
-                    <div className="w-full  flex items-center justify-center ">
-                      <div className="w-full h-[35vh] flex items-center justify-center">
-                        <UpgardView
-                          setShowSnackMsg={setShowSnackMsg}
-                          title={'Enable Live Transfer'}
-                          subTitle={
-                            'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
-                          }
-                          userData={userData}
-                          onUpgradeSuccess={(userData) => {
-                            setUpdatedUserData(userData)
-                            setUserData(userData)
-
-                            // Verify localStorage was updated
-                            setTimeout(() => {
-                              const localStorageData = localStorage.getItem('User')
-                            }, 100)
-                          }}
-                        // handleContinue={handleContinue}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {/* <Body /> */}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-          <div className="flex flex-col h-[55px] gap-2">
-            <div>
+          {/* bottom */}
+          <div className="sticky bottom-0 z-40 bg-[#f9f9f9] w-full">
+            <div className="border-t border-black/10">
               <ProgressBar value={33} />
             </div>
+            <div className="border-t border-black/10 h-[65px] flex items-center justify-between px-8">
+              <div className="opacity-0 pointer-events-none select-none">
+                Continue
+              </div>
 
-            <Footer
-              handleContinue={() => {
-                if (agentType?.agentType === 'inbound' && !selectNumber) {
-                  handleContinue()
-                } else {
-                  setAssignLoader(true)
-                  AssignNumber()
-                  handleContinue()
-                }
-              }}
-              handleBack={handleBack}
-              registerLoader={assignLoader}
-              shouldContinue={shouldContinue}
-              donotShowBack={true}
-            />
+              {assignLoader ? (
+                <div className="w-[100px] flex items-center justify-center">
+                  <CircularProgress size={22} />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled={shouldContinue}
+                  className="h-9 min-h-[36px] rounded-[8px] px-4 text-[14px] font-semibold tracking-[0.07px] text-white bg-brand-primary hover:opacity-90 active:scale-[0.98] transition-all duration-150 disabled:bg-black/10 disabled:text-black/60 disabled:hover:opacity-100 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                  onClick={() => {
+                    if (agentType?.agentType === 'inbound' && !selectNumber) {
+                      handleContinue()
+                    } else {
+                      setAssignLoader(true)
+                      AssignNumber()
+                      handleContinue()
+                    }
+                  }}
+                >
+                  Continue
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-
+        {/* Right panel */}
+        <div className="hidden lg:block lg:basis-[35%] lg:flex-[0_0_35%] bg-brand-primary relative overflow-hidden">
+          <div className="absolute inset-0 opacity-40">
+            <div className="absolute left-1/2 -translate-x-1/2 top-[230px] w-[1146px] h-[570px] border border-white/30 bg-white/[0.01]" />
+            <div className="absolute left-1/2 -translate-x-1/2 top-[-30px] w-[460px] h-[1090px] border border-white/30 bg-white/[0.01]" />
+          </div>
+        </div>
 
         {/* Code for the confirmation of reassign button */}
         <Modal
