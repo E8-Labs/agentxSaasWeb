@@ -36,6 +36,7 @@ import NoCalendarView from './NoCalendarView'
 import { Scopes } from './Scopes'
 import MCPView from './mcp/MCPView'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 const UserCalender = ({
   calendarDetails,
@@ -121,6 +122,7 @@ const UserCalender = ({
     token: reduxToken,
   } = useUser()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false)
   const [availabilityRequestComplete, setAvailabilityRequestComplete] = useState(
     DEFAULT_AVAILABILITY_REQUEST_COMPLETE,
   )
@@ -159,7 +161,7 @@ const UserCalender = ({
     //console.log;
   }, [selectCalender])
 
-  useEffect(() => {}, [agent])
+  useEffect(() => { }, [agent])
 
   // useEffect(() => {
   //   if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
@@ -199,7 +201,7 @@ const UserCalender = ({
       if (response?.data?.status && response?.data?.data) {
         setAvailabilityRequestComplete(
           response.data.data.availabilityRequestComplete ||
-            DEFAULT_AVAILABILITY_REQUEST_COMPLETE,
+          DEFAULT_AVAILABILITY_REQUEST_COMPLETE,
         )
       }
     } catch (error) {
@@ -233,18 +235,21 @@ const UserCalender = ({
         },
       })
       if (response?.data?.status) {
-        setType(SnackbarTypes.success)
+        setType(SnackbarTypes.Success)
         setMessage('Availability phrase updated')
         setIsVisible(true)
+        return true
       } else {
-        setType(SnackbarTypes.error)
+        setType(SnackbarTypes.Error)
         setMessage(response?.data?.message || 'Unable to update phrase')
         setIsVisible(true)
+        return false
       }
     } catch (error) {
-      setType(SnackbarTypes.error)
+      setType(SnackbarTypes.Error)
       setMessage('Unable to update phrase')
       setIsVisible(true)
+      return false
     } finally {
       setPhrasesSaving(false)
     }
@@ -489,7 +494,7 @@ const UserCalender = ({
         }
       }
 
-      for (let [key, value] of formData.entries()) {}
+      for (let [key, value] of formData.entries()) { }
 
       // return;
 
@@ -590,7 +595,7 @@ const UserCalender = ({
             setShowAddNewCalender(false)
             setShowAddNewCalender(false)
             // agentsListDetails = updatedArray
-          } 
+          }
         } else if (response.data.status === false) {
           setIsVisible(true)
           setMessage(response.data.message)
@@ -611,7 +616,7 @@ const UserCalender = ({
     }
   }
 
-  useEffect(() => {}, [mcpTools])
+  useEffect(() => { }, [mcpTools])
 
   const styles = {
     inputStyles: {
@@ -701,7 +706,7 @@ const UserCalender = ({
                     const planCapabilities = reduxUser?.planCapabilities || {}
                     const shouldShowUpgrade = planCapabilities.shouldShowAllowCalendarUpgrade === true
                     const shouldShowRequestFeature = planCapabilities.shouldShowCalendarRequestFeature === true
-                    
+
                     if (shouldShowUpgrade || shouldShowRequestFeature) {
                       setShowUpgradeModal(true)
                     } else if (planCapabilities.allowCalendarIntegration === true) {
@@ -718,187 +723,167 @@ const UserCalender = ({
             {allCalendars?.length > 0 ? (
               <div className="w-full flex flex-col w-full items-center mt-4">
                 <div className="w-full">
-                <div className="w-[97%] mx-auto mb-4 p-3 border rounded-[10px] border-[#0000001a]">
-                  <div className="text-[13px] font-[600] mb-2">
-                    Availability Request Complete Phrase
-                  </div>
-                  <textarea
-                    value={availabilityRequestComplete}
-                    onChange={(e) => setAvailabilityRequestComplete(e.target.value)}
-                    rows={2}
-                    className="w-full border border-[#00000020] rounded-[8px] p-2 text-[13px] outline-none"
-                    placeholder="Phrase spoken after availability tool completes"
-                  />
-                  <div className="w-full flex justify-end mt-2">
-                    <button
-                      className="text-[12px] font-[600] text-white bg-brand-primary rounded-[8px] px-3 py-1 disabled:opacity-50"
-                      onClick={saveCalendarPhrase}
-                      disabled={phrasesSaving || phrasesLoading}
-                    >
-                      {phrasesSaving ? 'Saving...' : 'Save phrase'}
-                    </button>
-                  </div>
-                </div>
                   {calenderLoader ? (
                     <div className="w-full flex flex-row justify-center">
                       <CircularProgress size={30} />
                     </div>
                   ) : (
-                    <FormControl sx={{ m: 1 }} className="w-[97%]">
-                      <Select
-                        labelId="demo-select-small-label"
-                        id="demo-select-small"
-                        value={selectedCalenderTitle}
-                        // label="Age"
-                        // onChange={handleChange}
-                        displayEmpty // Enables placeholder
-                        // IconComponent={MUICustomIcon}
-                        renderValue={(selected) => {
-                          // console.log("Selected Render ", selected);
-                          if (!selected) {
-                            return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
-                          }
-                          let cals = allCalendars.filter((item) => {
-                            return (
-                              item.title == agent?.calendar?.title &&
-                              item.apiKey == agent?.calendar?.apiKey &&
-                              item.eventId == agent?.calendar?.eventId
-                            )
-                          })
-                          //console.log;
-                          let cal = null
-                          if (cals && cals?.length >= 1) {
-                            cal = cals[0]
-                          }
-                          return cal?.title || ''
-                        }}
-                        sx={{
-                          border: '1px solid #00000020', // Default border
-                          '&:hover': {
-                            border: '1px solid #00000020', // Same border on hover
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none', // Remove the default outline
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: 'none', // Remove outline on focus
-                          },
-                          '&.MuiSelect-select': {
-                            py: 0, // Optional padding adjustments
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: '30vh', // Limit dropdown height
-                              overflow: 'auto', // Enable scrolling in dropdown
-                              scrollbarWidth: 'none',
-                              // borderRadius: "10px"
+                    <div className="w-[100%]">
+                      <FormControl sx={{ m: 1 }} className="w-[97%]">
+                        <Select
+                          labelId="demo-select-small-label"
+                          id="demo-select-small"
+                          value={selectedCalenderTitle}
+                          // label="Age"
+                          // onChange={handleChange}
+                          displayEmpty // Enables placeholder
+                          // IconComponent={MUICustomIcon}
+                          renderValue={(selected) => {
+                            // console.log("Selected Render ", selected);
+                            if (!selected) {
+                              return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
+                            }
+                            let cals = allCalendars.filter((item) => {
+                              return (
+                                item.title == agent?.calendar?.title &&
+                                item.apiKey == agent?.calendar?.apiKey &&
+                                item.eventId == agent?.calendar?.eventId
+                              )
+                            })
+                            //console.log;
+                            let cal = null
+                            if (cals && cals?.length >= 1) {
+                              cal = cals[0]
+                            }
+                            return cal?.title || ''
+                          }}
+                          sx={{
+                            border: '1px solid #00000020', // Default border
+                            '&:hover': {
+                              border: '1px solid #00000020', // Same border on hover
                             },
-                          },
-                        }}
-                      >
-                        {allCalendars.map((item, index) => (
-                          <MenuItem
-                            key={index}
-                            value={item.title}
-                            // className="hover:bg-purple10 hover:text-black"
-                            sx={{
-                              backgroundColor:
-                                selectCalender.id === item.id
-                                  ? 'hsl(var(--brand-primary) / 0.1)'
-                                  : 'transparent',
-                              '&.Mui-selected': {
-                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none', // Remove the default outline
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              border: 'none', // Remove outline on focus
+                            },
+                            '&.MuiSelect-select': {
+                              py: 0, // Optional padding adjustments
+                            },
+                          }}
+                          MenuProps={{
+                            PaperProps: {
+                              style: {
+                                maxHeight: '30vh', // Limit dropdown height
+                                overflow: 'auto', // Enable scrolling in dropdown
+                                scrollbarWidth: 'none',
+                                // borderRadius: "10px"
                               },
-                              '&:hover': {
-                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                color: '#000000',
-                              },
+                            },
+                          }}
+                        >
+                          {allCalendars.map((item, index) => (
+                            <MenuItem
+                              key={index}
+                              value={item.title}
+                              // className="hover:bg-purple10 hover:text-black"
+                              sx={{
+                                backgroundColor:
+                                  selectCalender.id === item.id
+                                    ? 'hsl(var(--brand-primary) / 0.1)'
+                                    : 'transparent',
+                                '&.Mui-selected': {
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                },
+                                '&:hover': {
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                  color: '#000000',
+                                },
 
-                              // Selected + Hover
-                              '&.Mui-selected:hover': {
-                                backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
-                                color: '#000000',
-                              },
-                              '&.Mui-focusVisible': {
-                                backgroundColor: 'inherit',
-                              },
-                            }}
-                            onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
-                            onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
-                          >
-                            <div className="w-full flex flex-row items-center justify-between">
-                              {/* Calendar Name */}
-                              <button
-                                className="w-full text-start flex flex-row items-center gap-2"
-                                onClick={() => {
-                                  setCalendarSelected(item)
-                                  setSelectCalender(item)
-                                  handleAddCalender(item, false)
-                                }}
-                                style={{ flexGrow: 1, textAlign: 'left' }}
-                              >
-                                {selectCalender.id === item.id ? (
-                                  <div
-                                    className="bg-brand-primary flex flex-row items-center justify-center rounded"
-                                    style={{ height: '24px', width: '24px' }}
-                                  >
-                                    <Image
-                                      src={'/assets/whiteTick.png'}
-                                      height={8}
-                                      width={10}
-                                      alt="*"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div
-                                    className="bg-none border-2 rounded"
-                                    style={{ height: '24px', width: '24px' }}
-                                  ></div>
-                                )}
-                                <div
-                                  style={{ fontWeight: '500', fontSize: 15 }}
+                                // Selected + Hover
+                                '&.Mui-selected:hover': {
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
+                                  color: '#000000',
+                                },
+                                '&.Mui-focusVisible': {
+                                  backgroundColor: 'inherit',
+                                },
+                              }}
+                              onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
+                              onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
+                            >
+                              <div className="w-full flex flex-row items-center justify-between">
+                                {/* Calendar Name */}
+                                <button
+                                  className="w-full text-start flex flex-row items-center gap-2"
+                                  onClick={() => {
+                                    setCalendarSelected(item)
+                                    setSelectCalender(item)
+                                    handleAddCalender(item, false)
+                                  }}
+                                  style={{ flexGrow: 1, textAlign: 'left' }}
                                 >
-                                  {item.title}
-                                </div>
-                                {item.email && (
-                                  <div className="text-sm text-[#00000060]">
-                                    ({item.email})
+                                  {selectCalender.id === item.id ? (
+                                    <div
+                                      className="bg-brand-primary flex flex-row items-center justify-center rounded"
+                                      style={{ height: '24px', width: '24px' }}
+                                    >
+                                      <Image
+                                        src={'/assets/whiteTick.png'}
+                                        height={8}
+                                        width={10}
+                                        alt="*"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div
+                                      className="bg-none border-2 rounded"
+                                      style={{ height: '24px', width: '24px' }}
+                                    ></div>
+                                  )}
+                                  <div
+                                    style={{ fontWeight: '500', fontSize: 15 }}
+                                  >
+                                    {item.title}
                                   </div>
+                                  {item.email && (
+                                    <div className="text-sm text-[#00000060]">
+                                      ({item.email})
+                                    </div>
+                                  )}
+                                </button>
+
+                                {/* Delete Button (Only Show on Hover) */}
+                                {showDelBtn?.id === item.id && (
+                                  // (calenderDelLoader &&
+                                  // calendarToDelete?.id === item.id ? (
+                                  //   <CircularProgress size={25} />
+                                  // ) :
+                                  (<button
+                                    onClick={(e) => {
+                                      // e.stopPropagation(); // Prevents dropdown from closing
+                                      // setSelectCalender(item);
+                                      setCalenderDelLoader(null)
+                                      setCalendarToDelete(item)
+                                      setShowDelPopup(true)
+                                    }}
+                                    className="transition-opacity px-2"
+                                    style={{
+                                      background: 'transparent',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      color: '#7902df',
+                                      fontWeight: '500',
+                                    }}
+                                  >Delete
+                                  </button>)
                                 )}
-                              </button>
+                              </div>
+                            </MenuItem>
+                          ))}
 
-                              {/* Delete Button (Only Show on Hover) */}
-                              {showDelBtn?.id === item.id && (
-                                // (calenderDelLoader &&
-                                // calendarToDelete?.id === item.id ? (
-                                //   <CircularProgress size={25} />
-                                // ) :
-                                (<button
-                                  onClick={(e) => {
-                                    // e.stopPropagation(); // Prevents dropdown from closing
-                                    // setSelectCalender(item);
-                                    setCalenderDelLoader(null)
-                                    setCalendarToDelete(item)
-                                    setShowDelPopup(true)
-                                  }}
-                                  className="transition-opacity px-2"
-                                  style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    color: '#7902df',
-                                    fontWeight: '500',
-                                  }}
-                                >Delete
-                                                                  </button>)
-                              )}
-                            </div>
-                          </MenuItem>
-                        ))}
-
-                        {/*<MenuItem className="w-full" value="Custom Calender">
+                          {/*<MenuItem className="w-full" value="Custom Calender">
                           <button
                             className="text-brand-primary underline w-full text-start"
                             onClick={() => {
@@ -910,8 +895,15 @@ const UserCalender = ({
                             Add New Calender
                           </button>
                         </MenuItem>*/}
-                      </Select>
-                    </FormControl>
+                        </Select>
+                      </FormControl>
+                      <button
+                        className="text-brand-primary underline text-sm font-medium px-2"
+                        onClick={() => setShowAdvancedSettingsModal(true)}
+                      >
+                        Advanced Settings
+                      </button>
+                    </div>
                   )}
 
                   <div className="w-full mt-4 flex flex-col items-center justify-center">
@@ -1068,6 +1060,55 @@ const UserCalender = ({
                       Delete
                     </button>
                   )}
+                </div>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+
+        <Modal
+          open={showAdvancedSettingsModal}
+          onClose={() => setShowAdvancedSettingsModal(false)}
+          closeAfterTransition
+          slotProps={{
+            backdrop: {
+              timeout: 1000,
+              sx: {
+                backgroundColor: '#00000020',
+              },
+            },
+          }}
+        >
+          <Box className="w-[95%] max-w-[560px]" sx={styles.modalsStyle}>
+            <div className="bg-white rounded-[12px] border border-[#0000001a] p-4">
+              <div className="flex flex-row items-center justify-between">
+                <div className="text-[16px] font-[700] mb-3">Advanced Settings</div>
+                <CloseBtn onClick={() => setShowAdvancedSettingsModal(false)} />
+              </div>
+              <div className="w-full p-1">
+                <div className="text-[13px] font-[600] mb-2">
+                  Availability Request Complete Phrase
+                </div>
+                <textarea
+                  value={availabilityRequestComplete}
+                  onChange={(e) => setAvailabilityRequestComplete(e.target.value)}
+                  rows={2}
+                  className="w-full border border-[#00000020] rounded-[8px] p-2 text-[13px] outline-none"
+                  placeholder="Phrase spoken after availability tool completes"
+                />
+                <div className="w-full flex justify-end mt-3">
+                  <button
+                    className="text-[12px] font-[600] text-white bg-brand-primary rounded-[8px] px-3 py-1 disabled:opacity-50"
+                    onClick={async () => {
+                      const didSave = await saveCalendarPhrase()
+                      if (didSave) {
+                        setShowAdvancedSettingsModal(false)
+                      }
+                    }}
+                    disabled={phrasesSaving || phrasesLoading}
+                  >
+                    {phrasesSaving ? 'Saving...' : 'Save phrase'}
+                  </button>
                 </div>
               </div>
             </div>

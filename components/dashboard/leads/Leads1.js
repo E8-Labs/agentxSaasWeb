@@ -1504,113 +1504,113 @@ const Leads1 = () => {
           }}
         >
           <ScaleFadeTransition in={showAddLeadModal} timeout={250}>
-          <Box
-            className="lg:w-6/12 sm:w-9/12 w-10/12"
-            sx={{
-              width: 720,
-              maxWidth: '90vw',
-              height: 'auto',
-              bgcolor: 'transparent',
-              p: '2px',
-              mx: 'auto',
-              my: '50vh',
-              transform: 'translateY(-50%)',
-              borderRadius: 2,
-              border: 'none',
-              outline: 'none',
-            }}
-          >
-            <div
-              className="flex flex-row justify-center w-full"
-              style={{ width: '100%', borderRadius: 16, overflow: 'hidden' }}
+            <Box
+              className="lg:w-6/12 sm:w-9/12 w-10/12"
+              sx={{
+                width: 720,
+                maxWidth: '90vw',
+                height: 'auto',
+                bgcolor: 'transparent',
+                p: '2px',
+                mx: 'auto',
+                my: '50vh',
+                transform: 'translateY(-50%)',
+                borderRadius: 2,
+                border: 'none',
+                outline: 'none',
+              }}
             >
               <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 0,
-                  paddingTop: 0,
-                  borderRadius: '13px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2,
-                }}
+                className="flex flex-row justify-center w-full"
+                style={{ width: '100%', borderRadius: 16, overflow: 'hidden' }}
               >
                 <div
-                  className="flex flex-row items-center justify-between w-full"
-                  style={{ padding: 16, borderBottom: '1px solid #eaeaea' }}
+                  className="w-full"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    padding: 0,
+                    paddingTop: 0,
+                    borderRadius: '13px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                  }}
                 >
-                  <div style={{ fontSize: 18, fontWeight: 600 }}>
-                    Import Leads
-                  </div>
-                  <CloseBtn
-                    onClick={() => {
-                      setShowAddLeadModal(false)
-                      setSelectedFile(null)
-                    }}
-                  />
-                </div>
-
-                {/* CSV File drag and drop logic */}
-
-                <div style={{ padding: 16 }}>
                   <div
-                    className="w-full h-[32vh] flex flex-col justify-center"
-                    {...getRootProps()}
-                    onMouseEnter={() => setImportDropzoneHovered(true)}
-                    onMouseLeave={() => setImportDropzoneHovered(false)}
-                    style={{
-                      border: '2px dashed #ddd',
-                      padding: 16,
-                      textAlign: 'center',
-                      borderRadius: '10px',
-                      cursor: 'pointer',
-                      margin: 0,
-                      backgroundColor: importDropzoneHovered
-                        ? 'hsl(var(--brand-primary) / 0.03)'
-                        : 'hsl(var(--brand-primary) / 0.02)',
-                    }}
+                    className="flex flex-row items-center justify-between w-full"
+                    style={{ padding: 16, borderBottom: '1px solid #eaeaea' }}
                   >
-                  <input {...getInputProps()} />
-                  <div
-                    className="w-full flex-row flex justify-center"
-                    style={{ marginBottom: '15px' }}
-                  >
-                    <FileUp size={28} strokeWidth={2} aria-hidden />
+                    <div style={{ fontSize: 18, fontWeight: 600 }}>
+                      Import Leads
+                    </div>
+                    <CloseBtn
+                      onClick={() => {
+                        setShowAddLeadModal(false)
+                        setSelectedFile(null)
+                      }}
+                    />
                   </div>
-                  <p style={{ fontSize: 16, fontWeight: 500 }}>
-                    Drop your file here to upload
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      color: '#888',
-                      marginTop: '10px',
-                      fontWeight: '500',
-                    }}
-                  >
-                    Works with only a CSV, TSV or Excel files
-                  </p>
-                  <button className="w-full flex flex-row justify-center mt-6 outline-none" type="button">
-                    <div style={{ border: 'none', width: 'auto', height: 'auto' }}>
+
+                  {/* CSV File drag and drop logic */}
+
+                  <div style={{ padding: 16 }}>
+                    <div
+                      className="w-full h-[32vh] flex flex-col justify-center"
+                      {...getRootProps()}
+                      onMouseEnter={() => setImportDropzoneHovered(true)}
+                      onMouseLeave={() => setImportDropzoneHovered(false)}
+                      style={{
+                        border: '2px dashed #ddd',
+                        padding: 16,
+                        textAlign: 'center',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        margin: 0,
+                        backgroundColor: importDropzoneHovered
+                          ? 'hsl(var(--brand-primary) / 0.03)'
+                          : 'hsl(var(--brand-primary) / 0.02)',
+                      }}
+                    >
+                      <input {...getInputProps()} />
                       <div
-                        className="bg-brand-primary text-white flex flex-row items-center justify-center w-fit-content rounded-[8px]"
+                        className="w-full flex-row flex justify-center"
+                        style={{ marginBottom: '15px' }}
+                      >
+                        <FileUp size={28} strokeWidth={2} aria-hidden />
+                      </div>
+                      <p style={{ fontSize: 16, fontWeight: 500 }}>
+                        Drop your file here to upload
+                      </p>
+                      <p
                         style={{
-                          fontWeight: '500',
                           fontSize: 14,
-                          height: 40,
-                          paddingLeft: 12,
-                          paddingRight: 12,
+                          color: '#888',
+                          marginTop: '10px',
+                          fontWeight: '500',
                         }}
                       >
-                        Choose File
-                      </div>
+                        Works with only a CSV, TSV or Excel files
+                      </p>
+                      <button className="w-full flex flex-row justify-center mt-6 outline-none" type="button">
+                        <div style={{ border: 'none', width: 'auto', height: 'auto' }}>
+                          <div
+                            className="bg-brand-primary text-white flex flex-row items-center justify-center w-fit-content rounded-[8px]"
+                            style={{
+                              fontWeight: '500',
+                              fontSize: 14,
+                              height: 40,
+                              paddingLeft: 12,
+                              paddingRight: 12,
+                            }}
+                          >
+                            Choose File
+                          </div>
+                        </div>
+                      </button>
                     </div>
-                  </button>
-                </div>
-                </div>
+                  </div>
 
-                {/* <div className="mt-8" style={{ height: "50px" }}>
+                  {/* <div className="mt-8" style={{ height: "50px" }}>
                 {SelectedFile && (
                   <div className="w-full mt-4 flex flex-row justify-center">
                     <button
@@ -1638,22 +1638,22 @@ const Leads1 = () => {
                 )}
               </div> */}
 
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
-            </div>
-            {/* Legacy fullscreen loader removed: upload modal opens instantly with in-modal 3-dot loader */}
-            <Modal open={false} aria-hidden>
-              <Box
-                className="lg:w-6/12 sm:w-9/12 w-10/12"
-                sx={styles.modalsStyle}
-              >
-                <div className="w-full flex flex-row items-center justify-center">
-                  <CircularProgress size={150} thickness={1} />
+                  {/* Can be use full to add shadow */}
+                  {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                 </div>
-              </Box>
-            </Modal>
-          </Box>
+              </div>
+              {/* Legacy fullscreen loader removed: upload modal opens instantly with in-modal 3-dot loader */}
+              <Modal open={false} aria-hidden>
+                <Box
+                  className="lg:w-6/12 sm:w-9/12 w-10/12"
+                  sx={styles.modalsStyle}
+                >
+                  <div className="w-full flex flex-row items-center justify-center">
+                    <CircularProgress size={150} thickness={1} />
+                  </div>
+                </Box>
+              </Modal>
+            </Box>
           </ScaleFadeTransition>
         </Modal>
 
@@ -1671,380 +1671,384 @@ const Leads1 = () => {
         >
           <ScaleFadeTransition in={ShowUploadLeadModal} timeout={250}>
             <Box className="lg:w-7/12 sm:w-10/12 w-10/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full" style={{ height: 'auto' }}>
-              <div
-                className="w-full flex flex-col"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 0,
-                  borderRadius: '13px',
-                  height: 'auto',
-                  maxHeight: '80svh',
-                  gap: 12,
-                  fontSize: 14,
-                }}
-              >
+              <div className="flex flex-row justify-center w-full" style={{ height: 'auto' }}>
                 <div
-                  className="flex flex-row items-center justify-between w-full"
+                  className="w-full flex flex-col"
                   style={{
-                    padding: 16,
-                    borderBottom: '1px solid #eaeaea',
+                    backgroundColor: '#ffffff',
+                    padding: 0,
+                    borderRadius: '13px',
+                    height: 'auto',
+                    maxHeight: '80svh',
+                    gap: 12,
+                    fontSize: 14,
                   }}
                 >
-                  <div style={{ fontSize: 18, fontWeight: 600 }}>Leads</div>
-                  <div className="ml-auto flex flex-row items-center gap-3">
-                    <div className="flex flex-row items-center gap-2">
-                      <Tooltip
-                        title="Our AI will search the web to pull all current data on your leads."
-                        arrow
-                        componentsProps={{
-                          tooltip: {
-                            sx: {
-                              backgroundColor: '#ffffff',
-                              color: '#333',
-                              fontSize: '14px',
-                              fontWeight: '500',
-                              padding: '10px 15px',
-                              borderRadius: '8px',
-                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                            },
-                          },
-                          arrow: {
-                            sx: {
-                              color: '#ffffff',
-                            },
-                          },
-                        }}
-                      >
-                        <div className="flex flex-row items-center gap-2">
-                          <div style={{ fontSize: 14, fontWeight: '500' }}>
-                            Enrich Leads
-                          </div>
-                          <Image
-                            src={'/svgIcons/infoIcon.svg'}
-                            height={16}
-                            width={16}
-                            alt=""
-                            className="hidden"
-                            aria-hidden
-                            style={{ filter: 'brightness(0)' }}
-                          />
-                        </div>
-                      </Tooltip>
-                      <Switch
-                        checked={isEnrichToggle}
-                        onChange={(event) => {
-                          if (isEnrichToggle === true) {
-                            setIsEnrichToggle(false)
-                          } else {
-                            setIsEnrichToggle(true)
-                            setShowenrichModal(true)
-                          }
-                        }}
-                        sx={{
-                          width: 44,
-                          height: 24,
-                          padding: 0,
-                          '& .MuiSwitch-switchBase': {
-                            padding: 0,
-                            margin: '2px',
-                            transitionDuration: '250ms',
-                            '&.Mui-checked': {
-                              transform: 'translateX(20px)',
-                              color: '#fff',
-                              '& + .MuiSwitch-track': {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                                opacity: 1,
-                                border: 'none',
+                  <div
+                    className="flex flex-row items-center justify-between w-full"
+                    style={{
+                      padding: 16,
+                      borderBottom: '1px solid #eaeaea',
+                    }}
+                  >
+                    <div style={{ fontSize: 18, fontWeight: 600 }}>Leads</div>
+                    <div className="ml-auto flex flex-row items-center gap-3">
+                      <div className="flex flex-row items-center gap-2">
+                        <Tooltip
+                          title="Our AI will search the web to pull all current data on your leads."
+                          arrow
+                          componentsProps={{
+                            tooltip: {
+                              sx: {
+                                backgroundColor: '#ffffff',
+                                color: '#333',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                padding: '10px 15px',
+                                borderRadius: '8px',
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                               },
                             },
-                          },
-                          '& .MuiSwitch-thumb': {
-                            boxSizing: 'border-box',
-                            width: 20,
-                            height: 20,
-                            borderRadius: '50%',
-                            backgroundColor: '#fff',
-                            boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
-                            transition:
-                              'background-color 250ms, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-                          },
-                          '& .MuiSwitch-track': {
-                            borderRadius: 12,
-                            backgroundColor: '#e0e0e0',
-                            opacity: 1,
-                            transition: 'background-color 250ms, opacity 250ms',
-                          },
+                            arrow: {
+                              sx: {
+                                color: '#ffffff',
+                              },
+                            },
+                          }}
+                        >
+                          <div className="flex flex-row items-center gap-2">
+                            <div style={{ fontSize: 14, fontWeight: '500' }}>
+                              Enrich Leads
+                            </div>
+                            <Image
+                              src={'/svgIcons/infoIcon.svg'}
+                              height={16}
+                              width={16}
+                              alt=""
+                              className="hidden"
+                              aria-hidden
+                              style={{ filter: 'brightness(0)' }}
+                            />
+                          </div>
+                        </Tooltip>
+                        <Switch
+                          checked={isEnrichToggle}
+                          onChange={(event) => {
+                            if (isEnrichToggle === true) {
+                              setIsEnrichToggle(false)
+                            } else {
+                              setIsEnrichToggle(true)
+                              setShowenrichModal(true)
+                            }
+                          }}
+                          sx={{
+                            width: 44,
+                            height: 24,
+                            padding: 0,
+                            '& .MuiSwitch-switchBase': {
+                              padding: 0,
+                              margin: '2px',
+                              transitionDuration: '250ms',
+                              '&.Mui-checked': {
+                                transform: 'translateX(20px)',
+                                color: '#fff',
+                                '& + .MuiSwitch-track': {
+                                  backgroundColor: 'hsl(var(--brand-primary))',
+                                  opacity: 1,
+                                  border: 'none',
+                                },
+                              },
+                            },
+                            '& .MuiSwitch-thumb': {
+                              boxSizing: 'border-box',
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              backgroundColor: '#fff',
+                              boxShadow: '0 2px 4px 0 rgba(0,0,0,0.2)',
+                              transition:
+                                'background-color 250ms, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                            },
+                            '& .MuiSwitch-track': {
+                              borderRadius: 12,
+                              backgroundColor: '#e0e0e0',
+                              opacity: 1,
+                              transition: 'background-color 250ms, opacity 250ms',
+                            },
+                          }}
+                        />
+                      </div>
+                      <CloseBtn
+                        onClick={() => {
+                          setShowUploadLeadModal(false)
                         }}
                       />
                     </div>
-                    <CloseBtn
-                      onClick={() => {
-                        setShowUploadLeadModal(false)
-                      }}
-                    />
                   </div>
-                </div>
 
-                {uploadContentLoading ? (
-                  <div
-                    className="flex flex-1 items-center justify-center"
-                    style={{ minHeight: 600 }}
-                    aria-busy="true"
-                    aria-label="Loading file"
-                  >
-                    <div className="loader-dots-three">
-                      <span aria-hidden />
-                      <span aria-hidden />
-                      <span aria-hidden />
-                    </div>
-                  </div>
-                ) : (
-                <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ gap: 12, fontSize: 14, fontWeight: 400, paddingTop: 12, paddingLeft: 0, paddingRight: 0 }}>
-                <div className="flex flex-row items-start" style={{ gap: 12, paddingLeft: 16, paddingRight: 16, paddingTop: 12 }}>
-                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4 }}>
-                <div
-                  className="flex flex-row items-center justify-between gap-2"
-                  style={{
-                    padding: 0,
-                    fontSize: 14,
-                    backgroundColor: '#ffffff',
-                    borderRadius: 8,
-                  }}
-                >
-                  <span className="start-campaign-label">List Name</span>{' '}
-                </div>
-
-                <div className="w-full">
-                  <input
-                    className="start-campaign-input w-full h-[42px]"
-                    value={sheetName} // Only show the base name in the input.split(".")[0]
-                    onChange={(e) => {
-                      const value = e.target.value
-                      setSheetName(value)
-                    }}
-                    placeholder="Enter sheet name"
-                  />
-                </div>
-                </div>
-
-                <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4, padding: 0 }}>
-                  <div className="start-campaign-label">
-                    Create a tag for leads
-                  </div>
-                  <div>
-                    <TagsInput setTags={setTagsValue} controlHeight={40} />
-                  </div>
-                </div>
-                </div>
-
-                <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
-                  <div className="start-campaign-label">
-                    Match columns in your file to column fields
-                  </div>
-                  {NewColumnsObtained && NewColumnsObtained.length > 0 && (
-                  <>
+                  {uploadContentLoading ? (
                     <div
-                      className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
-                      style={{ height: 'auto', marginTop: 0, padding: 0 }}
+                      className="flex flex-1 items-center justify-center"
+                      style={{ minHeight: 600 }}
+                      aria-busy="true"
+                      aria-label="Loading file"
                     >
-                      <table className="w-full border-collapse table-fixed" role="table">
-                        <colgroup>
-                          <col style={{ width: '16.666%' }} />
-                          <col style={{ width: '25%' }} />
-                          <col style={{ width: '25%' }} />
-                          <col style={{ width: '25%' }} />
-                          <col style={{ width: '8.333%' }} />
-                        </colgroup>
-                        <thead>
-                          <tr>
-                            <th
-                              scope="col"
-                              className="text-left py-3 px-3 border-b uppercase"
-                              style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
-                            >
-                              Matched
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-left py-3 px-3 border-b uppercase"
-                              style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
-                            >
-                              Column Header from File
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-left py-3 px-3 border-b uppercase"
-                              style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
-                            >
-                              Preview Info
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-left py-3 px-3 border-b uppercase"
-                              style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
-                            >
-                              Column Fields
-                            </th>
-                            <th
-                              scope="col"
-                              className="text-left py-3 px-3 border-b uppercase"
-                              style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
-                            >
-                              Action
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {NewColumnsObtained.map((item, index) => (
-                            <tr
-                              key={index}
-                              className="border-b"
+                      <div className="loader-dots-three">
+                        <span aria-hidden />
+                        <span aria-hidden />
+                        <span aria-hidden />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col flex-1 min-h-0">
+                      <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ gap: 12, fontSize: 14, fontWeight: 400, paddingTop: 12, paddingLeft: 0, paddingRight: 0 }}>
+                        <div className="flex flex-row items-start" style={{ gap: 12, paddingLeft: 16, paddingRight: 16, paddingTop: 12 }}>
+                          <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4 }}>
+                            <div
+                              className="flex flex-row items-center justify-between gap-2"
                               style={{
-                                borderColor: '#eaeaea',
-                                backgroundColor: index % 2 === 0 ? 'rgba(0, 0, 0, 0.02)' : undefined,
+                                padding: 0,
+                                fontSize: 14,
+                                backgroundColor: '#ffffff',
+                                borderRadius: 8,
                               }}
                             >
-                              <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
-                                {item.UserFacingName || item.matchedColumn ? (
-                                  <Image
-                                    className="ms-4"
-                                    src={'/assets/checkDone.png'}
-                                    alt="Matched"
-                                    height={16}
-                                    width={16}
-                                  />
-                                ) : (
-                                  <Image
-                                    className="ms-4"
-                                    src={'/assets/warning.png'}
-                                    alt="Not matched"
-                                    height={16}
-                                    width={16}
-                                  />
-                                )}
-                              </td>
-                              <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
-                                {item.ColumnNameInSheet}
-                              </td>
-                              <td className="py-3 px-3 align-middle truncate max-w-0" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 42 }}>
-                                {originalTransformedData && originalTransformedData.length > 0 && originalTransformedData[0]
-                                  ? originalTransformedData[0][item.ColumnNameInSheet] ?? ''
-                                  : ''}
-                              </td>
-                              <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
-                                <div className="search-input-wrapper rounded-lg p-2 flex flex-row items-center" style={{ borderRadius: 8, height: 40 }}>
-                                  <button
-                                    type="button"
-                                    className="flex flex-row items-center justify-between w-full outline-none h-[40px]"
-                                    style={{ minHeight: 40 }}
-                                    onClick={(event) => {
-                                      if (columnAnchorEl) {
-                                        handleColumnPopoverClose()
-                                      } else {
-                                        setSelectedItem(index)
-                                        setUpdateColumnValue(item.columnNameTransformed)
-                                        handleColumnPopoverClick(event)
-                                        setUpdateHeader(item)
-                                      }
-                                    }}
-                                  >
-                                    <p className="truncate">
-                                      {item.matchedColumn
-                                        ? item.matchedColumn.UserFacingName
-                                        : item.UserFacingName}
-                                    </p>
-                                    {selectedItem === index ? (
-                                      <CaretUp size={14} weight="bold" />
-                                    ) : (
-                                      <CaretDown size={14} weight="bold" />
-                                    )}
-                                  </button>
-                                </div>
-                              </td>
-                              <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
-                                {item.matchedColumn || item.UserFacingName ? (
-                                  <button
-                                    type="button"
-                                    className="underline text-brand-primary outline-none ps-4"
-                                    onClick={() => {
-                                      setUpdateHeader(item)
-                                      setShowDelCol(true)
-                                    }}
-                                  >
-                                    <Image
-                                      src={'/assets/blackBgCross.png'}
-                                      height={15}
-                                      width={15}
-                                      alt="Remove"
-                                    />
-                                  </button>
-                                ) : (
-                                  <span aria-hidden>&nbsp;</span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                              <span className="start-campaign-label">List Name</span>{' '}
+                            </div>
+
+                            <div className="w-full">
+                              <input
+                                className="start-campaign-input w-full h-[42px]"
+                                value={sheetName} // Only show the base name in the input.split(".")[0]
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  setSheetName(value)
+                                }}
+                                placeholder="Enter sheet name"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col flex-1 min-w-0" style={{ gap: 4, padding: 0 }}>
+                            <div className="start-campaign-label">
+                              Create a tag for leads
+                            </div>
+                            <div>
+                              <TagsInput setTags={setTagsValue} controlHeight={40} />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col" style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}>
+                          <div className="start-campaign-label">
+                            Match columns in your file to column fields
+                          </div>
+                          {NewColumnsObtained && NewColumnsObtained.length > 0 && (
+                            <>
+                              <div
+                                className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
+                                style={{ height: 'auto', marginTop: 0, padding: 0 }}
+                              >
+                                <table className="w-full border-collapse table-fixed" role="table">
+                                  <colgroup>
+                                    <col style={{ width: '16.666%' }} />
+                                    <col style={{ width: '25%' }} />
+                                    <col style={{ width: '25%' }} />
+                                    <col style={{ width: '25%' }} />
+                                    <col style={{ width: '8.333%' }} />
+                                  </colgroup>
+                                  <thead>
+                                    <tr>
+                                      <th
+                                        scope="col"
+                                        className="text-left py-3 px-3 border-b uppercase"
+                                        style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
+                                      >
+                                        Matched
+                                      </th>
+                                      <th
+                                        scope="col"
+                                        className="text-left py-3 px-3 border-b uppercase"
+                                        style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
+                                      >
+                                        Column Header from File
+                                      </th>
+                                      <th
+                                        scope="col"
+                                        className="text-left py-3 px-3 border-b uppercase"
+                                        style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
+                                      >
+                                        Preview Info
+                                      </th>
+                                      <th
+                                        scope="col"
+                                        className="text-left py-3 px-3 border-b uppercase"
+                                        style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
+                                      >
+                                        Column Fields
+                                      </th>
+                                      <th
+                                        scope="col"
+                                        className="text-left py-3 px-3 border-b uppercase"
+                                        style={{ fontSize: 14, color: 'rgba(0, 0, 0, 0.7)', fontWeight: 400, borderColor: '#eaeaea' }}
+                                      >
+                                        Action
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {NewColumnsObtained.map((item, index) => (
+                                      <tr
+                                        key={index}
+                                        className="border-b"
+                                        style={{
+                                          borderColor: '#eaeaea',
+                                          backgroundColor: index % 2 === 0 ? 'rgba(0, 0, 0, 0.02)' : undefined,
+                                        }}
+                                      >
+                                        <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
+                                          {item.UserFacingName || item.matchedColumn ? (
+                                            <Image
+                                              className="ms-4"
+                                              src={'/assets/checkDone.png'}
+                                              alt="Matched"
+                                              height={16}
+                                              width={16}
+                                            />
+                                          ) : (
+                                            <Image
+                                              className="ms-4"
+                                              src={'/assets/warning.png'}
+                                              alt="Not matched"
+                                              height={16}
+                                              width={16}
+                                            />
+                                          )}
+                                        </td>
+                                        <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
+                                          {item.ColumnNameInSheet}
+                                        </td>
+                                        <td className="py-3 px-3 align-middle truncate max-w-0" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 42 }}>
+                                          {originalTransformedData && originalTransformedData.length > 0 && originalTransformedData[0]
+                                            ? originalTransformedData[0][item.ColumnNameInSheet] ?? ''
+                                            : ''}
+                                        </td>
+                                        <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
+                                          <div className="search-input-wrapper rounded-lg p-2 flex flex-row items-center" style={{ borderRadius: 8, height: 40 }}>
+                                            <button
+                                              type="button"
+                                              className="flex flex-row items-center justify-between w-full outline-none h-[40px]"
+                                              style={{ minHeight: 40 }}
+                                              onClick={(event) => {
+                                                if (columnAnchorEl) {
+                                                  handleColumnPopoverClose()
+                                                } else {
+                                                  setSelectedItem(index)
+                                                  setUpdateColumnValue(item.columnNameTransformed)
+                                                  handleColumnPopoverClick(event)
+                                                  setUpdateHeader(item)
+                                                }
+                                              }}
+                                            >
+                                              <p className="truncate">
+                                                {item.matchedColumn
+                                                  ? item.matchedColumn.UserFacingName
+                                                  : item.UserFacingName}
+                                              </p>
+                                              {selectedItem === index ? (
+                                                <CaretUp size={14} weight="bold" />
+                                              ) : (
+                                                <CaretDown size={14} weight="bold" />
+                                              )}
+                                            </button>
+                                          </div>
+                                        </td>
+                                        <td className="py-3 px-3 align-middle" style={{ ...styles.paragraph, fontSize: 14, fontFamily: 'Inter, sans-serif', height: 44 }}>
+                                          {item.matchedColumn || item.UserFacingName ? (
+                                            <button
+                                              type="button"
+                                              className="underline text-brand-primary outline-none ps-4"
+                                              onClick={() => {
+                                                setUpdateHeader(item)
+                                                setShowDelCol(true)
+                                              }}
+                                            >
+                                              <Image
+                                                src={'/assets/blackBgCross.png'}
+                                                height={15}
+                                                width={15}
+                                                alt="Remove"
+                                              />
+                                            </button>
+                                          ) : (
+                                            <span aria-hidden>&nbsp;</span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Can be use full to add shadow */}
+                        {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                      </div>
+
+                      {NewColumnsObtained && NewColumnsObtained.length > 0 && (
+                        <div
+                          className="w-full flex justify-end items-center shrink-0"
+                          style={{
+                            height: 'auto',
+                            paddingLeft: 16,
+                            paddingRight: 16,
+                            paddingTop: 12,
+                            paddingBottom: 12,
+                            borderTop: '1px solid #eaeaea',
+                            backgroundColor: '#ffffff',
+                          }}
+                        >
+                          {Loader ? (
+                            <CircularProgress size={27} />
+                          ) : (
+                            <button
+                              type="button"
+                              className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none"
+                              style={{ paddingLeft: 12, paddingRight: 12 }}
+                              onClick={() => {
+                                console.log('🟡 [CONTINUE_BUTTON] Continue button clicked')
+                                console.log('🟡 [CONTINUE_BUTTON] Calling validateColumns...')
+                                // validateColumns();
+                                let validated = validateColumns()
+
+                                console.log('🟡 [CONTINUE_BUTTON] Validation result:', {
+                                  isValid: !!validated,
+                                  isArray: Array.isArray(validated),
+                                  length: validated?.length,
+                                })
+
+                                // return;
+                                // validated will be the validated data array if successful, or false if validation failed
+                                if (validated && Array.isArray(validated) && validated.length > 0) {
+                                  console.log('🟡 [CONTINUE_BUTTON] Validation passed, calling handleAddLead with validated data...')
+                                  // Pass validated data directly to handleAddLead to avoid async state update issues
+                                  handleAddLead(false, 0, null, validated)
+                                } else {
+                                  console.warn('⚠️ [CONTINUE_BUTTON] Validation failed, not calling handleAddLead')
+                                }
+                              }}
+                            >
+                              Continue
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </>
-                )}
+                  )}
                 </div>
-
-                {NewColumnsObtained && NewColumnsObtained.length > 0 && (
-                  <div
-                    className="w-full flex justify-end items-center mt-4"
-                    style={{
-                      height: 'auto',
-                      paddingLeft: 16,
-                      paddingRight: 16,
-                      paddingTop: 12,
-                      paddingBottom: 12,
-                    }}
-                  >
-                    {Loader ? (
-                      <CircularProgress size={27} />
-                    ) : (
-                      <button
-                        type="button"
-                        className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none"
-                        style={{ paddingLeft: 12, paddingRight: 12 }}
-                        onClick={() => {
-                          console.log('🟡 [CONTINUE_BUTTON] Continue button clicked')
-                          console.log('🟡 [CONTINUE_BUTTON] Calling validateColumns...')
-                          // validateColumns();
-                          let validated = validateColumns()
-
-                          console.log('🟡 [CONTINUE_BUTTON] Validation result:', {
-                            isValid: !!validated,
-                            isArray: Array.isArray(validated),
-                            length: validated?.length,
-                          })
-
-                          // return;
-                          // validated will be the validated data array if successful, or false if validation failed
-                          if (validated && Array.isArray(validated) && validated.length > 0) {
-                            console.log('🟡 [CONTINUE_BUTTON] Validation passed, calling handleAddLead with validated data...')
-                            // Pass validated data directly to handleAddLead to avoid async state update issues
-                            handleAddLead(false, 0, null, validated)
-                          } else {
-                            console.warn('⚠️ [CONTINUE_BUTTON] Validation failed, not calling handleAddLead')
-                          }
-                        }}
-                      >
-                        Continue
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
               </div>
-                )}
-            </div>
-            </div>
             </Box>
           </ScaleFadeTransition>
         </Modal>
