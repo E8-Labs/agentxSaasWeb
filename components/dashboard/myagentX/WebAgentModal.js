@@ -296,11 +296,11 @@ const WebAgentModal = ({
       setApiKeyError(
         err.response?.data?.message || 'Failed to save API key. Please check the key and try again.',
       )
-      showSnackbar(
-        '',
-        err.response?.data?.message || 'Failed to save API key. Please try again.',
-        SnackbarTypes.Error,
-      )
+      // showSnackbar(
+      //   '',
+      //   err.response?.data?.message || 'Failed to save API key. Please try again.',
+      //   SnackbarTypes.Error,
+      // )
     } finally {
       setSavingApiKey(false)
     }
