@@ -1409,6 +1409,10 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                           getTutorialByType(HowToVideoTypes.LeadsAndContacts)
                             ?.title || 'Learn how to add leads to your CRM'
                         }
+                        videoUrl={
+                          getVideoUrlByType(HowToVideoTypes.LeadsAndContacts) ||
+                          HowtoVideos.Leads
+                        }
                       />
                     </div>
 

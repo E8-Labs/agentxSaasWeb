@@ -931,7 +931,10 @@ const UserCalender = ({
                           getTutorialByType(HowToVideoTypes.Calendar)?.title ||
                           'Learn how to add Calendar'
                         }
-
+                        videoUrl={
+                          getVideoUrlByType(HowToVideoTypes.Calendar) ||
+                          HowtoVideos.Calendar
+                        }
                       />
                       {/* Intro modal */}
                       <IntroVideoModal

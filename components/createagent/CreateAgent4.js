@@ -19,7 +19,12 @@ import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
-import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
+import {
+  HowToVideoTypes,
+  HowtoVideos,
+  PersistanceKeys,
+} from '@/constants/Constants'
+import { getVideoUrlByType } from '@/utils/tutorialVideos'
 import UpgardView from '@/constants/UpgardView'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import { useUser } from '@/hooks/redux-hooks'
@@ -615,6 +620,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             setIntroVideoModal(true)
           }}
           title="Learn about phone numbers"
+          videoUrl={
+            getVideoUrlByType(HowToVideoTypes.PhoneNumbers) ||
+            HowtoVideos.LetsTalkDigits
+          }
         />
       </div>
       <div
@@ -636,7 +645,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
             videoTitle="Learn about phone numbers"
-            videoUrl={HowtoVideos.LetsTalkDigits}
+            videoUrl={
+              getVideoUrlByType(HowToVideoTypes.PhoneNumbers) ||
+              HowtoVideos.LetsTalkDigits
+            }
           />
 
 

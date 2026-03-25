@@ -8,8 +8,8 @@ import GuarduanSetting from '@/components/pipeline/advancedsettings/GuardianSett
 import Objection from '@/components/pipeline/advancedsettings/Objection'
 import { GreetingTagInput } from '@/components/pipeline/tagInputs/GreetingTagInput'
 import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput'
-import { HowToVideoTypes, PersistanceKeys } from '@/constants/Constants'
-import { getTutorialByType } from '@/utils/tutorialVideos'
+import { HowToVideoTypes, HowtoVideos, PersistanceKeys } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 const AgentViewScriptModal = ({
   open,
@@ -221,6 +221,10 @@ const AgentViewScriptModal = ({
                                                     horizontal={false}
                                                     playVideo={() => setIntroVideoModal(true)}
                                                     title={getTutorialByType(HowToVideoTypes.Script)?.title || 'Learn how to customize your script'}
+                                                    videoUrl={
+                                                        getVideoUrlByType(HowToVideoTypes.Script) ||
+                                                        HowtoVideos.script
+                                                    }
                                                 />
                                             </div>
 

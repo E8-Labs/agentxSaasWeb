@@ -50,6 +50,37 @@ function SelectRadio({ checked }) {
   )
 }
 
+function SelectCheckbox({ checked }) {
+  return (
+    <div
+      className={cn(
+        'relative flex size-5 shrink-0 items-center justify-center rounded-[6px] border bg-white',
+        'transition-colors duration-150',
+        checked
+          ? 'border-[hsl(var(--brand-primary))] bg-brand-primary'
+          : 'border-black/[0.12]',
+      )}
+      aria-hidden
+    >
+      {checked ? (
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      ) : null}
+    </div>
+  )
+}
+
 /** Firecrawl-style inputs: soft border, brand ring on focus (see NewMessageModal / MessageComposer) */
 const fcInputClassName = cn(
   'h-10 w-full rounded-lg border border-black/[0.06] bg-white px-3 text-sm leading-[1.6] text-foreground shadow-none',
@@ -1507,7 +1538,7 @@ const CreateAgent1 = ({
                     <span className="min-w-0 flex-1 text-sm font-normal leading-[1.6] text-foreground">
                       Making Outbound Calls
                     </span>
-                    <SelectRadio checked={OutBoundCalls} />
+                    <SelectCheckbox checked={OutBoundCalls} />
                   </button>
                   <button
                     type="button"
@@ -1542,7 +1573,7 @@ const CreateAgent1 = ({
                     <span className="min-w-0 flex-1 text-sm font-normal leading-[1.6] text-foreground">
                       Taking Inbound Calls
                     </span>
-                    <SelectRadio checked={InBoundCalls} />
+                    <SelectCheckbox checked={InBoundCalls} />
                   </button>
                 </div>
                 </div>
@@ -1820,7 +1851,7 @@ const CreateAgent1 = ({
           </div>
           <div className="pointer-events-none absolute inset-0 z-[15] flex items-end justify-end p-6 pr-8 pb-[92px] max-lg:pb-[100px]">
             <div
-              className="pointer-events-auto w-[min(100%,280px)] max-w-[min(280px,calc(100vw-3rem))] rounded-[12px] bg-white"
+              className="pointer-events-auto w-fit rounded-[12px] bg-white"
               style={{
                 border: '1px solid #eaeaea',
                 boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
@@ -1833,7 +1864,6 @@ const CreateAgent1 = ({
                   )
                   return tutorial?.description || '1:47'
                 })()}
-                horizontal={false}
                 playVideo={() => {
                   setIntroVideoModal(true)
                 }}
@@ -1841,6 +1871,12 @@ const CreateAgent1 = ({
                   getTutorialByType(HowToVideoTypes.GettingStarted)?.title ||
                   'Learn about getting started'
                 }
+                videoUrl={
+                  getVideoUrlByType(HowToVideoTypes.GettingStarted) ||
+                  HowtoVideos.GettingStarted
+                }
+                hoverReveal
+                hideCta
                 className="rounded-[12px] border-0 bg-transparent shadow-none"
               />
             </div>

@@ -1103,6 +1103,10 @@ const Pipeline1 = ({
                 getTutorialByType(HowToVideoTypes.CRMIntegration)?.title ||
                 'Learn about pipeline and stages'
               }
+              videoUrl={
+                getVideoUrlByType(HowToVideoTypes.CRMIntegration) ||
+                HowtoVideos.Pipeline
+              }
             />
           </div>
 

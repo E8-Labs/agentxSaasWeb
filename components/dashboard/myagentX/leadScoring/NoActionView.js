@@ -65,6 +65,10 @@ function NoActionView({
               getTutorialByType(HowToVideoTypes.LeadScoring)?.title ||
               'Learn how to add Scoring'
             }
+            videoUrl={
+              getVideoUrlByType(HowToVideoTypes.LeadScoring) ||
+              HowtoVideos.LeadScoring
+            }
           />
           {/* Intro modal */}
           <IntroVideoModal

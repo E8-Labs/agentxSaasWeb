@@ -483,6 +483,10 @@ const BuyerKycs = ({ handleContinue }) => {
                     getTutorialByType(HowToVideoTypes.AgentConfiguration)
                       ?.title || 'Learn about asking questions (KYC)'
                   }
+                  videoUrl={
+                    getVideoUrlByType(HowToVideoTypes.AgentConfiguration) ||
+                    HowtoVideos.KycQuestions
+                  }
                 />
               </div>
               <div className="flex flex-col justify-start items-center w-8/12 ml-4">

@@ -631,7 +631,10 @@ function MCPView({
                         getTutorialByType(HowToVideoTypes.Tools)?.title ||
                         'Learn how to add Tools'
                       }
-
+                      videoUrl={
+                        getVideoUrlByType(HowToVideoTypes.Tools) ||
+                        HowtoVideos.Tools
+                      }
                     />
                     {/* Intro modal */}
                     <IntroVideoModal
@@ -799,6 +802,9 @@ function MCPView({
               title={
                 getTutorialByType(HowToVideoTypes.Tools)?.title ||
                 'Learn how to add Tools'
+              }
+              videoUrl={
+                getVideoUrlByType(HowToVideoTypes.Tools) || HowtoVideos.Tools
               }
             />
           </div>

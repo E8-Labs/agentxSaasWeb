@@ -1272,6 +1272,10 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
               getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title ||
               'Learn about asking questions (KYC)'
             }
+            videoUrl={
+              getVideoUrlByType(HowToVideoTypes.AgentConfiguration) ||
+              HowtoVideos.KycQuestions
+            }
           />
         </div>
       </div>

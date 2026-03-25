@@ -934,6 +934,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 getTutorialByType(HowToVideoTypes.Script)?.title ||
                 'Learn about creating a script'
               }
+              videoUrl={
+                getVideoUrlByType(HowToVideoTypes.Script) ||
+                HowtoVideos.script
+              }
             />
           </div>
           <div
