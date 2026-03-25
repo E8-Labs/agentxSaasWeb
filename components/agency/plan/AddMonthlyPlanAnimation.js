@@ -59,6 +59,7 @@ export default function AddMonthlyPlanAnimation({
         discountedPrice: selectedPlan?.discountedPrice || 0,
         minutes: selectedPlan?.minutes || 0,
         isDefault: selectedPlan?.isDefault || false,
+        inheritsFromPlanId: selectedPlan?.inheritsFromPlanId || null,
       }
       setBasicsData(basics)
     }

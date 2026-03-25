@@ -86,6 +86,45 @@ export const reorderPlanFeatures = (features) => {
   return result
 }
 
+const normalizeFeatureText = (text) =>
+  String(text || '')
+    .trim()
+    .toLowerCase()
+
+export const getInheritedPlanTitle = (plan, plans = []) => {
+  if (!plan?.inheritsFromPlanId) return null
+
+  const basePlan = plans.find(
+    (candidate) => String(candidate?.id) === String(plan.inheritsFromPlanId),
+  )
+
+  return (
+    basePlan?.title ||
+    basePlan?.name ||
+    plan?.inheritsFromPlanTitleSnapshot ||
+    null
+  )
+}
+
+export const getDisplayFeaturesForPlan = (plan, plans = []) => {
+  const currentFeatures = Array.isArray(plan?.features) ? plan.features : []
+  if (!plan?.inheritsFromPlanId) {
+    return currentFeatures
+  }
+
+  const basePlan = plans.find(
+    (candidate) => String(candidate?.id) === String(plan.inheritsFromPlanId),
+  )
+  const baseFeatures = Array.isArray(basePlan?.features) ? basePlan.features : []
+  const baseFeatureSet = new Set(
+    baseFeatures.map((feature) => normalizeFeatureText(feature?.text)),
+  )
+
+  return currentFeatures.filter(
+    (feature) => !baseFeatureSet.has(normalizeFeatureText(feature?.text)),
+  )
+}
+
 export const getCardImage = (item) => {
     if (item.brand === 'visa') {
         return '/svgIcons/Visa.svg'
