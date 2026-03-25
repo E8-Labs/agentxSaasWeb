@@ -1392,7 +1392,7 @@ const Creator = ({ agentId, name, shareToken = null }) => {
             }}
           >
             {
-              !chatDrawerOpen && (
+              !chatDrawerOpen && !open && (
                 <div>
                   {
                     isSmallScreen ? (

@@ -1727,17 +1727,18 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     </div>
                   </div>
 
-                  <div
-                    className="flex flex-col flex-1 min-h-0 overflow-y-auto"
-                    style={{
-                      gap: 8,
-                      fontSize: 14,
-                      fontWeight: 400,
-                      paddingTop: 12,
-                      paddingLeft: 16,
-                      paddingRight: 16,
-                    }}
-                  >
+                  <div className="flex flex-col flex-1 min-h-0">
+                    <div
+                      className="flex flex-col flex-1 min-h-0 overflow-y-auto"
+                      style={{
+                        gap: 8,
+                        fontSize: 14,
+                        fontWeight: 400,
+                        paddingTop: 12,
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                      }}
+                    >
                     <div
                       className="flex flex-row items-start"
                       style={{ gap: 12, paddingLeft: 0, paddingRight: 0 }}
@@ -2010,15 +2011,19 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       )}
                     </div>
 
+                    </div>
+
                     {NewColumnsObtained && NewColumnsObtained.length > 0 && (
                       <div
-                        className="w-full flex justify-end items-center mt-4"
+                        className="w-full flex justify-end items-center shrink-0"
                         style={{
                           height: 'auto',
                           paddingLeft: 16,
                           paddingRight: 16,
                           paddingTop: 12,
                           paddingBottom: 12,
+                          borderTop: '1px solid #eaeaea',
+                          backgroundColor: '#ffffff',
                         }}
                       >
                         {Loader ? (
