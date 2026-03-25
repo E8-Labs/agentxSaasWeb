@@ -3230,15 +3230,16 @@ function Page() {
         },
       })
 
-      if (response) {
-        ////console.log;
+      if (response?.data?.status === true) {
         setOpenTestAiModal(false)
-        setShowSuccessSnack(response.data.message)
+        setShowSuccessSnack(response.data.message || 'Call initiated')
         setIsVisibleSnack(true)
-        // if (response.data.status === true) {
-        //   // setName("");
-        //   // setPhone("");
-        // }
+      } else {
+        setShowErrorSnack(
+          response?.data?.message ||
+            'Call could not be initiated. Please try again.',
+        )
+        setIsVisibleSnack2(true)
       }
     } catch (error) {
       console.error('Error occured in test api is', error)

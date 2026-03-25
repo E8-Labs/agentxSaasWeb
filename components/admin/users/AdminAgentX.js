@@ -2366,14 +2366,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         },
       })
 
-      if (response) {
-        setShowSuccessSnack(response.data.message)
+      if (response?.data?.status === true) {
+        setShowSuccessSnack(response.data.message || 'Call initiated')
         setIsVisibleSnack(true)
-        if (response.data.status === true) {
-          setOpenTestAiModal(false)
-          // setName("");
-          // setPhone("");
-        }
+        setOpenTestAiModal(false)
+      } else {
+        setShowErrorSnack(
+          response?.data?.message ||
+            'Call could not be initiated. Please try again.',
+        )
+        setIsVisibleSnack2(true)
       }
     } catch (error) {
       console.error('Error occured in test api is', error)
