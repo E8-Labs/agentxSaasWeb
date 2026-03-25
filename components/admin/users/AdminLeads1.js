@@ -15,8 +15,7 @@ import {
 import { CaretDown, CaretUp } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useRef, useState } from 'react'
-import { useCallback } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import * as XLSX from 'xlsx'
 
@@ -148,6 +147,26 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
   let [NewColumnsObtained, setNewColumnsObtained] = useState([])
+
+  const isLeadImportNameMappingReady = useMemo(() => {
+    const cols = NewColumnsObtained
+    if (!cols?.length) return false
+    const hasFullNameField = cols.some(
+      (col) => col.matchedColumn?.dbName === 'fullName',
+    )
+    const hasFirstName = cols.some(
+      (col) => col.matchedColumn?.dbName === 'firstName',
+    )
+    const hasLastName = cols.some(
+      (col) => col.matchedColumn?.dbName === 'lastName',
+    )
+    const hasPhone = cols.some(
+      (col) => col.matchedColumn?.dbName === 'phone',
+    )
+    const nameOk = hasFullNameField || (hasFirstName && hasLastName)
+    return nameOk && hasPhone
+  }, [NewColumnsObtained])
+
   //This will have the default columns only
   const [defaultColumns, setDefaultColumns] = useState(LeadDefaultColumns)
   const [defaultColumnsArray, setDefaultColumnsArray] = useState(
@@ -2032,7 +2051,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                         ) : (
                           <button
                             type="button"
-                            className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none"
+                            disabled={!isLeadImportNameMappingReady}
+                            className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ paddingLeft: 12, paddingRight: 12 }}
                             onClick={() => {
                               const validated = validateColumns()
