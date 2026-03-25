@@ -1395,6 +1395,9 @@ const MessageComposer = ({
     ((isFacebookMode && (selectedThread?.threadType === 'messenger' || !!selectedThread?.lead?.messengerPsid) && hasFacebookConnection) ||
       (isInstagramMode && (selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid) && hasInstagramConnection) ||
       (isWhatsAppMode && (selectedThread?.threadType === 'whatsapp' || !!selectedThread?.lead?.whatsappWaId) && hasWhatsAppConnection))
+  const hasConnectionForCurrentSocialTab = isWhatsAppMode
+    ? hasWhatsAppConnection
+    : (hasFacebookConnection || hasInstagramConnection)
   const sendableSocial =
     (isFacebookMode && canReplyMessenger) ||
     (isInstagramMode && canReplyInstagram) ||
@@ -1824,7 +1827,7 @@ const MessageComposer = ({
 
         {(isFacebookMode || isInstagramMode || isWhatsAppMode) && !sendableSocial ? (
           <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
-            {(!hasFacebookConnection && !hasInstagramConnection && !hasWhatsAppConnection) ? (
+            {!hasConnectionForCurrentSocialTab ? (
               <div className="flex flex-col items-center gap-2">
                 <Image
                   src="/fbInsta.png"
@@ -1837,7 +1840,9 @@ const MessageComposer = ({
                   Connect Account
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Connect Facebook, Instagram, or WhatsApp (Cloud API) to send messages
+                  {isWhatsAppMode
+                    ? 'Connect WhatsApp (Cloud API) to send messages'
+                    : 'Connect Facebook or Instagram to send messages'}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
                   <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={handleConnectClick} disabled={connectingOAuth}>
