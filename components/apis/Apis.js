@@ -437,6 +437,7 @@ const Apis = {
   getEmailCampaignStats: `${BasePath}api/user/messaging/email-campaign-stats`,
   socialConnections: `${BasePath}api/mail/social-connections`,
   socialFacebookAuthorize: `${BasePath}api/mail/social/facebook/authorize`,
+  socialWhatsAppAuthorize: `${BasePath}api/mail/social/whatsapp/authorize`,
   disconnectSocialConnection: `${BasePath}api/mail/social-connections/all`,
 
   // AI Chat APIs

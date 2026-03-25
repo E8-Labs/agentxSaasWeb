@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt, CalendarBlank } from '@phosphor-icons/react'
+import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt, CalendarBlank, WhatsappLogo } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2, MessageCircle } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
@@ -280,6 +280,7 @@ const MessageComposer = ({
   onSendSocialMessage,
   hasFacebookConnection = false,
   hasInstagramConnection = false,
+  hasWhatsAppConnection = false,
   currentPage = null,
   onConnectionSuccess,
   onOpenAuthPopup,
@@ -327,6 +328,7 @@ const MessageComposer = ({
   const [connectSubmitting, setConnectSubmitting] = useState(false)
   const [connectingOAuth, setConnectingOAuth] = useState(false)
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
+  const [socialDisconnectPlatform, setSocialDisconnectPlatform] = useState('facebook')
   const [socialSettingsModalOpen, setSocialSettingsModalOpen] = useState(false)
 
   // Variables state
@@ -516,9 +518,17 @@ const MessageComposer = ({
   useEffect(() => {
     const isInstagram = selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid
     const isMessenger = selectedThread?.threadType === 'messenger' || !!selectedThread?.lead?.messengerPsid
+    const isWhatsApp = selectedThread?.threadType === 'whatsapp' || !!selectedThread?.lead?.whatsappWaId
     if (isInstagram) setComposerMode('instagram')
     else if (isMessenger) setComposerMode('facebook')
-  }, [selectedThread?.id, selectedThread?.threadType, selectedThread?.lead?.instagramPsid, selectedThread?.lead?.messengerPsid])
+    else if (isWhatsApp) setComposerMode('whatsapp')
+  }, [
+    selectedThread?.id,
+    selectedThread?.threadType,
+    selectedThread?.lead?.instagramPsid,
+    selectedThread?.lead?.messengerPsid,
+    selectedThread?.lead?.whatsappWaId,
+  ])
 
   // Smooth height transition when switching tabs: use previous content height as "from", then animate to new height.
   useLayoutEffect(() => {
@@ -1367,23 +1377,40 @@ const MessageComposer = ({
     }
   }
 
-  const isSocialThread = selectedThread?.threadType === 'messenger' || selectedThread?.threadType === 'instagram'
+  const isSocialThread =
+    selectedThread?.threadType === 'messenger' ||
+    selectedThread?.threadType === 'instagram' ||
+    selectedThread?.threadType === 'whatsapp'
   const isFacebookMode = composerMode === 'facebook'
   const isInstagramMode = composerMode === 'instagram'
+  const isWhatsAppMode = composerMode === 'whatsapp'
   // Thread is replyable via Messenger if it's a messenger thread or has receiverMessengerPsid (e.g. merged SMS thread)
   const canReplyMessenger = (selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid) && hasFacebookConnection
   const canReplyInstagram = (selectedThread?.threadType === 'instagram' || !!selectedThread?.receiverInstagramPsid) && hasInstagramConnection
-  // When thread is linked to a lead (has leadId), enable FB/IG if thread is social or lead has that channel's PSID (backend has PSID on thread)
+  const canReplyWhatsApp =
+    (selectedThread?.threadType === 'whatsapp' || !!selectedThread?.receiverWhatsAppWaId) && hasWhatsAppConnection
+  // When thread is linked to a lead (has leadId), enable FB/IG/WA if thread is social or lead has that channel id
   const linkedSocialSendable =
     !!selectedThread?.leadId &&
     ((isFacebookMode && (selectedThread?.threadType === 'messenger' || !!selectedThread?.lead?.messengerPsid) && hasFacebookConnection) ||
-      (isInstagramMode && (selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid) && hasInstagramConnection))
+      (isInstagramMode && (selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid) && hasInstagramConnection) ||
+      (isWhatsAppMode && (selectedThread?.threadType === 'whatsapp' || !!selectedThread?.lead?.whatsappWaId) && hasWhatsAppConnection))
   const sendableSocial =
-    (isFacebookMode && canReplyMessenger) || (isInstagramMode && canReplyInstagram) || linkedSocialSendable
+    (isFacebookMode && canReplyMessenger) ||
+    (isInstagramMode && canReplyInstagram) ||
+    (isWhatsAppMode && canReplyWhatsApp) ||
+    linkedSocialSendable
   const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
+  const socialDmPlaceholder = isWhatsAppMode
+    ? 'Reply in WhatsApp...'
+    : isInstagramMode
+      ? 'Reply in Instagram...'
+      : isMessengerReply
+        ? 'Reply in Messenger...'
+        : 'Reply in Instagram...'
   const showSocialComposer = false
 
-  console.log("!HAS Facebook", hasFacebookConnection, "!has insta", hasInstagramConnection, "social sendable", sendableSocial, "isexpeded status", isExpanded, "can reply insta gran", canReplyInstagram, "linked social sendable", linkedSocialSendable)
+  console.log("!HAS Facebook", hasFacebookConnection, "!has insta", hasInstagramConnection, "!has wa", hasWhatsAppConnection, "social sendable", sendableSocial, "isexpeded status", isExpanded, "can reply insta gran", canReplyInstagram, "linked social sendable", linkedSocialSendable)
 
   const handleSendSocial = async (e) => {
     e?.preventDefault()
@@ -1432,7 +1459,11 @@ const MessageComposer = ({
         (settings.socialSelectedAgentId != null && settings.socialSelectedAgentId !== '')
       )
       if (socialSettingsConfigured) {
-        connectWithFacebookOAuth()
+        if (isWhatsAppMode) {
+          connectWithWhatsAppOAuth()
+        } else {
+          connectWithFacebookOAuth()
+        }
       } else {
         setSocialSettingsModalOpen(true)
       }
@@ -1513,6 +1544,83 @@ const MessageComposer = ({
     }
   }
 
+  const connectWithWhatsAppOAuth = async () => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please sign in to connect')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const callbackPath = '/social-connect/callback'
+    const redirectUrl = origin ? `${origin}${callbackPath}` : ''
+    try {
+      setConnectingOAuth(true)
+      let url = Apis.socialWhatsAppAuthorize
+      const params = new URLSearchParams()
+      if (redirectUrl) params.set('redirectUrl', redirectUrl)
+      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
+      if (params.toString()) url += `?${params.toString()}`
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.data?.url) {
+        const popup = window.open(
+          res.data.url,
+          'whatsapp-oauth',
+          'width=520,height=700,scrollbars=yes,resizable=yes',
+        )
+        if (!popup) {
+          toast.error('Please allow popups for this site to connect WhatsApp')
+          setConnectingOAuth(false)
+          return
+        }
+        popupRef.current = popup
+        const SOCIAL_RESULT_KEY = 'social_connect_result'
+        const MAX_AGE_MS = 3 * 60 * 1000
+        const startedAt = Date.now()
+        socialConnectPollIntervalRef.current = setInterval(() => {
+          if (!popupRef.current || !popupRef.current.closed) {
+            if (Date.now() - startedAt > MAX_AGE_MS) {
+              clearInterval(socialConnectPollIntervalRef.current)
+              socialConnectPollIntervalRef.current = null
+              setConnectingOAuth(false)
+            }
+            return
+          }
+          popupRef.current = null
+          clearInterval(socialConnectPollIntervalRef.current)
+          socialConnectPollIntervalRef.current = null
+          try {
+            const raw = localStorage.getItem(SOCIAL_RESULT_KEY)
+            if (raw) {
+              const data = JSON.parse(raw)
+              if (data && typeof data.ts === 'number' && Date.now() - data.ts < MAX_AGE_MS) {
+                applySocialConnectResult(!!data.success, data.error || null)
+              } else {
+                setConnectingOAuth(false)
+              }
+              localStorage.removeItem(SOCIAL_RESULT_KEY)
+            } else {
+              setConnectingOAuth(false)
+            }
+          } catch (_) {
+            setConnectingOAuth(false)
+          }
+        }, 500)
+      } else {
+        toast.error(res.data?.message || 'Could not start WhatsApp connect')
+        setConnectingOAuth(false)
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Could not start WhatsApp connect')
+      // Fallback: if OAuth setup is missing, allow manual connect.
+      openConnectModal('whatsapp')
+      setConnectingOAuth(false)
+    }
+  }
+
   const disconnectSocialOAuth = async (platform) => {
     const localData = localStorage.getItem('User')
     if (!localData) {
@@ -1532,7 +1640,13 @@ const MessageComposer = ({
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
       console.log("Disconnect Social Response is", response);
-      toast.success(platform === 'facebook' ? 'Facebook disconnected' : 'Instagram disconnected')
+      toast.success(
+        platform === 'facebook'
+          ? 'Facebook disconnected'
+          : platform === 'whatsapp'
+            ? 'WhatsApp disconnected'
+            : 'Instagram disconnected',
+      )
       onConnectionSuccess?.()
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not disconnect')
@@ -1565,7 +1679,13 @@ const MessageComposer = ({
       }, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
-      toast.success(connectPlatform === 'facebook' ? 'Facebook Page connected' : 'Instagram account connected')
+      toast.success(
+        connectPlatform === 'facebook'
+          ? 'Facebook Page connected'
+          : connectPlatform === 'whatsapp'
+            ? 'WhatsApp connected'
+            : 'Instagram account connected',
+      )
       setConnectModalOpen(false)
       onConnectionSuccess?.()
     } catch (err) {
@@ -1583,7 +1703,7 @@ const MessageComposer = ({
           <Input
             value={socialBody}
             onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
-            placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
+            placeholder={socialDmPlaceholder}
             className="flex-1 min-w-0"
             disabled={sendingSocialMessage}
           />
@@ -1607,12 +1727,10 @@ const MessageComposer = ({
                 { label: 'Text', value: 'sms', icon: MessageSquareDot },
                 { label: 'Email', value: 'email', icon: Mail },
                 { label: 'Comment', value: 'comment', icon: MessageSquare },
-                { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }
-                // ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
-                //   ? [{ label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon }]
-                //   : []),
+                { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon },
+                { label: 'WhatsApp', value: 'whatsapp', icon: WhatsappLogo },
               ]}
-              value={composerMode === 'instagram' ? 'facebook' : composerMode}
+              value={composerMode === 'instagram' ? 'facebook' : composerMode === 'whatsapp' ? 'whatsapp' : composerMode}
               onChange={(value) => {
                 if (value === 'sms') {
                   if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
@@ -1651,6 +1769,8 @@ const MessageComposer = ({
                 } else if (value === 'facebook') {
                   const useInstagram = selectedThread?.threadType === 'instagram' || !!selectedThread?.lead?.instagramPsid
                   setComposerMode(useInstagram ? 'instagram' : 'facebook')
+                } else if (value === 'whatsapp') {
+                  setComposerMode('whatsapp')
                 }
                 setIsExpanded(true)
               }}
@@ -1702,9 +1822,9 @@ const MessageComposer = ({
           </div>
         </div>
 
-        {(isFacebookMode || isInstagramMode) && !sendableSocial ? (
+        {(isFacebookMode || isInstagramMode || isWhatsAppMode) && !sendableSocial ? (
           <div className="mx-0 mb-4 mt-2 rounded-lg bg-muted/50 border border-muted px-4 py-3 space-y-4">
-            {(!hasFacebookConnection && !hasInstagramConnection) ? (
+            {(!hasFacebookConnection && !hasInstagramConnection && !hasWhatsAppConnection) ? (
               <div className="flex flex-col items-center gap-2">
                 <Image
                   src="/fbInsta.png"
@@ -1717,13 +1837,16 @@ const MessageComposer = ({
                   Connect Account
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Connect a Facebook page or Instagram page to send messages
+                  Connect Facebook, Instagram, or WhatsApp (Cloud API) to send messages
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
                   <Button type="button" className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent" onClick={handleConnectClick} disabled={connectingOAuth}>
                     {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
                     Connect
                   </Button>
+                  {/* <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => openConnectModal('whatsapp')} disabled={connectingOAuth}>
+                    Connect WhatsApp (manual)
+                  </Button> */}
                   {/*
                   <Button type="button" className="w-fit h-[36px] rounded-lg" onClick={connectWithFacebookOAuth} disabled={connectingOAuth}>
                     {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
@@ -1736,9 +1859,23 @@ const MessageComposer = ({
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Select a Messenger or Instagram conversation from the list to reply here.
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">
+                  Select a Messenger, Instagram, or WhatsApp conversation from the list to reply here.
+                </p>
+                <Button
+                  type="button"
+                  className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
+                  onClick={() => {
+                    setSocialDisconnectPlatform(isWhatsAppMode ? 'whatsapp' : 'facebook')
+                    setShowLogoutConfirmation(true)
+                  }}
+                  disabled={connectingOAuth}
+                >
+                  {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+                  Logout
+                </Button>
+              </div>
             )}
           </div>
         ) : !isExpanded ? (
@@ -1756,7 +1893,7 @@ const MessageComposer = ({
                     if ((composerData.socialBody ?? '').trim() && !sendingSocialMessage) handleSendSocial(e)
                   }
                 }}
-                placeholder={`Reply in ${isMessengerReply ? 'Messenger' : 'Instagram'}...`}
+                placeholder={socialDmPlaceholder}
                 className="flex-1"
               />
               <button
@@ -1851,19 +1988,49 @@ const MessageComposer = ({
                     {/*isMessengerReply ? 'Send a DM' : 'Reply in Instagram'}*/}
                     Send a DM
                   </label>
-                  {
-                    hasFacebookConnection && (
+                  {currentPage &&
+                    (hasFacebookConnection || hasInstagramConnection || hasWhatsAppConnection) && (
                       <Button
                         type="button"
                         className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
-                        onClick={() => setShowLogoutConfirmation(true)}
+                        onClick={() => {
+                          const p = currentPage?.platform
+                          setSocialDisconnectPlatform(
+                            p === 'instagram' ? 'instagram' : p === 'whatsapp' ? 'whatsapp' : 'facebook',
+                          )
+                          setShowLogoutConfirmation(true)
+                        }}
                         disabled={connectingOAuth}
                       >
-                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <img src={currentPage?.profileImageUrl ? currentPage?.profileImageUrl : currentPage?.platform === "facebook" ? "/facebook.png" : currentPage?.platform === "instagram" ? "/instagram.png" : "/facebook.png"} width={23} height={23} alt="Facebook" className="rounded-full" />}
-                        Logout of {currentPage?.displayName ? currentPage?.displayName : currentPage?.platform === "facebook" ? "Facebook" : currentPage?.platform === "instagram" ? "Instagram" : "Facebook"}
+                        {connectingOAuth ? (
+                          <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        ) : currentPage?.platform === 'whatsapp' ? (
+                          <WhatsappLogo size={23} className="text-[#25D366]" weight="fill" aria-hidden />
+                        ) : (
+                          <img
+                            src={
+                              currentPage?.profileImageUrl
+                                ? currentPage?.profileImageUrl
+                                : currentPage?.platform === 'facebook'
+                                  ? '/facebook.png'
+                                  : '/instagram.png'
+                            }
+                            width={23}
+                            height={23}
+                            alt=""
+                            className="rounded-full"
+                          />
+                        )}
+                        Logout of{' '}
+                        {currentPage?.displayName
+                          ? currentPage?.displayName
+                          : currentPage?.platform === 'facebook'
+                            ? 'Facebook'
+                            : currentPage?.platform === 'instagram'
+                              ? 'Instagram'
+                              : 'WhatsApp'}
                       </Button>
-                    )
-                  }
+                    )}
                 </div>
                 <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
@@ -3320,7 +3487,11 @@ const MessageComposer = ({
         socialOnly
         onSaved={() => {
           setSocialSettingsModalOpen(false)
-          connectWithFacebookOAuth()
+          if (isWhatsAppMode) {
+            connectWithWhatsAppOAuth()
+          } else {
+            connectWithFacebookOAuth()
+          }
         }}
       />
 
@@ -3329,18 +3500,32 @@ const MessageComposer = ({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {connectPlatform === 'facebook' ? 'Connect Facebook Page' : 'Connect Instagram Account'}
+              {connectPlatform === 'facebook'
+                ? 'Connect Facebook Page'
+                : connectPlatform === 'whatsapp'
+                  ? 'Connect WhatsApp (Cloud API)'
+                  : 'Connect Instagram Account'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleConnectSubmit} className="space-y-4 mt-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {connectPlatform === 'facebook' ? 'Page ID' : 'Instagram Business Account ID'}
+                {connectPlatform === 'facebook'
+                  ? 'Page ID'
+                  : connectPlatform === 'whatsapp'
+                    ? 'Phone number ID'
+                    : 'Instagram Business Account ID'}
               </label>
               <Input
                 value={connectForm.externalId}
                 onChange={(e) => setConnectForm((f) => ({ ...f, externalId: e.target.value }))}
-                placeholder={connectPlatform === 'facebook' ? 'Page ID from Meta Developer Console' : 'IG Business Account ID'}
+                placeholder={
+                  connectPlatform === 'facebook'
+                    ? 'Page ID from Meta Developer Console'
+                    : connectPlatform === 'whatsapp'
+                      ? 'WhatsApp Phone number ID from Meta'
+                      : 'IG Business Account ID'
+                }
                 className="w-full"
               />
             </div>
@@ -3381,7 +3566,7 @@ const MessageComposer = ({
         setShowConfirmationPopup={setShowLogoutConfirmation}
         onContinue={() => {
           setShowLogoutConfirmation(false)
-          disconnectSocialOAuth('facebook')
+          disconnectSocialOAuth(socialDisconnectPlatform)
         }}
       />
 
