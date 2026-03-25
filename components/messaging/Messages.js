@@ -148,6 +148,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   const [replyToMessage, setReplyToMessage] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
+  // Prevent URL-sync effect from overriding immediate local thread picks while query params catch up.
+  const pendingLocalThreadSelectionIdRef = useRef(null)
   // Per-tab cache: key = userId-apiFilter-search-teamIds. Restore when switching tabs, then refetch in background.
   const threadsCacheRef = useRef({})
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
@@ -1740,6 +1742,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   // Handle thread selection
   const handleThreadSelect = (thread) => {
     console.log("C.JS thread in handleThreadSelect", thread)
+    pendingLocalThreadSelectionIdRef.current = String(thread?.id)
     setSelectedThread(thread)
     setMessageOffset(0)
     messageOffsetRef.current = 0
@@ -3432,6 +3435,25 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     if (threads.length === 0) return
 
     const threadIdFromParams = searchParams?.get('threadId')
+    const selectedId = selectedThread?.id != null ? String(selectedThread.id) : null
+    const pendingLocalSelectionId = pendingLocalThreadSelectionIdRef.current
+
+    // Ignore one stale URL-sync pass right after local click selection; URL updates async.
+    if (
+      pendingLocalSelectionId &&
+      selectedId === pendingLocalSelectionId &&
+      threadIdFromParams !== pendingLocalSelectionId
+    ) {
+      return
+    }
+
+    // URL is now aligned with local selection (or local state was cleared), release the guard.
+    if (
+      pendingLocalSelectionId &&
+      (threadIdFromParams === pendingLocalSelectionId || selectedId == null)
+    ) {
+      pendingLocalThreadSelectionIdRef.current = null
+    }
 
     let threadToSelect = null
     if (threadIdFromParams) {
@@ -3464,7 +3486,6 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       return
     }
 
-    const selectedId = selectedThread.id != null ? String(selectedThread.id) : null
     const targetId = threadToSelect ? String(threadToSelect.id) : null
     if (threadToSelect && targetId !== selectedId) {
       applyThreadSelection(threadToSelect)
