@@ -15,6 +15,7 @@ import {
   sanitizeHTMLForEmailBody,
   linkifyText,
 } from '@/utilities/textUtils'
+import CampaignStatPopover from '@/components/common/campaign-stat-popover'
 
 /** Unescape HTML entities in a string (for content that may be stored escaped). */
 function unescapeHtmlEntities(str) {
@@ -137,64 +138,13 @@ const EmailSmsTranscriptCN = ({
             >
               <BarChart2 size={15} />
             </button>
-            {campaignStatAnchorActivityId === item.id && (
-              <div
-                className={`absolute z-50 w-auto min-w-[200px] max-w-[90vw] rounded-lg border border-[#1515151A10] shadow-[0_4px_20px_rgba(0,0,0,0.08)] bg-white text-gray-900 ${
-                  isLastActivityItem
-                    ? 'bottom-full mb-1 right-0'
-                    : 'top-full mt-1 right-0'
-                }`}
-                onMouseEnter={(e) => {
-                  e.stopPropagation()
-                }}
-                onMouseLeave={(e) => {
-                  e.stopPropagation()
-                  onCampaignStatMouseLeave?.()
-                }}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                <div className="px-2.5 py-2 border-b border-[#1515151A10]">
-                  <span className="text-[12px] font-medium text-[#666666]">Campaign Stat</span>
-                </div>
-                <div className="px-2.5 py-2 text-[12px] space-y-1">
-                  {campaignStatLoading ? (
-                    <p className="text-muted-foreground text-[#666666] text-[14px]">Loading…</p>
-                  ) : campaignStatData ? (
-                    <div className="space-y-2 text-[12px]">
-                      <div className="flex justify-between items-center gap-4">
-                        <span className="text-[#666666]">{campaignStatData.delivered} Delivered</span>
-                        <span className="font-medium">
-                          {campaignStatData.sent
-                            ? `${Math.round((campaignStatData.delivered / campaignStatData.sent) * 100)}%`
-                            : '0%'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center gap-4">
-                        <span className="text-[#666666]">{campaignStatData.opened} Opened</span>
-                        <span className="font-medium">
-                          {campaignStatData.sent
-                            ? `${Math.round((campaignStatData.opened / campaignStatData.sent) * 100)}%`
-                            : '0%'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center gap-4">
-                        <span className="text-[#666666]">{campaignStatData.clicked} Clicked</span>
-                        <span className="font-medium">
-                          {campaignStatData.sent
-                            ? `${Math.round((campaignStatData.clicked / campaignStatData.sent) * 100)}%`
-                            : '0%'}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    !campaignStatLoading && (
-                      <p className="text-muted-foreground">No data available.</p>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
+            <CampaignStatPopover
+              open={campaignStatAnchorActivityId === item.id}
+              isLastItem={isLastActivityItem}
+              campaignStatLoading={campaignStatLoading}
+              campaignStatData={campaignStatData}
+              onMouseLeave={onCampaignStatMouseLeave}
+            />
           </span>
         </div>
       )}
