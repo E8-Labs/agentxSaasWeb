@@ -50,6 +50,7 @@ import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { FileUp, Plus } from 'lucide-react'
 import NewContactDrawer from '@/components/messaging/NewContactDrawer'
+import DeleteTagConfirmModal from '@/components/dashboard/myagentX/DeleteTagConfirmModal'
 
 /** Modal content transition: scale 0.95→1 and opacity 0→1 (matches user Leads1 upload modal). */
 function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
@@ -1739,277 +1740,277 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                         paddingRight: 16,
                       }}
                     >
-                    <div
-                      className="flex flex-row items-start"
-                      style={{ gap: 12, paddingLeft: 0, paddingRight: 0 }}
-                    >
-                      <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12 }}>
-                        <div
-                          className="flex flex-row items-center justify-between gap-2"
-                          style={{
-                            padding: 0,
-                            fontSize: 14,
-                            backgroundColor: '#ffffff',
-                            borderRadius: 8,
-                          }}
-                        >
-                          <span className="start-campaign-label">List Name</span>{' '}
+                      <div
+                        className="flex flex-row items-start"
+                        style={{ gap: 12, paddingLeft: 0, paddingRight: 0 }}
+                      >
+                        <div className="flex flex-col flex-1 min-w-0" style={{ gap: 12 }}>
+                          <div
+                            className="flex flex-row items-center justify-between gap-2"
+                            style={{
+                              padding: 0,
+                              fontSize: 14,
+                              backgroundColor: '#ffffff',
+                              borderRadius: 8,
+                            }}
+                          >
+                            <span className="start-campaign-label">List Name</span>{' '}
+                          </div>
+
+                          <div className="w-full">
+                            <input
+                              className="start-campaign-input w-full h-[42px]"
+                              value={sheetName}
+                              onChange={(e) => {
+                                setSheetName(e.target.value)
+                              }}
+                              placeholder="Enter sheet name"
+                            />
+                          </div>
                         </div>
 
-                        <div className="w-full">
-                          <input
-                            className="start-campaign-input w-full h-[42px]"
-                            value={sheetName}
-                            onChange={(e) => {
-                              setSheetName(e.target.value)
-                            }}
-                            placeholder="Enter sheet name"
-                          />
+                        <div
+                          className="flex flex-col flex-1 min-w-0"
+                          style={{ gap: 12, padding: 0 }}
+                        >
+                          <div className="start-campaign-label">Create a tag for leads</div>
+                          <div>
+                            <TagsInput setTags={setTagsValue} controlHeight={40} />
+                          </div>
                         </div>
                       </div>
 
                       <div
-                        className="flex flex-col flex-1 min-w-0"
-                        style={{ gap: 12, padding: 0 }}
+                        className="flex flex-col"
+                        style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}
                       >
-                        <div className="start-campaign-label">Create a tag for leads</div>
-                        <div>
-                          <TagsInput setTags={setTagsValue} controlHeight={40} />
+                        <div className="start-campaign-label">
+                          Match columns in your file to column fields
                         </div>
-                      </div>
-                    </div>
-
-                    <div
-                      className="flex flex-col"
-                      style={{ gap: 8, paddingLeft: 16, paddingRight: 16 }}
-                    >
-                      <div className="start-campaign-label">
-                        Match columns in your file to column fields
-                      </div>
-                      {NewColumnsObtained && NewColumnsObtained.length > 0 && (
-                        <>
-                          <div
-                            className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
-                            style={{ height: 'auto', marginTop: 0, padding: 0 }}
-                          >
-                            <table className="w-full border-collapse table-fixed" role="table">
-                              <colgroup>
-                                <col style={{ width: '16.666%' }} />
-                                <col style={{ width: '25%' }} />
-                                <col style={{ width: '25%' }} />
-                                <col style={{ width: '25%' }} />
-                                <col style={{ width: '8.333%' }} />
-                              </colgroup>
-                              <thead>
-                                <tr>
-                                  <th
-                                    scope="col"
-                                    className="text-left py-3 px-3 border-b uppercase"
-                                    style={{
-                                      fontSize: 14,
-                                      color: 'rgba(0, 0, 0, 0.7)',
-                                      fontWeight: 400,
-                                      borderColor: '#eaeaea',
-                                    }}
-                                  >
-                                    Matched
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="text-left py-3 px-3 border-b uppercase"
-                                    style={{
-                                      fontSize: 14,
-                                      color: 'rgba(0, 0, 0, 0.7)',
-                                      fontWeight: 400,
-                                      borderColor: '#eaeaea',
-                                    }}
-                                  >
-                                    Column Header from File
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="text-left py-3 px-3 border-b uppercase"
-                                    style={{
-                                      fontSize: 14,
-                                      color: 'rgba(0, 0, 0, 0.7)',
-                                      fontWeight: 400,
-                                      borderColor: '#eaeaea',
-                                    }}
-                                  >
-                                    Preview Info
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="text-left py-3 px-3 border-b uppercase"
-                                    style={{
-                                      fontSize: 14,
-                                      color: 'rgba(0, 0, 0, 0.7)',
-                                      fontWeight: 400,
-                                      borderColor: '#eaeaea',
-                                    }}
-                                  >
-                                    Column Fields
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="text-left py-3 px-3 border-b uppercase"
-                                    style={{
-                                      fontSize: 14,
-                                      color: 'rgba(0, 0, 0, 0.7)',
-                                      fontWeight: 400,
-                                      borderColor: '#eaeaea',
-                                    }}
-                                  >
-                                    Action
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {NewColumnsObtained.map((item, index) => (
-                                  <tr
-                                    key={index}
-                                    className="border-b"
-                                    style={{
-                                      borderColor: '#eaeaea',
-                                      backgroundColor:
-                                        index % 2 === 0 ? 'rgba(0, 0, 0, 0.02)' : undefined,
-                                    }}
-                                  >
-                                    <td
-                                      className="py-3 px-3 align-middle"
+                        {NewColumnsObtained && NewColumnsObtained.length > 0 && (
+                          <>
+                            <div
+                              className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
+                              style={{ height: 'auto', marginTop: 0, padding: 0 }}
+                            >
+                              <table className="w-full border-collapse table-fixed" role="table">
+                                <colgroup>
+                                  <col style={{ width: '16.666%' }} />
+                                  <col style={{ width: '25%' }} />
+                                  <col style={{ width: '25%' }} />
+                                  <col style={{ width: '25%' }} />
+                                  <col style={{ width: '8.333%' }} />
+                                </colgroup>
+                                <thead>
+                                  <tr>
+                                    <th
+                                      scope="col"
+                                      className="text-left py-3 px-3 border-b uppercase"
                                       style={{
-                                        ...styles.paragraph,
                                         fontSize: 14,
-                                        fontFamily: 'Inter, sans-serif',
-                                        height: 44,
+                                        color: 'rgba(0, 0, 0, 0.7)',
+                                        fontWeight: 400,
+                                        borderColor: '#eaeaea',
                                       }}
                                     >
-                                      {item.UserFacingName || item.matchedColumn ? (
-                                        <Image
-                                          className="ms-4"
-                                          src={'/assets/checkDone.png'}
-                                          alt="Matched"
-                                          height={16}
-                                          width={16}
-                                        />
-                                      ) : (
-                                        <Image
-                                          className="ms-4"
-                                          src={'/assets/warning.png'}
-                                          alt="Not matched"
-                                          height={16}
-                                          width={16}
-                                        />
-                                      )}
-                                    </td>
-                                    <td
-                                      className="py-3 px-3 align-middle"
+                                      Matched
+                                    </th>
+                                    <th
+                                      scope="col"
+                                      className="text-left py-3 px-3 border-b uppercase"
                                       style={{
-                                        ...styles.paragraph,
                                         fontSize: 14,
-                                        fontFamily: 'Inter, sans-serif',
-                                        height: 44,
+                                        color: 'rgba(0, 0, 0, 0.7)',
+                                        fontWeight: 400,
+                                        borderColor: '#eaeaea',
                                       }}
                                     >
-                                      {item.ColumnNameInSheet}
-                                    </td>
-                                    <td
-                                      className="py-3 px-3 align-middle truncate max-w-0"
+                                      Column Header from File
+                                    </th>
+                                    <th
+                                      scope="col"
+                                      className="text-left py-3 px-3 border-b uppercase"
                                       style={{
-                                        ...styles.paragraph,
                                         fontSize: 14,
-                                        fontFamily: 'Inter, sans-serif',
-                                        height: 42,
+                                        color: 'rgba(0, 0, 0, 0.7)',
+                                        fontWeight: 400,
+                                        borderColor: '#eaeaea',
                                       }}
                                     >
-                                      {originalTransformedData &&
-                                        originalTransformedData.length > 0 &&
-                                        originalTransformedData[0]
-                                        ? originalTransformedData[0][item.ColumnNameInSheet] ?? ''
-                                        : processedData &&
-                                          processedData.length > 0 &&
-                                          processedData[0]
-                                          ? processedData[0][item.ColumnNameInSheet] ?? ''
-                                          : ''}
-                                    </td>
-                                    <td
-                                      className="py-3 px-3 align-middle"
+                                      Preview Info
+                                    </th>
+                                    <th
+                                      scope="col"
+                                      className="text-left py-3 px-3 border-b uppercase"
                                       style={{
-                                        ...styles.paragraph,
                                         fontSize: 14,
-                                        fontFamily: 'Inter, sans-serif',
-                                        height: 44,
+                                        color: 'rgba(0, 0, 0, 0.7)',
+                                        fontWeight: 400,
+                                        borderColor: '#eaeaea',
                                       }}
                                     >
-                                      <div
-                                        className="search-input-wrapper rounded-lg p-2 flex flex-row items-center"
-                                        style={{ borderRadius: 8, height: 40 }}
-                                      >
-                                        <button
-                                          type="button"
-                                          className="flex flex-row items-center justify-between w-full outline-none h-[40px]"
-                                          style={{ minHeight: 40 }}
-                                          onClick={(event) => {
-                                            if (columnAnchorEl) {
-                                              handleColumnPopoverClose()
-                                            } else {
-                                              setSelectedItem(index)
-                                              setUpdateColumnValue(item.columnNameTransformed)
-                                              handleColumnPopoverClick(event)
-                                              setUpdateHeader(item)
-                                            }
-                                          }}
-                                        >
-                                          <p className="truncate">
-                                            {item.matchedColumn
-                                              ? item.matchedColumn.UserFacingName
-                                              : item.UserFacingName}
-                                          </p>
-                                          {selectedItem === index ? (
-                                            <CaretUp size={14} weight="bold" />
-                                          ) : (
-                                            <CaretDown size={14} weight="bold" />
-                                          )}
-                                        </button>
-                                      </div>
-                                    </td>
-                                    <td
-                                      className="py-3 px-3 align-middle"
+                                      Column Fields
+                                    </th>
+                                    <th
+                                      scope="col"
+                                      className="text-left py-3 px-3 border-b uppercase"
                                       style={{
-                                        ...styles.paragraph,
                                         fontSize: 14,
-                                        fontFamily: 'Inter, sans-serif',
-                                        height: 44,
+                                        color: 'rgba(0, 0, 0, 0.7)',
+                                        fontWeight: 400,
+                                        borderColor: '#eaeaea',
                                       }}
                                     >
-                                      {item.matchedColumn || item.UserFacingName ? (
-                                        <button
-                                          type="button"
-                                          className="underline text-brand-primary outline-none ps-4"
-                                          onClick={() => {
-                                            setUpdateHeader(item)
-                                            setShowDelCol(true)
-                                          }}
-                                        >
-                                          <Image
-                                            src={'/assets/blackBgCross.png'}
-                                            height={15}
-                                            width={15}
-                                            alt="Remove"
-                                          />
-                                        </button>
-                                      ) : (
-                                        <span aria-hidden>&nbsp;</span>
-                                      )}
-                                    </td>
+                                      Action
+                                    </th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </>
-                      )}
-                    </div>
+                                </thead>
+                                <tbody>
+                                  {NewColumnsObtained.map((item, index) => (
+                                    <tr
+                                      key={index}
+                                      className="border-b"
+                                      style={{
+                                        borderColor: '#eaeaea',
+                                        backgroundColor:
+                                          index % 2 === 0 ? 'rgba(0, 0, 0, 0.02)' : undefined,
+                                      }}
+                                    >
+                                      <td
+                                        className="py-3 px-3 align-middle"
+                                        style={{
+                                          ...styles.paragraph,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter, sans-serif',
+                                          height: 44,
+                                        }}
+                                      >
+                                        {item.UserFacingName || item.matchedColumn ? (
+                                          <Image
+                                            className="ms-4"
+                                            src={'/assets/checkDone.png'}
+                                            alt="Matched"
+                                            height={16}
+                                            width={16}
+                                          />
+                                        ) : (
+                                          <Image
+                                            className="ms-4"
+                                            src={'/assets/warning.png'}
+                                            alt="Not matched"
+                                            height={16}
+                                            width={16}
+                                          />
+                                        )}
+                                      </td>
+                                      <td
+                                        className="py-3 px-3 align-middle"
+                                        style={{
+                                          ...styles.paragraph,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter, sans-serif',
+                                          height: 44,
+                                        }}
+                                      >
+                                        {item.ColumnNameInSheet}
+                                      </td>
+                                      <td
+                                        className="py-3 px-3 align-middle truncate max-w-0"
+                                        style={{
+                                          ...styles.paragraph,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter, sans-serif',
+                                          height: 42,
+                                        }}
+                                      >
+                                        {originalTransformedData &&
+                                          originalTransformedData.length > 0 &&
+                                          originalTransformedData[0]
+                                          ? originalTransformedData[0][item.ColumnNameInSheet] ?? ''
+                                          : processedData &&
+                                            processedData.length > 0 &&
+                                            processedData[0]
+                                            ? processedData[0][item.ColumnNameInSheet] ?? ''
+                                            : ''}
+                                      </td>
+                                      <td
+                                        className="py-3 px-3 align-middle"
+                                        style={{
+                                          ...styles.paragraph,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter, sans-serif',
+                                          height: 44,
+                                        }}
+                                      >
+                                        <div
+                                          className="search-input-wrapper rounded-lg p-2 flex flex-row items-center"
+                                          style={{ borderRadius: 8, height: 40 }}
+                                        >
+                                          <button
+                                            type="button"
+                                            className="flex flex-row items-center justify-between w-full outline-none h-[40px]"
+                                            style={{ minHeight: 40 }}
+                                            onClick={(event) => {
+                                              if (columnAnchorEl) {
+                                                handleColumnPopoverClose()
+                                              } else {
+                                                setSelectedItem(index)
+                                                setUpdateColumnValue(item.columnNameTransformed)
+                                                handleColumnPopoverClick(event)
+                                                setUpdateHeader(item)
+                                              }
+                                            }}
+                                          >
+                                            <p className="truncate">
+                                              {item.matchedColumn
+                                                ? item.matchedColumn.UserFacingName
+                                                : item.UserFacingName}
+                                            </p>
+                                            {selectedItem === index ? (
+                                              <CaretUp size={14} weight="bold" />
+                                            ) : (
+                                              <CaretDown size={14} weight="bold" />
+                                            )}
+                                          </button>
+                                        </div>
+                                      </td>
+                                      <td
+                                        className="py-3 px-3 align-middle"
+                                        style={{
+                                          ...styles.paragraph,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter, sans-serif',
+                                          height: 44,
+                                        }}
+                                      >
+                                        {item.matchedColumn || item.UserFacingName ? (
+                                          <button
+                                            type="button"
+                                            className="underline text-brand-primary outline-none ps-4"
+                                            onClick={() => {
+                                              setUpdateHeader(item)
+                                              setShowDelCol(true)
+                                            }}
+                                          >
+                                            <Image
+                                              src={'/assets/blackBgCross.png'}
+                                              height={15}
+                                              width={15}
+                                              alt="Remove"
+                                            />
+                                          </button>
+                                        ) : (
+                                          <span aria-hidden>&nbsp;</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </>
+                        )}
+                      </div>
 
                     </div>
 
@@ -2124,51 +2125,19 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         />
 
         {/* Delete Column Modal */}
-        <Modal
+
+        <DeleteTagConfirmModal
+          title="column"
+          description="Are you sure you want to delete this column?"
           open={ShowDelCol}
           onClose={() => setShowDelCol(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: { backgroundColor: 'rgba(0, 0, 0, 0.1)' },
+          onConfirm={() => {
+            ChangeColumnName(null)
+            setShowDelCol(false)
           }}
-        >
-          <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
-                }}
-              >
-                <div className="font-bold text-xl mt-6">
-                  Are you sure you want to delete this column
-                </div>
-                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                  <button
-                    className="w-1/2 font-bold text-xl text-[#6b7280] rounded-xl h-[50px]"
-                    onClick={() => {
-                      setShowDelCol(false)
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                    onClick={() => {
-                      ChangeColumnName(null)
-                      setShowDelCol(false)
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Box>
-        </Modal>
+          loading={false}
+          tag={null}
+        />
 
         {/* Not matched Columns popover */}
 

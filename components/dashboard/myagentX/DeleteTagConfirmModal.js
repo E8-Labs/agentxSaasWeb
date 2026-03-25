@@ -6,7 +6,7 @@ import { Trash } from 'lucide-react'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { cn } from '@/lib/utils'
 
-const DeleteTagConfirmModal = ({ open, tag, onClose, onConfirm, loading = false }) => {
+const DeleteTagConfirmModal = ({ open, tag, onClose, onConfirm, loading = false, title = "tag", description = 'Delete this tag from all agents? This cannot be undone.' }) => {
   return (
     <Modal
       open={open}
@@ -54,7 +54,7 @@ const DeleteTagConfirmModal = ({ open, tag, onClose, onConfirm, loading = false 
                 className="font-semibold"
                 style={{ fontSize: 16, color: 'rgba(0,0,0,0.9)' }}
               >
-                Delete tag
+                Delete {title}
               </span>
             </div>
             <CloseBtn onClick={onClose} />
@@ -71,7 +71,7 @@ const DeleteTagConfirmModal = ({ open, tag, onClose, onConfirm, loading = false 
                 undone.
               </>
             ) : (
-              'Delete this tag from all agents? This cannot be undone.'
+              description
             )}
           </div>
 

@@ -257,7 +257,7 @@ const FocusArea = ({
               </div>
             ) : (
               <div
-                className="mt-2 sm:mt-8 pb-2 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
+                className="mt-2 sm:mt-8 pb-2 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-gray-300"
                 style={{
                   scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
                 }}

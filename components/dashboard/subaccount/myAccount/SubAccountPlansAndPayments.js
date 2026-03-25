@@ -1549,7 +1549,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser, agencyView, isAgen
             />
           </div>
           <div
-            className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin`}
+            className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary`}
             style={{
               scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
             }}
