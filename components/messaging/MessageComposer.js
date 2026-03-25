@@ -1859,9 +1859,23 @@ const MessageComposer = ({
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Select a Messenger, Instagram, or WhatsApp conversation from the list to reply here.
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">
+                  Select a Messenger, Instagram, or WhatsApp conversation from the list to reply here.
+                </p>
+                <Button
+                  type="button"
+                  className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
+                  onClick={() => {
+                    setSocialDisconnectPlatform(isWhatsAppMode ? 'whatsapp' : 'facebook')
+                    setShowLogoutConfirmation(true)
+                  }}
+                  disabled={connectingOAuth}
+                >
+                  {connectingOAuth && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+                  Logout
+                </Button>
+              </div>
             )}
           </div>
         ) : !isExpanded ? (
