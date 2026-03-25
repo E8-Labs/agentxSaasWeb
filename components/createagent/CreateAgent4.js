@@ -611,8 +611,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     mt: 1,
     borderRadius: '12px',
     border: '1px solid rgba(0,0,0,0.10)',
-    boxShadow:
-      '0 18px 60px rgba(0,0,0,0.08), 0 2px 10px rgba(0,0,0,0.04)',
+    // Reduced elevation + 8% shadow opacity
+    boxShadow: '0 12px 40px rgba(0,0,0,0.08)',
     overflow: 'hidden',
   }
 

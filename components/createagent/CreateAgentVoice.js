@@ -1,24 +1,15 @@
 import { CircularProgress, Modal } from '@mui/material'
-//import for input drop down menu
 import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select, { SelectChangeEvent } from '@mui/material/Select'
 import { PauseCircle, PlayCircle } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import Body from '@/components/onboarding/Body'
-import Footer from '@/components/onboarding/Footer'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
-import { UserTypes } from '@/constants/UserTypes'
 
 import Apis from '../apis/Apis'
-import { PersistanceKeys } from '@/constants/Constants'
 import voicesList from './Voices'
 
 const CreateAgentVoice = ({ handleBack, user }) => {
@@ -298,19 +289,6 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     })
   }
 
-  const avatarImages = [
-    '/assets/avatar1.png',
-    '/assets/avatar2.png',
-    '/assets/avatar3.png',
-    // "/assets/avatar4.png",
-    // "/assets/avatar5.png",
-    // "/assets/avatar6.png",
-    // "/assets/avatar7.png",
-    // "/assets/avatar8.png",
-    // "/assets/avatar9.png",
-    // "/assets/avatar10.png",
-  ]
-
   const styles = {
     headingStyle: {
       fontSize: 16,
@@ -440,185 +418,229 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     return 0
   }
 
-  return (
-    <div
-      style={{
-        width: '100%',
-        minHeight: '100vh',
-        ...(shouldShowGradient && gradientBackground ? { background: gradientBackground } : {}),
-      }}
-      className={`overflow-y-hidden flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
-    >
-      <div className="bg-white rounded-2xl w-10/12 h-[100%] sm:h-[95%] py-4 flex flex-col relative">
-        <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
-          {/* header */}
-          <div className="absolute top-0 left-0 right-0">
-            <Header />
+  const VoiceListItem = ({ item, index }) => {
+    const isSelected = item.name === selectedVoiceId
+    const isPlaying = Boolean(item.preview) && preview === item.preview
+
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        aria-pressed={isSelected}
+        className={[
+          // Reduced elevation ~60% vs previous; padding top/bottom 16px
+          'w-full text-left rounded-[12px] bg-white px-3 py-4 shadow-[0px_4px_88px_rgba(0,0,0,0.024)] transition-all duration-150',
+          'hover:bg-black/[0.01] active:scale-[0.995]',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30',
+        ].join(' ')}
+        style={{
+          border: isSelected ? '2px solid hsl(var(--brand-primary))' : '1px solid rgba(0,0,0,0.10)',
+          backgroundColor: isSelected ? 'hsl(var(--brand-primary) / 0.06)' : '#ffffff',
+        }}
+        onClick={() => {
+          handleToggleClick(index, item)
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleToggleClick(index, item)
+          }
+        }}
+      >
+        <div className="flex items-center gap-3">
+          {/* Avatar block */}
+          <div className="h-[80px] w-[80px] shrink-0 rounded-[12px] bg-black/[0.02] flex items-center justify-center overflow-hidden">
+            <div className="h-[54px] w-[54px] rounded-full bg-white shadow-[0px_3px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
+              <Image
+                src={item.img}
+                height={getImageHeight(item)}
+                width={getImageWidth(item)}
+                alt=""
+                style={{
+                  borderRadius: '9999px',
+                  marginTop: addMarginTop(item),
+                  marginLeft: addMariginLeft(item),
+                }}
+              />
+            </div>
           </div>
-          {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[95%] mt-4">
+
+          {/* Copy */}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-3">
+              <div className="text-[14px] font-normal text-black truncate">{item.name}</div>
+              {item.status ? (
+                <div className="px-2 py-[2px] bg-brand-primary/12 rounded-[8px]">
+                  <div className="text-[12px] font-semibold leading-[16px] tracking-[-0.36px] text-brand-primary">
+                    {String(item.status).toUpperCase()}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+            <div className="mt-1 text-[14px] font-normal leading-[1.6] text-[#666] truncate">
+              {item.Dialect}
+            </div>
+          </div>
+
+          {/* Play pill */}
+          <button
+            type="button"
+            className={[
+              'shrink-0 rounded-[64px] bg-white shadow-[0px_13px_33.9px_rgba(0,0,0,0.08)] px-3 py-2 flex items-center gap-3',
+              'transition-all duration-150 hover:shadow-[0px_16px_40px_rgba(0,0,0,0.10)] active:scale-[0.98]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30',
+            ].join(' ')}
+            onClick={(e) => {
+              e.stopPropagation()
+
+              if (!item.preview) {
+                setShowNoAudioModal(item)
+                return
+              }
+
+              if (isPlaying) {
+                if (audio) audio.pause()
+                setPreview(null)
+                return
+              }
+
+              setPreview(item.preview)
+              playVoice(item.preview)
+            }}
+            aria-label={isPlaying ? 'Pause voice preview' : 'Play voice preview'}
+          >
             <div
-              className="w-11/12 md:text-4xl text-lg font-[700]"
+              aria-hidden="true"
+              className={[
+                'fc-waveform flex items-end gap-[3px] h-[14px] w-[52px]',
+                isPlaying ? 'is-playing text-brand-primary' : 'text-black/30',
+              ].join(' ')}
               style={{
-                textAlign: 'center',
-                // marginTop: isSubaccount ? '-40px' : undefined,
+                color: isPlaying ? 'hsl(var(--brand-primary))' : 'rgba(0,0,0,0.30)',
               }}
             >
-              Choose a voice for {agentDetails?.name}
+              <span className="fc-wavebar h-[6px]" />
+              <span className="fc-wavebar h-[10px]" />
+              <span className="fc-wavebar h-[14px]" />
+              <span className="fc-wavebar h-[12px]" />
+              <span className="fc-wavebar h-[9px]" />
+              <span className="fc-wavebar h-[7px]" />
+              <span className="fc-wavebar h-[10px]" />
+              <span className="fc-wavebar h-[13px]" />
+              <span className="fc-wavebar h-[9px]" />
+              <span className="fc-wavebar h-[6px]" />
             </div>
-            <div className="w-full flex flex-row  justify-center min-h-0">
+            <div className="h-7 w-7 rounded-full bg-brand-primary flex items-center justify-center">
+              {isPlaying ? (
+                <PauseCircle size={16} color="#ffffff" weight="fill" />
+              ) : (
+                <PlayCircle size={16} color="#ffffff" weight="fill" />
+              )}
+            </div>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-white w-full h-[100svh] overflow-hidden">
+      <style jsx global>{`
+        .fc-waveform .fc-wavebar {
+          width: 3px;
+          border-radius: 9999px;
+          background: currentColor;
+          transform-origin: bottom;
+          transform: scaleY(1);
+        }
+
+        @keyframes fcWavePulse {
+          0% {
+            transform: scaleY(0.45);
+            opacity: 0.55;
+          }
+          35% {
+            transform: scaleY(1);
+            opacity: 1;
+          }
+          70% {
+            transform: scaleY(0.6);
+            opacity: 0.75;
+          }
+          100% {
+            transform: scaleY(0.45);
+            opacity: 0.55;
+          }
+        }
+
+        .fc-waveform.is-playing .fc-wavebar {
+          animation: fcWavePulse 900ms ease-in-out infinite;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(1) {
+          animation-delay: -120ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(2) {
+          animation-delay: -260ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(3) {
+          animation-delay: -420ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(4) {
+          animation-delay: -180ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(5) {
+          animation-delay: -340ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(6) {
+          animation-delay: -520ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(7) {
+          animation-delay: -220ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(8) {
+          animation-delay: -460ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(9) {
+          animation-delay: -300ms;
+        }
+        .fc-waveform.is-playing .fc-wavebar:nth-child(10) {
+          animation-delay: -560ms;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .fc-waveform.is-playing .fc-wavebar {
+            animation: none;
+          }
+        }
+      `}</style>
+      <div className="relative flex w-full h-[100svh]">
+        {/* Left panel */}
+        <div className="relative bg-[#f9f9f9] w-full lg:basis-[65%] lg:flex-[0_0_65%] flex flex-col h-[100svh] overflow-hidden">
+          {/* header */}
+          <div className="sticky top-0 z-40 shrink-0 bg-[#f9f9f9] shadow-[0_1px_0_0_rgba(21,21,21,0.08)]">
+            <Header variant="createAgentToolbar" />
+          </div>
+
+          {/* body wrapper */}
+          <div className="flex-1 w-full flex justify-center overflow-y-auto">
+            <div className="w-full max-w-[600px] flex flex-col items-center gap-3 p-6">
+              <div className="w-full text-center text-[22px] font-semibold leading-[30px] tracking-[-0.77px] text-black">
+                Choose a Voice.
+              </div>
+
               <div
-                className="pt-8 pb-8 w-full max-w-2xl gap-1 flex flex-col flex overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="w-full flex flex-col items-start gap-3 pb-6 pt-3"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {voices.map((item, index) => (
-                  <button
-                    key={index}
-                    style={{
-                      border:
-                        item.name === selectedVoiceId
-                          ? '2px solid hsl(var(--brand-primary))'
-                          : '',
-                      backgroundColor:
-                        item.name === selectedVoiceId ? 'hsl(var(--brand-primary) / 0.1)' : '',
-                    }}
-                    className="flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-2 rounded-xl outline-none"
-                    onClick={(e) => {
-                      handleToggleClick(index, item)
-                      // playVoice(item.preview);
-                    }}
-                  >
-                    <div className="flex flex-row items-center gap-4">
-                      <div
-                        className="flex flex-row items-center justify-center"
-                        style={{
-                          height: '50px',
-                          width: '50px',
-                          borderRadius: '50%',
-                          // backgroundColor:
-                          //   item.name === selectedVoiceId
-                          //     ? 'white'
-                          //     : '#d3d3d380',
-                        }}
-                      >
-                        {/* <Image src={"/assets/warning.png"} height={40} width={35} alt='*' /> */}
-                        <Image
-                          // src={avatarImages[index % avatarImages.length]} // Deterministic selection
-                          src={item.img} // Deterministic selection
-                          height={getImageHeight(item)}
-                          width={getImageWidth(item)}
-                          style={{
-                            // backgroundColor:'red',
-                            borderRadius: '50%',
-                            // marginTop: addMarginTop(item),
-                            // marginLeft: addMariginLeft(item),
-                          }}
-                          alt="*"
-                        />
-                      </div>
-                      <div>
-                        <div
-                          className="text-start flex flex-row items-center gap-2"
-                          style={{
-                            fontSize: 17,
-                            fontWeight: '700',
-                          }}
-                        >
-                          {item.name}
-                          {item.status && (
-                            <div className="text-start text-white text-sm font-[500] bg-brand-primary rounded-full px-2 w-fit-content">
-                              {item.status}
-                            </div>
-                          )}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 14,
-                            fontWeight: '500',
-                          }}
-                        >
-                          {item.Dialect}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-row items-center gap-4">
-                      <div>
-                        <svg
-                          width="23"
-                          height="15"
-                          viewBox="0 0 23 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="text-brand-primary"
-                          style={{ color: 'hsl(var(--brand-primary))' }}
-                        >
-                          <rect x="0" y="10" width="3" height="5" rx="1.5" fill="currentColor" />
-                          <rect x="5" y="7" width="3" height="8" rx="1.5" fill="currentColor" />
-                          <rect x="10" y="4" width="3" height="11" rx="1.5" fill="currentColor" />
-                          <rect x="15" y="6" width="3" height="9" rx="1.5" fill="currentColor" />
-                          {/* <rect x="20" y="9" width="3" height="6" rx="1.5" fill="currentColor" /> */}
-                        </svg>
-                      </div>
-                      {item.preview ? (
-                        <div>
-                          {preview === item.preview ? (
-                            <div
-                              onClick={() => {
-                                if (audio) {
-                                  audio.pause()
-                                  audio.removeEventListener('ended', () => {})
-                                }
-                                setPreview(null)
-                              }}
-                            >
-                              <PauseCircle size={38} weight="regular" />
-                            </div>
-                          ) : (
-                            <div
-                              onClick={(e) => {
-                                setPreview(item.preview)
-                                playVoice(item.preview)
-                              }}
-                            >
-                              <Image
-                                src={'/assets/play.png'}
-                                height={25}
-                                width={25}
-                                alt="*"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <div
-                            onClick={(e) => {
-                              setShowNoAudioModal(item)
-                            }}
-                          >
-                            <Image
-                              src={'/assets/play.png'}
-                              height={25}
-                              width={25}
-                              alt="*"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                ))}
+                {/* Voice list to be refactored below */}
+                <div className="w-full flex flex-col gap-3">
+                  {voices.map((item, index) => (
+                    <VoiceListItem key={index} item={item} index={index} />
+                  ))}
+                </div>
               </div>
             </div>
-            {/* {
-                            voicesLoader ?
-                                <div className='w-full flex flex-row justify-center mt-8'>
-                                    <CircularProgress size={35} />
-                                </div> :
-                                
-                        } */}
           </div>
-        </div>
 
         {/* Modal for video */}
         <Modal
@@ -677,18 +699,36 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           </Box>
         </Modal>
 
-        {/* Fixed Footer */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
-          <div className="px-4 pt-3 pb-2">
-            <ProgressBar value={33} />
+          {/* bottom */}
+          <div className="sticky bottom-0 z-40 bg-[#f9f9f9] w-full">
+            <div className="border-t border-black/10">
+              <ProgressBar value={33} />
+            </div>
+            <div className="border-t border-black/10 h-[65px] flex items-center justify-end px-8">
+              {voicesLoader ? (
+                <div className="w-[100px] flex items-center justify-center">
+                  <CircularProgress size={22} />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled={shouldContinue}
+                  className="h-9 min-h-[36px] rounded-[8px] px-4 text-[14px] font-semibold tracking-[0.07px] text-white bg-brand-primary hover:opacity-90 active:scale-[0.98] transition-all duration-150 disabled:bg-black/10 disabled:text-black/60 disabled:hover:opacity-100 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                  onClick={handleContinue}
+                >
+                  Continue
+                </button>
+              )}
+            </div>
           </div>
-          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
-            <Footer
-              handleContinue={handleContinue}
-              handleBack={handleBack}
-              registerLoader={voicesLoader}
-              shouldContinue={shouldContinue}
-            />
+        </div>
+
+        {/* Right panel */}
+        <div className="hidden lg:block lg:basis-[35%] lg:flex-[0_0_35%] bg-brand-primary relative overflow-hidden">
+          <div className="absolute inset-0 opacity-40">
+            <div className="absolute left-1/2 -translate-x-1/2 top-[230px] w-[1146px] h-[570px] border border-white/30 bg-white/[0.01]" />
+            <div className="absolute left-1/2 -translate-x-1/2 top-[-30px] w-[460px] h-[1090px] border border-white/30 bg-white/[0.01]" />
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[460px] h-[481px] border-t-4 border-white bg-gradient-to-b from-white/10 to-transparent" />
           </div>
         </div>
       </div>
