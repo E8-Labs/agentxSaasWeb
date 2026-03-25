@@ -1708,7 +1708,7 @@ function UpgradePlanContent({
         className="flex w-full h-full justify-center items-center px-4 border-none"
         sx={{ ...styles.paymentModal, zIndex: modalZIndex + 1 }}
       >
-        <div className="w-[650px] max-w-[95vw] flex flex-col bg-white rounded-[12px] border border-[#eaeaea] shadow-[0_4px_36px_rgba(0,0,0,0.25)] overflow-hidden">
+        <div className="w-[715px] max-w-[95vw] flex flex-col bg-white rounded-[12px] border border-[#eaeaea] shadow-[0_4px_36px_rgba(0,0,0,0.25)] overflow-hidden">
           <div className="w-full flex flex-col">
             <AgentSelectSnackMessage
               isVisible={credentialsErr}
@@ -1727,267 +1727,531 @@ function UpgradePlanContent({
               message={addCardErrtxt || 'Card added successfully'}
             />
             <div
-              className="w-full flex flex-col max-h-[85vh]"
+              className="w-full flex flex-col max-h-[70vh]"
             >
-              <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
-              <CloseBtn
-                onClick={() => {
-                  setIsPreSelectedPlanTriggered(false)
-                  // setShowRenameAgentPopup(null);
-                  handleClose()
-                }}
-              />
+              <div className="flex flex-row justify-between w-full h-full items-center px-6 pt-4">
+                <h1 className="text-4xl font-bold">
+                  Upgrade Your Plan
+                </h1>
+                <CloseBtn
+                  onClick={() => {
+                    setIsPreSelectedPlanTriggered(false)
+                    // setShowRenameAgentPopup(null);
+                    handleClose()
+                  }}
+                />
               </div>
 
-            <div className="w-full flex flex-col items-stretch pb-4 h-full overflow-hidden">
-              <div
-                className="flex flex-col w-full items-start flex-1 px-6 pb-4"
-                style={{
-                  scrollbarWidth: 'none',
-                  maxHeight: '100%',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Header Section */}
+              <div className="w-full flex flex-col items-stretch pb-4 h-full overflow-hidden">
+                <div
+                  className="flex flex-col w-full items-start flex-1 px-6 pb-4"
+                  style={{
+                    scrollbarWidth: 'none',
+                    maxHeight: '100%',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Header Section */}
 
-                <div className="flex flex-row justify-between mt-2 w-full flex-shrink-0">
-                  <div className="w-full ">
-                    <h1 className="text-4xl font-bold mb-1">
-                      Upgrade Your Plan
-                    </h1>
-                    <div className="text-[15px] font-semibold">
-                      Upgrade for premium features and support
+                  <div className="flex flex-row justify-between mt-2 w-full flex-shrink-0">
+                    <div className="w-full ">
+                      <div className="text-[15px] font-semibold">
+                        Upgrade for premium features and support
+                      </div>
+                    </div>
+
+                    <div className="w-full flex flex-row items-end justify-end">
+                      {!loading && (
+                        <DurationView
+                          selectedDuration={selectedDuration}
+                          handleDurationChange={handleDurationChange}
+                          from={from}
+                          duration={duration}
+                        />
+                      )}
                     </div>
                   </div>
 
-                  <div className="w-full flex flex-row items-end justify-end">
-                    {!loading && (
-                      <DurationView
-                        selectedDuration={selectedDuration}
-                        handleDurationChange={handleDurationChange}
-                        from={from}
-                        duration={duration}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Content Section - overflow-x-hidden so only the plan strip scrolls horizontally */}
-                <div
-                  className="w-full flex flex-col items-start flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
-                  style={{
-                    scrollbarWidth: 'none',
-                  }}
-                >
-                  <div className="text-lg font-semibold">Select Plan</div>
-
+                  {/* Content Section - overflow-x-hidden so only the plan strip scrolls horizontally */}
                   <div
-                    className="w-full min-w-0 max-w-[100%] flex flex-row gap-3 mt-3 overflow-x-auto overflow-y-auto h-[120px] min-h-[120px]"
+                    className="w-full flex flex-col items-start flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
                     style={{
                       scrollbarWidth: 'none',
-                      WebkitOverflowScrolling: 'touch',
                     }}
                   >
-                    {loading ? (
-                      <div className="w-full flex flex-row items-center justify-center h-[50px]">
-                        <CircularProgress className="flex-shrink-0" size={24} />
-                      </div>
-                    ) : (
-                      getCurrentPlans()?.map((item, index) => {
-                        const isCurrentPlan = isPlanCurrent(item)
-                        return (
-                          <button
-                            className={`w-[240px] min-w-[240px] h-[120px] min-h-[120px] flex-shrink-0 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
-                                                        ${isCurrentPlan
-                                ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
-                                : currentSelectedPlan?.id ===
-                                  item.id
-                                  ? 'border-brand-primary shadow-md'
-                                  : 'border-gray-200 hover:border-brand-primary hover:shadow-md'
-                              }`}
-                            key={item.id}
-                            onClick={() => {
-                              handleTogglePlanClick(item, index)
-                              // console.log("Selected item billing cycle is", item.billingCycle)
-                              // const planDuration = getDurationFromBillingCycle(item?.billingCycle);
-                              // setSelectedDuration(planDuration)
-                            }}
-                            disabled={isCurrentPlan}
-                          >
-                            <div className="w-full flex flex-row items-center justify-between flex-shrink-0">
-                              <div className="text-[15px] font-semibold truncate min-w-0 mr-2">
-                                {item.name || item.title}
-                              </div>
+                    <div className="text-lg font-semibold">Select Plan</div>
 
-                              <div className="text-[15px] font-semibold flex-shrink-0">
-                                {`$${formatFractional2(item.discountPrice || item.discountedPrice || item.originalPrice)}`}
-                              </div>
-                            </div>
-
-                            <div className="text-[13px] font-[500] mt-1 min-h-0 flex-1 overflow-hidden line-clamp-2">
-                              {item.details || item.description}
-                            </div>
-
-                            <div
-                              className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold flex-shrink-0
-                                                        ${isCurrentPlan
-                                  ? 'bg-gray-400 text-white cursor-not-allowed'
-                                  : 'bg-brand-primary text-white'
-                                }`}
-                            >
-                              {item?.hasTrial ? `${item?.trialValidForDays} ${item?.trialValidForDays > 1 ? 'Days' : 'Day'} free trial` : isCurrentPlan ? 'Current Plan' : 'Select Plan'}
-                            </div>
-                          </button>
-                        )
-                      })
-                    )}
-                  </div>
-
-                  <div className="flex flex-row items-start w-full gap-10 mt-2">
                     <div
-                      className="w-[50%] flex flex-col items-start h-[33vh] overflow-y-auto"
-                      style={{ scrollbarWidth: 'none' }}
+                      className="w-full min-w-0 max-w-[100%] flex flex-row gap-3 mt-3 overflow-x-auto overflow-y-auto h-[120px] min-h-[120px]"
+                      style={{
+                        scrollbarWidth: 'none',
+                        WebkitOverflowScrolling: 'touch',
+                      }}
                     >
-                      {(cards.length === 0 && !showAddCard) ||
-                        (showAddCard && cards.length > 0) ? (
-                        <CardForm
-                          onCardAdded={setCardAdded}
-                          onCardExpiry={setCardExpiry}
-                          onCVC={setCVC}
-                          onFieldChange={handleFieldChange}
-                          cardNumberRef={cardNumberRef}
-                          cardExpiryRef={cardExpiryRef}
-                          cardCvcRef={cardCvcRef}
-                          inviteCode={inviteCode}
-                          setInviteCode={setInviteCode}
-                          referralStatus={referralStatus}
-                          referralMessage={referralMessage}
-                          addCardLoader={addCardLoader}
-                          handleAddCard={handleAddCard}
-                          onCancel={() => {
-                            setShowAddCard(false)
-                          }}
-                          haveCards={haveCards}
-                        />
-                      ) : (
-                        <div className="flex flex-col gap-2 mt-2 items-start w-full">
-                          <div className="w-full flex flex-row items-center justify-between">
-                            <div className="text-lg font-semibold flex flex-row items-start justify-between">
-                              Payment
-                            </div>
-
-                            <button
-                              onClick={() => {
-                                setShowAddCard(true)
-                              }}
-                              className="text-xs font-medium mt-4 text-brand-primary hover:text-brand-primary/80"
-                            >
-                              + Add Payment
-                            </button>
-                          </div>
-                          {cards?.map((item) => (
-                            <div className="w-full" key={item.id}>
-                              <button
-                                className="w-full outline-none"
-                                onClick={() => makeDefaultCard(item)}
-                                disabled={makeDefaultCardLoader}
-                              >
-                                <div
-                                  className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
-                                  style={{
-                                    backgroundColor:
-                                      item.isDefault ||
-                                        selectedCard?.id === item.id
-                                        ? '#4011FA05'
-                                        : 'transparent',
-                                    borderColor:
-                                      item.isDefault ||
-                                        selectedCard?.id === item.id
-                                        ? 'hsl(var(--brand-primary, 270 75% 50%))'
-                                        : '#15151510',
-                                  }}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`}
-                                      style={{
-                                        borderWidth:
-                                          item.isDefault ||
-                                            selectedCard?.id === item.id
-                                            ? 3
-                                            : 1,
-                                      }}
-                                    ></div>
-
-                                    <Image
-                                      src={
-                                        getCardImage(item) ||
-                                        '/svgIcons/Visa.svg'
-                                      }
-                                      alt="Card Logo"
-                                      width={50}
-                                      height={50}
-                                    />
-
-                                    <div className="text-xs font-normal">
-                                      ****{item.last4}{' '}
-                                      {item.isDefault && (
-                                        <span>{`(default)`}</span>
-                                      )}
-                                      {makeDefaultCardLoader &&
-                                        selectedCard?.id === item.id && (
-                                          <CircularProgress
-                                            size={12}
-                                            style={{ marginLeft: '8px' }}
-                                          />
-                                        )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </button>
-                            </div>
-                          ))}
+                      {loading ? (
+                        <div className="w-full flex flex-row items-center justify-center h-[50px]">
+                          <CircularProgress className="flex-shrink-0" size={24} />
                         </div>
+                      ) : (
+                        getCurrentPlans()?.map((item, index) => {
+                          const isCurrentPlan = isPlanCurrent(item)
+                          return (
+                            <button
+                              className={`w-[240px] min-w-[240px] h-[120px] min-h-[120px] flex-shrink-0 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
+                                                        ${isCurrentPlan
+                                  ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
+                                  : currentSelectedPlan?.id ===
+                                    item.id
+                                    ? 'border-brand-primary shadow-md'
+                                    : 'border-gray-200 hover:border-brand-primary hover:shadow-md'
+                                }`}
+                              key={item.id}
+                              onClick={() => {
+                                handleTogglePlanClick(item, index)
+                                // console.log("Selected item billing cycle is", item.billingCycle)
+                                // const planDuration = getDurationFromBillingCycle(item?.billingCycle);
+                                // setSelectedDuration(planDuration)
+                              }}
+                              disabled={isCurrentPlan}
+                            >
+                              <div className="w-full flex flex-row items-center justify-between flex-shrink-0">
+                                <div className="text-[15px] font-semibold truncate min-w-0 mr-2">
+                                  {item.name || item.title}
+                                </div>
+
+                                <div className="text-[15px] font-semibold flex-shrink-0">
+                                  {`$${formatFractional2(item.discountPrice || item.discountedPrice || item.originalPrice)}`}
+                                </div>
+                              </div>
+
+                              <div className="text-[13px] font-[500] mt-1 min-h-0 flex-1 overflow-hidden line-clamp-2">
+                                {item.details || item.description}
+                              </div>
+
+                              <div
+                                className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold flex-shrink-0
+                                                        ${isCurrentPlan
+                                    ? 'bg-gray-400 text-white cursor-not-allowed'
+                                    : 'bg-brand-primary text-white'
+                                  }`}
+                              >
+                                {item?.hasTrial ? `${item?.trialValidForDays} ${item?.trialValidForDays > 1 ? 'Days' : 'Day'} free trial` : isCurrentPlan ? 'Current Plan' : 'Select Plan'}
+                              </div>
+                            </button>
+                          )
+                        })
                       )}
                     </div>
 
-                    {/* Only show Order Summary if a plan is selected */}
-                    {currentSelectedPlan && (
+                    <div className="flex flex-row items-start w-full gap-10 mt-2">
                       <div
-                        className={`w-[50%] flex flex-col items-start ${haveCards || isAddingNewPaymentMethod ? 'text-black' : 'text-[#8a8a8a]'}`}
+                        className="w-[50%] flex flex-col items-start h-[33vh] overflow-y-auto"
+                        style={{ scrollbarWidth: 'none' }}
                       >
-                        <div className="flex flex-row items-center justify-between w-full">
-                          <div className=" text-xl font-semibold ">
-                            Order Summary
-                          </div>
-                        </div>
-                        <div className="flex flex-row items-start justify-between w-full mt-6">
-                          <div>
-                            <div className=" text-lg font-semibold">
-                              {currentSelectedPlan
-                                ? `${currentSelectedPlan?.name || currentSelectedPlan?.title}`
-                                : 'No Plan Selected'}
+                        {(cards.length === 0 && !showAddCard) ||
+                          (showAddCard && cards.length > 0) ? (
+                          <CardForm
+                            onCardAdded={setCardAdded}
+                            onCardExpiry={setCardExpiry}
+                            onCVC={setCVC}
+                            onFieldChange={handleFieldChange}
+                            cardNumberRef={cardNumberRef}
+                            cardExpiryRef={cardExpiryRef}
+                            cardCvcRef={cardCvcRef}
+                            inviteCode={inviteCode}
+                            setInviteCode={setInviteCode}
+                            referralStatus={referralStatus}
+                            referralMessage={referralMessage}
+                            addCardLoader={addCardLoader}
+                            handleAddCard={handleAddCard}
+                            onCancel={() => {
+                              setShowAddCard(false)
+                            }}
+                            haveCards={haveCards}
+                          />
+                        ) : (
+                          <div className="flex flex-col gap-2 mt-2 items-start w-full">
+                            <div className="w-full flex flex-row items-center justify-between">
+                              <div className="text-lg font-semibold flex flex-row items-start justify-between">
+                                Payment
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  setShowAddCard(true)
+                                }}
+                                className="text-xs font-medium mt-4 text-brand-primary hover:text-brand-primary/80"
+                              >
+                                + Add Payment
+                              </button>
                             </div>
-                            <div className=" text-xs font-regular capitalize">
+                            {cards?.map((item) => (
+                              <div className="w-full" key={item.id}>
+                                <button
+                                  className="w-full outline-none"
+                                  onClick={() => makeDefaultCard(item)}
+                                  disabled={makeDefaultCardLoader}
+                                >
+                                  <div
+                                    className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
+                                    style={{
+                                      backgroundColor:
+                                        item.isDefault ||
+                                          selectedCard?.id === item.id
+                                          ? '#4011FA05'
+                                          : 'transparent',
+                                      borderColor:
+                                        item.isDefault ||
+                                          selectedCard?.id === item.id
+                                          ? 'hsl(var(--brand-primary, 270 75% 50%))'
+                                          : '#15151510',
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`}
+                                        style={{
+                                          borderWidth:
+                                            item.isDefault ||
+                                              selectedCard?.id === item.id
+                                              ? 3
+                                              : 1,
+                                        }}
+                                      ></div>
+
+                                      <Image
+                                        src={
+                                          getCardImage(item) ||
+                                          '/svgIcons/Visa.svg'
+                                        }
+                                        alt="Card Logo"
+                                        width={50}
+                                        height={50}
+                                      />
+
+                                      <div className="text-xs font-normal">
+                                        ****{item.last4}{' '}
+                                        {item.isDefault && (
+                                          <span>{`(default)`}</span>
+                                        )}
+                                        {makeDefaultCardLoader &&
+                                          selectedCard?.id === item.id && (
+                                            <CircularProgress
+                                              size={12}
+                                              style={{ marginLeft: '8px' }}
+                                            />
+                                          )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Only show Order Summary if a plan is selected */}
+                      {currentSelectedPlan && (
+                        <div
+                          className={`w-[50%] flex flex-col items-start ${haveCards || isAddingNewPaymentMethod ? 'text-black' : 'text-[#8a8a8a]'} border border-[black/0.02] rounded-lg p-4`}
+                        >
+                          <div className="flex flex-row items-center justify-between w-full">
+                            <div className=" text-xl font-semibold ">
+                              Order Summary
+                            </div>
+                          </div>
+                          <div className="flex flex-row items-start justify-between w-full mt-6">
+                            <div>
+                              <div className=" text-lg font-semibold">
+                                {currentSelectedPlan
+                                  ? `${currentSelectedPlan?.name || currentSelectedPlan?.title}`
+                                  : 'No Plan Selected'}
+                              </div>
+                              <div className=" text-xs font-regular capitalize">
+                                {currentSelectedPlan
+                                  ? `${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration} subscription`
+                                  : ''}
+                              </div>
+                              {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
+                            </div>
+                            <div
+                              className=""
+                              style={{ fontWeight: '600', fontSize: 15 }}
+                            >
                               {currentSelectedPlan
-                                ? `${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration} subscription`
+                                ? `$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`
                                 : ''}
                             </div>
-                            {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                           </div>
-                          <div
-                            className=""
-                            style={{ fontWeight: '600', fontSize: 15 }}
-                          >
-                            {currentSelectedPlan
-                              ? `$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`
-                              : ''}
+
+                          {/* Calculate discount if promo code is applied. Total Billed = actual recurring amount; Due Today (below) = $0 when trial */}
+                          {(() => {
+                            const hasTrial = currentSelectedPlan?.hasTrial === true
+                            const billingMonths = GetMonthCountFronBillingCycle(
+                              currentSelectedPlan?.billingCycle ||
+                              currentSelectedPlan?.duration,
+                            )
+                            const monthlyPrice =
+                              currentSelectedPlan?.discountPrice ||
+                              currentSelectedPlan?.discountedPrice ||
+                              currentSelectedPlan?.originalPrice ||
+                              0
+                            const originalTotal = billingMonths * monthlyPrice
+                            const discountCalculation = promoCodeDetails
+                              ? calculateDiscountedPrice(
+                                currentSelectedPlan,
+                                promoCodeDetails,
+                              )
+                              : null
+
+                            const est = promoCodeDetails?.estimatedDiscount
+                            const useApiTotals =
+                              est != null &&
+                              !Number.isNaN(Number(est.finalPrice))
+                            const finalTotal = useApiTotals
+                              ? Number(est.finalPrice)
+                              : discountCalculation
+                                ? discountCalculation.finalPrice
+                                : originalTotal
+                            const displayDiscountAmount = useApiTotals
+                              ? Number(est.discountAmount)
+                              : discountCalculation?.discountAmount ?? 0
+
+                            return (
+                              <>
+                                {discountCalculation && (
+                                  <div className="flex flex-row items-start justify-between w-full mt-4">
+                                    <div>
+                                      <div
+                                        className="text-brand-primary"
+                                        style={{
+                                          fontWeight: '600',
+                                          fontSize: 15,
+                                        }}
+                                      >
+                                        Promo Code Applied
+                                      </div>
+                                      <div
+                                        style={{
+                                          fontWeight: '400',
+                                          fontSize: 13,
+                                          marginTop: '4px',
+                                        }}
+                                      >
+                                        {promoCodeDetails.discountType ===
+                                          'percentage'
+                                          ? `${promoCodeDetails.discountValue}% off`
+                                          : `$${promoCodeDetails.discountValue} off`}
+                                        {promoCodeDetails.discountDurationMonths
+                                          ? ` for ${promoCodeDetails.discountDurationMonths} month${promoCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
+                                          : ''}
+                                      </div>
+                                    </div>
+                                    <div
+                                      className="text-brand-primary"
+                                      style={{
+                                        fontWeight: '600',
+                                        fontSize: 15,
+                                      }}
+                                    >
+                                      -$
+                                      {formatFractional2(displayDiscountAmount)}
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="flex flex-row items-start justify-between w-full mt-6">
+                                  <div>
+                                    <div
+                                      className="capitalize"
+                                      style={{ fontWeight: '600', fontSize: 15 }}
+                                    >
+                                      {` Total Billed ${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration}`}
+                                    </div>
+                                    <div
+                                      className=""
+                                      style={{
+                                        fontWeight: '400',
+                                        fontSize: 13,
+                                        marginTop: '',
+                                      }}
+                                    >
+                                      Next Charge Date{' '}
+                                      {(() => {
+                                        const isFullDiscount =
+                                          promoCodeDetails?.discountType === 'percentage' &&
+                                          Number(promoCodeDetails?.discountValue) === 100 &&
+                                          promoCodeDetails?.discountDurationMonths > 0
+                                        if (isFullDiscount) {
+                                          return moment()
+                                            .add(promoCodeDetails.discountDurationMonths, 'months')
+                                            .format('MMMM DD, YYYY')
+                                        }
+                                        return (
+                                          promoCodeDetails?.nextChargeDateFormatted ||
+                                          moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')
+                                        )
+                                      })()}
+                                    </div>
+                                    {discountCalculation &&
+                                      discountCalculation.discountMonths > 0 && (
+                                        <div
+                                          style={{
+                                            fontWeight: '400',
+                                            fontSize: 12,
+                                            marginTop: '4px',
+                                            color: '#666',
+                                          }}
+                                        >
+                                          {discountCalculation.discountMonths}{' '}
+                                          month
+                                          {discountCalculation.discountMonths > 1
+                                            ? 's'
+                                            : ''}{' '}
+                                          at{' '}
+                                          {promoCodeDetails.discountType ===
+                                            'percentage'
+                                            ? `${promoCodeDetails.discountValue}%`
+                                            : `$${promoCodeDetails.discountValue}`}{' '}
+                                          off
+                                          {discountCalculation.fullPriceMonths >
+                                            0 &&
+                                            `, ${discountCalculation.fullPriceMonths} month${discountCalculation.fullPriceMonths > 1 ? 's' : ''} at full price`}
+                                        </div>
+                                      )}
+                                  </div>
+                                  <div
+                                    className=""
+                                    style={{ fontWeight: '600', fontSize: 15 }}
+                                  >
+                                    {(() => {
+                                      const hasTrial = currentSelectedPlan?.hasTrial === true
+                                      if (hasTrial && !hasRedeemedTrial) return '$0'
+                                      return discountCalculation
+                                        ? `$${formatFractional2(finalTotal)}`
+                                        : `$${formatFractional2(originalTotal)}`
+                                    })()}
+                                  </div>
+                                </div>
+
+                                {inviteCode && !promoCodeDetails && (
+                                  <div>
+                                    <div className="flex flex-row items-start justify-between w-full mt-6">
+                                      <div>
+                                        <div
+                                          style={{
+                                            fontWeight: '600',
+                                            fontSize: 15,
+                                          }}
+                                        >
+                                          Referral Code
+                                        </div>
+                                        <div
+                                          style={{
+                                            fontWeight: '400',
+                                            fontSize: 13,
+                                            marginTop: '',
+                                          }}
+                                        >
+                                          {referralMessage}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            )
+                          })()}
+
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {/* Terms and Conditions - Only show when adding new payment method */}
+
+                  {/* Upgrade Button Section - Fixed at bottom */}
+                  <div className="flex w-full flex-shrink-0 mt-4">
+                    <div className="w-full">
+                      {isAddingNewPaymentMethod && (
+                        <div className="w-full">
+                          <div className="w-full mb-4 flex flex-row items-center gap-3">
+                            <button
+                              className="outline-none border-none"
+                              onClick={() => setAgreeTerms(!agreeTerms)}
+                            >
+                              {agreeTerms ? (
+                                <div
+                                  className="bg-brand-primary flex flex-row items-center justify-center rounded"
+                                  style={{ height: '24px', width: '24px' }}
+                                >
+                                  <Image
+                                    src={'/assets/whiteTick.png'}
+                                    height={8}
+                                    width={10}
+                                    alt="*"
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="bg-none border-2 border-gray-300 flex flex-row items-center justify-center rounded"
+                                  style={{ height: '24px', width: '24px' }}
+                                ></div>
+                              )}
+                            </button>
+
+                            <div
+                              className="flex flex-row items-center gap-1"
+                              style={{
+                                fontWeight: '500',
+                                fontSize: 15,
+                              }}
+                            >
+                              <div>I agree to</div>
+                              <a
+                                href="#"
+                                onClick={async (e) => {
+                                  e.preventDefault()
+                                  const { termsUrl } = await getPolicyUrls(selectedUser)
+                                  window.open(termsUrl, '_blank')
+                                }}
+                                className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
+                                rel="noopener noreferrer"
+                              >
+                                Terms & Conditions
+                              </a>
+                            </div>
                           </div>
                         </div>
-
-                        {/* Calculate discount if promo code is applied. Total Billed = actual recurring amount; Due Today (below) = $0 when trial */}
+                      )}
+                    </div>
+                    <div className="flex flex-row w-full justify-between items-center mt-1 ps-4">
+                      <div className=" text-3xl font-semibold  ">Total:</div>
+                      <div className=" text-3xl font-semibold  ">
                         {(() => {
+                          if (!currentSelectedPlan) return '$0'
                           const hasTrial = currentSelectedPlan?.hasTrial === true
+                          if (hasTrial && !hasRedeemedTrial) return '$0'
+                          const discountCalculation = promoCodeDetails
+                            ? calculateDiscountedPrice(
+                              currentSelectedPlan,
+                              promoCodeDetails,
+                            )
+                            : null
+
+                          const est = promoCodeDetails?.estimatedDiscount
+                          const apiFinal =
+                            est?.finalPrice != null ? Number(est.finalPrice) : NaN
+                          if (
+                            promoCodeDetails &&
+                            !Number.isNaN(apiFinal)
+                          ) {
+                            return `$${formatFractional2(apiFinal)}`
+                          }
+                          if (discountCalculation) {
+                            return `$${formatFractional2(discountCalculation.finalPrice)}`
+                          }
+
                           const billingMonths = GetMonthCountFronBillingCycle(
                             currentSelectedPlan?.billingCycle ||
                             currentSelectedPlan?.duration,
@@ -1997,304 +2261,39 @@ function UpgradePlanContent({
                             currentSelectedPlan?.discountedPrice ||
                             currentSelectedPlan?.originalPrice ||
                             0
-                          const originalTotal = billingMonths * monthlyPrice
-                          const discountCalculation = promoCodeDetails
-                            ? calculateDiscountedPrice(
-                              currentSelectedPlan,
-                              promoCodeDetails,
-                            )
-                            : null
-
-                          const est = promoCodeDetails?.estimatedDiscount
-                          const useApiTotals =
-                            est != null &&
-                            !Number.isNaN(Number(est.finalPrice))
-                          const finalTotal = useApiTotals
-                            ? Number(est.finalPrice)
-                            : discountCalculation
-                              ? discountCalculation.finalPrice
-                              : originalTotal
-                          const displayDiscountAmount = useApiTotals
-                            ? Number(est.discountAmount)
-                            : discountCalculation?.discountAmount ?? 0
-
-                          return (
-                            <>
-                              {discountCalculation && (
-                                <div className="flex flex-row items-start justify-between w-full mt-4">
-                                  <div>
-                                    <div
-                                      className="text-brand-primary"
-                                      style={{
-                                        fontWeight: '600',
-                                        fontSize: 15,
-                                      }}
-                                    >
-                                      Promo Code Applied
-                                    </div>
-                                    <div
-                                      style={{
-                                        fontWeight: '400',
-                                        fontSize: 13,
-                                        marginTop: '4px',
-                                      }}
-                                    >
-                                      {promoCodeDetails.discountType ===
-                                        'percentage'
-                                        ? `${promoCodeDetails.discountValue}% off`
-                                        : `$${promoCodeDetails.discountValue} off`}
-                                      {promoCodeDetails.discountDurationMonths
-                                        ? ` for ${promoCodeDetails.discountDurationMonths} month${promoCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
-                                        : ''}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className="text-brand-primary"
-                                    style={{
-                                      fontWeight: '600',
-                                      fontSize: 15,
-                                    }}
-                                  >
-                                    -$
-                                    {formatFractional2(displayDiscountAmount)}
-                                  </div>
-                                </div>
-                              )}
-
-                              <div className="flex flex-row items-start justify-between w-full mt-6">
-                                <div>
-                                  <div
-                                    className="capitalize"
-                                    style={{ fontWeight: '600', fontSize: 15 }}
-                                  >
-                                    {` Total Billed ${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration}`}
-                                  </div>
-                                  <div
-                                    className=""
-                                    style={{
-                                      fontWeight: '400',
-                                      fontSize: 13,
-                                      marginTop: '',
-                                    }}
-                                  >
-                                    Next Charge Date{' '}
-                                    {(() => {
-                                      const isFullDiscount =
-                                        promoCodeDetails?.discountType === 'percentage' &&
-                                        Number(promoCodeDetails?.discountValue) === 100 &&
-                                        promoCodeDetails?.discountDurationMonths > 0
-                                      if (isFullDiscount) {
-                                        return moment()
-                                          .add(promoCodeDetails.discountDurationMonths, 'months')
-                                          .format('MMMM DD, YYYY')
-                                      }
-                                      return (
-                                        promoCodeDetails?.nextChargeDateFormatted ||
-                                        moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')
-                                      )
-                                    })()}
-                                  </div>
-                                  {discountCalculation &&
-                                    discountCalculation.discountMonths > 0 && (
-                                      <div
-                                        style={{
-                                          fontWeight: '400',
-                                          fontSize: 12,
-                                          marginTop: '4px',
-                                          color: '#666',
-                                        }}
-                                      >
-                                        {discountCalculation.discountMonths}{' '}
-                                        month
-                                        {discountCalculation.discountMonths > 1
-                                          ? 's'
-                                          : ''}{' '}
-                                        at{' '}
-                                        {promoCodeDetails.discountType ===
-                                          'percentage'
-                                          ? `${promoCodeDetails.discountValue}%`
-                                          : `$${promoCodeDetails.discountValue}`}{' '}
-                                        off
-                                        {discountCalculation.fullPriceMonths >
-                                          0 &&
-                                          `, ${discountCalculation.fullPriceMonths} month${discountCalculation.fullPriceMonths > 1 ? 's' : ''} at full price`}
-                                      </div>
-                                    )}
-                                </div>
-                                <div
-                                  className=""
-                                  style={{ fontWeight: '600', fontSize: 15 }}
-                                >
-                                  {(() => {
-                                    const hasTrial = currentSelectedPlan?.hasTrial === true
-                                    if (hasTrial && !hasRedeemedTrial) return '$0'
-                                    return discountCalculation
-                                      ? `$${formatFractional2(finalTotal)}`
-                                      : `$${formatFractional2(originalTotal)}`
-                                  })()}
-                                </div>
-                              </div>
-
-                              {inviteCode && !promoCodeDetails && (
-                                <div>
-                                  <div className="flex flex-row items-start justify-between w-full mt-6">
-                                    <div>
-                                      <div
-                                        style={{
-                                          fontWeight: '600',
-                                          fontSize: 15,
-                                        }}
-                                      >
-                                        Referral Code
-                                      </div>
-                                      <div
-                                        style={{
-                                          fontWeight: '400',
-                                          fontSize: 13,
-                                          marginTop: '',
-                                        }}
-                                      >
-                                        {referralMessage}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          )
+                          return `$${formatFractional2(billingMonths * monthlyPrice)}`
                         })()}
-
-                        <div className="w-full h-[1px] bg-gray-200 my-2"></div>
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-                {/* Terms and Conditions - Only show when adding new payment method */}
 
-                {/* Upgrade Button Section - Fixed at bottom */}
-                <div className="flex w-full flex-shrink-0 mt-4">
-                  <div className="w-full">
-                    {isAddingNewPaymentMethod && (
-                      <div className="w-full">
-                        <div className="w-full mb-4 flex flex-row items-center gap-3">
-                          <button
-                            className="outline-none border-none"
-                            onClick={() => setAgreeTerms(!agreeTerms)}
-                          >
-                            {agreeTerms ? (
-                              <div
-                                className="bg-brand-primary flex flex-row items-center justify-center rounded"
-                                style={{ height: '24px', width: '24px' }}
-                              >
-                                <Image
-                                  src={'/assets/whiteTick.png'}
-                                  height={8}
-                                  width={10}
-                                  alt="*"
-                                />
-                              </div>
-                            ) : (
-                              <div
-                                className="bg-none border-2 border-gray-300 flex flex-row items-center justify-center rounded"
-                                style={{ height: '24px', width: '24px' }}
-                              ></div>
-                            )}
-                          </button>
-
-                          <div
-                            className="flex flex-row items-center gap-1"
-                            style={{
-                              fontWeight: '500',
-                              fontSize: 15,
-                            }}
-                          >
-                            <div>I agree to</div>
-                            <a
-                              href="#"
-                              onClick={async (e) => {
-                                e.preventDefault()
-                                const { termsUrl } = await getPolicyUrls(selectedUser)
-                                window.open(termsUrl, '_blank')
-                              }}
-                              className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
-                              rel="noopener noreferrer"
-                            >
-                              Terms & Conditions
-                            </a>
+                  {/* Hide button if selected plan is the current plan */}
+                  {currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' && (
+                    <div className="w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3">
+                      <div className="w-1/2"></div>
+                      <div className="w-1/2">
+                        {subscribeLoader ? (
+                          <div className="w-full flex flex-col items-center justify-center md:h-[53px] h-[42px]">
+                            <CircularProgress size={25} />
                           </div>
-                        </div>
+                        ) : (
+                          <button
+                            className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
+                            onClick={() => {
+                              if (isUpgradeButtonEnabled()) {
+                                handleSubscribePlan()
+                              }
+                            }}
+                          >{getButtonText()}</button>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="flex flex-row w-full justify-between items-center mt-1 ps-4">
-                    <div className=" text-3xl font-semibold  ">Total:</div>
-                    <div className=" text-3xl font-semibold  ">
-                      {(() => {
-                        if (!currentSelectedPlan) return '$0'
-                        const hasTrial = currentSelectedPlan?.hasTrial === true
-                        if (hasTrial && !hasRedeemedTrial) return '$0'
-                        const discountCalculation = promoCodeDetails
-                          ? calculateDiscountedPrice(
-                            currentSelectedPlan,
-                            promoCodeDetails,
-                          )
-                          : null
-
-                        const est = promoCodeDetails?.estimatedDiscount
-                        const apiFinal =
-                          est?.finalPrice != null ? Number(est.finalPrice) : NaN
-                        if (
-                          promoCodeDetails &&
-                          !Number.isNaN(apiFinal)
-                        ) {
-                          return `$${formatFractional2(apiFinal)}`
-                        }
-                        if (discountCalculation) {
-                          return `$${formatFractional2(discountCalculation.finalPrice)}`
-                        }
-
-                        const billingMonths = GetMonthCountFronBillingCycle(
-                          currentSelectedPlan?.billingCycle ||
-                          currentSelectedPlan?.duration,
-                        )
-                        const monthlyPrice =
-                          currentSelectedPlan?.discountPrice ||
-                          currentSelectedPlan?.discountedPrice ||
-                          currentSelectedPlan?.originalPrice ||
-                          0
-                        return `$${formatFractional2(billingMonths * monthlyPrice)}`
-                      })()}
                     </div>
-                  </div>
+                  )}
                 </div>
-
-                {/* Hide button if selected plan is the current plan */}
-                {currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' && (
-                  <div className="w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3">
-                    <div className="w-1/2"></div>
-                    <div className="w-1/2">
-                      {subscribeLoader ? (
-                        <div className="w-full flex flex-col items-center justify-center md:h-[53px] h-[42px]">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <button
-                          className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
-                          onClick={() => {
-                            if (isUpgradeButtonEnabled()) {
-                              handleSubscribePlan()
-                            }
-                          }}
-                        >{getButtonText()}</button>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
-      </div>
       </Box>
     </Modal>
   )

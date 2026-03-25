@@ -1531,7 +1531,7 @@ function UpgradePlanContent({
       }}
     >
       <Box
-        className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
+        className="flex w-[715px] max-w-[90vw] justify-center items-center border-none"
         sx={styles.paymentModal}
       >
         <div className="flex flex-col justify-center w-full h-full">
@@ -1557,11 +1557,14 @@ function UpgradePlanContent({
               backgroundColor: '#ffffff',
               padding: 0,
               borderRadius: '13px',
-              maxHeight: '85vh',
+              maxHeight: '70vh',
               height: 'auto',
             }}
           >
-            <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-5">
+            <div className="flex flex-row justify-between w-full h-full items-center px-6 pt-4">
+              <h1 className="text-4xl font-bold">
+                Upgrade Your Plan
+              </h1>
               <CloseBtn
                 onClick={() => {
                   setIsPreSelectedPlanTriggered(false)
@@ -1571,8 +1574,8 @@ function UpgradePlanContent({
               />
             </div>
 
-            <div className="w-full flex flex-row items-stretch pb-4 content-div h-full overflow-hidden">
-              {/* Left Logo */}
+            <div className="w-full flex flex-row items-stretch pb-4 content-div h-full overflow-hidden px-6">
+              {/* Left Logo 
               <div
                 className="flex flex-col LeftInnerDiv1 items-start justify-center w-[20%]"
                 style={{
@@ -1590,10 +1593,10 @@ function UpgradePlanContent({
                     boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)' // purple shadow
                   }}
                 />
-              </div>
+              </div>*/}
 
               <div
-                className="flex flex-col w-[75%] items-start flex-1 px-6 pb-4"
+                className="flex flex-col w-[100%] items-start flex-1 pb-4"
                 style={{
                   scrollbarWidth: 'none',
                   maxHeight: '100%',
@@ -1604,9 +1607,6 @@ function UpgradePlanContent({
 
                 <div className="flex flex-row justify-between mt-2 w-full flex-shrink-0">
                   <div className="w-full ">
-                    <h1 className="text-4xl font-bold mb-1">
-                      Upgrade Your Plan
-                    </h1>
                     <div className="text-[15px] font-semibold">
                       Upgrade for premium features and support
                     </div>
@@ -1806,17 +1806,17 @@ function UpgradePlanContent({
                     {/* Only show Order Summary if a plan is selected */}
                     {currentSelectedPlan && (
                       <div
-                        className={`w-[50%] flex flex-col items-start ${haveCards || isAddingNewPaymentMethod ? 'text-black' : 'text-[#8a8a8a]'}`}
+                        className={`w-[50%] border border-[black/0.02] rounded-lg p-4 flex flex-col items-start ${haveCards || isAddingNewPaymentMethod ? 'text-black' : 'text-[#8a8a8a]'}`}
                       >
                         <div className="flex flex-row items-center justify-between w-full">
-                          <div className=" text-xl font-semibold ">
+                          <div className="text-xl font-semibold">
                             Order Summary
                           </div>
                           <div>
                             {currentSelectedPlan?.hasTrial ? `${currentSelectedPlan?.trialValidForDays} ${currentSelectedPlan?.trialValidForDays > 1 ? 'Days' : 'Day'} free trial` : ''}
                           </div>
                         </div>
-                        <div className="flex flex-row items-start justify-between w-full mt-6">
+                        <div className="flex flex-row items-start justify-between w-full mt-4">
                           <div>
                             <div className=" text-lg font-semibold">
                               {currentSelectedPlan
@@ -1908,7 +1908,7 @@ function UpgradePlanContent({
                                 </div>
                               )}
 
-                              <div className="flex flex-row items-start justify-between w-full mt-6">
+                              <div className="flex flex-row items-start justify-between w-full mt-4">
                                 <div>
                                   <div
                                     className="capitalize"
@@ -1966,7 +1966,7 @@ function UpgradePlanContent({
 
                               {inviteCode && !promoCodeDetails && (
                                 <div>
-                                  <div className="flex flex-row items-start justify-between w-full mt-6">
+                                  <div className="flex flex-row items-start justify-between w-full mt-4">
                                     <div>
                                       <div
                                         style={{
@@ -1993,7 +1993,7 @@ function UpgradePlanContent({
                           )
                         })()}
 
-                        <div className="w-full h-[1px] bg-gray-200 my-2"></div>
+                        {/*<div className="w-full h-[1px] bg-gray-200 my-2"></div>*/}
                       </div>
                     )}
                   </div>
@@ -2055,7 +2055,7 @@ function UpgradePlanContent({
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-row w-full justify-between items-center mt-1 ps-4">
+                  <div className="flex flex-row w-full justify-between items-center mt-1">
                     <div className=" text-3xl font-semibold  ">Total:</div>
                     <div className=" text-3xl font-semibold  ">
                       {(() => {
@@ -2090,6 +2090,7 @@ function UpgradePlanContent({
                     </div>
                   </div>
                 </div>
+
 
                 {/* Hide button if selected plan is the current plan */}
                 {currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' && (
