@@ -493,7 +493,7 @@ const ThreadsList = ({
 
       <div
         ref={setScrollContainerRef}
-        className="flex-1 overflow-x-hidden overflow-y-auto"
+        className="flex-1 overflow-x-hidden overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary"
         aria-label="Threads list"
       >
         {searchLoading ? (

@@ -104,6 +104,7 @@ import { uploadBatchSequence } from './extras/UploadBatch'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { FileUp, Plus } from 'lucide-react'
 import NewContactDrawer from '@/components/messaging/NewContactDrawer'
+import DeleteTagConfirmModal from '../myagentX/DeleteTagConfirmModal'
 
 const Leads1 = () => {
   const addColRef = useRef(null)
@@ -2094,51 +2095,19 @@ const Leads1 = () => {
         />
 
         {/* Delete Column Modal */}
-        <Modal
+
+        <DeleteTagConfirmModal
+          title="column"
+          description="Are you sure you want to delete this column?"
           open={ShowDelCol}
           onClose={() => setShowDelCol(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: { backgroundColor: 'rgba(0, 0, 0, 0.1)' },
+          onConfirm={() => {
+            ChangeColumnName(null)
+            setShowDelCol(false)
           }}
-        >
-          <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
-                }}
-              >
-                <div className="font-bold text-xl mt-6">
-                  Are you sure you want to delete this column
-                </div>
-                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                  <button
-                    className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
-                    onClick={() => {
-                      setShowDelCol(false)
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="w-1/2 text-red font-bold text-xl text-[#6b7280] h-[50px]"
-                    onClick={() => {
-                      ChangeColumnName(null)
-                      setShowDelCol(false)
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Box>
-        </Modal>
+          loading={false}
+          tag={null}
+        />
 
         {/* Not matched Columns popover – Firecrawl-style dropdown */}
         <Popover

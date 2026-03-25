@@ -180,7 +180,7 @@ const SubAccountUserType = ({ onClose, userData, onContinue }) => {
           Select an Agent
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary max-h-[80%] mt-2 px-6">
+      <div className="flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary max-h-[80%] mt-2 px-6">
         <div className="flex flex-wrap w-full">
           {userType.map((item) => (
             <div key={item.id} className="flex w-6/12 md:w-4/12 p-2">

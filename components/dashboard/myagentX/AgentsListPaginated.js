@@ -673,7 +673,7 @@ const AgentsListPaginated = ({
                                   className="flex items-center gap-0.5 text-xs font-medium text-[#666666] underline decoration-dotted decoration-[#666666]/60 underline-offset-[3px] hover:opacity-90"
                                 >
                                   {item.tags && item.tags.length > 0 ? (
-                                    <div className="flex flex-row items-center gap-2 w-full min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin flex-nowrap" style={{ scrollbarWidth: 'thin' }}>
+                                    <div className="flex flex-row items-center gap-2 w-full min-w-0 overflow-x-auto overflow-y-hidden scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-gray-300 flex-nowrap" style={{ scrollbarWidth: 'thin' }}>
                                       {item.tags.slice(0, 3).map((tagLabel, index) => (
                                         <button
                                           key={`${tagLabel}-${index}`}
