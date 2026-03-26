@@ -783,26 +783,68 @@ const NewMessageModal = ({
         '{Meeting Location}',
       ]
 
+      const normalizeVariable = (value) => {
+        if (typeof value !== 'string') return ''
+        const trimmed = value.trim()
+        if (!trimmed) return ''
+
+        // Normalize {Variable} and Variable to the same key
+        const withoutLeadingBrace = trimmed.startsWith('{') ? trimmed.slice(1) : trimmed
+        const withoutTrailingBrace = withoutLeadingBrace.endsWith('}')
+          ? withoutLeadingBrace.slice(0, -1)
+          : withoutLeadingBrace
+
+        return withoutTrailingBrace.trim()
+      }
+
+      const hasWrappingBraces = (value) => typeof value === 'string' && value.startsWith('{') && value.endsWith('}')
+
+      const dedupeByNormalized = (values) => {
+        const byNormalized = new Map() // normalized -> { value, index, hasBrace }
+
+        values.forEach((value, index) => {
+          if (typeof value !== 'string') return
+          const normalized = normalizeVariable(value)
+          if (!normalized) return
+
+          const existing = byNormalized.get(normalized)
+          if (!existing) {
+            byNormalized.set(normalized, { value, index, hasBrace: hasWrappingBraces(value) })
+            return
+          }
+
+          // Prefer the brace-wrapped variant when both exist.
+          if (hasWrappingBraces(value) && !existing.hasBrace) {
+            existing.value = value
+            existing.hasBrace = true
+          }
+        })
+
+        return Array.from(byNormalized.values())
+          .sort((a, b) => a.index - b.index)
+          .map((entry) => entry.value)
+      }
+
       let res = await getUniquesColumn(userId)
 
       let columns
       if (res && Array.isArray(res)) {
-        columns = [
-          ...defaultColumns,
-          ...res.filter((col) => !defaultColumns.includes(col)),
-        ]
+        const apiColumns = res.filter((col) => typeof col === 'string' && col.trim())
+        columns = [...defaultColumns, ...apiColumns]
       } else {
         columns = [...defaultColumns]
       }
 
       if (isBookingStage) {
-        columns = [
-          ...columns,
-          ...bookingVariables.filter((col) => !columns.includes(col)),
-        ]
+        const existingNormalized = new Set(columns.map((col) => normalizeVariable(col)))
+        const bookingVariablesToAdd = bookingVariables.filter(
+          (col) => !existingNormalized.has(normalizeVariable(col)),
+        )
+        columns = [...columns, ...bookingVariablesToAdd]
       }
 
-      setUniqueColumns(columns)
+      // Final safety-net against duplicates (e.g. API returns Variable vs {Variable})
+      setUniqueColumns(dedupeByNormalized(columns))
     } catch (error) {
       console.error('Error fetching unique columns:', error)
       const fallback = [
@@ -1883,7 +1925,7 @@ const NewMessageModal = ({
         aria-describedby="new-message-description"
         slotProps={{
           root: {
-            style: { zIndex: modalZIndex },
+            style: { zIndex: modalZIndex, transitionDuration: '250ms' },
           },
         }}
         sx={{
@@ -1894,11 +1936,6 @@ const NewMessageModal = ({
           sx: {
             zIndex: 1500,
             backgroundColor: 'rgba(0,0,0,0.6)',
-          },
-        }}
-        slotProps={{
-          root: {
-            style: { transitionDuration: '250ms' },
           },
         }}
       >

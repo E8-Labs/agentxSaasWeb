@@ -3071,7 +3071,48 @@ function Page() {
 
       if (response) {
         if (response.data.status === true) {
-          setUniqueColumns(response.data.data)
+          const normalizeVariable = (value) => {
+            if (typeof value !== 'string') return ''
+            const trimmed = value.trim()
+            if (!trimmed) return ''
+
+            // Normalize {Variable} and Variable to the same key
+            const withoutLeadingBrace = trimmed.startsWith('{') ? trimmed.slice(1) : trimmed
+            const withoutTrailingBrace = withoutLeadingBrace.endsWith('}')
+              ? withoutLeadingBrace.slice(0, -1)
+              : withoutLeadingBrace
+
+            return withoutTrailingBrace.trim()
+          }
+
+          const defaultColumns = [
+            '{Appointment DateTime}',
+            '{Timezone}',
+            '{Duration}',
+            '{Meeting Location}',
+          ]
+
+          const apiColumns = Array.isArray(response.data.data) ? response.data.data : []
+          const existingNormalized = new Set(apiColumns.map((col) => normalizeVariable(col)))
+          const columnsToAdd = defaultColumns.filter(
+            (col) => !existingNormalized.has(normalizeVariable(col)),
+          )
+
+          // Safety-net: remove any remaining duplicates even if API returns mixed formats
+          const dedupeByNormalized = (values) => {
+            const byNormalized = new Map()
+
+            values.forEach((value) => {
+              if (typeof value !== 'string') return
+              const normalized = normalizeVariable(value)
+              if (!normalized) return
+              if (!byNormalized.has(normalized)) byNormalized.set(normalized, value)
+            })
+
+            return Array.from(byNormalized.values())
+          }
+
+          setUniqueColumns(dedupeByNormalized([...apiColumns, ...columnsToAdd]))
         }
       }
     } catch (error) {
@@ -3237,7 +3278,7 @@ function Page() {
       } else {
         setShowErrorSnack(
           response?.data?.message ||
-            'Call could not be initiated. Please try again.',
+          'Call could not be initiated. Please try again.',
         )
         setIsVisibleSnack2(true)
       }
