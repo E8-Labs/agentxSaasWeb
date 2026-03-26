@@ -27,6 +27,7 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import DelConfirmationModal from '@/components/common/DelConfirmationModal'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -35,7 +36,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button as UiButton } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { toast } from '@/utils/toast'
-import { Check, Info } from 'lucide-react'
+import { Check, Info, X } from 'lucide-react'
 
 const cardShadow = '0 2px 12px rgba(0, 0, 0, 0.06)'
 const cardShadowHover = '0 8px 24px rgba(0, 0, 0, 0.1)'
@@ -703,23 +704,34 @@ export default function AgencyTemplatesList() {
               'shadow-[0_4px_36px_rgba(0,0,0,0.25)]',
             )}
             overlayClassName="bg-[#00000099]"
+            hideCloseButton
             style={{
               transitionDuration: '250ms',
               transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
             }}
           >
             <div className="flex flex-col">
-              <div className="flex items-start justify-between gap-3 border-b border-[#eaeaea] px-4 py-3">
+              <div className="flex items-center justify-between gap-3 border-b border-[#eaeaea] bg-white px-5 py-3">
                 <div className="min-w-0">
                   <DialogTitle className="text-[16px] font-semibold leading-5 tracking-[-0.01em]">
                     Assign template to subaccount
                   </DialogTitle>
                 </div>
+                <DialogClose asChild>
+                  <UiButton
+                    type="button"
+                    variant="ghost"
+                    className="h-10 w-10 rounded-lg p-0 hover:bg-black/[0.04] active:scale-[0.98]"
+                    aria-label="Close"
+                  >
+                    <X className="h-4 w-4 opacity-80" />
+                  </UiButton>
+                </DialogClose>
               </div>
 
-              <div className="flex flex-col gap-4 px-4 py-4 text-[14px] leading-5 text-foreground">
-                <div className="flex flex-col gap-2">
-                  <DialogDescription className="text-[14px] leading-5">
+              <div className="flex flex-col gap-5 px-5 py-4 text-[14px] leading-5 text-foreground">
+                <div className="flex flex-col gap-3">
+                  <DialogDescription className="text-[13px] leading-5 text-muted-foreground">
                     Choose agent type and a subaccount.
                   </DialogDescription>
                   <div className="text-[14px] font-medium tracking-[-0.01em] text-black/80">
@@ -755,8 +767,8 @@ export default function AgencyTemplatesList() {
                       Inbound
                     </UiButton>
                   </div>
-                  <div className="flex items-start gap-2 pt-2 text-[12px] leading-4 text-muted-foreground">
-                    <Info aria-hidden className="mt-[3px] h-[14px] w-[14px] shrink-0 opacity-80" />
+                  <div className="flex items-start gap-2 pt-1 text-[12px] leading-4 text-muted-foreground">
+                    <Info aria-hidden className="mt-[2px] h-[14px] w-[14px] shrink-0 opacity-70" />
                     <span>Selecting both will create 2 agents.</span>
                   </div>
                 </div>
@@ -765,11 +777,12 @@ export default function AgencyTemplatesList() {
                   <div className="text-[14px] text-destructive">{assignError}</div>
                 ) : null}
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   <div className="text-[14px] font-medium tracking-[-0.01em] text-black/80">
                     Subaccounts
                   </div>
-                  <ScrollArea className="max-h-[240px] pr-2">
+                  <div className="rounded-[12px] border border-black/10 bg-white p-2">
+                    <ScrollArea className="max-h-[240px] pr-2">
                     {assignSubaccountsLoading ? (
                       <div className="flex items-center justify-center py-6">
                         <CircularProgress size={28} sx={{ color: textSecondary }} />
@@ -814,11 +827,12 @@ export default function AgencyTemplatesList() {
                         })}
                       </div>
                     )}
-                  </ScrollArea>
+                    </ScrollArea>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between border-t border-[#eaeaea] bg-white px-4 py-3">
+              <div className="flex items-center justify-between border-t border-[#eaeaea] bg-white px-5 py-3">
                 <UiButton
                   type="button"
                   variant="secondary"
