@@ -180,7 +180,10 @@ const Page = () => {
   }
 
   const handleBack = () => {
-    // //console.log;
+    if (index <= 0) {
+      router.back()
+      return
+    }
     setIndex(index - 1)
   }
 

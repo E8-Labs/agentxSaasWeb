@@ -178,8 +178,11 @@ const VideoCard = ({
             : undefined,
         )}
       >
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="line-clamp-2 min-w-0 flex-1 text-[15px] font-semibold leading-snug text-foreground">
+        <div
+          className="flex items-start justify-between gap-2"
+          style={{ alignItems: 'flex-start' }}
+        >
+          <h3 className="line-clamp-2 min-w-0 flex-1 text-[14px] font-normal leading-snug text-foreground">
             {title}
           </h3>
           <span className="shrink-0 rounded-full border border-black/[0.08] px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">

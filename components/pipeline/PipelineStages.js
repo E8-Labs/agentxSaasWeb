@@ -37,6 +37,14 @@ import ColorPicker from '../dashboardPipeline/ColorPicker'
 import { getAvailabePhoneNumbers } from '../globalExtras/GetAvailableNumbers'
 import { getTeamsList } from '../onboarding/services/apisServices/ApiService'
 import AuthSelectionPopup from './AuthSelectionPopup'
+import {
+  buildFirecrawlSelectMenuProps,
+  FirecrawlChevronIcon,
+  firecrawlMenuListSx,
+  firecrawlMenuPaperSx,
+  firecrawlStandaloneMenuProps,
+  getFirecrawlMenuListMouseHandlers,
+} from './firecrawlSelectMenu'
 import NewMessageModal from '../messaging/NewMessageModal'
 import {
   getA2PNumbers,
@@ -47,7 +55,7 @@ import {
   getTempleteDetails,
   deleteCadenceTemplate,
 } from './TempleteServices'
-import { GripVertical, MessageSquareDot, PlusIcon } from 'lucide-react'
+import { MessageSquareDot, PlusIcon } from 'lucide-react'
 import CreateTaskFromNextStepsModal from '../dashboard/leads/extras/CreateTaskFromNextStepsModal'
 import { toast } from '@/utils/toast'
 
@@ -56,6 +64,33 @@ const DND_TYPE_PIPELINE_STAGE = 'PIPELINE_STAGE'
 const DND_TYPE_CADENCE_STEP = 'CADENCE_STEP'
 
 const cadenceDroppableId = (stageId) => `cadence-${stageId}`
+
+/** 2×3 dot grab handle — matches pipeline stage card Figma */
+function CadenceDragHandleIcon({ className = '' }) {
+  const dotPositions = [
+    [4, 3.25],
+    [10, 3.25],
+    [4, 8],
+    [10, 8],
+    [4, 12.75],
+    [10, 12.75],
+  ]
+  return (
+    <svg
+      width={16}
+      height={16}
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden
+    >
+      {dotPositions.map(([cx, cy], i) => (
+        <circle key={i} cx={cx} cy={cy} r={1.5} fill="rgba(21,21,21,0.35)" />
+      ))}
+    </svg>
+  )
+}
 
 const PipelineStages = ({
   stages,
@@ -1183,6 +1218,36 @@ const PipelineStages = ({
     },
   }
 
+  const templateSelectShellClassName =
+    'bg-white border-[0.5px] border-black/10 rounded-[8px] h-[40px] w-full min-w-[180px] flex items-center px-[10px] transition-colors focus-within:border-brand-primary/50 focus-within:ring-2 focus-within:ring-brand-primary/20'
+
+  const templateSelectFieldSx = {
+    fontSize: 14,
+    fontWeight: 400,
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
+    height: 40,
+    borderRadius: '8px',
+    width: '100%',
+    minWidth: 0,
+    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+    '& .MuiSelect-select': {
+      display: 'flex',
+      alignItems: 'center',
+      height: 40,
+      padding: 0,
+      paddingRight: '28px',
+    },
+    '& .MuiSelect-icon': {
+      color: 'rgba(0,0,0,0.7)',
+      right: 10,
+      transition: 'transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1)',
+    },
+    '&[aria-expanded="true"] .MuiSelect-icon': {
+      transform: 'rotate(180deg)',
+    },
+  }
+
   return (
     <DragDropContext
       onDragStart={handleOnDragStart}
@@ -1196,16 +1261,12 @@ const PipelineStages = ({
               provided.innerRef(el)
               droppableContainerRef.current = el
             }}
+            className="w-full"
             // className="h-[57svh] overflow-y-auto pb-36 2xl:pb-24"
             style={{
-              // maxHeight: '100vh',
-              // overflowY: "auto",
-              // borderRadius: "8px",
-              // padding: "10px",
               border: 'none',
               scrollbarWidth: 'none',
-              paddingTop: 20,
-              // paddingBottom: '80px',
+              paddingTop: 0,
             }}
           >
             {pipelineStages.map((item, index) => (
@@ -1222,222 +1283,215 @@ const PipelineStages = ({
                     {...provided.draggableProps}
                     style={{
                       ...provided.draggableProps.style,
-                      // border: "1px solid red",
-                      borderRadius: '10px',
-                      // padding: "15px",
-                      marginBottom: '10px',
-                      backgroundColor: '#fff',
-                      // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                      borderRadius: '12px',
+                      marginBottom: '12px',
+                      backgroundColor: 'transparent',
                     }}
-                    className="flex flex-row items-start"
+                    className="w-full"
                   >
-                    <AgentSelectSnackMessage
-                      isVisible={
-                        successSnack == false || successSnack == null
-                          ? false
-                          : true
-                      }
-                      hide={() => setSuccessSnack(false)}
-                      message={successSnack}
-                      type={SnackbarTypes.Success}
-                    />
-                    <AgentSelectSnackMessage
-                      isVisible={
-                        errorSnack == false || errorSnack == null ? false : true
-                      }
-                      hide={() => setErrorSnack(false)}
-                      message={errorMessage}
-                      type={SnackbarTypes.Error}
-                    />
-                    <div className="w-[5%] h-auto">
-                      {index > 0 && (
-                        <div
-                          className="outline-none mt-2 cursor-grab active:cursor-grabbing"
-                          {...provided.dragHandleProps}
-                          role="button"
-                          aria-label="Drag to reorder stage"
-                        >
-                          <Image
-                            src={'/assets/list.png'}
-                            height={6}
-                            width={16}
-                            alt="Drag handle"
-                          />
+                    <div className="w-full rounded-[12px] bg-white p-4 shadow-[0px_7px_147.2px_0px_rgba(0,0,0,0.06)]">
+                      <AgentSelectSnackMessage
+                        isVisible={
+                          successSnack == false || successSnack == null
+                            ? false
+                            : true
+                        }
+                        hide={() => setSuccessSnack(false)}
+                        message={successSnack}
+                        type={SnackbarTypes.Success}
+                      />
+                      <AgentSelectSnackMessage
+                        isVisible={
+                          errorSnack == false || errorSnack == null ? false : true
+                        }
+                        hide={() => setErrorSnack(false)}
+                        message={errorMessage}
+                        type={SnackbarTypes.Error}
+                      />
+                      <div className="flex w-full flex-row items-center gap-3 border-b border-[rgba(21,21,21,0.1)] py-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-[#f9f9f9]">
+                          {index > 0 ? (
+                            <button
+                              type="button"
+                              className="flex size-8 cursor-grab touch-none items-center justify-center rounded outline-none active:cursor-grabbing"
+                              {...provided.dragHandleProps}
+                              aria-label="Drag to reorder stage"
+                            >
+                              <CadenceDragHandleIcon />
+                            </button>
+                          ) : (
+                            <span className="block size-4 shrink-0" aria-hidden />
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className="border w-[95%] rounded-xl p-3 px-4">
-                      <div className="flex flex-row items-center justify-between">
-                        <div className="flex flex-row items-center gap-2">
-                          <div style={styles.inputStyle}>{item.stageTitle}</div>
+                        <div className="flex min-w-0 flex-1 flex-row items-center gap-2">
+                          <div
+                            className="h-[4px] w-[4px] shrink-0 rounded-full border border-white"
+                            style={{
+                              backgroundColor: (() => {
+                                const c =
+                                  selectedPipelineStages?.[index]?.color ??
+                                  item.color
+                                return typeof c === 'string' && c.trim() !== ''
+                                  ? c
+                                  : '#EAEAEA'
+                              })(),
+                              boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                            }}
+                          />
+                          <div className="truncate text-[14px] font-normal leading-[1.6] text-black">
+                            {item.stageTitle}
+                          </div>
                           {index > 0 && (
                             <button
-                              className="outline-none"
+                              type="button"
+                              className="shrink-0 outline-none"
                               onClick={() => {
                                 setShowRenamePopup(true)
                                 setRenameStage(item.stageTitle)
                                 setSelectedStage(item)
                               }}
+                              aria-label="Rename stage"
                             >
                               <PencilSimple
-                                size={16}
+                                size={14}
                                 weight="regular"
-                                style={{ color: 'hsl(var(--brand-primary))' }}
+                                className="text-black/70"
                               />
                             </button>
                           )}
                         </div>
-
                         {isInboundAgent ? (
-                          <div>
+                          <div className="shrink-0">
                             {index > 0 &&
                               !(item.identifier === 'booked' || (item.identifier === 'account_created' || item.identifier === 'on_trial' || item.identifier === 'paying' || item.identifier === 'cancelled')) && (
-                                <div className="w-full flex flex-row items-center justify-end mt-2">
-                                  <button
-                                    className="flex flex-row items-center gap-1"
-                                    onClick={() => {
-                                      setShowDelStagePopup(item)
+                                <button
+                                  type="button"
+                                  className="flex flex-row items-center gap-1"
+                                  onClick={() => {
+                                    setShowDelStagePopup(item)
+                                  }}
+                                >
+                                  <Image
+                                    src={'/assets/delIcon.png'}
+                                    height={20}
+                                    width={18}
+                                    alt="*"
+                                    style={{
+                                      filter:
+                                        'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                      opacity: 0.5,
                                     }}
+                                  />
+                                  <p
+                                    className="text-[#15151580]"
+                                    style={{ fontWeight: '500', fontSize: 14 }}
                                   >
-                                    <Image
-                                      src={'/assets/delIcon.png'}
-                                      height={20}
-                                      width={18}
-                                      alt="*"
-                                      style={{
-                                        filter:
-                                          'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
-                                        opacity: 0.5,
-                                      }}
-                                    />
-                                    <p
-                                      className="text-[#15151580]"
-                                      style={{ fontWeight: '500', fontSize: 14 }}
-                                    >
-                                      Delete
-                                    </p>
-                                  </button>
-                                </div>
+                                    Delete
+                                  </p>
+                                </button>
                               )}
                           </div>
                         ) : (
-                          <div className="flex flex-col items-end gap-2">
-                            <div>
-                              {assignedLeads[index] ? (
-                                <button
-                                  className="bg-[#00000020] flex flex-row items-center justify-center gap-1"
+                          <div className="flex shrink-0 flex-row items-center">
+                            {assignedLeads[index] ? (
+                              <button
+                                type="button"
+                                className="flex h-7 min-h-[28px] min-w-[96px] flex-row items-center justify-center gap-1 rounded-lg bg-[#f9f9f9] px-1.5 py-1 text-[14px] font-normal text-black shadow-[0px_7px_147.2px_0px_rgba(0,0,0,0.06)] transition-all duration-150 hover:bg-black/[0.04] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                                onClick={() => handleUnAssignNewStage(index)}
+                              >
+                                <Minus size={16} weight="regular" />
+                                <span>Unassign</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="flex h-7 min-h-[28px] min-w-[96px] flex-row items-center justify-center gap-2 rounded-lg bg-brand-primary px-2.5 text-[14px] font-normal text-white transition-all duration-150 hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                                onClick={() => assignNewStage(index)}
+                              >
+                                <div
                                   style={{
-                                    ...styles.inputStyle,
-                                    borderRadius: '55px',
-                                    height: '40px',
-                                    width: '104px',
-                                  }}
-                                  onClick={() => handleUnAssignNewStage(index)}
-                                >
-                                  <Minus size={18} weight="regular" />
-                                  <div>Unassign</div>
-                                </button>
-                              ) : (
-                                <button
-                                  className="bg-brand-primary text-white flex flex-row items-center justify-center gap-2"
-                                  style={{
-                                    ...styles.inputStyle,
-                                    borderRadius: '55px',
-                                    height: '38px',
-                                    width: '104px',
-                                  }}
-                                  onClick={() => assignNewStage(index)}
-                                >
-                                  <div
-                                    style={{
-                                      width: '16px',
-                                      height: '16px',
-                                      backgroundColor: '#FFFFFF',
-                                      WebkitMaskImage: 'url(/assets/addIcon.png)',
-                                      maskImage: 'url(/assets/addIcon.png)',
-                                      WebkitMaskSize: 'contain',
-                                      maskSize: 'contain',
-                                      WebkitMaskRepeat: 'no-repeat',
-                                      maskRepeat: 'no-repeat',
-                                      WebkitMaskPosition: 'center',
-                                      maskPosition: 'center',
-                                    }}
-                                  />
-                                  <div>Assign</div>
-                                </button>
-                              )}
-                            </div>
-                            {assignedLeads[index] && onStageTemplateSelect && (
-                              <FormControl size="small" sx={{ minWidth: 180 }}>
-                                <Select
-                                  displayEmpty
-                                  open={templateSelectOpenStageId === item.id}
-                                  onOpen={() => setTemplateSelectOpenStageId(item.id)}
-                                  onClose={() => setTemplateSelectOpenStageId(null)}
-                                  value={selectedCadenceTemplateByStageId[item.id] || ''}
-                                  onChange={(e) => {
-                                    const v = e.target.value
-                                    if (v === '__header__') return
-                                    const clickedTemplate = cadenceTemplatesList.find((t) => t.id === v)
-                                    if (clickedTemplate) {
-                                      console.log('Clicked template:', clickedTemplate)
-                                    }
-                                    // return
-                                    onStageTemplateSelect(item.id, v)
-                                    setTemplateSelectOpenStageId(null)
-                                  }}
-                                  renderValue={(selected) => {
-                                    if (!selected) {
-                                      return <span style={{ color: '#00000070' }}>Select Template</span>
-                                    }
-                                    const tmpl = cadenceTemplatesList.find((t) => t.id === selected)
-                                    return tmpl?.templateName || 'Select Template'
-                                  }}
-                                  // endAdornment={
-                                  //   selectedCadenceTemplateByStageId[item.id] ? (
-                                  //     <X
-                                  //       size={16}
-                                  //       className="cursor-pointer mr-4"
-                                  //       style={{ color: '#00000070' }}
-                                  //       onClick={(e) => {
-                                  //         e.stopPropagation()
-                                  //         onClearStageTemplate?.(item.id)
-                                  //       }}
-                                  //     />
-                                  //   ) : null
-                                  // }
-                                  MenuProps={{
-                                    PaperProps: {
-                                      sx: {
-                                        borderRadius: '12px',
-                                        boxShadow: '0px 4px 20px rgba(0,0,0,0.12)',
-                                        mt: 1.5,
-                                        overflow: 'visible',
-                                      },
-                                    },
-                                    MenuListProps: {
-                                      sx: { py: 0 },
-                                    },
-                                  }}
-                                  sx={{
-                                    fontSize: 13,
-                                    fontWeight: '500',
-                                    height: 36,
+                                    width: '16px',
+                                    height: '16px',
                                     backgroundColor: '#FFFFFF',
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                      border: 'none',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                      border: 'none',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                      border: 'none',
-                                    },
+                                    WebkitMaskImage: 'url(/assets/addIcon.png)',
+                                    maskImage: 'url(/assets/addIcon.png)',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
                                   }}
+                                />
+                                <div>Assign</div>
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {!isInboundAgent &&
+                       assignedLeads[index] &&
+                        onStageTemplateSelect && (
+                        <div className="mt-4 flex w-full items-start gap-2">
+                          <div className={`${templateSelectShellClassName} w-full max-w-none`}>
+                            <FormControl size="small" className="w-full min-w-0">
+                              <Select
+                                displayEmpty
+                                open={templateSelectOpenStageId === item.id}
+                                onOpen={() => setTemplateSelectOpenStageId(item.id)}
+                                onClose={() => setTemplateSelectOpenStageId(null)}
+                                value={selectedCadenceTemplateByStageId[item.id] || ''}
+                                IconComponent={FirecrawlChevronIcon}
+                                onChange={(e) => {
+                                  const v = e.target.value
+                                  if (v === '__header__') return
+                                  const clickedTemplate = cadenceTemplatesList.find((t) => t.id === v)
+                                  if (clickedTemplate) {
+                                    console.log('Clicked template:', clickedTemplate)
+                                  }
+                                  onStageTemplateSelect(item.id, v)
+                                  setTemplateSelectOpenStageId(null)
+                                }}
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <span className="text-[14px] text-black/40">
+                                        Select Template
+                                      </span>
+                                    )
+                                  }
+                                  const tmpl = cadenceTemplatesList.find((t) => t.id === selected)
+                                  return (
+                                    <span className="text-[14px] text-black">
+                                      {tmpl?.templateName || 'Select Template'}
+                                    </span>
+                                  )
+                                }}
+                                MenuProps={buildFirecrawlSelectMenuProps()}
+                                sx={templateSelectFieldSx}
+                              >
+                                <MenuItem
+                                  value="__header__"
+                                  disabled
+                                  sx={{
+                                    opacity: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    py: 1,
+                                    px: 2,
+                                    backgroundColor: '#fafafa',
+                                    borderBottom: '1px solid #eee',
+                                    cursor: 'default',
+                                    minHeight: 'auto',
+                                  }}
+                                  onKeyDown={(e) => e.stopPropagation()}
                                 >
+                                  <span style={{ fontSize: 13, fontWeight: '600', color: '#000000' }}>Templates</span>
+                                </MenuItem>
+                                {selectedCadenceTemplateByStageId[item.id] && (
                                   <MenuItem
-                                    value="__header__"
-                                    disabled
+                                    value="__clear__"
                                     sx={{
                                       opacity: 1,
                                       display: 'flex',
@@ -1445,108 +1499,70 @@ const PipelineStages = ({
                                       justifyContent: 'space-between',
                                       py: 1,
                                       px: 2,
-                                      backgroundColor: '#fafafa',
-                                      borderBottom: '1px solid #eee',
-                                      cursor: 'default',
+                                      backgroundColor: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
                                       minHeight: 'auto',
+                                      color: '#666666',
                                     }}
                                     onKeyDown={(e) => e.stopPropagation()}
                                   >
-                                    <span style={{ fontSize: 13, fontWeight: '600', color: '#000000' }}>Templates</span>
-                                  </MenuItem>
-                                  {selectedCadenceTemplateByStageId[item.id] && (
-                                    <MenuItem
-                                      value="__clear__"
-                                      // disabled
-                                      sx={{
-                                        opacity: 1,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        py: 1,
-                                        px: 2,
-                                        backgroundColor: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        minHeight: 'auto',
-                                        color: '#666666',
+                                    <span style={{ fontSize: 13, fontWeight: '500', color: '#666666' }}>Unselect Template</span>
+                                    <Box
+                                      component="span"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        onClearStageTemplate?.(item.id)
+                                        setTemplateSelectOpenStageId(null)
                                       }}
-                                      onKeyDown={(e) => e.stopPropagation()}
+                                      sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#00000080' }}
                                     >
-                                      <span style={{ fontSize: 13, fontWeight: '500', color: '#666666' }}>Unselect Template</span>
-                                      <Box
-                                        component="span"
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          onClearStageTemplate?.(item.id)
-                                          setTemplateSelectOpenStageId(null)
-                                        }}
-                                        sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#00000080' }}
-                                      >
-                                        <X size={16} />
-                                      </Box>
-                                    </MenuItem>
-                                  )}
-                                  {cadenceTemplatesList
-                                    .filter((tmpl) => !deletedCadenceTemplateIds.includes(tmpl.id))
-                                    .map((tmpl) => (
-                                      <MenuItem
-                                        key={tmpl.id}
-                                        value={tmpl.id}
-                                        sx={{ fontSize: 13, fontWeight: '500', py: 1.25 }}
-                                      >
-                                        <div className='flex flex-row items-center justify-between w-full justify-between'>
-                                          <div>
-                                            {tmpl.templateName}
-                                          </div>
-                                          {deletingCadenceTemplateIdLoader === tmpl.id ? (
-                                            <CircularProgress size={16} />
-                                          ) : (
-                                            <button
-                                              type="button"
-                                              onClick={(e) => {
-                                                e.preventDefault()
-                                                e.stopPropagation()
-                                                handleDeleteCadenceTemplate(tmpl.id, item.id)
-                                              }}
-                                              disabled={deletingCadenceTemplateId === tmpl.id}
-                                            >
-                                              <X size={16} />
-                                            </button>
-                                          )}
+                                      <X size={16} />
+                                    </Box>
+                                  </MenuItem>
+                                )}
+                                {cadenceTemplatesList
+                                  .filter((tmpl) => !deletedCadenceTemplateIds.includes(tmpl.id))
+                                  .map((tmpl) => (
+                                    <MenuItem
+                                      key={tmpl.id}
+                                      value={tmpl.id}
+                                      sx={{ fontSize: 13, fontWeight: '500', py: 1.25 }}
+                                    >
+                                      <div className="flex w-full flex-row items-center justify-between">
+                                        <div>
+                                          {tmpl.templateName}
                                         </div>
-                                      </MenuItem>
-                                    ))}
-                                  {/*<MenuItem
-                                    value="__new__"
-                                    sx={{ fontSize: 13, fontWeight: '500', color: 'hsl(var(--brand-primary))', py: 1.25 }}
-                                  >
-                                    New Template
-                                  </MenuItem>*/}
-                                </Select>
-                              </FormControl>
-                            )}
+                                        {deletingCadenceTemplateIdLoader === tmpl.id ? (
+                                          <CircularProgress size={16} />
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.preventDefault()
+                                              e.stopPropagation()
+                                              handleDeleteCadenceTemplate(tmpl.id, item.id)
+                                            }}
+                                            disabled={deletingCadenceTemplateId === tmpl.id}
+                                          >
+                                            <X size={16} />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </MenuItem>
+                                  ))}
+                              </Select>
+                            </FormControl>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                       <div>
                         {assignedLeads[index] && (
-                          <div>
-                            <div
-                              className="mt-4"
-                              style={{ fontWeight: '500', fontSize: 12 }}
-                            >
-                              <div
-                                style={{
-                                  fontSize: 13,
-                                  fontWeight: '500',
-                                  color: '#00000060',
-                                }}
-                              >
-                                {item.description}
-                              </div>
+                          <div className="mt-4 flex flex-col gap-4">
+                            <div className="text-[14px] font-normal leading-[1.6] text-[#666]">
+                              {item.description}
                             </div>
-                            <div className="border rounded-xl py-4 px-4 mt-4">
+                            <div className="flex flex-col gap-4 rounded-lg border border-[rgba(21,21,21,0.1)] bg-white px-4 py-4">
                               <Droppable
                                 droppableId={cadenceDroppableId(item.id)}
                                 type={DND_TYPE_CADENCE_STEP}
@@ -1555,6 +1571,7 @@ const PipelineStages = ({
                                   <div
                                     ref={cadenceDropProvided.innerRef}
                                     {...cadenceDropProvided.droppableProps}
+                                    className="flex flex-col gap-3"
                                   >
                                     {(rowsByIndex[index] || []).map(
                                       (row, rowIndex) => {
@@ -1578,7 +1595,7 @@ const PipelineStages = ({
                                               <div
                                                 ref={cadenceDragProvided.innerRef}
                                                 {...cadenceDragProvided.draggableProps}
-                                                className="flex flex-row items-center justify-center mb-2"
+                                                className="flex w-full flex-row flex-wrap items-center gap-2 py-1"
                                                 style={{
                                                   ...cadenceDragProvided.draggableProps.style,
                                                   ...(cadenceSnapshot.isDragging
@@ -1589,280 +1606,249 @@ const PipelineStages = ({
                                                     : {}),
                                                 }}
                                               >
-                                                <div className="w-[16px] shrink-0">
-                                                  <div
-                                                    className="outline-none mt-2 p-0.5 rounded hover:bg-black/5 cursor-grab active:cursor-grabbing flex items-center justify-center touch-none"
+                                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-[#f9f9f9]">
+                                                  <button
+                                                    type="button"
+                                                    className="flex size-8 cursor-grab touch-none items-center justify-center rounded outline-none active:cursor-grabbing"
                                                     {...cadenceDragProvided.dragHandleProps}
                                                     title="Drag to reorder steps"
-                                                    role="button"
                                                     aria-label="Drag to reorder step"
                                                   >
-                                                    <GripVertical size={16} strokeWidth={2} className="text-[#00000060]" />
+                                                    <CadenceDragHandleIcon />
+                                                  </button>
+                                                </div>
+                                                <div className="shrink-0 text-[14px] font-semibold leading-[1.6] text-black">
+                                                  Wait
+                                                </div>
+                                                <div className="flex h-10 min-w-[300px] flex-1 overflow-hidden rounded-lg border border-[rgba(21,21,21,0.1)] bg-white">
+                                                  <div className="flex h-10 min-w-[100px] flex-1 items-center justify-start gap-1 border-r border-[0.5px] border-[rgba(21,21,21,0.1)] bg-white px-1.5">
+                                                    <input
+                                                      id={`cadence-${index}-${rowIndex}-${row.id}-days`}
+                                                      className="min-w-[32px] flex-1 border-0 bg-transparent px-1 py-0 text-left text-[14px] text-black/70 outline-none focus:ring-0"
+                                                      style={styles.inputStyle}
+                                                      placeholder="0"
+                                                      value={row.waitTimeDays}
+                                                      onChange={(e) =>
+                                                        handleInputChange(
+                                                          index,
+                                                          row.id,
+                                                          'waitTimeDays',
+                                                          e.target.value.replace(/[^0-9]/g, ''),
+                                                        )
+                                                      }
+                                                    />
+                                                    <label
+                                                      htmlFor={`cadence-${index}-${rowIndex}-${row.id}-days`}
+                                                      className="shrink-0 cursor-text select-none text-[12px] font-normal leading-none text-[#666]"
+                                                    >
+                                                      Days
+                                                    </label>
+                                                  </div>
+                                                  <div className="flex h-10 min-w-[100px] flex-1 items-center justify-start gap-1 border-r border-[0.5px] border-[rgba(21,21,21,0.1)] bg-white px-1.5">
+                                                    <input
+                                                      id={`cadence-${index}-${rowIndex}-${row.id}-hours`}
+                                                      className="min-w-[32px] flex-1 border-0 bg-transparent px-1 py-0 text-left text-[14px] text-black/70 outline-none focus:ring-0"
+                                                      style={styles.inputStyle}
+                                                      placeholder="0"
+                                                      value={row.waitTimeHours}
+                                                      onChange={(e) =>
+                                                        handleInputChange(
+                                                          index,
+                                                          row.id,
+                                                          'waitTimeHours',
+                                                          e.target.value.replace(/[^0-9]/g, ''),
+                                                        )
+                                                      }
+                                                    />
+                                                    <label
+                                                      htmlFor={`cadence-${index}-${rowIndex}-${row.id}-hours`}
+                                                      className="shrink-0 cursor-text select-none text-[12px] font-normal leading-none text-[#666]"
+                                                    >
+                                                      Hours
+                                                    </label>
+                                                  </div>
+                                                  <div className="flex h-10 min-w-[100px] flex-1 items-center justify-start gap-1 bg-white px-1.5">
+                                                    <input
+                                                      id={`cadence-${index}-${rowIndex}-${row.id}-minutes`}
+                                                      className="min-w-[32px] flex-1 border-0 bg-transparent px-1 py-0 text-left text-[14px] text-black/70 outline-none focus:ring-0"
+                                                      style={styles.inputStyle}
+                                                      placeholder="0"
+                                                      value={row.waitTimeMinutes}
+                                                      onChange={(e) =>
+                                                        handleInputChange(
+                                                          index,
+                                                          row.id,
+                                                          'waitTimeMinutes',
+                                                          e.target.value.replace(/[^0-9]/g, ''),
+                                                        )
+                                                      }
+                                                    />
+                                                    <label
+                                                      htmlFor={`cadence-${index}-${rowIndex}-${row.id}-minutes`}
+                                                      className="shrink-0 cursor-text select-none text-[12px] font-normal leading-none text-[#666]"
+                                                    >
+                                                      Mins
+                                                    </label>
                                                   </div>
                                                 </div>
                                                 <div
-                                                  className="mt-2 ms-2"
-                                                  style={styles.headingStyle}
+                                                  className="flex min-w-[200px] flex-1 flex-row flex-wrap items-center gap-2"
+                                                  style={styles.inputStyle}
                                                 >
-                                                  Wait
-                                                </div>
-                                                <div className="ms-6 flex flex-row items-center w-full justify-between">
-                                                  <div className="flex flex-row items-center">
-                                                    <div>
-                                                      <label
-                                                        className="ms-1 px-2"
-                                                        style={styles.labelStyle}
-                                                      >
-                                                        Days
-                                                      </label>
-                                                      <input
-                                                        id={`cadence-${index}-${rowIndex}-${row.id}-days`}
-                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                                        style={{
-                                                          ...styles.inputStyle,
-                                                          height: '42px',
-                                                          width: '80px',
-                                                          border: '1px solid #00000020',
-                                                          borderTopLeftRadius: '10px',
-                                                          borderBottomLeftRadius: '10px',
-                                                        }}
-                                                        placeholder="Days"
-                                                        value={row.waitTimeDays}
+                                                  {isBookingStage && (
+                                                    <FormControl size="small" sx={{ minWidth: 140 }}>
+                                                      <Select
+                                                        value={rowWithReferencePoint.referencePoint ?? ''}
                                                         onChange={(e) =>
                                                           handleInputChange(
                                                             index,
                                                             row.id,
-                                                            'waitTimeDays',
-                                                            e.target.value.replace(
-                                                              /[^0-9]/g,
-                                                              '',
-                                                            ),
+                                                            'referencePoint',
+                                                            e.target.value,
                                                           )
                                                         }
-                                                      />
-                                                    </div>
-                                                    <div>
-                                                      <label
-                                                        className="ms-1 px-2"
-                                                        style={styles.labelStyle}
-                                                      >
-                                                        Hours
-                                                      </label>
-                                                      <input
-                                                        id={`cadence-${index}-${rowIndex}-${row.id}-hours`}
-                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                                        style={{
-                                                          ...styles.inputStyle,
-                                                          height: '42px',
-                                                          width: '80px',
-                                                          border: '1px solid #00000020',
-                                                          borderRight: 'none',
-                                                          borderLeft: 'none',
+                                                        displayEmpty
+                                                        IconComponent={FirecrawlChevronIcon}
+                                                        MenuProps={buildFirecrawlSelectMenuProps()}
+                                                        sx={{
+                                                          height: 32,
+                                                          fontSize: 14,
+                                                          backgroundColor: 'white',
+                                                          border: '1px solid rgba(21,21,21,0.1)',
+                                                          borderRadius: '8px',
+                                                          '& .MuiOutlinedInput-notchedOutline': {
+                                                            border: 'none',
+                                                          },
+                                                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                            border: 'none',
+                                                          },
+                                                          '& .MuiSelect-select': {
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            paddingRight: '28px',
+                                                          },
+                                                          '& .MuiSelect-icon': {
+                                                            color: 'rgba(0,0,0,0.7)',
+                                                            right: 8,
+                                                            transition:
+                                                              'transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1)',
+                                                          },
+                                                          '&[aria-expanded="true"] .MuiSelect-icon': {
+                                                            transform: 'rotate(180deg)',
+                                                          },
                                                         }}
-                                                        placeholder="Hours"
-                                                        value={row.waitTimeHours}
-                                                        onChange={(e) =>
-                                                          handleInputChange(
-                                                            index,
-                                                            row.id,
-                                                            'waitTimeHours',
-                                                            e.target.value.replace(
-                                                              /[^0-9]/g,
-                                                              '',
-                                                            ),
-                                                          )
-                                                        }
-                                                      />
-                                                    </div>
-                                                    <div>
-                                                      <label
-                                                        className="ms-1 px-2"
-                                                        style={styles.labelStyle}
                                                       >
-                                                        Mins
-                                                      </label>
-                                                      <input
-                                                        id={`cadence-${index}-${rowIndex}-${row.id}-minutes`}
-                                                        className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                                        style={{
-                                                          ...styles.inputStyle,
-                                                          height: '42px',
-                                                          width: '80px',
-                                                          border: '1px solid #00000020',
-                                                          borderTopRightRadius: '10px',
-                                                          borderBottomRightRadius: '10px',
-                                                        }}
-                                                        placeholder="Minutes"
-                                                        value={row.waitTimeMinutes}
-                                                        onChange={(e) =>
-                                                          handleInputChange(
-                                                            index,
-                                                            row.id,
-                                                            'waitTimeMinutes',
-                                                            e.target.value.replace(
-                                                              /[^0-9]/g,
-                                                              '',
-                                                            ),
-                                                          )
-                                                        }
-                                                      />
-                                                    </div>
-                                                    <div
-                                                      className="ms-4 mt-2 flex flex-row items-center"
-                                                      style={styles.inputStyle}
-                                                    >
-                                                      {isBookingStage ? (
-                                                        <div className="flex flex-row items-center gap-2">
-                                                          <FormControl size="small" sx={{ minWidth: 140 }}>
-                                                            <Select
-                                                              value={
-                                                                rowWithReferencePoint.referencePoint ?? ''
-                                                              }
-                                                              onChange={(e) =>
-                                                                handleInputChange(
-                                                                  index,
-                                                                  row.id,
-                                                                  'referencePoint',
-                                                                  e.target.value,
-                                                                )
-                                                              }
-                                                              displayEmpty
-                                                              sx={{
-                                                                height: 32,
-                                                                fontSize: 14,
-                                                                backgroundColor: 'white',
-                                                                border: '1px solid #d1d5db',
-                                                                borderRadius: '6px',
-                                                                '& .MuiOutlinedInput-notchedOutline': {
-                                                                  border: 'none',
-                                                                },
-                                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                                  border: 'none',
-                                                                },
-                                                              }}
-                                                            >
-                                                              <MenuItem value="before_meeting">
-                                                                before the meeting
-                                                              </MenuItem>
-                                                              <MenuItem value="after_booking">
-                                                                after booking
-                                                              </MenuItem>
-                                                            </Select>
-                                                          </FormControl>
-                                                          , then{' '}
-                                                        </div>
-                                                      ) : (
-                                                        <div>, then{' '}</div>
-                                                      )}
-                                                      <div
-                                                        className="ml-2"
-                                                        style={{ fontWeight: '600' }}
-                                                      >
-                                                        <div className="flex flex-row items-cetner gap-2 p-2 rounded"
-                                                          style={{
-                                                            backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                                        <MenuItem value="before_meeting">
+                                                          before the meeting
+                                                        </MenuItem>
+                                                        <MenuItem value="after_booking">
+                                                          after booking
+                                                        </MenuItem>
+                                                      </Select>
+                                                    </FormControl>
+                                                  )}
+                                                  <span className="text-[14px] font-normal leading-[1.6] text-black">
+                                                    , then
+                                                  </span>
+                                                  <div className="flex items-center gap-1">
+                                                    <div className="flex h-10 flex-row items-center gap-1 rounded-lg bg-brand-primary/5 px-2">
+                                                      {(row.communicationType === 'email' || row.communicationType === 'sms') && row.templateId ? (
+                                                        <Tooltip
+                                                          title={
+                                                            rowHoverTemplate?.rowKey === `${index}-${row.id}`
+                                                              ? rowHoverTemplate.loading
+                                                                ? 'Loading...'
+                                                                : String(rowHoverTemplate.data?.content ?? '')
+                                                                  .replace(/<[^>]*>/g, '')
+                                                                  .replace(/&nbsp;/g, ' ')
+                                                                  .trim()
+                                                              : ''
+                                                          }
+                                                          arrow
+                                                          componentsProps={{
+                                                            tooltip: {
+                                                              sx: {
+                                                                backgroundColor: '#ffffff',
+                                                                color: '#000000',
+                                                                fontSize: '12px',
+                                                                maxWidth: 320,
+                                                                whiteSpace: 'pre-wrap',
+                                                                wordBreak: 'break-word',
+                                                              },
+                                                            },
+                                                            arrow: {
+                                                              sx: {
+                                                                color: '#ffffff',
+                                                              },
+                                                            },
                                                           }}
                                                         >
-                                                          {(row.communicationType === 'email' || row.communicationType === 'sms') && row.templateId ? (
-                                                            <Tooltip
-                                                              title={
-                                                                rowHoverTemplate?.rowKey === `${index}-${row.id}`
-                                                                  ? rowHoverTemplate.loading
-                                                                    ? 'Loading...'
-                                                                    : String(rowHoverTemplate.data?.content ?? '')
-                                                                      .replace(/<[^>]*>/g, '')
-                                                                      .replace(/&nbsp;/g, ' ')
-                                                                      .trim()
-                                                                  : ''
+                                                          <div
+                                                            className="cursor-default text-[14px] font-normal text-brand-primary"
+                                                            onMouseEnter={async () => {
+                                                              const rowKey = `${index}-${row.id}`
+                                                              const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${row.templateId}`
+                                                              try {
+                                                                const cached = localStorage.getItem(cacheKey)
+                                                                if (cached) {
+                                                                  const data = JSON.parse(cached)
+                                                                  setRowHoverTemplate({ rowKey, data, loading: false })
+                                                                  return
+                                                                }
+                                                              } catch (_) { /* ignore invalid cache */ }
+                                                              setRowHoverTemplate({ rowKey, loading: true })
+                                                              try {
+                                                                const data = await getTempleteDetails({ templateId: row.templateId })
+                                                                if (data) {
+                                                                  localStorage.setItem(cacheKey, JSON.stringify(data))
+                                                                }
+                                                                setRowHoverTemplate((prev) =>
+                                                                  prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
+                                                                )
+                                                              } catch (err) {
+                                                                setRowHoverTemplate((prev) =>
+                                                                  prev?.rowKey === rowKey ? { rowKey, data: null, loading: false } : prev
+                                                                )
                                                               }
-                                                              arrow
-                                                              componentsProps={{
-                                                                tooltip: {
-                                                                  sx: {
-                                                                    backgroundColor: '#ffffff', //'hsl(var(--brand-primary))',
-                                                                    color: '#000000',
-                                                                    fontSize: '12px',
-                                                                    maxWidth: 320,
-                                                                    whiteSpace: 'pre-wrap',
-                                                                    wordBreak: 'break-word',
-                                                                  },
-                                                                },
-                                                                arrow: {
-                                                                  sx: {
-                                                                    color: '#ffffff' //'hsl(var(--brand-primary))',
-                                                                  },
-                                                                },
-                                                              }}
-                                                            >
-                                                              <div
-                                                                className="text-brand-primary text-[12px] cursor-default"
-                                                                onMouseEnter={async () => {
-                                                                  const rowKey = `${index}-${row.id}`
-                                                                  const cacheKey = `${PersistanceKeys.PipelineTemplateCachePrefix}${row.templateId}`
-                                                                  try {
-                                                                    const cached = localStorage.getItem(cacheKey)
-                                                                    if (cached) {
-                                                                      const data = JSON.parse(cached)
-                                                                      setRowHoverTemplate({ rowKey, data, loading: false })
-                                                                      return
-                                                                    }
-                                                                  } catch (_) { /* ignore invalid cache */ }
-                                                                  setRowHoverTemplate({ rowKey, loading: true })
-                                                                  try {
-                                                                    const data = await getTempleteDetails({ templateId: row.templateId })
-                                                                    if (data) {
-                                                                      localStorage.setItem(cacheKey, JSON.stringify(data))
-                                                                    }
-                                                                    setRowHoverTemplate((prev) =>
-                                                                      prev?.rowKey === rowKey ? { rowKey, data, loading: false } : prev
-                                                                    )
-                                                                  } catch (err) {
-                                                                    setRowHoverTemplate((prev) =>
-                                                                      prev?.rowKey === rowKey ? { rowKey, data: null, loading: false } : prev
-                                                                    )
-                                                                  }
-                                                                }}
-                                                                onMouseLeave={() => setRowHoverTemplate(null)}
-                                                              >
-                                                                {stepActionDisplayText(row)}
-                                                              </div>
-                                                            </Tooltip>
-                                                          ) : (
-                                                            <div className="text-brand-primary text-[12px]">
-                                                              {stepActionDisplayText(row)}
-                                                            </div>
-                                                          )}
-
-                                                          <button
-                                                            onClick={(e) => {
-                                                              e.stopPropagation()
-                                                              console.log("Row clicked", row)
-                                                              handleEditRow(index, row, e, rowIndex)
                                                             }}
-                                                            type="button"
-                                                            className="cursor-pointer"
-                                                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                                            onMouseLeave={() => setRowHoverTemplate(null)}
                                                           >
-                                                            <PencilSimple
-                                                              size={16}
-                                                              weight="regular"
-                                                              style={{
-                                                                color: 'hsl(var(--brand-primary))',
-                                                              }}
-                                                            />
-                                                          </button>
+                                                            {stepActionDisplayText(row)}
+                                                          </div>
+                                                        </Tooltip>
+                                                      ) : (
+                                                        <div className="text-[14px] font-normal text-brand-primary">
+                                                          {stepActionDisplayText(row)}
                                                         </div>
-                                                      </div>
+                                                      )}
+                                                      <button
+                                                        onClick={(e) => {
+                                                          e.stopPropagation()
+                                                          handleEditRow(index, row, e, rowIndex)
+                                                        }}
+                                                        type="button"
+                                                        className="cursor-pointer border-0 bg-transparent p-0"
+                                                        aria-label="Edit step"
+                                                      >
+                                                        <PencilSimple
+                                                          size={14}
+                                                          weight="regular"
+                                                          className="text-brand-primary"
+                                                        />
+                                                      </button>
                                                     </div>
                                                   </div>
-                                                  {rowIndex > 0 && (
-                                                    <CloseBtn
-                                                      onClick={() =>
-                                                        removeRow(index, row.id)
-                                                      }
-                                                    />
-                                                  )}
                                                 </div>
+                                                {rowIndex > 0 && (
+                                                  <button
+                                                    type="button"
+                                                    className="ml-auto flex shrink-0 items-center gap-0 rounded-lg border border-[rgba(21,21,21,0.1)] bg-[#f9f9f9] p-2 text-foreground transition-colors hover:bg-black/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                                                    onClick={() => removeRow(index, row.id)}
+                                                    aria-label="Remove step"
+                                                  >
+                                                    <X size={16} weight="regular" className="text-black/70" />
+                                                  </button>
+                                                )}
                                               </div>
                                             )}
                                           </Draggable>
@@ -1878,11 +1864,11 @@ const PipelineStages = ({
                                   e.preventDefault()
                                   openAddMenu(index, e)
                                 }}
-                                style={styles.inputStyle}
-                                className="text-brand-primary mt-4 cursor-pointer"
                                 type="button"
+                                className="flex cursor-pointer flex-row items-center gap-2 rounded px-1 py-2 text-left text-[14px] font-normal leading-[1.6] text-brand-primary outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-brand-primary/30"
                               >
-                                + Add
+                                <span>+ Add</span>
+                                <CaretDown size={16} weight="bold" className="shrink-0 text-brand-primary" aria-hidden />
                               </button>
                               <Menu
                                 anchorEl={addMenuAnchor[index] || null}
@@ -1899,15 +1885,15 @@ const PipelineStages = ({
                                   )
                                 }}
                                 disableAutoFocusItem={false}
+                                {...firecrawlStandaloneMenuProps}
+                                PaperProps={{
+                                  sx: { ...firecrawlMenuPaperSx },
+                                }}
                                 MenuListProps={{
                                   'aria-labelledby': 'action-menu',
-                                }}
-                                PaperProps={{
-                                  style: {
-                                    boxShadow:
-                                      '0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)', // custom purple shadow
-                                    borderRadius: '12px',
-                                  },
+                                  className: 'firecrawl-menu-scrollbar',
+                                  sx: { ...firecrawlMenuListSx },
+                                  ...getFirecrawlMenuListMouseHandlers(),
                                 }}
                               >
                                 {ACTIONS.map((a) => (
@@ -2053,17 +2039,18 @@ const PipelineStages = ({
                                   </Tooltip>
                                 ))}
                               </Menu>
-                              <div className="flex flex-row items-center gap-2 mt-4">
-                                <div style={styles.inputStyle}>
+                              <div className="flex flex-row flex-wrap items-center gap-3">
+                                <span className="text-[14px] font-semibold leading-[1.6] text-black">
                                   Then move to
-                                </div>
+                                </span>
 
                                 <Box
-                                  className="flex flex-row item-center justify-center"
-                                  sx={{ width: '141px', py: 0, m: 0 }}
+                                  className="flex min-w-[160px] flex-1 flex-row items-center sm:max-w-[280px] sm:flex-none"
+                                  sx={{ py: 0, m: 0 }}
                                 >
                                   <FormControl
                                     fullWidth
+                                    size="small"
                                     sx={{ py: 0, my: 0, minHeight: 0 }}
                                   >
                                     <Select
@@ -2072,37 +2059,29 @@ const PipelineStages = ({
                                       onChange={(event) =>
                                         handleSelectNextChange(index, event)
                                       }
+                                      IconComponent={FirecrawlChevronIcon}
+                                      MenuProps={buildFirecrawlSelectMenuProps()}
                                       renderValue={(selected) => {
                                         if (selected === '') {
                                           return (
-                                            <div style={styles.dropdownMenu}>
-                                              Select Stage
-                                            </div>
+                                            <span className="text-[14px] font-normal leading-[1.6] text-[#666]">
+                                              Select stage
+                                            </span>
                                           )
                                         }
                                         return selected
                                       }}
-                                      MenuProps={{
-                                        PaperProps: {
-                                          sx: {
-                                            '& .MuiMenuItem-root.Mui-selected': {
-                                              backgroundColor: '#F5F5F5',
-                                              '&:hover': {
-                                                backgroundColor: '#F5F5F5',
-                                              },
-                                            },
-                                          },
-                                        },
-                                      }}
                                       sx={{
-                                        ...styles.dropdownMenu,
-                                        backgroundColor: 'transparent',
+                                        fontSize: 14,
+                                        fontWeight: 400,
                                         color: '#000000',
-                                        border: '1px solid #00000020',
+                                        backgroundColor: '#FFFFFF',
+                                        borderRadius: '8px',
+                                        border: '1px solid rgba(21,21,21,0.1)',
                                         py: 0,
                                         my: 0,
                                         minHeight: 0,
-                                        height: '32px',
+                                        height: 40,
                                         '& .MuiOutlinedInput-root': {
                                           py: 0,
                                           my: 0,
@@ -2110,12 +2089,24 @@ const PipelineStages = ({
                                         },
                                         '& .MuiSelect-select': {
                                           py: 0,
+                                          px: '10px',
+                                          pr: '28px',
                                           my: 0,
                                           display: 'flex',
                                           alignItems: 'center',
+                                          minHeight: 40,
                                         },
                                         '& .MuiOutlinedInput-notchedOutline': {
                                           border: 'none',
+                                        },
+                                        '& .MuiSelect-icon': {
+                                          color: 'rgba(0,0,0,0.7)',
+                                          right: 10,
+                                          transition:
+                                            'transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1)',
+                                        },
+                                        '&[aria-expanded="true"] .MuiSelect-icon': {
+                                          transform: 'rotate(180deg)',
                                         },
                                       }}
                                     >
@@ -2133,12 +2124,6 @@ const PipelineStages = ({
                                             py: 0,
                                             my: 0,
                                             minHeight: '32px',
-                                            '&.Mui-selected': {
-                                              backgroundColor: '#F5F5F5',
-                                              '&:hover': {
-                                                backgroundColor: '#F5F5F5',
-                                              },
-                                            },
                                           }}
                                         >
                                           {dropDownStateItem.stageTitle
@@ -2154,7 +2139,7 @@ const PipelineStages = ({
                                 </Box>
                               </div>
                               {onSaveStageTemplateChange && (
-                                <div className="flex flex-row items-center gap-2 mt-4">
+                                <div className="flex flex-row flex-wrap items-center gap-3 border-t border-[rgba(21,21,21,0.1)] pt-4">
                                   <FormControlLabel
                                     control={
                                       <Checkbox
@@ -2175,7 +2160,7 @@ const PipelineStages = ({
                                       />
                                     }
                                     label={
-                                      <span style={{ fontSize: 13, fontWeight: '500', color: '#000000' }}>
+                                      <span className="text-[14px] font-normal leading-5 tracking-[-0.06px] text-[#666]">
                                         Save as template
                                       </span>
                                     }
@@ -2204,7 +2189,7 @@ const PipelineStages = ({
                       {index > 0 &&
                         !isInboundAgent &&
                         !(item.identifier === 'booked' || (item.identifier === 'account_created' || item.identifier === 'on_trial' || item.identifier === 'paying' || item.identifier === 'cancelled')) && (
-                          <div className="w-full flex flex-row items-center justify-end mt-2">
+                          <div className="mt-4 flex w-full flex-row items-center justify-end">
                             <button
                               className="flex flex-row items-center gap-1"
                               onClick={() => {
@@ -2269,9 +2254,7 @@ const PipelineStages = ({
                                 }}
                               >
                                 {/* <div style={{ width: "20%" }} /> */}
-                                <div
-                                  style={{ fontWeight: '700', fontSize: 22 }}
-                                >
+                                <div style={{ fontWeight: '700', fontSize: 22 }}>
                                   Rename stage
                                 </div>
                                 <div
@@ -2283,6 +2266,7 @@ const PipelineStages = ({
                                 >
                                   <CloseBtn
                                     onClick={() => setShowRenamePopup(false)}
+                                    iconSize={14}
                                   />
                                 </div>
                               </div>
@@ -2385,6 +2369,7 @@ const PipelineStages = ({
 
                                 <CloseBtn
                                   onClick={() => setShowDelStagePopup(null)}
+                                  iconSize={14}
                                 />
                               </div>
 
@@ -2422,6 +2407,8 @@ const PipelineStages = ({
                                         value={assignNextStage || ''} // Default to empty string when no value is selected
                                         onChange={handleChangeNextStage}
                                         displayEmpty // Enables placeholder
+                                        IconComponent={FirecrawlChevronIcon}
+                                        MenuProps={buildFirecrawlSelectMenuProps()}
                                         renderValue={(selected) => {
                                           if (!selected) {
                                             return (
@@ -2433,9 +2420,9 @@ const PipelineStages = ({
                                           return selected
                                         }}
                                         sx={{
-                                          border: '1px solid #00000020', // Default border
+                                          border: '1px solid rgba(0,0,0,0.10)', // Default border
                                           '&:hover': {
-                                            border: '1px solid #00000020', // Same border on hover
+                                            border: '1px solid rgba(0,0,0,0.10)', // Same border on hover
                                           },
                                           '& .MuiOutlinedInput-notchedOutline':
                                           {
@@ -2445,17 +2432,20 @@ const PipelineStages = ({
                                           {
                                             border: 'none', // Remove outline on focus
                                           },
-                                          '&.MuiSelect-select': {
-                                            py: 0, // Optional padding adjustments
+                                          '& .MuiSelect-select': {
+                                            py: 0,
+                                            pr: '28px',
+                                            display: 'flex',
+                                            alignItems: 'center',
                                           },
-                                        }}
-                                        MenuProps={{
-                                          PaperProps: {
-                                            style: {
-                                              maxHeight: '30vh', // Limit dropdown height
-                                              overflow: 'auto', // Enable scrolling in dropdown
-                                              scrollbarWidth: 'none',
-                                            },
+                                          '& .MuiSelect-icon': {
+                                            color: 'rgba(0,0,0,0.7)',
+                                            right: 10,
+                                            transition:
+                                              'transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1)',
+                                          },
+                                          '&[aria-expanded="true"] .MuiSelect-icon': {
+                                            transform: 'rotate(180deg)',
                                           },
                                         }}
                                       >
@@ -2812,7 +2802,10 @@ const PipelineStages = ({
                           justifyContent: 'end',
                         }}
                       >
-                        <CloseBtn onClick={() => handleCloseAddStage()} />
+                        <CloseBtn
+                          onClick={() => handleCloseAddStage()}
+                          iconSize={14}
+                        />
                       </div>
                     </div>
 
@@ -2932,7 +2925,7 @@ const PipelineStages = ({
                           className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                           placeholder="Ex: Does the human express interestting a CMA "
                           style={{
-                            border: '1px solid #00000020',
+                            border: '1px solid rgba(0,0,0,0.10)',
                             fontWeight: '500',
                             fontSize: 15,
                             maxHeight: '200px',
@@ -3086,6 +3079,8 @@ const PipelineStages = ({
                               value={assignToMember || ''} // Default to empty string when no value is selected
                               onChange={handleAssignTeamMember}
                               displayEmpty // Enables placeholder
+                              IconComponent={FirecrawlChevronIcon}
+                              MenuProps={buildFirecrawlSelectMenuProps()}
                               renderValue={(selected) => {
                                 if (!selected) {
                                   return (
@@ -3097,9 +3092,9 @@ const PipelineStages = ({
                                 return selected
                               }}
                               sx={{
-                                border: '1px solid #00000020', // Default border
+                                border: '1px solid rgba(0,0,0,0.10)', // Default border
                                 '&:hover': {
-                                  border: '1px solid #00000020', // Same border on hover
+                                  border: '1px solid rgba(0,0,0,0.10)', // Same border on hover
                                 },
                                 '& .MuiOutlinedInput-notchedOutline': {
                                   border: 'none', // Remove the default outline
@@ -3108,17 +3103,20 @@ const PipelineStages = ({
                                 {
                                   border: 'none', // Remove outline on focus
                                 },
-                                '&.MuiSelect-select': {
-                                  py: 0, // Optional padding adjustments
+                                '& .MuiSelect-select': {
+                                  py: 0,
+                                  pr: '28px',
+                                  display: 'flex',
+                                  alignItems: 'center',
                                 },
-                              }}
-                              MenuProps={{
-                                PaperProps: {
-                                  style: {
-                                    maxHeight: '30vh', // Limit dropdown height
-                                    overflow: 'auto', // Enable scrolling in dropdown
-                                    scrollbarWidth: 'none',
-                                  },
+                                '& .MuiSelect-icon': {
+                                  color: 'rgba(0,0,0,0.7)',
+                                  right: 10,
+                                  transition:
+                                    'transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1)',
+                                },
+                                '&[aria-expanded="true"] .MuiSelect-icon': {
+                                  transform: 'rotate(180deg)',
                                 },
                               }}
                             >

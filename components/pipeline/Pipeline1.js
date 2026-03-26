@@ -1,23 +1,16 @@
 import {
-  Alert,
   Box,
   CircularProgress,
-  Fade,
   FormControl,
   MenuItem,
   Modal,
   Select,
-  Snackbar,
 } from '@mui/material'
-import { CaretDown, Minus, YoutubeLogo } from '@phosphor-icons/react'
 import axios from 'axios'
-import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
-import Body from '@/components/onboarding/Body'
-import Footer from '@/components/onboarding/Footer'
+import LoaderAnimation from '@/components/animations/LoaderAnimation'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import {
@@ -34,6 +27,10 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import PipelineStages from './PipelineStages'
+import {
+  buildFirecrawlSelectMenuProps,
+  FirecrawlChevronIcon,
+} from './firecrawlSelectMenu'
 import { getCadenceTemplates, createCadenceTemplate } from './TempleteServices'
 
 const EMPTY_CADENCE_SLICE = {
@@ -45,6 +42,7 @@ const EMPTY_CADENCE_SLICE = {
 
 const Pipeline1 = ({
   handleContinue,
+  handleBack,
   stopLoaderTrigger = false,
   onContinueClick,
 }) => {
@@ -1025,11 +1023,48 @@ const Pipeline1 = ({
     },
   }
 
+  const labelClassName = 'text-[14px] font-normal leading-[1.6] text-black'
+
+  const inputShellClassName =
+    'bg-white border-[0.5px] border-black/10 rounded-[8px] h-[40px] w-full flex items-center px-[10px] gap-3 transition-colors focus-within:border-brand-primary/50 focus-within:ring-2 focus-within:ring-brand-primary/20'
+
+  const pipelineSelectSx = {
+    fontSize: 14,
+    fontWeight: 400,
+    color: '#000000',
+    backgroundColor: '#FFFFFF',
+    height: 40,
+    borderRadius: '8px',
+    width: '100%',
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 'none',
+    },
+    '& .MuiSelect-select': {
+      display: 'flex',
+      alignItems: 'center',
+      height: 40,
+      padding: 0,
+      paddingRight: '28px',
+    },
+    '& .MuiSelect-icon': {
+      color: 'rgba(0,0,0,0.7)',
+      right: 10,
+      transition: 'transform 180ms cubic-bezier(0.2, 0.9, 0.2, 1)',
+    },
+    '&[aria-expanded="true"] .MuiSelect-icon': {
+      transform: 'rotate(180deg)',
+    },
+  }
+
+  const pipelineTutorial = getTutorialByType(HowToVideoTypes.CRMIntegration)
+  const pipelineVideoTitle =
+    pipelineTutorial?.title || 'Learn about pipeline and stages'
+  const pipelineVideoDuration = pipelineTutorial?.description || '8:17'
+  const pipelineVideoUrl =
+    getVideoUrlByType(HowToVideoTypes.CRMIntegration) || HowtoVideos.Pipeline
+
   return (
-    <div
-      style={{ width: '100%' }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
-    >
+    <div className="bg-[#f9f9f9] w-full h-[100svh] overflow-hidden">
       {/* <AgentSelectSnackMessage isVisible={reorderSuccessBar == null || reorderSuccessBar == false ? false : true} hide={() => setReorderSuccessBar(null)} message={reorderSuccessBar} time={SnackbarTypes.Success} /> */}
       {isVisibleSnack && (
         <AgentSelectSnackMessage
@@ -1039,133 +1074,97 @@ const Pipeline1 = ({
           type={snackType}
         />
       )}
-      <div
-        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
-      >
-        <div
-          ref={mainScrollContainerRef}
-          className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24"
-        >
-          {/* header with title centered vertically */}
-          <div className="relative w-full flex-shrink-0" style={{ minHeight: '100px' }}> {/* showOrb ? '140px' : '100px' */}
-            <Header />
+      <div className="relative flex w-full h-[100svh] flex-col">
+        <div className="relative bg-[#f9f9f9] w-full flex flex-col h-[100svh] overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 z-[15] hidden lg:flex items-end justify-end p-6 pr-8 pb-[92px]">
             <div
-              className="absolute left-1/2 md:text-4xl text-lg font-[700]"
+              className="pointer-events-auto w-fit rounded-[12px] bg-white"
               style={{
-                top: '50%', //showOrb ? 'calc(50% + 45px)' : '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 50,
-                pointerEvents: 'none',
+                border: '1px solid #eaeaea',
+                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
               }}
             >
-              Pipeline and Stages
+              <VideoCard
+                duration={pipelineVideoDuration}
+                horizontal={false}
+                playVideo={() => setIntroVideoModal(true)}
+                title={pipelineVideoTitle}
+                videoUrl={pipelineVideoUrl}
+                hoverReveal
+                hideCta
+                className="rounded-[12px] border-0 bg-transparent shadow-none"
+              />
             </div>
           </div>
-          {/* Body */}
 
-          {/* Code for side video */}
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle={
-              getTutorialByType(HowToVideoTypes.CRMIntegration)?.title ||
-              'Learn about pipeline and stages'
-            }
-            videoUrl={
-              getVideoUrlByType(HowToVideoTypes.CRMIntegration) ||
-              HowtoVideos.Pipeline
-            }
+            videoTitle={pipelineVideoTitle}
+            videoUrl={pipelineVideoUrl}
           />
 
-          <div
-            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[250px]"
-            style={{
-              position: 'absolute',
-              // left: "18%",
-              // translate: "-50%",
-              // left: "14%",
-              top: '20%',
-              // backgroundColor: "red"
-            }}
-          >
-            <VideoCard
-              duration={(() => {
-                const tutorial = getTutorialByType(
-                  HowToVideoTypes.CRMIntegration,
-                )
-                return tutorial?.description || '8:17'
-              })()}
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal(true)
-              }}
-              title={
-                getTutorialByType(HowToVideoTypes.CRMIntegration)?.title ||
-                'Learn about pipeline and stages'
-              }
-              videoUrl={
-                getVideoUrlByType(HowToVideoTypes.CRMIntegration) ||
-                HowtoVideos.Pipeline
-              }
-            />
+          <div className="sticky top-0 z-40 shrink-0 bg-[#f9f9f9]">
+            <Header variant="createAgentToolbar" />
           </div>
 
           <div
-            className="flex flex-col items-center px-4 w-full flex-1 min-h-0 max-h-[70svh] overflow-auto pb-8 md:pb-4 lg:pb-0"
+            ref={mainScrollContainerRef}
+            className="flex-1 w-full flex justify-center overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-brand-primary"
           >
-
-            <div
-              className={`w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4`}  //${showOrb ? 'mt-6' : 'mt-4'}
-              style={{ scrollbarWidth: 'none', minHeight: 0 }}
-            >
-              {pipelinesDetails.length > 1 && (
-                <div>
-                  <div style={styles.headingStyle}>Select a pipeline</div>
-                  <div className="border rounded-lg">
-                    <Box className="w-full">
-                      <FormControl className="w-full">
-                        <Select
-                          className="border-none rounded-lg outline-none"
-                          displayEmpty
-                          value={selectPipleLine}
-                          onChange={handleSelectPipleLine}
-                          renderValue={(selected) => {
-                            if (selected === '') {
-                              return <div>Select Pipeline</div>
-                            }
-                            return selected
-                          }}
-                          sx={{
-                            ...styles.dropdownMenu,
-                            backgroundColor: '#FFFFFF',
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none',
-                            },
-                            color: '#000000',
-                          }}
-                        >
-                          {pipelinesDetails.map((item, index) => (
-                            <MenuItem
-                              key={item.id}
-                              style={styles.dropdownMenu}
-                              value={item.title}
-                            >
-                              {item.title}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Box>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-4" style={styles.headingStyle}>
-                Assign this agent to a stage
+            <div className="w-full max-w-[800px] mx-auto flex flex-col items-center gap-3 p-6 pb-10">
+              <div className="w-full text-center text-[22px] font-semibold leading-[30px] tracking-[-0.77px] text-black">
+                Pipeline & Stages
               </div>
 
-              <div className="mt-2" style={styles.inputStyle}>
-                {`This agent will call leads when they're added to the selected stage.`}
+              <div className="w-full flex flex-col gap-3 pt-3 pb-6">
+                {pipelinesDetails.length > 1 && (
+                  <div className="w-full flex flex-col gap-2 items-start">
+                    <div className={labelClassName}>Select a pipeline</div>
+                    <div className={inputShellClassName}>
+                      <Box className="w-full min-w-0">
+                        <FormControl className="w-full">
+                          <Select
+                            className="border-none rounded-lg outline-none w-full"
+                            displayEmpty
+                            value={selectPipleLine}
+                            onChange={handleSelectPipleLine}
+                            IconComponent={FirecrawlChevronIcon}
+                            MenuProps={buildFirecrawlSelectMenuProps()}
+                            renderValue={(selected) => {
+                              if (selected === '') {
+                                return (
+                                  <span className="text-[14px] text-black/40">
+                                    Select Pipeline
+                                  </span>
+                                )
+                              }
+                              return (
+                                <span className="text-[14px] text-black">
+                                  {selected}
+                                </span>
+                              )
+                            }}
+                            sx={pipelineSelectSx}
+                          >
+                            {pipelinesDetails.map((item) => (
+                              <MenuItem key={item.id} value={item.title}>
+                                {item.title}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </div>
+                  </div>
+                )}
+
+                <div className="w-full flex flex-col gap-2">
+                  <div className={labelClassName}>Assign this agent to a stage</div>
+                  <div className="text-[14px] font-normal leading-[1.6] text-[#666]">
+                    {`This agent will call leads when they're added to the selected stage.`}
+                  </div>
+                </div>
               </div>
 
               <PipelineStages
@@ -1235,7 +1234,6 @@ const Pipeline1 = ({
                 onClearStageTemplate={handleClearStageTemplate}
               />
 
-              {/* Reorder stage loader modal */}
               <Modal
                 open={reorderLoader}
                 closeAfterTransition
@@ -1243,7 +1241,6 @@ const Pipeline1 = ({
                   timeout: 100,
                   sx: {
                     backgroundColor: '#00000020',
-                    // //backdropFilter: "blur(20px)",
                   },
                 }}
               >
@@ -1255,36 +1252,44 @@ const Pipeline1 = ({
                     <CircularProgress
                       sx={{ color: 'hsl(var(--brand-primary))' }}
                       size={150}
-                      weight=""
                       thickness={1}
                     />
                   </div>
                 </Box>
               </Modal>
-
-              {/* <div>
-                                <button className='text-red text-lg font-bold' onClick={handleReorder}>
-                                    Rearrange
-                                </button>
-                            </div> */}
             </div>
           </div>
-        </div>
 
-        {/* Fixed Footer */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
-          <div className="px-4 pt-3 pb-2">
-            <ProgressBar value={33} />
-          </div>
-          <div className="flex items-center w-full px-4" style={{ minHeight: '50px' }}>
-            <div className="flex-1" />
-            <div className="flex items-center gap-3">
-              <Footer
-                handleContinue={printAssignedLeadsData}
-                donotShowBack={true}
-                registerLoader={createPipelineLoader}
-                shouldContinue={shouldContinue}
-              />
+          <div className="sticky bottom-0 z-40 bg-[#f9f9f9] w-full">
+            <div className="border-t border-[rgba(21,21,21,0.1)]">
+              <ProgressBar value={33} />
+            </div>
+            <div className="border-t border-[rgba(21,21,21,0.1)] h-[65px] flex items-center justify-between px-8 py-4">
+              {typeof handleBack === 'function' ? (
+                <button
+                  type="button"
+                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-[#efefef] px-4 py-[7.5px] text-[14px] font-semibold leading-[21px] tracking-[0.07px] text-foreground transition-colors hover:bg-[#e5e5e5] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                  onClick={handleBack}
+                >
+                  Back
+                </button>
+              ) : (
+                <span className="min-w-[1px]" aria-hidden />
+              )}
+              {createPipelineLoader ? (
+                <div className="w-[100px] flex items-center justify-center">
+                  <LoaderAnimation loaderModal={createPipelineLoader} />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled={shouldContinue}
+                  className="h-9 min-h-[36px] rounded-lg px-4 py-[7.5px] text-[14px] font-semibold leading-[21px] tracking-[0.07px] text-white bg-brand-primary hover:opacity-90 active:scale-[0.98] transition-all duration-150 disabled:bg-black/10 disabled:text-black/60 disabled:hover:opacity-100 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30"
+                  onClick={printAssignedLeadsData}
+                >
+                  Continue
+                </button>
+              )}
             </div>
           </div>
         </div>
