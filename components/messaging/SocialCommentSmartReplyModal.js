@@ -18,23 +18,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { X } from 'lucide-react'
 import { toast } from '@/utils/toast'
 
-const PLACEHOLDERS = [
-  { key: '{{commenter_name}}', label: 'Commenter name' },
-  { key: '{{comment_text}}', label: 'Full comment text' },
-  { key: '{{comment_text_100}}', label: 'Comment (max 100 chars)' },
-]
-
 function ruleKey(platform, externalId) {
   return `${platform}:${externalId}`
+}
+
+function normalizeVariableLabel(v) {
+  return String(v || '')
+    .trim()
+    .replace(/^\{+/, '')
+    .replace(/\}+$/, '')
+    .trim()
+}
+
+function dedupeNormalizedVariables(list) {
+  const out = []
+  const seen = new Set()
+  for (const item of list || []) {
+    const label = normalizeVariableLabel(item)
+    if (!label) continue
+    const key = label.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(label)
+  }
+  return out
 }
 
 export default function SocialCommentSmartReplyModal({
@@ -59,6 +70,8 @@ export default function SocialCommentSmartReplyModal({
   const [phrases, setPhrases] = useState([])
   const [phraseInput, setPhraseInput] = useState('')
   const [messageBody, setMessageBody] = useState('')
+  const [selectedVariable, setSelectedVariable] = useState('')
+  const [uniqueColumns, setUniqueColumns] = useState([])
 
   const loadSettings = useCallback(async () => {
     const localData = typeof window !== 'undefined' ? localStorage.getItem('User') : null
@@ -111,6 +124,39 @@ export default function SocialCommentSmartReplyModal({
       loadSettings()
     }
   }, [open, loadSettings])
+
+  useEffect(() => {
+    if (!open) return
+    const fetchUniqueColumns = async () => {
+      try {
+        const localData = localStorage.getItem('User')
+        const localUserId = localData ? JSON.parse(localData)?.user?.id : null
+        const targetUserId = selectedUser?.id || localUserId
+        const defaultColumns = [
+          'First Name',
+          'Last Name',
+          'Email',
+          'Phone',
+          'Address',
+          'Assigned Team Member',
+        ]
+        const res = await getUniquesColumn(targetUserId)
+        const merged = Array.isArray(res) && res.length > 0 ? [...defaultColumns, ...res] : defaultColumns
+        setUniqueColumns(dedupeNormalizedVariables(merged))
+      } catch (error) {
+        console.error('Error fetching unique columns:', error)
+        setUniqueColumns(dedupeNormalizedVariables([
+          'First Name',
+          'Last Name',
+          'Email',
+          'Phone',
+          'Address',
+          'Assigned Team Member',
+        ]))
+      }
+    }
+    fetchUniqueColumns()
+  }, [open, selectedUser?.id])
 
   const applyRuleForKey = (key) => {
     if (!key) return
@@ -210,13 +256,15 @@ export default function SocialCommentSmartReplyModal({
   }
 
   const insertVariable = (key) => {
-    setMessageBody((prev) => (prev || '') + key)
+    const label = normalizeVariableLabel(key)
+    if (!label) return
+    setMessageBody((prev) => (prev || '') + `{${label}}`)
   }
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+        <DialogHeader className="pb-3 border-b border-black/[0.08]">
           <DialogTitle className="text-lg font-semibold">Smart Reply</DialogTitle>
         </DialogHeader>
 
@@ -227,7 +275,7 @@ export default function SocialCommentSmartReplyModal({
             Connect a Facebook Page or Instagram account to configure comment Smart Reply.
           </p>
         ) : (
-          <div className="space-y-4 py-1">
+          <div className="space-y-4 py-1 pt-2">
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Phrase</label>
               <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2 rounded-md border border-input bg-background">
@@ -265,18 +313,15 @@ export default function SocialCommentSmartReplyModal({
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Page</label>
               <Select value={selectedKey} onValueChange={handleSelectConnection}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-[#F9F9F9]">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[25000] bg-[#F9F9F9]">
                   {fbIg.map((c) => {
                     const k = ruleKey(c.platform, c.externalId)
                     return (
                       <SelectItem key={k} value={k}>
-                        {c.displayName || c.externalId}{' '}
-                        <span className="text-muted-foreground">
-                          ({c.platform === 'facebook' ? 'Facebook' : 'Instagram'})
-                        </span>
+                        {c.displayName || c.externalId} ({c.platform === 'facebook' ? 'Facebook' : 'Instagram'})
                       </SelectItem>
                     )
                   })}
@@ -287,20 +332,24 @@ export default function SocialCommentSmartReplyModal({
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-sm font-medium text-foreground">Message</label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button type="button" variant="outline" size="sm" className="h-8 text-xs">
-                      Variables
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {PLACEHOLDERS.map((v) => (
-                      <DropdownMenuItem key={v.key} onClick={() => insertVariable(v.key)}>
-                        {v.label}
-                      </DropdownMenuItem>
+                <Select
+                  value={selectedVariable}
+                  onValueChange={(val) => {
+                    setSelectedVariable('')
+                    if (val) insertVariable(val)
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-[120px] text-xs bg-white">
+                    <SelectValue placeholder="Variables" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[25000]">
+                    {uniqueColumns.map((variable) => (
+                      <SelectItem key={variable} value={variable}>
+                        {variable}
+                      </SelectItem>
                     ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </SelectContent>
+                </Select>
               </div>
               <textarea
                 className="w-full min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -316,7 +365,7 @@ export default function SocialCommentSmartReplyModal({
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="mt-2 border-t border-black/[0.08] pt-3 flex w-full justify-between">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>

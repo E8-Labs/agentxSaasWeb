@@ -1874,7 +1874,7 @@ const MessageComposer = ({
                         <PopoverTrigger asChild>
                           <button
                             type="button"
-                            className="flex max-w-full items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-2 py-1.5 text-sm hover:bg-black/[0.02]"
+                            className="flex max-w-full items-center gap-2 rounded-lg bg-white px-2 py-1.5 text-sm hover:bg-black/[0.02]"
                           >
                             <img
                               src={
@@ -1895,14 +1895,14 @@ const MessageComposer = ({
                             <CaretDown className="h-4 w-4 shrink-0 opacity-60" />
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[min(100vw-2rem,280px)] p-1" align="center">
+                        <PopoverContent className="w-[min(100vw-2rem,220px)] p-1" align="center">
                           <div className="flex flex-col gap-0.5">
                             {fbIgConnections.map((conn) => (
                               <div
                                 key={conn.id}
                                 className="group flex items-center justify-between gap-2 rounded-md px-2 py-2 hover:bg-muted/80"
                               >
-                                <div className="flex min-w-0 flex-1 items-center gap-2">
+                                <div className="flex min-w-0 flex-1 items-center gap-2 cursor-default">
                                   <img
                                     src={
                                       conn.profileImageUrl
@@ -1944,7 +1944,7 @@ const MessageComposer = ({
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-9 gap-1.5 rounded-lg border-black/[0.12] bg-white"
+                        className="h-9 gap-1.5 rounded-lg border-0 shadow-none bg-[#F9F9F9] hover:bg-[#F3F3F3]"
                         onClick={() => setSmartReplyModalOpen(true)}
                       >
                         <Sparkle className="h-4 w-4 text-[hsl(var(--brand-primary))]" weight="fill" />
