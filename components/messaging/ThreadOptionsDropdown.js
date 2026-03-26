@@ -24,6 +24,7 @@ import SettingsTabContent from './SettingsTabContent'
  * - selectedThread: { id (threadId), leadId, selectedAgentId }
  * - composerMode: 'sms' | 'email' | 'facebook' | 'instagram' | 'comment'
  * - socialSelectedAgentId: from message settings (used when FB/IG tab is selected)
+ * - whatsappSelectedAgentId: from message settings (used when WhatsApp tab is selected)
  * - onSocialAgentSaved: (agentId) => void when user selects social agent
  * - teamOptions, leadSettings, selectedUser, onToggle, onSettingsUpdate, onThreadUpdated
  */
@@ -39,6 +40,7 @@ export default function ThreadOptionsDropdown({
   withoutBorder = false,
   composerMode,
   socialSelectedAgentId = null,
+  whatsappSelectedAgentId = null,
   onSocialAgentSaved,
 }) {
   const selectedTeams = useMemo(
@@ -50,9 +52,10 @@ export default function ThreadOptionsDropdown({
   const leadId = selectedThread?.leadId
   const threadSelectedAgentId = selectedThread?.selectedAgentId ?? null
 
-  const isSocialChannel = composerMode === 'facebook' || composerMode === 'instagram' || composerMode === 'whatsapp'
+  const isWhatsAppChannel = composerMode === 'whatsapp'
+  const isSocialChannel = composerMode === 'facebook' || composerMode === 'instagram' || isWhatsAppChannel
   const effectiveSelectedAgentId = isSocialChannel
-    ? (socialSelectedAgentId ?? null)
+    ? (isWhatsAppChannel ? (whatsappSelectedAgentId ?? null) : (socialSelectedAgentId ?? null))
     : threadSelectedAgentId
 
   return (
@@ -138,7 +141,9 @@ export default function ThreadOptionsDropdown({
                 threadId={threadId}
                 mode={isSocialChannel ? 'social' : 'thread'}
                 onSelectionSaved={onThreadUpdated}
-                onSocialAgentSaved={onSocialAgentSaved}
+                onSocialAgentSaved={(agentId) =>
+                  onSocialAgentSaved?.(agentId, isWhatsAppChannel ? 'whatsapp' : 'social')
+                }
               />
             ) : (
               <div className="px-2 py-3 text-sm text-muted-foreground">

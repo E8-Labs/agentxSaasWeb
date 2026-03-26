@@ -411,7 +411,7 @@ const ConversationView = ({
                               {getLeadName(selectedThread)}
                             </div>
                             {(message.messageType === 'messenger' || message.messageType === 'instagram' || message.messageType === 'whatsapp' || message.messageType === 'email' || message.messageType === 'sms') && (
-                              <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                              <PlatformIcon type={message.messageType} size={15} showInBadge badgeSize="sm" />
                             )}
                           </div>
                         )}

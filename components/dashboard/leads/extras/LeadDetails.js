@@ -62,6 +62,7 @@ import {
   TagIcon,
   Pencil,
   Check,
+  CircleDollarSign,
   X as XIcon,
   ArrowLeftIcon,
   Sparkles,
@@ -2621,6 +2622,18 @@ const LeadDetails = ({
                                   />
                                 )}
                             </div>
+                            {
+                              selectedLeadsDetails?.priceValue && (
+                                <div className="flex items-center gap-2">
+                                  <CircleDollarSign
+                                    className="h-4 w-4 shrink-0 text-muted-foreground"
+                                    size={16}
+                                    aria-hidden
+                                  />
+                                  <span className="text-sm font-medium text-foreground">${selectedLeadsDetails?.priceValue}</span>
+                                </div>
+                              )
+                            }
                           </div>
 
 
@@ -2665,6 +2678,7 @@ const LeadDetails = ({
                       )
                     }}
                   />
+
 
                   <AuthSelectionPopup
                     selectedUser={selectedUser}

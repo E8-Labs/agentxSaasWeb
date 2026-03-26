@@ -308,7 +308,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
             </div>
 
             <div
-              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%]  overflow-auto scrollbar-track-transparent scrollbar-thin"
+              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%]  overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-gray-300"
               style={{
                 scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
               }}

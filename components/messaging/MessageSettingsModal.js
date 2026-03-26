@@ -64,6 +64,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
     socialReplyDelaySeconds: 30,
     socialSaveAsDraftEnabled: false,
     socialSelectedAgentId: null,
+    whatsappReplyDelayEnabled: false,
+    whatsappReplyDelaySeconds: 30,
+    whatsappSaveAsDraftEnabled: false,
+    whatsappSelectedAgentId: null,
     metaLeadAdsSmartListId: null,
     communicationStyle: null,
     tailoringCommunication: null,
@@ -217,6 +221,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
           socialReplyDelaySeconds: data.socialReplyDelaySeconds ?? 30,
           socialSaveAsDraftEnabled: data.socialSaveAsDraftEnabled || false,
           socialSelectedAgentId: data.socialSelectedAgentId ?? null,
+          whatsappReplyDelayEnabled: data.whatsappReplyDelayEnabled ?? data.socialReplyDelayEnabled ?? false,
+          whatsappReplyDelaySeconds: data.whatsappReplyDelaySeconds ?? data.socialReplyDelaySeconds ?? 30,
+          whatsappSaveAsDraftEnabled: data.whatsappSaveAsDraftEnabled ?? data.socialSaveAsDraftEnabled ?? false,
+          whatsappSelectedAgentId: data.whatsappSelectedAgentId ?? data.socialSelectedAgentId ?? null,
           metaLeadAdsSmartListId: data.metaLeadAdsSmartListId ?? null,
           communicationStyle: data.communicationStyle ?? null,
           tailoringCommunication: data.tailoringCommunication ?? null,
@@ -382,6 +390,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
         toast.error('Please set a valid delay time in seconds for social messages')
         return
       }
+      if (settings.whatsappReplyDelayEnabled && (settings.whatsappReplyDelaySeconds == null || settings.whatsappReplyDelaySeconds < 0)) {
+        toast.error('Please set a valid delay time in seconds for WhatsApp messages')
+        return
+      }
 
       let integrationId = settings.aiIntegrationId
       if (!socialOnly) {
@@ -420,11 +432,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
             if (existingIntegrationId) {
               // Update existing integration for this provider (send only apiKey so provider is not overwritten)
               const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+              const updateBody = { apiKey: trimmedApiKey }
+              if (selectedUser?.id) updateBody.userId = selectedUser.id
               const updateResponse = await axios.put(
                 updateUrl,
-                {
-                  apiKey: trimmedApiKey,
-                },
+                updateBody,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
@@ -447,12 +459,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
             } else {
               // Create new integration
               const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
+              const createBody = {
+                provider: selectedProvider,
+                apiKey: trimmedApiKey,
+              }
+              if (selectedUser?.id) createBody.userId = selectedUser.id
               const createResponse = await axios.post(
                 createUrl,
-                {
-                  provider: selectedProvider,
-                  apiKey: trimmedApiKey,
-                },
+                createBody,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
@@ -492,6 +506,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
           socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
           socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
           socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+          whatsappReplyDelayEnabled: settings.whatsappReplyDelayEnabled,
+          whatsappReplyDelaySeconds: settings.whatsappReplyDelayEnabled ? settings.whatsappReplyDelaySeconds : null,
+          whatsappSaveAsDraftEnabled: settings.whatsappSaveAsDraftEnabled,
+          whatsappSelectedAgentId: settings.whatsappSelectedAgentId ?? null,
           metaLeadAdsSmartListId: settings.metaLeadAdsSmartListId ?? null,
         }
         : {
@@ -503,6 +521,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
           socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
           socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
           socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+          whatsappReplyDelayEnabled: settings.whatsappReplyDelayEnabled,
+          whatsappReplyDelaySeconds: settings.whatsappReplyDelayEnabled ? settings.whatsappReplyDelaySeconds : null,
+          whatsappSaveAsDraftEnabled: settings.whatsappSaveAsDraftEnabled,
+          whatsappSelectedAgentId: settings.whatsappSelectedAgentId ?? null,
           metaLeadAdsSmartListId: settings.metaLeadAdsSmartListId ?? null,
           communicationStyle: settings.communicationStyle ?? null,
           tailoringCommunication: settings.tailoringCommunication ?? null,
@@ -622,6 +644,46 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
     setSettings({
       ...settings,
       socialReplyDelaySeconds: safe,
+    })
+  }
+
+  const handleWhatsAppReplyDelayToggle = (enabled) => {
+    if (enabled) {
+      setSettings({
+        ...settings,
+        whatsappReplyDelayEnabled: true,
+        whatsappSaveAsDraftEnabled: false,
+      })
+    } else {
+      setSettings({
+        ...settings,
+        whatsappReplyDelayEnabled: false,
+        whatsappReplyDelaySeconds: null,
+      })
+    }
+  }
+
+  const handleWhatsAppSaveAsDraftToggle = (enabled) => {
+    if (enabled) {
+      setSettings({
+        ...settings,
+        whatsappSaveAsDraftEnabled: true,
+        whatsappReplyDelayEnabled: false,
+      })
+    } else {
+      setSettings({
+        ...settings,
+        whatsappSaveAsDraftEnabled: false,
+      })
+    }
+  }
+
+  const handleWhatsAppDelaySecondsChange = (value) => {
+    const numValue = parseInt(value, 10)
+    const safe = (Number.isNaN(numValue) || numValue < 0) ? 0 : numValue
+    setSettings({
+      ...settings,
+      whatsappReplyDelaySeconds: safe,
     })
   }
 
@@ -1063,7 +1125,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                 ) : (
                   <div className="flex flex-col gap-0.5 max-h-[60svh] overflow-y-auto w-full px-4 text-[14px]">
                     {socialOnly ? (
-                      /* Social-only: only the Social (Facebook & Instagram DMs) block */
+                      /* Social-only: Social (FB/IG) + WhatsApp blocks */
                       <div className="flex flex-col gap-3 pt-3 pb-4 mt-2">
                         <h3 className="text-[14px] font-semibold text-foreground">Social (Facebook & Instagram DMs)</h3>
                         <div className="flex flex-col gap-2">
@@ -1133,6 +1195,76 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                               </TooltipProvider>
                             </div>
                             <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
+                        </div>
+                        <h3 className="text-[14px] font-semibold text-foreground pt-2">WhatsApp</h3>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[14px] font-medium text-foreground">Select Agent to handle WhatsApp</label>
+                          <Select
+                            value={settings.whatsappSelectedAgentId != null ? String(settings.whatsappSelectedAgentId) : 'none'}
+                            onValueChange={(v) => setSettings({ ...settings, whatsappSelectedAgentId: v === 'none' ? null : Number(v) })}
+                            onOpenChange={handleSocialAgentsDropdownOpenChange}
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue placeholder="Select agent" />
+                            </SelectTrigger>
+                            <SelectContent className="z-[1500]">
+                              <SelectItem value="none">None</SelectItem>
+                              {socialAgentsList.map((a) => (
+                                <SelectItem key={a.id} value={String(a.id)}>
+                                  <span className="flex items-center gap-2 min-w-0">
+                                    <span className="shrink-0 flex items-center justify-center">
+                                      {getAgentsListImage(a.raw, 24, 24)}
+                                    </span>
+                                    <span className="truncate">{a.name}</span>
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Auto-reply for WhatsApp messages after a delay.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.whatsappReplyDelayEnabled} onCheckedChange={handleWhatsAppReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
+                          {settings.whatsappReplyDelayEnabled && (
+                            <div className="relative">
+                              <Input type="number" placeholder="Delay (seconds)" value={settings.whatsappReplyDelaySeconds ?? ''} onChange={(e) => handleWhatsAppDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
+                              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Save WhatsApp auto-replies as drafts for you to review.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.whatsappSaveAsDraftEnabled} onCheckedChange={handleWhatsAppSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
                           </div>
                         </div>
                         <div className="flex flex-col gap-2 pt-4 border-t border-black/[0.06]">
@@ -1394,6 +1526,104 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                             </div>
                             <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
                           </div>
+                        </div>
+                        <h3 className="text-[14px] font-semibold text-foreground pt-3">WhatsApp</h3>
+                        <div className="flex flex-col gap-2 pb-4 border-b border-black/[0.06] mt-2">
+                          <label className="text-[14px] font-medium text-foreground">Select Agent to handle WhatsApp</label>
+                          <Select
+                            value={settings.whatsappSelectedAgentId != null ? String(settings.whatsappSelectedAgentId) : 'none'}
+                            onValueChange={(v) => setSettings({ ...settings, whatsappSelectedAgentId: v === 'none' ? null : Number(v) })}
+                            onOpenChange={handleSocialAgentsDropdownOpenChange}
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue placeholder="Select agent" />
+                            </SelectTrigger>
+                            <SelectContent className="z-[1500]">
+                              <SelectItem value="none">None</SelectItem>
+                              {socialAgentsList.map((a) => (
+                                <SelectItem key={a.id} value={String(a.id)}>
+                                  <span className="flex items-center gap-2 min-w-0">
+                                    <span className="shrink-0 flex items-center justify-center">
+                                      {getAgentsListImage(a.raw, 24, 24)}
+                                    </span>
+                                    <span className="truncate">{a.name}</span>
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex flex-col gap-0.5 pb-4 border-b border-black/[0.06]">
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Set auto reply</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Auto-reply for WhatsApp messages after a delay.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.whatsappReplyDelayEnabled} onCheckedChange={handleWhatsAppReplyDelayToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
+                          {settings.whatsappReplyDelayEnabled && (
+                            <div className="relative">
+                              <Input type="number" placeholder="Set delay time (in seconds)" value={settings.whatsappReplyDelaySeconds ?? ''} onChange={(e) => handleWhatsAppDelaySecondsChange(e.target.value)} min={0} className="w-full pr-10" />
+                              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground" aria-hidden>sec</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between h-10 min-h-0">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[14px] font-medium text-foreground">Save as draft</label>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
+                                      <Info size={16} />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" align="start" sideOffset={8} className="max-w-xs bg-black text-white z-[1500]" collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}>
+                                    <p className="text-xs">Save WhatsApp auto-replies as drafts for you to review.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <Switch checked={settings.whatsappSaveAsDraftEnabled} onCheckedChange={handleWhatsAppSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2 pt-3 pb-4 border-b border-black/[0.06]">
+                          <h3 className="text-[14px] font-semibold text-foreground">Meta Lead Ads (Instant Forms)</h3>
+                          <p className="text-xs text-muted-foreground max-w-md">
+                            Submissions from Lead Ads on your Facebook Page are saved as leads in the smart list you choose.
+                          </p>
+                          <Select
+                            value={settings.metaLeadAdsSmartListId != null ? String(settings.metaLeadAdsSmartListId) : 'none'}
+                            onValueChange={(v) =>
+                              setSettings({
+                                ...settings,
+                                metaLeadAdsSmartListId: v === 'none' ? null : Number(v),
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue placeholder="Select smart list" />
+                            </SelectTrigger>
+                            <SelectContent className="z-[1500]">
+                              <SelectItem value="none">Not set</SelectItem>
+                              {metaLeadSmartLists.map((s) => (
+                                <SelectItem key={s.id} value={String(s.id)}>
+                                  {s.name || s.sheetName || `Smart list ${s.id}`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <div className="flex flex-col gap-2 pt-3 pb-4 border-b border-black/[0.06]">

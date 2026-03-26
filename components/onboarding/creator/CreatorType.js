@@ -75,7 +75,7 @@ const CreatorType = ({ handleContinue, handleBack }) => {
             </div>
 
             <div
-              className="mt-2 pb-10 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
+              className="mt-2 pb-10 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-gray-300"
               style={{
                 scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
               }}

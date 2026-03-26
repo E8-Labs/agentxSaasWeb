@@ -810,44 +810,44 @@ function UserPlans({
               quaterlyPlans?.length > 0,
               yearlyPlans?.length > 0,
             ].filter(Boolean).length >= 2 && (
-              <div className="flex flex-col items-center gap-1 md:items-end">
-                {isFrom !== 'SubAccount' && (
-                  <div className="flex items-center justify-center gap-3 px-3 md:justify-end">
-                    {duration?.filter((d) => Boolean(d.save)).map((d) => {
+                <div className="flex flex-col items-center gap-1 md:items-end">
+                  {isFrom !== 'SubAccount' && (
+                    <div className="flex items-center justify-center gap-3 px-3 md:justify-end">
+                      {duration?.filter((d) => Boolean(d.save)).map((d) => {
+                        const isActive = selectedDuration?.id === d.id
+                        return (
+                          <div
+                            key={d.id}
+                            className="backdrop-blur-[10px] bg-white px-3 py-[2px] rounded-tl-[12px] rounded-tr-[12px] shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)]"
+                          >
+                            <span
+                              className={`text-[12px] font-semibold tracking-[-0.36px] leading-[16px] ${isActive ? 'bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-[#ec15ff]' : 'text-[#666]'}`}
+                            >
+                              Save {d.save}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  <div className="bg-[#f9f9f9] rounded-[27px] p-1 w-full md:w-[293px] flex items-center gap-[10px]">
+                    {duration?.map((d) => {
                       const isActive = selectedDuration?.id === d.id
                       return (
-                        <div
+                        <button
                           key={d.id}
-                          className="backdrop-blur-[10px] bg-white px-3 py-[2px] rounded-tl-[12px] rounded-tr-[12px] shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)]"
+                          type="button"
+                          onClick={() => setSelectedDuration(d)}
+                          className={`flex-1 rounded-[27px] px-[10px] py-1 text-[14px] text-black transition-shadow ${isActive ? 'bg-white shadow-[0px_4px_10.4px_0px_rgba(0,0,0,0.18)]' : 'bg-transparent'}`}
                         >
-                          <span
-                            className={`text-[12px] font-semibold tracking-[-0.36px] leading-[16px] ${isActive ? 'bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-[#ec15ff]' : 'text-[#666]'}`}
-                          >
-                            Save {d.save}
-                          </span>
-                        </div>
+                          {d.title}
+                        </button>
                       )
                     })}
                   </div>
-                )}
-
-                <div className="bg-[#f9f9f9] rounded-[27px] p-1 w-full md:w-[293px] flex items-center gap-[10px]">
-                  {duration?.map((d) => {
-                    const isActive = selectedDuration?.id === d.id
-                    return (
-                      <button
-                        key={d.id}
-                        type="button"
-                        onClick={() => setSelectedDuration(d)}
-                        className={`flex-1 rounded-[27px] px-[10px] py-1 text-[14px] text-black transition-shadow ${isActive ? 'bg-white shadow-[0px_4px_10.4px_0px_rgba(0,0,0,0.18)]' : 'bg-transparent'}`}
-                      >
-                        {d.title}
-                      </button>
-                    )
-                  })}
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           <div className="py-3 sm:py-4">
@@ -856,230 +856,229 @@ function UserPlans({
                 key={gridAnimationId}
                 className="mx-auto flex w-max flex-nowrap gap-3 pt-4 pb-2 sm:gap-4 sm:pt-6 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-[cubic-bezier(0.33,1,0.68,1)]"
               >
-              {getCurrentPlans()?.map((item, index) => {
-                const isCurrentUserPlan = isCurrentPlan(item)
-                const currentPlanStatus = reduxUser?.plan?.status
-                const isDisabled =
-                  disAblePlans ||
-                  (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
+                {getCurrentPlans()?.map((item, index) => {
+                  const isCurrentUserPlan = isCurrentPlan(item)
+                  const currentPlanStatus = reduxUser?.plan?.status
+                  const isDisabled =
+                    // disAblePlans ||
+                    (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
 
-                const isBadgeVisible = Boolean(item?.status)
-                const badgeText = String(item?.status ?? '')
-                const shouldEmphasizePrice =
-                  badgeText.toLowerCase().includes('best') ||
-                  badgeText.toLowerCase().includes('value')
+                  const isBadgeVisible = Boolean(item?.status)
+                  const badgeText = String(item?.status ?? '')
+                  const shouldEmphasizePrice =
+                    badgeText.toLowerCase().includes('best') ||
+                    badgeText.toLowerCase().includes('value')
 
-                return (
-                  <button
-                    key={item?.id ?? index}
-                    type="button"
-                    disabled={isDisabled}
-                    onClick={(e) => {
-                      if (isDisabled) return
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleTogglePlanClick(item, index)
-                    }}
-                    className={`group relative shrink-0 snap-start snap-always w-[clamp(260px,min(360px,calc(100vw-1.5rem)),360px)] max-w-[360px] bg-white border border-solid rounded-[12px] overflow-hidden pt-6 pb-[10px] flex flex-col text-left transition-all duration-200 ease-out ${
-                      isDisabled
-                        ? 'opacity-80 cursor-not-allowed border-border'
-                        : 'border-border hover:-translate-y-[5px] hover:border-white hover:shadow-[0px_10px_28px_rgba(0,0,0,0.05)]'
-                    } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30`}
-                  >
-                    <div className="absolute w-[200px] h-[150px] rounded-full bg-brand-primary blur-[50px] pointer-events-none opacity-25 left-0 top-0 -translate-y-full scale-100 transition-transform duration-300 ease-out group-hover:-translate-y-[70%] group-hover:scale-110" aria-hidden />
-                    <div className="w-full flex flex-col gap-1 px-[8px]">
-                      {isBadgeVisible &&
-                        item.discountedPrice !== 0 &&
-                        item.discountedPrice != null && (
-                        <div className="absolute top-2 right-2 flex items-center gap-1 py-1 px-2 rounded-[4px] bg-brand-primary/10 uppercase">
-                          <span className="text-brand-primary">
-                            <BoltIcon />
-                          </span>
-                          <span className="text-[12px] leading-[16px] font-semibold tracking-[-0.36px] text-brand-primary">
-                            {badgeText}
-                          </span>
-                        </div>
-                      )}
-                      <div className="w-full flex items-center justify-center">
-                        <span className="text-[18px] leading-[25px] font-semibold tracking-[-0.54px] text-black">
-                          {(item.name || item.title || '').toString()}
-                        </span>
-                      </div>
-
-                      <div className="w-full flex flex-col items-center justify-center gap-2 px-2 py-3">
-                        <div className="flex items-center gap-2">
-                          {isFrom === 'SubAccount' && item?.originalPrice > 0 && (
-                            <span className="text-[#8a8a8a] line-through text-[14px]">
-                              ${formatFractional2(item?.originalPrice) || ''}
-                            </span>
+                  return (
+                    <button
+                      key={item?.id ?? index}
+                      type="button"
+                      disabled={isDisabled}
+                      onClick={(e) => {
+                        if (isDisabled) return
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleTogglePlanClick(item, index)
+                      }}
+                      className={`group relative shrink-0 snap-start snap-always w-[clamp(260px,min(360px,calc(100vw-1.5rem)),360px)] max-w-[360px] bg-white border border-solid rounded-[12px] overflow-hidden pt-6 pb-[10px] flex flex-col text-left transition-all duration-200 ease-out ${isDisabled
+                          ? 'opacity-80 cursor-not-allowed border-border'
+                          : 'border-border hover:-translate-y-[5px] hover:border-white hover:shadow-[0px_10px_28px_rgba(0,0,0,0.05)]'
+                        } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30`}
+                    >
+                      <div className="absolute w-[200px] h-[150px] rounded-full bg-brand-primary blur-[50px] pointer-events-none opacity-25 left-0 top-0 -translate-y-full scale-100 transition-transform duration-300 ease-out group-hover:-translate-y-[70%] group-hover:scale-110" aria-hidden />
+                      <div className="w-full flex flex-col gap-1 px-[8px]">
+                        {isBadgeVisible &&
+                          item.discountedPrice !== 0 &&
+                          item.discountedPrice != null && (
+                            <div className="absolute top-2 right-2 flex items-center gap-1 py-1 px-2 rounded-[4px] bg-brand-primary/10 uppercase">
+                              <span className="text-brand-primary">
+                                <BoltIcon />
+                              </span>
+                              <span className="text-[12px] leading-[16px] font-semibold tracking-[-0.36px] text-brand-primary">
+                                {badgeText}
+                              </span>
+                            </div>
                           )}
-                          <span className="text-[42px] font-semibold tracking-[-1px] text-black leading-tight">
-                            ${formatFractional2(item.discountedPrice || 0)}
+                        <div className="w-full flex items-center justify-center">
+                          <span className="text-[18px] leading-[25px] font-semibold tracking-[-0.54px] text-black">
+                            {(item.name || item.title || '').toString()}
                           </span>
                         </div>
-                        {(item.details || item.description || item.planDescription) && (
-                          <div className="text-center text-[14px] font-normal leading-[normal] text-black/80">
-                            {item.details ||
-                              item.description ||
-                              item.planDescription}
+
+                        <div className="w-full flex flex-col items-center justify-center gap-2 px-2 py-3">
+                          <div className="flex items-center gap-2">
+                            {isFrom === 'SubAccount' && item?.originalPrice > 0 && (
+                              <span className="text-[#8a8a8a] line-through text-[14px]">
+                                ${formatFractional2(item?.originalPrice) || ''}
+                              </span>
+                            )}
+                            <span className="text-[42px] font-semibold tracking-[-1px] text-black leading-tight">
+                              ${formatFractional2(item.discountedPrice || 0)}
+                            </span>
                           </div>
-                        )}
-                      </div>
+                          {(item.details || item.description || item.planDescription) && (
+                            <div className="text-center text-[14px] font-normal leading-[normal] text-black/80">
+                              {item.details ||
+                                item.description ||
+                                item.planDescription}
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="w-full px-4 py-3">
-                        {subscribeLoader === item.id ? (
-                          <div className="flex justify-center">
-                            <CircularProgress size={18} />
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={isDisabled}
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              handleTogglePlanClick(item, index)
+                        <div className="w-full px-4 py-3">
+                          {subscribeLoader === item.id ? (
+                            <div className="flex justify-center">
+                              <CircularProgress size={18} />
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={isDisabled || disAblePlans}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleTogglePlanClick(item, index)
 
-                              if (isDisabled) return
+                                if (isDisabled) return
 
-                              if (reduxUser?.consecutivePaymentFailures >= 3) {
-                                setTimeout(() => {
-                                  setShouldAutoSubscribe(true)
-                                  setAddPaymentPopUp(true)
-                                }, 300)
-                                return
-                              }
-
-                              if (from === 'billing-modal' && onPlanSelected) {
-                                onPlanSelected(item)
-                                return
-                              }
-
-                              const isFreePlan =
-                                item.discountedPrice === 0 ||
-                                item.discountedPrice === null
-                              const hasPM = hasPaymentMethod()
-
-                              if (
-                                reduxUser?.userRole === 'Agency' ||
-                                reduxUser?.user?.userRole === 'Agency'
-                              ) {
-                                setAddPaymentPopUp(true)
-                                return
-                              }
-
-                              if (
-                                reduxUser?.userRole === 'AgentX' ||
-                                reduxUser?.user?.userRole === 'AgentX'
-                              ) {
-                                if (selectedDuration.id === 1 || selectedDuration.id === 2) {
-                                  setSelectedMonthlyPlan(item)
-                                  setShowYearlyPlanModal(true)
-                                } else {
-                                  if (isFreePlan) {
+                                if (reduxUser?.consecutivePaymentFailures >= 3) {
+                                  setTimeout(() => {
+                                    setShouldAutoSubscribe(true)
                                     setAddPaymentPopUp(true)
+                                  }, 300)
+                                  return
+                                }
+
+                                if (from === 'billing-modal' && onPlanSelected) {
+                                  onPlanSelected(item)
+                                  return
+                                }
+
+                                const isFreePlan =
+                                  item.discountedPrice === 0 ||
+                                  item.discountedPrice === null
+                                const hasPM = hasPaymentMethod()
+
+                                if (
+                                  reduxUser?.userRole === 'Agency' ||
+                                  reduxUser?.user?.userRole === 'Agency'
+                                ) {
+                                  setAddPaymentPopUp(true)
+                                  return
+                                }
+
+                                if (
+                                  reduxUser?.userRole === 'AgentX' ||
+                                  reduxUser?.user?.userRole === 'AgentX'
+                                ) {
+                                  if (selectedDuration.id === 1 || selectedDuration.id === 2) {
+                                    setSelectedMonthlyPlan(item)
+                                    setShowYearlyPlanModal(true)
                                   } else {
-                                    if (hasPM) {
+                                    if (isFreePlan) {
                                       setAddPaymentPopUp(true)
                                     } else {
-                                      setShouldAutoSubscribe(true)
-                                      setAddPaymentPopUp(true)
+                                      if (hasPM) {
+                                        setAddPaymentPopUp(true)
+                                      } else {
+                                        setShouldAutoSubscribe(true)
+                                        setAddPaymentPopUp(true)
+                                      }
                                     }
                                   }
+                                  return
                                 }
-                                return
-                              }
 
-                              if (isFreePlan) {
-                                setAddPaymentPopUp(true)
-                              } else {
-                                if (hasPM) {
+                                if (isFreePlan) {
                                   setAddPaymentPopUp(true)
                                 } else {
-                                  setShouldAutoSubscribe(true)
-                                  setAddPaymentPopUp(true)
+                                  if (hasPM) {
+                                    setAddPaymentPopUp(true)
+                                  } else {
+                                    setShouldAutoSubscribe(true)
+                                    setAddPaymentPopUp(true)
+                                  }
                                 }
-                              }
-                            }}
-                            className={`w-full min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] font-normal text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 group-hover:shadow-[0_12px_24px_hsl(var(--brand-primary)_/_0.15)] ${
-                              isDisabled
-                                ? 'bg-[rgba(234,226,255,0.4)] text-black cursor-not-allowed'
-                                : 'bg-brand-primary text-white hover:bg-brand-primary/90'
-                            }`}
-                          >
-                            {isDisabled ? (
-                              'Current Plan'
-                            ) : item?.hasTrial == true ? (
-                              `${item?.trialValidForDays} Day Free Trial`
-                            ) : (
-                              'Get Started'
-                            )}
-                          </button>
-                        )}
-                      </div>
+                              }}
+                              className={`w-full min-h-[36px] px-4 py-[7.5px] rounded-[8px] text-[14px] font-normal text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/30 group-hover:shadow-[0_12px_24px_hsl(var(--brand-primary)_/_0.15)] ${(isDisabled || disAblePlans)
+                                  ? 'bg-[rgba(234,226,255,0.4)] text-black cursor-not-allowed'
+                                  : 'bg-brand-primary text-white hover:bg-brand-primary/90'
+                                }`}
+                            >
+                              {isDisabled ? (
+                                'Current Plan'
+                              ) : item?.hasTrial == true ? (
+                                `${item?.trialValidForDays} Day Free Trial`
+                              ) : (
+                                'Get Started'
+                              )}
+                            </button>
+                          )}
+                        </div>
 
-                      <div className="w-full px-4 py-[2px]">
-                        {getInheritedPlanTitle(item, getCurrentPlans()) && (
-                          <div className="min-h-[36px] px-4 py-[1px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
-                            Everything in{' '}
-                            {getInheritedPlanTitle(item, getCurrentPlans())}{' '}
-                            and...
+                        {(isFrom === 'SubAccount' || routedFrom === 'Agency') ? null : (
+                          <div className="w-full px-4 py-[2px]">
+                            {index > 0 && (
+                              <div className="min-h-[36px] px-4 py-[1px] rounded-[8px] text-[14px] text-[#0f172a] text-center">
+                                Everything in{' '}
+                                {getCurrentPlans()[index - 1]?.name ||
+                                  getCurrentPlans()[index - 1]?.title}{' '}
+                                and...
+                              </div>
+                            )}
                           </div>
                         )}
-                      </div>
 
-                      <div className="w-full px-2">
-                        <div className="flex flex-col gap-1">
-                          {Array.isArray(item.features) &&
-                            reorderPlanFeatures(
-                              getDisplayFeaturesForPlan(item, getCurrentPlans()),
-                            )?.map((feature) => {
-                              const included = isFeatureIncluded(feature)
-                              return (
-                                <div
-                                  key={feature.text || feature?.id || JSON.stringify(feature)}
-                                  className="w-full flex items-start gap-3 px-2 py-2"
-                                >
+                        <div className="w-full px-2">
+                          <div className="flex flex-col gap-1">
+                            {Array.isArray(item.features) &&
+                              reorderPlanFeatures(item.features)?.map((feature) => {
+                                const included = isFeatureIncluded(feature)
+                                return (
                                   <div
-                                    className="flex items-center justify-center p-[2px] rounded-full flex-shrink-0 mt-0.5"
-                                    style={{
-                                      backgroundColor: included
-                                        ? 'rgba(234,226,255,0.4)'
-                                        : 'rgba(255,78,78,0.05)',
-                                    }}
+                                    key={feature.text || feature?.id || JSON.stringify(feature)}
+                                    className="w-full flex items-start gap-3 px-2 py-2"
                                   >
-                                    <span
-                                      className="inline-flex h-[12px] w-[12px] items-center justify-center"
+                                    <div
+                                      className="flex items-center justify-center p-[2px] rounded-full flex-shrink-0 mt-0.5"
                                       style={{
-                                        color: included ? 'hsl(var(--primary))' : '#FF4E4E',
+                                        backgroundColor: included
+                                          ? 'rgba(234,226,255,0.4)'
+                                          : 'rgba(255,78,78,0.05)',
                                       }}
                                     >
-                                      {included ? <CheckIcon /> : <CloseIcon />}
-                                    </span>
+                                      <span
+                                        className="inline-flex h-[12px] w-[12px] items-center justify-center"
+                                        style={{
+                                          color: included ? 'hsl(var(--primary))' : '#FF4E4E',
+                                        }}
+                                      >
+                                        {included ? <CheckIcon /> : <CloseIcon />}
+                                      </span>
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <FeatureLine
+                                        text={getFeatureDisplayText(
+                                          feature,
+                                          index,
+                                          getCurrentPlans()?.length ?? 0,
+                                        )}
+                                        info={feature.subtext}
+                                        max={14}
+                                        min={10}
+                                        gap={6}
+                                        iconSize={16}
+                                      />
+                                    </div>
                                   </div>
-                                  <div className="min-w-0 flex-1">
-                                    <FeatureLine
-                                      text={getFeatureDisplayText(
-                                        feature,
-                                        index,
-                                        getCurrentPlans()?.length ?? 0,
-                                      )}
-                                      info={feature.subtext}
-                                      max={14}
-                                      min={10}
-                                      gap={6}
-                                      iconSize={16}
-                                    />
-                                  </div>
-                                </div>
-                              )
-                            })}
+                                )
+                              })}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                )
-              })}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -1152,8 +1151,8 @@ function UserPlans({
                   hasExternalHeader
                 />
               </Elements>
-              </div>
             </div>
+          </div>
         </Box>
       </Modal>
     </div>

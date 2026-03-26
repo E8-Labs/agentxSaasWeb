@@ -15,8 +15,7 @@ import {
 import { CaretDown, CaretUp, Check } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useRef, useState } from 'react'
-import { useCallback } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import * as XLSX from 'xlsx'
 
@@ -104,6 +103,7 @@ import { uploadBatchSequence } from './extras/UploadBatch'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { FileUp, Plus } from 'lucide-react'
 import NewContactDrawer from '@/components/messaging/NewContactDrawer'
+import DeleteTagConfirmModal from '../myagentX/DeleteTagConfirmModal'
 
 const Leads1 = () => {
   const addColRef = useRef(null)
@@ -158,6 +158,26 @@ const Leads1 = () => {
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
   let [NewColumnsObtained, setNewColumnsObtained] = useState([])
+
+  const isLeadImportNameMappingReady = useMemo(() => {
+    const cols = NewColumnsObtained
+    if (!cols?.length) return false
+    const hasFullNameField = cols.some(
+      (col) => col.matchedColumn?.dbName === 'fullName',
+    )
+    const hasFirstName = cols.some(
+      (col) => col.matchedColumn?.dbName === 'firstName',
+    )
+    const hasLastName = cols.some(
+      (col) => col.matchedColumn?.dbName === 'lastName',
+    )
+    const hasPhone = cols.some(
+      (col) => col.matchedColumn?.dbName === 'phone',
+    )
+    const nameOk = hasFullNameField || (hasFirstName && hasLastName)
+    return nameOk && hasPhone
+  }, [NewColumnsObtained])
+
   //This will have the default columns only
   const [defaultColumns, setDefaultColumns] = useState(LeadDefaultColumns)
   const [defaultColumnsArray, setDefaultColumnsArray] = useState(
@@ -2015,7 +2035,8 @@ const Leads1 = () => {
                           ) : (
                             <button
                               type="button"
-                              className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none"
+                              disabled={!isLeadImportNameMappingReady}
+                              className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none disabled:opacity-50 disabled:cursor-not-allowed"
                               style={{ paddingLeft: 12, paddingRight: 12 }}
                               onClick={() => {
                                 console.log('🟡 [CONTINUE_BUTTON] Continue button clicked')
@@ -2098,51 +2119,19 @@ const Leads1 = () => {
         />
 
         {/* Delete Column Modal */}
-        <Modal
+
+        <DeleteTagConfirmModal
+          title="column"
+          description="Are you sure you want to delete this column?"
           open={ShowDelCol}
           onClose={() => setShowDelCol(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: { backgroundColor: 'rgba(0, 0, 0, 0.1)' },
+          onConfirm={() => {
+            ChangeColumnName(null)
+            setShowDelCol(false)
           }}
-        >
-          <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
-                }}
-              >
-                <div className="font-bold text-xl mt-6">
-                  Are you sure you want to delete this column
-                </div>
-                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                  <button
-                    className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
-                    onClick={() => {
-                      setShowDelCol(false)
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="w-1/2 text-red font-bold text-xl text-[#6b7280] h-[50px]"
-                    onClick={() => {
-                      ChangeColumnName(null)
-                      setShowDelCol(false)
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Box>
-        </Modal>
+          loading={false}
+          tag={null}
+        />
 
         {/* Not matched Columns popover – Firecrawl-style dropdown */}
         <Popover

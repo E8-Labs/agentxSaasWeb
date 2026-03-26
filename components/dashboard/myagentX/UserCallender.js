@@ -1087,7 +1087,7 @@ const UserCalender = ({
               </div>
               <div className="w-full p-1">
                 <div className="text-[13px] font-[600] mb-2">
-                  Availability Request Complete Phrase
+                  Check Availability Phrase
                 </div>
                 <textarea
                   value={availabilityRequestComplete}
@@ -1107,7 +1107,7 @@ const UserCalender = ({
                     }}
                     disabled={phrasesSaving || phrasesLoading}
                   >
-                    {phrasesSaving ? 'Saving...' : 'Save phrase'}
+                    {phrasesSaving ? 'Saving...' : 'Save'}
                   </button>
                 </div>
               </div>

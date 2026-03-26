@@ -247,9 +247,11 @@ const WebAgentModal = ({
       setSavingApiKey(true)
       if (existingIntegrationId) {
         const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+        const updateBody = { apiKey: trimmedApiKey }
+        if (selectedUser?.id) updateBody.userId = selectedUser.id
         const updateResponse = await axios.put(
           updateUrl,
-          { apiKey: trimmedApiKey },
+          updateBody,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -268,9 +270,11 @@ const WebAgentModal = ({
         }
       } else {
         const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
+        const createBody = { provider: selectedProvider, apiKey: trimmedApiKey }
+        if (selectedUser?.id) createBody.userId = selectedUser.id
         const createResponse = await axios.post(
           createUrl,
-          { provider: selectedProvider, apiKey: trimmedApiKey },
+          createBody,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -296,11 +300,11 @@ const WebAgentModal = ({
       setApiKeyError(
         err.response?.data?.message || 'Failed to save API key. Please check the key and try again.',
       )
-      showSnackbar(
-        '',
-        err.response?.data?.message || 'Failed to save API key. Please try again.',
-        SnackbarTypes.Error,
-      )
+      // showSnackbar(
+      //   '',
+      //   err.response?.data?.message || 'Failed to save API key. Please try again.',
+      //   SnackbarTypes.Error,
+      // )
     } finally {
       setSavingApiKey(false)
     }

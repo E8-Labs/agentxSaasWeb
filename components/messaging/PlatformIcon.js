@@ -1,5 +1,4 @@
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Mail, MessageSquareDot } from 'lucide-react'
 import { WhatsappLogo } from '@phosphor-icons/react'
@@ -81,8 +80,8 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src="/svgIcons/insta_message_icon.png"
-          width={sizePx}
-          height={sizePx}
+          // width={sizePx}
+          // height={sizePx}
           alt="Instagram"
           className="object-contain w-full h-full"
           aria-label="Instagram"
@@ -95,8 +94,21 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
     }
     if (type === 'whatsapp') {
       return (
+        // eslint-disable-next-line @next/next/no-img-element
+        // <img
+        //   src="/whatsapp.png"
+        //   // width={sizePx}
+        //   // height={sizePx}
+        //   alt="WhatsApp"
+        //   className="object-contain w-full h-full"
+        //   aria-label="WhatsApp"
+        //   style={{
+        //     width: showInBadge ? '100%' : sizePx,
+        //     height: showInBadge ? '100%' : sizePx,
+        //   }}
+        // />
         <WhatsappLogo
-          size={Math.max(10, Math.round(sizePx))}
+          size={showInBadge ? '100%' : sizePx}
           weight="fill"
           className="text-[#25D366]"
           aria-label="WhatsApp"
@@ -111,8 +123,9 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
   return (
     <div
       className={cn(wrapperClass, className)}
-      style={!showInBadge ? { width: sizePx, height: sizePx } : undefined}
+      style={!showInBadge ? { width: sizePx, height: sizePx } : { backgroundColor: '',  }}
     >
+      {/* {content} */}
       {content}
     </div>
   )
