@@ -1673,6 +1673,8 @@ const MessageComposer = ({
     }
     const userData = JSON.parse(localData)
     const token = userData.token
+    const connRow = (socialConnections || []).find((c) => String(c.id) === String(connectionId))
+    const platform = connRow?.platform || null
     try {
       setConnectingOAuth(true)
       let url = Apis.socialConnectionById(connectionId)
@@ -1680,8 +1682,15 @@ const MessageComposer = ({
       await axios.delete(url, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
-      console.log("Disconnect Social Response is", response);
-      toast.success(platform === 'facebook' ? 'Facebook disconnected' : 'Instagram disconnected')
+      const disconnectedLabel =
+        platform === 'facebook'
+          ? 'Facebook'
+          : platform === 'instagram'
+            ? 'Instagram'
+            : platform === 'whatsapp'
+              ? 'WhatsApp'
+              : 'Social account'
+      toast.success(`${disconnectedLabel} disconnected`)
       onConnectionSuccess?.()
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not disconnect')
