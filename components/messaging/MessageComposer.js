@@ -301,6 +301,8 @@ const MessageComposer = ({
 
 
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
+  const isProductionEnvironment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+  const showWhatsAppTab = !isProductionEnvironment
   const [isExpanded, setIsExpanded] = useState(true)
   const [userData, setUserData] = useState(null)
   const [phoneDropdownOpen, setPhoneDropdownOpen] = useState(false)
@@ -532,13 +534,14 @@ const MessageComposer = ({
     const isWhatsApp = selectedThread?.threadType === 'whatsapp' || !!selectedThread?.lead?.whatsappWaId
     if (isInstagram) setComposerMode('instagram')
     else if (isMessenger) setComposerMode('facebook')
-    else if (isWhatsApp) setComposerMode('whatsapp')
+    else if (isWhatsApp && showWhatsAppTab) setComposerMode('whatsapp')
   }, [
     selectedThread?.id,
     selectedThread?.threadType,
     selectedThread?.lead?.instagramPsid,
     selectedThread?.lead?.messengerPsid,
     selectedThread?.lead?.whatsappWaId,
+    showWhatsAppTab,
   ])
 
   // Smooth height transition when switching tabs: use previous content height as "from", then animate to new height.
@@ -1424,14 +1427,12 @@ const MessageComposer = ({
         ? 'Reply in Messenger...'
         : 'Reply in Instagram...'
   const showSocialComposer = false
-  const isProductionEnvironment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-  const showWhatsAppTab = !isProductionEnvironment
   const composerTabOptions = [
     { label: 'Text', value: 'sms', icon: MessageSquareDot },
     { label: 'Email', value: 'email', icon: Mail },
     { label: 'Comment', value: 'comment', icon: MessageSquare },
     { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon },
-    { label: 'WhatsApp', value: 'whatsapp', icon: WhatsAppTabIcon },
+    ...(showWhatsAppTab ? [{ label: 'WhatsApp', value: 'whatsapp', icon: WhatsAppTabIcon }] : []),
   ]
 
   const fbIgConnections = useMemo(
