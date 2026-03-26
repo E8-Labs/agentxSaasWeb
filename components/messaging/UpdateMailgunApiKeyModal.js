@@ -96,10 +96,13 @@ const UpdateMailgunApiKeyModal = ({ open, onClose, integration, onSuccess }) => 
           disabled={saving || !apiKey.trim()}
           sx={{
             bgcolor: 'hsl(var(--brand-primary))',
-            color: '#fff',
+            color: apiKey?.trim()?.length > 0 ? '#fff !important' : 'hsl(var(--brand-primary))',
             '&:hover': {
               bgcolor: 'hsl(var(--brand-primary) / 0.9)',
-              color: '#fff',
+              color: apiKey?.trim()?.length > 0 ? '#fff !important' : 'hsl(var(--brand-primary))',
+            },
+            '&.Mui-disabled': {
+              color: 'hsl(var(--brand-primary)) !important',
             },
           }}
         >

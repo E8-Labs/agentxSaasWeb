@@ -1398,7 +1398,6 @@ const MessageComposer = ({
   const isFacebookMode = composerMode === 'facebook'
   const isInstagramMode = composerMode === 'instagram'
   const isWhatsAppMode = composerMode === 'whatsapp'
-  const isFbIgMode = isFacebookMode || isInstagramMode
   // Thread is replyable via Messenger if it's a messenger thread or has receiverMessengerPsid (e.g. merged SMS thread)
   const canReplyMessenger = (selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid) && hasFacebookConnection
   const canReplyInstagram = (selectedThread?.threadType === 'instagram' || !!selectedThread?.receiverInstagramPsid) && hasInstagramConnection
@@ -2174,97 +2173,48 @@ const MessageComposer = ({
                     ) : null}
                   </div>
                 </div>
-                {isFbIgMode ? (
-                  <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
-                    <Textarea
-                      value={stripHTML(composerData.socialBody ?? '')}
-                      onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
-                      placeholder="Write your DM here..."
-                      className="min-h-[130px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:border-transparent"
-                    />
-                    <div className="flex justify-end p-2 border-t border-gray-100">
-                      <div className="flex items-stretch h-10 rounded-lg overflow-visible border border-transparent relative z-10">
+                <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
+                  <Textarea
+                    value={stripHTML(composerData.socialBody ?? '')}
+                    onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
+                    placeholder={isWhatsAppMode ? 'Write your message here...' : 'Write your DM here...'}
+                    className="min-h-[130px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:border-transparent"
+                  />
+                  <div className="flex justify-end p-2 border-t border-gray-100">
+                    <div className="flex items-stretch h-10 rounded-lg overflow-visible border border-transparent relative z-10">
+                      <button
+                        onClick={handleSendSocial}
+                        disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage}
+                        className="px-4 py-2 bg-brand-primary text-white rounded-l-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {sendingSocialMessage ? (
+                          <>
+                            <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
+                            <span className="text-sm">Sending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-sm">Send</span>
+                            <PaperPlaneTilt size={16} weight="fill" />
+                          </>
+                        )}
+                      </button>
+                      <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
                         <button
-                          onClick={handleSendSocial}
-                          disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage}
-                          className="px-4 py-2 bg-brand-primary text-white rounded-l-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          type="button"
+                          onClick={openScheduleOptions}
+                          disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage || !onScheduleMessage}
+                          className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
+                          aria-label="Send options"
+                          aria-expanded={sendDropdownOpen}
+                          aria-haspopup="menu"
                         >
-                          {sendingSocialMessage ? (
-                            <>
-                              <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
-                              <span className="text-sm">Sending...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span className="text-sm">Send</span>
-                              <PaperPlaneTilt size={16} weight="fill" />
-                            </>
-                          )}
+                          <CaretDown size={16} weight="bold" />
                         </button>
-                        <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
-                          <button
-                            type="button"
-                            onClick={openScheduleOptions}
-                            disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage || !onScheduleMessage}
-                            className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
-                            aria-label="Send options"
-                            aria-expanded={sendDropdownOpen}
-                            aria-haspopup="menu"
-                          >
-                            <CaretDown size={16} weight="bold" />
-                          </button>
-                        </div>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
-                    <RichTextEditor
-                      ref={socialRichTextEditorRef}
-                      value={socialBodyToEditorValue(composerData.socialBody ?? '')}
-                      onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
-                      placeholder={isWhatsAppMode ? "Write your message here..." : "Write your DM here..."}   //"Type your message..."
-                      availableVariables={[]}
-                      toolbarPosition="bottom"
-                      customToolbarElement={
-                        <div className="flex justify-end p-2 border-t border-gray-100">
-                          <div className="flex items-stretch h-10 rounded-lg overflow-visible border border-transparent relative z-10">
-                            <button
-                              onClick={handleSendSocial}
-                              disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage}
-                              className="px-4 py-2 bg-brand-primary text-white rounded-l-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                              {sendingSocialMessage ? (
-                                <>
-                                  <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
-                                  <span className="text-sm">Sending...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="text-sm">Send</span>
-                                  <PaperPlaneTilt size={16} weight="fill" />
-                                </>
-                              )}
-                            </button>
-                            <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
-                              <button
-                                type="button"
-                                onClick={openScheduleOptions}
-                                disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage || !onScheduleMessage}
-                                className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
-                                aria-label="Send options"
-                                aria-expanded={sendDropdownOpen}
-                                aria-haspopup="menu"
-                              >
-                                <CaretDown size={16} weight="bold" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      }
-                    />
-                  </div>
-                )}
+                </div>
               </div>
             ) : composerMode === 'comment' ? (
               <div className="mt-2">

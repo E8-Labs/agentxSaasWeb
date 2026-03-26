@@ -1751,7 +1751,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
-    console.log("C.JS thread in handleThreadSelect", thread)
+    // console.log("C.JS thread in handleThreadSelect", thread)
     pendingLocalThreadSelectionIdRef.current = String(thread?.id)
     setSelectedThread(thread)
     setMessageOffset(0)
@@ -2431,8 +2431,8 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
   // Get agent/user avatar for outbound messages (agent first, then sender user)
   const getAgentAvatar = (message) => {
-    console.log("C.JS message in getAgentAvatar", message)
-    console.log("C.JS selectedThread in getAgentAvatar", selectedThread)
+    // console.log("C.JS message in getAgentAvatar", message)
+    // console.log("C.JS selectedThread in getAgentAvatar", selectedThread)
     // Priority 1: Agent thumb, voice, or initial (so SMS and email both show agent when message has an agent)
     if (message?.agent) {
       if (message?.agent?.thumb_profile_image) {
@@ -2615,9 +2615,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       selectedThread?.metadata?.whatsappPhoneNumberId ||
       selectedThread?.metadata?.instagramAccountId ||
       selectedThread?.metadata?.facebookPageId
-    console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
+    // console.log("STSC.JS threadConnectionMetaDataID", threadConnectionMetaDataID)
     const socialConnection = socialConnections.find((c) => c.externalId === threadConnectionMetaDataID)
-    console.log("STSC.JS socialConnection", socialConnection)
+    // console.log("STSC.JS socialConnection", socialConnection)
     return socialConnection
   }
 
