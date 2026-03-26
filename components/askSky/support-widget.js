@@ -40,6 +40,7 @@ export function SupportWidget({
   const [agentUserDetails, setAgentUserDetails] = useState(null)
   const [smartListData, setSmartListData] = useState(null)
   const [initialAgentLoading, setInitialAgentLoading] = useState(!!isEmbed)
+  const [isInlineEmbedFrame, setIsInlineEmbedFrame] = useState(false)
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -105,6 +106,22 @@ export function SupportWidget({
         if (isEmbed) setInitialAgentLoading(false)
       })
   }, [assistantId])
+
+  useEffect(() => {
+    if (!isEmbed) {
+      setIsInlineEmbedFrame(false)
+      return
+    }
+
+    const detectInlineFrame = () => {
+      // Inline embeds use short iframe heights; use a larger launcher variant there.
+      setIsInlineEmbedFrame(window.innerHeight <= 140)
+    }
+
+    detectInlineFrame()
+    window.addEventListener('resize', detectInlineFrame)
+    return () => window.removeEventListener('resize', detectInlineFrame)
+  }, [isEmbed])
 
   useEffect(() => {
     // setLoadingMsg()
@@ -646,6 +663,7 @@ export function SupportWidget({
               agentUserDetails?.agent?.profile_image
             }
             handleReopen={handleGetHelpClick}
+            size={isInlineEmbedFrame ? 'inline' : 'default'}
           />
         )
       )}

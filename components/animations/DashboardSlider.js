@@ -1,5 +1,6 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
 import axios from 'axios'
+import classNames from 'classnames'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -654,6 +655,7 @@ export const GetHelpBtn = ({
   handleReopen,
   customLogo = null,
   customTitle = null,
+  size = 'default',
 }) => {
   // Use custom logo if provided, otherwise use avatar, otherwise default
   const logoUrl = customLogo || avatar || '/agentXOrb.gif'
@@ -661,10 +663,19 @@ export const GetHelpBtn = ({
   const displayText = customTitle || text
 
   let color = titleColor
+  const isLarge = size === 'large'
+  const isInline = size === 'inline'
 
   return (
     <button
-      className="flex flex-row bg-white items-center pe-4 ps-4 py-2 rounded-full shadow-md relative overflow-hidden"
+      className={classNames(
+        'flex flex-row bg-white items-center rounded-full shadow-md relative overflow-hidden',
+        isInline
+          ? 'h-[55px] pe-4 ps-4 py-0'
+          : isLarge
+            ? 'pe-5 ps-5 py-3'
+            : 'pe-4 ps-4 py-2',
+      )}
       onClick={handleReopen}
     >
       {/* Stars<Image
@@ -677,7 +688,13 @@ export const GetHelpBtn = ({
       
 
       {/* Orb */}
-      <div className="relative z-0 bg-white shadow-lg rounded-full w-[46px] h-[46px] overflow-hidden flex-shrink-0">
+      <div
+        className={classNames(
+          'relative z-0 bg-white shadow-lg rounded-full overflow-hidden flex-shrink-0',
+          isInline && 'w-[40px] h-[40px]',
+          isLarge ? 'w-[54px] h-[54px]' : 'w-[46px] h-[46px]',
+        )}
+      >
         <Image
           src={logoUrl}
           fill
@@ -687,7 +704,13 @@ export const GetHelpBtn = ({
       </div>
 
       {/* Text */}
-      <p className={`text-[16px] font-bold text-${color} cursor-pointer ms-2`}>
+      <p
+        className={classNames(
+          `font-bold text-${color} cursor-pointer ms-2`,
+          isInline && 'text-[16px]',
+          isLarge ? 'text-[18px]' : 'text-[16px]',
+        )}
+      >
         {displayText}
       </p>
     </button>

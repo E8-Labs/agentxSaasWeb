@@ -1190,7 +1190,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
 
     if (buttonPosition === 'inline') {
-      return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: static; display: inline-block; vertical-align: middle; width: 320px; height: 96px; max-width: 100%; border: none; background: transparent; z-index: auto; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+      return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: static; display: inline-block; vertical-align: middle; width: 320px; height: 60px; max-width: 100%; border: none; background: transparent; z-index: auto; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
   </iframe>`
     }
 
