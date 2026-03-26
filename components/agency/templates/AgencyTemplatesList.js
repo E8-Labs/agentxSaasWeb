@@ -27,6 +27,7 @@ import { UserTypeOptions } from '@/constants/UserTypeOptions'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import DelConfirmationModal from '@/components/common/DelConfirmationModal'
 import { toast } from '@/utils/toast'
+import DeleteTagConfirmModal from '@/components/dashboard/myagentX/DeleteTagConfirmModal'
 
 const cardShadow = '0 2px 12px rgba(0, 0, 0, 0.06)'
 const cardShadowHover = '0 8px 24px rgba(0, 0, 0, 0.1)'
@@ -123,7 +124,7 @@ export default function AgencyTemplatesList() {
 
   //function to pblish or draf template
   const handleDraftClick = async () => {
-    try{
+    try {
       setDraftLoader(true)
       const token = AuthToken()
       console.log("template.status", token)
@@ -138,7 +139,7 @@ export default function AgencyTemplatesList() {
         headers: { Authorization: 'Bearer ' + token },
       })
       console.log("response.data.data for draft api", response)
-      if(response.data.status){
+      if (response.data.status) {
         toast.success('Template drafted successfully')
         await fetchTemplates()
         handleMenuClose()
@@ -719,13 +720,13 @@ export default function AgencyTemplatesList() {
                     borderRadius: '999px',
                     ...(assignOutboundSelected
                       ? {
-                          bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
-                          color: '#fff !important',
-                        }
+                        bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
+                        color: '#fff !important',
+                      }
                       : {
-                          borderColor: 'rgba(21,21,21,0.2)',
-                          color: textPrimary,
-                        }),
+                        borderColor: 'rgba(21,21,21,0.2)',
+                        color: textPrimary,
+                      }),
                   }}
                 >
                   Outbound
@@ -740,13 +741,13 @@ export default function AgencyTemplatesList() {
                     borderRadius: '999px',
                     ...(assignInboundSelected
                       ? {
-                          bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
-                          color: '#fff !important',
-                        }
+                        bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
+                        color: '#fff !important',
+                      }
                       : {
-                          borderColor: 'rgba(21,21,21,0.2)',
-                          color: textPrimary,
-                        }),
+                        borderColor: 'rgba(21,21,21,0.2)',
+                        color: textPrimary,
+                      }),
                   }}
                 >
                   Inbound
@@ -823,13 +824,15 @@ export default function AgencyTemplatesList() {
         </Popover>
 
         {/* Single delete confirmation modal (outside map so only one instance) */}
-        <DelConfirmationModal
-          showDelModal={openConfirmationDelete}
-          setShowDelModal={setOpenConfirmationDelete}
-          handleDelete={handleDelete}
-          delLoader={delLoader}
-          selectedDetails={selectedTemplate}
+
+        <DeleteTagConfirmModal
           title="template"
+          description="Are you sure you want to delete this template?"
+          open={openConfirmationDelete}
+          onClose={() => setOpenConfirmationDelete(false)}
+          onConfirm={handleDelete}
+          loading={delLoader}
+          tag={null}
         />
 
         {/* New card Figma 24207-80562 */}
