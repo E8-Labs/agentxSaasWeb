@@ -398,11 +398,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
             if (existingIntegrationId) {
               // Update existing integration for this provider (send only apiKey so provider is not overwritten)
               const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+              const updateBody = { apiKey: trimmedApiKey }
+              if (selectedUser?.id) updateBody.userId = selectedUser.id
               const updateResponse = await axios.put(
                 updateUrl,
-                {
-                  apiKey: trimmedApiKey,
-                },
+                updateBody,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
@@ -425,12 +425,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
             } else {
               // Create new integration
               const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
+              const createBody = {
+                provider: selectedProvider,
+                apiKey: trimmedApiKey,
+              }
+              if (selectedUser?.id) createBody.userId = selectedUser.id
               const createResponse = await axios.post(
                 createUrl,
-                {
-                  provider: selectedProvider,
-                  apiKey: trimmedApiKey,
-                },
+                createBody,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
