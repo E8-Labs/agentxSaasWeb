@@ -1484,11 +1484,17 @@ const MessageComposer = ({
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
       const settings = res.data?.status && res.data?.data ? res.data.data : null
-      const socialSettingsConfigured = settings && (
-        settings.socialReplyDelayEnabled === true ||
-        settings.socialSaveAsDraftEnabled === true ||
-        (settings.socialSelectedAgentId != null && settings.socialSelectedAgentId !== '')
-      )
+      const socialSettingsConfigured = settings && (isWhatsAppMode
+        ? (
+          settings.whatsappReplyDelayEnabled === true ||
+          settings.whatsappSaveAsDraftEnabled === true ||
+          (settings.whatsappSelectedAgentId != null && settings.whatsappSelectedAgentId !== '')
+        )
+        : (
+          settings.socialReplyDelayEnabled === true ||
+          settings.socialSaveAsDraftEnabled === true ||
+          (settings.socialSelectedAgentId != null && settings.socialSelectedAgentId !== '')
+        ))
       if (socialSettingsConfigured) {
         if (isWhatsAppMode) {
           connectWithWhatsAppOAuth()
@@ -2081,7 +2087,7 @@ const MessageComposer = ({
                     ) : null}
                   </div>
                   <div className="flex min-w-[120px] flex-1 justify-end">
-                    {fbIgConnections.length > 0 ? (
+                    {!isProductionEnvironment && fbIgConnections.length > 0 ? (
                       <Button
                         type="button"
                         variant="outline"
@@ -3624,13 +3630,15 @@ const MessageComposer = ({
         </DialogContent>
       </Dialog>
 
-      <SocialCommentSmartReplyModal
-        open={smartReplyModalOpen}
-        onClose={() => setSmartReplyModalOpen(false)}
-        selectedUser={selectedUser}
-        socialConnections={socialConnections}
-        onSaved={onConnectionSuccess}
-      />
+      {!isProductionEnvironment && (
+        <SocialCommentSmartReplyModal
+          open={smartReplyModalOpen}
+          onClose={() => setSmartReplyModalOpen(false)}
+          selectedUser={selectedUser}
+          socialConnections={socialConnections}
+          onSaved={onConnectionSuccess}
+        />
+      )}
 
       {/* Templates dropdown rendered in portal so it is not clipped by overflow and does not affect layout */}
       {typeof document !== 'undefined' && document.body && showTemplatesDropdown && createPortal(

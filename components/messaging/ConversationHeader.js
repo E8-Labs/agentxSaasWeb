@@ -18,7 +18,7 @@ import { X, Link2 } from 'lucide-react'
 import LinkToLeadModal from '@/components/messaging/LinkToLeadModal'
 import PlatformIcon from '@/components/messaging/PlatformIcon'
 
-function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, getThreadDisplayName, selectedUser, onThreadUpdated, onThreadLinked, onStageChange, composerMode, socialSelectedAgentId, onSocialAgentSaved }) {
+function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, getThreadDisplayName, selectedUser, onThreadUpdated, onThreadLinked, onStageChange, composerMode, socialSelectedAgentId, whatsappSelectedAgentId, onSocialAgentSaved }) {
     const router = useRouter()
 
     // Stage management state
@@ -788,6 +788,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                     }}
                                     composerMode={composerMode}
                                     socialSelectedAgentId={socialSelectedAgentId}
+                                    whatsappSelectedAgentId={whatsappSelectedAgentId}
                                     onSocialAgentSaved={onSocialAgentSaved}
                                     teamOptions={teamMemberOptions}
                                     leadSettings={leadSettings}
