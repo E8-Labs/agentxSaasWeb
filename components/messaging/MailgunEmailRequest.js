@@ -13,6 +13,17 @@ import { Label } from '@/components/ui/label'
 import MailgunDomainSetup from './MailgunDomainSetup'
 import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
+const getApiErrorMessage = (error, fallbackMessage) => {
+  const responseData = error?.response?.data
+  return (
+    responseData?.error ||
+    responseData?.details ||
+    responseData?.message ||
+    error?.message ||
+    fallbackMessage
+  )
+}
+
 const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
   const [allMailgunIntegrations, setAllMailgunIntegrations] = useState([]) // Store all integrations for checking pending domains
@@ -265,7 +276,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       }
     } catch (error) {
       console.error('Error creating subdomain:', error)
-      toast.error(error.response?.data?.message || 'Failed to create subdomain')
+      toast.error(getApiErrorMessage(error, 'Failed to create subdomain'))
     } finally {
       setCreatingSubdomain(false)
     }
@@ -333,7 +344,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       }
     } catch (error) {
       console.error('Error requesting Mailgun email:', error)
-      toast.error(error.response?.data?.message || 'Failed to create email address')
+      toast.error(getApiErrorMessage(error, 'Failed to create email address'))
     } finally {
       setLoading(false)
     }
@@ -392,7 +403,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       }
     } catch (error) {
       console.error('Error creating custom domain:', error)
-      toast.error(error.response?.data?.message || 'Failed to create domain')
+      toast.error(getApiErrorMessage(error, 'Failed to create domain'))
     } finally {
       setCreatingDomain(false)
     }
