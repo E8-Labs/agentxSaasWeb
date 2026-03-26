@@ -1617,7 +1617,7 @@ const PipelineStages = ({
                                                     <CadenceDragHandleIcon />
                                                   </button>
                                                 </div>
-                                                <div className="shrink-0 text-[14px] font-semibold leading-[1.6] text-black">
+                                                <div className="shrink-0 text-[14px] font-normal leading-[1.6] text-black">
                                                   Wait
                                                 </div>
                                                 <div className="flex h-10 min-w-[300px] flex-1 overflow-hidden rounded-lg border border-[rgba(21,21,21,0.1)] bg-white">
