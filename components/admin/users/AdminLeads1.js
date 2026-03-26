@@ -42,6 +42,7 @@ import {
   LeadDefaultColumnsArray,
 } from '@/constants/DefaultLeadColumns'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+import { toast } from '@/utils/toast'
 import parsePhoneNumberFromString from 'libphonenumber-js'
 
 import AdminLeads from './AdminLeads'
@@ -1077,6 +1078,91 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         userId: selectedUser.id,
       }
 
+      const estimateLocalStorageCapacityBytes = () => {
+        const testKey = '__assignx_localstorage_capacity_test_admin__'
+        const chunk = 'x'.repeat(32 * 1024)
+        let low = 0
+        let high = 1
+
+        try {
+          while (true) {
+            localStorage.setItem(testKey, chunk.repeat(high))
+            low = high
+            high *= 2
+            if (high > 1024) break
+          }
+        } catch (error) {
+          // Continue to binary search.
+        }
+
+        while (low + 1 < high) {
+          const mid = Math.floor((low + high) / 2)
+          try {
+            localStorage.setItem(testKey, chunk.repeat(mid))
+            low = mid
+          } catch (error) {
+            high = mid
+          }
+        }
+
+        localStorage.removeItem(testKey)
+        return low * chunk.length * 2
+      }
+
+      const getLocalStorageUsageBytes = () => {
+        let total = 0
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i)
+          if (!key) continue
+          const value = localStorage.getItem(key) || ''
+          total += (key.length + value.length) * 2
+        }
+        return total
+      }
+
+      const localStorageCapacityBytes = estimateLocalStorageCapacityBytes()
+      const localStorageUsageBytes = getLocalStorageUsageBytes()
+      const uploadDataBytes = JSON.stringify(ApiData).length * 2
+      const availableBytes = Math.max(
+        localStorageCapacityBytes - localStorageUsageBytes,
+        0,
+      )
+
+      console.info(
+        `[ADMIN_LEADS] localStorage max capacity: ${(
+          localStorageCapacityBytes /
+          (1024 * 1024)
+        ).toFixed(2)} MB (${localStorageCapacityBytes} bytes), current usage: ${(
+          localStorageUsageBytes /
+          (1024 * 1024)
+        ).toFixed(2)} MB (${localStorageUsageBytes} bytes), upload payload: ${(
+          uploadDataBytes /
+          (1024 * 1024)
+        ).toFixed(2)} MB (${uploadDataBytes} bytes)`,
+      )
+
+      if (uploadDataBytes > availableBytes) {
+        const exceededBytes = uploadDataBytes - availableBytes
+        const rowCount = Array.isArray(data) ? data.length : 0
+        const avgBytesPerRow = rowCount > 0
+          ? Math.max(1, Math.floor((JSON.stringify(data).length * 2) / rowCount))
+          : 0
+        const estimatedRowsToRemove = avgBytesPerRow
+          ? Math.ceil(exceededBytes / avgBytesPerRow)
+          : 0
+
+        const quotaMessage = estimatedRowsToRemove > 0
+          ? `reduce sheet size and try again. Remove around ${estimatedRowsToRemove} row(s) and retry.`
+          : 'reduce sheet size and try again'
+
+        setErrSnackTitle(null)
+        setErrSnack(quotaMessage)
+        setShowErrSnack(true)
+        toast.error(quotaMessage)
+        setLoader(false)
+        return
+      }
+
       const ApiPath = Apis.createLead
       //console.log);
       // return
@@ -2055,7 +2141,16 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                         }}
                       >
                         {Loader ? (
-                          <CircularProgress size={27} />
+                          <div
+                            className="flex items-center justify-center"
+                            style={{ width: 120, height: 40 }}
+                          >
+                            <CircularProgress
+                              size={24}
+                              thickness={4}
+                              sx={{ color: 'hsl(var(--brand-primary))' }}
+                            />
+                          </div>
                         ) : (
                           <button
                             type="button"
@@ -2063,14 +2158,19 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                             className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ paddingLeft: 12, paddingRight: 12 }}
                             onClick={() => {
-                              const validated = validateColumns()
-                              if (
-                                validated &&
-                                Array.isArray(validated) &&
-                                validated.length > 0
-                              ) {
-                                handleAddLead(validated)
-                              }
+                              setLoader(true)
+                              requestAnimationFrame(() => requestAnimationFrame(() => {
+                                const validated = validateColumns()
+                                if (
+                                  validated &&
+                                  Array.isArray(validated) &&
+                                  validated.length > 0
+                                ) {
+                                  handleAddLead(validated)
+                                } else {
+                                  setLoader(false)
+                                }
+                              }))
                             }}
                           >
                             Continue

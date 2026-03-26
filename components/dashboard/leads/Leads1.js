@@ -104,6 +104,7 @@ import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { FileUp, Plus } from 'lucide-react'
 import NewContactDrawer from '@/components/messaging/NewContactDrawer'
 import DeleteTagConfirmModal from '../myagentX/DeleteTagConfirmModal'
+import { toast } from '@/utils/toast'
 
 const Leads1 = () => {
   const addColRef = useRef(null)
@@ -577,13 +578,13 @@ const Leads1 = () => {
       return false
     }
 
-    console.log('🟡 [VALIDATE_COLUMNS] Re validate data using current column mappings:', originalTransformedData.length)
+    // console.log('🟡 [VALIDATE_COLUMNS] Re validate data using current column mappings:', originalTransformedData.length)
     // Re-validate data using current column mappings (in case user manually mapped columns)
     // Use originalTransformedData if available, otherwise use processedData
     const dataToValidate = originalTransformedData.length > 0 ? originalTransformedData : processedData
 
-    console.log('🟡 [VALIDATE_COLUMNS] Processed data:', processedData)
-    console.log('🟡 [VALIDATE_COLUMNS] Data to validate:', originalTransformedData)
+    // console.log('🟡 [VALIDATE_COLUMNS] Processed data:', processedData)
+    // console.log('🟡 [VALIDATE_COLUMNS] Data to validate:', originalTransformedData)
     if (!dataToValidate || dataToValidate.length === 0) {
       setErrSnack('No data found to validate. Please upload a file with data.')
       setErrSnackTitle('No Data Found')
@@ -684,7 +685,7 @@ const Leads1 = () => {
         missingNameCount++
       }
 
-      console.log(`🟡 [VALIDATE_COLUMNS] Lead ${phone} is Valid Phone: ${hasPhone} | has valid name ${hasName}`)
+      // console.log(`🟡 [VALIDATE_COLUMNS] Lead ${phone} is Valid Phone: ${hasPhone} | has valid name ${hasName}`)
 
       // Row is valid if it has valid phone AND valid name
       return hasPhone && hasName
@@ -1151,10 +1152,117 @@ const Leads1 = () => {
       setCurrentBatch,
       setUserLeads,
     }
-    localStorage.setItem(
-      PersistanceKeys.leadUploadState,
-      JSON.stringify(uploadData),
+    const estimateLocalStorageCapacityBytes = () => {
+      const testKey = '__assignx_localstorage_capacity_test__'
+      const chunk = 'x'.repeat(32 * 1024) // 32KB chunk
+      let low = 0
+      let high = 1
+
+      try {
+        // Exponential growth to find failing upper bound quickly.
+        while (true) {
+          localStorage.setItem(testKey, chunk.repeat(high))
+          low = high
+          high *= 2
+          if (high > 1024) break
+        }
+      } catch (error) {
+        // Binary search between the last success and first failure.
+      }
+
+      while (low + 1 < high) {
+        const mid = Math.floor((low + high) / 2)
+        try {
+          localStorage.setItem(testKey, chunk.repeat(mid))
+          low = mid
+        } catch (error) {
+          high = mid
+        }
+      }
+
+      localStorage.removeItem(testKey)
+      return low * chunk.length * 2
+    }
+
+    const getLocalStorageUsageBytes = () => {
+      let total = 0
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (!key) continue
+        const value = localStorage.getItem(key) || ''
+        total += (key.length + value.length) * 2
+      }
+      return total
+    }
+
+    const localStorageCapacityBytes = estimateLocalStorageCapacityBytes()
+    const localStorageUsageBytes = getLocalStorageUsageBytes()
+    console.info(
+      `[LEADS] localStorage max capacity: ${(
+        localStorageCapacityBytes /
+        (1024 * 1024)
+      ).toFixed(2)} MB (${localStorageCapacityBytes} bytes), current usage: ${(
+        localStorageUsageBytes /
+        (1024 * 1024)
+      ).toFixed(2)} MB (${localStorageUsageBytes} bytes)`,
     )
+
+    try {
+      localStorage.setItem(
+        PersistanceKeys.leadUploadState,
+        JSON.stringify(uploadData),
+      )
+    } catch (error) {
+      const isQuotaError =
+        error?.name === 'QuotaExceededError' ||
+        error?.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+        error?.message?.includes('exceeded the quota')
+
+      if (isQuotaError) {
+        const uploadDataBytes = JSON.stringify(uploadData).length * 2
+        const availableBytes = Math.max(
+          localStorageCapacityBytes - localStorageUsageBytes,
+          0,
+        )
+        const exceededBytes = Math.max(uploadDataBytes - availableBytes, 0)
+        const rowCount = Array.isArray(uploadData.data)
+          ? uploadData.data.length
+          : 0
+        const avgBytesPerRow = rowCount > 0
+          ? Math.max(
+            1,
+            Math.floor((JSON.stringify(uploadData.data).length * 2) / rowCount),
+          )
+          : 0
+        const estimatedRowsToRemove = avgBytesPerRow
+          ? Math.ceil(exceededBytes / avgBytesPerRow)
+          : 0
+
+        console.warn(
+          `[LEADS] localStorage quota exceeded. upload payload: ${uploadDataBytes} bytes, available: ${availableBytes} bytes, exceeded by: ${exceededBytes} bytes, estimated rows to remove: ${estimatedRowsToRemove}`,
+        )
+
+        const quotaMessage = estimatedRowsToRemove > 0
+          ? `Reduce sheet size and try again. Remove around ${estimatedRowsToRemove} row(s) and retry.`
+          : 'Reduce sheet size and try again'
+
+        if (estimatedRowsToRemove > 0) {
+          setErrSnackTitle(null)
+          setErrSnack(quotaMessage)
+          setShowErrSnack(true)
+        }
+
+        toast.error(quotaMessage)
+        setLoader(false)
+        setUploading(false)
+        window.dispatchEvent(
+          new CustomEvent('leadUploadComplete', { detail: { update: true } }),
+        )
+        return
+      }
+
+      throw error
+    }
 
     setTimeout(() => {
       setShowUploadLeadModal(false)
@@ -2035,7 +2143,16 @@ const Leads1 = () => {
                           }}
                         >
                           {Loader ? (
-                            <CircularProgress size={27} />
+                            <div
+                              className="flex items-center justify-center"
+                              style={{ width: 120, height: 40 }}
+                            >
+                              <CircularProgress
+                                size={24}
+                                thickness={4}
+                                sx={{ color: 'hsl(var(--brand-primary))' }}
+                              />
+                            </div>
                           ) : (
                             <button
                               type="button"
@@ -2043,26 +2160,31 @@ const Leads1 = () => {
                               className="bg-brand-primary text-white rounded-lg h-[40px] w-auto max-w-none disabled:opacity-50 disabled:cursor-not-allowed"
                               style={{ paddingLeft: 12, paddingRight: 12 }}
                               onClick={() => {
-                                console.log('🟡 [CONTINUE_BUTTON] Continue button clicked')
-                                console.log('🟡 [CONTINUE_BUTTON] Calling validateColumns...')
-                                // validateColumns();
-                                let validated = validateColumns()
+                                // console.log('🟡 [CONTINUE_BUTTON] Continue button clicked')
+                                // console.log('🟡 [CONTINUE_BUTTON] Calling validateColumns...')
+                                setLoader(true)
+                                // Run work after next paint so spinner is visible immediately.
+                                requestAnimationFrame(() => requestAnimationFrame(() => {
+                                  // validateColumns();
+                                  let validated = validateColumns()
 
-                                console.log('🟡 [CONTINUE_BUTTON] Validation result:', {
-                                  isValid: !!validated,
-                                  isArray: Array.isArray(validated),
-                                  length: validated?.length,
-                                })
+                                  console.log('🟡 [CONTINUE_BUTTON] Validation result:', {
+                                    isValid: !!validated,
+                                    isArray: Array.isArray(validated),
+                                    length: validated?.length,
+                                  })
 
-                                // return;
-                                // validated will be the validated data array if successful, or false if validation failed
-                                if (validated && Array.isArray(validated) && validated.length > 0) {
-                                  console.log('🟡 [CONTINUE_BUTTON] Validation passed, calling handleAddLead with validated data...')
-                                  // Pass validated data directly to handleAddLead to avoid async state update issues
-                                  handleAddLead(false, 0, null, validated)
-                                } else {
-                                  console.warn('⚠️ [CONTINUE_BUTTON] Validation failed, not calling handleAddLead')
-                                }
+                                  // return;
+                                  // validated will be the validated data array if successful, or false if validation failed
+                                  if (validated && Array.isArray(validated) && validated.length > 0) {
+                                    console.log('🟡 [CONTINUE_BUTTON] Validation passed, calling handleAddLead with validated data...')
+                                    // Pass validated data directly to handleAddLead to avoid async state update issues
+                                    handleAddLead(false, 0, null, validated)
+                                  } else {
+                                    console.warn('⚠️ [CONTINUE_BUTTON] Validation failed, not calling handleAddLead')
+                                    setLoader(false)
+                                  }
+                                }))
                               }}
                             >
                               Continue
