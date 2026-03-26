@@ -6,8 +6,10 @@ import VideoCard from '@/components/createagent/VideoCard'
 import KYCs from '@/components/pipeline/KYCs'
 import GuarduanSetting from '@/components/pipeline/advancedsettings/GuardianSetting'
 import Objection from '@/components/pipeline/advancedsettings/Objection'
-import { GreetingTagInput } from '@/components/pipeline/tagInputs/GreetingTagInput'
-import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput'
+// import { GreetingTagInput } from '@/components/pipeline/tagInputs/GreetingTagInput'
+import { GreetingVariableInput } from '@/components/pipeline/tagInputs/GreetingVariableInput'
+// import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput'
+import { PromptVariableInput } from '@/components/pipeline/tagInputs/PromptVariableInput'
 import { HowToVideoTypes, PersistanceKeys } from '@/constants/Constants'
 import { getTutorialByType } from '@/utils/tutorialVideos'
 
@@ -152,7 +154,7 @@ const AgentViewScriptModal = ({
                         {showScript && (
                             <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
                                 <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
-                                    <div className="flex-1 min-h-0 h-full overflow-auto flex flex-col gap-3 px-4 py-[2px] text-sm">
+                                    <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col gap-3 px-4 py-[2px] text-sm">
                                         <div className="rounded-[1px] border-l-4 border-brand-primary bg-primary/5 p-3 mt-2">
                                             <div className="flex flex-row items-center gap-2 text-sm font-medium text-foreground">
                                                 <Info size={20} weight="fill" className="text-brand-primary flex-shrink-0" />
@@ -263,7 +265,7 @@ const AgentViewScriptModal = ({
                                                 </div>
 
                                                 <div className="mt-0">
-                                                    <GreetingTagInput
+                                                    {/* <GreetingTagInput
                                                         greetTag={showScriptModal?.prompt?.greeting}
                                                         kycsList={kycsData}
                                                         uniqueColumns={uniqueColumns}
@@ -273,11 +275,21 @@ const AgentViewScriptModal = ({
                                                             setShowScriptModal(agent)
                                                         }}
                                                         scrollOffset={scrollOffset}
+                                                    /> */}
+                                                    <GreetingVariableInput
+                                                        greetTag={showScriptModal?.prompt?.greeting}
+                                                        kycsList={kycsData}
+                                                        uniqueColumns={uniqueColumns}
+                                                        tagValue={(text) => {
+                                                            setGreetingTagInput(text)
+                                                            const agent = { ...showScriptModal, prompt: { ...showScriptModal?.prompt, greeting: text } }
+                                                            setShowScriptModal(agent)
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
                                             <div className="mt-4 w-full ">
-                                                <PromptTagInput
+                                                {/* <PromptTagInput
                                                     promptTag={scriptTagInput}
                                                     kycsList={kycsData}
                                                     from={'Prompt'}
@@ -290,6 +302,14 @@ const AgentViewScriptModal = ({
                                                         setShowSaveChangesBtn(false)
                                                         setOldScriptTagInput(scriptTagInput)
                                                     }}
+                                                /> */}
+                                                <PromptVariableInput
+                                                    promptTag={scriptTagInput}
+                                                    kycsList={kycsData}
+                                                    uniqueColumns={uniqueColumns}
+                                                    tagValue={setScriptTagInput}
+                                                    placeholder="Type here..."
+                                                    showSaveChangesBtn={showSaveChangesBtn}
                                                 />
 
                                                 {/* <DynamicDropdown /> */}
@@ -433,7 +453,7 @@ const AgentViewScriptModal = ({
                         } */}
 
                                             <div className="mt-2 flex-1 min-h-0 flex flex-col w-full">
-                                                <PromptTagInput
+                                                {/* <PromptTagInput
                                                     promptTag={objective}
                                                     kycsList={kycsData}
                                                     uniqueColumns={uniqueColumns}
@@ -447,6 +467,14 @@ const AgentViewScriptModal = ({
                                                         setShowObjectionsSaveBtn(false)
                                                         setOldObjective(objective)
                                                     }}
+                                                /> */}
+                                                <PromptVariableInput
+                                                    promptTag={objective}
+                                                    kycsList={kycsData}
+                                                    uniqueColumns={uniqueColumns}
+                                                    tagValue={setObjective}
+                                                    placeholder="Type here..."
+                                                    fillHeight
                                                 />
 
                                                 {/* <DynamicDropdown /> */}

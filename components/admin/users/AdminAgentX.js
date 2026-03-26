@@ -2216,7 +2216,45 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       if (response) {
         ////console.log;
         if (response.data.status === true) {
-          setUniqueColumns(response.data.data)
+          const defaultColumns = [
+            '{Appointment DateTime}',
+            '{Timezone}',
+            '{Duration}',
+            '{Meeting Location}',
+          ]
+
+          const normalizeVariable = (value) => {
+            if (typeof value !== 'string') return ''
+            const trimmed = value.trim()
+            if (!trimmed) return ''
+
+            // Normalize {Variable} and Variable to the same key
+            const withoutLeadingBrace = trimmed.startsWith('{') ? trimmed.slice(1) : trimmed
+            const withoutTrailingBrace = withoutLeadingBrace.endsWith('}')
+              ? withoutLeadingBrace.slice(0, -1)
+              : withoutLeadingBrace
+
+            return withoutTrailingBrace.trim()
+          }
+
+          const dedupeByNormalized = (values) => {
+            const byNormalized = new Map()
+            values.forEach((value) => {
+              if (typeof value !== 'string') return
+              const normalized = normalizeVariable(value)
+              if (!normalized) return
+              if (!byNormalized.has(normalized)) byNormalized.set(normalized, value)
+            })
+            return Array.from(byNormalized.values())
+          }
+
+          const apiColumns = Array.isArray(response.data.data) ? response.data.data : []
+          const existingNormalized = new Set(apiColumns.map((col) => normalizeVariable(col)))
+          const columnsToAdd = defaultColumns.filter(
+            (col) => !existingNormalized.has(normalizeVariable(col)),
+          )
+
+          setUniqueColumns(dedupeByNormalized([...apiColumns, ...columnsToAdd]))
         }
       }
     } catch (error) {
@@ -2373,7 +2411,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       } else {
         setShowErrorSnack(
           response?.data?.message ||
-            'Call could not be initiated. Please try again.',
+          'Call could not be initiated. Please try again.',
         )
         setIsVisibleSnack2(true)
       }
@@ -2551,20 +2589,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
     const flattenAgentsResponse = (agentsArr) => {
       const subAgents = []
-      ;(agentsArr || []).forEach((item) => {
-        if (item.agents && item.agents.length > 0) {
-          for (let i = 0; i < item.agents.length; i++) {
-            const agent = item.agents[i]
-            if (agent) {
-              subAgents.push({
-                ...agent,
-                tags: normalizeTags(item.tags),
-                mainAgentId: agent.mainAgentId ?? item.id,
-              })
+        ; (agentsArr || []).forEach((item) => {
+          if (item.agents && item.agents.length > 0) {
+            for (let i = 0; i < item.agents.length; i++) {
+              const agent = item.agents[i]
+              if (agent) {
+                subAgents.push({
+                  ...agent,
+                  tags: normalizeTags(item.tags),
+                  mainAgentId: agent.mainAgentId ?? item.id,
+                })
+              }
             }
           }
-        }
-      })
+        })
       return subAgents
     }
 
