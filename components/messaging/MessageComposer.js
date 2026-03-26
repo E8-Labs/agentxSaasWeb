@@ -1999,27 +1999,93 @@ const MessageComposer = ({
             {/* Messenger/Instagram expanded: RichTextEditor with formatting toolbar (no From/Subject/CC/BCC/Templates) */}
             {sendableSocial ? (
               <div className="mt-2">
-                <div className="mb-2  w-full flex flex-row items-center justify-between">
-                  <label className="text-sm font-semibold text-foreground">
-                    {/*isMessengerReply ? 'Send a DM' : 'Reply in Instagram'}*/}
-                    Send a DM
-                  </label>
-                  {
-                    hasFacebookConnection && (
+                <div className="mb-2 w-full flex flex-row flex-wrap items-center gap-y-2 gap-x-1 min-h-[40px]">
+                  <div className="flex min-w-[88px] flex-1 items-center">
+                    <span className="text-sm font-semibold text-foreground">Social DMs</span>
+                  </div>
+                  <div className="flex min-w-0 flex-1 justify-center px-1">
+                    {fbIgConnections.length > 0 ? (
+                      <Popover open={socialAccountPopoverOpen} onOpenChange={setSocialAccountPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="flex max-w-full items-center gap-2 rounded-lg bg-white px-2 py-1.5 text-sm hover:bg-black/[0.02]"
+                          >
+                            <img
+                              src={
+                                selectedSocialRow?.profileImageUrl
+                                  ? selectedSocialRow.profileImageUrl
+                                  : selectedSocialRow?.platform === 'instagram'
+                                    ? '/instagram.png'
+                                    : '/facebook.png'
+                              }
+                              width={24}
+                              height={24}
+                              alt=""
+                              className="shrink-0 rounded-full"
+                            />
+                            <span className="truncate">
+                              {selectedSocialRow?.displayName || currentPage?.displayName || 'Account'}
+                            </span>
+                            <CaretDown className="h-4 w-4 shrink-0 opacity-60" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[min(100vw-2rem,220px)] p-1" align="center">
+                          <div className="flex flex-col gap-0.5">
+                            {fbIgConnections.map((conn) => (
+                              <div
+                                key={conn.id}
+                                className="group flex items-center justify-between gap-2 rounded-md px-2 py-2 hover:bg-muted/80"
+                              >
+                                <div className="flex min-w-0 flex-1 items-center gap-2 cursor-default">
+                                  <img
+                                    src={
+                                      conn.profileImageUrl
+                                        ? conn.profileImageUrl
+                                        : conn.platform === 'instagram'
+                                          ? '/instagram.png'
+                                          : '/facebook.png'
+                                    }
+                                    width={28}
+                                    height={28}
+                                    alt=""
+                                    className="shrink-0 rounded-full"
+                                  />
+                                  <span className="truncate text-sm">{conn.displayName || conn.externalId}</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="shrink-0 rounded border border-transparent px-2 py-1 text-xs text-[hsl(var(--brand-primary))] opacity-0 transition-opacity group-hover:opacity-100 hover:border-[hsl(var(--brand-primary))]/30"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    disconnectSocialConnectionById(conn.id)
+                                  }}
+                                  disabled={connectingOAuth}
+                                >
+                                  Logout
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    ) : null}
+                  </div>
+                  <div className="flex min-w-[120px] flex-1 justify-end">
+                    {fbIgConnections.length > 0 ? (
                       <Button
                         type="button"
-                        className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
-                        onClick={() => {
-                          const targetConnectionId = selectedSocialRow?.id || fbIgConnections?.[0]?.id
-                          if (targetConnectionId) disconnectSocialConnectionById(targetConnectionId)
-                        }}
-                        disabled={connectingOAuth}
+                        variant="outline"
+                        size="sm"
+                        className="h-9 gap-1.5 rounded-lg border-0 shadow-none bg-[#F9F9F9] hover:bg-[#F3F3F3]"
+                        onClick={() => setSmartReplyModalOpen(true)}
                       >
-                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <img src={currentPage?.profileImageUrl ? currentPage?.profileImageUrl : currentPage?.platform === "facebook" ? "/facebook.png" : currentPage?.platform === "instagram" ? "/instagram.png" : "/facebook.png"} width={23} height={23} alt="Facebook" className="rounded-full" />}
-                        Logout of {currentPage?.displayName ? currentPage?.displayName : currentPage?.platform === "facebook" ? "Facebook" : currentPage?.platform === "instagram" ? "Instagram" : "Facebook"}
+                        <Sparkle className="h-4 w-4 text-[hsl(var(--brand-primary))]" weight="fill" />
+                        <span>Smart Reply</span>
+                        <CaretDown className="h-3.5 w-3.5 opacity-50" />
                       </Button>
-                    )
-                  }
+                    ) : null}
+                  </div>
                 </div>
                 <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
