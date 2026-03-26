@@ -508,7 +508,7 @@ const MessageComposer = ({
           applySocialConnectResult(!!data.success, data.error || null)
           localStorage.removeItem(SOCIAL_RESULT_KEY)
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
@@ -2046,7 +2046,7 @@ const MessageComposer = ({
               <div className="mt-2">
                 <div className="mb-2 w-full flex flex-row flex-wrap items-center gap-y-2 gap-x-1 min-h-[40px]">
                   <div className="flex min-w-[88px] flex-1 items-center">
-                    <span className="text-sm font-semibold text-foreground">Social DMs</span>
+                    <span className="text-sm font-semibold text-foreground">{isWhatsAppMode ? "Send a messsage" : "Social DMs"}</span>
                   </div>
                   <div className="flex min-w-0 flex-1 justify-center px-1">
                     {currentSocialConnections.length > 0 ? (
@@ -2153,7 +2153,7 @@ const MessageComposer = ({
                     ref={socialRichTextEditorRef}
                     value={socialBodyToEditorValue(composerData.socialBody ?? '')}
                     onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
-                    placeholder="Write your DM here..."   //"Type your message..."
+                    placeholder={isWhatsAppMode ? "Write your message here..." : "Write your DM here..."}   //"Type your message..."
                     availableVariables={[]}
                     toolbarPosition="bottom"
                     customToolbarElement={
@@ -3373,12 +3373,12 @@ const MessageComposer = ({
                   type="button"
                   className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
                   onClick={() => {
-                                        setSendDropdownOpen(false)
-                                        setSendDropdownRect(null)
-                                        const in5 = new Date(Date.now() + 5 * 60 * 1000)
-                                        setScheduleDate(in5.toISOString().slice(0, 10))
-                                        setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
-                                        setScheduleModalOpen(true)
+                    setSendDropdownOpen(false)
+                    setSendDropdownRect(null)
+                    const in5 = new Date(Date.now() + 5 * 60 * 1000)
+                    setScheduleDate(in5.toISOString().slice(0, 10))
+                    setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
+                    setScheduleModalOpen(true)
                   }}
                 >
                   <CalendarBlank size={16} />
