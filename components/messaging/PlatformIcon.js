@@ -95,24 +95,24 @@ function PlatformIcon({ type, className, size = 14, showInBadge = false, badgeSi
     if (type === 'whatsapp') {
       return (
         // eslint-disable-next-line @next/next/no-img-element
-        // <img
-        //   src="/whatsapp.png"
-        //   // width={sizePx}
-        //   // height={sizePx}
-        //   alt="WhatsApp"
-        //   className="object-contain w-full h-full"
-        //   aria-label="WhatsApp"
-        //   style={{
-        //     width: showInBadge ? '100%' : sizePx,
-        //     height: showInBadge ? '100%' : sizePx,
-        //   }}
-        // />
-        <WhatsappLogo
-          size={showInBadge ? '100%' : sizePx}
-          weight="fill"
-          className="text-[#25D366]"
+        <img
+          src="/whatsAppSquare.png"
+          // width={sizePx}
+          // height={sizePx}
+          alt="WhatsApp"
+          className="object-contain w-full h-full"
           aria-label="WhatsApp"
+          style={{
+            width: showInBadge ? '100%' : sizePx,
+            height: showInBadge ? '100%' : sizePx,
+          }}
         />
+        // <WhatsappLogo
+        //   size={showInBadge ? '100%' : sizePx}
+        //   weight="fill"
+        //   className="text-[#25D366]"
+        //   aria-label="WhatsApp"
+        // />
       )
     }
     return null
