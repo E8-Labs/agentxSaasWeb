@@ -12,7 +12,6 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Popover,
   Typography,
 } from '@mui/material'
 import axios from 'axios'
@@ -26,7 +25,17 @@ import Apis from '@/components/apis/Apis'
 import { UserTypeOptions } from '@/constants/UserTypeOptions'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import DelConfirmationModal from '@/components/common/DelConfirmationModal'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button as UiButton } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { toast } from '@/utils/toast'
+import { Check, Info } from 'lucide-react'
 
 const cardShadow = '0 2px 12px rgba(0, 0, 0, 0.06)'
 const cardShadowHover = '0 8px 24px rgba(0, 0, 0, 0.1)'
@@ -681,146 +690,161 @@ export default function AgencyTemplatesList() {
           )
         })}
 
-        {/* Assign template to subaccount popover */}
-        <Popover
+        {/* Assign template to subaccount (shadcn) */}
+        <Dialog
           open={assignModalOpen}
-          anchorEl={assignAnchorEl}
-          onClose={handleAssignModalClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          PaperProps={{
-            sx: {
-              borderRadius: '8px',
-              boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-              minWidth: 320,
-              maxWidth: 400,
-              maxHeight: 'min(420px, 70vh)',
-              display: 'flex',
-              flexDirection: 'column',
-            },
+          onOpenChange={(open) => {
+            if (!open) handleAssignModalClose()
           }}
         >
-          <Box sx={{ px: 2, pt: 2, pb: 1 }}>
-            <Typography sx={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, color: textPrimary, fontSize: '1rem' }}>
-              Assign template to subaccount
-            </Typography>
-            <Box sx={{ mt: 1.25 }}>
-              <Typography sx={{ fontSize: '0.75rem', color: textSecondary, mb: 0.75 }}>
-                Select agent type
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Button
-                  size="small"
-                  variant={assignOutboundSelected ? 'contained' : 'outlined'}
-                  onClick={() => setAssignOutboundSelected((prev) => !prev)}
-                  sx={{
-                    minWidth: 94,
-                    textTransform: 'none',
-                    borderRadius: '999px',
-                    ...(assignOutboundSelected
-                      ? {
-                          bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
-                          color: '#fff !important',
-                        }
-                      : {
-                          borderColor: 'rgba(21,21,21,0.2)',
-                          color: textPrimary,
-                        }),
-                  }}
-                >
-                  Outbound
-                </Button>
-                <Button
-                  size="small"
-                  variant={assignInboundSelected ? 'contained' : 'outlined'}
-                  onClick={() => setAssignInboundSelected((prev) => !prev)}
-                  sx={{
-                    minWidth: 86,
-                    textTransform: 'none',
-                    borderRadius: '999px',
-                    ...(assignInboundSelected
-                      ? {
-                          bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
-                          color: '#fff !important',
-                        }
-                      : {
-                          borderColor: 'rgba(21,21,21,0.2)',
-                          color: textPrimary,
-                        }),
-                  }}
-                >
-                  Inbound
-                </Button>
-              </Box>
-              <Typography sx={{ fontSize: '0.7rem', color: textSecondary, mt: 0.6 }}>
-                Selecting both will create 2 agents.
-              </Typography>
-            </Box>
-            {assignError ? (
-              <Typography sx={{ color: '#b91c1c', fontSize: '0.875rem', mt: 0.75 }}>
-                {assignError}
-              </Typography>
-            ) : null}
-          </Box>
-          <Box sx={{ px: 2, flex: 1, minHeight: 0, overflow: 'auto' }}>
-            {assignSubaccountsLoading ? (
-              <Box display="flex" justifyContent="center" py={3}>
-                <CircularProgress size={32} sx={{ color: textSecondary }} />
-              </Box>
-            ) : assignSubaccounts.length === 0 ? (
-              <Typography sx={{ color: textSecondary, fontSize: '0.875rem', py: 2 }}>
-                No subaccounts found.
-              </Typography>
-            ) : (
-              <List dense sx={{ pt: 0 }}>
-                {assignSubaccounts.map((sub) => (
-                  <ListItemButton
-                    key={sub.id}
-                    selected={selectedSubaccountId === sub.id}
-                    onClick={() => setSelectedSubaccountId(sub.id)}
-                    sx={{
-                      borderRadius: '8px',
-                      mb: 0.5,
-                      '&.Mui-selected': { bgcolor: 'rgba(21,21,21,0.06)' },
-                    }}
-                  >
-                    <ListItemText
-                      primary={sub.name || sub.email || `Subaccount ${sub.id}`}
-                      secondary={sub.email && sub.name ? sub.email : null}
-                      primaryTypographyProps={{ sx: { fontWeight: 500, color: textPrimary } }}
-                      secondaryTypographyProps={{ sx: { fontSize: '0.75rem', color: textSecondary } }}
-                    />
-                  </ListItemButton>
-                ))}
-              </List>
+          <DialogContent
+            className={cn(
+              'w-[400px] max-w-[90vw] gap-0 overflow-hidden rounded-[12px] border border-[#eaeaea] bg-white p-0',
+              'shadow-[0_4px_36px_rgba(0,0,0,0.25)]',
             )}
-          </Box>
-          <Box sx={{ px: 2, py: 2, pt: 1, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button onClick={handleAssignModalClose} color="inherit" sx={{ color: textSecondary }}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleConfirmAssign}
-              disabled={
-                assignSubaccountsLoading ||
-                assignAgentLoading ||
-                !selectedSubaccountId ||
-                assignSubaccounts.length === 0 ||
-                (!assignOutboundSelected && !assignInboundSelected)
-              }
-              sx={{
-                bgcolor: 'hsl(var(--brand-primary, 270 75% 50%)) !important',
-                color: '#fff !important',
-                '&:hover': {
-                  bgcolor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.9) !important',
-                },
-              }}
-            >
-              {assignAgentLoading ? 'Creating…' : 'Assign'}
-            </Button>
-          </Box>
-        </Popover>
+            overlayClassName="bg-[#00000099]"
+            style={{
+              transitionDuration: '250ms',
+              transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+            }}
+          >
+            <div className="flex flex-col">
+              <div className="flex items-start justify-between gap-3 border-b border-[#eaeaea] px-4 py-3">
+                <div className="min-w-0">
+                  <DialogTitle className="text-[16px] font-semibold leading-5 tracking-[-0.01em]">
+                    Assign template to subaccount
+                  </DialogTitle>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4 px-4 py-4 text-[14px] leading-5 text-foreground">
+                <div className="flex flex-col gap-2">
+                  <DialogDescription className="text-[14px] leading-5">
+                    Choose agent type and a subaccount.
+                  </DialogDescription>
+                  <div className="text-[14px] font-medium tracking-[-0.01em] text-black/80">
+                    Select agent type
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <UiButton
+                      type="button"
+                      className={cn(
+                        'h-9 w-full rounded-full px-4 text-[14px] font-semibold active:scale-[0.98]',
+                        'border',
+                        assignOutboundSelected
+                          ? 'border-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary)/0.10)] text-foreground hover:bg-[hsl(var(--brand-primary)/0.12)]'
+                          : 'border-black/10 bg-white text-foreground hover:bg-black/[0.02]',
+                      )}
+                      variant="outline"
+                      onClick={() => setAssignOutboundSelected((prev) => !prev)}
+                    >
+                      Outbound
+                    </UiButton>
+                    <UiButton
+                      type="button"
+                      className={cn(
+                        'h-9 w-full rounded-full px-4 text-[14px] font-semibold active:scale-[0.98]',
+                        'border',
+                        assignInboundSelected
+                          ? 'border-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary)/0.10)] text-foreground hover:bg-[hsl(var(--brand-primary)/0.12)]'
+                          : 'border-black/10 bg-white text-foreground hover:bg-black/[0.02]',
+                      )}
+                      variant="outline"
+                      onClick={() => setAssignInboundSelected((prev) => !prev)}
+                    >
+                      Inbound
+                    </UiButton>
+                  </div>
+                  <div className="flex items-start gap-2 pt-2 text-[12px] leading-4 text-muted-foreground">
+                    <Info aria-hidden className="mt-[3px] h-[14px] w-[14px] shrink-0 opacity-80" />
+                    <span>Selecting both will create 2 agents.</span>
+                  </div>
+                </div>
+
+                {assignError ? (
+                  <div className="text-[14px] text-destructive">{assignError}</div>
+                ) : null}
+
+                <div className="flex flex-col gap-2">
+                  <div className="text-[14px] font-medium tracking-[-0.01em] text-black/80">
+                    Subaccounts
+                  </div>
+                  <ScrollArea className="max-h-[240px] pr-2">
+                    {assignSubaccountsLoading ? (
+                      <div className="flex items-center justify-center py-6">
+                        <CircularProgress size={28} sx={{ color: textSecondary }} />
+                      </div>
+                    ) : assignSubaccounts.length === 0 ? (
+                      <div className="py-2 text-[14px] text-muted-foreground">
+                        No subaccounts found.
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-1">
+                        {assignSubaccounts.map((sub) => {
+                          const isSelected = selectedSubaccountId === sub.id
+                          return (
+                            <button
+                              key={sub.id}
+                              type="button"
+                              onClick={() => setSelectedSubaccountId(sub.id)}
+                              className={cn(
+                                'flex w-full items-start justify-between gap-3 rounded-[10px] px-3 py-2 text-left transition-colors',
+                                'hover:bg-black/[0.04]',
+                                isSelected && 'bg-black/[0.04] ring-1 ring-black/[0.08]',
+                              )}
+                            >
+                              <div className="min-w-0 flex-1">
+                                <div className="text-[14px] font-medium leading-5 text-foreground">
+                                  {sub.name || sub.email || `Subaccount ${sub.id}`}
+                                </div>
+                                {sub.email && sub.name ? (
+                                  <div className="mt-0.5 text-[14px] leading-5 text-muted-foreground">
+                                    {sub.email}
+                                  </div>
+                                ) : null}
+                              </div>
+                              {isSelected ? (
+                                <Check
+                                  aria-hidden
+                                  className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--brand-primary))]"
+                                />
+                              ) : null}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </ScrollArea>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-[#eaeaea] bg-white px-4 py-3">
+                <UiButton
+                  type="button"
+                  variant="secondary"
+                  className="h-10 rounded-lg bg-muted px-4 text-[14px] font-medium text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]"
+                  onClick={handleAssignModalClose}
+                >
+                  Cancel
+                </UiButton>
+                <UiButton
+                  type="button"
+                  className="h-10 rounded-lg px-4 text-[14px] font-semibold active:scale-[0.98]"
+                  disabled={
+                    assignSubaccountsLoading ||
+                    assignAgentLoading ||
+                    !selectedSubaccountId ||
+                    assignSubaccounts.length === 0 ||
+                    (!assignOutboundSelected && !assignInboundSelected)
+                  }
+                  onClick={handleConfirmAssign}
+                >
+                  {assignAgentLoading ? 'Creating…' : 'Assign'}
+                </UiButton>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Single delete confirmation modal (outside map so only one instance) */}
         <DelConfirmationModal
