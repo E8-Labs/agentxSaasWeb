@@ -107,6 +107,11 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
   useEffect(() => {
     getUserSettings()
   }, [])
+  
+  useEffect(() => {
+    console.log('logoPreview value is', logoPreview)
+    console.log('logoPreview value is trim', logoPreview?.trim() !== '')
+  }, [logoPreview])
 
   //get user settings
   const getUserSettings = async () => {
@@ -629,7 +634,7 @@ const handleUserSettings = async (from) => {
                           borderRadius: '50%',
                           backgroundImage:
                             logoPreview && logoPreview.trim() !== ''
-                              ? `url(${encodeURI(logoPreview)})`
+                              ? `url("${encodeURI(logoPreview)}")`
                               : 'url(/thumbOrbSmall.png)',
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
