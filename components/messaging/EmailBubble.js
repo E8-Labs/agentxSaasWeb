@@ -160,6 +160,12 @@ const EmailBubble = ({
               : '—'}
             {' · '}
             {message.clicked ?? 0} click{(message.clicked ?? 0) !== 1 ? 's' : ''}
+            {' · '}
+            {message.replied ?? 0} replied{(message.replied ?? 0) !== 1 ? 's' : ''}
+            {' · '}
+            {message.delivered ?? 0} delivered{(message.delivered ?? 0) !== 1 ? 's' : ''}
+            {' · '}
+            {message.sent ?? 0} sent{(message.sent ?? 0) !== 1 ? 's' : ''}
           </span>
           {onCampaignStatClick && (
             <span

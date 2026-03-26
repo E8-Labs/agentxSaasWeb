@@ -119,6 +119,12 @@ const EmailSmsTranscriptCN = ({
               : '—'}
             {' · '}
             {item.clicked ?? 0} click{(item.clicked ?? 0) !== 1 ? 's' : ''}
+            {' · '}
+            {item.replied ?? 0} replied{(item.replied ?? 0) !== 1 ? 's' : ''}
+            {' · '}
+            {item.delivered ?? 0} delivered{(item.delivered ?? 0) !== 1 ? 's' : ''}
+            {' · '}
+            {item.sent ?? 0} sent{(item.sent ?? 0) !== 1 ? 's' : ''}
           </span>
           <span
             className="relative inline-block shrink-0"

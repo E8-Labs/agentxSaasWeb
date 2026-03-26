@@ -793,6 +793,10 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           const rows = data.slice(1) // Data without headers
 
           const usedKeys = new Set() // Keep track of already matched default columns
+          const normalizePhoneValue = (value) => {
+            if (value === null || value === undefined) return null
+            return String(value).trim().replace(/\.0+$/, '')
+          }
 
           let mappedColumns = headers.map((header) => {
             // Find the first unused matching column
@@ -826,7 +830,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
             // //console.log;
 
             mappedColumns.forEach((col, index) => {
-              transformedRow[col.ColumnNameInSheet] = row[index] || null
+              const rawValue = row[index] ?? null
+              transformedRow[col.ColumnNameInSheet] =
+                col.matchedColumn?.dbName === 'phone'
+                  ? normalizePhoneValue(rawValue)
+                  : rawValue
               // if (col.matchedColumn) {
               //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
               // } else {

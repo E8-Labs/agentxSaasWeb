@@ -58,16 +58,12 @@ const CampaignStatPopover = ({
                 {pctPart(campaignStatData.clicked, campaignStatData.sent)}
               </span>
             </div>
-            {
-              campaignStatData.replied !== undefined && campaignStatData.replied !== null && (
-                <div className="flex justify-between items-center gap-4">
-                  <span className="text-[#666666]">{campaignStatData.replied} Replied</span>
-                  <span className="font-medium">
-                    {pctPart(campaignStatData.replied, campaignStatData.sent)}
-                  </span>
-                </div>
-              )
-            }
+            <div className="flex justify-between items-center gap-4">
+              <span className="text-[#666666]">{campaignStatData.replied} Replied</span>
+              <span className="font-medium">
+                {pctPart(campaignStatData.replied, campaignStatData.sent)}
+              </span>
+            </div>
           </div>
         ) : (
           !campaignStatLoading && <p className="text-muted-foreground">No data available.</p>
