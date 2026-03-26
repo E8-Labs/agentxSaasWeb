@@ -33,6 +33,15 @@ const MessengerTabIcon = ({ size = 20, style }) => (
     style={style}
   />
 )
+
+const WhatsAppTabIcon = ({ size = 40, style }) => (
+  <WhatsappLogo
+    size={size}
+    weight="fill"
+    className="text-[#25D366]"
+    aria-label="WhatsApp"
+  />
+)
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { cn } from '@/lib/utils'
 import {
@@ -1420,7 +1429,7 @@ const MessageComposer = ({
     { label: 'Email', value: 'email', icon: Mail },
     { label: 'Comment', value: 'comment', icon: MessageSquare },
     { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon },
-    ...(showWhatsAppTab ? [{ label: 'WhatsApp', value: 'whatsapp', icon: WhatsappLogo }] : []),
+    { label: 'WhatsApp', value: 'whatsapp', icon: WhatsAppTabIcon },
   ]
 
   const fbIgConnections = useMemo(
@@ -1872,7 +1881,7 @@ const MessageComposer = ({
               <div className="flex flex-col items-center gap-2">
                 {isWhatsAppMode ? (
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25D366]/10">
-                    <WhatsappLogo size={24} className="text-[#25D366]" weight="fill" aria-hidden />
+                    <WhatsappLogo size={25} className="text-[#25D366]" weight="fill" aria-hidden />
                   </div>
                 ) : (
                   <Image
@@ -2057,7 +2066,7 @@ const MessageComposer = ({
                               />
                             ) : selectedSocialRow?.platform === 'whatsapp' ? (
                               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#25D366]/10">
-                                <WhatsappLogo size={14} className="text-[#25D366]" weight="fill" aria-hidden />
+                                <WhatsappLogo size={25} className="text-[#25D366]" weight="fill" aria-hidden />
                               </span>
                             ) : (
                               <img
@@ -2092,7 +2101,7 @@ const MessageComposer = ({
                                     />
                                   ) : conn.platform === 'whatsapp' ? (
                                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#25D366]/10">
-                                      <WhatsappLogo size={16} className="text-[#25D366]" weight="fill" aria-hidden />
+                                      <WhatsappLogo size={25} className="text-[#25D366]" weight="fill" aria-hidden />
                                     </span>
                                   ) : (
                                     <img
