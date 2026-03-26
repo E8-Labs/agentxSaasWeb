@@ -243,9 +243,9 @@ export function getSentimentEmoji(sentiment) {
   const normalized = normalizeSentiment(sentiment)
   if (!normalized) return null
 
-  for (const { emoji, keywords } of Object.values(SENTIMENT_EMOJI_MAP)) {
-    if (keywords.some((kw) => normalized.includes(kw))) return emoji
-  }
+  // for (const { emoji, keywords } of Object.values(SENTIMENT_EMOJI_MAP)) {
+  //   if (keywords.some((kw) => normalized.includes(kw))) return emoji
+  // }
   return DEFAULT_EMOJI
 }
 
