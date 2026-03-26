@@ -59,11 +59,11 @@ const CampaignStatPopover = ({
               </span>
             </div>
             {
-              campaignStatData.Replied !== undefined && campaignStatData.Replied !== null && (
+              campaignStatData.replied !== undefined && campaignStatData.replied !== null && (
                 <div className="flex justify-between items-center gap-4">
-                  <span className="text-[#666666]">{campaignStatData.Replied} Replied</span>
+                  <span className="text-[#666666]">{campaignStatData.replied} Replied</span>
                   <span className="font-medium">
-                    {pctPart(campaignStatData.Replied, campaignStatData.sent)}
+                    {pctPart(campaignStatData.replied, campaignStatData.sent)}
                   </span>
                 </div>
               )
