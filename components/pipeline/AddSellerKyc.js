@@ -1,4 +1,4 @@
-import { Alert, CircularProgress, Fade, Modal, Snackbar } from '@mui/material'
+import { Alert, CircularProgress, Fade, Snackbar } from '@mui/material'
 import { Box, style } from '@mui/system'
 import axios from 'axios'
 import Image from 'next/image'
@@ -15,45 +15,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 import Apis from '../apis/Apis'
 import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
-
-/** Modal content transition: scale 0.95→1 and opacity 0→1 on enter; reverse on exit. */
-function ScaleFadeTransition({ in: inProp, children, onEnter, onExited, timeout = 250 }) {
-  const [stage, setStage] = useState(inProp ? 'entering' : 'exited')
-  const rafRef = useRef(null)
-  const timerRef = useRef(null)
-
-  useEffect(() => {
-    if (inProp) {
-      setStage('entering')
-      onEnter?.()
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = requestAnimationFrame(() => setStage('entered'))
-      })
-      return () => {
-        if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      }
-    } else {
-      if (stage === 'exited') return
-      setStage('exiting')
-      timerRef.current = setTimeout(() => {
-        onExited?.()
-        setStage('exited')
-      }, timeout)
-      return () => {
-        if (timerRef.current) clearTimeout(timerRef.current)
-      }
-    }
-  }, [inProp, timeout, onExited, onEnter])
-
-  const isEntering = stage === 'entering'
-  const style = {
-    opacity: isEntering || stage === 'exiting' ? 0 : 1,
-    transform: isEntering || stage === 'exiting' ? 'scale(0.95)' : 'scale(1)',
-    transition: `opacity ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1), transform ${timeout}ms cubic-bezier(0.34, 1.56, 0.64, 1)`,
-  }
-
-  return <div style={style}>{children}</div>
-}
 
 const AddSellerKyc = ({
   handleCloseSellerKyc,
@@ -81,13 +42,13 @@ const AddSellerKyc = ({
 
   const [toggleClick, setToggleClick] = useState(1)
   const [addKYCQuestion, setAddKYCQuestion] = useState(false)
-  const [addKycQuestionClosing, setAddKycQuestionClosing] = useState(false)
   const [inputs, setInputs] = useState([
     { id: 1, value: '' },
     { id: 2, value: '' },
     { id: 3, value: '' },
   ])
   const [newQuestion, setNewQuestion] = useState('')
+  const newQuestionInputRef = useRef(null)
   //code for need kyc
   const [selectedNeedKYC, setSelectedNeedKYC] = useState([])
   const [oldSelectedNeedKYC, setOldSelectedNeedKYC] = useState([])
@@ -559,7 +520,7 @@ const AddSellerKyc = ({
     setAddKYCQuestion(true)
   }
 
-  //close add kyc question modal (starts exit transition; onExited clears state)
+  //close inline add question form
   const handleClose = () => {
     setInputs([
       { id: 1, value: '' },
@@ -567,8 +528,17 @@ const AddSellerKyc = ({
       { id: 3, value: '' },
     ])
     setNewQuestion('')
-    setAddKycQuestionClosing(true)
+    setAddKYCQuestion(false)
   }
+
+  useEffect(() => {
+    if (addKYCQuestion) {
+      const t = setTimeout(() => {
+        newQuestionInputRef.current?.focus?.()
+      }, 0)
+      return () => clearTimeout(t)
+    }
+  }, [addKYCQuestion])
 
   //api call to add kyc
   const handleAddNewKyc = async () => {
@@ -865,7 +835,7 @@ const AddSellerKyc = ({
             </div>
 
             {toggleClick === 1 ? (
-              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
+              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {needKYCQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 w-full"
@@ -905,7 +875,7 @@ const AddSellerKyc = ({
                 ))}
               </div>
             ) : toggleClick === 2 ? (
-              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
+              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {motivationKycQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 w-full"
@@ -945,7 +915,7 @@ const AddSellerKyc = ({
                 ))}
               </div>
             ) : toggleClick === 3 ? (
-              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
+              <div className="mt-8 w-full max-h-[37vh] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {urgencyKycQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
@@ -985,162 +955,58 @@ const AddSellerKyc = ({
               ''
             )}
 
-            <button
-              className="mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary text-brand-primary h-8 text-sm font-normal"
-              onClick={handleAddKyc}
-            >
-              Add Question
-            </button>
-            {/* Modal to add KYC */}
-            <Modal
-              open={addKYCQuestion || addKycQuestionClosing}
-              onClose={handleClose}
-              closeAfterTransition
-              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              BackdropProps={{
-                timeout: 250,
-                sx: { backgroundColor: '#00000099' },
-              }}
-            >
-              <ScaleFadeTransition
-                in={addKYCQuestion && !addKycQuestionClosing}
-                timeout={250}
-                onExited={() => {
-                  setAddKYCQuestion(false)
-                  setAddKycQuestionClosing(false)
+            {!addKYCQuestion && (
+              <button
+                className="mt-2 w-full outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary text-brand-primary h-8 text-sm font-normal"
+                onClick={handleAddKyc}
+              >
+                Add Question
+              </button>
+            )}
+            {addKYCQuestion && (
+              <div
+                className="mt-3 w-full overflow-hidden rounded-[12px] bg-white"
+                style={{
+                  border: '1px solid #eaeaea',
+                  boxShadow: 'none',
                 }}
               >
-                <div className="flex flex-row justify-center items-center w-full h-[100svh] min-h-[100svh]">
-                  <div
-                    className="w-[400px] flex flex-col gap-3 p-0 overflow-hidden"
-                    style={{
-                      backgroundColor: '#ffffff',
-                      boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
-                      border: '1px solid #eaeaea',
-                      borderRadius: 12,
+                <div className="px-4 py-4">
+                  <div className="text-[13px] font-medium text-black/70">
+                    What’s the question?
+                  </div>
+                  <input
+                    ref={newQuestionInputRef}
+                    className="mt-2 h-[42px] w-full rounded-lg border border-black/10 bg-white px-3 text-[14px] font-normal text-black/80 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:border-brand-primary"
+                    placeholder="Ex: What's your name?"
+                    value={newQuestion}
+                    onChange={(e) => {
+                      const input = e.target.value
+                      const filtered = input.replace(/[{}\[\]<>]/g, '')
+                      setNewQuestion(filtered)
                     }}
-                  >
-                    <div
-                      className="flex flex-row items-center justify-between w-full"
-                      style={{
-                        padding: '12px 16px',
-                        borderBottom: '1px solid #eaeaea',
-                      }}
+                  />
+
+                  <div className="mt-3 flex flex-row items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      className="h-[40px] rounded-lg px-4 text-[14px] font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]"
+                      onClick={handleClose}
                     >
-                      <div
-                        className="text-left"
-                        style={{ fontWeight: '700', fontSize: 18 }}
-                      >
-                        New Question
-                      </div>
-                      <button onClick={handleClose}>
-                        <Image
-                          src={'/assets/crossIcon.png'}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                    <div
-                      className="text-[#00000060] mx-2"
-                      style={{ fontWeight: '600', fontSize: 13 }}
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!newQuestion}
+                      className="h-[40px] rounded-lg px-4 text-[14px] font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] disabled:bg-black/10 disabled:text-black"
+                      onClick={handleAddKycQuestion}
                     >
-                      {`What’s the question? `}
-                    </div>
-                    <div className="mt-2">
-                      <input
-                        className="border outline-none w-full rounded-lg px-3 mx-2 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary h-10"
-                        style={{
-                          fontWeight: '500',
-                          fontSize: 15,
-                          borderColor: '#00000020',
-                        }}
-                        placeholder="Ex: What's your name?"
-                        value={newQuestion}
-                        onChange={(e) => {
-                          const input = e.target.value
-                          const filtered = input.replace(/[{}\[\]<>]/g, '') // Remove only {}, [], <>
-                          setNewQuestion(filtered)
-                        }}
-                      />
-                    </div>
-                    {/*<div className="mt-4 mx-2" style={styles.headingStyle}>
-                      Sample Answers
-                    </div>
-
-                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
-                      {inputs.map((input, index) => (
-                        <div
-                          key={input.id}
-                          className="w-full flex flex-row items-center gap-4 mt-4"
-                        >
-                          <input
-                            className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
-                            style={{
-                              width: "95%",
-                              borderColor: "#00000020",
-                              fontWeight: "500",
-                              fontSize: 15,
-                            }}
-                            placeholder={`Sample Answer`}
-                            value={input.value}
-                            onChange={(e) =>
-                              handleInputChange(input.id, e.target.value)
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>*/}
-
-                    {/* <div className=' mx-2' style={{ height: "50px" }}>
-                                            {
-                                                inputs.length < 3 && (
-                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
-                                                        fontSize: 15,
-                                                        fontWeight: "700"
-                                                    }}>
-                                                        Add New
-                                                    </button>
-                                                )
-                                            }
-                                        </div> */}
-
-                    <div
-                      className="w-full"
-                      style={{ padding: '12px 16px' }}
-                    >
-                      {
-                        // inputs.filter((input) => input.value.trim() !== "")
-                        //   .length === 3 &&
-                        newQuestion ? (
-                          <button
-                            className="bg-brand-primary outline-none border-none rounded-lg text-white w-full mt-4 mx-2 h-8 text-sm font-normal"
-                            onClick={handleAddKycQuestion}
-                          >
-                            Add Question
-                          </button>
-                        ) : (
-                          <button
-                            disabled={true}
-                            className="bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2 h-8 text-sm font-normal"
-                            onClick={handleAddKycQuestion}
-                          >
-                            Add Question
-                          </button>
-                        )
-                      }
-                    </div>
-
-                    {/* Error snack bar message */}
-                    <div></div>
-
-                    {/* Can be use full to add shadow */}
-                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                      Add Question
+                    </button>
                   </div>
                 </div>
-              </ScaleFadeTransition>
-            </Modal>
+              </div>
+            )}
           </div>
         </div>
         <div className="mt-8 flex flex-row justify-center py-3">

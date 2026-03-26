@@ -1,9 +1,9 @@
-import { Alert, CircularProgress, Fade, Modal, Snackbar } from '@mui/material'
+import { Alert, CircularProgress, Fade, Snackbar } from '@mui/material'
 import { Box, style } from '@mui/system'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import Body from '@/components/onboarding/Body'
@@ -40,6 +40,7 @@ const AddBuyerKyc = ({
     { id: 3, value: '' },
   ])
   const [newQuestion, setNewQuestion] = useState('')
+  const newQuestionInputRef = useRef(null)
   const [buyerKycLoader, setBuyerKycLoader] = useState(false)
   //code for need kyc
   const [selectedNeedKYC, setSelectedNeedKYC] = useState([])
@@ -490,6 +491,15 @@ const AddBuyerKyc = ({
     setNewQuestion('')
   }
 
+  useEffect(() => {
+    if (addKYCQuestion) {
+      const t = setTimeout(() => {
+        newQuestionInputRef.current?.focus?.()
+      }, 0)
+      return () => clearTimeout(t)
+    }
+  }, [addKYCQuestion])
+
   const handleAddNewKyc = async () => {
     // Get only the selected questions
     const selectedNeedQuestions = needKYCQuestions.filter((question) =>
@@ -888,154 +898,59 @@ const AddBuyerKyc = ({
                             ))}
                         </div> */}
 
-            <button
-              className="mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary text-brand-primary"
-              style={{ fontWeight: '700', fontSize: 15 }}
-              onClick={handleAddKyc}
-            >
-              Add Question
-            </button>
-            {/* Modal */}
-            <Modal
-              open={addKYCQuestion}
-              // onClose={() => setAddKYCQuestion(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: '#00000030',
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="lg:w-5/12 sm:w-full w-8/12"
-                sx={styles.AddNewKYCQuestionModal}
+            {!addKYCQuestion && (
+              <button
+                className="mt-2 w-full outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary text-brand-primary"
+                style={{ fontWeight: '700', fontSize: 15 }}
+                onClick={handleAddKyc}
               >
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="w-full"
-                    style={{
-                      backgroundColor: '#ffffff',
-                      padding: 20,
-                      borderRadius: '13px',
-                    }}
-                  >
-                    <div className="flex flex-row justify-end">
-                      <button onClick={handleClose}>
-                        <Image
-                          src={'/assets/crossIcon.png'}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                    <div
-                      className="text-center mt-2"
-                      style={{ fontWeight: '700', fontSize: 24 }}
-                    >
-                      New Question
-                    </div>
-                    <div
-                      className="text-[#00000060] mx-2"
-                      style={{ fontWeight: '600', fontSize: 13 }}
-                    >
-                      {`What’s the question? `}
-                    </div>
-                    <div className="mt-2">
-                      <input
-                        className="border outline-none w-full p-2 rounded-lg px-3 mx-2 focus:outline-none focus:ring-0"
-                        style={{
-                          borderColor: '#00000020',
-                          fontWeight: '500',
-                          fontSize: 15,
-                        }}
-                        placeholder="Ex: What's your name?"
-                        value={newQuestion}
-                        // onChange={(e) => setNewQuestion(e.target.value)}
-                        onChange={(e) => {
-                          const input = e.target.value
-                          const filtered = input.replace(/[{}\[\]<>]/g, '') // Remove only {}, [], <>
-                          setNewQuestion(filtered)
-                          // setNewQuestion(e.target.value);
-                        }}
-                      />
-                    </div>
-                    {/*<div className="mt-4 mx-2" style={styles.headingStyle}>
-                      Sample Answers
-                    </div>
-
-                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
-                      {inputs.map((input, index) => (
-                        <div
-                          key={input.id}
-                          className="w-full flex flex-row items-center gap-4 mt-4"
-                        >
-                          <input
-                            className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
-                            style={{
-                              width: "95%",
-                              borderColor: "#00000020",
-                              fontWeight: "500",
-                              fontSize: 15,
-                            }}
-                            placeholder={`Sample Answer`}
-                            value={input.value}
-                            onChange={(e) =>
-                              handleInputChange(input.id, e.target.value)
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>*/}
-
-                    {/* <div style={{ height: "50px" }}>
-                                            {
-                                                inputs.length < 3 && (
-                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
-                                                        fontSize: 15,
-                                                        fontWeight: "700"
-                                                    }}>
-                                                        Add New
-                                                    </button>
-                                                )
-                                            }
-                                        </div> */}
-
-                    <div className="w-full h-[80px]">
-                      {
-                        // inputs.filter((input) => input.value.trim()).length ===
-                        // 3 &&
-                        newQuestion ? (
-                          <button
-                            className="bg-brand-primary outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
-                            style={{ ...styles.headingStyle, height: '50px' }}
-                            onClick={handleAddKycQuestion}
-                          >
-                            Add Question
-                          </button>
-                        ) : (
-                          <button
-                            disabled={true}
-                            className="bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2"
-                            style={{ ...styles.headingStyle, height: '50px' }}
-                            onClick={handleAddKycQuestion}
-                          >
-                            Add Question
-                          </button>
-                        )
-                      }
-                    </div>
-
-                    {/* Can be use full to add shadow */}
-                    {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                Add Question
+              </button>
+            )}
+            {addKYCQuestion && (
+              <div
+                className="mt-3 w-full overflow-hidden rounded-[12px] bg-white"
+                style={{
+                  border: '1px solid #eaeaea',
+                  boxShadow: 'none',
+                }}
+              >
+                <div className="px-4 py-4">
+                  <div className="text-[13px] font-medium text-black/70">
+                    What’s the question?
                   </div>
+                  <input
+                    ref={newQuestionInputRef}
+                    className="mt-2 h-[42px] w-full rounded-lg border border-black/10 bg-white px-3 text-[14px] font-normal text-black/80 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:border-brand-primary"
+                    placeholder="Ex: What's your name?"
+                    value={newQuestion}
+                    onChange={(e) => {
+                      const input = e.target.value
+                      const filtered = input.replace(/[{}\[\]<>]/g, '')
+                      setNewQuestion(filtered)
+                    }}
+                  />
 
-                  {/* Error snack bar message */}
+                  <div className="mt-3 flex flex-row items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      className="h-[40px] rounded-lg px-4 text-[14px] font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]"
+                      onClick={handleClose}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!newQuestion}
+                      className="h-[40px] rounded-lg px-4 text-[14px] font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98] disabled:bg-black/10 disabled:text-black"
+                      onClick={handleAddKycQuestion}
+                    >
+                      Add Question
+                    </button>
+                  </div>
                 </div>
-              </Box>
-            </Modal>
+              </div>
+            )}
           </div>
         </div>
 
