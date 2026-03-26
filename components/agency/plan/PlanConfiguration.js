@@ -39,6 +39,9 @@ export default function PlanConfiguration({
   configurationData,
   setConfigurationData,
 }) {
+  const showBasePlanDropdown =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
+
   //auto scroll to bottom
   const scrollContainerRef = useRef(null)
 
@@ -1356,24 +1359,26 @@ export default function PlanConfiguration({
                   }}
                 />
               </div>
-              <div className="w-full flex flex-row items-center justify-between gap-2 mb-4">
-                <label style={styles.labels}>Everything in...</label>
-                <select
-                  style={styles.inputs}
-                  className="w-1/2 border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 bg-white"
-                  value={inheritsFromPlanId}
-                  onChange={(e) => {
-                    setInheritsFromPlanId(e.target.value)
-                  }}
-                >
-                  <option value="">None</option>
-                  {availableBasePlans.map((plan) => (
-                    <option key={plan.id} value={String(plan.id)}>
-                      {plan.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {showBasePlanDropdown && (
+                <div className="w-full flex flex-row items-center justify-between gap-2 mb-4">
+                  <label style={styles.labels}>Everything in...</label>
+                  <select
+                    style={styles.inputs}
+                    className="w-1/2 border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 bg-white"
+                    value={inheritsFromPlanId}
+                    onChange={(e) => {
+                      setInheritsFromPlanId(e.target.value)
+                    }}
+                  >
+                    <option value="">None</option>
+                    {availableBasePlans.map((plan) => (
+                      <option key={plan.id} value={String(plan.id)}>
+                        {plan.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <PlanFeatures
                 featuresList={featuresList}
                 features={features}

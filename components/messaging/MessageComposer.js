@@ -1413,6 +1413,15 @@ const MessageComposer = ({
         ? 'Reply in Messenger...'
         : 'Reply in Instagram...'
   const showSocialComposer = false
+  const isProductionEnvironment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+  const showWhatsAppTab = !isProductionEnvironment
+  const composerTabOptions = [
+    { label: 'Text', value: 'sms', icon: MessageSquareDot },
+    { label: 'Email', value: 'email', icon: Mail },
+    { label: 'Comment', value: 'comment', icon: MessageSquare },
+    { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon },
+    ...(showWhatsAppTab ? [{ label: 'WhatsApp', value: 'whatsapp', icon: WhatsappLogo }] : []),
+  ]
 
   const fbIgConnections = useMemo(
     () =>
@@ -1737,14 +1746,14 @@ const MessageComposer = ({
             <ToggleGroupCN
               height="h-[40px] py-1"
               roundedness="rounded-lg"
-              options={[
-                { label: 'Text', value: 'sms', icon: MessageSquareDot },
-                { label: 'Email', value: 'email', icon: Mail },
-                { label: 'Comment', value: 'comment', icon: MessageSquare },
-                { label: 'FB/IG DM', value: 'facebook', icon: MessengerTabIcon },
-                { label: 'WhatsApp', value: 'whatsapp', icon: WhatsappLogo },
-              ]}
-              value={composerMode === 'instagram' ? 'facebook' : composerMode === 'whatsapp' ? 'whatsapp' : composerMode}
+              options={composerTabOptions}
+              value={
+                composerMode === 'instagram'
+                  ? 'facebook'
+                  : composerMode === 'whatsapp'
+                    ? (showWhatsAppTab ? 'whatsapp' : 'facebook')
+                    : composerMode
+              }
               onChange={(value) => {
                 if (value === 'sms') {
                   if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
