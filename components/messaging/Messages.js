@@ -4365,6 +4365,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
                         hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
                         hasWhatsAppConnection={socialConnections.some((c) => c.platform === 'whatsapp')}
+                        socialConnections={socialConnections}
                         pageName={socialConnections[0]?.displayName}
                         currentPage={checkselectedThreadSocialConnection()}
                         onConnectionSuccess={fetchSocialConnections}
