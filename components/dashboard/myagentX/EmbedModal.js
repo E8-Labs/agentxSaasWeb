@@ -18,6 +18,19 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { cn } from '@/lib/utils'
+
+const BUTTON_POSITIONS = {
+  LEFT_BOTTOM: 'left-bottom',
+  RIGHT_BOTTOM: 'right-bottom',
+  INLINE: 'inline',
+}
+
+const POSITION_OPTIONS = [
+  { value: BUTTON_POSITIONS.RIGHT_BOTTOM, label: 'Right' },
+  { value: BUTTON_POSITIONS.LEFT_BOTTOM, label: 'Left' },
+  { value: BUTTON_POSITIONS.INLINE, label: 'Inline' },
+]
 
 const EmbedModal = ({
   open,
@@ -38,6 +51,9 @@ const EmbedModal = ({
   const [loading, setLoading] = useState(false)
   const [logoFile, setLogoFile] = useState(null)
   const [logoPreview, setLogoPreview] = useState(null)
+  const [buttonPosition, setButtonPosition] = useState(
+    BUTTON_POSITIONS.RIGHT_BOTTOM,
+  )
   const fileInputRef = useRef(null)
   const textInputRef = useRef(null)
   const [snackbar, setSnackbar] = useState({
@@ -144,6 +160,7 @@ const EmbedModal = ({
   // Initialize with existing agent data when modal opens
   useEffect(() => {
     if (open && agent) {
+      setButtonPosition(BUTTON_POSITIONS.RIGHT_BOTTOM)
       if (agent.supportButtonText) {
         setButtonLabel(agent.supportButtonText)
       }
@@ -194,6 +211,7 @@ const EmbedModal = ({
       // Reset to defaults when modal opens without agent data
       setButtonLabel('Get Help')
       setLogoPreview(null)
+      setButtonPosition(BUTTON_POSITIONS.RIGHT_BOTTOM)
       setRequireForm(false)
       setSelectedSmartList('')
     }
@@ -340,9 +358,9 @@ const EmbedModal = ({
       // Step 2: If form is required and smart list is selected, attach the smart list
       if (requireForm && selectedSmartList) {
         await attachSmartList()
-        onShowAllSet() // Go directly to "all set" modal after attaching existing smart list
+        onShowAllSet({ buttonPosition }) // Go directly to "all set" modal after attaching existing smart list
       } else {
-        onShowAllSet()
+        onShowAllSet({ buttonPosition })
       }
     } catch (error) {
       console.error('🔧 EMBED-MODAL - Error in embed process:', error)
@@ -468,6 +486,47 @@ const EmbedModal = ({
                 </div>
               </div>
 
+              {/* Button Positioning */}
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-normal text-black/50">Button Positioning</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {POSITION_OPTIONS.map((option) => {
+                    const isSelected = buttonPosition === option.value
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setButtonPosition(option.value)
+                        }}
+                        className={cn(
+                          'flex flex-col items-center gap-2 rounded-lg border p-2 transition-colors',
+                          isSelected
+                            ? 'border-brand-primary bg-brand-primary/5'
+                            : 'border-black/10 bg-white hover:bg-black/[0.02]',
+                        )}
+                      >
+                        <span className="relative block h-12 w-full rounded-md border border-black/10 bg-white">
+                          <span
+                            className={cn(
+                              'absolute h-6 w-6 rounded-[6px] bg-brand-primary shadow-sm',
+                              option.value === BUTTON_POSITIONS.LEFT_BOTTOM &&
+                                'left-1.5 bottom-1.5',
+                              option.value === BUTTON_POSITIONS.RIGHT_BOTTOM &&
+                                'right-1.5 bottom-1.5',
+                              option.value === BUTTON_POSITIONS.INLINE &&
+                                'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
+                            )}
+                          />
+                        </span>
+                        <span className="text-sm font-normal text-black/70">{option.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
               {/* Require Form Section */}
               <div className="flex flex-col rounded-xl px-4 py-2 bg-black/[0.08]">
                 <div className="flex items-start justify-between gap-4">
@@ -507,7 +566,7 @@ const EmbedModal = ({
                       className="text-brand-primary underline text-sm font-medium"
                       onClick={(e) => {
                         e.stopPropagation()
-                        onShowSmartList()
+                        onShowSmartList({ buttonPosition })
                       }}
                     >
                       New Smartlist
@@ -611,7 +670,15 @@ const EmbedModal = ({
                 </div>
                 <button
               type="button"
-              className="flex items-center gap-2 px-4 py-4 rounded-[130px] bg-white shadow-[0px_19.462px_23.224px_0px_rgba(0,0,0,0.09)] cursor-default pointer-events-none"
+              className={cn(
+                'absolute flex items-center gap-2 rounded-[130px] bg-white shadow-[0px_19.462px_23.224px_0px_rgba(0,0,0,0.09)] cursor-default pointer-events-none',
+                buttonPosition === BUTTON_POSITIONS.LEFT_BOTTOM &&
+                  'left-4 bottom-4 px-4 py-4',
+                buttonPosition === BUTTON_POSITIONS.RIGHT_BOTTOM &&
+                  'right-4 bottom-4 px-4 py-4',
+                buttonPosition === BUTTON_POSITIONS.INLINE &&
+                  'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-4',
+              )}
                 >
                   <div
                 className="w-8 h-8 rounded-full shrink-0 bg-cover bg-center bg-no-repeat"

@@ -478,6 +478,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showEmbedAllSetModal, setShowEmbedAllSetModal] = useState(false)
   const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null)
   const [embedCode, setEmbedCode] = useState('')
+  const [embedButtonPosition, setEmbedButtonPosition] = useState('right-bottom')
   const [selectedSmartList, setSelectedSmartList] = useState('')
   const [fetureType, setFetureType] = useState('')
   const [featureTitle, setFeatureTitle] = useState('')
@@ -1179,6 +1180,24 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setShowEmbedSmartListModal(true)
   }
 
+  const buildEmbedCode = (assistantId, buttonPosition = 'right-bottom') => {
+    const baseStyle =
+      'width: 320px; border: none; background: transparent; z-index: 9999; pointer-events: none;'
+
+    if (buttonPosition === 'left-bottom') {
+      return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; left: 0; height: 100vh; ${baseStyle}" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`
+    }
+
+    if (buttonPosition === 'inline') {
+      return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: static; display: inline-block; vertical-align: middle; width: 320px; height: 96px; max-width: 100%; border: none; background: transparent; z-index: auto; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`
+    }
+
+    return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; height: 100vh; ${baseStyle}" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`
+  }
+
   const handleEmbedSmartListCreated = async (smartListData) => {
     // Note: AddSmartList API already attached the smartlist with agentType='embed'
     // So we don't need to call attachSmartList again here
@@ -1220,10 +1239,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
 
     setShowEmbedSmartListModal(false)
-    const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
-  height: 100vh; border: none; background: transparent; z-index: 
-  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
-  </iframe>`
+    const code = buildEmbedCode(
+      selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID,
+      embedButtonPosition,
+    )
     setEmbedCode(code)
     setShowEmbedAllSetModal(true)
   }
@@ -6384,7 +6403,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
         }
         agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
-        onShowSmartList={handleShowEmbedSmartList}
+        onShowSmartList={(payload) => {
+          if (payload?.buttonPosition) {
+            setEmbedButtonPosition(payload.buttonPosition)
+          }
+          handleShowEmbedSmartList()
+        }}
         selectedUser={selectedUser}
         agent={selectedAgentForEmbed}
         onAgentUpdate={(updatedAgent) => {
@@ -6408,7 +6432,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             }
           }
         }}
-        onShowAllSet={() => {
+        onShowAllSet={({ buttonPosition } = {}) => {
+          if (buttonPosition) {
+            setEmbedButtonPosition(buttonPosition)
+          }
           setShowEmbedModal(false)
           // Save drawer state before closing it
           if (showDrawerSelectedAgent) {
@@ -6416,10 +6443,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             setDrawerSelectedAgent(null)
           }
           setShowEmbedAllSetModal(true)
-          const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
-  height: 100vh; border: none; background: transparent; z-index: 
-  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
-  </iframe>`
+          const code = buildEmbedCode(
+            selectedAgentForEmbed
+              ? selectedAgentForEmbed?.modelIdVapi
+              : DEFAULT_ASSISTANT_ID,
+            buttonPosition || embedButtonPosition,
+          )
           setEmbedCode(code)
         }}
       />

@@ -717,6 +717,7 @@ function Page() {
   const [showEmbedAllSetModal, setShowEmbedAllSetModal] = useState(false)
   const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null)
   const [embedCode, setEmbedCode] = useState('')
+  const [embedButtonPosition, setEmbedButtonPosition] = useState('right-bottom')
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: SnackbarTypes.Success,
     message: '',
@@ -1135,6 +1136,24 @@ function Page() {
     setShowEmbedSmartListModal(true)
   }
 
+  const buildEmbedCode = (assistantId, buttonPosition = 'right-bottom') => {
+    const baseStyle =
+      'width: 320px; border: none; background: transparent; z-index: 9999; pointer-events: none;'
+
+    if (buttonPosition === 'left-bottom') {
+      return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; left: 0; height: 100vh; ${baseStyle}" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`
+    }
+
+    if (buttonPosition === 'inline') {
+      return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: static; display: inline-block; vertical-align: middle; width: 320px; height: 96px; max-width: 100%; border: none; background: transparent; z-index: auto; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`
+    }
+
+    return `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; height: 100vh; ${baseStyle}" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`
+  }
+
   const handleEmbedSmartListCreated = async (smartListData) => {
     // Note: AddSmartList API already attached the smartlist with agentType='embed'
     // Update local agent state so the modal shows correct state if reopened
@@ -1177,10 +1196,10 @@ function Page() {
     setShowEmbedSmartListModal(false)
     setShowEmbedAllSetModal(true)
     // Generate embed code here
-    const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
-  height: 100vh; border: none; background: transparent; z-index: 
-  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
-  </iframe>`
+    const code = buildEmbedCode(
+      selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID,
+      embedButtonPosition,
+    )
     setEmbedCode(code)
   }
 
@@ -4215,10 +4234,7 @@ function Page() {
         'Bring your AI agent to your website allowing them to engage with leads and customers',
       )
     } else {
-      const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
-  height: 100vh; border: none; background: transparent; z-index: 
-  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
-  </iframe>`
+      const iframeCode = buildEmbedCode(assistantId, embedButtonPosition)
 
       navigator.clipboard
         .writeText(iframeCode)
@@ -7285,7 +7301,12 @@ function Page() {
               selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
             }
             agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
-            onShowSmartList={handleShowEmbedSmartList}
+            onShowSmartList={(payload) => {
+              if (payload?.buttonPosition) {
+                setEmbedButtonPosition(payload.buttonPosition)
+              }
+              handleShowEmbedSmartList()
+            }}
             agent={selectedAgentForEmbed}
             onAgentUpdate={(updatedAgent) => {
               // Update the agent state when smartlist is attached
@@ -7308,13 +7329,18 @@ function Page() {
                 }
               }
             }}
-            onShowAllSet={() => {
+            onShowAllSet={({ buttonPosition } = {}) => {
+              if (buttonPosition) {
+                setEmbedButtonPosition(buttonPosition)
+              }
               setShowEmbedModal(false)
               setShowEmbedAllSetModal(true)
-              const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
-  height: 100vh; border: none; background: transparent; z-index: 
-  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
-  </iframe>`
+              const code = buildEmbedCode(
+                selectedAgentForEmbed
+                  ? selectedAgentForEmbed?.modelIdVapi
+                  : DEFAULT_ASSISTANT_ID,
+                buttonPosition || embedButtonPosition,
+              )
               setEmbedCode(code)
             }}
           />
