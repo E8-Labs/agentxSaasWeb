@@ -449,7 +449,6 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
     )
   }
 
-
   return (
     <div className="w-full">
       <Modal
@@ -613,7 +612,10 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                         </div>
                         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                           {selectedCall ? (
-                            <div className="h-[80vh] w-full min-h-0 overflow-hidden" style={{ scrollbarWidth: 'none' }}>
+                            <div
+                              className="h-[80vh] w-full min-h-0 overflow-hidden"
+                              style={{ scrollbarWidth: 'none' }}
+                            >
                               <LeadDetails
                                 showDetailsModal={true}
                                 selectedLead={selectedCall.id}
