@@ -255,16 +255,20 @@ export default function AgencyTemplatesList() {
         fetchTemplates()
       } else {
         const msg = res?.data?.message || 'Failed to create agent'
-        setAssignError(
-          isAgentLimitError(msg, res?.status) ? 'Subaccount agent limit reached' : msg,
-        )
+        if (isAgentLimitError(msg, res?.status)) {
+          toast.error('Subaccount agent limit reached')
+        } else {
+          setAssignError(msg)
+        }
       }
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Failed to create agent'
       const status = err?.response?.status
-      setAssignError(
-        isAgentLimitError(msg, status) ? 'Subaccount agent limit reached' : msg,
-      )
+      if (isAgentLimitError(msg, status)) {
+        toast.error('Subaccount agent limit reached')
+      } else {
+        setAssignError(msg)
+      }
     } finally {
       setAssignAgentLoading(false)
     }
@@ -752,16 +756,17 @@ export default function AgencyTemplatesList() {
                 Selecting both will create 2 agents.
               </Typography>
             </Box>
+            {assignError ? (
+              <Typography sx={{ color: '#b91c1c', fontSize: '0.875rem', mt: 0.75 }}>
+                {assignError}
+              </Typography>
+            ) : null}
           </Box>
           <Box sx={{ px: 2, flex: 1, minHeight: 0, overflow: 'auto' }}>
             {assignSubaccountsLoading ? (
               <Box display="flex" justifyContent="center" py={3}>
                 <CircularProgress size={32} sx={{ color: textSecondary }} />
               </Box>
-            ) : assignError ? (
-              <Typography sx={{ color: '#b91c1c', fontSize: '0.875rem', py: 1 }}>
-                {assignError}
-              </Typography>
             ) : assignSubaccounts.length === 0 ? (
               <Typography sx={{ color: textSecondary, fontSize: '0.875rem', py: 2 }}>
                 No subaccounts found.

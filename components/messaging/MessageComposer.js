@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt, CalendarBlank } from '@phosphor-icons/react'
+import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt, CalendarBlank, Sparkle } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot, Check, Link2, Loader2, MessageCircle } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
@@ -16,7 +16,6 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import DelconfirmationModal from '@/components/globalExtras/DelconfirmationModal'
 import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import Image from 'next/image'
@@ -49,6 +48,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import MessageSettingsModal from '@/components/messaging/MessageSettingsModal'
+import SocialCommentSmartReplyModal from '@/components/messaging/SocialCommentSmartReplyModal'
 import { format } from 'date-fns'
 import { CalendarIcon, Clock, ChevronDown } from 'lucide-react'
 
@@ -280,6 +280,7 @@ const MessageComposer = ({
   onSendSocialMessage,
   hasFacebookConnection = false,
   hasInstagramConnection = false,
+  socialConnections = [],
   currentPage = null,
   onConnectionSuccess,
   onOpenAuthPopup,
@@ -326,8 +327,9 @@ const MessageComposer = ({
   const [connectForm, setConnectForm] = useState({ externalId: '', accessToken: '', displayName: '' })
   const [connectSubmitting, setConnectSubmitting] = useState(false)
   const [connectingOAuth, setConnectingOAuth] = useState(false)
-  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [socialSettingsModalOpen, setSocialSettingsModalOpen] = useState(false)
+  const [smartReplyModalOpen, setSmartReplyModalOpen] = useState(false)
+  const [socialAccountPopoverOpen, setSocialAccountPopoverOpen] = useState(false)
 
   // Variables state
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -1383,6 +1385,24 @@ const MessageComposer = ({
   const isMessengerReply = selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid
   const showSocialComposer = false
 
+  const fbIgConnections = useMemo(
+    () =>
+      (socialConnections || []).filter(
+        (c) => c.platform === 'facebook' || c.platform === 'instagram',
+      ),
+    [socialConnections],
+  )
+
+  const selectedSocialRow = useMemo(() => {
+    const threadMeta =
+      selectedThread?.metadata?.instagramAccountId || selectedThread?.metadata?.facebookPageId
+    if (threadMeta && fbIgConnections.length) {
+      const m = fbIgConnections.find((c) => String(c.externalId) === String(threadMeta))
+      if (m) return m
+    }
+    return fbIgConnections[0] || null
+  }, [selectedThread, fbIgConnections])
+
   console.log("!HAS Facebook", hasFacebookConnection, "!has insta", hasInstagramConnection, "social sendable", sendableSocial, "isexpeded status", isExpanded, "can reply insta gran", canReplyInstagram, "linked social sendable", linkedSocialSendable)
 
   const handleSendSocial = async (e) => {
@@ -1513,7 +1533,8 @@ const MessageComposer = ({
     }
   }
 
-  const disconnectSocialOAuth = async (platform) => {
+  const disconnectSocialConnectionById = async (connectionId) => {
+    if (connectionId == null) return
     const localData = localStorage.getItem('User')
     if (!localData) {
       toast.error('Please sign in to disconnect')
@@ -1523,16 +1544,13 @@ const MessageComposer = ({
     const token = userData.token
     try {
       setConnectingOAuth(true)
-      let url = Apis.disconnectSocialConnection
-      const params = new URLSearchParams()
-      params.set('platform', platform)
-      if (selectedUser?.id) params.set('userId', String(selectedUser.id))
-      url += `?${params.toString()}`
-      const response = await axios.delete(url, {
+      let url = Apis.socialConnectionById(connectionId)
+      if (selectedUser?.id) url += `?userId=${encodeURIComponent(String(selectedUser.id))}`
+      await axios.delete(url, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
-      console.log("Disconnect Social Response is", response);
-      toast.success(platform === 'facebook' ? 'Facebook disconnected' : 'Instagram disconnected')
+      toast.success('Account disconnected')
+      setSocialAccountPopoverOpen(false)
       onConnectionSuccess?.()
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Could not disconnect')
@@ -1846,24 +1864,95 @@ const MessageComposer = ({
             {/* Messenger/Instagram expanded: RichTextEditor with formatting toolbar (no From/Subject/CC/BCC/Templates) */}
             {sendableSocial ? (
               <div className="mt-2">
-                <div className="mb-2  w-full flex flex-row items-center justify-between">
-                  <label className="text-sm font-semibold text-foreground">
-                    {/*isMessengerReply ? 'Send a DM' : 'Reply in Instagram'}*/}
-                    Send a DM
-                  </label>
-                  {
-                    hasFacebookConnection && (
+                <div className="mb-2 w-full flex flex-row flex-wrap items-center gap-y-2 gap-x-1 min-h-[40px]">
+                  <div className="flex min-w-[88px] flex-1 items-center">
+                    <span className="text-sm font-semibold text-foreground">Social DMs</span>
+                  </div>
+                  <div className="flex min-w-0 flex-1 justify-center px-1">
+                    {fbIgConnections.length > 0 ? (
+                      <Popover open={socialAccountPopoverOpen} onOpenChange={setSocialAccountPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className="flex max-w-full items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-2 py-1.5 text-sm hover:bg-black/[0.02]"
+                          >
+                            <img
+                              src={
+                                selectedSocialRow?.profileImageUrl
+                                  ? selectedSocialRow.profileImageUrl
+                                  : selectedSocialRow?.platform === 'instagram'
+                                    ? '/instagram.png'
+                                    : '/facebook.png'
+                              }
+                              width={24}
+                              height={24}
+                              alt=""
+                              className="shrink-0 rounded-full"
+                            />
+                            <span className="truncate">
+                              {selectedSocialRow?.displayName || currentPage?.displayName || 'Account'}
+                            </span>
+                            <CaretDown className="h-4 w-4 shrink-0 opacity-60" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[min(100vw-2rem,280px)] p-1" align="center">
+                          <div className="flex flex-col gap-0.5">
+                            {fbIgConnections.map((conn) => (
+                              <div
+                                key={conn.id}
+                                className="group flex items-center justify-between gap-2 rounded-md px-2 py-2 hover:bg-muted/80"
+                              >
+                                <div className="flex min-w-0 flex-1 items-center gap-2">
+                                  <img
+                                    src={
+                                      conn.profileImageUrl
+                                        ? conn.profileImageUrl
+                                        : conn.platform === 'instagram'
+                                          ? '/instagram.png'
+                                          : '/facebook.png'
+                                    }
+                                    width={28}
+                                    height={28}
+                                    alt=""
+                                    className="shrink-0 rounded-full"
+                                  />
+                                  <span className="truncate text-sm">
+                                    {conn.displayName || conn.externalId}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="shrink-0 rounded border border-transparent px-2 py-1 text-xs text-[hsl(var(--brand-primary))] opacity-0 transition-opacity group-hover:opacity-100 hover:border-[hsl(var(--brand-primary))]/30"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    disconnectSocialConnectionById(conn.id)
+                                  }}
+                                  disabled={connectingOAuth}
+                                >
+                                  Logout
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    ) : null}
+                  </div>
+                  <div className="flex min-w-[120px] flex-1 justify-end">
+                    {fbIgConnections.length > 0 ? (
                       <Button
                         type="button"
-                        className="w-fit h-[36px] rounded-lg bg-transparent text-black hover:bg-transparent flex flex-row items-center gap-2"
-                        onClick={() => setShowLogoutConfirmation(true)}
-                        disabled={connectingOAuth}
+                        variant="outline"
+                        size="sm"
+                        className="h-9 gap-1.5 rounded-lg border-black/[0.12] bg-white"
+                        onClick={() => setSmartReplyModalOpen(true)}
                       >
-                        {connectingOAuth ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <img src={currentPage?.profileImageUrl ? currentPage?.profileImageUrl : currentPage?.platform === "facebook" ? "/facebook.png" : currentPage?.platform === "instagram" ? "/instagram.png" : "/facebook.png"} width={23} height={23} alt="Facebook" className="rounded-full" />}
-                        Logout of {currentPage?.displayName ? currentPage?.displayName : currentPage?.platform === "facebook" ? "Facebook" : currentPage?.platform === "instagram" ? "Instagram" : "Facebook"}
+                        <Sparkle className="h-4 w-4 text-[hsl(var(--brand-primary))]" weight="fill" />
+                        <span>Smart Reply</span>
+                        <CaretDown className="h-3.5 w-3.5 opacity-50" />
                       </Button>
-                    )
-                  }
+                    ) : null}
+                  </div>
                 </div>
                 <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <RichTextEditor
@@ -3375,14 +3464,12 @@ const MessageComposer = ({
         </DialogContent>
       </Dialog>
 
-      {/* Logout Facebook/Instagram confirmation */}
-      <DelconfirmationModal
-        showConfirmationPopuup={showLogoutConfirmation}
-        setShowConfirmationPopup={setShowLogoutConfirmation}
-        onContinue={() => {
-          setShowLogoutConfirmation(false)
-          disconnectSocialOAuth('facebook')
-        }}
+      <SocialCommentSmartReplyModal
+        open={smartReplyModalOpen}
+        onClose={() => setSmartReplyModalOpen(false)}
+        selectedUser={selectedUser}
+        socialConnections={socialConnections}
+        onSaved={onConnectionSuccess}
       />
 
       {/* Templates dropdown rendered in portal so it is not clipped by overflow and does not affect layout */}

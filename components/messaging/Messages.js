@@ -4360,6 +4360,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         onSendSocialMessage={handleSendSocialMessage}
                         hasFacebookConnection={socialConnections.some((c) => c.platform === 'facebook')}
                         hasInstagramConnection={socialConnections.some((c) => c.platform === 'instagram')}
+                        socialConnections={socialConnections}
                         pageName={socialConnections[0]?.displayName}
                         currentPage={checkselectedThreadSocialConnection()}
                         onConnectionSuccess={fetchSocialConnections}
