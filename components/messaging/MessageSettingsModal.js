@@ -64,6 +64,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
     socialReplyDelaySeconds: 30,
     socialSaveAsDraftEnabled: false,
     socialSelectedAgentId: null,
+    metaLeadAdsSmartListId: null,
     communicationStyle: null,
     tailoringCommunication: null,
     sentenceStructure: null,
@@ -90,6 +91,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
   const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' | 'claude' for AI integration
   const [socialAgentsList, setSocialAgentsList] = useState([]) // flat list of { id, name, raw } for social agent dropdown
+  const [metaLeadSmartLists, setMetaLeadSmartLists] = useState([]) // Lead sheets for Meta Instant Form leads
 
   /** Normalize agentSettings from API: may be string (JSON) or object; always return object or null */
   const parseAgentSettings = (raw) => {
@@ -124,6 +126,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
       fetchSettings()
       fetchAiIntegrations()
       fetchSocialAgents()
+      fetchMetaLeadSmartLists()
       setIsEditingApiKey(false) // Reset editing state when modal opens
     }
   }, [open, selectedUser])
@@ -214,6 +217,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
           socialReplyDelaySeconds: data.socialReplyDelaySeconds ?? 30,
           socialSaveAsDraftEnabled: data.socialSaveAsDraftEnabled || false,
           socialSelectedAgentId: data.socialSelectedAgentId ?? null,
+          metaLeadAdsSmartListId: data.metaLeadAdsSmartListId ?? null,
           communicationStyle: data.communicationStyle ?? null,
           tailoringCommunication: data.tailoringCommunication ?? null,
           sentenceStructure: data.sentenceStructure ?? null,
@@ -299,6 +303,24 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
     } catch (error) {
       console.error('Error fetching AI integrations:', error)
       // Don't show error toast for this - it's optional
+    }
+  }
+
+  const fetchMetaLeadSmartLists = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const token = JSON.parse(localData).token
+      let url = `${Apis.BasePath}api/leads/getSheets`
+      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      const res = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+      const rows = res.data?.data
+      setMetaLeadSmartLists(Array.isArray(rows) ? rows : [])
+    } catch (e) {
+      console.error('fetchMetaLeadSmartLists', e)
+      setMetaLeadSmartLists([])
     }
   }
 
@@ -398,11 +420,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
             if (existingIntegrationId) {
               // Update existing integration for this provider (send only apiKey so provider is not overwritten)
               const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+              const updateBody = { apiKey: trimmedApiKey }
+              if (selectedUser?.id) updateBody.userId = selectedUser.id
               const updateResponse = await axios.put(
                 updateUrl,
-                {
-                  apiKey: trimmedApiKey,
-                },
+                updateBody,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
@@ -425,12 +447,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
             } else {
               // Create new integration
               const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
+              const createBody = {
+                provider: selectedProvider,
+                apiKey: trimmedApiKey,
+              }
+              if (selectedUser?.id) createBody.userId = selectedUser.id
               const createResponse = await axios.post(
                 createUrl,
-                {
-                  provider: selectedProvider,
-                  apiKey: trimmedApiKey,
-                },
+                createBody,
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
@@ -470,6 +494,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
           socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
           socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
           socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+          metaLeadAdsSmartListId: settings.metaLeadAdsSmartListId ?? null,
         }
         : {
           aiIntegrationId: integrationId || null,
@@ -480,6 +505,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
           socialReplyDelaySeconds: settings.socialReplyDelayEnabled ? settings.socialReplyDelaySeconds : null,
           socialSaveAsDraftEnabled: settings.socialSaveAsDraftEnabled,
           socialSelectedAgentId: settings.socialSelectedAgentId ?? null,
+          metaLeadAdsSmartListId: settings.metaLeadAdsSmartListId ?? null,
           communicationStyle: settings.communicationStyle ?? null,
           tailoringCommunication: settings.tailoringCommunication ?? null,
           sentenceStructure: settings.sentenceStructure ?? null,
@@ -1111,6 +1137,33 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                             <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
                           </div>
                         </div>
+                        <div className="flex flex-col gap-2 pt-4 border-t border-black/[0.06]">
+                          <h3 className="text-[14px] font-semibold text-foreground">Meta Lead Ads (Instant Forms)</h3>
+                          <p className="text-xs text-muted-foreground max-w-md">
+                            Submissions from Lead Ads on your Facebook Page are saved as leads in the smart list you choose.
+                          </p>
+                          <Select
+                            value={settings.metaLeadAdsSmartListId != null ? String(settings.metaLeadAdsSmartListId) : 'none'}
+                            onValueChange={(v) =>
+                              setSettings({
+                                ...settings,
+                                metaLeadAdsSmartListId: v === 'none' ? null : Number(v),
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue placeholder="Select smart list" />
+                            </SelectTrigger>
+                            <SelectContent className="z-[1500]">
+                              <SelectItem value="none">Not set</SelectItem>
+                              {metaLeadSmartLists.map((s) => (
+                                <SelectItem key={s.id} value={String(s.id)}>
+                                  {s.name || s.sheetName || `Smart list ${s.id}`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     ) : (
                       <>
@@ -1343,6 +1396,34 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                             </div>
                             <Switch checked={settings.socialSaveAsDraftEnabled} onCheckedChange={handleSocialSaveAsDraftToggle} className="data-[state=checked]:bg-brand-primary" />
                           </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2 pt-3 pb-4 border-b border-black/[0.06]">
+                          <h3 className="text-[14px] font-semibold text-foreground">Meta Lead Ads (Instant Forms)</h3>
+                          <p className="text-xs text-muted-foreground max-w-md">
+                            Submissions from Lead Ads on your Facebook Page are saved as leads in the smart list you choose.
+                          </p>
+                          <Select
+                            value={settings.metaLeadAdsSmartListId != null ? String(settings.metaLeadAdsSmartListId) : 'none'}
+                            onValueChange={(v) =>
+                              setSettings({
+                                ...settings,
+                                metaLeadAdsSmartListId: v === 'none' ? null : Number(v),
+                              })
+                            }
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue placeholder="Select smart list" />
+                            </SelectTrigger>
+                            <SelectContent className="z-[1500]">
+                              <SelectItem value="none">Not set</SelectItem>
+                              {metaLeadSmartLists.map((s) => (
+                                <SelectItem key={s.id} value={String(s.id)}>
+                                  {s.name || s.sheetName || `Smart list ${s.id}`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         {/* Communication Settings */}

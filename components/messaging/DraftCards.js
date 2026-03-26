@@ -42,7 +42,7 @@ const DraftCards = ({
     const typeLabel =
       messageType === 'email'
         ? 'Email'
-        : messageType === 'messenger' || messageType === 'instagram'
+        : messageType === 'messenger' || messageType === 'instagram' || messageType === 'whatsapp'
           ? 'DM'
           : 'Text'
     return `${typeLabel} Response ${draft.variantNumber || 1}`

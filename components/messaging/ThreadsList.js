@@ -591,7 +591,7 @@ const ThreadsList = ({
                             )
                           }
                           const sourceType = thread.threadType || getRecentMessageType(thread)
-                          if (sourceType === 'messenger' || sourceType === 'instagram') {    //sourceType === 'email' || || sourceType === 'sms'
+                          if (sourceType === 'messenger' || sourceType === 'instagram' || sourceType === 'whatsapp') {    //sourceType === 'email' || || sourceType === 'sms'
                             return <PlatformIcon type={sourceType} size={10} showInBadge />
                           }
                           {/*return (

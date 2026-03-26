@@ -436,7 +436,10 @@ const Apis = {
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
   getEmailCampaignStats: `${BasePath}api/user/messaging/email-campaign-stats`,
   socialConnections: `${BasePath}api/mail/social-connections`,
+  /** @param {string|number} id SocialChannelConnection id */
+  socialConnectionById: (id) => `${BasePath}api/mail/social-connections/${id}`,
   socialFacebookAuthorize: `${BasePath}api/mail/social/facebook/authorize`,
+  socialWhatsAppAuthorize: `${BasePath}api/mail/social/whatsapp/authorize`,
   disconnectSocialConnection: `${BasePath}api/mail/social-connections/all`,
 
   // AI Chat APIs

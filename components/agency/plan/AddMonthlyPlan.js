@@ -65,6 +65,8 @@ export default function AddMonthlyPlan({
 
   //plan passed is
   const [planPassed, setPlanPassed] = useState(null)
+  const [availableBasePlans, setAvailableBasePlans] = useState([])
+  const [inheritsFromPlanId, setInheritsFromPlanId] = useState('')
 
   //allowed features check mark list
   const [allowedFeatures, setAllowedFeatures] = useState([])
@@ -208,6 +210,7 @@ export default function AddMonthlyPlan({
       setTrialValidForDays('')
       setCreatePlanLoader(false)
       setPlanDuration('')
+      setInheritsFromPlanId('')
     }
     // If editing, don't reset - let the edit useEffect populate the fields
   }, [open, isEditPlan, selectedPlan])
@@ -216,6 +219,31 @@ export default function AddMonthlyPlan({
   useEffect(() => {
     setFeaturesData()
   }, [selectedPlan, configurationData, open])
+
+  useEffect(() => {
+    if (!open) return
+
+    const localPlans = localStorage.getItem('agencyMonthlyPlans')
+    if (!localPlans) {
+      setAvailableBasePlans([])
+      return
+    }
+
+    try {
+      const parsedPlans = JSON.parse(localPlans)
+      const plansList = Array.isArray(parsedPlans) ? parsedPlans : []
+      const filteredBasePlans = plansList.filter((plan) => {
+        if (!plan?.id) return false
+        if (isEditPlan && selectedPlan?.id && Number(plan.id) === Number(selectedPlan.id)) {
+          return false
+        }
+        return true
+      })
+      setAvailableBasePlans(filteredBasePlans)
+    } catch (error) {
+      setAvailableBasePlans([])
+    }
+  }, [open, isEditPlan, selectedPlan?.id])
 
   //check marks list of allowed features
   useEffect(() => {
@@ -320,6 +348,9 @@ export default function AddMonthlyPlan({
       if (basicsData?.planDuration) {
         setPlanDuration(basicsData?.planDuration)
       }
+      setInheritsFromPlanId(
+        basicsData?.inheritsFromPlanId ? String(basicsData.inheritsFromPlanId) : '',
+      )
     }
     // Fallback: if no basicsData but we have selectedPlan and isEditPlan, populate directly
     else if (selectedPlan && isEditPlan) {
@@ -358,6 +389,11 @@ export default function AddMonthlyPlan({
           selectedPlan?.duration || selectedPlan?.billingCycle || 'monthly',
         )
       }
+      setInheritsFromPlanId(
+        selectedPlan?.inheritsFromPlanId
+          ? String(selectedPlan.inheritsFromPlanId)
+          : '',
+      )
     }
   }, [selectedPlan, isEditPlan, basicsData])
 
@@ -525,6 +561,7 @@ export default function AddMonthlyPlan({
     setTrialValidForDays('')
     setCreatePlanLoader(false)
     setPlanDuration('')
+    setInheritsFromPlanId('')
   }
 
   //handle allow trial change
@@ -604,6 +641,7 @@ export default function AddMonthlyPlan({
       discountedPrice: discountedPrice,
       minutes: minutes,
       isDefault: isDefault,
+      inheritsFromPlanId: inheritsFromPlanId || null,
     }
     handleContinue(planData)
   }
@@ -938,6 +976,23 @@ export default function AddMonthlyPlan({
                         setDiscountedPrice(valid)
                       }}
                     />
+
+              {/*<label style={styles.labels}>Base Plan (Optional)</label>
+              <select
+                style={styles.inputs}
+                className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1 bg-white"
+                value={inheritsFromPlanId}
+                onChange={(e) => {
+                  setInheritsFromPlanId(e.target.value)
+                }}
+              >
+                <option value="">None</option>
+                {availableBasePlans.map((plan) => (
+                  <option key={plan.id} value={String(plan.id)}>
+                    {plan.title}
+                  </option>
+                ))}
+              </select>*/}
                   </div>
 
                   {/*minCostErr && (

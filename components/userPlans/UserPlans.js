@@ -25,7 +25,12 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import FeatureLine from './FeatureLine'
 import FitText from './FitText'
-import { getFeatureDisplayText, reorderPlanFeatures } from '../plan/PlansUtilities'
+import {
+  getDisplayFeaturesForPlan,
+  getFeatureDisplayText,
+  getInheritedPlanTitle,
+  reorderPlanFeatures,
+} from '../plan/PlansUtilities'
 import UpgradePlan from './UpgradePlan'
 import UserAddCard from './UserAddCardModal'
 import { getSubscribeApiConfig, getUserLocalData, getUserPlans } from './UserPlanServices'
