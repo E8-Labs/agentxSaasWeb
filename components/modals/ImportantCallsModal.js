@@ -82,6 +82,7 @@ import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { cn } from '@/lib/utils'
 
 const styles = {
   modalsStyle: {
@@ -122,6 +123,8 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
 
   const [importantCalls, setImportantCalls] = useState([])
   const [selectedCall, setSelectedCall] = useState('')
+  /** Agent-stats list row id (API call id) — distinct from lead id so multiple calls per lead show one active card */
+  const [selectedAgentStatCallId, setSelectedAgentStatCallId] = useState(null)
   const [initialLoader, setInitialLoader] = useState(false)
 
   // Agent stats by type (Calls / Convos / Booked / Hot Leads)
@@ -224,6 +227,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
           setAgentStatsCalls(newCalls)
           setAgentStatsOffset(agentStatsLimit)
           setSelectedCall(newCalls[0]?.LeadModel ?? null)
+          setSelectedAgentStatCallId(newCalls[0]?.id ?? null)
         } else {
           setAgentStatsCalls((prev) => [...prev, ...newCalls])
           setAgentStatsOffset((prev) => prev + agentStatsLimit)
@@ -234,6 +238,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
           setAgentStatsCalls([])
           setAgentStatsTotal(0)
           setSelectedCall(null)
+          setSelectedAgentStatCallId(null)
         }
       }
     } catch (err) {
@@ -241,6 +246,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
         setAgentStatsCalls([])
         setAgentStatsTotal(0)
         setSelectedCall(null)
+        setSelectedAgentStatCallId(null)
       }
     } finally {
       setAgentStatsLoading(false)
@@ -503,18 +509,14 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                         {AGENT_STATS_EMPTY[type] || 'No data found.'}
                       </div>
                     ) : (
-                      <div className="w-full flex flex-row items-start justify-between h-[100%] min-h-full">
+                      <div className="flex h-full min-h-0 w-full flex-row items-stretch justify-between">
                         <div
                           ref={listScrollContainerRef}
-                          // className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
-                          className="w-4/12 min-w-[300px] px-3 flex flex-col overflow-auto h-[100%] border-r border-[#eaeaea]"
+                          className="flex h-[100%] min-h-0 w-[min(380px,38vw)] min-w-[320px] max-w-[420px] shrink-0 flex-col gap-2 overflow-auto border-r border-border px-3 py-3"
                           style={{ scrollbarWidth: 'none' }}
                         >
-                          {agentStatsCalls.map((call, index) => {
+                          {agentStatsCalls.map((call) => {
                             const lead = call.LeadModel
-                            const leadName = lead
-                              ? [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.email || 'Unknown'
-                              : 'Unknown'
                             const durationStr =
                               call.duration != null
                                 ? moment.utc(call.duration * 1000).format('mm:ss')
@@ -522,60 +524,78 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                             const dateStr = call.createdAt
                               ? moment(call.createdAt).format('MMM D, YYYY h:mm A')
                               : '-'
-                            const isSelected = selectedCall?.id === lead?.id
+                            const isSelected = selectedAgentStatCallId === call.id
+                            const email = lead?.email || ''
+                            const emailDisplay =
+                              email.length > 36 ? `${email.slice(0, 36)}…` : email
                             return (
                               <button
+                                type="button"
                                 key={call.id}
-                                onClick={() => setSelectedCall(lead || null)}
-                                className="w-full p-3 flex flex-col gap-2 border rounded-lg mt-5 text-left"
-                                style={{
-                                  borderWidth: 1,
-                                  borderColor: isSelected ? primaryColor : '#eaeaea',
+                                onClick={() => {
+                                  setSelectedCall(lead || null)
+                                  setSelectedAgentStatCallId(call.id)
                                 }}
+                                className={cn(
+                                  'flex w-full flex-col gap-2 rounded-lg border p-3 text-left transition-colors duration-150 outline-none',
+                                  'focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2',
+                                  isSelected
+                                    ? 'border-2 border-brand-primary bg-brand-primary/5 shadow-sm'
+                                    : 'border border-border bg-background hover:bg-muted/50 active:bg-muted/70',
+                                )}
                               >
-                                <div className="w-full flex flex-row justify-between items-center">
-                                  <div className="flex flex-col gap-2 items-start w-full">
-                                    <div className="flex flex-row gap-2 items-center">
-                                      <div
-                                        className="h-[32px] w-[32px] items-center justify-center text-center pt-[2px] rounded-full bg-black text-white flex flex-shrink-0"
-                                        style={{ fontSize: 15, fontWeight: '500' }}
-                                      >
-                                        {(lead?.firstName || '?')[0]}
+                                <div className="flex w-full flex-row items-start gap-3">
+                                  <div
+                                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-foreground text-background"
+                                    style={{ fontSize: 14, fontWeight: 600 }}
+                                    aria-hidden
+                                  >
+                                    {(lead?.firstName || '?')[0]}
+                                  </div>
+
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex w-full items-start justify-between gap-3">
+                                      <div className="min-w-0 flex-1">
+                                        <div
+                                          className="truncate text-sm font-semibold text-foreground"
+                                          title={lead?.firstName || 'Unknown'}
+                                        >
+                                          {lead?.firstName || 'Unknown'}
+                                        </div>
+
+                                        <div
+                                          className="mt-1 min-w-0 truncate text-xs font-medium text-muted-foreground"
+                                          title={email || undefined}
+                                        >
+                                          {emailDisplay || '—'}
+                                        </div>
                                       </div>
-                                      <div style={{ fontSize: 14, fontWeight: '500', color: 'rgba(0,0,0,0.8)' }}>
-                                        {lead?.firstName || 'Unknown'}
+
+                                      <div className="flex shrink-0 flex-col items-end gap-1">
+                                        <div
+                                          className="max-w-[140px] truncate text-xs font-semibold text-brand-primary"
+                                          title={call.PipelineStages?.stageTitle || undefined}
+                                        >
+                                          {call.PipelineStages?.stageTitle || '-'}
+                                        </div>
+                                        <div
+                                          className="max-w-[140px] truncate text-[12px] font-semibold text-muted-foreground"
+                                          title={call.agent?.name || undefined}
+                                        >
+                                          {call.agent?.name || '-'}
+                                        </div>
                                       </div>
                                     </div>
-                                    <div
-                                      className="min-w-0 flex-1"
-                                      style={{
-                                        fontSize: 14,
-                                        fontWeight: '500',
-                                        color: 'rgba(0,0,0,0.8)',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        maxWidth: 200,
-                                      }}
-                                    >
-                                      {(lead?.email || '').slice(0, 24)}
-                                      {(lead?.email || '').length > 24 ? '...' : ''}
+
+                                    <div className="mt-2 flex w-full items-center justify-between text-xs text-muted-foreground">
+                                      <span className="min-w-0 truncate" title={dateStr}>
+                                        {dateStr}
+                                      </span>
+                                      <span className="shrink-0 font-semibold text-foreground/80">
+                                        {durationStr}
+                                      </span>
                                     </div>
                                   </div>
-                                  <div className="flex flex-col gap-2 items-end">
-                                    <div style={{ fontSize: 13, fontWeight: '600', color: primaryColor }}>
-                                      {call.agent?.name || '-'}
-                                    </div>
-                                    <div
-                                      style={{
-                                        fontSize: 13,
-                                        fontWeight: '600',
-                                        color: "black", //primaryColor
-                                        textTransform: 'capitalize',
-                                      }}>{call.PipelineStages?.stageTitle || '-'}</div>
-                                  </div>
-                                </div>
-                                <div className="text-[14px]" style={{ color: 'rgba(0,0,0,0.8)' }}>
-                                  {dateStr} · {durationStr}
                                 </div>
                               </button>
                             )
@@ -591,9 +611,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                             </div>
                           )}
                         </div>
-                        <div className="w-8/12 flex flex-col">
+                        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                           {selectedCall ? (
-                            <div className="w-full h-[80vh] overflow-hidden" style={{ scrollbarWidth: 'none' }}>
+                            <div className="h-[80vh] w-full min-h-0 overflow-hidden" style={{ scrollbarWidth: 'none' }}>
                               <LeadDetails
                                 showDetailsModal={true}
                                 selectedLead={selectedCall.id}
@@ -604,6 +624,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                                     const next = prev.filter((c) => c.LeadModel?.id !== deletedLead.id)
                                     if (selectedCall?.id === deletedLead.id) {
                                       setSelectedCall(next[0]?.LeadModel ?? null)
+                                      setSelectedAgentStatCallId(next[0]?.id ?? null)
                                     }
                                     return next
                                   })
