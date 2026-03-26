@@ -246,7 +246,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   }, [selectedThread, fetchMessageSettingsHasAiKey])
 
   const handleSocialAgentSaved = useCallback(
-    async (agentId) => {
+    async (agentId, settingsChannel = 'social') => {
       try {
         const localData = localStorage.getItem('User')
         if (!localData) return
@@ -256,10 +256,19 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (selectedUser?.id) url += `?userId=${selectedUser.id}`
         await axios.put(
           url,
-          { socialSelectedAgentId: agentId == null || agentId === '' ? null : Number(agentId) },
+          {
+            [settingsChannel === 'whatsapp' ? 'whatsappSelectedAgentId' : 'socialSelectedAgentId']:
+              agentId == null || agentId === '' ? null : Number(agentId),
+          },
           { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
         )
-        setMessageSettings((prev) => ({ ...(prev || {}), socialSelectedAgentId: agentId == null || agentId === '' ? null : Number(agentId) }))
+        const normalizedAgentId = agentId == null || agentId === '' ? null : Number(agentId)
+        setMessageSettings((prev) => ({
+          ...(prev || {}),
+          ...(settingsChannel === 'whatsapp'
+            ? { whatsappSelectedAgentId: normalizedAgentId }
+            : { socialSelectedAgentId: normalizedAgentId }),
+        }))
       } catch (err) {
         console.error('Error saving social agent:', err)
       }
@@ -4226,6 +4235,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                       selectedThread={selectedThread}
                       composerMode={composerMode}
                       socialSelectedAgentId={messageSettings?.socialSelectedAgentId ?? null}
+                      whatsappSelectedAgentId={messageSettings?.whatsappSelectedAgentId ?? null}
                       onSocialAgentSaved={handleSocialAgentSaved}
                       getRecentMessageType={getRecentMessageType}
                       formatUnreadCount={formatUnreadCount}
