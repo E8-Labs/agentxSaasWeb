@@ -416,10 +416,8 @@ const GuardianSetting = ({
                   </div>
                 </div>
                 {isExpanded && (
-                  <div className="flex flex-row items-start justify-between gap-3 bg-black/[0.02] p-2 px-3 mt-3">
-                    <div
-                      style={{ fontSize: '14px', fontWeight: 400 }}
-                    >
+                  <div className="flex flex-row items-start justify-between gap-3 rounded-[10px] bg-black/[0.02] px-3 py-3 mt-3">
+                    <div className="text-[14px] font-normal leading-[1.6] text-black/80">
                       {item.description}
                     </div>
                     <button
@@ -428,7 +426,7 @@ const GuardianSetting = ({
                       onClick={(event) => {
                         handleClick(event, item)
                       }}
-                      className="flex items-center justify-center w-6 h-6 flex-shrink-0"
+                      className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out flex-shrink-0"
                     >
                       <MoreHorizontal size={16} />
                     </button>
@@ -461,7 +459,7 @@ const GuardianSetting = ({
                             onClick={() => {
                               setShowEditPopup(true)
                             }}
-                            className="text-start"
+                            className="text-start text-[14px] font-medium text-black/80 hover:text-black transition-colors duration-150"
                             style={{
                               fontsize: 15,
                               fontWeight: '500',
@@ -480,7 +478,7 @@ const GuardianSetting = ({
                             onClick={() => {
                               handleDelGuadrail()
                             }}
-                            className="text-red text-start"
+                            className="text-red text-start text-[14px] font-medium hover:opacity-90 transition-opacity duration-150"
                             style={{
                               fontsize: 15,
                               fontWeight: '500',
@@ -550,8 +548,7 @@ const GuardianSetting = ({
 
       {!showTitle && (
         <button
-          className="text-brand-primary mt-4 outline-none"
-          style={{ fontWeight: '700', fontSize: 16 }}
+          className="text-brand-primary mt-4 underline outline-none text-[14px] font-medium"
           onClick={() => setShowAddObjForm(true)}
         >
           Add New

@@ -866,8 +866,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
   const styles = {
     headingStyle: {
-      fontSize: 16,
-      fontWeight: '700',
+      fontSize: 14,
+      fontWeight: '400',
     },
     inputStyle: {
       fontSize: 15,
@@ -892,152 +892,99 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   }
 
   return (
-    <div
-      style={{ width: '100%' }}
-      className="overflow-y-none flex flex-row justify-center items-center"
-    >
+    <div className="relative flex min-h-[100svh] w-full flex-col bg-[#f9f9f9]">
       <AgentSelectSnackMessage
         isVisible={isErrorVisible}
         hide={() => setIsErrorVisible(false)}
         message={errorMessage}
         type={errorType}
       />
-      <div className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
-        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
-          {/* header with title centered vertically */}
-          <div className="absolute top-0 left-0 right-0">
-            <Header />
-          </div>
-          {/* Body */}
-          {/* Code for side video */}
-          <div
-            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px] "
-            style={{
-              position: 'absolute',
-              // left: "18%",
-              // translate: "-50%",
-              // left: "14%",
-              top: '30%',
-              // backgroundColor: "red"
-            }}
-          >
-            <VideoCard
-              duration={(() => {
-                const tutorial = getTutorialByType(HowToVideoTypes.Script)
-                return tutorial?.description || '13:56'
-              })()}
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal(true)
-              }}
-              title={
-                getTutorialByType(HowToVideoTypes.Script)?.title ||
-                'Learn about creating a script'
-              }
-              videoUrl={
-                getVideoUrlByType(HowToVideoTypes.Script) ||
-                HowtoVideos.script
-              }
-            />
-          </div>
-          <div
-            ref={containerRef}
-            className="flex flex-col items-center px-4 w-full"
-            style={{
-              scrollbarWidth: 'none',
-            }}
-          >
-            <IntroVideoModal
-              open={introVideoModal}
-              onClose={() => setIntroVideoModal(false)}
-              videoTitle={
-                getTutorialByType(HowToVideoTypes.Script)?.title ||
-                'Learn about creating a script'
-              }
-              videoUrl={
-                getVideoUrlByType(HowToVideoTypes.Script) ||
-                HowtoVideos.script
-              }
-            />
-            <div className="w-7/12 gap-4 flex flex-col mt-4">
-              <div
-                className="md:text-4xl text-lg font-[700] w-full text-center"
-                style={{
-                  // top: showOrb ? 'calc(50% + 45px)' : '50%',
-                  // transform: 'translate(-50%, -50%)',
-                  zIndex: 50,
-                  // pointerEvents: 'none',
-                }}
-              >
-                Create a Script
-              </div>
-              <div className="bg-[#00000012] p-4">
-                <div
-                  style={styles.inputStyle}
-                  className="flex flex-row items-center gap-2"
-                >
-                  <Image
-                    src={'/svgIcons/lightBulb.svg'}
-                    alt="*"
-                    height={24}
-                    width={24}
-                  />{' '}
-                  Editing Tips
-                </div>
-                <div
-                  style={styles.inputStyle}
-                  className="flex flex-row flex-wrap gap-2"
-                >
-                  <div>You can use these variables:</div>
-                  {/* <div className='flex flex-row items-center gap-2'> */}
-                  <div
-                    style={{ width: 'fit-content' }}
-                    className="text-brand-primary flex flex-row gap-2"
-                  >
-                    {`{First Name}`}, {`{Email}`}, {`{Address}`},{`{Phone}`},
-                    {`{Kyc}`}{' '}
-                  </div>
+      <div className="sticky top-0 z-40 shrink-0 bg-[#f9f9f9]">
+        <Header variant="createAgentToolbar" />
+      </div>
 
-                  {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
-                    <div className="flex flex-row flex-wrap gap-2">
-                      {uniqueColumns.map((item, index) => (
-                        <div
-                          key={index}
-                          className="flex flex-row items-center gap-2 text-brand-primary"
-                        >
-                          {`{${item}}`},
-                        </div>
-                      ))}
-                      <button
-                        className="text-brand-primary outline-none"
-                        onClick={handleShowUniqueCols}
-                      >
-                        show less
-                      </button>
+      <IntroVideoModal
+        open={introVideoModal}
+        onClose={() => setIntroVideoModal(false)}
+        videoTitle={
+          getTutorialByType(HowToVideoTypes.Script)?.title ||
+          'Learn about creating a script'
+        }
+        videoUrl={
+          getVideoUrlByType(HowToVideoTypes.Script) ||
+          HowtoVideos.script
+        }
+      />
+
+      <div
+        ref={containerRef}
+        className="firecrawl-scrollbar flex-1 overflow-y-auto"
+      >
+        <div className="mx-auto flex w-full max-w-[600px] flex-col items-center gap-3 p-6">
+          <div
+            className="w-full text-center text-[22px] font-semibold leading-[30px] tracking-[-0.77px] text-black"
+            style={{ zIndex: 50 }}
+          >
+            Create a Script
+          </div>
+          <div className="w-full text-center text-[14px] font-normal leading-[1.6] text-[#666]">
+            {AgentDetails?.name} Script
+          </div>
+
+          <div className="w-full flex flex-col gap-4 pt-3 pb-6">
+              <div
+                className="w-full"
+              >
+                <div className="w-full bg-[rgba(234,226,255,0.4)] border-l-2 border-[#7804df] px-4 py-3 flex flex-row gap-3 items-start">
+                  <div className="shrink-0 rounded-[6px] bg-[#7804df] p-1">
+                    <Image
+                      src={'/svgIcons/lightBulb.svg'}
+                      alt="*"
+                      height={16}
+                      width={16}
+                      style={{ filter: 'brightness(0) invert(1)' }}
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col gap-1 min-w-0">
+                    <div className="text-[14px] font-medium text-[#7804df]">
+                      Editing tips
                     </div>
-                  ) : (
-                    <div>
+                    <div className="text-[14px] font-normal leading-[1.6] text-black">
+                      <span>You can use variables:&nbsp;</span>
+                      <span className="text-brand-primary">
+                        {`{First Name}`}, {`{Email}`}, {`{Address}`},{`{Phone}`},{`{Kyc}`}{' '}
+                      </span>
                       {uniqueColumns.length > 0 && (
-                        <button
-                          className="text-brand-primary flex flex-row items-center font-bold outline-none"
-                          onClick={() => {
-                            handleShowUniqueCols()
-                          }}
-                        >
-                          <Plus
-                            weight="bold"
-                            size={15}
-                            style={{
-                              strokeWidth: 40, // Adjust as needed
-                            }}
-                          />
-                          {uniqueColumns.length}
-                        </button>
+                        <>
+                          {showMoreUniqueColumns ? (
+                            <span className="text-brand-primary">
+                              {uniqueColumns.map((item) => ` {${item}},`)}
+                              <button
+                                className="ml-1 text-brand-primary underline decoration-solid"
+                                onClick={handleShowUniqueCols}
+                                type="button"
+                              >
+                                show less
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              className="ml-1 inline-flex items-center text-brand-primary underline decoration-solid"
+                              onClick={handleShowUniqueCols}
+                              type="button"
+                            >
+                              <Plus
+                                weight="bold"
+                                size={15}
+                                style={{ strokeWidth: 40 }}
+                              />
+                              {uniqueColumns.length} more
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
-                  )}
-
-                  {/* </div> */}
+                  </div>
                 </div>
               </div>
               {/* <div>
@@ -1059,21 +1006,11 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   </div>
                 </button>
               </div> */}
-              <div
-                style={{ fontSize: 24, fontWeight: '700' }}
-                className="flex flex-row items-center center w-full"
-              >
-                <div>{AgentDetails?.name} Script</div>
-              </div>
               <div className="flex flex-row items-center justify-between w-full">
                 <div style={styles.headingStyle} className="">Greeting</div>
                 <div className="">
                   <button
-                    className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
-                    style={{
-                      fontWeight: '500',
-                      fontSize: 15,
-                    }}
+                    className="flex flex-row items-center gap-2 text-[14px] font-normal leading-[1.6] text-brand-primary underline decoration-solid"
                     onClick={() => {
                       const scriptBuilderUrl =
                         user?.user?.agencySettings?.scriptWidgetUrl ||
@@ -1083,7 +1020,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     }}
                   >
                     Use {user?.user?.agencySettings?.scriptWidgetTitle ?? user?.user?.userSettings?.scriptWidgetTitle ?? 'Script Builder'}
-                    <ArrowUpRight size={20} color="white" />
+                    <ArrowUpRight size={16} className="text-brand-primary" />
                   </button>
                 </div>
               </div>
@@ -1107,15 +1044,11 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
               {/* <GreetingTag handleGreetingTag={handleGreetingTag} /> */}
             </div>
-            <div className="w-7/12 mt-4">
+            <div className="w-full pt-2">
               <div className="flex flex-row items-center justify-between w-full">
                 <div style={styles.headingStyle}>Call Script</div>
                 <button
-                  className="text-brand-primary underline"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: '700',
-                  }}
+                  className="text-[14px] font-normal leading-[1.6] text-brand-primary underline decoration-solid"
                   onClick={() => {
                     setAdvancedSettingModal(true)
                   }}
@@ -1123,22 +1056,25 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   Advanced Settings
                 </button>
               </div>
-              <div className="mt-6">
+              <div className="mt-2">
                 {loadingAgentDetails ? (
                   <ScriptLoader height={100} />
                 ) : (
-                  <PromptTagInput
-                    promptTag={scriptTagInput}
-                    kycsList={kycsData}
-                    tagValue={setScriptTagInput}
-                    scrollOffset={scrollOffset}
-                    uniqueColumns={uniqueColumns}
-                  />
+                  <div className="h-[394px] w-full">
+                    <PromptTagInput
+                      promptTag={scriptTagInput}
+                      kycsList={kycsData}
+                      tagValue={setScriptTagInput}
+                      scrollOffset={scrollOffset}
+                      uniqueColumns={uniqueColumns}
+                      fillHeight
+                    />
+                  </div>
                 )}
                 {/* <DynamicDropdown /> */}
               </div>
             </div>
-            <div className="w-7/12 mt-4">
+            <div className="w-full mt-2">
               <div className="flex flex-row justify-end mt-4"></div>
               {/*<KYCs kycsDetails={setKycsData} user={user} />*/}
               {/* <div className='mt-4' style={styles.headingStyle}>
@@ -1186,179 +1122,162 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                                     )
                                 }
                             </div> */}
-            </div>
           </div>
         </div>
+      </div>
 
-        {/* Modals code goes here */}
-        <Modal
-          open={advancedSettingModal}
-          onClose={() => {
-            handleCloseAdvanceSettings()
-          }}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: '#00000020',
-              // //backdropFilter: "blur(20px)",
-            },
-          }}
-        >
-          <Box className="lg:w-5/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: '#ffffff',
-                  padding: 20,
-                  borderRadius: '13px',
-                }}
+      {/* Floating help video (matches Figma placement) */}
+      <div className="fixed bottom-[105px] right-8 z-50 hidden md:block">
+        <VideoCard
+          duration={(() => {
+            const tutorial = getTutorialByType(HowToVideoTypes.Script)
+            return tutorial?.description || '13:56'
+          })()}
+          horizontal
+          playVideo={() => setIntroVideoModal(true)}
+          title={
+            getTutorialByType(HowToVideoTypes.Script)?.title ||
+            'Learn about creating a script'
+          }
+          videoUrl={getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script}
+          hideCta
+          className="w-[288px] rounded-[8px] border-transparent p-2 shadow-[0px_7px_147.2px_0px_rgba(0,0,0,0.06)]"
+        />
+      </div>
+
+      {/* Modals code goes here */}
+      <Modal
+        open={advancedSettingModal}
+        onClose={() => {
+          handleCloseAdvanceSettings()
+        }}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 250,
+          sx: {
+            backgroundColor: '#00000099',
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="w-[650px] max-w-[90vw]" sx={styles.modalsStyle}>
+          <div
+            className="w-full max-h-[90vh] flex flex-col overflow-hidden rounded-[12px] bg-white"
+            style={{
+              boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #eaeaea',
+            }}
+          >
+            {/* Header */}
+            <div
+              className="flex flex-row items-center justify-between px-5 py-4"
+              style={{ borderBottom: '1px solid #eaeaea' }}
+            >
+              <div className="text-[16px] font-semibold text-black">
+                Advanced Settings
+              </div>
+              <button
+                type="button"
+                className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
+                onClick={handleCloseAdvanceSettings}
+                aria-label="Close"
               >
-                <div className="flex flex-row justify-end">
-                  <button
-                    onClick={() => {
-                      handleCloseAdvanceSettings()
-                    }}
-                  >
-                    <Image
-                      src={'/assets/crossIcon.png'}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-                <div
-                  className="text-center mt-2"
-                  style={{ fontWeight: '700', fontSize: 24 }}
-                >
-                  Advanced Settings
-                </div>
+                <Image src={'/assets/crossIcon.png'} height={20} width={20} alt="Close" />
+              </button>
+            </div>
 
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex flex-row items-center gap-8 mt-10">
-                    {advanceSettingType.map((item, index) => (
-                      <button
-                        key={item.id}
-                        style={{
-                          ...styles.inputStyle,
-                          color:
-                            item.id === settingToggleClick
-                              ? 'hsl(var(--brand-primary))'
-                              : '',
-                          // marginLeft: item.id === 2 ? 10 : 0,
-                          borderBottom:
-                            item.id === settingToggleClick
-                              ? '2px solid hsl(var(--brand-primary))'
-                              : '2px solid transparent',
-                          paddingBottom: '8px',
-                        }}
-                        onClick={(e) => {
-                          handleAdvanceSettingToggleClick(item.id)
-                        }}
-                      >
-                        {item.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="w-full">
-                  {settingToggleClick === 1 ? (
-                    <div>
-                      {/* <textarea
-                        className="outline-none rounded-xl focus:ring-0"
-                        // ref={objective}
-                        value={objective}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // if (value !== oldObjective) {
-                          //   setShowObjectionsSaveBtn(true);
-                          // }
-                          // if (value === oldObjective) {
-                          //   setShowObjectionsSaveBtn(false);
-                          // }
-
-                          setObjective(value);
-                        }}
-                        placeholder="Add Objective"
-                        style={{
-                          fontSize: "15px",
-                          padding: "15px",
-                          width: "100%",
-                          fontWeight: "500",
-                          height: "50vh", // Initial height
-                          maxHeight: "80vh", // Maximum height before scrolling
-                          overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
-                          resize: "none", // Disable manual resizing
-                          border: "1px solid #00000020",
-                        }}
-                      /> */}
-
-                      <div className="mt-4 w-full">
-                        <PromptTagInput
-                          promptTag={objective}
-                          kycsList={kycsData}
-                          uniqueColumns={uniqueColumns}
-                          tagValue={setObjective}
-                          scrollOffset={scrollOffset}
-                        // showSaveChangesBtn={showSaveChangesBtn}
-                        />
-
-                        {/* <DynamicDropdown /> */}
-                      </div>
-                    </div>
-                  ) : settingToggleClick === 2 ? (
-                    <GuardianSetting
-                      kycsData={kycsData}
-                      uniqueColumns={uniqueColumns}
-                    />
-                  ) : settingToggleClick === 3 ? (
-                    <Objection
-                      kycsData={kycsData}
-                      uniqueColumns={uniqueColumns}
-                    />
-                  ) : settingToggleClick === 4 ? (
-                    <div
-                      style={{
-                        maxHeight: '50vh',
-                        overflow: 'auto',
-                        scrollbarWidth: 'none',
-                        backgroundColor: '',
-                      }}
+            {/* Tabs */}
+            <div className="px-5 pt-4">
+              <div className="flex flex-row items-center gap-6 border-b border-[#eaeaea]">
+                {advanceSettingType.map((item) => {
+                  const isActive = item.id === settingToggleClick
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={
+                        isActive
+                          ? 'relative -mb-px pb-3 text-[14px] font-medium text-brand-primary outline-none border-b-2 border-brand-primary'
+                          : 'relative -mb-px pb-3 text-[14px] font-medium text-black/70 hover:text-black outline-none border-b-2 border-transparent focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:rounded-md'
+                      }
+                      onClick={() => handleAdvanceSettingToggleClick(item.id)}
                     >
-                      <KYCs
-                        kycsDetails={setKycsData}
-                        mainAgentId={AgentDetails?.id}
-                        user={user && user}
-                      />
-                    </div>
-                  ) : (
-                    ''
-                  )}
-                </div>
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                      {item.title}
+                    </button>
+                  )
+                })}
               </div>
             </div>
-          </Box>
-        </Modal>
 
-        {/* Modal for video */}
+            {/* Body */}
+            <div className="firecrawl-scrollbar flex-1 overflow-auto px-5 py-5">
+              {settingToggleClick === 1 ? (
+                <div className="w-full">
+                  <div className="mb-2 text-[13px] font-medium text-black/70">
+                    Objective
+                  </div>
+                  <PromptTagInput
+                    promptTag={objective}
+                    kycsList={kycsData}
+                    uniqueColumns={uniqueColumns}
+                    tagValue={setObjective}
+                    scrollOffset={scrollOffset}
+                    fillHeight
+                  />
+                </div>
+              ) : settingToggleClick === 2 ? (
+                <GuardianSetting kycsData={kycsData} uniqueColumns={uniqueColumns} />
+              ) : settingToggleClick === 3 ? (
+                <Objection kycsData={kycsData} uniqueColumns={uniqueColumns} />
+              ) : settingToggleClick === 4 ? (
+                <KYCs
+                  kycsDetails={setKycsData}
+                  mainAgentId={AgentDetails?.id}
+                  user={user && user}
+                />
+              ) : null}
+            </div>
 
-        {/* Fixed Footer */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
-          <div className="px-4 pt-3 pb-2">
+            {/* Footer */}
+            <div
+              className="flex flex-row items-center justify-end gap-2 px-5 py-4"
+              style={{ borderTop: '1px solid #eaeaea' }}
+            >
+              <button
+                type="button"
+                className="h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]"
+                onClick={handleCloseAdvanceSettings}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Fixed Footer */}
+      <div className="sticky bottom-0 left-0 right-0 z-40 bg-[#f9f9f9]">
+        <div className="border-t border-[rgba(21,21,21,0.1)]">
+          <div className="h-[4px] w-full">
             <ProgressBar value={100} />
           </div>
-          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
-            <Footer
-              handleContinue={handleNextClick}
-              handleBack={handleBack}
-              registerLoader={loader}
-            />
+          <div className="flex h-[65px] w-full items-center justify-between px-8">
+            <button
+              type="button"
+              className="rounded-[8px] bg-[#efefef] px-4 py-[7.5px] text-[14px] font-normal tracking-[0.07px] text-[#0f172a]"
+              onClick={handleBack}
+            >
+              Back
+            </button>
+
+            <button
+              type="button"
+              className="rounded-[8px] bg-brand-primary px-4 py-[7.5px] text-[14px] font-semibold tracking-[0.07px] text-white disabled:bg-black/10 disabled:text-black"
+              onClick={handleNextClick}
+              disabled={!!loader}
+            >
+              {loader ? 'Loading…' : 'Continue'}
+            </button>
           </div>
         </div>
       </div>

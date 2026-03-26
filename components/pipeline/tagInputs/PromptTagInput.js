@@ -441,14 +441,13 @@ export const PromptTagInput = ({
   return (
     <div className={fillHeight ? 'h-full flex flex-col min-h-0' : ''} style={{ position: 'relative' }}>
       <div
-        className={`flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0 px-[2px] ${fillHeight ? 'flex-1 min-h-0 flex flex-col' : ''}`}
+        className={`relative flex w-full flex-row items-start gap-2 rounded-[8px] border-[0.5px] border-black/10 bg-white p-[10px] outline-none ${fillHeight ? 'flex-1 min-h-0 flex flex-col' : ''}`}
         style={{
-          border: '1px solid #00000020',
           paddingRight: '10px',
         }}
       >
         <textarea
-          className={`outline-none rounded-xl focus:ring-0 border-none w-full min-h-[50px] ${fillHeight ? 'flex-1' : ''}`}
+          className={`w-full resize-none border-none bg-transparent text-[14px] font-normal leading-[1.6] text-black/70 outline-none ${fillHeight ? 'flex-1 min-h-0' : ''}`}
           onClick={() => {
             setShowScriptModal(true)
           }}
@@ -458,18 +457,13 @@ export const PromptTagInput = ({
           readOnly
           // onChange={handleChange}
           style={{
-            fontSize: '16px',
             width: '100%',
-            fontWeight: 400,
-            color: 'rgba(0,0,0,0.8)',
-            fontSize: 15,
-            resize: 'none',
             ...textareaHeight,
           }}
           // disabled={true}
         />
         {!isSubject && (
-          <div className="absolute top-1 right-1 h-[50px] flex flex-col justify-center">
+          <div className="absolute right-[10px] top-[10px] flex h-10 flex-col justify-center">
             <button
               onClick={() => {
                 setShowScriptModal(true)
@@ -522,81 +516,54 @@ export const PromptTagInput = ({
         onClose={() => setShowScriptModal(false)}
         closeAfterTransition
         BackdropProps={{
-          timeout: 1000,
+          timeout: 250,
           sx: {
-            backgroundColor: '#00000010',
+            backgroundColor: '#00000099',
             //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
-          className="lg:w-5/12 sm:w-full w-8/12 h-[93%] flex justify-center items-center"
+          className="w-[650px] max-w-[90vw] flex justify-center items-center"
           sx={styles.modalsStyle}
         >
-          <div className="flex flex-row justify-center items-center w-full h-[100%]">
+          <div className="flex flex-row justify-center items-center w-full">
             <div
-              className="sm:w-full w-full h-[100%]"
+              className="w-full max-h-[90vh] flex flex-col overflow-hidden rounded-[12px] bg-white"
               style={{
-                backgroundColor: '#ffffff',
-                // backgroundColor: "red",
-                padding: 20,
-                borderRadius: '13px',
-                position: 'relative',
-                // marginTop: 50,
+                boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+                border: '1px solid #eaeaea',
               }}
             >
-              <div className="h-[12%]">
-                <div className="flex flex-row justify-end">
-                  <button
-                    onClick={() => {
-                      setShowScriptModal(false)
-                    }}
-                  >
-                    <Image
-                      src={'/assets/crossIcon.png'}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+              <div
+                className="flex flex-row items-center justify-between px-5 py-4"
+                style={{ borderBottom: '1px solid #eaeaea' }}
+              >
+                <div className="flex min-w-0 flex-col">
+                  <div className="text-[16px] font-semibold text-black">
+                    {from === 'CreateEmail' || from === 'sms'
+                      ? editTitle
+                      : `${isEdit ? 'Edit' : 'Add'} ${from}`}
+                  </div>
+                  {limit ? (
+                    <div className="text-[12px] font-medium text-black/50 mt-0.5">
+                      {text?.length}/{limit}
+                    </div>
+                  ) : null}
                 </div>
-
-                <div className="flex flex-row items-center justify-between mt-3">
-                  {from === 'CreateEmail' || from === 'sms' ? (
-                    <div
-                      className="text-start sm:font-24 font-16"
-                      style={{ fontWeight: '700' }}
-                    >
-                      {editTitle}
-                    </div>
-                  ) : (
-                    <div
-                      className="text-start sm:font-24 font-16"
-                      style={{ fontWeight: '700' }}
-                    >
-                      {isEdit ? 'Edit' : 'Add'} {from}
-                    </div>
-                  )}
-
-                  {limit && (
-                    <div>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: '500',
-                          color: '#00000060',
-                        }}
-                      >
-                        {text?.length}/{limit}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
+                  onClick={() => setShowScriptModal(false)}
+                  aria-label="Close"
+                >
+                  <Image src={'/assets/crossIcon.png'} height={20} width={20} alt="Close" />
+                </button>
               </div>
 
-              <div style={{ position: 'relative', height: '80%' }}>
+              <div className="firecrawl-scrollbar relative flex-1 overflow-auto px-5 py-5">
                 <textarea
-                  className="outline-none rounded-xl focus:ring-0"
+                  className="w-full resize-none rounded-[10px] border border-[rgba(21,21,21,0.12)] bg-white px-4 py-3 text-[14px] font-normal leading-[1.6] text-black/80 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:border-brand-primary"
                   ref={textFieldRef}
                   value={text}
                   maxLength={limit}
@@ -607,54 +574,8 @@ export const PromptTagInput = ({
                   onKeyUp={handleKeyUp}
                   onKeyDown={handleKeyDown}
                   placeholder="Type here..."
-                  style={{
-                    fontSize: '15px',
-                    padding: '15px',
-                    width: '100%',
-                    fontWeight: '500',
-                    height: '100%', // Initial height
-                    maxHeight: '100%', // Maximum height before scrolling
-                    overflowY: 'auto', // Enable vertical scrolling when max-height is exceeded
-                    resize: 'none', // Disable manual resizing
-                    border: '1px solid #00000020',
-                  }}
+                  style={{ minHeight: 360 }}
                 />
-
-                {showSaveChangesBtn && (
-                  <button
-                    className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
-                    style={{ fontWeight: '600', fontSize: 15 }}
-                    onClick={() => {
-                      setShowScriptModal(false)
-                      // saveUpdates();
-                    }}
-                  >
-                    Save Changes
-                  </button>
-                )}
-
-                {/* <textarea
-                  className="outline-none rounded-xl focus:ring-0"
-                  ref={textFieldRef}
-                  value={text}
-                  onClick={() => {
-                    setShowScriptModal(true);
-                  }}
-                  onChange={handleChange}
-                  onKeyUp={handleKeyUp}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type here..."
-                  style={{
-                    fontSize: "16px",
-                    padding: "15px",
-                    width: "100%",
-                    fontWeight: "500",
-                    fontSize: 15,
-                    height: "100%",
-                    resize: "none",
-                    border: "1px solid #00000020",
-                  }}
-                /> */}
 
                 {popupVisible && filteredOptions.length > 0 && (
                   <div
@@ -681,7 +602,6 @@ export const PromptTagInput = ({
                         style={{
                           padding: '5px 10px',
                           cursor: 'pointer',
-                          // borderBottom: "1px solid lightgray",
                         }}
                         onMouseEnter={(e) =>
                           (e.target.style.backgroundColor = 'lightblue')
@@ -697,19 +617,25 @@ export const PromptTagInput = ({
                 )}
               </div>
 
-              {/* <div className="mt-4 w-full h-[15%]">
+              <div
+                className="flex flex-row items-center justify-between px-5 py-4"
+                style={{ borderTop: '1px solid #eaeaea' }}
+              >
                 <button
-                  className="bg-brand-primary text-white text-xl font-medium w-full rounded-2xl h-[50px]"
-                  onClick={() => {
-                    setShowScriptModal(false);
-                  }}
+                  type="button"
+                  className="h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]"
+                  onClick={() => setShowScriptModal(false)}
                 >
-                  Update & Close
+                  Cancel
                 </button>
-              </div> */}
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                <button
+                  type="button"
+                  className="h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98]"
+                  onClick={() => setShowScriptModal(false)}
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         </Box>

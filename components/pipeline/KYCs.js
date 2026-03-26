@@ -521,7 +521,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
           </span>
         </div>
 
-        <div className="bg-black/[0.02] p-2 px-3">
+        <div className="bg-black/[0.02] rounded-[10px] px-3 py-3">
           {showSellerNeedData && (
             <div>
               {SellerNeedData.map((item, index) => (
@@ -533,6 +533,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
                       onClick={(event) => {
                         handleOpenPopover(event, item)
                       }}
+                      className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out flex-shrink-0"
                     >
                       <MoreHorizontal size={16} />
                     </button>
@@ -628,7 +629,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
           </span>
         </div>
 
-        <div className="bg-black/[0.02] p-2 px-3">
+        <div className="bg-black/[0.02] rounded-[10px] px-3 py-3">
           {showSellerMotivationData && (
             <div>
               {SellerMotivationData.map((item, index) => (
@@ -640,6 +641,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
                       onClick={(event) => {
                         handleOpenPopover(event, item)
                       }}
+                      className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out flex-shrink-0"
                     >
                       <MoreHorizontal size={16} />
                     </button>
@@ -735,7 +737,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
           </span>
         </div>
 
-        <div className="bg-black/[0.02] p-2 px-3">
+        <div className="bg-black/[0.02] rounded-[10px] px-3 py-3">
           {showSellerUrgencyData && (
             <div>
               {SellerUrgencyData.map((item, index) => (
@@ -747,6 +749,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
                       onClick={(event) => {
                         handleOpenPopover(event, item)
                       }}
+                      className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out flex-shrink-0"
                     >
                       <MoreHorizontal size={16} />
                     </button>
@@ -950,7 +953,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
               </div>
             </div>
 
-<div className="bg-black/[0.02] p-2 px-3">
+<div className="bg-black/[0.02] rounded-[10px] px-3 py-3">
             {showBuyerNeedData && (
                 <div>
                   {BuyerNeedData.map((item, index) => (
@@ -962,6 +965,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
                           onClick={(event) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
+                          className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out flex-shrink-0"
                         >
                           <MoreHorizontal size={16} />
                         </button>
@@ -1057,7 +1061,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
               </span>
             </div>
 
-<div className="bg-black/[0.02] p-2 px-3">
+<div className="bg-black/[0.02] rounded-[10px] px-3 py-3">
             {showBuyerMotivationData && (
                 <div>
                   {BuyerMotivationData.map((item, index) => (
@@ -1069,6 +1073,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
                           onClick={(event) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
+                          className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out flex-shrink-0"
                         >
                           <MoreHorizontal size={16} />
                         </button>
@@ -1165,7 +1170,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
               </span>
             </div>
 
-<div className="bg-black/[0.02] p-2 px-3">
+<div className="bg-black/[0.02] rounded-[10px] px-3 py-3">
             {showBuyerUrgencyData && (
                 <div>
                   {BuyerUrgencyData.map((item, index) => (
@@ -1177,6 +1182,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null, userId = nu
                           onClick={(event) => {
                             handleOpenBuyerKycPopover(event, item)
                           }}
+                          className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out flex-shrink-0"
                         >
                           <MoreHorizontal size={16} />
                         </button>

@@ -129,36 +129,54 @@ const EditModal = ({
   }
 //Edit modal for Objections and Guardrails | Advanced Settings
   return (
-    <Modal open={isOpen} onClose={onClose}>
-      <Box className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 shadow-lg w-full max-w-md outline-none">
-        <div className="w-full flex flex-row items-center justify-between">
-          <div className="text-start text-lg font-semibold">
-            {`Edit ${editName}`}
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      closeAfterTransition
+      BackdropProps={{ timeout: 250, sx: { backgroundColor: '#00000099' } }}
+    >
+      <Box className="w-[650px] max-w-[90vw]" sx={{ outline: 'none' }}>
+        <div
+          className="w-full max-h-[90vh] flex flex-col overflow-hidden rounded-[12px] bg-white"
+          style={{
+            boxShadow: '0 4px 36px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #eaeaea',
+          }}
+        >
+          <div
+            className="flex flex-row items-center justify-between px-5 py-4"
+            style={{ borderBottom: '1px solid #eaeaea' }}
+          >
+            <div className="text-[16px] font-semibold text-black">
+              {`Edit ${editName}`}
+            </div>
+            <button
+              type="button"
+              className="rounded flex items-center justify-center w-10 h-10 bg-transparent hover:bg-black/5 transition-colors duration-150 ease-out"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <Image alt="Close" src={'/assets/cross.png'} height={16} width={16} />
+            </button>
           </div>
-          <button className="border-none outline-none" onClick={onClose}>
-            <Image alt="*" src={'/assets/cross.png'} height={15} width={15} />
-          </button>
-        </div>
 
-        <div>
-          <div className="mt-4 mb-2" style={styles.heading}>
-          {`${editName === 'Objection' ? "What's the objection" : "What's the guardrail"}`}
-          </div>
-          <input
-            style={styles.inputStyle}
-            className="w-full rounded-lg border outline-none focus:ring-0 p-2"
-            placeholder={`Edit ${editName} title`}
-            value={updateTitle}
-            onChange={(e) => {
-              setUpdatedTitle(e.target.value)
-            }}
-          />
-        </div>
+          <div className="firecrawl-scrollbar flex-1 overflow-auto px-5 py-5">
+            <div className="text-[13px] font-medium text-black/70">
+              {editName === 'Objection' ? "What's the objection" : "What's the guardrail"}
+            </div>
+            <input
+              style={styles.inputStyle}
+              className="mt-2 h-[42px] w-full rounded-lg border border-black/10 bg-white px-3 text-[14px] font-normal text-black/80 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:border-brand-primary"
+              placeholder={`Edit ${editName} title`}
+              value={updateTitle}
+              onChange={(e) => {
+                setUpdatedTitle(e.target.value)
+              }}
+            />
 
-        <div>
-          <div className="mt-4 mb-2" style={styles.heading}>
-            Response
-          </div>
+            <div className="mt-4 text-[13px] font-medium text-black/70">
+              Response
+            </div>
           {/*
                         <GreetingTagInput
                             greetTag={updatedDescription}
@@ -201,38 +219,36 @@ const EditModal = ({
                     */}
         </div>
 
-        <div className="w-full flex flex-row items-center justify-between mt-4 gap-2">
-          <button
-            className="px-4 py-2 bg-transparent w-1/2 outline-none text-brand-primary rounded hover:bg-brand-primary/10"
-            onClick={onClose}
+          <div
+            className="flex flex-row items-center justify-between gap-2 px-5 py-4"
+            style={{ borderTop: '1px solid #eaeaea' }}
           >
-            Close
-          </button>
-          {updateLoader ? (
-            <div className="w-1/2 flex flex-row items-center justify-center">
-              <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
-            </div>
-          ) : (
             <button
-              className="px-4 py-2 bg-brand-primary w-1/2 outline-none text-white rounded"
-              onClick={() => {
-                handleUpdate(
-                  {
+              type="button"
+              className="h-[40px] rounded-lg px-4 text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors duration-150 active:scale-[0.98]"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            {updateLoader ? (
+              <div className="h-[40px] flex flex-row items-center justify-center px-4">
+                <CircularProgress size={18} sx={{ color: 'hsl(var(--brand-primary))' }} />
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="h-[40px] rounded-lg px-4 text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-all duration-150 active:scale-[0.98]"
+                onClick={() => {
+                  handleUpdate({
                     title: updateTitle,
                     description: updatedDescription,
-                  },
-                  // {
-                  //     updatedData: {
-                  //         title: updateTitle,
-                  //         description: updatedDescription
-                  //     }
-                  // }
-                )
-              }}
-            >
-              Update
-            </button>
-          )}
+                  })
+                }}
+              >
+                Update
+              </button>
+            )}
+          </div>
         </div>
       </Box>
     </Modal>
