@@ -5,6 +5,7 @@ import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, L
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select, Tooltip } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
@@ -508,7 +509,7 @@ const MessageComposer = ({
           applySocialConnectResult(!!data.success, data.error || null)
           localStorage.removeItem(SOCIAL_RESULT_KEY)
         }
-      } catch (_) {}
+      } catch (_) { }
     }
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
@@ -1394,6 +1395,7 @@ const MessageComposer = ({
   const isFacebookMode = composerMode === 'facebook'
   const isInstagramMode = composerMode === 'instagram'
   const isWhatsAppMode = composerMode === 'whatsapp'
+  const isFbIgMode = isFacebookMode || isInstagramMode
   // Thread is replyable via Messenger if it's a messenger thread or has receiverMessengerPsid (e.g. merged SMS thread)
   const canReplyMessenger = (selectedThread?.threadType === 'messenger' || !!selectedThread?.receiverMessengerPsid) && hasFacebookConnection
   const canReplyInstagram = (selectedThread?.threadType === 'instagram' || !!selectedThread?.receiverInstagramPsid) && hasInstagramConnection
@@ -1476,6 +1478,14 @@ const MessageComposer = ({
     } finally {
       setSendingSocialMessage(false)
     }
+  }
+
+  const openScheduleOptions = (e) => {
+    e?.preventDefault()
+    e?.stopPropagation()
+    const rect = scheduleDropdownAnchorRef.current?.getBoundingClientRect()
+    if (rect) setSendDropdownRect(rect)
+    setSendDropdownOpen((o) => !o)
   }
 
   const openConnectModal = (platform) => {
@@ -1957,14 +1967,29 @@ const MessageComposer = ({
                 placeholder={socialDmPlaceholder}
                 className="flex-1"
               />
-              <button
-                onClick={handleSendSocial}
-                disabled={!(composerData.socialBody ?? '').trim() || sendingSocialMessage}
-                className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                style={{ height: '40px' }}
-              >
-                {sendingSocialMessage ? <CircularProgress size={20} color="inherit" sx={{ display: 'block' }} /> : <PaperPlaneTilt size={20} weight="fill" />}
-              </button>
+              <div className="flex items-stretch h-10 rounded-lg overflow-visible border border-transparent relative z-10">
+                <button
+                  onClick={handleSendSocial}
+                  disabled={!(composerData.socialBody ?? '').trim() || sendingSocialMessage}
+                  className="px-4 py-2 bg-brand-primary text-white rounded-l-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  style={{ height: '40px' }}
+                >
+                  {sendingSocialMessage ? <CircularProgress size={20} color="inherit" sx={{ display: 'block' }} /> : <PaperPlaneTilt size={20} weight="fill" />}
+                </button>
+                <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                  <button
+                    type="button"
+                    onClick={openScheduleOptions}
+                    disabled={!(composerData.socialBody ?? '').trim() || sendingSocialMessage || !onScheduleMessage}
+                    className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
+                    aria-label="Send options"
+                    aria-expanded={sendDropdownOpen}
+                    aria-haspopup="menu"
+                  >
+                    <CaretDown size={16} weight="bold" />
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="mt-2 flex items-center gap-2">
@@ -2046,7 +2071,7 @@ const MessageComposer = ({
               <div className="mt-2">
                 <div className="mb-2 w-full flex flex-row flex-wrap items-center gap-y-2 gap-x-1 min-h-[40px]">
                   <div className="flex min-w-[88px] flex-1 items-center">
-                    <span className="text-sm font-semibold text-foreground">Social DMs</span>
+                    <span className="text-sm font-semibold text-foreground">{isWhatsAppMode ? "Send a messsage" : "Social DMs"}</span>
                   </div>
                   <div className="flex min-w-0 flex-1 justify-center px-1">
                     {currentSocialConnections.length > 0 ? (
@@ -2148,20 +2173,20 @@ const MessageComposer = ({
                     ) : null}
                   </div>
                 </div>
-                <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
-                  <RichTextEditor
-                    ref={socialRichTextEditorRef}
-                    value={socialBodyToEditorValue(composerData.socialBody ?? '')}
-                    onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
-                    placeholder="Write your DM here..."   //"Type your message..."
-                    availableVariables={[]}
-                    toolbarPosition="bottom"
-                    customToolbarElement={
-                      <div className="flex justify-end p-2 border-t border-gray-100">
+                {isFbIgMode ? (
+                  <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
+                    <Textarea
+                      value={stripHTML(composerData.socialBody ?? '')}
+                      onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
+                      placeholder="Write your DM here..."
+                      className="min-h-[130px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:border-transparent"
+                    />
+                    <div className="flex justify-end p-2 border-t border-gray-100">
+                      <div className="flex items-stretch h-10 rounded-lg overflow-visible border border-transparent relative z-10">
                         <button
                           onClick={handleSendSocial}
                           disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage}
-                          className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className="px-4 py-2 bg-brand-primary text-white rounded-l-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           {sendingSocialMessage ? (
                             <>
@@ -2175,70 +2200,106 @@ const MessageComposer = ({
                             </>
                           )}
                         </button>
+                        <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                          <button
+                            type="button"
+                            onClick={openScheduleOptions}
+                            disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage || !onScheduleMessage}
+                            className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
+                            aria-label="Send options"
+                            aria-expanded={sendDropdownOpen}
+                            aria-haspopup="menu"
+                          >
+                            <CaretDown size={16} weight="bold" />
+                          </button>
+                        </div>
                       </div>
-                    }
-                  />
-                </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
+                    <RichTextEditor
+                      ref={socialRichTextEditorRef}
+                      value={socialBodyToEditorValue(composerData.socialBody ?? '')}
+                      onChange={(html) => setComposerData((prev) => ({ ...prev, socialBody: html }))}
+                      placeholder={isWhatsAppMode ? "Write your message here..." : "Write your DM here..."}   //"Type your message..."
+                      availableVariables={[]}
+                      toolbarPosition="bottom"
+                      customToolbarElement={
+                        <div className="flex justify-end p-2 border-t border-gray-100">
+                          <div className="flex items-stretch h-10 rounded-lg overflow-visible border border-transparent relative z-10">
+                            <button
+                              onClick={handleSendSocial}
+                              disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage}
+                              className="px-4 py-2 bg-brand-primary text-white rounded-l-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                              {sendingSocialMessage ? (
+                                <>
+                                  <CircularProgress size={16} color="inherit" sx={{ display: 'block' }} />
+                                  <span className="text-sm">Sending...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-sm">Send</span>
+                                  <PaperPlaneTilt size={16} weight="fill" />
+                                </>
+                              )}
+                            </button>
+                            <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
+                              <button
+                                type="button"
+                                onClick={openScheduleOptions}
+                                disabled={!hasTextContent(composerData.socialBody ?? '') || sendingSocialMessage || !onScheduleMessage}
+                                className="h-full min-w-[36px] px-3 bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-l border-white/30 flex items-center justify-center"
+                                aria-label="Send options"
+                                aria-expanded={sendDropdownOpen}
+                                aria-haspopup="menu"
+                              >
+                                <CaretDown size={16} weight="bold" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    />
+                  </div>
+                )}
               </div>
             ) : composerMode === 'comment' ? (
               <div className="mt-2">
                 <div className="mb-2">
                   <label className="text-sm font-semibold text-foreground">Comment</label>
                 </div>
-
-                {/* Comment Input with Formatting Toolbar */}
-                <div ref={commentEditorContainerRef} className="relative border border-black/[0.06] rounded-lg bg-white overflow-hidden">
-                  <RichTextEditor
-                    ref={commentEditorRef}
-                    value={commentBody}
-                    onChange={handleCommentChange}
-                    placeholder="Write your DM here"   //"Use @ to mention a teammate. Comments are only visible to your team."
-                    availableVariables={[]}
-                    toolbarPosition="bottom"
-                    customToolbarElement={
-                      <div className="flex items-center gap-2">
-                        <label className="cursor-pointer">
-                          <button
-                            type="button"
-                            className="p-1.5 hover:bg-gray-100 rounded transition-colors"
-                            onClick={() => document.getElementById('comment-attachment-input')?.click()}
-                            title="Attach file"
-                          >
-                            <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
-                          </button>
-                          <input
-                            id="comment-attachment-input"
-                            type="file"
-                            accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                            multiple
-                            className="hidden"
-                            onChange={handleFileChange}
-                          />
-                        </label>
-                        <button
-                          onClick={handleSendComment}
-                          disabled={
-                            sendingComment ||
-                            !hasTextContent(commentBody) ||
-                            !selectedThread?.leadId
-                          }
-                          className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                          {sendingComment ? (
-                            <>
-                              <CircularProgress size={16} className="text-white" />
-                              <span className="text-sm">Sending...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span className="text-sm">Send</span>
-                              <PaperPlaneTilt size={16} weight="fill" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    }
+                <div className="relative border border-black/[0.06] rounded-lg bg-white overflow-hidden">
+                  <Textarea
+                    value={stripHTML(commentBody)}
+                    onChange={(e) => setCommentBody(e.target.value)}
+                    placeholder="Write your comment here..."
+                    className="min-h-[130px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:border-transparent"
                   />
+                  <div className="flex items-center justify-end gap-2 p-2 border-t border-gray-100">
+                    <button
+                      onClick={handleSendComment}
+                      disabled={
+                        sendingComment ||
+                        !hasTextContent(commentBody) ||
+                        !selectedThread?.leadId
+                      }
+                      className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {sendingComment ? (
+                        <>
+                          <CircularProgress size={16} className="text-white" />
+                          <span className="text-sm">Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-sm">Send</span>
+                          <PaperPlaneTilt size={16} weight="fill" />
+                        </>
+                      )}
+                    </button>
+                  </div>
 
                   {/* Mention Dropdown */}
                   {showMentionDropdown && filteredTeamMembers.length > 0 && (
@@ -2988,13 +3049,7 @@ const MessageComposer = ({
                               <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
                                 <button
                                   type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                    const rect = scheduleDropdownAnchorRef.current?.getBoundingClientRect()
-                                    if (rect) setSendDropdownRect(rect)
-                                    setSendDropdownOpen((o) => !o)
-                                  }}
+                                  onClick={openScheduleOptions}
                                   disabled={
                                     sendingMessage ||
                                     (composerMode === 'email'
@@ -3302,13 +3357,7 @@ const MessageComposer = ({
                             <div className="relative flex-shrink-0 h-full rounded-r-lg overflow-hidden" ref={scheduleDropdownAnchorRef}>
                               <button
                                 type="button"
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  const rect = scheduleDropdownAnchorRef.current?.getBoundingClientRect()
-                                  if (rect) setSendDropdownRect(rect)
-                                  setSendDropdownOpen((o) => !o)
-                                }}
+                                onClick={openScheduleOptions}
                                 disabled={
                                   sendingMessage ||
                                   !hasTextContent(composerData.smsBody) ||
@@ -3373,12 +3422,12 @@ const MessageComposer = ({
                   type="button"
                   className="w-full px-3 py-2 text-left text-sm text-gray-800 hover:bg-gray-100 flex items-center gap-2"
                   onClick={() => {
-                                        setSendDropdownOpen(false)
-                                        setSendDropdownRect(null)
-                                        const in5 = new Date(Date.now() + 5 * 60 * 1000)
-                                        setScheduleDate(in5.toISOString().slice(0, 10))
-                                        setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
-                                        setScheduleModalOpen(true)
+                    setSendDropdownOpen(false)
+                    setSendDropdownRect(null)
+                    const in5 = new Date(Date.now() + 5 * 60 * 1000)
+                    setScheduleDate(in5.toISOString().slice(0, 10))
+                    setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
+                    setScheduleModalOpen(true)
                   }}
                 >
                   <CalendarBlank size={16} />

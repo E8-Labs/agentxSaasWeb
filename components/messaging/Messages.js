@@ -2973,10 +2973,18 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   // Schedule message for later (creates hidden draft; cron sends at scheduledSendAt).
   const handleScheduleMessage = useCallback(
     async (scheduledSendAt) => {
-      const rawBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-      const hasContent = composerMode === 'sms' ? stripHTML(rawBody).trim() : rawBody.trim()
+      const isSmsMode = composerMode === 'sms'
+      const isEmailMode = composerMode === 'email'
+      const isSocialMode = composerMode === 'facebook' || composerMode === 'instagram' || composerMode === 'whatsapp'
+      const scheduledMessageType = composerMode === 'facebook' ? 'messenger' : composerMode
+      const rawBody = isSmsMode
+        ? composerData.smsBody
+        : isSocialMode
+          ? composerData.socialBody
+          : composerData.emailBody
+      const hasContent = stripHTML(rawBody || '').trim()
       if (!selectedThread || !hasContent) return
-      if (composerMode === 'email' && !composerData.to.trim()) return
+      if (isEmailMode && !composerData.to.trim()) return
 
       const localData = localStorage.getItem('User')
       if (!localData) return
@@ -2991,14 +2999,14 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
       const body = {
         threadId: selectedThread.id,
-        messageType: composerMode,
+        messageType: scheduledMessageType,
         content: rawBody,
         scheduledSendAt: at.toISOString(),
       }
-      if (composerMode === 'email') {
+      if (isEmailMode) {
         body.subject = composerData.subject?.trim() || ''
         if (selectedEmailAccount) body.emailAccountId = selectedEmailAccount
-      } else if (composerMode === 'sms' && selectedPhoneNumber) {
+      } else if (isSmsMode && selectedPhoneNumber) {
         body.smsPhoneNumberId = selectedPhoneNumber
       }
 
@@ -3019,6 +3027,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             to: selectedThread.lead?.email || selectedThread.receiverPhoneNumber || '',
             smsBody: '',
             emailBody: '',
+            socialBody: '',
             subject: '',
             cc: '',
             bcc: '',
@@ -3038,6 +3047,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       composerMode,
       composerData.smsBody,
       composerData.emailBody,
+      composerData.socialBody,
       composerData.to,
       composerData.subject,
       selectedThread,
