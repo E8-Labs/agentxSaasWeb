@@ -1117,53 +1117,51 @@ const Pipeline1 = ({
                 Pipeline & Stages
               </div>
 
-              <div className="w-full flex flex-col gap-3 pt-3 pb-6">
-                {pipelinesDetails.length > 1 && (
-                  <div className="w-full flex flex-col gap-2 items-start">
-                    <div className={labelClassName}>Select a pipeline</div>
-                    <div className={inputShellClassName}>
-                      <Box className="w-full min-w-0">
-                        <FormControl className="w-full">
-                          <Select
-                            className="border-none rounded-lg outline-none w-full"
-                            displayEmpty
-                            value={selectPipleLine}
-                            onChange={handleSelectPipleLine}
-                            IconComponent={FirecrawlChevronIcon}
-                            MenuProps={buildFirecrawlSelectMenuProps()}
-                            renderValue={(selected) => {
-                              if (selected === '') {
-                                return (
-                                  <span className="text-[14px] text-black/40">
-                                    Select Pipeline
-                                  </span>
-                                )
-                              }
+              {pipelinesDetails.length > 1 && (
+                <div className="w-full flex flex-col gap-2 items-start pt-3">
+                  <div className={labelClassName}>Select a pipeline</div>
+                  <div className={inputShellClassName}>
+                    <Box className="w-full min-w-0">
+                      <FormControl className="w-full">
+                        <Select
+                          className="border-none rounded-lg outline-none w-full"
+                          displayEmpty
+                          value={selectPipleLine}
+                          onChange={handleSelectPipleLine}
+                          IconComponent={FirecrawlChevronIcon}
+                          MenuProps={buildFirecrawlSelectMenuProps()}
+                          renderValue={(selected) => {
+                            if (selected === '') {
                               return (
-                                <span className="text-[14px] text-black">
-                                  {selected}
+                                <span className="text-[14px] text-black/40">
+                                  Select Pipeline
                                 </span>
                               )
-                            }}
-                            sx={pipelineSelectSx}
-                          >
-                            {pipelinesDetails.map((item) => (
-                              <MenuItem key={item.id} value={item.title}>
-                                {item.title}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Box>
-                    </div>
+                            }
+                            return (
+                              <span className="text-[14px] text-black">
+                                {selected}
+                              </span>
+                            )
+                          }}
+                          sx={pipelineSelectSx}
+                        >
+                          {pipelinesDetails.map((item) => (
+                            <MenuItem key={item.id} value={item.title}>
+                              {item.title}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Box>
                   </div>
-                )}
+                </div>
+              )}
 
-                <div className="w-full flex flex-col gap-2">
-                  <div className={labelClassName}>Assign this agent to a stage</div>
-                  <div className="text-[14px] font-normal leading-[1.6] text-[#666]">
-                    {`This agent will call leads when they're added to the selected stage.`}
-                  </div>
+              <div className="w-full flex flex-col gap-2 pt-3 pb-6">
+                <div className={labelClassName}>Assign this agent to a stage</div>
+                <div className="text-[14px] font-normal leading-[1.6] text-[#666]">
+                  {`This agent will call leads when they're added to the selected stage.`}
                 </div>
               </div>
 
