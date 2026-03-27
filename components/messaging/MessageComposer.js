@@ -22,6 +22,7 @@ import { getGmailWatchErrorInfo } from '@/utils/gmailWatchError'
 import Image from 'next/image'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
+import PlatformIcon from '@/components/messaging/PlatformIcon'
 
 // Tab icon for consolidated Messenger/Instagram: uses fb_message_icon PNG (accepts size/style like Lucide)
 const MessengerTabIcon = ({ size = 20, style }) => (
@@ -2116,27 +2117,37 @@ const MessageComposer = ({
                                 className="group flex items-center justify-between gap-2 rounded-md px-2 py-2 hover:bg-muted/80"
                               >
                                 <div className="flex min-w-0 flex-1 items-center gap-2 cursor-default">
-                                  {conn.profileImageUrl ? (
-                                    <img
-                                      src={conn.profileImageUrl}
-                                      width={28}
-                                      height={28}
-                                      alt=""
-                                      className="shrink-0 rounded-full"
-                                    />
-                                  ) : conn.platform === 'whatsapp' ? (
-                                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#25D366]/10">
-                                      <WhatsappLogo size={25} className="text-[#25D366]" weight="fill" aria-hidden />
-                                    </span>
-                                  ) : (
-                                    <img
-                                      src={conn.platform === 'instagram' ? '/instagram.png' : '/facebook.png'}
-                                      width={28}
-                                      height={28}
-                                      alt=""
-                                      className="shrink-0 rounded-full"
-                                    />
-                                  )}
+                                  <div className="relative shrink-0">
+                                    {conn.profileImageUrl ? (
+                                      <img
+                                        src={conn.profileImageUrl}
+                                        width={28}
+                                        height={28}
+                                        alt=""
+                                        className="rounded-full"
+                                      />
+                                    ) : conn.platform === 'whatsapp' ? (
+                                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#25D366]/10">
+                                        <WhatsappLogo size={25} className="text-[#25D366]" weight="fill" aria-hidden />
+                                      </span>
+                                    ) : (
+                                      <img
+                                        src={conn.platform === 'instagram' ? '/instagram.png' : '/facebook.png'}
+                                        width={28}
+                                        height={28}
+                                        alt=""
+                                        className="rounded-full"
+                                      />
+                                    )}
+                                    {(conn.platform === 'instagram' || conn.platform === 'whatsapp' || conn.platform === 'facebook') ? (
+                                      <PlatformIcon
+                                        type={conn.platform === 'facebook' ? 'messenger' : conn.platform}
+                                        size={8}
+                                        showInBadge
+                                        className="pointer-events-none"
+                                      />
+                                    ) : null}
+                                  </div>
                                   <span className="truncate text-sm">{conn.displayName || conn.externalId}</span>
                                 </div>
                                 <button
@@ -2152,6 +2163,20 @@ const MessageComposer = ({
                                 </button>
                               </div>
                             ))}
+                          </div>
+                          <div>
+                            <button
+                              type="button"
+                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-start gap-2"
+                              disabled={connectingOAuth}
+                              onClick={() => {
+                                // setConnectModalOpen(true)
+                                handleConnectClick()
+                              }}
+                            >
+                              {connectingOAuth ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                              ADD ACCOUNT
+                            </button>
                           </div>
                         </PopoverContent>
                       </Popover>
