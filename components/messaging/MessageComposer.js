@@ -2153,6 +2153,20 @@ const MessageComposer = ({
                               </div>
                             ))}
                           </div>
+                          <div>
+                            <button
+                              type="button"
+                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-start gap-2"
+                              disabled={connectingOAuth}
+                              onClick={() => {
+                                // setConnectModalOpen(true)
+                                handleConnectClick()
+                              }}
+                            >
+                              {connectingOAuth ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                              ADD ACCOUNT
+                            </button>
+                          </div>
                         </PopoverContent>
                       </Popover>
                     ) : null}
