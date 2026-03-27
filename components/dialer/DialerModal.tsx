@@ -999,11 +999,20 @@ function DialerModal({
         // #region agent log
         //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:184', message: 'Token request failed', data: { status: response.status, message: data.message }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
+        const isTwilioAuthError =
+          response.status === 401 &&
+          (data?.message?.includes('Invalid Twilio credentials') ||
+            data?.message?.includes('Authenticate'))
         if (response.status === 409) {
           dispatch(updateDeviceState({ hasDialerNumber: false }))
           toast.error('No internal dialer number set. Please configure one in settings.')
         } else {
           toast.error(data.message || 'Failed to get access token')
+        }
+        if (isTwilioAuthError) {
+          // Treat invalid Twilio credentials as terminal until user fixes credentials.
+          hasInitializedRef.current = true
+          initializationFailedRef.current = true
         }
         dispatch(setLoadingState({ key: 'initializing', value: false }))
         isInitializingRef.current = false
