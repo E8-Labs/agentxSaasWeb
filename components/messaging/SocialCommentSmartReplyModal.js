@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
@@ -19,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import { X } from 'lucide-react'
+import { ArrowLeft, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { toast } from '@/utils/toast'
 
 function ruleKey(platform, externalId) {
@@ -67,11 +68,14 @@ export default function SocialCommentSmartReplyModal({
   const [saving, setSaving] = useState(false)
   const [allRules, setAllRules] = useState([])
   const [selectedKey, setSelectedKey] = useState('')
+  const [editingTemplateId, setEditingTemplateId] = useState('')
+  const [templateName, setTemplateName] = useState('')
   const [phrases, setPhrases] = useState([])
   const [phraseInput, setPhraseInput] = useState('')
   const [messageBody, setMessageBody] = useState('')
   const [selectedVariable, setSelectedVariable] = useState('')
   const [uniqueColumns, setUniqueColumns] = useState([])
+  const [viewMode, setViewMode] = useState('list') // 'list' | 'editor'
 
   const loadSettings = useCallback(async () => {
     const localData = typeof window !== 'undefined' ? localStorage.getItem('User') : null
@@ -99,18 +103,15 @@ export default function SocialCommentSmartReplyModal({
 
       const first = fbIg[0]
       if (first) {
-        const k = ruleKey(first.platform, first.externalId)
-        setSelectedKey(k)
-        const existing = (Array.isArray(rules) ? rules : []).find(
-          (r) => r.platform === first.platform && String(r.externalId) === String(first.externalId),
-        )
-        setPhrases(existing?.phrases && Array.isArray(existing.phrases) ? [...existing.phrases] : [])
-        setMessageBody(typeof existing?.message === 'string' ? existing.message : '')
+        setSelectedKey(ruleKey(first.platform, first.externalId))
       } else {
         setSelectedKey('')
-        setPhrases([])
-        setMessageBody('')
       }
+      setEditingTemplateId('')
+      setTemplateName('')
+      setPhrases([])
+      setMessageBody('')
+      setViewMode('list')
     } catch (e) {
       console.error(e)
       toast.error(e.response?.data?.message || 'Could not load settings')
@@ -158,22 +159,39 @@ export default function SocialCommentSmartReplyModal({
     fetchUniqueColumns()
   }, [open, selectedUser?.id])
 
-  const applyRuleForKey = (key) => {
-    if (!key) return
+  const getSelection = useCallback((key) => {
+    if (!key) return null
     const colon = key.indexOf(':')
-    if (colon < 0) return
+    if (colon < 0) return null
     const platform = key.slice(0, colon)
     const externalId = key.slice(colon + 1)
-    const existing = allRules.find(
-      (r) => r.platform === platform && String(r.externalId) === String(externalId),
+    if (!platform || !externalId) return null
+    return { platform, externalId }
+  }, [])
+
+  const selectedTemplates = useMemo(() => {
+    const sel = getSelection(selectedKey)
+    if (!sel) return []
+    return allRules.filter(
+      (r) =>
+        r.platform === sel.platform &&
+        String(r.externalId) === String(sel.externalId),
     )
-    setPhrases(existing?.phrases && Array.isArray(existing.phrases) ? [...existing.phrases] : [])
-    setMessageBody(typeof existing?.message === 'string' ? existing.message : '')
+  }, [allRules, selectedKey, getSelection])
+
+  const resetEditor = () => {
+    setEditingTemplateId('')
+    setTemplateName('')
+    setPhrases([])
+    setPhraseInput('')
+    setMessageBody('')
+    setSelectedVariable('')
+    setViewMode('list')
   }
 
   const handleSelectConnection = (key) => {
     setSelectedKey(key)
-    applyRuleForKey(key)
+    resetEditor()
   }
 
   const removePhrase = (idx) => {
@@ -191,43 +209,8 @@ export default function SocialCommentSmartReplyModal({
     setPhraseInput('')
   }
 
-  const handleSave = async () => {
-    if (!selectedKey) {
-      toast.error('Select a page or account')
-      return
-    }
-    const colon = selectedKey.indexOf(':')
-    const platform = colon >= 0 ? selectedKey.slice(0, colon) : ''
-    const externalId = colon >= 0 ? selectedKey.slice(colon + 1) : ''
-    if (!platform || !externalId) {
-      toast.error('Invalid selection')
-      return
-    }
+  const persistRules = async (nextRules) => {
     const trimmedPhrases = phrases.map((p) => String(p).trim()).filter(Boolean)
-    const msg = messageBody.trim()
-    if (trimmedPhrases.length === 0) {
-      toast.error('Add at least one phrase')
-      return
-    }
-    if (!msg) {
-      toast.error('Enter a message')
-      return
-    }
-    if (msg.length > 500) {
-      toast.error('Message must be 500 characters or less')
-      return
-    }
-
-    const next = allRules.filter(
-      (r) => !(r.platform === platform && String(r.externalId) === String(externalId)),
-    )
-    next.push({
-      platform,
-      externalId: String(externalId),
-      phrases: trimmedPhrases,
-      message: msg,
-    })
-
     const localData = localStorage.getItem('User')
     if (!localData) return
     const userData = JSON.parse(localData)
@@ -239,20 +222,87 @@ export default function SocialCommentSmartReplyModal({
     try {
       await axios.put(
         url,
-        { socialCommentSmartReplyRules: next },
+        { socialCommentSmartReplyRules: nextRules },
         {
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         },
       )
-      setAllRules(next)
+      setAllRules(nextRules)
       toast.success('Smart Reply saved')
       onSaved?.()
-      onClose()
     } catch (e) {
       toast.error(e.response?.data?.message || e.message || 'Save failed')
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleStartAddTemplate = () => {
+    if (!selectedKey) {
+      toast.error('Select a page or account')
+      return
+    }
+    resetEditor()
+    setEditingTemplateId(`tpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`)
+    setViewMode('editor')
+  }
+
+  const handleEditTemplate = (tpl) => {
+    setEditingTemplateId(String(tpl.id || ''))
+    setTemplateName(String(tpl.name || ''))
+    setPhrases(Array.isArray(tpl.phrases) ? [...tpl.phrases] : [])
+    setPhraseInput('')
+    setMessageBody(String(tpl.message || ''))
+    setViewMode('editor')
+  }
+
+  const handleDeleteTemplate = async (tplId) => {
+    const next = allRules.filter((r) => String(r.id || '') !== String(tplId))
+    await persistRules(next)
+    if (String(editingTemplateId) === String(tplId)) {
+      resetEditor()
+    }
+  }
+
+  const handleToggleTemplateActive = async (tplId, nextActive) => {
+    const next = allRules.map((r) =>
+      String(r.id || '') === String(tplId)
+        ? { ...r, isActive: Boolean(nextActive) }
+        : r,
+    )
+    await persistRules(next)
+  }
+
+  const handleSaveTemplate = async () => {
+    const sel = getSelection(selectedKey)
+    if (!sel) {
+      toast.error('Select a page or account')
+      return
+    }
+    if (!editingTemplateId) {
+      toast.error('Click Add Template first')
+      return
+    }
+    const trimmedPhrases = phrases.map((p) => String(p).trim()).filter(Boolean)
+    const msg = messageBody.trim()
+    if (trimmedPhrases.length === 0) return toast.error('Add at least one phrase')
+    if (!msg) return toast.error('Enter a message')
+    if (msg.length > 500) return toast.error('Message must be 500 characters or less')
+
+    const next = allRules.filter((r) => String(r.id || '') !== String(editingTemplateId))
+    next.push({
+      id: editingTemplateId,
+      name: templateName.trim(),
+      platform: sel.platform,
+      externalId: String(sel.externalId),
+      phrases: trimmedPhrases,
+      message: msg,
+      isActive: true,
+      priority: 0,
+    })
+    await persistRules(next)
+    resetEditor()
+    setViewMode('list')
   }
 
   const insertVariable = (key) => {
@@ -277,40 +327,6 @@ export default function SocialCommentSmartReplyModal({
         ) : (
           <div className="space-y-4 py-1 pt-2">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Phrase</label>
-              <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2 rounded-md border border-input bg-background">
-                {phrases.map((p, idx) => (
-                  <span
-                    key={`${p}-${idx}`}
-                    className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm"
-                  >
-                    {p}
-                    <button
-                      type="button"
-                      className="text-muted-foreground hover:text-foreground"
-                      onClick={() => removePhrase(idx)}
-                      aria-label="Remove phrase"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </span>
-                ))}
-                <input
-                  className="flex-1 min-w-[120px] border-0 bg-transparent text-sm outline-none"
-                  placeholder="Type and press Enter"
-                  value={phraseInput}
-                  onChange={(e) => setPhraseInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      addPhraseFromInput()
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Page</label>
               <Select value={selectedKey} onValueChange={handleSelectConnection}>
                 <SelectTrigger className="w-full bg-[#F9F9F9]">
@@ -329,38 +345,198 @@ export default function SocialCommentSmartReplyModal({
               </Select>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium text-foreground">Message</label>
-                <Select
-                  value={selectedVariable}
-                  onValueChange={(val) => {
-                    setSelectedVariable('')
-                    if (val) insertVariable(val)
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[120px] text-xs bg-white">
-                    <SelectValue placeholder="Variables" />
-                  </SelectTrigger>
-                  <SelectContent className="z-[25000]">
-                    {uniqueColumns.map((variable) => (
-                      <SelectItem key={variable} value={variable}>
-                        {variable}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <textarea
-                className="w-full min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="Type your message"
-                value={messageBody}
-                onChange={(e) => setMessageBody(e.target.value)}
-                maxLength={500}
-              />
-              <div className="text-right text-xs text-muted-foreground mt-1">
-                {messageBody.length}/500 char
-              </div>
+            <div className="rounded-md border border-input p-3 space-y-3">
+              {viewMode === 'list' ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">Templates</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={handleStartAddTemplate}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      {selectedTemplates.length === 0 ? 'Add Template' : 'Add More'}
+                    </Button>
+                  </div>
+
+                  {selectedTemplates.length === 0 ? (
+                    <div className="text-sm text-muted-foreground py-2">
+                      No templates yet for this page/account.
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedTemplates.map((tpl) => (
+                        <div
+                          key={tpl.id || `${tpl.platform}:${tpl.externalId}:${tpl.message?.slice(0, 24)}`}
+                          className="rounded-md border border-input p-2"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {tpl.name?.trim() || 'Untitled template'}
+                              </p>
+                              <p className="text-xs text-muted-foreground line-clamp-2">
+                                {tpl.message}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`text-[11px] ${
+                                    tpl.isActive === false
+                                      ? 'text-muted-foreground'
+                                      : 'text-green-700'
+                                  }`}
+                                >
+                                  {tpl.isActive === false ? 'Inactive' : 'Active'}
+                                </span>
+                                <Switch
+                                  checked={tpl.isActive !== false}
+                                  onCheckedChange={(v) =>
+                                    handleToggleTemplateActive(tpl.id, v)
+                                  }
+                                  disabled={saving}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleEditTemplate(tpl)}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-red-600 hover:text-red-700"
+                                onClick={() => handleDeleteTemplate(tpl.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-3 rounded-md border border-input p-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                      onClick={() => {
+                        setViewMode('list')
+                        resetEditor()
+                      }}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-1" />
+                      Back
+                    </Button>
+                    <p className="text-xs text-muted-foreground">Template Editor</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Template Name</label>
+                    <input
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
+                      placeholder="e.g. Pricing question"
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Phrases</label>
+                    <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2 rounded-md border border-input bg-background">
+                      {phrases.map((p, idx) => (
+                        <span
+                          key={`${p}-${idx}`}
+                          className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-sm"
+                        >
+                          {p}
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={() => removePhrase(idx)}
+                            aria-label="Remove phrase"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        className="flex-1 min-w-[120px] border-0 bg-transparent text-sm outline-none"
+                        placeholder="Type and press Enter"
+                        value={phraseInput}
+                        onChange={(e) => setPhraseInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            addPhraseFromInput()
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-sm font-medium text-foreground">Message</label>
+                      <Select
+                        value={selectedVariable}
+                        onValueChange={(val) => {
+                          setSelectedVariable('')
+                          if (val) insertVariable(val)
+                        }}
+                      >
+                        <SelectTrigger className="h-8 w-[120px] text-xs bg-white">
+                          <SelectValue placeholder="Variables" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[25000]">
+                          {uniqueColumns.map((variable) => (
+                            <SelectItem key={variable} value={variable}>
+                              {variable}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <textarea
+                      className="w-full min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      placeholder="Type your message"
+                      value={messageBody}
+                      onChange={(e) => setMessageBody(e.target.value)}
+                      maxLength={500}
+                    />
+                    <div className="text-right text-xs text-muted-foreground mt-1">
+                      {messageBody.length}/500 char
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2">
+                    <Button type="button" variant="ghost" onClick={resetEditor}>
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white"
+                      disabled={saving}
+                      onClick={handleSaveTemplate}
+                    >
+                      {saving ? 'Saving…' : 'Save Template'}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -369,14 +545,7 @@ export default function SocialCommentSmartReplyModal({
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            type="button"
-            className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white"
-            disabled={saving || loading || fbIg.length === 0}
-            onClick={handleSave}
-          >
-            {saving ? 'Saving…' : 'Save'}
-          </Button>
+          <Button type="button" onClick={onClose}>Done</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
