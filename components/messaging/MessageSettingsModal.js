@@ -115,7 +115,12 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
 
   // Normalize integration provider to 'openai' | 'google' | 'claude'
   const providerFor = (int) =>
-    int?.provider === 'google' ? 'google' : int?.provider === 'claude' ? 'claude' : 'openai'
+    int?.provider === 'google'
+      ? 'google'
+      : int?.provider === 'claude' || int?.provider === 'anthropic'
+        ? 'claude'
+        : 'openai'
+  const providerToApiProvider = (provider) => (provider === 'claude' ? 'anthropic' : provider)
 
   // Helper function to mask API key (show last 6 chars, rest as stars) - used only when server sends raw key (legacy)
   const maskApiKey = (key) => {
@@ -249,7 +254,12 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
         // If there's an existing integration, show apiKeyMasked (last 6 chars from server) or placeholder
         if (data.aiIntegration?.id) {
           setExistingIntegrationId(data.aiIntegration.id)
-          const provider = data.aiIntegration.provider === 'google' ? 'google' : data.aiIntegration.provider === 'claude' ? 'claude' : 'openai'
+          const provider =
+            data.aiIntegration.provider === 'google'
+              ? 'google'
+              : data.aiIntegration.provider === 'claude' || data.aiIntegration.provider === 'anthropic'
+                ? 'claude'
+                : 'openai'
           setSelectedProvider(provider)
           const masked = data.aiIntegration.apiKeyMasked || ''
           const legacyRaw = data.aiIntegration.apiKey || ''
@@ -421,7 +431,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
         }
 
         const integrationForSelected = aiIntegrations.find((int) => providerFor(int) === selectedProvider)
-        integrationId = integrationForSelected?.id ?? settings.aiIntegrationId
+        const selectedIntegrationId = integrationForSelected?.id ?? null
+        integrationId = selectedIntegrationId ?? settings.aiIntegrationId
 
         // If API key is provided and it's not the masked version or placeholder, create or update the integration for this provider only
         const trimmedApiKey = apiKey.trim()
@@ -431,9 +442,9 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
 
         if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
           try {
-            if (existingIntegrationId) {
+            if (selectedIntegrationId) {
               // Update existing integration for this provider (send only apiKey so provider is not overwritten)
-              const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${existingIntegrationId}`
+              const updateUrl = `${Apis.BasePath}api/mail/ai-integrations/${selectedIntegrationId}`
               const updateBody = { apiKey: trimmedApiKey }
               if (selectedUser?.id) updateBody.userId = selectedUser.id
               const updateResponse = await axios.put(
@@ -448,7 +459,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
               )
 
               if (updateResponse.data?.status) {
-                integrationId = existingIntegrationId
+                integrationId = selectedIntegrationId
+                setExistingIntegrationId(selectedIntegrationId)
                 setExistingApiKey(trimmedApiKey)
                 setIsEditingApiKey(false)
                 const newMasked = maskApiKey(trimmedApiKey)
@@ -462,7 +474,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
               // Create new integration
               const createUrl = `${Apis.BasePath}api/mail/ai-integrations`
               const createBody = {
-                provider: selectedProvider,
+                provider: providerToApiProvider(selectedProvider),
                 apiKey: trimmedApiKey,
               }
               if (selectedUser?.id) createBody.userId = selectedUser.id
