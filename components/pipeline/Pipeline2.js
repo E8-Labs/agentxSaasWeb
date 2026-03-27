@@ -48,8 +48,10 @@ import GuardianSetting from './advancedsettings/GuardianSetting'
 import Objection from './advancedsettings/Objection'
 import CallScriptTag from './tagInputs/CallScriptTag'
 import GreetingTag from './tagInputs/GreetingTag'
-import { GreetingTagInput } from './tagInputs/GreetingTagInput'
+// import { GreetingTagInput } from './tagInputs/GreetingTagInput'
+import { GreetingVariableInput } from './tagInputs/GreetingVariableInput'
 import { PromptTagInput } from './tagInputs/PromptTagInput'
+import { PromptVariableInput } from './tagInputs/PromptVariableInput'
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
   const containerRef = useRef(null) // Ref to the scrolling container
@@ -436,7 +438,46 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setUniqueColumns(response.data.data)
+          const normalizeVariable = (value) => {
+            if (typeof value !== 'string') return ''
+            const trimmed = value.trim()
+            if (!trimmed) return ''
+
+            const withoutLeadingBrace = trimmed.startsWith('{') ? trimmed.slice(1) : trimmed
+            const withoutTrailingBrace = withoutLeadingBrace.endsWith('}')
+              ? withoutLeadingBrace.slice(0, -1)
+              : withoutLeadingBrace
+
+            return withoutTrailingBrace.trim()
+          }
+
+          const defaultColumns = [
+            '{Appointment DateTime}',
+            '{Timezone}',
+            '{Duration}',
+            '{Meeting Location}',
+          ]
+
+          const apiColumns = Array.isArray(response.data.data) ? response.data.data : []
+          const existingNormalized = new Set(apiColumns.map((col) => normalizeVariable(col)))
+          const columnsToAdd = defaultColumns.filter(
+            (col) => !existingNormalized.has(normalizeVariable(col)),
+          )
+
+          const dedupeByNormalized = (values) => {
+            const byNormalized = new Map()
+
+            values.forEach((value) => {
+              if (typeof value !== 'string') return
+              const normalized = normalizeVariable(value)
+              if (!normalized) return
+              if (!byNormalized.has(normalized)) byNormalized.set(normalized, value)
+            })
+
+            return Array.from(byNormalized.values())
+          }
+
+          setUniqueColumns(dedupeByNormalized([...apiColumns, ...columnsToAdd]))
         }
       }
     } catch (error) {
@@ -1089,13 +1130,23 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 {loadingAgentDetails ? (
                   <ScriptLoader height={50} />
                 ) : (
-                  <GreetingTagInput
-                    greetTag={greetingTagInput}
-                    kycsList={kycsData}
-                    uniqueColumns={uniqueColumns}
-                    tagValue={setGreetingTagInput}
-                    scrollOffset={scrollOffset}
-                  />
+                  <>
+                    {/* <GreetingTagInput
+                      greetTag={greetingTagInput}
+                      kycsList={kycsData}
+                      uniqueColumns={uniqueColumns}
+                      tagValue={setGreetingTagInput}
+                      scrollOffset={scrollOffset}
+                    /> */}
+                    <GreetingVariableInput
+                      greetTag={greetingTagInput}
+                      kycsList={kycsData}
+                      uniqueColumns={uniqueColumns}
+                      tagValue={(text) => {
+                        setGreetingTagInput(text)
+                      }}
+                    />
+                  </>
                 )}
               </div>
 
@@ -1123,13 +1174,23 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 {loadingAgentDetails ? (
                   <ScriptLoader height={100} />
                 ) : (
-                  <PromptTagInput
-                    promptTag={scriptTagInput}
-                    kycsList={kycsData}
-                    tagValue={setScriptTagInput}
-                    scrollOffset={scrollOffset}
-                    uniqueColumns={uniqueColumns}
-                  />
+                  <>
+                    {/* <PromptTagInput
+                      promptTag={scriptTagInput}
+                      kycsList={kycsData}
+                      tagValue={setScriptTagInput}
+                      scrollOffset={scrollOffset}
+                      uniqueColumns={uniqueColumns}
+                    /> */}
+                    <PromptVariableInput
+                      promptTag={scriptTagInput}
+                      kycsList={kycsData}
+                      uniqueColumns={uniqueColumns}
+                      tagValue={setScriptTagInput}
+                      placeholder="Type here..."
+                      showSaveChangesBtn={false}
+                    />
+                  </>
                 )}
                 {/* <DynamicDropdown /> */}
               </div>
