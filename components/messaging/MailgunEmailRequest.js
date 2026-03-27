@@ -14,14 +14,29 @@ import MailgunDomainSetup from './MailgunDomainSetup'
 import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
 const getApiErrorMessage = (error, fallbackMessage) => {
-  const responseData = error?.response?.data
-  return (
-    responseData?.error ||
-    responseData?.details ||
-    responseData?.message ||
-    error?.message ||
-    fallbackMessage
-  )
+  const data = error?.response?.data
+  if (!data) {
+    return error?.message || fallbackMessage
+  }
+  if (typeof data.error === 'string' && data.error.trim()) {
+    return data.error.trim()
+  }
+  const nested = data.error
+  if (nested && typeof nested === 'object') {
+    const fromDetails =
+      typeof nested.details === 'string' ? nested.details.trim() : ''
+    if (fromDetails) return fromDetails
+    const fromNestedMsg =
+      typeof nested.message === 'string' ? nested.message.trim() : ''
+    if (fromNestedMsg) return fromNestedMsg
+  }
+  if (typeof data.details === 'string' && data.details.trim()) {
+    return data.details.trim()
+  }
+  if (typeof data.message === 'string' && data.message.trim()) {
+    return data.message.trim()
+  }
+  return error?.message || fallbackMessage
 }
 
 const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {

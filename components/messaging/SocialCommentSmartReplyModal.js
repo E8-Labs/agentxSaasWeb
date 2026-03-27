@@ -27,6 +27,40 @@ function ruleKey(platform, externalId) {
   return `${platform}:${externalId}`
 }
 
+function makeTemplateId(platform, externalId) {
+  return `tpl_${platform}_${String(externalId || '').replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+}
+
+function normalizeRule(raw) {
+  const platform = raw?.platform === 'instagram' ? 'instagram' : 'facebook'
+  const externalId = String(raw?.externalId || '').trim()
+  return {
+    ...raw,
+    id:
+      typeof raw?.id === 'string' && raw.id.trim()
+        ? raw.id.trim()
+        : makeTemplateId(platform, externalId),
+    name: typeof raw?.name === 'string' ? raw.name : '',
+    platform,
+    externalId,
+    phrases: Array.isArray(raw?.phrases) ? raw.phrases : [],
+    message: typeof raw?.message === 'string' ? raw.message : '',
+    isActive: raw?.isActive === undefined ? true : Boolean(raw.isActive),
+    priority:
+      raw?.priority == null || raw?.priority === ''
+        ? 0
+        : Number.isFinite(Number(raw.priority))
+          ? Math.floor(Number(raw.priority))
+          : 0,
+  }
+}
+
+function normalizeRulesArray(rules) {
+  return (Array.isArray(rules) ? rules : [])
+    .filter((r) => r && typeof r === 'object')
+    .map((r) => normalizeRule(r))
+}
+
 function normalizeVariableLabel(v) {
   return String(v || '')
     .trim()
@@ -59,7 +93,9 @@ export default function SocialCommentSmartReplyModal({
   const fbIg = useMemo(
     () =>
       socialConnections.filter(
-        (c) => c.platform === 'facebook' || c.platform === 'instagram',
+        (c) =>
+          (c.platform === 'facebook' || c.platform === 'instagram') &&
+          c?.isActive !== false,
       ),
     [socialConnections],
   )
@@ -99,7 +135,7 @@ export default function SocialCommentSmartReplyModal({
           rules = []
         }
       }
-      setAllRules(Array.isArray(rules) ? rules : [])
+      setAllRules(normalizeRulesArray(rules))
 
       const first = fbIg[0]
       if (first) {
@@ -210,7 +246,6 @@ export default function SocialCommentSmartReplyModal({
   }
 
   const persistRules = async (nextRules) => {
-    const trimmedPhrases = phrases.map((p) => String(p).trim()).filter(Boolean)
     const localData = localStorage.getItem('User')
     if (!localData) return
     const userData = JSON.parse(localData)
@@ -218,16 +253,24 @@ export default function SocialCommentSmartReplyModal({
     let url = `${Apis.BasePath}api/mail/settings`
     if (selectedUser?.id) url += `?userId=${selectedUser.id}`
 
+    const activeConnectionKeys = new Set(
+      fbIg.map((c) => ruleKey(c.platform, String(c.externalId))),
+    )
+    const normalizedNext = normalizeRulesArray(nextRules)
+    const filteredNext = normalizedNext.filter((r) =>
+      activeConnectionKeys.has(ruleKey(r.platform, String(r.externalId))),
+    )
+
     setSaving(true)
     try {
       await axios.put(
         url,
-        { socialCommentSmartReplyRules: nextRules },
+        { socialCommentSmartReplyRules: filteredNext },
         {
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         },
       )
-      setAllRules(nextRules)
+      setAllRules(filteredNext)
       toast.success('Smart Reply saved')
       onSaved?.()
     } catch (e) {
@@ -243,16 +286,18 @@ export default function SocialCommentSmartReplyModal({
       return
     }
     resetEditor()
-    setEditingTemplateId(`tpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`)
+    const sel = getSelection(selectedKey)
+    setEditingTemplateId(makeTemplateId(sel?.platform || 'facebook', sel?.externalId || ''))
     setViewMode('editor')
   }
 
   const handleEditTemplate = (tpl) => {
-    setEditingTemplateId(String(tpl.id || ''))
-    setTemplateName(String(tpl.name || ''))
-    setPhrases(Array.isArray(tpl.phrases) ? [...tpl.phrases] : [])
+    const normalized = normalizeRule(tpl)
+    setEditingTemplateId(String(normalized.id))
+    setTemplateName(String(normalized.name || ''))
+    setPhrases(Array.isArray(normalized.phrases) ? [...normalized.phrases] : [])
     setPhraseInput('')
-    setMessageBody(String(tpl.message || ''))
+    setMessageBody(String(normalized.message || ''))
     setViewMode('editor')
   }
 
