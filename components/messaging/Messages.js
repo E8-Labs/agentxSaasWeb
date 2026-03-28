@@ -168,6 +168,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
   // Draft state for AI-generated responses
   const [drafts, setDrafts] = useState([])
   const [draftsLoading, setDraftsLoading] = useState(false)
+  /** Pending user-scheduled sends (AutoReplyDraft source scheduled_manual) for the open thread */
+  const [scheduledThreadDrafts, setScheduledThreadDrafts] = useState([])
+  const [scheduledDraftsLoading, setScheduledDraftsLoading] = useState(false)
   const [selectedDraft, setSelectedDraft] = useState(null)
   const [lastInboundMessageId, setLastInboundMessageId] = useState(null)
   // When set, drafts are from call-summary follow-up (don't overwrite with inbound fetch)
@@ -1288,6 +1291,70 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
     }
   }, [selectedUser])
 
+  const fetchScheduledThreadDrafts = useCallback(async () => {
+    if (!selectedThread?.id) {
+      setScheduledThreadDrafts([])
+      return
+    }
+    try {
+      setScheduledDraftsLoading(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const token = JSON.parse(localData).token
+      let url = `${Apis.scheduledDraftsForThread}?threadId=${selectedThread.id}`
+      if (selectedUser?.id) url += `&userId=${selectedUser.id}`
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response.data?.status && Array.isArray(response.data.data)) {
+        setScheduledThreadDrafts(response.data.data)
+      } else {
+        setScheduledThreadDrafts([])
+      }
+    } catch (error) {
+      console.error('Error fetching scheduled messages:', error)
+      setScheduledThreadDrafts([])
+    } finally {
+      setScheduledDraftsLoading(false)
+    }
+  }, [selectedThread?.id, selectedUser?.id])
+
+  const handleDeleteScheduledDraft = useCallback(
+    async (draftId) => {
+      if (!draftId) return
+      try {
+        const localData = localStorage.getItem('User')
+        if (!localData) return
+        const token = JSON.parse(localData).token
+        let apiPath = `${Apis.discardDraft}/${draftId}`
+        if (selectedUser?.id) apiPath = `${apiPath}?userId=${selectedUser.id}`
+        await axios.delete(apiPath, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        setScheduledThreadDrafts((prev) => prev.filter((d) => d.id !== draftId))
+        toast.success('Scheduled message cancelled')
+      } catch (error) {
+        console.error('Error cancelling scheduled message:', error)
+        toast.error(error.response?.data?.message || 'Failed to cancel scheduled message')
+      }
+    },
+    [selectedUser?.id],
+  )
+
+  useEffect(() => {
+    if (!selectedThread?.id) {
+      setScheduledThreadDrafts([])
+      return
+    }
+    fetchScheduledThreadDrafts()
+  }, [selectedThread?.id, fetchScheduledThreadDrafts])
+
   // Select a draft and populate the composer
   const handleSelectDraft = useCallback((draft) => {
     if (!draft) return
@@ -1672,16 +1739,18 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
 
     pollForNewMessages()
     pollForDrafts()
+    fetchScheduledThreadDrafts()
     const intervalId = setInterval(() => {
       pollForNewMessages()
       pollForDrafts()
+      fetchScheduledThreadDrafts()
     }, 5000)
 
     // Cleanup interval when thread changes or component unmounts
     return () => {
       clearInterval(intervalId)
     };
-  }, [selectedThread?.id, fetchMessages, selectedUser, lastInboundMessageId, callSummaryDraftsMessageId])
+  }, [selectedThread?.id, fetchMessages, selectedUser, lastInboundMessageId, callSummaryDraftsMessageId, fetchScheduledThreadDrafts])
 
   const handleLinkToLeadFromMessage = useCallback(
     async (threadId, targetLeadId) => {
@@ -3022,6 +3091,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         if (response.data?.status) {
           const formatted = moment(at).format('MMM D, YYYY [at] h:mm A')
           toast.success(`Message scheduled for ${formatted}`)
+          fetchScheduledThreadDrafts()
           setComposerData((prev) => ({
             ...prev,
             to: selectedThread.lead?.email || selectedThread.receiverPhoneNumber || '',
@@ -3054,6 +3124,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
       selectedPhoneNumber,
       selectedEmailAccount,
       selectedUser?.id,
+      fetchScheduledThreadDrafts,
     ]
   )
 
@@ -3114,6 +3185,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                   : `Message scheduled for ${created} recipient(s) on ${formatted}`
               )
               setShowNewMessageModal(false)
+              fetchScheduledThreadDrafts()
               setTimeout(() => {
                 fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
               }, 500)
@@ -3138,6 +3210,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
             const formatted = moment(at).format('MMM D, YYYY [at] h:mm A')
             toast.success(`Message scheduled for ${formatted}`)
             setShowNewMessageModal(false)
+            fetchScheduledThreadDrafts()
             setTimeout(() => {
               fetchThreads(searchValue || '', appliedTeamMemberIds, 0, THREADS_PAGE_SIZE, false, filterType)
             }, 500)
@@ -3150,7 +3223,7 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
         toast.error(error.response?.data?.message || 'Failed to schedule message')
       }
     },
-    [selectedUser?.id, searchValue, appliedTeamMemberIds, filterType, fetchThreads]
+    [selectedUser?.id, searchValue, appliedTeamMemberIds, filterType, fetchThreads, fetchScheduledThreadDrafts]
   )
 
   // Fetch full message settings (for default From number/email). Uses forLeadId when selectedUser is set so we get stored defaults for that lead/contact.
@@ -4285,6 +4358,9 @@ const Messages = ({ selectedUser = null, agencyUser = null, from = null }) => {
                         <ConversationView
                           selectedThread={selectedThread}
                           messages={messages}
+                          scheduledThreadDrafts={scheduledThreadDrafts}
+                          scheduledDraftsLoading={scheduledDraftsLoading}
+                          onDeleteScheduledDraft={handleDeleteScheduledDraft}
                           messagesLoading={messagesLoading}
                           loadingOlderMessages={loadingOlderMessages}
                           messagesContainerRef={messagesContainerRef}
