@@ -508,7 +508,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             />
           </div>
 
-          <button
+          {/*<button
             className="flex-shrink-0"
             onClick={() => {
               setActiveTabWhenModalOpened(activeTab)
@@ -523,7 +523,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             />
           </button>
 
-          {/* Show filters here in a row*/}
+           Show filters here in a row*/}
           <div
             className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
             style={{ scrollbarColor: '#00000000', scrollbarWidth: 'none' }}
