@@ -62,6 +62,7 @@ import MessageSettingsModal from '@/components/messaging/MessageSettingsModal'
 import SocialCommentSmartReplyModal from '@/components/messaging/SocialCommentSmartReplyModal'
 import { format } from 'date-fns'
 import { CalendarIcon, Clock, ChevronDown } from 'lucide-react'
+import { getLocalTimeHHmm } from '@/lib/schedule-date-default-time'
 
 // Schedule modal: time picker helpers (value: "HH:mm" 24h) - same as TaskForm.js
 function parseTime24(value) {
@@ -187,7 +188,9 @@ const hasTextContent = (html) => {
 }
 
 // Helper function to strip HTML tags and convert to plain text while preserving line breaks
-const stripHTML = (html) => {
+// Use `{ trim: false }` for controlled plain-text inputs so leading/trailing spaces are preserved while typing.
+const stripHTML = (html, options) => {
+  const shouldTrim = options?.trim !== false
   if (!html) return ''
   if (typeof document !== 'undefined') {
     const tempDiv = document.createElement('div')
@@ -202,10 +205,11 @@ const stripHTML = (html) => {
     tempDiv.innerHTML = processedHtml
     const text = tempDiv.textContent || tempDiv.innerText || ''
     // Normalize multiple newlines to single newlines, but preserve intentional line breaks
-    return text.replace(/\n{3,}/g, '\n\n').trim();
+    const normalized = text.replace(/\n{3,}/g, '\n\n')
+    return shouldTrim ? normalized.trim() : normalized
   }
   // Fallback for SSR: strip HTML tags and preserve line breaks
-  return html
+  const normalized = html
     .replace(/<p[^>]*>/gi, '\n')     // Convert <p> tags to newlines
     .replace(/<\/p>/gi, '')          // Remove closing </p> tags
     .replace(/<br\s*\/?>/gi, '\n')   // Convert <br> to newlines
@@ -217,7 +221,7 @@ const stripHTML = (html) => {
     .replace(/&lt;/g, '<')           // Convert &lt; to <
     .replace(/&gt;/g, '>')           // Convert &gt; to >
     .replace(/\n{3,}/g, '\n\n')      // Normalize multiple newlines
-    .trim();
+  return shouldTrim ? normalized.trim() : normalized
 }
 
 // Helper function to get character count from HTML
@@ -1999,7 +2003,7 @@ const MessageComposer = ({
                   composerMode === 'sms'
                     ? stripHTML(composerData.smsBody)
                     : composerMode === 'comment'
-                      ? stripHTML(commentBody)
+                      ? stripHTML(commentBody, { trim: false })
                       : stripHTML(composerData.emailBody)
                 }
                 onChange={(e) => {
@@ -2200,7 +2204,7 @@ const MessageComposer = ({
                 </div>
                 <div className="border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <Textarea
-                    value={stripHTML(composerData.socialBody ?? '')}
+                    value={stripHTML(composerData.socialBody ?? '', { trim: false })}
                     onChange={(e) => setComposerData((prev) => ({ ...prev, socialBody: e.target.value }))}
                     placeholder={isWhatsAppMode ? 'Write your message here...' : 'Write your DM here...'}
                     className="min-h-[130px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:border-transparent"
@@ -2248,7 +2252,7 @@ const MessageComposer = ({
                 </div>
                 <div className="relative border border-black/[0.06] rounded-lg bg-white overflow-hidden">
                   <Textarea
-                    value={stripHTML(commentBody)}
+                    value={stripHTML(commentBody, { trim: false })}
                     onChange={(e) => setCommentBody(e.target.value)}
                     placeholder="Write your comment here..."
                     className="min-h-[130px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:border-transparent"
@@ -3401,8 +3405,8 @@ const MessageComposer = ({
                     setSendDropdownOpen(false)
                     setSendDropdownRect(null)
                     const in5 = new Date(Date.now() + 5 * 60 * 1000)
-                    setScheduleDate(in5.toISOString().slice(0, 10))
-                    setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
+                    setScheduleDate(new Date(in5.getFullYear(), in5.getMonth(), in5.getDate()))
+                    setScheduleTime(getLocalTimeHHmm(in5))
                     setScheduleModalOpen(true)
                   }}
                 >
@@ -3448,6 +3452,7 @@ const MessageComposer = ({
                           const today = new Date()
                           today.setHours(0, 0, 0, 0)
                           setScheduleDate(today)
+                          setScheduleTime(getLocalTimeHHmm())
                         }}
                       >
                         Today
@@ -3461,6 +3466,7 @@ const MessageComposer = ({
                           tomorrow.setDate(tomorrow.getDate() + 1)
                           tomorrow.setHours(0, 0, 0, 0)
                           setScheduleDate(tomorrow)
+                          setScheduleTime(getLocalTimeHHmm())
                         }}
                       >
                         Tomorrow
@@ -3469,7 +3475,10 @@ const MessageComposer = ({
                         type="button"
                         variant={scheduleDate ? 'outline' : 'default'}
                         size="sm"
-                        onClick={() => setScheduleDate(null)}
+                        onClick={() => {
+                          setScheduleDate(null)
+                          setScheduleTime('')
+                        }}
                       >
                         Custom
                       </Button>
@@ -3477,7 +3486,10 @@ const MessageComposer = ({
                     <Calendar
                       mode="single"
                       selected={scheduleDate}
-                      onSelect={setScheduleDate}
+                      onSelect={(d) => {
+                        setScheduleDate(d)
+                        if (d) setScheduleTime(getLocalTimeHHmm())
+                      }}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       initialFocus
                     />

@@ -40,6 +40,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { stripHTML } from '../common/RegixChecker'
+import { getLocalTimeHHmm } from '@/lib/schedule-date-default-time'
 
 /** Sliding pill background for MUI Select Menu: follows hovered menu item, 2% black, 8px radius. */
 const SlidingPillMenuList = React.forwardRef((props, ref) => {
@@ -3404,7 +3405,7 @@ const NewMessageModal = ({
                     setSendDropdownRect(null)
                     const in5 = new Date(Date.now() + 5 * 60 * 1000)
                     setScheduleDate(in5.toISOString().slice(0, 10))
-                    setScheduleTime(`${String(in5.getHours()).padStart(2, '0')}:${String(in5.getMinutes()).padStart(2, '0')}`)
+                    setScheduleTime(getLocalTimeHHmm(in5))
                     setScheduleModalOpen(true)
                   }}
                 >
@@ -3433,7 +3434,12 @@ const NewMessageModal = ({
                 type="date"
                 value={scheduleDate}
                 min={new Date().toISOString().slice(0, 10)}
-                onChange={(e) => setScheduleDate(e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value
+                  setScheduleDate(v)
+                  if (v) setScheduleTime(getLocalTimeHHmm())
+                  else setScheduleTime('')
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
             </div>
