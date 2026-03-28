@@ -7,7 +7,7 @@ import SuggestedLeadLinks from './SuggestedLeadLinks'
 import SystemMessage from './SystemMessage'
 
 import PlatformIcon from './PlatformIcon'
-import { Star } from 'lucide-react'
+import { Star, Trash2 } from 'lucide-react'
 import DraftCards from './DraftCards'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -18,6 +18,9 @@ import axios from 'axios'
 const ConversationView = ({
   selectedThread,
   messages,
+  scheduledThreadDrafts = [],
+  scheduledDraftsLoading = false,
+  onDeleteScheduledDraft,
   messagesLoading,
   loadingOlderMessages = false,
   messagesContainerRef,
@@ -268,9 +271,11 @@ const ConversationView = ({
           </div>
         </div>
       )}
-      {messagesLoading && messages.length === 0 ? (
+      {(messagesLoading || scheduledDraftsLoading) &&
+      messages.length === 0 &&
+      (!scheduledThreadDrafts || scheduledThreadDrafts.length === 0) ? (
         <div className="text-center text-gray-500 py-8">Loading messages...</div>
-      ) : messages.length === 0 ? (
+      ) : messages.length === 0 && (!scheduledThreadDrafts || scheduledThreadDrafts.length === 0) ? (
         <div className="text-center text-gray-500 py-8">
           <div className="border-t border-gray-200 pt-4">
             <p className="text-sm text-gray-400">This is the start of your conversation</p>
@@ -280,12 +285,29 @@ const ConversationView = ({
       ) : (
         <>
           {(() => {
-            // Build a map of messages by ID for quick lookup
+            const scheduledAsMessages = (scheduledThreadDrafts || []).map((d) => {
+              const sendAt = d.scheduledSendAt || d.createdAt
+              return {
+                id: `sched-${d.id}`,
+                isScheduledPlaceholder: true,
+                scheduledDraftId: d.id,
+                direction: 'outbound',
+                content: d.content || '',
+                messageType: d.messageType || 'sms',
+                subject: d.subject || null,
+                createdAt: sendAt,
+                scheduledSendAt: sendAt,
+              }
+            })
+
+            // Build a map of messages by ID for quick lookup (real messages only)
             const messageMap = new Map()
             messages.forEach(msg => messageMap.set(msg.id, msg))
 
-            // First, sort ALL messages chronologically (oldest first)
-            const sortedMessages = [...messages].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            // Merge timeline: real messages + scheduled placeholders, chronological
+            const sortedMessages = [...messages, ...scheduledAsMessages].sort(
+              (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+            )
 
             // Build reply depth map - calculate depth for each message based on reply chain
             const calculateDepth = (msg, depthMap = new Map(), visited = new Set()) => {
@@ -347,6 +369,79 @@ const ConversationView = ({
               const showDateSeparator =
                 index === 0 ||
                 moment(message.createdAt).format('YYYY-MM-DD') !== moment(messagesWithDepth[index - 1].message.createdAt).format('YYYY-MM-DD')
+
+              if (message.isScheduledPlaceholder) {
+                return (
+                  <React.Fragment key={message.id}>
+                    {showDateSeparator && (
+                      <div className="flex items-center justify-center my-6">
+                        <div className="border-t border-gray-200 flex-1"></div>
+                        <span className="px-4 text-sm text-gray-400">
+                          {moment(message.createdAt).format('MMMM DD, YYYY')}
+                        </span>
+                        <div className="border-t border-gray-200 flex-1"></div>
+                      </div>
+                    )}
+                    <div className="flex flex-col w-full items-end pe-2 mb-3 relative opacity-[0.58]">
+                      <div className="flex items-center justify-end gap-2 mb-1 w-full max-w-[75%] min-w-[220px]">
+                        <span className="text-xs text-gray-500">
+                          Scheduled · {moment(message.scheduledSendAt).format('MMM D, YYYY h:mm A')}
+                        </span>
+                        {onDeleteScheduledDraft && (
+                          <button
+                            type="button"
+                            onClick={() => onDeleteScheduledDraft(message.scheduledDraftId)}
+                            className="p-1 rounded-md hover:bg-gray-100 text-gray-600"
+                            aria-label="Cancel scheduled message"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-start gap-3 w-full justify-end relative">
+                        <div className="flex flex-col max-w-[75%] min-w-[220px]">
+                          {isEmail ? (
+                            <div
+                              className="px-4 py-2 text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl"
+                              style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.05)' }}
+                            >
+                              {message.subject ? (
+                                <div className="font-semibold mb-2 text-[14px]">{message.subject}</div>
+                              ) : null}
+                              <div
+                                className="prose prose-sm max-w-none break-words text-black [&_a]:underline"
+                                dangerouslySetInnerHTML={{
+                                  __html: sanitizeHTMLForEmailBody(message.content || ''),
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <MessageBubble
+                              message={message}
+                              isOutbound
+                              onAttachmentClick={handleAttachmentClick}
+                              getImageUrl={getImageUrl}
+                              getPlayableUrl={getPlayableUrl}
+                            />
+                          )}
+                        </div>
+                        <div className="relative flex-shrink-0">
+                          <div className="relative">
+                            {getAgentAvatar(message)}
+                            {(message.messageType === 'messenger' ||
+                              message.messageType === 'instagram' ||
+                              message.messageType === 'whatsapp' ||
+                              message.messageType === 'email' ||
+                              message.messageType === 'sms') && (
+                              <PlatformIcon type={message.messageType} size={8} showInBadge badgeSize="sm" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                )
+              }
 
               return (
                 <React.Fragment key={message.id}>
