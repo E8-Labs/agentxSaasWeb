@@ -50,7 +50,8 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
   const [callDetails, setCallDetails] = useState([])
   const [filteredCallDetails, setFilteredCallDetails] = useState([])
-  const [initialLoader, setInitialLoader] = useState(false)
+  /** True until the initial / current call-log request finishes (not shared with subaccounts fetch). */
+  const [initialLoader, setInitialLoader] = useState(true)
 
   //code for filter call log details
   //variabl for deltag
@@ -148,7 +149,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   // Function to fetch subaccounts list
   const getSubaccounts = async () => {
     try {
-      setInitialLoader(true)
       let AuthToken = null
       const localData = localStorage.getItem('User')
       if (localData) {
@@ -167,12 +167,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
       if (response && response.data && response.data.data) {
         setSubaccountList(response.data.data)
-        setInitialLoader(false)
       }
     } catch (error) {
       console.error('Error fetching subaccounts:', error)
-    } finally {
-      setInitialLoader(false)
     }
   }
 
@@ -374,7 +371,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           'Content-Type': 'application/json',
         },
       })
-      setLoading(false)
 
       if (response) {
         const data = response.data.data
@@ -422,6 +418,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         }
       }
     } finally {
+      setLoading(false)
       setInitialLoader(false)
     }
   }
@@ -645,9 +642,8 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 }
                 style={{ overflow: 'unset' }}
               >
-                {initialLoader &&
-                filteredCallDetails.length == 0 &&
-                !isLocalCallsAvailable ? (
+                {(initialLoader || loading) &&
+                filteredCallDetails.length === 0 ? (
                   <div
                     className={`flex flex-row items-center justify-center mt-12 flex-1 overflow-auto`}
                   >
@@ -801,14 +797,14 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                           </div>
                         ))}
                       </div>
-                    ) : (
+                    ) : !initialLoader && !loading ? (
                       <div
                         className="text-center mt-4"
                         style={{ fontWeight: 'bold', fontSize: 20 }}
                       >
                         No activities found
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 )}
               </InfiniteScroll>

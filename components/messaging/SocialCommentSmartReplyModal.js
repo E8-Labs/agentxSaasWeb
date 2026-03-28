@@ -102,6 +102,7 @@ export default function SocialCommentSmartReplyModal({
 
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [allRules, setAllRules] = useState([])
   const [selectedKey, setSelectedKey] = useState('')
   const [editingTemplateId, setEditingTemplateId] = useState('')
@@ -245,7 +246,8 @@ export default function SocialCommentSmartReplyModal({
     setPhraseInput('')
   }
 
-  const persistRules = async (nextRules) => {
+  const persistRules = async (nextRules, options = {}) => {
+    const isDelete = options.delete === true
     const localData = localStorage.getItem('User')
     if (!localData) return
     const userData = JSON.parse(localData)
@@ -261,7 +263,8 @@ export default function SocialCommentSmartReplyModal({
       activeConnectionKeys.has(ruleKey(r.platform, String(r.externalId))),
     )
 
-    setSaving(true)
+    if (isDelete) setDeleting(true)
+    else setSaving(true)
     try {
       await axios.put(
         url,
@@ -271,12 +274,17 @@ export default function SocialCommentSmartReplyModal({
         },
       )
       setAllRules(filteredNext)
-      toast.success('Smart Reply saved')
+      toast.success(isDelete ? 'Campaign deleted' : 'Smart Reply saved')
       onSaved?.()
     } catch (e) {
-      toast.error(e.response?.data?.message || e.message || 'Save failed')
+      toast.error(
+        e.response?.data?.message ||
+          e.message ||
+          (isDelete ? 'Delete failed' : 'Save failed'),
+      )
     } finally {
-      setSaving(false)
+      if (isDelete) setDeleting(false)
+      else setSaving(false)
     }
   }
 
@@ -288,7 +296,7 @@ export default function SocialCommentSmartReplyModal({
     resetEditor()
     const sel = getSelection(selectedKey)
     setEditingTemplateId(makeTemplateId(sel?.platform || 'facebook', sel?.externalId || ''))
-    setViewMode('editor')
+    setViewMode('addCampaign')
   }
 
   const handleEditTemplate = (tpl) => {
@@ -302,8 +310,9 @@ export default function SocialCommentSmartReplyModal({
   }
 
   const handleDeleteTemplate = async (tplId) => {
+    if (!tplId || saving || deleting) return
     const next = allRules.filter((r) => String(r.id || '') !== String(tplId))
-    await persistRules(next)
+    await persistRules(next, { delete: true })
     if (String(editingTemplateId) === String(tplId)) {
       resetEditor()
     }
@@ -394,7 +403,7 @@ export default function SocialCommentSmartReplyModal({
               {viewMode === 'list' ? (
                 <>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Templates</p>
+                    <p className="text-sm font-medium">Campaign</p>
                     <Button
                       type="button"
                       variant="outline"
@@ -403,13 +412,13 @@ export default function SocialCommentSmartReplyModal({
                       onClick={handleStartAddTemplate}
                     >
                       <Plus className="h-4 w-4 mr-1" />
-                      {selectedTemplates.length === 0 ? 'Add Template' : 'Add More'}
+                      {selectedTemplates.length === 0 ? 'Add' : 'Add'}
                     </Button>
                   </div>
 
                   {selectedTemplates.length === 0 ? (
                     <div className="text-sm text-muted-foreground py-2">
-                      No templates yet for this page/account.
+                      No campaigns yet for this page/account.
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -421,7 +430,7 @@ export default function SocialCommentSmartReplyModal({
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
                               <p className="text-sm font-medium truncate">
-                                {tpl.name?.trim() || 'Untitled template'}
+                                {tpl.name?.trim() || 'Untitled campaign'}
                               </p>
                               <p className="text-xs text-muted-foreground line-clamp-2">
                                 {tpl.message}
@@ -429,7 +438,7 @@ export default function SocialCommentSmartReplyModal({
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="flex items-center gap-2">
-                                <span
+                                {/*<span
                                   className={`text-[11px] ${
                                     tpl.isActive === false
                                       ? 'text-muted-foreground'
@@ -437,7 +446,7 @@ export default function SocialCommentSmartReplyModal({
                                   }`}
                                 >
                                   {tpl.isActive === false ? 'Inactive' : 'Active'}
-                                </span>
+                                </span>*/}
                                 <Switch
                                   checked={tpl.isActive !== false}
                                   onCheckedChange={(v) =>
@@ -454,15 +463,6 @@ export default function SocialCommentSmartReplyModal({
                                 onClick={() => handleEditTemplate(tpl)}
                               >
                                 <Pencil className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-red-600 hover:text-red-700"
-                                onClick={() => handleDeleteTemplate(tpl.id)}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </div>
                           </div>
@@ -487,10 +487,10 @@ export default function SocialCommentSmartReplyModal({
                       <ArrowLeft className="h-4 w-4 mr-1" />
                       Back
                     </Button>
-                    <p className="text-xs text-muted-foreground">Template Editor</p>
+                    <p className="text-xs text-muted-foreground">{viewMode === 'editor' ? 'Campaign Editor' : 'Add Campaign'}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Template Name</label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Campaign Name</label>
                     <input
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
                       placeholder="e.g. Pricing question"
@@ -567,31 +567,56 @@ export default function SocialCommentSmartReplyModal({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-2">
-                    <Button type="button" variant="ghost" onClick={resetEditor}>
-                      Cancel
-                    </Button>
-                    <Button
-                      type="button"
-                      className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white"
-                      disabled={saving}
-                      onClick={handleSaveTemplate}
-                    >
-                      {saving ? 'Saving…' : 'Save Template'}
-                    </Button>
-                  </div>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        <DialogFooter className="mt-2 border-t border-black/[0.08] pt-3 flex w-full justify-between">
-          <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={onClose}>Done</Button>
-        </DialogFooter>
+        {
+          (viewMode === 'editor' || viewMode === 'addCampaign') ? (
+            <DialogFooter className="mt-2 flex w-full flex-row flex-wrap items-center justify-between gap-2 border-t border-black/[0.08] pt-3 sm:justify-between">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-auto shrink-0 gap-2 px-2 text-gray-500 hover:text-gray-700"
+                disabled={saving || deleting}
+                onClick={() => handleDeleteTemplate(editingTemplateId)}
+              >
+                <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-sm">
+                  {deleting ? 'Deleting campaign…' : 'Delete Campaign'}
+                </span>
+              </Button>
+              <div className="flex flex-row items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={saving || deleting}
+                  onClick={resetEditor}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white"
+                  disabled={saving || deleting}
+                  onClick={handleSaveTemplate}
+                >
+                  {saving ? 'Saving…' : 'Save Campaign'}
+                </Button>
+              </div>
+            </DialogFooter>
+          ) : (
+            <DialogFooter className="mt-2 border-t border-black/[0.08] pt-3 flex w-full justify-between">
+              <Button type="button" variant="ghost" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={onClose}>Done</Button>
+            </DialogFooter>
+          )
+        }
+
       </DialogContent>
     </Dialog>
   )
