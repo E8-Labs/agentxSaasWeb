@@ -1285,7 +1285,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                             </div>
                           </>
                         )}
-                        <div className="flex flex-col gap-2 pt-4 border-t border-black/[0.06]">
+                        {/*<div className="flex flex-col gap-2 pt-4 border-t border-black/[0.06]">
                           <h3 className="text-[14px] font-semibold text-foreground">Meta Lead Ads (Instant Forms)</h3>
                           <p className="text-xs text-muted-foreground max-w-md">
                             Submissions from Lead Ads on your Facebook Page are saved as leads in the smart list you choose.
@@ -1311,7 +1311,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                               ))}
                             </SelectContent>
                           </Select>
-                        </div>
+                        </div>*/}
                       </div>
                     ) : (
                       <>
@@ -1620,7 +1620,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                           </>
                         )}
 
-                        <div className="flex flex-col gap-2 pt-3 pb-4 border-b border-black/[0.06]">
+                        {/*<div className="flex flex-col gap-2 pt-3 pb-4 border-b border-black/[0.06]">
                           <h3 className="text-[14px] font-semibold text-foreground">Meta Lead Ads (Instant Forms)</h3>
                           <p className="text-xs text-muted-foreground max-w-md">
                             Submissions from Lead Ads on your Facebook Page are saved as leads in the smart list you choose.
@@ -1646,7 +1646,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null, socialOnly =
                               ))}
                             </SelectContent>
                           </Select>
-                        </div>
+                        </div>*/}
 
                         <div className="flex flex-col gap-2 pt-3 pb-4 border-b border-black/[0.06]">
                           <h3 className="text-[14px] font-semibold text-foreground">Meta Lead Ads (Instant Forms)</h3>

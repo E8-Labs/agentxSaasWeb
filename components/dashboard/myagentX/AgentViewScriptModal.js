@@ -152,10 +152,12 @@ const AgentViewScriptModal = ({
                         </div>
 
                         {showScript && (
-                            <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
+                            <div className="relative flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
                                 <div className="flex-1 min-h-0 h-full flex flex-col" style={{ borderWidth: 0 }}>
-                                    <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col gap-3 px-4 py-[2px] text-sm">
-                                        <div className="rounded-[1px] border-l-4 border-brand-primary bg-primary/5 p-3 mt-2">
+                                    <div
+                                        className={`flex-1 min-h-0 h-full overflow-hidden flex flex-col gap-3 px-4 pt-[2px] text-sm ${showSaveChangesBtn ? 'pb-28' : 'pb-[10px]'}`}
+                                    >
+                                        <div className="rounded-[1px] border-l-4 border-brand-primary bg-primary/5 p-3 mt-2 shrink-0">
                                             <div className="flex flex-row items-center gap-2 text-sm font-medium text-foreground">
                                                 <Info size={20} weight="fill" className="text-brand-primary flex-shrink-0" />
                                                 Editing Tips
@@ -214,8 +216,8 @@ const AgentViewScriptModal = ({
                                             </div>
                                         </div>
 
-                                        <div className="w-full h-full flex flex-col gap-3 [&_input]:h-[40px] [&_input]:min-h-[40px] [&_input]:rounded-lg [&_input]:border [&_input]:border-[#e5e7eb] [&_input]:px-3 [&_input]:py-2.5 [&_input]:text-sm [&_input]:outline-none [&_input]:transition-colors [&_input]:focus:border-brand-primary [&_input]:focus:ring-2 [&_input]:focus:ring-brand-primary/20 [&_input]:hover:border-gray-300 [&_input]:hover:bg-gray-50/30 [&_textarea]:min-h-[40px] [&_textarea]:w-full [&_textarea]:flex-1 [&_textarea]:min-h-0 [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-[#e5e7eb] [&_textarea]:px-3 [&_textarea]:py-2.5 [&_textarea]:text-sm [&_textarea]:font-normal [&_textarea]:text-black/80 [&_textarea]:outline-none [&_textarea]:transition-colors [&_textarea]:focus:border-brand-primary [&_textarea]:focus:ring-2 [&_textarea]:focus:ring-brand-primary/20 [&_textarea]:hover:border-gray-300">
-                                            <div className="flex w-full">
+                                        <div className="flex w-full min-h-0 flex-1 flex-col gap-3 [&_input]:h-[40px] [&_input]:min-h-[40px] [&_input]:rounded-lg [&_input]:border [&_input]:border-[#e5e7eb] [&_input]:px-3 [&_input]:py-2.5 [&_input]:text-sm [&_input]:outline-none [&_input]:transition-colors [&_input]:focus:border-brand-primary [&_input]:focus:ring-2 [&_input]:focus:ring-brand-primary/20 [&_input]:hover:border-gray-300 [&_input]:hover:bg-gray-50/30">
+                                            <div className="flex w-full shrink-0">
                                                 <VideoCard
                                                     duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}
                                                     width="120"
@@ -235,12 +237,12 @@ const AgentViewScriptModal = ({
 
                                             <div
                                                 style={{ fontSize: 14, fontWeight: '700' }}
-                                                className="flex flex-row items-center center w-full justify-between"
+                                                className="flex shrink-0 flex-row items-center center w-full justify-between"
                                             >
                                                 <div>Script</div>
                                             </div>
 
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex shrink-0 flex-col gap-2">
                                                 <div className="flex flex-row items-center justify-between">
                                                     <div
                                                         className="mt-2 pt-3"
@@ -288,7 +290,7 @@ const AgentViewScriptModal = ({
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="mt-4 w-full ">
+                                            <div className="mt-4 flex min-h-0 w-full flex-1 flex-col">
                                                 {/* <PromptTagInput
                                                     promptTag={scriptTagInput}
                                                     kycsList={kycsData}
@@ -310,6 +312,7 @@ const AgentViewScriptModal = ({
                                                     tagValue={setScriptTagInput}
                                                     placeholder="Type here..."
                                                     showSaveChangesBtn={showSaveChangesBtn}
+                                                    fillHeight
                                                 />
 
                                                 {/* <DynamicDropdown /> */}
